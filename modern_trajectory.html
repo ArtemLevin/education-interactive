@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Горизонтальный бросок с высоты - Интерактивная симуляция</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: rgba(148, 163, 184, 0.1);
+            --glow-primary: 0 0 20px rgba(99, 102, 241, 0.3);
+            --glow-accent: 0 0 20px rgba(6, 182, 212, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            padding: 2rem;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.1) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .canvas-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%);
+        }
+
+        #mainCanvas {
+            width: 100%;
+            height: 600px;
+            display: block;
+        }
+
+        .controls-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .panel-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .slider-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .slider-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .slider-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 6px;
+            font-size: 0.7rem;
+        }
+
+        .slider-value {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent);
+            background: rgba(6, 182, 212, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 8px;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(148, 163, 184, 0.2);
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            cursor: pointer;
+            box-shadow: var(--glow-primary);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            cursor: pointer;
+            border: none;
+            box-shadow: var(--glow-primary);
+            transition: all 0.2s ease;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        button {
+            padding: 0.875rem 1.25rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: var(--glow-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(148, 163, 184, 0.2);
+            border-color: rgba(148, 163, 184, 0.3);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .result-card {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .result-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .result-value {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-card.highlight {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.1));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .result-card.highlight .result-value {
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.5rem;
+        }
+
+        .info-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: auto;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .recording-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: #ef4444;
+        }
+
+        .recording-indicator.active {
+            display: flex;
+        }
+
+        .recording-dot {
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ Горизонтальный бросок с высоты</h1>
+            <p class="subtitle">Интерактивная физическая симуляция движения тела</p>
+        </header>
+
+        <div class="main-grid">
+            <div class="canvas-card">
+                <div class="canvas-wrapper">
+                    <canvas id="mainCanvas"></canvas>
+                    <div class="recording-indicator" id="recordingIndicator">
+                        <span class="recording-dot"></span>
+                        <span>Анимация</span>
+                    </div>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ef4444;"></div>
+                        <span>Траектория</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f59e0b;"></div>
+                        <span>Вектор скорости</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #10b981;"></div>
+                        <span>Объект</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(255,255,255,0.3);"></div>
+                        <span>Сетка (50м)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <div class="panel-section">
+                    <div class="section-title">Параметры запуска</div>
+                    
+                    <div class="slider-item">
+                        <div class="slider-header">
+                            <div class="slider-label">
+                                <span class="slider-icon">📏</span>
+                                <span>Высота H</span>
+                            </div>
+                            <span class="slider-value" id="valHeight">50 м</span>
+                        </div>
+                        <input type="range" id="heightSlider" min="5" max="200" value="50" step="1">
+                    </div>
+
+                    <div class="slider-item">
+                        <div class="slider-header">
+                            <div class="slider-label">
+                                <span class="slider-icon">⚡</span>
+                                <span>Скорость V₀</span>
+                            </div>
+                            <span class="slider-value" id="valVelocity">20 м/с</span>
+                        </div>
+                        <input type="range" id="velocitySlider" min="1" max="100" value="20" step="1">
+                    </div>
+
+                    <div class="slider-item">
+                        <div class="slider-header">
+                            <div class="slider-label">
+                                <span class="slider-icon">📐</span>
+                                <span>Угол θ</span>
+                            </div>
+                            <span class="slider-value" id="valAngle">0°</span>
+                        </div>
+                        <input type="range" id="angleSlider" min="-45" max="45" value="0" step="1">
+                    </div>
+
+                    <div class="slider-item">
+                        <div class="slider-header">
+                            <div class="slider-label">
+                                <span class="slider-icon">🌍</span>
+                                <span>Гравитация g</span>
+                            </div>
+                            <span class="slider-value" id="valGravity">9.81 м/с²</span>
+                        </div>
+                        <input type="range" id="gravitySlider" min="1" max="20" value="9.81" step="0.1">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" id="startBtn">
+                        <span>▶</span>
+                        <span>Старт</span>
+                    </button>
+                    <button class="btn-secondary" id="resetBtn">
+                        <span>↺</span>
+                        <span>Сброс</span>
+                    </button>
+                </div>
+
+                <div class="panel-section">
+                    <div class="section-title">Результаты расчёта</div>
+                    <div class="results-grid">
+                        <div class="result-card highlight">
+                            <span class="result-label">Дальность полёта</span>
+                            <span class="result-value" id="resRange">0.00 м</span>
+                        </div>
+                        <div class="result-card">
+                            <span class="result-label">Время полёта</span>
+                            <span class="result-value" id="resTime">0.00 с</span>
+                        </div>
+                        <div class="result-card">
+                            <span class="result-label">Макс. высота</span>
+                            <span class="result-value" id="resMaxH">0.00 м</span>
+                        </div>
+                        <div class="result-card">
+                            <span class="result-label">Конечная скорость</span>
+                            <span class="result-value" id="resFinalV">0.00 м/с</span>
+                        </div>
+                        <div class="result-card">
+                            <span class="result-label">Угол падения</span>
+                            <span class="result-value" id="resImpact">0.00°</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-badge">
+                    <span>💡</span>
+                    <span>Перемещайте ползунки для изменения параметров в реальном времени</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // Инициализация canvas
+            const canvas = document.getElementById('mainCanvas');
+            const ctx = canvas.getContext('2d');
+            const recordingIndicator = document.getElementById('recordingIndicator');
+
+            // Установка размеров canvas с учётом DPI
+            function resizeCanvas() {
+                const rect = canvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                ctx.scale(dpr, dpr);
+                draw();
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+
+            // Параметры симуляции
+            let params = {
+                height: 50,
+                velocity: 20,
+                angle: 0,
+                gravity: 9.81
+            };
+
+            // Состояние анимации
+            let isAnimating = false;
+            let animTime = 0;
+            let totalFlightTime = 0;
+            let animationFrame = null;
+            let currentX = 0;
+            let currentY = 0;
+
+            // Элементы управления
+            const sliders = {
+                height: document.getElementById('heightSlider'),
+                velocity: document.getElementById('velocitySlider'),
+                angle: document.getElementById('angleSlider'),
+                gravity: document.getElementById('gravitySlider')
+            };
+
+            const displays = {
+                height: document.getElementById('valHeight'),
+                velocity: document.getElementById('valVelocity'),
+                angle: document.getElementById('valAngle'),
+                gravity: document.getElementById('valGravity')
+            };
+
+            const results = {
+                time: document.getElementById('resTime'),
+                range: document.getElementById('resRange'),
+                maxH: document.getElementById('resMaxH'),
+                finalV: document.getElementById('resFinalV'),
+                impact: document.getElementById('resImpact')
+            };
+
+            const btnStart = document.getElementById('startBtn');
+            const btnReset = document.getElementById('resetBtn');
+
+            // Обновление параметров из слайдеров
+            function updateParams() {
+                params.height = parseFloat(sliders.height.value);
+                params.velocity = parseFloat(sliders.velocity.value);
+                params.angle = parseFloat(sliders.angle.value);
+                params.gravity = parseFloat(sliders.gravity.value);
+
+                displays.height.textContent = params.height.toFixed(0) + ' м';
+                displays.velocity.textContent = params.velocity.toFixed(0) + ' м/с';
+                displays.angle.textContent = params.angle.toFixed(0) + '°';
+                displays.gravity.textContent = params.gravity.toFixed(2) + ' м/с²';
+
+                calculateAndDraw();
+            }
+
+            // Расчёт физики полёта
+            function calcPhysics() {
+                const rad = params.angle * Math.PI / 180;
+                const v0x = params.velocity * Math.cos(rad);
+                const v0y = params.velocity * Math.sin(rad);
+
+                // Время полёта: решаем квадратное уравнение H + v0y*t - 0.5*g*t² = 0
+                const discriminant = v0y * v0y + 2 * params.gravity * params.height;
+                const flightTime = (v0y + Math.sqrt(discriminant)) / params.gravity;
+
+                // Дальность полёта
+                const range = v0x * flightTime;
+
+                // Максимальная высота
+                let maxHeight = params.height;
+                if (v0y > 0) {
+                    maxHeight += (v0y * v0y) / (2 * params.gravity);
+                }
+
+                // Конечная скорость
+                const vyFinal = Math.sqrt(v0y * v0y + 2 * params.gravity * params.height);
+                const finalVel = Math.sqrt(v0x * v0x + vyFinal * vyFinal);
+
+                // Угол падения
+                const impactAngle = -Math.atan(vyFinal / Math.abs(v0x)) * 180 / Math.PI;
+
+                return {
+                    v0x, v0y, flightTime, range, maxHeight, finalVel, impactAngle
+                };
+            }
+
+            // Расчёт и отображение результатов
+            function calculateAndDraw() {
+                const phys = calcPhysics();
+
+                results.time.textContent = phys.flightTime.toFixed(2) + ' с';
+                results.range.textContent = phys.range.toFixed(2) + ' м';
+                results.maxH.textContent = phys.maxHeight.toFixed(2) + ' м';
+                results.finalV.textContent = phys.finalVel.toFixed(2) + ' м/с';
+                results.impact.textContent = phys.impactAngle.toFixed(2) + '°';
+
+                if (!isAnimating) {
+                    draw();
+                }
+            }
+
+            // Основная функция отрисовки
+            function draw(animationProgress = null) {
+                const rect = canvas.getBoundingClientRect();
+                const w = rect.width;
+                const h = rect.height;
+
+                // Очистка canvas
+                ctx.clearRect(0, 0, w, h);
+
+                // Расчёт масштаба
+                const groundY = h - 60;
+                const startX = 80;
+                const phys = calcPhysics();
+                
+                // Динамический масштаб для отображения всей траектории
+                const maxDist = Math.max(phys.range * 1.2, params.height * 1.5, 100);
+                const maxH = Math.max(params.height + 20, phys.maxHeight * 1.2);
+                const scaleX = (w - 150) / maxDist;
+                const scaleY = (h - 120) / maxH;
+                const scale = Math.min(scaleX, scaleY) * 0.9;
+
+                const startY = groundY - params.height * scale;
+
+                // Отрисовка сетки
+                drawGrid(ctx, w, h, groundY, startX, scale);
+
+                // Отрисовка земли
+                drawGround(ctx, w, h, groundY);
+
+                // Отрисовка платформы
+                drawPlatform(ctx, startX, startY, groundY);
+
+                // Отрисовка траектории
+                drawTrajectory(ctx, phys, startX, startY, groundY, scale);
+
+                // Отрисовка размерных линий
+                drawDimensionLines(ctx, phys, startX, startY, groundY, scale, params);
+
+                // Отрисовка объекта
+                if (isAnimating && animationProgress !== null) {
+                    const t = animationProgress * phys.flightTime;
+                    currentX = startX + phys.v0x * t * scale;
+                    currentY = groundY - (params.height + phys.v0y * t - 0.5 * params.gravity * t * t) * scale;
+                    drawObject(ctx, currentX, currentY, phys, scale);
+                } else {
+                    drawObject(ctx, startX, startY, phys, scale);
+                }
+            }
+
+            // Отрисовка сетки
+            function drawGrid(ctx, w, h, groundY, startX, scale) {
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.1)';
+                ctx.lineWidth = 1;
+
+                // Вертикальные линии (каждые 50м)
+                for (let x = startX; x < w; x += 50 * scale) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, groundY);
+                    ctx.stroke();
+                }
+
+                // Горизонтальные линии (каждые 50м)
+                for (let y = groundY; y > 0; y -= 50 * scale) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(w, y);
+                    ctx.stroke();
+                }
+
+                // Подписи осей
+                ctx.fillStyle = 'rgba(148, 163, 184, 0.5)';
+                ctx.font = '12px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                for (let x = startX; x < w; x += 50 * scale) {
+                    const dist = ((x - startX) / scale).toFixed(0);
+                    ctx.fillText(dist + 'м', x, groundY + 20);
+                }
+                ctx.textAlign = 'left';
+                for (let y = groundY; y > 50; y -= 50 * scale) {
+                    const height = ((groundY - y) / scale).toFixed(0);
+                    ctx.fillText(height + 'м', 10, y + 4);
+                }
+            }
+
+            // Отрисовка земли
+            function drawGround(ctx, w, h, groundY) {
+                const gradient = ctx.createLinearGradient(0, groundY, 0, h);
+                gradient.addColorStop(0, 'rgba(16, 185, 129, 0.3)');
+                gradient.addColorStop(1, 'rgba(16, 185, 129, 0.1)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, groundY, w, h - groundY);
+
+                // Линия земли
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, groundY);
+                ctx.lineTo(w, groundY);
+                ctx.stroke();
+            }
+
+            // Отрисовка платформы
+            function drawPlatform(ctx, startX, startY, groundY) {
+                const platformWidth = 40;
+                ctx.fillStyle = 'rgba(148, 163, 184, 0.3)';
+                ctx.fillRect(startX - platformWidth, startY, platformWidth, groundY - startY);
+                
+                // Верхняя грань
+                ctx.fillStyle = 'rgba(148, 163, 184, 0.5)';
+                ctx.fillRect(startX - platformWidth, startY, platformWidth, 4);
+            }
+
+            // Отрисовка траектории
+            function drawTrajectory(ctx, phys, startX, startY, groundY, scale) {
+                // Пунктирная линия траектории
+                ctx.beginPath();
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([8, 4]);
+                ctx.lineCap = 'round';
+
+                for (let t = 0; t <= phys.flightTime; t += 0.02) {
+                    const x = startX + phys.v0x * t * scale;
+                    const y = groundY - (params.height + phys.v0y * t - 0.5 * params.gravity * t * t) * scale;
+                    
+                    if (t === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Точки на траектории
+                const numPoints = 10;
+                for (let i = 1; i < numPoints; i++) {
+                    const t = (i / numPoints) * phys.flightTime;
+                    const x = startX + phys.v0x * t * scale;
+                    const y = groundY - (params.height + phys.v0y * t - 0.5 * params.gravity * t * t) * scale;
+                    
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(239, 68, 68, 0.5)';
+                    ctx.fill();
+                }
+            }
+
+            // Отрисовка размерных линий
+            function drawDimensionLines(ctx, phys, startX, startY, groundY, scale, params) {
+                // Вертикальная размерная линия (высота)
+                ctx.strokeStyle = 'rgba(99, 102, 241, 0.6)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+                
+                const dimX = startX - 30;
+                ctx.beginPath();
+                ctx.moveTo(dimX, startY);
+                ctx.lineTo(dimX, groundY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Стрелки
+                ctx.fillStyle = 'rgba(99, 102, 241, 0.8)';
+                ctx.beginPath();
+                ctx.moveTo(dimX - 5, startY);
+                ctx.lineTo(dimX + 5, startY);
+                ctx.lineTo(dimX, startY - 8);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.moveTo(dimX - 5, groundY);
+                ctx.lineTo(dimX + 5, groundY);
+                ctx.lineTo(dimX, groundY + 8);
+                ctx.fill();
+
+                // Подпись высоты
+                ctx.fillStyle = '#818cf8';
+                ctx.font = 'bold 14px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(params.height + 'м', dimX, (startY + groundY) / 2);
+
+                // Угол броска
+                if (Math.abs(params.angle) > 0) {
+                    const arrowLen = 40;
+                    const rad = params.angle * Math.PI / 180;
+                    ctx.strokeStyle = 'rgba(245, 158, 11, 0.8)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(startX + 20, startY);
+                    ctx.lineTo(startX + 20 + arrowLen * Math.cos(rad), startY - arrowLen * Math.sin(rad));
+                    ctx.stroke();
+
+                    // Дуга угла
+                    ctx.beginPath();
+                    ctx.arc(startX + 20, startY, 25, -rad, 0, rad < 0);
+                    ctx.strokeStyle = 'rgba(245, 158, 11, 0.6)';
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#f59e0b';
+                    ctx.font = '12px Inter, sans-serif';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(params.angle + '°', startX + 35, startY - 10);
+                }
+            }
+
+            // Отрисовка объекта
+            function drawObject(ctx, x, y, phys, scale) {
+                // Тень
+                ctx.beginPath();
+                ctx.ellipse(x, y + 8, 12, 4, 0, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.fill();
+
+                // Основной объект
+                const gradient = ctx.createRadialGradient(x - 3, y - 3, 0, x, y, 15);
+                gradient.addColorStop(0, '#10b981');
+                gradient.addColorStop(1, '#059669');
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 12, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                // Блик
+                ctx.beginPath();
+                ctx.arc(x - 4, y - 4, 4, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.fill();
+
+                // Вектор скорости (только в начале или при анимации)
+                if (!isAnimating || animTime < 0.1) {
+                    const vecLen = 50;
+                    const vx = phys.v0x / params.velocity * vecLen;
+                    const vy = -phys.v0y / params.velocity * vecLen;
+                    
+                    ctx.strokeStyle = '#f59e0b';
+                    ctx.lineWidth = 3;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + vx, y + vy);
+                    ctx.stroke();
+
+                    // Наконечник стрелки
+                    const angle = Math.atan2(vy, vx);
+                    ctx.beginPath();
+                    ctx.moveTo(x + vx, y + vy);
+                    ctx.lineTo(x + vx - 10 * Math.cos(angle - Math.PI / 6), y + vy - 10 * Math.sin(angle - Math.PI / 6));
+                    ctx.lineTo(x + vx - 10 * Math.cos(angle + Math.PI / 6), y + vy - 10 * Math.sin(angle + Math.PI / 6));
+                    ctx.closePath();
+                    ctx.fillStyle = '#f59e0b';
+                    ctx.fill();
+                }
+            }
+
+            // Анимация полёта
+            function startAnimation() {
+                if (isAnimating) return;
+
+                const phys = calcPhysics();
+                totalFlightTime = phys.flightTime;
+                isAnimating = true;
+                animTime = 0;
+                recordingIndicator.classList.add('active');
+                btnStart.innerHTML = '<span>⏸</span><span>Пауза</span>';
+
+                function animate() {
+                    if (!isAnimating) return;
+
+                    animTime += 0.016; // ~60 FPS
+                    const progress = Math.min(animTime / totalFlightTime, 1);
+                    
+                    draw(progress);
+
+                    if (progress < 1) {
+                        animationFrame = requestAnimationFrame(animate);
+                    } else {
+                        isAnimating = false;
+                        recordingIndicator.classList.remove('active');
+                        btnStart.innerHTML = '<span>▶</span><span>Старт</span>';
+                        draw();
+                    }
+                }
+
+                animate();
+            }
+
+            // Остановка анимации
+            function stopAnimation() {
+                isAnimating = false;
+                if (animationFrame) {
+                    cancelAnimationFrame(animationFrame);
+                }
+                recordingIndicator.classList.remove('active');
+                btnStart.innerHTML = '<span>▶</span><span>Старт</span>';
+                draw();
+            }
+
+            // Сброс
+            function reset() {
+                stopAnimation();
+                animTime = 0;
+                draw();
+            }
+
+            // Обработчики событий
+            Object.values(sliders).forEach(slider => {
+                slider.addEventListener('input', updateParams);
+            });
+
+            btnStart.addEventListener('click', () => {
+                if (isAnimating) {
+                    stopAnimation();
+                } else {
+                    startAnimation();
+                }
+            });
+
+            btnReset.addEventListener('click', reset);
+
+            // Инициализация
+            resizeCanvas();
+            updateParams();
+        })();
+    </script>
+</body>
+</html>
