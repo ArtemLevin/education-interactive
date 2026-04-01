@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Свободное падение — деление высоты на три части</title>
+    <style>
+        :root{
+            --bg:#0b1020; --panel:#121a30; --panel2:#18233f; --text:#edf3ff; --muted:#9fb0d1;
+            --accent:#67e8f9; --accent2:#a78bfa; --good:#86efac; --warn:#fbbf24; --bad:#fca5a5;
+            --line:#2a3a63; --shadow:0 18px 50px rgba(0,0,0,.35);
+            --radius:18px; --gap:18px;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;background:linear-gradient(180deg,#09101d,#0c1326 35%,#0b1020);color:var(--text);font:16px/1.5 Inter,system-ui,Segoe UI,Arial,sans-serif}
+        a{color:var(--accent)}
+        .container{max-width:1450px;margin:0 auto;padding:24px}
+        .header{display:grid;grid-template-columns:1.15fr .85fr;gap:var(--gap);align-items:start}
+        .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);box-shadow:var(--shadow)}
+        .hero{padding:24px}
+        .hero h1{margin:0 0 10px;font-size:clamp(28px,4vw,46px);line-height:1.08}
+        .sub{color:var(--muted);font-size:15px}
+        .badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+        .badge{padding:8px 12px;border-radius:999px;background:#0f1730;border:1px solid rgba(255,255,255,.08);color:#d9e7ff;font-size:14px}
+        .layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:var(--gap);margin-top:18px}
+        .left{min-width:0}
+        .right{min-width:0}
+        .sticky{position:sticky;top:16px;padding:16px}
+        .controls,.legend,.quiz,.check,.generated{padding:16px;margin-top:14px}
+        .section{padding:20px 22px;margin-bottom:16px}
+        .section h2{margin:0 0 12px;font-size:22px}
+        .section h3{margin:0 0 10px;font-size:18px;color:#dce8ff}
+        .kicker{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+        .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .info{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+        .info .mini{padding:14px;background:#0d1630;border:1px solid rgba(255,255,255,.06);border-radius:14px}
+        .mini .label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+        .mini .value{font-size:24px;font-weight:700;margin-top:6px}
+        ul.clean{padding-left:18px;margin:10px 0}
+        .step{padding:14px 14px 12px;background:#0d1630;border:1px solid rgba(255,255,255,.06);border-radius:14px;margin:12px 0;transition:.2s}
+        .step:hover,.step.active{border-color:rgba(103,232,249,.45);box-shadow:0 0 0 1px rgba(103,232,249,.18) inset}
+        .step .num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:linear-gradient(180deg,var(--accent),#3fbdd8);color:#04111a;font-weight:800;margin-right:8px}
+        .formula{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#0b1328;border:1px solid rgba(255,255,255,.06);padding:10px 12px;border-radius:12px;overflow:auto}
+        .muted{color:var(--muted)}
+        .controls .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0}
+        button,.select, input[type="range"]{appearance:none;border:none;outline:none}
+        button,.btn{background:linear-gradient(180deg,#1b2b54,#142240);color:var(--text);padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);cursor:pointer;font-weight:600}
+        button:hover{filter:brightness(1.08)}
+        .toggle{display:inline-flex;background:#0c152d;border-radius:12px;padding:4px;border:1px solid rgba(255,255,255,.08);gap:4px}
+        .toggle button{background:transparent;padding:8px 12px}
+        .toggle button.active{background:#18305d}
+        label.chk{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#0d1630;border-radius:12px;border:1px solid rgba(255,255,255,.06)}
+        input[type="checkbox"]{width:18px;height:18px}
+        .canvasWrap{padding:12px;background:#0b1328;border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden}
+        canvas{display:block;width:100%;height:auto;border-radius:12px;background:radial-gradient(circle at 50% 15%, rgba(103,232,249,.09), transparent 40%), linear-gradient(180deg,#0a142b,#091021)}
+        .legendList{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
+        .legendItem{display:flex;gap:10px;align-items:center;color:#dce8ff;font-size:14px}
+        .sw{width:22px;height:4px;border-radius:999px;background:var(--accent)}
+        .sw.alt{background:var(--accent2)} .sw.good{background:var(--good)} .sw.warn{background:var(--warn)}
+        .kv{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+        .kv:last-child{border-bottom:none}
+        .callout{padding:14px 16px;border-left:4px solid var(--accent);background:#0d1630;border-radius:0 14px 14px 0}
+        .small{font-size:14px}
+        .quiz button.option{display:block;width:100%;text-align:left;margin:8px 0;background:#0d1630}
+        .quiz .result,.check .result{margin-top:12px;padding:10px 12px;border-radius:12px;background:#0d1630;border:1px solid rgba(255,255,255,.06)}
+        .genList{display:grid;gap:10px}
+        .genItem{padding:12px;border-radius:14px;background:#0d1630;border:1px solid rgba(255,255,255,.06)}
+        .footer{padding:22px;color:var(--muted);text-align:center}
+        .printOnly{display:none}
+        @media (max-width:1050px){.header,.layout{grid-template-columns:1fr}.sticky{position:relative;top:auto}.info{grid-template-columns:1fr}.grid2,.legendList{grid-template-columns:1fr}}
+        @media print{
+            body{background:white;color:black}.card{box-shadow:none;border:1px solid #bbb;background:white}.layout{grid-template-columns:1fr}.right{order:-1}.sticky{position:static}
+            button,.controls,.quiz,.generated,.check .interactiveOnly,.footer{display:none !important}.printOnly{display:block}.section,.legend,.canvasWrap{break-inside:avoid}
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <section class="hero card">
+            <div class="kicker">Наглядная физика</div>
+            <h1>Свободное падение: как разделить высоту 270 м на три части за равные времена</h1>
+            <div class="sub">Подготовка к ЕГЭ • уверенный уровень • стандартная подробность • объяснение как репетитор • только школьные методы • обращение на «Вы»</div>
+            <div class="badges">
+                <div class="badge">Пошаговое раскрытие</div>
+                <div class="badge">Интерактивная модель</div>
+                <div class="badge">3 похожие задачи</div>
+                <div class="badge">Мини-квиз</div>
+                <div class="badge">Самопроверка</div>
+                <div class="badge">Печать</div>
+            </div>
+            <div class="info">
+                <div class="mini"><div class="label">Дано</div><div class="value">h = 270 м</div></div>
+                <div class="mini"><div class="label">Условие</div><div class="value">t₁ = t₂ = t₃</div></div>
+                <div class="mini"><div class="label">Ответ</div><div class="value" id="answerTop">30 м, 90 м, 150 м</div></div>
+            </div>
+        </section>
+        <section class="card section">
+            <h2>Идея решения</h2>
+            <ul class="clean">
+                <li>Тело падает без начальной скорости, значит путь за время t равен s = g·t²/2.</li>
+                <li>Каждая часть проходитcя за одно и то же время τ.</li>
+                <li>На втором и третьем участках тело уже летит с ненулевой начальной скоростью.</li>
+                <li>Из этого получается красивое отношение частей: h₁ : h₂ : h₃ = 1 : 3 : 5.</li>
+                <li>Сумма частей 1 + 3 + 5 = 9 долей, значит одна доля равна 270 / 9 = 30 м.</li>
+            </ul>
+            <div class="callout small">Ключевая мысль: при равных промежутках времени пути не равны, потому что скорость всё время растёт.</div>
+        </section>
+    </div>
+
+    <div class="layout">
+        <main class="left">
+            <section class="card section" id="sec-given">
+                <h2>1) Что дано</h2>
+                <div class="formula">Высота: h = 270 м. Падение свободное, без начальной скорости. Нужно найти h₁, h₂, h₃, если t₁ = t₂ = t₃.</div>
+            </section>
+
+            <section class="card section" id="sec-meaning">
+                <h2>2) Что означает условие</h2>
+                <p>Высоту делят не на равные расстояния, а на такие части, которые проходятся за <b>одинаковые времена</b>. Так как тело разгоняется, за одинаковые промежутки времени оно проходит всё большие расстояния.</p>
+            </section>
+
+            <section class="card section" id="sec-interpret">
+                <h2>3) Интерпретация</h2>
+                <p>Обозначим время прохождения каждого участка через τ. Тогда:</p>
+                <div class="formula">h₁ — путь за первые τ секунд; h₂ — путь за следующие τ секунд; h₃ — путь за последние τ секунд.</div>
+                <p class="muted">На первом участке начальная скорость равна 0. На втором участке начальная скорость уже равна конечной скорости первого участка. На третьем — конечной скорости второго участка.</p>
+            </section>
+
+            <section class="card section" id="sec-key">
+                <h2>4) Ключевая идея</h2>
+                <div class="step" data-step="1"><span class="num">1</span><b>Первый участок.</b> Без начальной скорости: <div class="formula">h₁ = g·τ²/2</div></div>
+                <div class="step" data-step="2"><span class="num">2</span><b>Скорость к концу первого участка:</b> <div class="formula">v₁ = g·τ</div></div>
+                <div class="step" data-step="3"><span class="num">3</span><b>Второй участок.</b> Теперь начальная скорость уже v₁: <div class="formula">h₂ = v₁·τ + g·τ²/2 = g·τ² + g·τ²/2 = 3g·τ²/2 = 3h₁</div></div>
+                <div class="step" data-step="4"><span class="num">4</span><b>Скорость к концу второго участка:</b> <div class="formula">v₂ = v₁ + g·τ = 2g·τ</div></div>
+                <div class="step" data-step="5"><span class="num">5</span><b>Третий участок.</b> Начальная скорость равна v₂: <div class="formula">h₃ = v₂·τ + g·τ²/2 = 2g·τ² + g·τ²/2 = 5g·τ²/2 = 5h₁</div></div>
+            </section>
+
+            <section class="card section" id="sec-solve">
+                <h2>5) Пошаговое доведение до ответа</h2>
+                <p>Из предыдущего пункта:</p>
+                <div class="formula">h₁ : h₂ : h₃ = 1 : 3 : 5</div>
+                <p>Сумма всех частей равна всей высоте:</p>
+                <div class="formula">h₁ + h₂ + h₃ = 270</div>
+                <div class="formula">1k + 3k + 5k = 270 ⇒ 9k = 270 ⇒ k = 30</div>
+                <p>Тогда:</p>
+                <div class="formula">h₁ = 30 м, &nbsp; h₂ = 90 м, &nbsp; h₃ = 150 м</div>
+            </section>
+
+            <section class="card section" id="sec-check">
+                <h2>6) Проверка ответа</h2>
+                <div class="grid2">
+                    <div>
+                        <h3>Почему значения подходят</h3>
+                        <ul class="clean">
+                            <li>30 : 90 : 150 = 1 : 3 : 5.</li>
+                            <li>30 + 90 + 150 = 270.</li>
+                            <li>Это именно то отношение путей, которое даёт свободное падение за равные времена.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Почему других значений нет</h3>
+                        <ul class="clean">
+                            <li>Отношение 1 : 3 : 5 выводится из формул движения однозначно.</li>
+                            <li>Общая высота фиксирована: 270 м.</li>
+                            <li>Значит, одна доля и все три части определяются единственным образом.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card section" id="sec-conclusion">
+                <h2>7) Краткий вывод</h2>
+                <div class="callout">При свободном падении без начальной скорости пути за три равных промежутка времени относятся как <b>1 : 3 : 5</b>. Поэтому для высоты 270 м получаем: <b>h₁ = 30 м</b>, <b>h₂ = 90 м</b>, <b>h₃ = 150 м</b>.</div>
+            </section>
+
+            <section class="card section">
+                <h2>Типичные ошибки</h2>
+                <ul class="clean">
+                    <li>Считать, что раз времена равны, то и пути равны.</li>
+                    <li>Для второго и третьего участка забывать начальную скорость, накопленную раньше.</li>
+                    <li>Использовать только формулу s = g·t²/2 для каждого участка без учёта того, что это формула пути от начала падения.</li>
+                    <li>Не проверять сумму h₁ + h₂ + h₃.</li>
+                    <li>Путать весь путь от начала падения с путём на отдельном участке.</li>
+                </ul>
+            </section>
+        </main>
+
+        <aside class="right">
+            <div class="sticky card">
+                <div class="canvasWrap">
+                    <canvas id="scene" width="720" height="900" aria-label="Интерактивная схема свободного падения"></canvas>
+                </div>
+
+                <div class="controls card">
+                    <h3 style="margin:0 0 8px">Управление разбором</h3>
+                    <div class="row">
+                        <div class="toggle" id="detailToggle">
+                            <button class="active" data-detail="standard">Стандартно</button>
+                            <button data-detail="brief">Кратко</button>
+                            <button data-detail="full">Подробно</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <button id="prevStep">◀ Шаг</button>
+                        <button id="nextStep">Шаг ▶</button>
+                        <button id="showAll">Показать всё</button>
+                    </div>
+                    <div class="row">
+                        <label class="chk"><input type="checkbox" id="showVel" checked> Показать скорости</label>
+                        <label class="chk"><input type="checkbox" id="showRatio" checked> Показать 1:3:5</label>
+                    </div>
+                    <div class="row">
+                        <label class="small">Масштаб</label>
+                        <button id="zoomOut">−</button>
+                        <input id="zoom" type="range" min="70" max="180" value="100" />
+                        <button id="zoomIn">+</button>
+                        <button id="zoomReset">Сброс</button>
+                    </div>
+                    <div class="small muted">Колесо мыши над схемой тоже меняет масштаб.</div>
+                </div>
+
+                <div class="legend card">
+                    <h3 style="margin:0 0 10px">Легенда</h3>
+                    <div class="legendList">
+                        <div class="legendItem"><span class="sw"></span> общая высота h</div>
+                        <div class="legendItem"><span class="sw alt"></span> границы участков</div>
+                        <div class="legendItem"><span class="sw good"></span> h₁, h₂, h₃</div>
+                        <div class="legendItem"><span class="sw warn"></span> скорости v₁, v₂</div>
+                    </div>
+                    <div class="kv"><span>Текущий ответ</span><b id="ansInline">30 м; 90 м; 150 м</b></div>
+                    <div class="kv"><span>Отношение</span><b>1 : 3 : 5</b></div>
+                    <div class="kv"><span>Сумма</span><b>270 м</b></div>
+                </div>
+
+                <div class="quiz card">
+                    <h3 style="margin:0 0 8px">Мини-квиз</h3>
+                    <div class="small">Что верно при свободном падении без начальной скорости за равные промежутки времени?</div>
+                    <button class="option" data-correct="0">Пути равны.</button>
+                    <button class="option" data-correct="1">Пути относятся как 1 : 3 : 5.</button>
+                    <button class="option" data-correct="0">Пути относятся как 1 : 2 : 3.</button>
+                    <div class="result" id="quizResult">Выберите вариант.</div>
+                </div>
+
+                <div class="check card">
+                    <h3 style="margin:0 0 8px">Самопроверка</h3>
+                    <div class="interactiveOnly">
+                        <div class="row"><input id="u1" style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#0d1630;color:var(--text)" placeholder="h₁, м"></div>
+                        <div class="row"><input id="u2" style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#0d1630;color:var(--text)" placeholder="h₂, м"></div>
+                        <div class="row"><input id="u3" style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#0d1630;color:var(--text)" placeholder="h₃, м"></div>
+                        <div class="row"><button id="checkBtn">Проверить</button></div>
+                    </div>
+                    <div class="result" id="checkResult">Введите три значения и нажмите «Проверить».</div>
+                </div>
+
+                <div class="generated card">
+                    <h3 style="margin:0 0 8px">3 похожие задачи</h3>
+                    <div class="row"><button id="genBtn">Сгенерировать заново</button></div>
+                    <div class="genList" id="genList"></div>
+                </div>
+
+                <div class="printOnly card section">
+                    <h3>Краткий печатный ответ</h3>
+                    <p>h₁ = 30 м, h₂ = 90 м, h₃ = 150 м.</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <div class="footer">Автор: Лёвин Артём Александрович</div>
+</div>
+
+<script>
+    const canvas = document.getElementById('scene');
+    const ctx = canvas.getContext('2d');
+    const zoom = document.getElementById('zoom');
+    const showVel = document.getElementById('showVel');
+    const showRatio = document.getElementById('showRatio');
+    let scale = 1;
+    let stepVisible = 5;
+    let detail = 'standard';
+
+    const heights = [30,90,150];
+    const totalH = 270;
+    const topY = 90, bottomY = 820, x = 360;
+    function mToY(m){ return topY + (m/totalH)*(bottomY-topY); }
+
+    function drawArrow(x1,y1,x2,y2,color,label){
+        ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+        const a=Math.atan2(y2-y1,x2-x1), s=10;
+        ctx.beginPath();
+        ctx.moveTo(x2,y2);
+        ctx.lineTo(x2-s*Math.cos(a-Math.PI/6),y2-s*Math.sin(a-Math.PI/6));
+        ctx.lineTo(x2-s*Math.cos(a+Math.PI/6),y2-s*Math.sin(a+Math.PI/6));
+        ctx.closePath(); ctx.fill();
+        if(label){ ctx.font='bold 18px system-ui'; ctx.fillText(label,x2+12,y2+4); }
+    }
+
+    function draw(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.save();
+        ctx.translate(canvas.width/2, canvas.height/2);
+        ctx.scale(scale, scale);
+        ctx.translate(-canvas.width/2, -canvas.height/2);
+
+        // background grid
+        ctx.strokeStyle='rgba(255,255,255,.05)'; ctx.lineWidth=1;
+        for(let gy=60; gy<880; gy+=40){ ctx.beginPath(); ctx.moveTo(60,gy); ctx.lineTo(660,gy); ctx.stroke(); }
+
+        // main line
+        ctx.strokeStyle='#67e8f9'; ctx.lineWidth=5;
+        ctx.beginPath(); ctx.moveTo(x, topY); ctx.lineTo(x, bottomY); ctx.stroke();
+
+        const y1 = mToY(heights[0]);
+        const y2 = mToY(heights[0]+heights[1]);
+
+        // sections
+        const sections = [
+            {a:topY,b:y1,c:'#86efac',label:'h₁ = 30 м'},
+            {a:y1,b:y2,c:'#86efac',label:'h₂ = 90 м'},
+            {a:y2,b:bottomY,c:'#86efac',label:'h₃ = 150 м'}
+        ];
+
+        ctx.font='16px system-ui';
+        sections.forEach((s,i)=>{
+            if(stepVisible>=1){
+                ctx.strokeStyle=s.c; ctx.lineWidth=10; ctx.globalAlpha=.9;
+                ctx.beginPath(); ctx.moveTo(x,s.a); ctx.lineTo(x,s.b); ctx.stroke();
+                ctx.globalAlpha=1;
+                ctx.fillStyle='#dfffea';
+                ctx.fillText(s.label, x+28, (s.a+s.b)/2);
+            }
+        });
+
+        ctx.strokeStyle='#a78bfa'; ctx.lineWidth=3;
+        [y1,y2].forEach((yy,idx)=>{
+            ctx.beginPath(); ctx.moveTo(x-110,yy); ctx.lineTo(x+110,yy); ctx.stroke();
+            ctx.fillStyle='#cfc4ff'; ctx.fillText(idx===0?'граница 1':'граница 2', x-150, yy-8);
+        });
+
+        // top / bottom labels
+        ctx.fillStyle='#edf3ff'; ctx.font='bold 18px system-ui';
+        ctx.fillText('старт', x-24, topY-18);
+        ctx.fillText('земля', x-28, bottomY+28);
+        ctx.fillText('h = 270 м', x+24, topY+22);
+
+        // brackets like measures
+        function measure(yA,yB,label,color,off){
+            ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=2;
+            const xx=x-130-off;
+            ctx.beginPath(); ctx.moveTo(xx,yA); ctx.lineTo(xx,yB); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(xx-10,yA); ctx.lineTo(xx+10,yA); ctx.moveTo(xx-10,yB); ctx.lineTo(xx+10,yB); ctx.stroke();
+            ctx.save(); ctx.translate(xx-18,(yA+yB)/2); ctx.rotate(-Math.PI/2); ctx.font='bold 16px system-ui'; ctx.fillText(label,0,0); ctx.restore();
+        }
+        measure(topY,y1,'h₁', '#86efac', 0);
+        measure(y1,y2,'h₂', '#86efac', 26);
+        measure(y2,bottomY,'h₃', '#86efac', 52);
+
+        if(showVel.checked){
+            if(stepVisible>=2) drawArrow(x+6,y1-34,x+86,y1-34,'#fbbf24','v₁');
+            if(stepVisible>=4) drawArrow(x+6,y2-34,x+126,y2-34,'#fbbf24','v₂');
+        }
+
+        if(showRatio.checked && stepVisible>=5){
+            ctx.fillStyle='#dfe7ff'; ctx.font='bold 28px system-ui';
+            ctx.fillText('1 : 3 : 5', 70, 120);
+            ctx.font='16px system-ui'; ctx.fillStyle='#9fb0d1';
+            ctx.fillText('отношение путей за равные времена', 70, 148);
+        }
+
+        // falling body
+        const bodyY = stepVisible<2 ? topY+24 : stepVisible<4 ? y1+20 : y2+20;
+        ctx.fillStyle='#67e8f9'; ctx.beginPath(); ctx.arc(x, bodyY, 9, 0, Math.PI*2); ctx.fill();
+
+        // coordinate feel
+        ctx.strokeStyle='rgba(255,255,255,.08)'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(100, bottomY); ctx.lineTo(620, bottomY); ctx.stroke();
+        ctx.fillStyle='#9fb0d1'; ctx.font='14px system-ui';
+        ctx.fillText('вниз — положительное направление движения', 110, bottomY+26);
+
+        ctx.restore();
+    }
+
+    draw();
+    zoom.addEventListener('input', ()=>{ scale = +zoom.value/100; draw(); });
+    document.getElementById('zoomIn').onclick=()=>{ zoom.value=Math.min(180,+zoom.value+10); zoom.dispatchEvent(new Event('input')); };
+    document.getElementById('zoomOut').onclick=()=>{ zoom.value=Math.max(70,+zoom.value-10); zoom.dispatchEvent(new Event('input')); };
+    document.getElementById('zoomReset').onclick=()=>{ zoom.value=100; zoom.dispatchEvent(new Event('input')); };
+    canvas.addEventListener('wheel', e=>{ e.preventDefault(); zoom.value = Math.max(70, Math.min(180, +zoom.value + (e.deltaY<0?8:-8))); zoom.dispatchEvent(new Event('input')); }, {passive:false});
+    showVel.onchange = draw; showRatio.onchange = draw;
+
+    document.getElementById('prevStep').onclick=()=>{ stepVisible=Math.max(1,stepVisible-1); syncSteps(); draw(); };
+    document.getElementById('nextStep').onclick=()=>{ stepVisible=Math.min(5,stepVisible+1); syncSteps(); draw(); };
+    document.getElementById('showAll').onclick=()=>{ stepVisible=5; syncSteps(); draw(); };
+    function syncSteps(){
+        document.querySelectorAll('.step').forEach(el=>{ el.classList.toggle('active', +el.dataset.step<=stepVisible); el.style.opacity = +el.dataset.step<=stepVisible ? '1' : '.45'; });
+    }
+    syncSteps();
+
+    document.querySelectorAll('#detailToggle button').forEach(btn=>{
+        btn.onclick=()=>{
+            document.querySelectorAll('#detailToggle button').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active'); detail = btn.dataset.detail;
+            const muted = document.querySelectorAll('.muted');
+            if(detail==='brief'){ muted.forEach(x=>x.style.display='none'); }
+            else if(detail==='standard'){ muted.forEach(x=>x.style.display=''); }
+            else { muted.forEach(x=>x.style.display=''); }
+        };
+    });
+
+    document.querySelectorAll('.step').forEach(el=>{
+        el.addEventListener('mouseenter', ()=>{ stepVisible = +el.dataset.step; syncSteps(); draw(); });
+    });
+
+    document.querySelectorAll('.quiz .option').forEach(btn=>{
+        btn.onclick=()=>{
+            const ok = btn.dataset.correct==='1';
+            const box=document.getElementById('quizResult');
+            box.textContent = ok ? 'Верно. За равные промежутки времени пути относятся как 1 : 3 : 5.' : 'Пока нет. При свободном падении тело разгоняется, поэтому пути не равны.';
+            box.style.borderColor = ok ? 'rgba(134,239,172,.45)' : 'rgba(252,165,165,.45)';
+        }
+    });
+
+    document.getElementById('checkBtn').onclick=()=>{
+        const a=+document.getElementById('u1').value, b=+document.getElementById('u2').value, c=+document.getElementById('u3').value;
+        const box=document.getElementById('checkResult');
+        if([a,b,c].some(v=>Number.isNaN(v))){ box.textContent='Нужно ввести три числа.'; return; }
+        const ok = a===30 && b===90 && c===150;
+        if(ok){ box.textContent='Верно: h₁ = 30 м, h₂ = 90 м, h₃ = 150 м.'; box.style.borderColor='rgba(134,239,172,.45)'; }
+        else {
+            const sum = a+b+c;
+            box.textContent=`Пока нет. Проверьте отношение 1:3:5 и сумму. У Вас сумма = ${sum}. Правильный ответ: 30, 90, 150.`;
+            box.style.borderColor='rgba(252,165,165,.45)';
+        }
+    };
+
+    function solveTask(H){
+        const k = H/9;
+        return [k,3*k,5*k];
+    }
+    function genTasks(){
+        const list = document.getElementById('genList'); list.innerHTML='';
+        const base = [180, 225, 360, 450, 540, 630].sort(()=>Math.random()-0.5).slice(0,3);
+        base.forEach(H=>{
+            const [a,b,c]=solveTask(H);
+            const div=document.createElement('div'); div.className='genItem';
+            div.innerHTML = `<div><b>Задача.</b> Тело свободно падает с высоты <b>${H} м</b>. Разделите высоту на три части так, чтобы время прохождения каждой части было одинаковым.</div>
+    <div class="small muted" style="margin-top:8px"><b>Идея:</b> снова используйте отношение 1 : 3 : 5.</div>
+    <div style="margin-top:8px"><b>Ответ:</b> h₁ = ${a} м, h₂ = ${b} м, h₃ = ${c} м.</div>`;
+            list.appendChild(div);
+        });
+    }
+    genTasks();
+    document.getElementById('genBtn').onclick=genTasks;
+</script>
+</body>
+</html>
