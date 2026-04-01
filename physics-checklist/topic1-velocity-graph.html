@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1. График скорости: путь и ускорение | Чек-лист по физике</title>
+    <style>
+        :root {
+            --accent: #008080;
+            --dark-accent: #004D4D;
+            --text-gray: #333333;
+            --soft-gray: #666666;
+            --bg-dark: #1a1a2e;
+            --bg-card: #16213e;
+            --bg-hover: #0f3460;
+            --text-light: #e8e8e8;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0f0f23 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 2rem;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2rem 0;
+            border-bottom: 2px solid var(--accent);
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--soft-gray);
+            font-size: 1rem;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .solution-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .section-title {
+            color: var(--accent);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: "▸";
+            color: var(--accent);
+        }
+
+        .step-block {
+            background: rgba(0, 128, 128, 0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(0, 128, 128, 0.3);
+        }
+
+        .step-number {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: bold;
+            margin-right: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .formula {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+            font-size: 1.2rem;
+            font-family: 'Times New Roman', serif;
+            border: 1px solid var(--accent);
+        }
+
+        .idea-block {
+            background: linear-gradient(135deg, rgba(0, 128, 128, 0.2), rgba(0, 77, 77, 0.2));
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .idea-title {
+            color: var(--accent);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .sticky-panel {
+            position: sticky;
+            top: 2rem;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid var(--accent);
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+
+        .canvas-container {
+            position: relative;
+            background: #0a0a1a;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            display: block;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--soft-gray);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: var(--dark-accent);
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .legend {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 0.5rem;
+            background: rgba(0, 128, 128, 0.2);
+            border: 1px solid var(--accent);
+            color: var(--text-light);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--accent);
+        }
+
+        .quiz-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .quiz-question {
+            margin-bottom: 2rem;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .quiz-option {
+            background: rgba(0, 128, 128, 0.1);
+            border: 2px solid rgba(0, 128, 128, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--accent);
+            background: rgba(0, 128, 128, 0.2);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--success);
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--error);
+            background: rgba(244, 67, 54, 0.2);
+        }
+
+        .generated-tasks {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .task-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid var(--accent);
+        }
+
+        .task-answer {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 6px;
+            color: var(--success);
+            font-weight: bold;
+            display: none;
+        }
+
+        .task-idea {
+            margin-top: 0.8rem;
+            padding: 0.8rem;
+            background: rgba(0, 128, 128, 0.1);
+            border-radius: 6px;
+            color: var(--accent);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            .sticky-panel {
+                position: static;
+                max-height: none;
+            }
+            .solution-section, .quiz-section, .generated-tasks {
+                break-inside: avoid;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sticky-panel {
+                position: static;
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .highlight {
+            background: rgba(255, 152, 0, 0.2);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+            padding: 0.8rem;
+            background: rgba(0, 128, 128, 0.1);
+            border-radius: 6px;
+        }
+
+        .check-item::before {
+            content: "□";
+            color: var(--accent);
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .error-block {
+            background: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid var(--error);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .error-title {
+            color: var(--error);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-link">← Назад к оглавлению</a>
+            <h1>1. График скорости: путь и ускорение</h1>
+            <p class="subtitle">Площадь под графиком v(t) и вычисление ускорения</p>
+        </header>
+
+        <div class="main-content">
+            <div class="solution-section">
+                <div class="idea-block">
+                    <div class="idea-title">💡 Идея решения</div>
+                    <ul style="padding-left: 1.5rem; line-height: 1.8;">
+                        <li><strong>Путь = площадь под графиком</strong> v(t). Разбиваем сложную фигуру на простые: прямоугольники, треугольники, трапеции.</li>
+                        <li><strong>Ускорение = наклон графика</strong>. Выбираем линейный участок и считаем a = Δv/Δt.</li>
+                        <li><strong>Модуль ускорения</strong> — всегда положительное число, даже если скорость уменьшается.</li>
+                    </ul>
+                </div>
+
+                <div class="section-title">Что дано в задаче</div>
+                <div class="step-block">
+                    <p>Рассмотрим典型ную задачу ЕГЭ:</p>
+                    <p style="margin-top: 0.8rem;"><em>На рисунке представлен график зависимости скорости тела от времени. Найдите путь, пройденный телом за первые 6 секунд, и модуль ускорения на участке от 4 до 6 секунд.</em></p>
+                    
+                    <div class="formula">
+                        Дано: v(t) — график<br>
+                        Найти: S (путь за 6 с), |a| (модуль ускорения на [4; 6])
+                    </div>
+                </div>
+
+                <div class="section-title">Пошаговое решение</div>
+                
+                <div class="step-block">
+                    <span class="step-number">1</span>
+                    <strong>Анализ графика</strong>
+                    <p style="margin-top: 0.8rem;">Разобьём график на участки:</p>
+                    <ul style="padding-left: 2rem; margin-top: 0.5rem; line-height: 1.8;">
+                        <li>[0; 2] с — скорость растёт от 0 до 4 м/с (треугольник)</li>
+                        <li>[2; 4] с — скорость постоянна 4 м/с (прямоугольник)</li>
+                        <li>[4; 6] с — скорость падает от 4 до 0 м/с (треугольник)</li>
+                    </ul>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">2</span>
+                    <strong>Вычисление пути (площадь под графиком)</strong>
+                    <p style="margin-top: 0.8rem;">S = S₁ + S₂ + S₃</p>
+                    
+                    <div class="formula">
+                        S₁ = ½ · 2 · 4 = 4 м (треугольник)<br>
+                        S₂ = 2 · 4 = 8 м (прямоугольник)<br>
+                        S₃ = ½ · 2 · 4 = 4 м (треугольник)<br>
+                        <strong>S = 4 + 8 + 4 = 16 м</strong>
+                    </div>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">3</span>
+                    <strong>Вычисление ускорения</strong>
+                    <p style="margin-top: 0.8rem;">На участке [4; 6] с скорость изменилась с 4 м/с до 0 м/с:</p>
+                    
+                    <div class="formula">
+                        a = (v₂ - v₁) / (t₂ - t₁) = (0 - 4) / (6 - 4) = -2 м/с²<br>
+                        <strong>|a| = 2 м/с²</strong>
+                    </div>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">4</span>
+                    <strong>Проверка ответа</strong>
+                    <p style="margin-top: 0.8rem;">✓ Путь положительный (тело двигалось вперёд)</p>
+                    <p>✓ Ускорение отрицательное (скорость уменьшалась), но модуль положительный</p>
+                    <p>✓ Единицы измерения правильные: метры и м/с²</p>
+                </div>
+
+                <div class="section-title">Краткий вывод</div>
+                <div class="step-block">
+                    <p><strong>Путь = 16 м, модуль ускорения = 2 м/с²</strong></p>
+                    <p style="margin-top: 0.8rem;">Главное: не путать путь (площадь) и ускорение (наклон). Площадь всегда положительна, если скорость неотрицательна.</p>
+                </div>
+
+                <div class="section-title">Типичные ошибки</div>
+                <div class="error-block">
+                    <div class="error-title">⚠ Ошибка 1: Не учитывать масштаб осей</div>
+                    <p>Одно деление по оси времени и скорости может означать разные числа. Всегда проверяйте подписи осей!</p>
+                </div>
+                <div class="error-block">
+                    <div class="error-title">⚠ Ошибка 2: Путать путь и ускорение</div>
+                    <p>Путь — это площадь под графиком, а ускорение — наклон. Это разные физические величины!</p>
+                </div>
+                <div class="error-block">
+                    <div class="error-title">⚠ Ошибка 3: Забывать модуль</div>
+                    <p>Если просят модуль ускорения, ответ должен быть положительным, даже если ускорение отрицательное.</p>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <div class="section-title">📝 Мини-квиз</div>
+                
+                <div class="quiz-question">
+                    <p><strong>Вопрос 1:</strong> Тело двигалось со скоростью 5 м/с в течение 3 секунд. Какой путь оно прошло?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">8 м</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">15 м</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">1.67 м</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">5 м</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <p><strong>Вопрос 2:</strong> Скорость изменилась с 10 м/с до 4 м/с за 2 секунды. Чему равен модуль ускорения?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">3 м/с²</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">-3 м/с²</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">3 м/с²</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">7 м/с²</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <p><strong>Вопрос 3:</strong> Что представляет собой площадь под графиком v(t)?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">Ускорение</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">Путь</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">Скорость</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">Время</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="generated-tasks">
+                <div class="section-title">🎲 Похожие задачи</div>
+                <button class="btn" onclick="generateTasks()" style="margin-bottom: 1.5rem;">Сгенерировать новые задачи</button>
+                
+                <div id="tasks-container"></div>
+            </div>
+        </div>
+
+        <aside class="sticky-panel">
+            <div class="section-title">📊 Интерактивная модель</div>
+            
+            <div class="toggle-buttons">
+                <button class="toggle-btn active" onclick="setMode('area')">Площадь</button>
+                <button class="toggle-btn" onclick="setMode('acceleration')">Ускорение</button>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="graphCanvas" width="400" height="300"></canvas>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #008080;"></div>
+                    <span>График v(t)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: rgba(0, 128, 128, 0.3);"></div>
+                    <span>Площадь (путь)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ff9800;"></div>
+                    <span>Наклон (ускорение)</span>
+                </div>
+            </div>
+
+            <div class="controls" style="margin-top: 1.5rem;">
+                <div class="control-group">
+                    <label>Максимальная скорость: <span id="vMaxValue">4</span> м/с</label>
+                    <input type="range" id="vMaxSlider" min="2" max="10" value="4" step="1">
+                </div>
+                <div class="control-group">
+                    <label>Время движения: <span id="tMaxValue">6</span> с</label>
+                    <input type="range" id="tMaxSlider" min="4" max="12" value="6" step="1">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="zoomIn()">+</button>
+                <button class="btn btn-secondary" onclick="zoomOut()">−</button>
+                <button class="btn btn-secondary" onclick="resetZoom()">Сброс</button>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px;">
+                <div style="color: var(--soft-gray); font-size: 0.85rem; margin-bottom: 0.5rem;">Текущие значения:</div>
+                <div style="font-size: 1.1rem;"><strong>Путь:</strong> <span id="pathValue" style="color: var(--accent);">16</span> м</div>
+                <div style="font-size: 1.1rem;"><strong>Ускорение:</strong> <span id="accelValue" style="color: var(--warning);">-2</span> м/с²</div>
+                <div style="font-size: 1.1rem;"><strong>Модуль:</strong> <span id="modulValue" style="color: var(--success);">2</span> м/с²</div>
+            </div>
+
+            <div class="toggle-buttons" style="margin-top: 1.5rem;">
+                <button class="toggle-btn active" onclick="setDetail('brief')">Кратко</button>
+                <button class="toggle-btn" onclick="setDetail('standard')">Стандарт</button>
+                <button class="toggle-btn" onclick="setDetail('detailed')">Подробно</button>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        let currentMode = 'area';
+        let currentDetail = 'standard';
+        let zoomLevel = 1;
+        let vMax = 4;
+        let tMax = 6;
+
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function drawGraph() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const padding = 40;
+            const graphWidth = canvas.width - 2 * padding;
+            const graphHeight = canvas.height - 2 * padding;
+            
+            const scaleX = graphWidth / tMax;
+            const scaleY = graphHeight / vMax;
+
+            ctx.save();
+            ctx.scale(zoomLevel, zoomLevel);
+
+            // Draw axes
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.stroke();
+
+            // Draw axis labels
+            ctx.fillStyle = '#aaa';
+            ctx.font = '14px Arial';
+            ctx.fillText('v, м/с', padding - 35, padding);
+            ctx.fillText('t, с', canvas.width - padding + 10, canvas.height - padding + 20);
+
+            // Draw velocity graph
+            ctx.strokeStyle = '#008080';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(padding, canvas.height - padding);
+            
+            // Triangle up
+            ctx.lineTo(padding + scaleX * 2, canvas.height - padding - scaleY * vMax);
+            // Rectangle
+            ctx.lineTo(padding + scaleX * 4, canvas.height - padding - scaleY * vMax);
+            // Triangle down
+            ctx.lineTo(padding + scaleX * tMax, canvas.height - padding);
+            ctx.stroke();
+
+            // Fill area under graph
+            if (currentMode === 'area') {
+                ctx.fillStyle = 'rgba(0, 128, 128, 0.3)';
+                ctx.beginPath();
+                ctx.moveTo(padding, canvas.height - padding);
+                ctx.lineTo(padding + scaleX * 2, canvas.height - padding - scaleY * vMax);
+                ctx.lineTo(padding + scaleX * 4, canvas.height - padding - scaleY * vMax);
+                ctx.lineTo(padding + scaleX * tMax, canvas.height - padding);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // Show acceleration on segment [4, 6]
+            if (currentMode === 'acceleration' && tMax >= 6) {
+                ctx.strokeStyle = '#ff9800';
+                ctx.lineWidth = 4;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(padding + scaleX * 4, canvas.height - padding - scaleY * vMax);
+                ctx.lineTo(padding + scaleX * 6, canvas.height - padding);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Draw grid and values
+            ctx.fillStyle = '#888';
+            ctx.font = '12px Arial';
+            for (let t = 0; t <= tMax; t += 2) {
+                ctx.fillText(t.toString(), padding + scaleX * t - 5, canvas.height - padding + 20);
+            }
+            for (let v = 0; v <= vMax; v += 2) {
+                ctx.fillText(v.toString(), padding - 25, canvas.height - padding - scaleY * v + 5);
+            }
+
+            ctx.restore();
+
+            // Update values
+            const path = 0.5 * 2 * vMax + 2 * vMax + 0.5 * 2 * vMax;
+            const accel = tMax >= 6 ? (0 - vMax) / 2 : 0;
+            
+            document.getElementById('pathValue').textContent = path.toFixed(1);
+            document.getElementById('accelValue').textContent = accel.toFixed(1);
+            document.getElementById('modulValue').textContent = Math.abs(accel).toFixed(1);
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            drawGraph();
+        }
+
+        function setDetail(detail) {
+            currentDetail = detail;
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function zoomIn() {
+            zoomLevel = Math.min(zoomLevel + 0.2, 2);
+            drawGraph();
+        }
+
+        function zoomOut() {
+            zoomLevel = Math.max(zoomLevel - 0.2, 0.6);
+            drawGraph();
+        }
+
+        function resetZoom() {
+            zoomLevel = 1;
+            drawGraph();
+        }
+
+        document.getElementById('vMaxSlider').addEventListener('input', function() {
+            vMax = parseInt(this.value);
+            document.getElementById('vMaxValue').textContent = vMax;
+            drawGraph();
+        });
+
+        document.getElementById('tMaxSlider').addEventListener('input', function() {
+            tMax = parseInt(this.value);
+            document.getElementById('tMaxValue').textContent = tMax;
+            drawGraph();
+        });
+
+        function checkAnswer(element, isCorrect) {
+            element.parentElement.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+            });
+            if (isCorrect) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('incorrect');
+            }
+        }
+
+        function generateTasks() {
+            const tasks = [
+                {
+                    question: "По графику v(t) за первые 4 с получилась фигура-прямоугольник со сторонами 4 с и 3 м/с. Найдите путь.",
+                    answer: "12 м",
+                    idea: "Путь = площадь прямоугольника = 4 × 3 = 12 м"
+                },
+                {
+                    question: "На участке графика скорость уменьшилась с 6 м/с до 2 м/с за 2 с. Найдите модуль ускорения.",
+                    answer: "2 м/с²",
+                    idea: "a = (2 - 6) / 2 = -2, модуль |a| = 2 м/с²"
+                },
+                {
+                    question: "Тело прошло 12 км за 40 мин. Найдите среднюю скорость в км/ч.",
+                    answer: "18 км/ч",
+                    idea: "40 мин = 2/3 ч, v = 12 / (2/3) = 18 км/ч"
+                }
+            ];
+
+            const container = document.getElementById('tasks-container');
+            container.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const taskCard = document.createElement('div');
+                taskCard.className = 'task-card';
+                taskCard.innerHTML = `
+                    <div style="margin-bottom: 0.8rem;"><strong>Задача ${index + 1}:</strong></div>
+                    <div>${task.question}</div>
+                    <button class="btn btn-secondary" onclick="toggleAnswer(${index})" style="margin-top: 0.8rem;">Показать ответ</button>
+                    <div class="task-answer" id="answer-${index}">Ответ: ${task.answer}</div>
+                    <div class="task-idea" id="idea-${index}">💡 Идея: ${task.idea}</div>
+                `;
+                container.appendChild(taskCard);
+            });
+        }
+
+        function toggleAnswer(index) {
+            const answer = document.getElementById(`answer-${index}`);
+            const idea = document.getElementById(`idea-${index}`);
+            answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+            idea.style.display = idea.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Initialize
+        drawGraph();
+        generateTasks();
+    </script>
+</body>
+</html>
