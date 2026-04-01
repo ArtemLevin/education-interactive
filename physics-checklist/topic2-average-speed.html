@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2. Средняя скорость на части пути | Чек-лист по физике</title>
+    <style>
+        :root {
+            --accent: #008080;
+            --dark-accent: #004D4D;
+            --text-gray: #333333;
+            --soft-gray: #666666;
+            --bg-dark: #1a1a2e;
+            --bg-card: #16213e;
+            --bg-hover: #0f3460;
+            --text-light: #e8e8e8;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0f0f23 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 2rem;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2rem 0;
+            border-bottom: 2px solid var(--accent);
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--soft-gray);
+            font-size: 1rem;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .solution-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .section-title {
+            color: var(--accent);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: "▸";
+            color: var(--accent);
+        }
+
+        .step-block {
+            background: rgba(0, 128, 128, 0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(0, 128, 128, 0.3);
+        }
+
+        .step-number {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: bold;
+            margin-right: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .formula {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+            font-size: 1.2rem;
+            font-family: 'Times New Roman', serif;
+            border: 1px solid var(--accent);
+        }
+
+        .idea-block {
+            background: linear-gradient(135deg, rgba(0, 128, 128, 0.2), rgba(0, 77, 77, 0.2));
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .idea-title {
+            color: var(--accent);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .sticky-panel {
+            position: sticky;
+            top: 2rem;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid var(--accent);
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+
+        .canvas-container {
+            position: relative;
+            background: #0a0a1a;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            display: block;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--soft-gray);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: var(--dark-accent);
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .legend {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 0.5rem;
+            background: rgba(0, 128, 128, 0.2);
+            border: 1px solid var(--accent);
+            color: var(--text-light);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--accent);
+        }
+
+        .quiz-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .quiz-question {
+            margin-bottom: 2rem;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .quiz-option {
+            background: rgba(0, 128, 128, 0.1);
+            border: 2px solid rgba(0, 128, 128, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--accent);
+            background: rgba(0, 128, 128, 0.2);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--success);
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--error);
+            background: rgba(244, 67, 54, 0.2);
+        }
+
+        .generated-tasks {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .task-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid var(--accent);
+        }
+
+        .task-answer {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 6px;
+            color: var(--success);
+            font-weight: bold;
+            display: none;
+        }
+
+        .task-idea {
+            margin-top: 0.8rem;
+            padding: 0.8rem;
+            background: rgba(0, 128, 128, 0.1);
+            border-radius: 6px;
+            color: var(--accent);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 128, 128, 0.3);
+        }
+
+        th {
+            background: rgba(0, 128, 128, 0.3);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            .sticky-panel {
+                position: static;
+                max-height: none;
+            }
+            .solution-section, .quiz-section, .generated-tasks {
+                break-inside: avoid;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sticky-panel {
+                position: static;
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .error-block {
+            background: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid var(--error);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .error-title {
+            color: var(--error);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-link">← Назад к оглавлению</a>
+            <h1>2. Средняя скорость на части пути</h1>
+            <p class="subtitle">Правильное вычисление средней скорости и выделение участков пути</p>
+        </header>
+
+        <div class="main-content">
+            <div class="solution-section">
+                <div class="idea-block">
+                    <div class="idea-title">💡 Идея решения</div>
+                    <ul style="padding-left: 1.5rem; line-height: 1.8;">
+                        <li><strong>Средняя скорость = весь путь / всё время</strong>. Это НЕ среднее арифметическое скоростей!</li>
+                        <li><strong>Если просят скорость на второй половине пути</strong>, нужно правильно выделить эту половину.</li>
+                        <li><strong>Таблица — ваш друг</strong>. Заполняйте S, v, t для каждого участка.</li>
+                    </ul>
+                </div>
+
+                <div class="section-title">Что дано в задаче</div>
+                <div class="step-block">
+                    <p>Типичная задача ЕГЭ:</p>
+                    <p style="margin-top: 0.8rem;"><em>Автомобиль проехал первую половину пути со скоростью 40 км/ч, а вторую половину пути — со скоростью 60 км/ч. Найдите среднюю скорость на всём пути.</em></p>
+                    
+                    <div class="formula">
+                        Дано: v₁ = 40 км/ч, v₂ = 60 км/ч<br>
+                        Найти: v_ср
+                    </div>
+                </div>
+
+                <div class="section-title">Пошаговое решение</div>
+                
+                <div class="step-block">
+                    <span class="step-number">1</span>
+                    <strong>Введение обозначений</strong>
+                    <p style="margin-top: 0.8rem;">Пусть весь путь равен 2S. Тогда:</p>
+                    <ul style="padding-left: 2rem; margin-top: 0.5rem; line-height: 1.8;">
+                        <li>Первая половина пути: S₁ = S, v₁ = 40 км/ч</li>
+                        <li>Вторая половина пути: S₂ = S, v₂ = 60 км/ч</li>
+                    </ul>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">2</span>
+                    <strong>Заполняем таблицу</strong>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Участок</th>
+                                    <th>Путь</th>
+                                    <th>Скорость</th>
+                                    <th>Время</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>S</td>
+                                    <td>40 км/ч</td>
+                                    <td>t₁ = S/40</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>S</td>
+                                    <td>60 км/ч</td>
+                                    <td>t₂ = S/60</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Весь</strong></td>
+                                    <td><strong>2S</strong></td>
+                                    <td><strong>v_ср = ?</strong></td>
+                                    <td><strong>t₁ + t₂</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">3</span>
+                    <strong>Вычисляем общее время</strong>
+                    <p style="margin-top: 0.8rem;">t = t₁ + t₂ = S/40 + S/60</p>
+                    
+                    <div class="formula">
+                        t = S · (1/40 + 1/60) = S · (3+2)/120 = 5S/120 = S/24
+                    </div>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">4</span>
+                    <strong>Находим среднюю скорость</strong>
+                    <p style="margin-top: 0.8rem;">v_ср = S_общий / t_общий</p>
+                    
+                    <div class="formula">
+                        v_ср = 2S / (S/24) = 2S · 24/S = 48 км/ч
+                    </div>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">5</span>
+                    <strong>Проверка ответа</strong>
+                    <p style="margin-top: 0.8rem;">✓ Средняя скорость меньше большего значения (60) и больше меньшего (40)</p>
+                    <p>✓ Это НЕ среднее арифметическое (40+60)/2 = 50, а меньше — потому что больше времени потрачено на медленный участок</p>
+                </div>
+
+                <div class="section-title">Краткий вывод</div>
+                <div class="step-block">
+                    <p><strong>v_ср = 48 км/ч</strong></p>
+                    <p style="margin-top: 0.8rem;">Главное: средняя скорость при равных путях — это гармоническое среднее, а не арифметическое!</p>
+                </div>
+
+                <div class="section-title">Типичные ошибки</div>
+                <div class="error-block">
+                    <div class="error-title">⚠ Ошибка 1: Среднее арифметическое</div>
+                    <p>Нельзя просто сложить скорости и разделить на 2! Нужно использовать формулу v_ср = S/t.</p>
+                </div>
+                <div class="error-block">
+                    <div class="error-title">⚠ Ошибка 2: Неверное выделение половины пути</div>
+                    <p>Если просят скорость на второй половине пути, нельзя брать всё движение целиком.</p>
+                </div>
+                <div class="error-block">
+                    <div class="error-title">⚠ Ошибка 3: Единицы измерения</div>
+                    <p>Не забывайте переводить минуты в часы, если скорость в км/ч.</p>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <div class="section-title">📝 Мини-квиз</div>
+                
+                <div class="quiz-question">
+                    <p><strong>Вопрос 1:</strong> Тело прошло 12 км за 40 мин. Чему равна средняя скорость в км/ч?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">0.3 км/ч</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">18 км/ч</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">30 км/ч</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">12 км/ч</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <p><strong>Вопрос 2:</strong> Автомобиль проехал половину пути со скоростью 20 км/ч, вторую половину — 80 км/ч. Средняя скорость:</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">50 км/ч</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">32 км/ч</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">40 км/ч</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">60 км/ч</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <p><strong>Вопрос 3:</strong> Что такое средняя скорость?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">Среднее арифметическое всех скоростей</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">Весь путь делённый на всё время</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">Максимальная скорость на участке</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">Минимальная скорость на участке</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="generated-tasks">
+                <div class="section-title">🎲 Похожие задачи</div>
+                <button class="btn" onclick="generateTasks()" style="margin-bottom: 1.5rem;">Сгенерировать новые задачи</button>
+                
+                <div id="tasks-container"></div>
+            </div>
+        </div>
+
+        <aside class="sticky-panel">
+            <div class="section-title">📊 Интерактивная модель</div>
+            
+            <div class="toggle-buttons">
+                <button class="toggle-btn active" onclick="setMode('path')">Путь</button>
+                <button class="toggle-btn" onclick="setMode('time')">Время</button>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="graphCanvas" width="400" height="300"></canvas>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #008080;"></div>
+                    <span>Первый участок (v₁)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ff9800;"></div>
+                    <span>Второй участок (v₂)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #4caf50;"></div>
+                    <span>Средняя скорость</span>
+                </div>
+            </div>
+
+            <div class="controls" style="margin-top: 1.5rem;">
+                <div class="control-group">
+                    <label>Скорость v₁: <span id="v1Value">40</span> км/ч</label>
+                    <input type="range" id="v1Slider" min="10" max="80" value="40" step="5">
+                </div>
+                <div class="control-group">
+                    <label>Скорость v₂: <span id="v2Value">60</span> км/ч</label>
+                    <input type="range" id="v2Slider" min="10" max="100" value="60" step="5">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="zoomIn()">+</button>
+                <button class="btn btn-secondary" onclick="zoomOut()">−</button>
+                <button class="btn btn-secondary" onclick="resetZoom()">Сброс</button>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px;">
+                <div style="color: var(--soft-gray); font-size: 0.85rem; margin-bottom: 0.5rem;">Результат:</div>
+                <div style="font-size: 1.1rem;"><strong>v_ср:</strong> <span id="avgSpeedValue" style="color: var(--success);">48</span> км/ч</div>
+                <div style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--soft-gray);">t₁:t₂ = <span id="timeRatio">3:2</span></div>
+            </div>
+
+            <div class="toggle-buttons" style="margin-top: 1.5rem;">
+                <button class="toggle-btn active" onclick="setDetail('brief')">Кратко</button>
+                <button class="toggle-btn" onclick="setDetail('standard')">Стандарт</button>
+                <button class="toggle-btn" onclick="setDetail('detailed')">Подробно</button>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        let currentMode = 'path';
+        let currentDetail = 'standard';
+        let zoomLevel = 1;
+        let v1 = 40;
+        let v2 = 60;
+
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function drawGraph() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const padding = 40;
+            const graphWidth = canvas.width - 2 * padding;
+            const graphHeight = canvas.height - 2 * padding;
+            
+            const totalDistance = 200; // условные единицы
+            const halfDistance = totalDistance / 2;
+            
+            const time1 = halfDistance / v1;
+            const time2 = halfDistance / v2;
+            const totalTime = time1 + time2;
+            
+            const avgSpeed = totalDistance / totalTime;
+            
+            const scaleX = graphWidth / totalTime;
+            const scaleY = graphHeight / Math.max(v1, v2, avgSpeed);
+
+            ctx.save();
+            ctx.scale(zoomLevel, zoomLevel);
+
+            // Draw axes
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.stroke();
+
+            // Draw axis labels
+            ctx.fillStyle = '#aaa';
+            ctx.font = '14px Arial';
+            ctx.fillText('v, км/ч', padding - 35, padding);
+            ctx.fillText('t, ч', canvas.width - padding + 10, canvas.height - padding + 20);
+
+            // Draw first segment (v1)
+            ctx.strokeStyle = '#008080';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(padding, canvas.height - padding - scaleY * v1);
+            ctx.lineTo(padding + scaleX * time1, canvas.height - padding - scaleY * v1);
+            ctx.stroke();
+
+            // Fill area for first segment
+            if (currentMode === 'path') {
+                ctx.fillStyle = 'rgba(0, 128, 128, 0.3)';
+                ctx.fillRect(padding, canvas.height - padding - scaleY * v1, scaleX * time1, scaleY * v1);
+            }
+
+            // Draw second segment (v2)
+            ctx.strokeStyle = '#ff9800';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(padding + scaleX * time1, canvas.height - padding - scaleY * v2);
+            ctx.lineTo(padding + scaleX * totalTime, canvas.height - padding - scaleY * v2);
+            ctx.stroke();
+
+            // Fill area for second segment
+            if (currentMode === 'path') {
+                ctx.fillStyle = 'rgba(255, 152, 0, 0.3)';
+                ctx.fillRect(padding + scaleX * time1, canvas.height - padding - scaleY * v2, scaleX * time2, scaleY * v2);
+            }
+
+            // Draw average speed line
+            ctx.strokeStyle = '#4caf50';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(padding, canvas.height - padding - scaleY * avgSpeed);
+            ctx.lineTo(padding + scaleX * totalTime, canvas.height - padding - scaleY * avgSpeed);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw values
+            ctx.fillStyle = '#888';
+            ctx.font = '12px Arial';
+            ctx.fillText(v1.toString(), padding - 25, canvas.height - padding - scaleY * v1 + 5);
+            ctx.fillText(v2.toString(), padding - 25, canvas.height - padding - scaleY * v2 + 5);
+            ctx.fillText(avgSpeed.toFixed(1), padding - 25, canvas.height - padding - scaleY * avgSpeed + 5);
+
+            // Time markers
+            ctx.fillText('t₁', padding + scaleX * time1 / 2, canvas.height - padding + 20);
+            ctx.fillText('t₂', padding + scaleX * time1 + scaleX * time2 / 2, canvas.height - padding + 20);
+
+            ctx.restore();
+
+            // Update values
+            document.getElementById('avgSpeedValue').textContent = avgSpeed.toFixed(1);
+            const ratio1 = Math.round(time1 / time2 * 10) / 10;
+            document.getElementById('timeRatio').textContent = `${ratio1}:1`;
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            drawGraph();
+        }
+
+        function setDetail(detail) {
+            currentDetail = detail;
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function zoomIn() {
+            zoomLevel = Math.min(zoomLevel + 0.2, 2);
+            drawGraph();
+        }
+
+        function zoomOut() {
+            zoomLevel = Math.max(zoomLevel - 0.2, 0.6);
+            drawGraph();
+        }
+
+        function resetZoom() {
+            zoomLevel = 1;
+            drawGraph();
+        }
+
+        document.getElementById('v1Slider').addEventListener('input', function() {
+            v1 = parseInt(this.value);
+            document.getElementById('v1Value').textContent = v1;
+            drawGraph();
+        });
+
+        document.getElementById('v2Slider').addEventListener('input', function() {
+            v2 = parseInt(this.value);
+            document.getElementById('v2Value').textContent = v2;
+            drawGraph();
+        });
+
+        function checkAnswer(element, isCorrect) {
+            element.parentElement.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+            });
+            if (isCorrect) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('incorrect');
+            }
+        }
+
+        function generateTasks() {
+            const tasks = [
+                {
+                    question: "Автомобиль проехал 8 км со скоростью 40 км/ч, а затем 12 км со скоростью 60 км/ч. Найдите среднюю скорость на всём пути.",
+                    answer: "50 км/ч",
+                    idea: "S = 20 км, t = 8/40 + 12/60 = 0.2 + 0.2 = 0.4 ч, v = 20/0.4 = 50 км/ч"
+                },
+                {
+                    question: "Велосипедист ехал 2 часа со скоростью 15 км/ч и 3 часа со скоростью 25 км/ч. Найдите среднюю скорость.",
+                    answer: "21 км/ч",
+                    idea: "S = 15·2 + 25·3 = 105 км, t = 5 ч, v = 105/5 = 21 км/ч"
+                },
+                {
+                    question: "Турист шёл первую треть пути со скоростью 3 км/ч, остальные две трети — 6 км/ч. Найдите среднюю скорость.",
+                    answer: "4.5 км/ч",
+                    idea: "Пусть путь 3S. t = S/3 + 2S/6 = 2S/3, v = 3S/(2S/3) = 4.5 км/ч"
+                }
+            ];
+
+            const container = document.getElementById('tasks-container');
+            container.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const taskCard = document.createElement('div');
+                taskCard.className = 'task-card';
+                taskCard.innerHTML = `
+                    <div style="margin-bottom: 0.8rem;"><strong>Задача ${index + 1}:</strong></div>
+                    <div>${task.question}</div>
+                    <button class="btn btn-secondary" onclick="toggleAnswer(${index})" style="margin-top: 0.8rem;">Показать ответ</button>
+                    <div class="task-answer" id="answer-${index}">Ответ: ${task.answer}</div>
+                    <div class="task-idea" id="idea-${index}">💡 Идея: ${task.idea}</div>
+                `;
+                container.appendChild(taskCard);
+            });
+        }
+
+        function toggleAnswer(index) {
+            const answer = document.getElementById(`answer-${index}`);
+            const idea = document.getElementById(`idea-${index}`);
+            answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+            idea.style.display = idea.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Initialize
+        drawGraph();
+        generateTasks();
+    </script>
+</body>
+</html>

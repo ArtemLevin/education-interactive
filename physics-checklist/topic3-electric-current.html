@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3. Постоянный ток: соединения | Чек-лист по физике</title>
+    <style>
+        :root {
+            --accent: #008080;
+            --dark-accent: #004D4D;
+            --text-gray: #333333;
+            --soft-gray: #666666;
+            --bg-dark: #1a1a2e;
+            --bg-card: #16213e;
+            --bg-hover: #0f3460;
+            --text-light: #e8e8e8;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0f0f23 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 2rem;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2rem 0;
+            border-bottom: 2px solid var(--accent);
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--soft-gray);
+            font-size: 1rem;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .solution-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .section-title {
+            color: var(--accent);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: "▸";
+            color: var(--accent);
+        }
+
+        .step-block {
+            background: rgba(0, 128, 128, 0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(0, 128, 128, 0.3);
+        }
+
+        .step-number {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: bold;
+            margin-right: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .formula {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+            font-size: 1.2rem;
+            font-family: 'Times New Roman', serif;
+            border: 1px solid var(--accent);
+        }
+
+        .idea-block {
+            background: linear-gradient(135deg, rgba(0, 128, 128, 0.2), rgba(0, 77, 77, 0.2));
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .idea-title {
+            color: var(--accent);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .sticky-panel {
+            position: sticky;
+            top: 2rem;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid var(--accent);
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+
+        .canvas-container {
+            position: relative;
+            background: #0a0a1a;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            display: block;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--soft-gray);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: var(--dark-accent);
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .legend {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 0.5rem;
+            background: rgba(0, 128, 128, 0.2);
+            border: 1px solid var(--accent);
+            color: var(--text-light);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--accent);
+        }
+
+        .quiz-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .quiz-question {
+            margin-bottom: 2rem;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .quiz-option {
+            background: rgba(0, 128, 128, 0.1);
+            border: 2px solid rgba(0, 128, 128, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--accent);
+            background: rgba(0, 128, 128, 0.2);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--success);
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--error);
+            background: rgba(244, 67, 54, 0.2);
+        }
+
+        .generated-tasks {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .task-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid var(--accent);
+        }
+
+        .task-answer {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 6px;
+            color: var(--success);
+            font-weight: bold;
+            display: none;
+        }
+
+        .task-idea {
+            margin-top: 0.8rem;
+            padding: 0.8rem;
+            background: rgba(0, 128, 128, 0.1);
+            border-radius: 6px;
+            color: var(--accent);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            .sticky-panel {
+                position: static;
+                max-height: none;
+            }
+            .solution-section, .quiz-section, .generated-tasks {
+                break-inside: avoid;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sticky-panel {
+                position: static;
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .error-block {
+            background: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid var(--error);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .error-title {
+            color: var(--error);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .circuit-diagram {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .circuit-text {
+            font-family: monospace;
+            font-size: 1.1rem;
+            line-height: 2;
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-link">← Назад к оглавлению</a>
+            <h1>3. Постоянный ток: соединения</h1>
+            <p class="subtitle">Закон Ома, последовательное и параллельное соединение резисторов</p>
+        </header>
+
+        <div class="main-content">
+            <div class="solution-section">
+                <div class="idea-block">
+                    <div class="idea-title">💡 Идея решения</div>
+                    <ul style="padding-left: 1.5rem; line-height: 1.8;">
+                        <li><strong>Последовательно: I одинаков, R складываются</strong>. U = U₁ + U₂.</li>
+                        <li><strong>Параллельно: U одинаково, I складываются</strong>. 1/R = 1/R₁ + 1/R₂.</li>
+                        <li><strong>Ток делится обратно пропорционально сопротивлениям</strong>: I₁/I₂ = R₂/R₁.</li>
+                    </ul>
+                </div>
+
+                <div class="section-title">Что дано в задаче</div>
+                <div class="step-block">
+                    <p>Типичная задача ЕГЭ:</p>
+                    <p style="margin-top: 0.8rem;"><em>Два резистора сопротивлением 2 Ом и 3 Ом соединены параллельно. Общий ток в цепи 5 А. Найдите ток через резистор 2 Ом.</em></p>
+                    
+                    <div class="formula">
+                        Дано: R₁ = 2 Ом, R₂ = 3 Ом, I = 5 А<br>
+                        Найти: I₁
+                    </div>
+                </div>
+
+                <div class="section-title">Пошаговое решение</div>
+                
+                <div class="step-block">
+                    <span class="step-number">1</span>
+                    <strong>Анализ схемы</strong>
+                    <p style="margin-top: 0.8rem;">Резисторы соединены параллельно, значит:</p>
+                    <ul style="padding-left: 2rem; margin-top: 0.5rem; line-height: 1.8;">
+                        <li>Напряжение на обоих резисторах одинаково: U₁ = U₂</li>
+                        <li>Токи складываются: I = I₁ + I₂</li>
+                    </ul>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">2</span>
+                    <strong>Используем закон Ома</strong>
+                    <p style="margin-top: 0.8rem;">Для каждого резистора: U₁ = I₁R₁, U₂ = I₂R₂</p>
+                    <p>Так как U₁ = U₂, то:</p>
+                    
+                    <div class="formula">
+                        I₁R₁ = I₂R₂<br>
+                        I₁/I₂ = R₂/R₁ = 3/2
+                    </div>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">3</span>
+                    <strong>Выражаем токи</strong>
+                    <p style="margin-top: 0.8rem;">I₁ = 1.5·I₂</p>
+                    <p>Подставляем в уравнение для общего тока:</p>
+                    
+                    <div class="formula">
+                        I = I₁ + I₂ = 1.5·I₂ + I₂ = 2.5·I₂<br>
+                        5 = 2.5·I₂<br>
+                        I₂ = 2 А
+                    </div>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">4</span>
+                    <strong>Находим искомый ток</strong>
+                    <p style="margin-top: 0.8rem;">I₁ = I - I₂ = 5 - 2 = 3 А</p>
+                    
+                    <div class="formula">
+                        <strong>I₁ = 3 А</strong>
+                    </div>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">5</span>
+                    <strong>Проверка ответа</strong>
+                    <p style="margin-top: 0.8rem;">✓ Меньшее сопротивление (2 Ом) → больший ток (3 А)</p>
+                    <p>✓ Большее сопротивление (3 Ом) → меньший ток (2 А)</p>
+                    <p>✓ Сумма токов: 3 + 2 = 5 А (совпадает с условием)</p>
+                </div>
+
+                <div class="section-title">Краткий вывод</div>
+                <div class="step-block">
+                    <p><strong>I₁ = 3 А</strong></p>
+                    <p style="margin-top: 0.8rem;">Главное: в параллельной ветви с меньшим сопротивлением ток больше!</p>
+                </div>
+
+                <div class="section-title">Типичные ошибки</div>
+                <div class="error-block">
+                    <div class="error-title">⚠ Ошибка 1: Складывать сопротивления параллельно</div>
+                    <p>При параллельном соединении сопротивления не складываются! Используйте формулу 1/R = 1/R₁ + 1/R₂.</p>
+                </div>
+                <div class="error-block">
+                    <div class="error-title">⚠ Ошибка 2: Неверное применение закона Ома</div>
+                    <p>Проверяйте, где именно спрашивают напряжение: на одном резисторе или на всём участке.</p>
+                </div>
+                <div class="error-block">
+                    <div class="error-title">⚠ Ошибка 3: Путать последовательное и параллельное</div>
+                    <p>Внимательно смотрите на схему: если ток разветвляется — это параллельное соединение.</p>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <div class="section-title">📝 Мини-квиз</div>
+                
+                <div class="quiz-question">
+                    <p><strong>Вопрос 1:</strong> Два одинаковых резистора по 6 Ом соединены параллельно. Их эквивалентное сопротивление:</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">12 Ом</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">3 Ом</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">6 Ом</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">1.5 Ом</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <p><strong>Вопрос 2:</strong> Сила тока в цепи равна 3 А, сопротивление участка равно 4 Ом. Напряжение на участке:</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">0.75 В</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">7 В</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">12 В</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">1.33 В</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <p><strong>Вопрос 3:</strong> При последовательном соединении сила тока:</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">Одинакова на всех элементах</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">Разная на каждом элементе</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">Складывается</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">Делится пополам</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="generated-tasks">
+                <div class="section-title">🎲 Похожие задачи</div>
+                <button class="btn" onclick="generateTasks()" style="margin-bottom: 1.5rem;">Сгенерировать новые задачи</button>
+                
+                <div id="tasks-container"></div>
+            </div>
+        </div>
+
+        <aside class="sticky-panel">
+            <div class="section-title">📊 Интерактивная модель</div>
+            
+            <div class="toggle-buttons">
+                <button class="toggle-btn active" onclick="setMode('parallel')">Параллельно</button>
+                <button class="toggle-btn" onclick="setMode('series')">Последовательно</button>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="graphCanvas" width="400" height="300"></canvas>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #008080;"></div>
+                    <span>R₁</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ff9800;"></div>
+                    <span>R₂</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #4caf50;"></div>
+                    <span>Ток</span>
+                </div>
+            </div>
+
+            <div class="controls" style="margin-top: 1.5rem;">
+                <div class="control-group">
+                    <label>Сопротивление R₁: <span id="r1Value">2</span> Ом</label>
+                    <input type="range" id="r1Slider" min="1" max="10" value="2" step="1">
+                </div>
+                <div class="control-group">
+                    <label>Сопротивление R₂: <span id="r2Value">3</span> Ом</label>
+                    <input type="range" id="r2Slider" min="1" max="10" value="3" step="1">
+                </div>
+                <div class="control-group">
+                    <label>Общий ток/напряжение: <span id="totalValue">5</span> <span id="unitLabel">А</span></label>
+                    <input type="range" id="totalSlider" min="1" max="10" value="5" step="1">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="zoomIn()">+</button>
+                <button class="btn btn-secondary" onclick="zoomOut()">−</button>
+                <button class="btn btn-secondary" onclick="resetZoom()">Сброс</button>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px;">
+                <div style="color: var(--soft-gray); font-size: 0.85rem; margin-bottom: 0.5rem;">Результаты:</div>
+                <div style="font-size: 1rem;"><strong>I₁:</strong> <span id="i1Value" style="color: var(--accent);">3</span> А</div>
+                <div style="font-size: 1rem;"><strong>I₂:</strong> <span id="i2Value" style="color: var(--warning);">2</span> А</div>
+                <div style="font-size: 1rem;"><strong>R_экв:</strong> <span id="reqValue" style="color: var(--success);">1.2</span> Ом</div>
+            </div>
+
+            <div class="toggle-buttons" style="margin-top: 1.5rem;">
+                <button class="toggle-btn active" onclick="setDetail('brief')">Кратко</button>
+                <button class="toggle-btn" onclick="setDetail('standard')">Стандарт</button>
+                <button class="toggle-btn" onclick="setDetail('detailed')">Подробно</button>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        let currentMode = 'parallel';
+        let currentDetail = 'standard';
+        let zoomLevel = 1;
+        let r1 = 2;
+        let r2 = 3;
+        let total = 5;
+
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function drawGraph() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const padding = 40;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            ctx.save();
+            ctx.scale(zoomLevel, zoomLevel);
+
+            // Draw battery
+            ctx.strokeStyle = '#4caf50';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(padding, centerY);
+            ctx.lineTo(centerX - 60, centerY);
+            ctx.stroke();
+
+            // Battery symbol
+            ctx.fillStyle = '#4caf50';
+            ctx.fillRect(centerX - 60, centerY - 20, 10, 40);
+            ctx.fillRect(centerX - 45, centerY - 15, 10, 30);
+
+            if (currentMode === 'parallel') {
+                // Split point
+                ctx.beginPath();
+                ctx.moveTo(centerX - 35, centerY);
+                ctx.lineTo(centerX - 20, centerY);
+                ctx.stroke();
+
+                // Upper branch (R1)
+                ctx.strokeStyle = '#008080';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(centerX - 20, centerY);
+                ctx.lineTo(centerX - 20, centerY - 60);
+                ctx.lineTo(centerX + 60, centerY - 60);
+                ctx.lineTo(centerX + 60, centerY);
+                ctx.stroke();
+
+                // Resistor R1 symbol
+                ctx.fillStyle = '#008080';
+                ctx.fillRect(centerX - 10, centerY - 65, 80, 10);
+
+                // Lower branch (R2)
+                ctx.strokeStyle = '#ff9800';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(centerX - 20, centerY);
+                ctx.lineTo(centerX - 20, centerY + 60);
+                ctx.lineTo(centerX + 60, centerY + 60);
+                ctx.lineTo(centerX + 60, centerY);
+                ctx.stroke();
+
+                // Resistor R2 symbol
+                ctx.fillStyle = '#ff9800';
+                ctx.fillRect(centerX - 10, centerY + 55, 80, 10);
+
+                // Merge point
+                ctx.strokeStyle = '#666';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(centerX + 60, centerY);
+                ctx.lineTo(centerX + 80, centerY);
+                ctx.stroke();
+            } else {
+                // Series connection
+                ctx.strokeStyle = '#008080';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(centerX - 35, centerY);
+                ctx.lineTo(centerX + 80, centerY);
+                ctx.stroke();
+
+                // Resistor R1
+                ctx.fillStyle = '#008080';
+                ctx.fillRect(centerX - 20, centerY - 5, 40, 10);
+
+                // Resistor R2
+                ctx.fillStyle = '#ff9800';
+                ctx.fillRect(centerX + 20, centerY - 5, 40, 10);
+            }
+
+            // Labels
+            ctx.fillStyle = '#aaa';
+            ctx.font = '14px Arial';
+            ctx.fillText(`R₁=${r1} Ом`, centerX - 20, centerY - 80);
+            ctx.fillText(`R₂=${r2} Ом`, centerX - 20, centerY + 95);
+
+            ctx.restore();
+
+            // Calculate values
+            let i1, i2, req;
+            if (currentMode === 'parallel') {
+                req = (r1 * r2) / (r1 + r2);
+                i1 = total * r2 / (r1 + r2);
+                i2 = total * r1 / (r1 + r2);
+            } else {
+                req = r1 + r2;
+                i1 = total; // In series, current is the same
+                i2 = total;
+            }
+
+            document.getElementById('i1Value').textContent = i1.toFixed(1);
+            document.getElementById('i2Value').textContent = i2.toFixed(1);
+            document.getElementById('reqValue').textContent = req.toFixed(1);
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('unitLabel').textContent = mode === 'parallel' ? 'А' : 'В';
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            drawGraph();
+        }
+
+        function setDetail(detail) {
+            currentDetail = detail;
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function zoomIn() {
+            zoomLevel = Math.min(zoomLevel + 0.2, 2);
+            drawGraph();
+        }
+
+        function zoomOut() {
+            zoomLevel = Math.max(zoomLevel - 0.2, 0.6);
+            drawGraph();
+        }
+
+        function resetZoom() {
+            zoomLevel = 1;
+            drawGraph();
+        }
+
+        document.getElementById('r1Slider').addEventListener('input', function() {
+            r1 = parseInt(this.value);
+            document.getElementById('r1Value').textContent = r1;
+            drawGraph();
+        });
+
+        document.getElementById('r2Slider').addEventListener('input', function() {
+            r2 = parseInt(this.value);
+            document.getElementById('r2Value').textContent = r2;
+            drawGraph();
+        });
+
+        document.getElementById('totalSlider').addEventListener('input', function() {
+            total = parseInt(this.value);
+            document.getElementById('totalValue').textContent = total;
+            drawGraph();
+        });
+
+        function checkAnswer(element, isCorrect) {
+            element.parentElement.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+            });
+            if (isCorrect) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('incorrect');
+            }
+        }
+
+        function generateTasks() {
+            const tasks = [
+                {
+                    question: "Два одинаковых резистора по 6 Ом соединены параллельно. Найдите их эквивалентное сопротивление.",
+                    answer: "3 Ом",
+                    idea: "Для двух одинаковых: R_экв = R/2 = 6/2 = 3 Ом"
+                },
+                {
+                    question: "Сила тока в цепи равна 3 А, сопротивление участка равно 4 Ом. Найдите напряжение на участке.",
+                    answer: "12 В",
+                    idea: "U = IR = 3 · 4 = 12 В"
+                },
+                {
+                    question: "В двух параллельных ветвях сопротивления R₁=2 Ом и R₂=3 Ом. Общий ток 5 А. Найдите ток в ветви с сопротивлением 2 Ом.",
+                    answer: "3 А",
+                    idea: "I₁ = I·R₂/(R₁+R₂) = 5·3/(2+3) = 3 А"
+                }
+            ];
+
+            const container = document.getElementById('tasks-container');
+            container.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const taskCard = document.createElement('div');
+                taskCard.className = 'task-card';
+                taskCard.innerHTML = `
+                    <div style="margin-bottom: 0.8rem;"><strong>Задача ${index + 1}:</strong></div>
+                    <div>${task.question}</div>
+                    <button class="btn btn-secondary" onclick="toggleAnswer(${index})" style="margin-top: 0.8rem;">Показать ответ</button>
+                    <div class="task-answer" id="answer-${index}">Ответ: ${task.answer}</div>
+                    <div class="task-idea" id="idea-${index}">💡 Идея: ${task.idea}</div>
+                `;
+                container.appendChild(taskCard);
+            });
+        }
+
+        function toggleAnswer(index) {
+            const answer = document.getElementById(`answer-${index}`);
+            const idea = document.getElementById(`idea-${index}`);
+            answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+            idea.style.display = idea.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Initialize
+        drawGraph();
+        generateTasks();
+    </script>
+</body>
+</html>

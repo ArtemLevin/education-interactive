@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4. Свободное падение | Чек-лист по физике</title>
+    <style>
+        :root {
+            --accent: #008080;
+            --dark-accent: #004D4D;
+            --text-gray: #333333;
+            --soft-gray: #666666;
+            --bg-dark: #1a1a2e;
+            --bg-card: #16213e;
+            --bg-hover: #0f3460;
+            --text-light: #e8e8e8;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0f0f23 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 2rem;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2rem 0;
+            border-bottom: 2px solid var(--accent);
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--soft-gray);
+            font-size: 1rem;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .solution-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .section-title {
+            color: var(--accent);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: "▸";
+            color: var(--accent);
+        }
+
+        .step-block {
+            background: rgba(0, 128, 128, 0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(0, 128, 128, 0.3);
+        }
+
+        .step-number {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: bold;
+            margin-right: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .formula {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+            font-size: 1.2rem;
+            font-family: 'Times New Roman', serif;
+            border: 1px solid var(--accent);
+        }
+
+        .idea-block {
+            background: linear-gradient(135deg, rgba(0, 128, 128, 0.2), rgba(0, 77, 77, 0.2));
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .idea-title {
+            color: var(--accent);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .sticky-panel {
+            position: sticky;
+            top: 2rem;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid var(--accent);
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+
+        .canvas-container {
+            position: relative;
+            background: #0a0a1a;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            display: block;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--soft-gray);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: var(--dark-accent);
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .legend {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 0.5rem;
+            background: rgba(0, 128, 128, 0.2);
+            border: 1px solid var(--accent);
+            color: var(--text-light);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--accent);
+        }
+
+        .quiz-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .quiz-question {
+            margin-bottom: 2rem;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .quiz-option {
+            background: rgba(0, 128, 128, 0.1);
+            border: 2px solid rgba(0, 128, 128, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--accent);
+            background: rgba(0, 128, 128, 0.2);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--success);
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--error);
+            background: rgba(244, 67, 54, 0.2);
+        }
+
+        .generated-tasks {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .task-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid var(--accent);
+        }
+
+        .task-answer {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 6px;
+            color: var(--success);
+            font-weight: bold;
+            display: none;
+        }
+
+        .task-idea {
+            margin-top: 0.8rem;
+            padding: 0.8rem;
+            background: rgba(0, 128, 128, 0.1);
+            border-radius: 6px;
+            color: var(--accent);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            .sticky-panel {
+                position: static;
+                max-height: none;
+            }
+            .solution-section, .quiz-section, .generated-tasks {
+                break-inside: avoid;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sticky-panel {
+                position: static;
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .error-block {
+            background: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid var(--error);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .error-title {
+            color: var(--error);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-link">← Назад к оглавлению</a>
+            <h1>4. Свободное падение</h1>
+            <p class="subtitle">Равноускоренное движение с ускорением g</p>
+        </header>
+
+        <div class="main-content">
+            <div class="solution-section">
+                <div class="idea-block">
+                    <div class="idea-title">💡 Идея решения</div>
+                    <ul style="padding-left: 1.5rem; line-height: 1.8;">
+                        <li><strong>Без начальной скорости: s = gt²/2, v = gt</strong>.</li>
+                        <li><strong>При равных временах пути относятся как 1:3:5:...</strong> (нечётные числа).</li>
+                        <li><strong>На каждом участке начальная скорость = конечной скорости предыдущего</strong>.</li>
+                    </ul>
+                </div>
+
+                <div class="section-title">Что дано в задаче</div>
+                <div class="step-block">
+                    <p>Сложная задача ЕГЭ:</p>
+                    <p style="margin-top: 0.8rem;"><em>Тело свободно падает с высоты 180 м без начальной скорости. Высоту разделили на три части так, что время прохождения каждой части одинаково. Найдите эти три части.</em></p>
+                    
+                    <div class="formula">
+                        Дано: H = 180 м, v₀ = 0, t₁ = t₂ = t₃<br>
+                        Найти: h₁, h₂, h₃
+                    </div>
+                </div>
+
+                <div class="section-title">Пошаговое решение</div>
+                
+                <div class="step-block">
+                    <span class="step-number">1</span>
+                    <strong>Ключевое наблюдение</strong>
+                    <p style="margin-top: 0.8rem;">Пусть время прохождения каждой части равно τ. Тогда:</p>
+                    <ul style="padding-left: 2rem; margin-top: 0.5rem; line-height: 1.8;">
+                        <li>За время τ тело проходит путь h₁</li>
+                        <li>За следующие τ — путь h₂ (начальная скорость ≠ 0!)</li>
+                        <li>За последние τ — путь h₃ (начальная скорость ещё больше)</li>
+                    </ul>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">2</span>
+                    <strong>Используем формулу для первого участка</strong>
+                    <p style="margin-top: 0.8rem;">h₁ = gτ²/2</p>
+                    
+                    <div class="formula">
+                        h₁ = gτ²/2
+                    </div>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">3</span>
+                    <strong>Второй участок</strong>
+                    <p style="margin-top: 0.8rem;">Начальная скорость v₁ = gτ (конечная скорость первого участка)</p>
+                    
+                    <div class="formula">
+                        h₂ = v₁τ + gτ²/2 = gτ·τ + gτ²/2 = 3gτ²/2
+                    </div>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">4</span>
+                    <strong>Третий участок</strong>
+                    <p style="margin-top: 0.8rem;">Начальная скорость v₂ = g·2τ = 2gτ</p>
+                    
+                    <div class="formula">
+                        h₃ = v₂τ + gτ²/2 = 2gτ·τ + gτ²/2 = 5gτ²/2
+                    </div>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">5</span>
+                    <strong>Отношение путей</strong>
+                    <p style="margin-top: 0.8rem;">h₁ : h₂ : h₃ = 1 : 3 : 5</p>
+                    
+                    <div class="formula">
+                        h₁ = k, h₂ = 3k, h₃ = 5k<br>
+                        h₁ + h₂ + h₃ = 9k = 180 м<br>
+                        k = 20 м
+                    </div>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">6</span>
+                    <strong>Финальный ответ</strong>
+                    <p style="margin-top: 0.8rem;"></p>
+                    
+                    <div class="formula">
+                        <strong>h₁ = 20 м, h₂ = 60 м, h₃ = 100 м</strong>
+                    </div>
+                </div>
+
+                <div class="step-block">
+                    <span class="step-number">7</span>
+                    <strong>Проверка ответа</strong>
+                    <p style="margin-top: 0.8rem;">✓ Сумма: 20 + 60 + 100 = 180 м</p>
+                    <p>✓ Отношение: 20:60:100 = 1:3:5</p>
+                    <p>✓ Пути растут (тело ускоряется)</p>
+                </div>
+
+                <div class="section-title">Краткий вывод</div>
+                <div class="step-block">
+                    <p><strong>h₁ = 20 м, h₂ = 60 м, h₃ = 100 м</strong></p>
+                    <p style="margin-top: 0.8rem;">Главное: при свободном падении за равные промежутки времени пути относятся как нечётные числа!</p>
+                </div>
+
+                <div class="section-title">Типичные ошибки</div>
+                <div class="error-block">
+                    <div class="error-title">⚠ Ошибка 1: Считать пути равными</div>
+                    <p>При равных временах пути НЕ равны! Тело ускоряется, поэтому каждый следующий участок длиннее.</p>
+                </div>
+                <div class="error-block">
+                    <div class="error-title">⚠ Ошибка 2: Забывать начальную скорость</div>
+                    <p>На втором и третьем участке начальная скорость не нулевая — это скорость, набранная на предыдущих участках.</p>
+                </div>
+                <div class="error-block">
+                    <div class="error-title">⚠ Ошибка 3: Путать общий путь и путь на участке</div>
+                    <p>h₁, h₂, h₃ — это пути на отдельных участках, а не накопленные расстояния от начала падения.</p>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <div class="section-title">📝 Мини-квиз</div>
+                
+                <div class="quiz-question">
+                    <p><strong>Вопрос 1:</strong> Тело свободно падает без начальной скорости. Путь за 3 с (g=10 м/с²):</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">30 м</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">45 м</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">15 м</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">90 м</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <p><strong>Вопрос 2:</strong> При свободном падении тела за равные промежутки времени пути относятся как:</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">1:1:1</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">1:2:3</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">1:3:5</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">1:4:9</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <p><strong>Вопрос 3:</strong> Формула пути при свободном падении без начальной скорости:</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">s = gt</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">s = gt²/2</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">s = gt²</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">s = v₀t + gt²/2</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="generated-tasks">
+                <div class="section-title">🎲 Похожие задачи</div>
+                <button class="btn" onclick="generateTasks()" style="margin-bottom: 1.5rem;">Сгенерировать новые задачи</button>
+                
+                <div id="tasks-container"></div>
+            </div>
+        </div>
+
+        <aside class="sticky-panel">
+            <div class="section-title">📊 Интерактивная модель</div>
+            
+            <div class="toggle-buttons">
+                <button class="toggle-btn active" onclick="setMode('fall')">Падение</button>
+                <button class="toggle-btn" onclick="setMode('segments')">Сегменты</button>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="graphCanvas" width="400" height="300"></canvas>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #008080;"></div>
+                    <span>h₁ (первый участок)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ff9800;"></div>
+                    <span>h₂ (второй участок)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #4caf50;"></div>
+                    <span>h₃ (третий участок)</span>
+                </div>
+            </div>
+
+            <div class="controls" style="margin-top: 1.5rem;">
+                <div class="control-group">
+                    <label>Высота H: <span id="heightValue">180</span> м</label>
+                    <input type="range" id="heightSlider" min="45" max="300" value="180" step="15">
+                </div>
+                <div class="control-group">
+                    <label>Ускорение g: <span id="gValue">10</span> м/с²</label>
+                    <input type="range" id="gSlider" min="5" max="15" value="10" step="1">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="zoomIn()">+</button>
+                <button class="btn btn-secondary" onclick="zoomOut()">−</button>
+                <button class="btn btn-secondary" onclick="resetZoom()">Сброс</button>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px;">
+                <div style="color: var(--soft-gray); font-size: 0.85rem; margin-bottom: 0.5rem;">Результаты:</div>
+                <div style="font-size: 1rem;"><strong>h₁:</strong> <span id="h1Value" style="color: var(--accent);">20</span> м</div>
+                <div style="font-size: 1rem;"><strong>h₂:</strong> <span id="h2Value" style="color: var(--warning);">60</span> м</div>
+                <div style="font-size: 1rem;"><strong>h₃:</strong> <span id="h3Value" style="color: var(--success);">100</span> м</div>
+                <div style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--soft-gray);">t = <span id="totalTime">6</span> с</div>
+            </div>
+
+            <div class="toggle-buttons" style="margin-top: 1.5rem;">
+                <button class="toggle-btn active" onclick="setDetail('brief')">Кратко</button>
+                <button class="toggle-btn" onclick="setDetail('standard')">Стандарт</button>
+                <button class="toggle-btn" onclick="setDetail('detailed')">Подробно</button>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        let currentMode = 'fall';
+        let currentDetail = 'standard';
+        let zoomLevel = 1;
+        let H = 180;
+        let g = 10;
+
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function drawGraph() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const padding = 40;
+            const centerX = canvas.width / 2;
+            const groundY = canvas.height - padding;
+            const startY = padding;
+            const totalHeight = groundY - startY;
+
+            ctx.save();
+            ctx.scale(zoomLevel, zoomLevel);
+
+            // Calculate segments
+            const k = H / 9;
+            const h1 = k;
+            const h2 = 3 * k;
+            const h3 = 5 * k;
+
+            const scaleY = totalHeight / H;
+
+            // Draw ground
+            ctx.strokeStyle = '#888';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(padding, groundY);
+            ctx.lineTo(canvas.width - padding, groundY);
+            ctx.stroke();
+
+            // Draw building/tower
+            ctx.fillStyle = '#333';
+            ctx.fillRect(centerX - 30, startY, 60, totalHeight);
+
+            if (currentMode === 'segments') {
+                // Draw segment h1 (top)
+                ctx.fillStyle = 'rgba(0, 128, 128, 0.6)';
+                ctx.fillRect(centerX - 25, startY, 50, h1 * scaleY);
+
+                // Draw segment h2 (middle)
+                ctx.fillStyle = 'rgba(255, 152, 0, 0.6)';
+                ctx.fillRect(centerX - 25, startY + h1 * scaleY, 50, h2 * scaleY);
+
+                // Draw segment h3 (bottom)
+                ctx.fillStyle = 'rgba(76, 175, 80, 0.6)';
+                ctx.fillRect(centerX - 25, startY + (h1 + h2) * scaleY, 50, h3 * scaleY);
+            } else {
+                // Draw falling ball animation
+                const totalTime = Math.sqrt(2 * H / g);
+                const currentTime = Date.now() / 1000 % totalTime;
+                const currentY = startY + 0.5 * g * currentTime * currentTime * scaleY;
+
+                ctx.fillStyle = '#ff5722';
+                ctx.beginPath();
+                ctx.arc(centerX, currentY, 10, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw velocity vector
+                ctx.strokeStyle = '#ff5722';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(centerX, currentY);
+                ctx.lineTo(centerX, currentY + g * currentTime * 0.5);
+                ctx.stroke();
+            }
+
+            // Labels
+            ctx.fillStyle = '#aaa';
+            ctx.font = '12px Arial';
+            ctx.fillText(`H = ${H} м`, centerX + 40, startY + totalHeight / 2);
+            ctx.fillText('h₁', centerX - 50, startY + h1 * scaleY / 2);
+            ctx.fillText('h₂', centerX - 50, startY + h1 * scaleY + h2 * scaleY / 2);
+            ctx.fillText('h₃', centerX - 50, startY + (h1 + h2) * scaleY + h3 * scaleY / 2);
+
+            ctx.restore();
+
+            // Update values
+            document.getElementById('h1Value').textContent = h1.toFixed(0);
+            document.getElementById('h2Value').textContent = h2.toFixed(0);
+            document.getElementById('h3Value').textContent = h3.toFixed(0);
+            document.getElementById('totalTime').textContent = Math.sqrt(2 * H / g).toFixed(1);
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            drawGraph();
+        }
+
+        function setDetail(detail) {
+            currentDetail = detail;
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function zoomIn() {
+            zoomLevel = Math.min(zoomLevel + 0.2, 2);
+            drawGraph();
+        }
+
+        function zoomOut() {
+            zoomLevel = Math.max(zoomLevel - 0.2, 0.6);
+            drawGraph();
+        }
+
+        function resetZoom() {
+            zoomLevel = 1;
+            drawGraph();
+        }
+
+        document.getElementById('heightSlider').addEventListener('input', function() {
+            H = parseInt(this.value);
+            document.getElementById('heightValue').textContent = H;
+            drawGraph();
+        });
+
+        document.getElementById('gSlider').addEventListener('input', function() {
+            g = parseInt(this.value);
+            document.getElementById('gValue').textContent = g;
+            drawGraph();
+        });
+
+        function checkAnswer(element, isCorrect) {
+            element.parentElement.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+            });
+            if (isCorrect) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('incorrect');
+            }
+        }
+
+        function generateTasks() {
+            const tasks = [
+                {
+                    question: "Тело свободно падает без начальной скорости. Найдите путь, пройденный за 3 с. Считайте g=10 м/с².",
+                    answer: "45 м",
+                    idea: "s = gt²/2 = 10·9/2 = 45 м"
+                },
+                {
+                    question: "Камень брошен горизонтально. Через 2 с после броска найдите его вертикальную составляющую скорости. g=10 м/с².",
+                    answer: "20 м/с",
+                    idea: "v_y = gt = 10·2 = 20 м/с"
+                },
+                {
+                    question: "Тело падает с высоты 80 м. За какое время оно достигнет земли? g=10 м/с².",
+                    answer: "4 с",
+                    idea: "t = √(2H/g) = √(160/10) = √16 = 4 с"
+                }
+            ];
+
+            const container = document.getElementById('tasks-container');
+            container.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const taskCard = document.createElement('div');
+                taskCard.className = 'task-card';
+                taskCard.innerHTML = `
+                    <div style="margin-bottom: 0.8rem;"><strong>Задача ${index + 1}:</strong></div>
+                    <div>${task.question}</div>
+                    <button class="btn btn-secondary" onclick="toggleAnswer(${index})" style="margin-top: 0.8rem;">Показать ответ</button>
+                    <div class="task-answer" id="answer-${index}">Ответ: ${task.answer}</div>
+                    <div class="task-idea" id="idea-${index}">💡 Идея: ${task.idea}</div>
+                `;
+                container.appendChild(taskCard);
+            });
+        }
+
+        function toggleAnswer(index) {
+            const answer = document.getElementById(`answer-${index}`);
+            const idea = document.getElementById(`idea-${index}`);
+            answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+            idea.style.display = idea.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Initialize and animate
+        function animate() {
+            drawGraph();
+            requestAnimationFrame(animate);
+        }
+        animate();
+        generateTasks();
+    </script>
+</body>
+</html>
