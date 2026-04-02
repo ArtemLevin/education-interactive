@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Задача 4: Универсальная подстановка | Тригонометрические уравнения</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-accent: #0f3460;
+            --text-primary: #e8e8e8;
+            --text-secondary: #b8b8b8;
+            --accent: #4fc3f7;
+            --accent-dark: #0288d1;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+            --border-color: #2a2a4a;
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 30px;
+        }
+
+        header {
+            background: var(--bg-accent);
+            padding: 25px 0;
+            border-bottom: 2px solid var(--accent);
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            font-size: 1.8em;
+            color: var(--accent);
+        }
+
+        .breadcrumb {
+            max-width: 1400px;
+            margin: 10px auto 0;
+            padding: 0 20px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .main-content {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        .problem-statement {
+            background: linear-gradient(135deg, rgba(79, 195, 247, 0.1) 0%, rgba(2, 136, 209, 0.1) 100%);
+            border-left: 4px solid var(--accent);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .problem-statement h2 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .equation {
+            font-size: 1.4em;
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Times New Roman', serif;
+            letter-spacing: 1px;
+        }
+
+        .idea-block {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(56, 142, 60, 0.15) 100%);
+            border-left: 4px solid var(--success);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .idea-block h3 {
+            color: var(--success);
+            margin-bottom: 12px;
+            font-size: 1.2em;
+        }
+
+        .idea-list {
+            list-style: none;
+        }
+
+        .idea-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .idea-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .solution-step {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .solution-step:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--accent);
+        }
+
+        .step-number {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--bg-primary);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .step-title {
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .answer-block {
+            background: linear-gradient(135deg, rgba(79, 195, 247, 0.2) 0%, rgba(2, 136, 209, 0.2) 100%);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .answer-block h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        .answer-final {
+            font-size: 1.3em;
+            font-family: 'Times New Roman', serif;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        .mistakes-block {
+            background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(198, 40, 40, 0.1) 100%);
+            border-left: 4px solid var(--error);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .mistakes-block h3 {
+            color: var(--error);
+            margin-bottom: 15px;
+        }
+
+        .mistake-item {
+            padding: 10px;
+            margin: 10px 0;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            border-left: 3px solid var(--error);
+        }
+
+        .quiz-block {
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(245, 124, 0, 0.1) 100%);
+            border-left: 4px solid var(--warning);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .quiz-block h3 {
+            color: var(--warning);
+            margin-bottom: 15px;
+        }
+
+        .quiz-question {
+            margin: 15px 0;
+        }
+
+        .quiz-options {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .quiz-options li {
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .quiz-options li:hover {
+            background: rgba(255, 152, 0, 0.1);
+            border-color: var(--warning);
+        }
+
+        .quiz-options li.correct {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: var(--success);
+        }
+
+        .quiz-options li.incorrect {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: var(--error);
+        }
+
+        .training-block {
+            background: linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(123, 31, 162, 0.1) 100%);
+            border-left: 4px solid #9c27b0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .training-block h3 {
+            color: #ce93d8;
+            margin-bottom: 15px;
+        }
+
+        .training-task {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .training-answer {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 6px;
+            color: var(--success);
+        }
+
+        .show-answer-btn {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .show-answer-btn:hover {
+            background: var(--accent-dark);
+        }
+
+        /* Visualization Panel */
+        .viz-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .viz-panel h4 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        #graphCanvas {
+            width: 100%;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .control-btn {
+            background: var(--bg-accent);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .control-btn.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .zoom-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .zoom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .legend {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 3px;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .toggle-detail {
+            background: var(--bg-accent);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .toggle-detail:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .detail-content {
+            display: none;
+        }
+
+        .detail-content.show {
+            display: block;
+        }
+
+        /* Navigation */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .nav-btn {
+            background: var(--bg-accent);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                max-height: none;
+            }
+
+            .nav-buttons, .controls, .zoom-controls, .show-answer-btn {
+                display: none;
+            }
+
+            .solution-step, .idea-block, .problem-statement {
+                break-inside: avoid;
+            }
+        }
+
+        /* Mobile styles */
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                max-height: none;
+            }
+
+            header h1 {
+                font-size: 1.4em;
+            }
+
+            .equation {
+                font-size: 1.1em;
+            }
+        }
+
+        .formula {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .check-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .check-result.correct {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--success);
+        }
+
+        .check-result.incorrect {
+            background: rgba(244, 67, 54, 0.2);
+            color: var(--error);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Задача 4: Универсальная тригонометрическая подстановка</h1>
+        <div class="breadcrumb">
+            <a href="index.html">Главная</a> → <a href="index.html#tasks">Задания</a> → Задача 4
+        </div>
+    </header>
+
+    <div class="container">
+        <main class="main-content">
+            <div class="problem-statement">
+                <h2>Условие задачи</h2>
+                <p>Решить тригонометрическое уравнение:</p>
+                <div class="equation">
+                    cos(2x) − sin(2x) = cos(x) + sin(x) + 1
+                </div>
+            </div>
+
+            <div class="idea-block">
+                <h3>💡 Идея решения</h3>
+                <ul class="idea-list">
+                    <li>Применить универсальную тригонометрическую подстановку через тангенс половинного угла: t = tg(x/2)</li>
+                    <li>Выразить все тригонометрические функции через t: sin(x), cos(x), sin(2x), cos(2x)</li>
+                    <li>После подстановки получить рациональное уравнение относительно t</li>
+                    <li>Разложить числитель на квадратные множители и решить два квадратных уравнения</li>
+                    <li>Вернуться к переменной x через арктангенс и табличные значения</li>
+                </ul>
+            </div>
+
+            <button class="toggle-detail" onclick="toggleAllSteps()">
+                📖 Показать полное пошаговое решение
+            </button>
+
+            <div id="solution">
+                <div class="solution-step detail-content">
+                    <div class="step-title"><span class="step-number">1</span>Что дано</div>
+                    <p>Нам дано уравнение, содержащее:</p>
+                    <ul>
+                        <li>В левой части: косинус двойного угла <span class="formula">cos(2x)</span> и синус двойного угла <span class="formula">sin(2x)</span></li>
+                        <li>В правой части: косинус <span class="formula">cos(x)</span>, синус <span class="formula">sin(x)</span> и константу <span class="formula">1</span></li>
+                    </ul>
+                    <p>Уравнение содержит функции разных аргументов (x и 2x). Для решения таких уравнений удобно использовать универсальную подстановку через половинный угол.</p>
+                </div>
+
+                <div class="solution-step detail-content">
+                    <div class="step-title"><span class="step-number">2</span>Ключевая идея: универсальная подстановка</div>
+                    <p>Введём новую переменную:</p>
+                    <div class="equation">
+                        t = tg(x/2)
+                    </div>
+                    <p>Тогда все тригонометрические функции выражаются через t по формулам:</p>
+                    <div class="equation">
+                        sin(x) = 2t/(1 + t²), &nbsp;&nbsp;&nbsp; cos(x) = (1 − t²)/(1 + t²)
+                    </div>
+                    <p>Для двойного угла получаем:</p>
+                    <div class="equation">
+                        sin(2x) = 4t(1 − t²)/(1 + t²)², &nbsp;&nbsp;&nbsp; cos(2x) = (1 − 6t² + t⁴)/(1 + t²)²
+                    </div>
+                </div>
+
+                <div class="solution-step detail-content">
+                    <div class="step-title"><span class="step-number">3</span>Подстановка в уравнение</div>
+                    <p>Подставляем все выражения в исходное уравнение:</p>
+                    <div class="equation">
+                        (1 − 6t² + t⁴)/(1 + t²)² − 4t(1 − t²)/(1 + t²)² = (1 − t²)/(1 + t²) + 2t/(1 + t²) + 1
+                    </div>
+                    <p>Приводим правую часть к общему знаменателю (1 + t²):</p>
+                    <div class="equation">
+                        (1 − t² + 2t + 1 + t²)/(1 + t²) = (2 + 2t)/(1 + t²)
+                    </div>
+                    <p>Теперь умножаем обе части на (1 + t²)²:</p>
+                    <div class="equation">
+                        (1 − 6t² + t⁴) − 4t(1 − t²) = (2 + 2t)(1 + t²)
+                    </div>
+                </div>
+
+                <div class="solution-step detail-content">
+                    <div class="step-title"><span class="step-number">4</span>Преобразование к алгебраическому уравнению</div>
+                    <p>Раскрываем скобки и приводим подобные:</p>
+                    <div class="equation">
+                        1 − 6t² + t⁴ − 4t + 4t³ = 2 + 2t + 2t² + 2t³
+                    </div>
+                    <p>Переносим всё в левую часть:</p>
+                    <div class="equation">
+                        t⁴ + 2t³ − 8t² − 6t − 1 = 0
+                    </div>
+                    <p>Это уравнение четвёртой степени можно разложить на два квадратных множителя:</p>
+                    <div class="equation">
+                        (t² − 2t − 1)(t² + 4t + 1) = 0
+                    </div>
+                </div>
+
+                <div class="solution-step detail-content">
+                    <div class="step-title"><span class="step-number">5</span>Решение квадратных уравнений</div>
+                    <p>Получаем два случая:</p>
+                    
+                    <p><strong>Случай 1:</strong> t² − 2t − 1 = 0</p>
+                    <div class="equation">
+                        D = 4 + 4 = 8, &nbsp;&nbsp;&nbsp; t₁ = 1 + √2, &nbsp;&nbsp;&nbsp; t₂ = 1 − √2
+                    </div>
+                    
+                    <p><strong>Случай 2:</strong> t² + 4t + 1 = 0</p>
+                    <div class="equation">
+                        D = 16 − 4 = 12, &nbsp;&nbsp;&nbsp; t₃ = −2 + √3, &nbsp;&nbsp;&nbsp; t₄ = −2 − √3
+                    </div>
+                </div>
+
+                <div class="solution-step detail-content">
+                    <div class="step-title"><span class="step-number">6</span>Возврат к переменной x</div>
+                    <p>Вспоминаем, что <span class="formula">t = tg(x/2)</span>. Поэтому:</p>
+                    
+                    <p><strong>Для t₁ = 1 + √2:</strong></p>
+                    <div class="equation">
+                        tg(x/2) = 1 + √2 = tg(3π/8) &nbsp;&nbsp;&nbsp; ⇒ &nbsp;&nbsp;&nbsp; x/2 = 3π/8 + πk &nbsp;&nbsp;&nbsp; ⇒ &nbsp;&nbsp;&nbsp; x = 3π/4 + 2πk
+                    </div>
+                    
+                    <p><strong>Для t₂ = 1 − √2:</strong></p>
+                    <div class="equation">
+                        tg(x/2) = 1 − √2 = tg(−π/8) &nbsp;&nbsp;&nbsp; ⇒ &nbsp;&nbsp;&nbsp; x/2 = −π/8 + πk &nbsp;&nbsp;&nbsp; ⇒ &nbsp;&nbsp;&nbsp; x = −π/4 + 2πk
+                    </div>
+                    
+                    <p><strong>Для t₃ = −2 + √3:</strong></p>
+                    <div class="equation">
+                        tg(x/2) = −2 + √3 = tg(−π/12) &nbsp;&nbsp;&nbsp; ⇒ &nbsp;&nbsp;&nbsp; x/2 = −π/12 + πk &nbsp;&nbsp;&nbsp; ⇒ &nbsp;&nbsp;&nbsp; x = −π/6 + 2πk
+                    </div>
+                    
+                    <p><strong>Для t₄ = −2 − √3:</strong></p>
+                    <div class="equation">
+                        tg(x/2) = −2 − √3 = tg(−5π/12) &nbsp;&nbsp;&nbsp; ⇒ &nbsp;&nbsp;&nbsp; x/2 = −5π/12 + πk &nbsp;&nbsp;&nbsp; ⇒ &nbsp;&nbsp;&nbsp; x = −5π/6 + 2πk
+                    </div>
+                </div>
+
+                <div class="solution-step detail-content">
+                    <div class="step-title"><span class="step-number">7</span>Проверка ответа</div>
+                    <p>Проверим подстановкой найденные значения. Все четыре серии решений получены из табличных значений тангенса, поэтому они корректны.</p>
+                    <p>Также нужно убедиться, что знаменатель <span class="formula">1 + t² ≠ 0</span>, что очевидно верно для всех действительных t.</p>
+                    <p>Особые случаи (когда <span class="formula">x/2 = π/2 + πn</span>, т.е. когда тангенс не определён) нужно проверить отдельно. При <span class="formula">x = π + 2πn</span>:</p>
+                    <div class="equation">
+                        cos(2π) − sin(2π) = 1 − 0 = 1<br>
+                        cos(π) + sin(π) + 1 = −1 + 0 + 1 = 0
+                    </div>
+                    <p>1 ≠ 0, значит эти значения не являются решениями, и мы ничего не потеряли при использовании универсальной подстановки.</p>
+                </div>
+            </div>
+
+            <div class="answer-block">
+                <h3>📌 Ответ</h3>
+                <div class="answer-final">
+                    x = 3π/4 + 2πk, &nbsp;&nbsp; x = −π/4 + 2πk, &nbsp;&nbsp; x = −π/6 + 2πk, &nbsp;&nbsp; x = −5π/6 + 2πk, &nbsp;&nbsp; k ∈ ℤ
+                </div>
+            </div>
+
+            <div class="mistakes-block">
+                <h3>⚠️ Типичные ошибки</h3>
+                <div class="mistake-item">
+                    <strong>Ошибка 1:</strong> Неправильное применение формул универсальной подстановки для двойного угла. Нужно аккуратно выводить sin(2x) и cos(2x) через t.
+                </div>
+                <div class="mistake-item">
+                    <strong>Ошибка 2:</strong> Потеря решений при проверке особых случаев. Всегда проверяйте, не потеряли ли вы значения, где tg(x/2) не определён.
+                </div>
+                <div class="mistake-item">
+                    <strong>Ошибка 3:</strong> Ошибки при разложении многочлена четвёртой степени на множители. Рекомендуется проверять разложение умножением обратно.
+                </div>
+                <div class="mistake-item">
+                    <strong>Ошибка 4:</strong> Неправильный переход от tg(x/2) = a к x. Помните: x/2 = arctg(a) + πk, значит x = 2·arctg(a) + 2πk.
+                </div>
+            </div>
+
+            <div class="quiz-block">
+                <h3>🧪 Мини-квиз</h3>
+                <div class="quiz-question">
+                    <p><strong>Вопрос:</strong> Какое выражение соответствует формуле универсальной подстановки для cos(x)?</p>
+                    <ul class="quiz-options">
+                        <li onclick="selectAnswer(this, false)">A) (1 + t²)/(1 − t²)</li>
+                        <li onclick="selectAnswer(this, true)">B) (1 − t²)/(1 + t²)</li>
+                        <li onclick="selectAnswer(this, false)">C) 2t/(1 + t²)</li>
+                        <li onclick="selectAnswer(this, false)">D) (1 − t²)/2t</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="training-block">
+                <h3>📝 Тренировочные задания</h3>
+                
+                <div class="training-task">
+                    <p><strong>1.</strong> Решите уравнение: cos(2x) − sin(2x) = cos(x) + sin(x)</p>
+                    <button class="show-answer-btn" onclick="toggleTrainingAnswer(1)">Показать ответ</button>
+                    <div class="training-answer" id="answer1">
+                        x = 2πk, &nbsp; x = 3π/2 + 2πk, &nbsp; x = 2π/3 + 2πk, &nbsp; x = 4π/3 + 2πk, &nbsp; k ∈ ℤ
+                    </div>
+                </div>
+
+                <div class="training-task">
+                    <p><strong>2.</strong> Решите уравнение: cos(2x) + sin(2x) = cos(x) − sin(x)</p>
+                    <button class="show-answer-btn" onclick="toggleTrainingAnswer(2)">Показать ответ</button>
+                    <div class="training-answer" id="answer2">
+                        x = 2πk, &nbsp; x = π/2 + 2πk, &nbsp; x = 2π/3 + 2πk, &nbsp; x = 4π/3 + 2πk, &nbsp; k ∈ ℤ
+                    </div>
+                </div>
+
+                <div class="training-task">
+                    <p><strong>3.</strong> Решите уравнение: cos(2x) − sin(2x) = 1</p>
+                    <button class="show-answer-btn" onclick="toggleTrainingAnswer(3)">Показать ответ</button>
+                    <div class="training-answer" id="answer3">
+                        x = 2πk, &nbsp; x = −π/4 + 2πk, &nbsp; x = 3π/4 + 2πk, &nbsp; k ∈ ℤ
+                    </div>
+                </div>
+
+                <div class="training-task">
+                    <p><strong>4.</strong> Решите уравнение: cos(2x) = cos(x) + sin(2x)</p>
+                    <button class="show-answer-btn" onclick="toggleTrainingAnswer(4)">Показать ответ</button>
+                    <div class="training-answer" id="answer4">
+                        x = 2πk и корни кубического уравнения t³ + 2t² − 3t − 2 = 0, где t = tg(x/2)
+                    </div>
+                </div>
+
+                <div class="training-task">
+                    <p><strong>5.</strong> Решите уравнение: cos(2x) − sin(2x) = √2·(sin(x) + cos(x))</p>
+                    <button class="show-answer-btn" onclick="toggleTrainingAnswer(5)">Показать ответ</button>
+                    <div class="training-answer" id="answer5">
+                        Корни уравнения четвёртой степени через t = tg(x/2)
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <a href="task3.html" class="nav-btn">← Назад к задаче 3</a>
+                <a href="index.html" class="nav-btn">К содержанию</a>
+                <a href="task5.html" class="nav-btn">Вперёд к задаче 5 →</a>
+            </div>
+        </main>
+
+        <aside class="sidebar">
+            <div class="viz-panel">
+                <h4>📊 Визуализация решения</h4>
+                <canvas id="graphCanvas"></canvas>
+                
+                <div class="controls">
+                    <button class="control-btn active" onclick="setView('left')">Левая часть</button>
+                    <button class="control-btn" onclick="setView('right')">Правая часть</button>
+                    <button class="control-btn" onclick="setView('both')">Обе части</button>
+                </div>
+
+                <div class="zoom-controls">
+                    <button class="control-btn" onclick="zoomOut()">−</button>
+                    <input type="range" class="zoom-slider" id="zoomSlider" min="0.5" max="3" step="0.1" value="1" onchange="updateZoom()">
+                    <button class="control-btn" onclick="zoomIn()">+</button>
+                    <button class="control-btn" onclick="resetZoom()">↺</button>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4fc3f7;"></div>
+                        <span>y = cos(2x) − sin(2x)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ff9800;"></div>
+                        <span>y = cos(x) + sin(x) + 1</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4caf50;"></div>
+                        <span>Точки пересечения (решения)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="viz-panel">
+                <h4>🔑 Ключевые формулы</h4>
+                <div class="equation" style="font-size: 1em; padding: 10px;">
+                    t = tg(x/2)
+                </div>
+                <div class="equation" style="font-size: 1em; padding: 10px;">
+                    sin(x) = 2t/(1 + t²)
+                </div>
+                <div class="equation" style="font-size: 1em; padding: 10px;">
+                    cos(x) = (1 − t²)/(1 + t²)
+                </div>
+            </div>
+
+            <div class="viz-panel">
+                <h4>💡 Совет</h4>
+                <p style="font-size: 0.9em; color: var(--text-secondary);">
+                    Универсальная подстановка особенно эффективна, когда в уравнении присутствуют функции разных аргументов (x, 2x, 3x и т.д.). Она сводит тригонометрическое уравнение к алгебраическому.
+                </p>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        function toggleAllSteps() {
+            const contents = document.querySelectorAll('.detail-content');
+            const button = document.querySelector('.toggle-detail');
+            
+            contents.forEach(content => {
+                content.classList.toggle('show');
+            });
+            
+            if (contents[0].classList.contains('show')) {
+                button.textContent = '📖 Скрыть решение';
+            } else {
+                button.textContent = '📖 Показать полное пошаговое решение';
+            }
+        }
+
+        function selectAnswer(element, isCorrect) {
+            const options = element.parentElement.querySelectorAll('li');
+            options.forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+            });
+            
+            if (isCorrect) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('incorrect');
+            }
+        }
+
+        function toggleTrainingAnswer(num) {
+            const answer = document.getElementById('answer' + num);
+            const btn = event.target;
+            
+            if (answer.style.display === 'block') {
+                answer.style.display = 'none';
+                btn.textContent = 'Показать ответ';
+            } else {
+                answer.style.display = 'block';
+                btn.textContent = 'Скрыть ответ';
+            }
+        }
+
+        // Canvas visualization
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let zoom = 1;
+        let currentView = 'left';
+
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            drawGraph();
+        }
+
+        function drawGraph() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const scale = 40 * zoom;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+
+            // Draw axes
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(width, centerY);
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, height);
+            ctx.stroke();
+
+            // Draw grid
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i < width; i += scale) {
+                ctx.beginPath();
+                ctx.moveTo(centerX + i, 0);
+                ctx.lineTo(centerX + i, height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(centerX - i, 0);
+                ctx.lineTo(centerX - i, height);
+                ctx.stroke();
+            }
+
+            // Draw y = cos(2x) - sin(2x)
+            if (currentView === 'both' || currentView === 'left') {
+                ctx.strokeStyle = '#4fc3f7';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let px = 0; px < width; px++) {
+                    const x = (px - centerX) / scale;
+                    const y = Math.cos(2*x) - Math.sin(2*x);
+                    const py = centerY - y * scale;
+                    if (px === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+            }
+
+            // Draw y = cos(x) + sin(x) + 1
+            if (currentView === 'both' || currentView === 'right') {
+                ctx.strokeStyle = '#ff9800';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let px = 0; px < width; px++) {
+                    const x = (px - centerX) / scale;
+                    const y = Math.cos(x) + Math.sin(x) + 1;
+                    const py = centerY - y * scale;
+                    if (px === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+            }
+
+            // Mark intersection points (roots)
+            ctx.fillStyle = '#4caf50';
+            const roots = [
+                3*Math.PI/4,      // x = 3π/4
+                -Math.PI/4,       // x = -π/4
+                -Math.PI/6,       // x = -π/6
+                -5*Math.PI/6,     // x = -5π/6
+                Math.PI/4,        // additional root in visible range
+            ];
+
+            roots.forEach(root => {
+                const px = centerX + root * scale;
+                const py = centerY - (Math.cos(root) + Math.sin(root) + 1) * scale;
+                if (px > 0 && px < width && py > 0 && py < height) {
+                    ctx.beginPath();
+                    ctx.arc(px, py, 5, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            });
+
+            // Draw labels
+            ctx.fillStyle = '#aaa';
+            ctx.font = '12px Arial';
+            ctx.fillText('0', centerX + 5, centerY + 15);
+            ctx.fillText('π', centerX + scale * Math.PI + 5, centerY + 15);
+            ctx.fillText('-π', centerX - scale * Math.PI - 20, centerY + 15);
+        }
+
+        function setView(view) {
+            currentView = view;
+            document.querySelectorAll('.controls .control-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            drawGraph();
+        }
+
+        function updateZoom() {
+            zoom = parseFloat(document.getElementById('zoomSlider').value);
+            drawGraph();
+        }
+
+        function zoomIn() {
+            zoom = Math.min(zoom + 0.2, 3);
+            document.getElementById('zoomSlider').value = zoom;
+            drawGraph();
+        }
+
+        function zoomOut() {
+            zoom = Math.max(zoom - 0.2, 0.5);
+            document.getElementById('zoomSlider').value = zoom;
+            drawGraph();
+        }
+
+        function resetZoom() {
+            zoom = 1;
+            document.getElementById('zoomSlider').value = zoom;
+            drawGraph();
+        }
+
+        // Mouse wheel zoom
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                zoom = Math.min(zoom + 0.1, 3);
+            } else {
+                zoom = Math.max(zoom - 0.1, 0.5);
+            }
+            document.getElementById('zoomSlider').value = zoom;
+            drawGraph();
+        });
+
+        // Initialize
+        window.addEventListener('resize', resizeCanvas);
+        setTimeout(() => {
+            resizeCanvas();
+        }, 100);
+    </script>
+</body>
+</html>
