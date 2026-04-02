@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Задача 9: Уравнение с областью допустимых значений</title>
+    <style>
+        :root {
+            --bg-dark: #1a1a2e;
+            --bg-card: #16213e;
+            --accent: #00d9c7;
+            --accent-dark: #00a896;
+            --text-primary: #e8e8e8;
+            --text-secondary: #b0b0b0;
+            --border-color: #2d3a4f;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #f87171;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+        
+        header {
+            grid-column: 1 / -1;
+            background: var(--bg-card);
+            padding: 25px 30px;
+            border-radius: 12px;
+            border-bottom: 3px solid var(--accent);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: var(--accent);
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+        }
+        
+        .main-content {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            align-self: start;
+        }
+        
+        .idea-block {
+            background: linear-gradient(135deg, rgba(0, 217, 199, 0.1), rgba(0, 168, 150, 0.1));
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .idea-block h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .idea-block ol {
+            padding-left: 20px;
+        }
+        
+        .idea-block li {
+            margin-bottom: 10px;
+        }
+        
+        .step {
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 3px solid var(--accent);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .step:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateX(5px);
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--bg-dark);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .step h3 {
+            display: inline-block;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        
+        .math-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-size: 1.1em;
+            border: 1px solid var(--border-color);
+        }
+        
+        .key-formulas {
+            margin-bottom: 25px;
+        }
+        
+        .key-formulas h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 8px;
+        }
+        
+        .formula-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            font-size: 0.95em;
+            border-left: 3px solid var(--accent-dark);
+        }
+        
+        .quiz-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .quiz-question {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .quiz-options label {
+            display: block;
+            padding: 10px;
+            margin: 8px 0;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-options label:hover {
+            background: rgba(0, 217, 199, 0.1);
+        }
+        
+        .quiz-options input[type="radio"] {
+            margin-right: 10px;
+        }
+        
+        .training-tasks {
+            margin-top: 30px;
+        }
+        
+        .training-task {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .training-task:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .training-answer {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 217, 199, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .training-task.show-answer .training-answer {
+            display: block;
+        }
+        
+        .mistakes-block {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(248, 113, 113, 0.1);
+            border-left: 4px solid var(--error);
+            border-radius: 8px;
+        }
+        
+        .mistakes-block h3 {
+            color: var(--error);
+            margin-bottom: 15px;
+        }
+        
+        .mistakes-block ul {
+            padding-left: 20px;
+        }
+        
+        .mistakes-block li {
+            margin-bottom: 10px;
+        }
+        
+        .answer-block {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(0, 217, 199, 0.1));
+            border: 2px solid var(--success);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 25px;
+        }
+        
+        .answer-block h3 {
+            color: var(--success);
+            margin-bottom: 15px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: var(--accent);
+            color: var(--bg-dark);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+        
+        .zoom-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+        }
+        
+        .legend {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        
+        .nav-links {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links a {
+            color: var(--accent);
+            text-decoration: none;
+            padding: 10px 20px;
+            background: rgba(0, 217, 199, 0.1);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(0, 217, 199, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            
+            .container {
+                display: block;
+            }
+            
+            .sidebar {
+                position: static;
+                margin-top: 30px;
+            }
+            
+            .step:hover {
+                transform: none;
+            }
+            
+            button, .nav-links {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+                margin-top: 30px;
+            }
+        }
+        
+        .quiz-feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+        }
+        
+        .quiz-feedback.correct {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--success);
+            display: block;
+        }
+        
+        .quiz-feedback.incorrect {
+            background: rgba(248, 113, 113, 0.2);
+            color: var(--error);
+            display: block;
+        }
+        
+        .visualization-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        canvas {
+            width: 100%;
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 8px;
+        }
+        
+        .ods-block {
+            background: rgba(251, 191, 36, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .ods-block h4 {
+            color: var(--warning);
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Задача 9: Уравнение с областью допустимых значений</h1>
+            <p class="subtitle">Решение рационального тригонометрического уравнения с предварительным выписыванием ОДЗ</p>
+        </header>
+        
+        <main class="main-content">
+            <div class="problem-statement">
+                <h2>📋 Условие задачи</h2>
+                <div class="math-display">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                        <mfrac><mn>4</mn><mrow><msup><mi>sin</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mfrac><mrow><mn>7</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo></mrow></mfrac>
+                        <mo>−</mo>
+                        <mfrac><mn>11</mn><mrow><mi>cos</mi><mi>x</mi></mrow></mfrac>
+                        <mo>+</mo>
+                        <mn>6</mn>
+                        <mo>=</mo>
+                        <mn>0</mn>
+                    </math>
+                </div>
+            </div>
+            
+            <div class="idea-block">
+                <h3>💡 Идея решения</h3>
+                <ol>
+                    <li>Выписать область допустимых значений — знаменатели не должны обращаться в ноль</li>
+                    <li>Использовать формулу приведения для упрощения <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>sin</mi><mo stretchy="false">(</mo><mfrac><mrow><mn>7</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo></math></li>
+                    <li>Свести уравнение к квадратному относительно <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>cos</mi><mi>x</mi></math></li>
+                    <li>Проверить корни на соответствие ОДЗ и условию <math xmlns="http://www.w3.org/1998/Math/MathML"><mo stretchy="false">|</mo><mi>cos</mi><mi>x</mi><mo stretchy="false">|</mo><mo>≤</mo><mn>1</mn></math></li>
+                </ol>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">1</span>Что дано</h3>
+                <p>Рациональное тригонометрическое уравнение с двумя знаменателями:</p>
+                <ul>
+                    <li>Первый знаменатель: <math xmlns="http://www.w3.org/1998/Math/MathML"><msup><mi>sin</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mfrac><mrow><mn>7</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo></math></li>
+                    <li>Второй знаменатель: <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>cos</mi><mi>x</mi></math></li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">2</span>Область допустимых значений</h3>
+                <div class="ods-block">
+                    <h4>⚠️ ОДЗ — первый и самый важный шаг!</h4>
+                    <p>Знаменатели не должны обращаться в ноль:</p>
+                    <div class="math-display">
+                        <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                            <mfenced open="{" close="">
+                                <mtable>
+                                    <mtr><mtd><msup><mi>sin</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mfrac><mrow><mn>7</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo><mo>≠</mo><mn>0</mn></mtd></mtr>
+                                    <mtr><mtd><mi>cos</mi><mi>x</mi><mo>≠</mo><mn>0</mn></mtd></mtr>
+                                </mtable>
+                            </mfenced>
+                        </math>
+                    </div>
+                    <p>Это означает:</p>
+                    <ul>
+                        <li><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>sin</mi><mo stretchy="false">(</mo><mfrac><mrow><mn>7</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo><mo>≠</mo><mn>0</mn></math></li>
+                        <li><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>cos</mi><mi>x</mi><mo>≠</mo><mn>0</mn></math></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">3</span>Формула приведения</h3>
+                <p>Упростим выражение в первом знаменателе. Используем формулу приведения:</p>
+                <div class="math-display">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                        <mi>sin</mi><mo stretchy="false">(</mo><mfrac><mrow><mn>7</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo>
+                        <mo>=</mo>
+                        <mi>sin</mi><mo stretchy="false">(</mo><mfrac><mrow><mn>3</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo>
+                        <mo>=</mo>
+                        <mo>−</mo><mi>cos</mi><mi>x</mi>
+                    </math>
+                </div>
+                <p>Следовательно:</p>
+                <div class="math-display">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                        <msup><mi>sin</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mfrac><mrow><mn>7</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo>
+                        <mo>=</mo>
+                        <msup><mi>cos</mi><mn>2</mn></msup><mi>x</mi>
+                    </math>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">4</span>Преобразование уравнения</h3>
+                <p>Подставляем полученное выражение в исходное уравнение:</p>
+                <div class="math-display">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                        <mfrac><mn>4</mn><mrow><msup><mi>cos</mi><mn>2</mn></msup><mi>x</mi></mrow></mfrac>
+                        <mo>−</mo>
+                        <mfrac><mn>11</mn><mrow><mi>cos</mi><mi>x</mi></mrow></mfrac>
+                        <mo>+</mo>
+                        <mn>6</mn>
+                        <mo>=</mo>
+                        <mn>0</mn>
+                    </math>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">5</span>Замена переменной</h3>
+                <p>Обозначим <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>t</mi><mo>=</mo><mi>cos</mi><mi>x</mi></math>, где <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>t</mi><mo>≠</mo><mn>0</mn></math>. Получаем:</p>
+                <div class="math-display">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                        <mfrac><mn>4</mn><msup><mi>t</mi><mn>2</mn></msup></mfrac>
+                        <mo>−</mo>
+                        <mfrac><mn>11</mn><mi>t</mi></mfrac>
+                        <mo>+</mo>
+                        <mn>6</mn>
+                        <mo>=</mo>
+                        <mn>0</mn>
+                    </math>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">6</span>Решение квадратного уравнения</h3>
+                <p>Умножаем на <math xmlns="http://www.w3.org/1998/Math/MathML"><msup><mi>t</mi><mn>2</mn></msup></math>:</p>
+                <div class="math-display">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                        <mn>4</mn><mo>−</mo><mn>11</mn><mi>t</mi><mo>+</mo><mn>6</mn><msup><mi>t</mi><mn>2</mn></msup>
+                        <mo>=</mo>
+                        <mn>0</mn>
+                    </math>
+                </div>
+                <p>Приводим к стандартному виду:</p>
+                <div class="math-display">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                        <mn>6</mn><msup><mi>t</mi><mn>2</mn></msup><mo>−</mo><mn>11</mn><mi>t</mi><mo>+</mo><mn>4</mn>
+                        <mo>=</mo>
+                        <mn>0</mn>
+                    </math>
+                </div>
+                <p>Разлагаем на множители:</p>
+                <div class="math-display">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                        <mfenced open="(" close=")"><mrow><mn>3</mn><mi>t</mi><mo>−</mo><mn>4</mn></mrow></mfenced>
+                        <mfenced open="(" close=")"><mrow><mn>2</mn><mi>t</mi><mo>−</mo><mn>1</mn></mrow></mfenced>
+                        <mo>=</mo>
+                        <mn>0</mn>
+                    </math>
+                </div>
+                <p>Отсюда:</p>
+                <div class="math-display">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                        <mi>t</mi><mo>=</mo><mfrac><mn>4</mn><mn>3</mn></mfrac>
+                        <mtext>или</mtext>
+                        <mi>t</mi><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac>
+                    </math>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">7</span>Проверка корней</h3>
+                <p>Возвращаемся к переменной <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math>:</p>
+                <ul>
+                    <li><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>cos</mi><mi>x</mi><mo>=</mo><mfrac><mn>4</mn><mn>3</mn></mfrac></math> — невозможно, так как <math xmlns="http://www.w3.org/1998/Math/MathML"><mo stretchy="false">|</mo><mi>cos</mi><mi>x</mi><mo stretchy="false">|</mo><mo>≤</mo><mn>1</mn></math></li>
+                    <li><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>cos</mi><mi>x</mi><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac></math> — подходит, так как <math xmlns="http://www.w3.org/1998/Math/MathML"><mo stretchy="false">|</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false">|</mo><mo>&lt;</mo><mn>1</mn></math></li>
+                </ul>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">8</span>Решение простейшего уравнения</h3>
+                <p>Решаем уравнение <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>cos</mi><mi>x</mi><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac></math>:</p>
+                <div class="math-display">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                        <mi>x</mi><mo>=</mo><mo>±</mo><mi>arccos</mi><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>+</mo><mn>2</mn><mi>π</mi><mi>k</mi>
+                    </math>
+                </div>
+                <p>Так как <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>arccos</mi><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>=</mo><mfrac><mi>π</mi><mn>3</mn></mfrac></math>, получаем:</p>
+                <div class="math-display">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                        <mi>x</mi><mo>=</mo><mo>±</mo><mfrac><mi>π</mi><mn>3</mn></mfrac><mo>+</mo><mn>2</mn><mi>π</mi><mi>k</mi><mo>,</mo><mi>k</mi><mo>∈</mo><mi mathvariant="double-struck">Z</mi>
+                    </math>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">9</span>Проверка по ОДЗ</h3>
+                <p>Проверяем найденные значения на соответствие ОДЗ:</p>
+                <ul>
+                    <li><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>cos</mi><mfrac><mi>π</mi><mn>3</mn></mfrac><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>≠</mo><mn>0</mn></math> ✓</li>
+                    <li><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>sin</mi><mo stretchy="false">(</mo><mfrac><mrow><mn>7</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mfrac><mi>π</mi><mn>3</mn></mfrac><mo stretchy="false">)</mo><mo>=</mo><mi>sin</mi><mfrac><mrow><mn>19</mn><mi>π</mi></mrow><mn>6</mn></mfrac><mo>=</mo><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>≠</mo><mn>0</mn></math> ✓</li>
+                </ul>
+                <p>Все условия ОДЗ выполнены.</p>
+            </div>
+            
+            <div class="answer-block">
+                <h3>✅ Ответ</h3>
+                <div class="math-display">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                        <mi>x</mi><mo>=</mo><mfrac><mi>π</mi><mn>3</mn></mfrac><mo>+</mo><mn>2</mn><mi>π</mi><mi>k</mi>
+                        <mtext>или</mtext>
+                        <mi>x</mi><mo>=</mo><mo>−</mo><mfrac><mi>π</mi><mn>3</mn></mfrac><mo>+</mo><mn>2</mn><mi>π</mi><mi>k</mi><mo>,</mo><mi>k</mi><mo>∈</mo><mi mathvariant="double-struck">Z</mi>
+                    </math>
+                </div>
+            </div>
+            
+            <div class="mistakes-block">
+                <h3>❌ Типичные ошибки</h3>
+                <ul>
+                    <li><strong>Не выписали ОДЗ</strong> — могли включить посторонние корни, где знаменатель равен нулю</li>
+                    <li><strong>Неправильно применили формулу приведения</strong> — знак минус часто теряется при преобразовании <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>sin</mi><mo stretchy="false">(</mo><mfrac><mrow><mn>7</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo></math></li>
+                    <li><strong>Забыли проверить <math xmlns="http://www.w3.org/1998/Math/MathML"><mo stretchy="false">|</mo><mi>cos</mi><mi>x</mi><mo stretchy="false">|</mo><mo>≤</mo><mn>1</mn></math></strong> — корень <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>t</mi><mo>=</mo><mfrac><mn>4</mn><mn>3</mn></mfrac></math> нужно отбросить</li>
+                    <li><strong>Потеряли один из знаков</strong> — ответ должен содержать оба значения <math xmlns="http://www.w3.org/1998/Math/MathML"><mo>±</mo><mfrac><mi>π</mi><mn>3</mn></mfrac></math></li>
+                    <li><strong>Не проверили окончательный ответ по ОДЗ</strong> — всегда нужно убедиться, что найденные значения не обращают знаменатели в ноль</li>
+                </ul>
+            </div>
+            
+            <div class="quiz-container">
+                <h3>🧠 Мини-квиз</h3>
+                
+                <div class="quiz-question">
+                    <p><strong>1. Что нужно сделать первым шагом при решении уравнений с дробями?</strong></p>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q1" value="a"> Сразу решать квадратное уравнение</label>
+                        <label><input type="radio" name="q1" value="b"> Выписать область допустимых значений</label>
+                        <label><input type="radio" name="q1" value="c"> Применить формулы приведения</label>
+                    </div>
+                    <div class="quiz-feedback" id="feedback1"></div>
+                </div>
+                
+                <div class="quiz-question">
+                    <p><strong>2. Чему равно <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>sin</mi><mo stretchy="false">(</mo><mfrac><mrow><mn>7</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo></math>?</strong></p>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q2" value="a"> <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>cos</mi><mi>x</mi></math></label>
+                        <label><input type="radio" name="q2" value="b"> <math xmlns="http://www.w3.org/1998/Math/MathML"><mo>−</mo><mi>cos</mi><mi>x</mi></math></label>
+                        <label><input type="radio" name="q2" value="c"> <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>sin</mi><mi>x</mi></math></label>
+                    </div>
+                    <div class="quiz-feedback" id="feedback2"></div>
+                </div>
+                
+                <div class="quiz-question">
+                    <p><strong>3. Почему корень <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>t</mi><mo>=</mo><mfrac><mn>4</mn><mn>3</mn></mfrac></math> не подходит?</strong></p>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q3" value="a"> Он отрицательный</label>
+                        <label><input type="radio" name="q3" value="b"> Он больше единицы</label>
+                        <label><input type="radio" name="q3" value="c"> Он обращает знаменатель в ноль</label>
+                    </div>
+                    <div class="quiz-feedback" id="feedback3"></div>
+                </div>
+                
+                <button onclick="checkQuiz()">Проверить ответы</button>
+            </div>
+            
+            <div class="training-tasks">
+                <h3>📝 Тренировочные задания</h3>
+                <p style="margin-bottom: 15px; color: var(--text-secondary);">Нажмите на задачу, чтобы увидеть ответ:</p>
+                
+                <div class="training-task" onclick="this.classList.toggle('show-answer')">
+                    <strong>1.</strong> <math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mn>1</mn><mrow><msup><mi>sin</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mfrac><mrow><mn>3</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo></mrow></mfrac><mo>−</mo><mfrac><mn>2</mn><mrow><mi>cos</mi><mi>x</mi></mrow></mfrac><mo>=</mo><mn>0</mn></math>
+                    <div class="training-answer">Ответ: <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mo>±</mo><mfrac><mi>π</mi><mn>3</mn></mfrac><mo>+</mo><mn>2</mn><mi>π</mi><mi>k</mi><mo>,</mo><mi>k</mi><mo>∈</mo><mi mathvariant="double-struck">Z</mi></math></div>
+                </div>
+                
+                <div class="training-task" onclick="this.classList.toggle('show-answer')">
+                    <strong>2.</strong> <math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mn>9</mn><mrow><msup><mi>sin</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mfrac><mrow><mn>7</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo></mrow></mfrac><mo>−</mo><mfrac><mn>12</mn><mrow><mi>cos</mi><mi>x</mi></mrow></mfrac><mo>+</mo><mn>3</mn><mo>=</mo><mn>0</mn></math>
+                    <div class="training-answer">Ответ: <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>2</mn><mi>π</mi><mi>k</mi><mo>,</mo><mi>k</mi><mo>∈</mo><mi mathvariant="double-struck">Z</mi></math></div>
+                </div>
+                
+                <div class="training-task" onclick="this.classList.toggle('show-answer')">
+                    <strong>3.</strong> <math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mn>2</mn><mrow><msup><mi>sin</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mfrac><mrow><mn>3</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo></mrow></mfrac><mo>−</mo><mfrac><mn>5</mn><mrow><mi>cos</mi><mi>x</mi></mrow></mfrac><mo>+</mo><mn>2</mn><mo>=</mo><mn>0</mn></math>
+                    <div class="training-answer">Ответ: <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mo>±</mo><mfrac><mi>π</mi><mn>3</mn></mfrac><mo>+</mo><mn>2</mn><mi>π</mi><mi>k</mi><mo>,</mo><mi>k</mi><mo>∈</mo><mi mathvariant="double-struck">Z</mi></math></div>
+                </div>
+                
+                <div class="training-task" onclick="this.classList.toggle('show-answer')">
+                    <strong>4.</strong> <math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mn>4</mn><mrow><msup><mi>sin</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mfrac><mrow><mn>7</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo></mrow></mfrac><mo>−</mo><mfrac><mn>8</mn><mrow><mi>cos</mi><mi>x</mi></mrow></mfrac><mo>+</mo><mn>3</mn><mo>=</mo><mn>0</mn></math>
+                    <div class="training-answer">Ответ: <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mo>±</mo><mi>arccos</mi><mfrac><mn>2</mn><mn>3</mn></mfrac><mo>+</mo><mn>2</mn><mi>π</mi><mi>k</mi><mo>,</mo><mi>k</mi><mo>∈</mo><mi mathvariant="double-struck">Z</mi></math></div>
+                </div>
+                
+                <div class="training-task" onclick="this.classList.toggle('show-answer')">
+                    <strong>5.</strong> <math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mn>6</mn><mrow><msup><mi>sin</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mfrac><mrow><mn>3</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo></mrow></mfrac><mo>−</mo><mfrac><mn>13</mn><mrow><mi>cos</mi><mi>x</mi></mrow></mfrac><mo>+</mo><mn>6</mn><mo>=</mo><mn>0</mn></math>
+                    <div class="training-answer">Ответ: <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mo>±</mo><mi>arccos</mi><mfrac><mn>2</mn><mn>3</mn></mfrac><mo>+</mo><mn>2</mn><mi>π</mi><mi>k</mi><mo>,</mo><mi>k</mi><mo>∈</mo><mi mathvariant="double-struck">Z</mi></math></div>
+                </div>
+            </div>
+        </main>
+        
+        <aside class="sidebar">
+            <div class="visualization-container">
+                <h3 style="color: var(--accent); margin-bottom: 15px;">📊 График функции</h3>
+                <canvas id="graphCanvas" width="350" height="300"></canvas>
+                
+                <div class="controls">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="showFunction" checked onchange="drawGraph()">
+                        <span>График f(x)</span>
+                    </label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="showZeroLine" checked onchange="drawGraph()">
+                        <span>y = 0</span>
+                    </label>
+                </div>
+                
+                <div class="zoom-controls">
+                    <button onclick="zoomIn()">+</button>
+                    <button onclick="zoomOut()">−</button>
+                    <button onclick="resetZoom()">Сброс</button>
+                </div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #00d9c7;"></div>
+                        <span>Левая часть уравнения</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #fbbf24;"></div>
+                        <span>Линия y = 0</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f87171; border-style: dashed;"></div>
+                        <span>Точки разрыва (ОДЗ)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="key-formulas">
+                <h3>📐 Ключевые формулы</h3>
+                <div class="formula-item"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>sin</mi><mo stretchy="false">(</mo><mfrac><mrow><mn>7</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mo>−</mo><mi>cos</mi><mi>x</mi></math></div>
+                <div class="formula-item"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>sin</mi><mo stretchy="false">(</mo><mfrac><mrow><mn>3</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mo>−</mo><mi>cos</mi><mi>x</mi></math></div>
+                <div class="formula-item"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>cos</mi><mi>x</mi><mo>≠</mo><mn>0</mn></math></div>
+                <div class="formula-item"><math xmlns="http://www.w3.org/1998/Math/MathML"><mo stretchy="false">|</mo><mi>cos</mi><mi>x</mi><mo stretchy="false">|</mo><mo>≤</mo><mn>1</mn></math></div>
+            </div>
+            
+            <div class="key-formulas">
+                <h3>🎯 Этапы решения</h3>
+                <div class="formula-item">1. Выписать ОДЗ</div>
+                <div class="formula-item">2. Применить формулу приведения</div>
+                <div class="formula-item">3. Сделать замену t = cos x</div>
+                <div class="formula-item">4. Решить квадратное уравнение</div>
+                <div class="formula-item">5. Проверить корни на |t| ≤ 1</div>
+                <div class="formula-item">6. Найти x и проверить по ОДЗ</div>
+            </div>
+            
+            <div class="key-formulas">
+                <h3>⚠️ Условия ОДЗ</h3>
+                <div class="formula-item"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>sin</mi><mo stretchy="false">(</mo><mfrac><mrow><mn>7</mn><mi>π</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mi>x</mi><mo stretchy="false">)</mo><mo>≠</mo><mn>0</mn></math></div>
+                <div class="formula-item"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>cos</mi><mi>x</mi><mo>≠</mo><mn>0</mn></math></div>
+                <div class="formula-item"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>≠</mo><mfrac><mi>π</mi><mn>2</mn></mfrac><mo>+</mo><mi>π</mi><mi>k</mi></math></div>
+            </div>
+            
+            <div class="key-formulas">
+                <h3>📌 Табличные значения</h3>
+                <div class="formula-item"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>cos</mi><mfrac><mi>π</mi><mn>3</mn></mfrac><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac></math></div>
+                <div class="formula-item"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>arccos</mi><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>=</mo><mfrac><mi>π</mi><mn>3</mn></mfrac></math></div>
+            </div>
+        </aside>
+        
+        <div class="nav-links">
+            <a href="index.html">Главная</a>
+            <a href="task8.html">← Задача 8</a>
+            <a href="task10.html">Задача 10 →</a>
+        </div>
+    </div>
+    
+    <script>
+        let scale = 1;
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function f(x) {
+            const sinVal = Math.sin(7 * Math.PI / 2 - x);
+            const cosVal = Math.cos(x);
+            
+            // Проверяем ОДЗ
+            if (Math.abs(sinVal) < 0.01 || Math.abs(cosVal) < 0.01) {
+                return NaN;
+            }
+            
+            return 4 / (sinVal * sinVal) - 11 / cosVal + 6;
+        }
+        
+        function drawGraph() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const showFunction = document.getElementById('showFunction').checked;
+            const showZeroLine = document.getElementById('showZeroLine').checked;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Сетка
+            ctx.strokeStyle = '#2d3a4f';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i <= width; i += 35) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, height);
+                ctx.stroke();
+            }
+            
+            for (let i = 0; i <= height; i += 30) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(width, i);
+                ctx.stroke();
+            }
+            
+            // Оси координат
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            ctx.strokeStyle = '#4a5568';
+            ctx.lineWidth = 2;
+            
+            // Ось X
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(width, centerY);
+            ctx.stroke();
+            
+            // Ось Y
+            ctx.beginPath();
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, height);
+            ctx.stroke();
+            
+            // Линия y = 0
+            if (showZeroLine) {
+                ctx.strokeStyle = '#fbbf24';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(0, centerY);
+                ctx.lineTo(width, centerY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+            
+            // График функции
+            if (showFunction) {
+                ctx.strokeStyle = '#00d9c7';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                let started = false;
+                let lastY = null;
+                
+                for (let px = 0; px < width; px++) {
+                    const x = (px - centerX) / (50 * scale);
+                    const y = f(x);
+                    
+                    if (isNaN(y) || Math.abs(y) > 10) {
+                        started = false;
+                        lastY = null;
+                        continue;
+                    }
+                    
+                    const py = centerY - y * 20 * scale;
+                    
+                    // Пропускаем точки разрыва
+                    if (lastY !== null && Math.abs(py - lastY) > 100) {
+                        started = false;
+                    }
+                    
+                    if (!started) {
+                        ctx.moveTo(px, py);
+                        started = true;
+                    } else {
+                        ctx.lineTo(px, py);
+                    }
+                    
+                    lastY = py;
+                }
+                
+                ctx.stroke();
+            }
+            
+            // Точки разрыва (ОДЗ)
+            ctx.fillStyle = '#f87171';
+            const discontinuities = [-Math.PI/2, Math.PI/2, 3*Math.PI/2];
+            discontinuities.forEach(x => {
+                const px = centerX + x * 50 * scale;
+                if (px >= 0 && px <= width) {
+                    ctx.beginPath();
+                    ctx.arc(px, centerY, 4, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            });
+        }
+        
+        function zoomIn() {
+            scale *= 1.2;
+            drawGraph();
+        }
+        
+        function zoomOut() {
+            scale /= 1.2;
+            drawGraph();
+        }
+        
+        function resetZoom() {
+            scale = 1;
+            drawGraph();
+        }
+        
+        function checkQuiz() {
+            const answers = {
+                q1: 'b',
+                q2: 'b',
+                q3: 'b'
+            };
+            
+            const explanations = {
+                q1: 'Верно! Первым шагом всегда нужно выписать ОДЗ, чтобы исключить посторонние корни.',
+                q2: 'Верно! sin(7π/2 − x) = sin(3π/2 − x) = −cos x.',
+                q3: 'Верно! |cos x| ≤ 1, поэтому t = 4/3 > 1 не подходит.'
+            };
+            
+            for (let i = 1; i <= 3; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                const feedback = document.getElementById(`feedback${i}`);
+                
+                if (selected) {
+                    if (selected.value === answers[`q${i}`]) {
+                        feedback.textContent = '✅ ' + explanations[`q${i}`];
+                        feedback.className = 'quiz-feedback correct';
+                    } else {
+                        feedback.textContent = '❌ Попробуйте ещё раз.';
+                        feedback.className = 'quiz-feedback incorrect';
+                    }
+                }
+            }
+        }
+        
+        // Инициализация графика при загрузке
+        window.onload = function() {
+            drawGraph();
+        };
+    </script>
+</body>
+</html>
