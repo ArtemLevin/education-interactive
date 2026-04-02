@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Задача 6: Логарифмическое тригонометрическое уравнение</title>
+    <style>
+        :root {
+            --bg-dark: #1a1a2e;
+            --bg-card: #16213e;
+            --bg-sidebar: #0f3460;
+            --accent: #e94560;
+            --accent-light: #ff6b6b;
+            --text-primary: #eee;
+            --text-secondary: #aaa;
+            --text-muted: #666;
+            --border-color: #2a2a4a;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+        
+        header {
+            grid-column: 1 / -1;
+            background: var(--bg-card);
+            padding: 25px 30px;
+            border-radius: 12px;
+            border-bottom: 3px solid var(--accent);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            color: var(--accent-light);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        
+        .main-content {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .equation-box {
+            background: var(--bg-sidebar);
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.4rem;
+            margin: 25px 0;
+            border-left: 4px solid var(--accent);
+            overflow-x: auto;
+        }
+        
+        .step {
+            margin: 25px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            color: var(--accent-light);
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+        
+        .idea-block {
+            background: linear-gradient(135deg, rgba(233,69,96,0.1), rgba(15,52,96,0.3));
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .idea-title {
+            color: var(--accent-light);
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+        
+        .formula {
+            background: rgba(0,0,0,0.3);
+            padding: 15px 20px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            margin: 10px 0;
+            overflow-x: auto;
+            text-align: center;
+        }
+        
+        .answer-box {
+            background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(22,33,62,0.5));
+            border: 2px solid var(--success);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .answer-title {
+            color: var(--success);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            align-self: start;
+            background: var(--bg-sidebar);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+        
+        .sidebar-title {
+            color: var(--accent-light);
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        .viz-container {
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 250px;
+            background: var(--bg-dark);
+            border-radius: 6px;
+        }
+        
+        .control-group {
+            margin: 15px 0;
+        }
+        
+        .control-label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+        
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: var(--accent-light);
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent);
+        }
+        
+        .btn-outline:hover {
+            background: var(--accent);
+        }
+        
+        .toggle-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin: 3px;
+            transition: all 0.3s;
+        }
+        
+        .toggle-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        .quiz-container {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            border: 1px solid var(--border-color);
+        }
+        
+        .quiz-question {
+            margin-bottom: 20px;
+        }
+        
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .quiz-option {
+            background: var(--bg-sidebar);
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .quiz-option:hover {
+            border-color: var(--accent);
+        }
+        
+        .quiz-option.correct {
+            border-color: var(--success);
+            background: rgba(74,222,128,0.1);
+        }
+        
+        .quiz-option.incorrect {
+            border-color: var(--error);
+            background: rgba(239,68,68,0.1);
+        }
+        
+        .training-section {
+            margin: 30px 0;
+            padding: 25px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .training-title {
+            color: var(--accent-light);
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        
+        .training-task {
+            background: var(--bg-sidebar);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 12px 0;
+        }
+        
+        .training-answer {
+            color: var(--success);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-color);
+        }
+        
+        .errors-section {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid var(--error);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .errors-title {
+            color: var(--error);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .error-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(239,68,68,0.3);
+        }
+        
+        .error-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-toggle {
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        .detail-content {
+            display: none;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+        
+        .detail-content.show {
+            display: block;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .nav-link {
+            background: var(--bg-sidebar);
+            color: var(--text-secondary);
+            padding: 8px 15px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover {
+            background: var(--accent);
+            color: white;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+            .step, .idea-block, .answer-box {
+                break-inside: avoid;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: static;
+                max-height: none;
+            }
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+            font-size: 0.85rem;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        
+        .key-formula {
+            background: rgba(233,69,96,0.1);
+            border-left: 3px solid var(--accent);
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.95rem;
+        }
+        
+        .ods-box {
+            background: rgba(251,191,36,0.1);
+            border: 1px solid var(--warning);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .ods-title {
+            color: var(--warning);
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Задача 6: Логарифмическое тригонометрическое уравнение</h1>
+            <p class="subtitle">Решение уравнения вида log₁/₃(2sin²x − 3cos2x + 6) = −2</p>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">📋 Оглавление</a>
+                <a href="task1.html" class="nav-link">← Задача 5</a>
+                <a href="task7.html" class="nav-link">Задача 7 →</a>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <div class="equation-box">
+                log<sub>¹⁄₃</sub>(2sin²x − 3cos2x + 6) = −2
+            </div>
+            
+            <div class="idea-block">
+                <div class="idea-title">💡 Идея решения</div>
+                <ol style="margin-left: 20px;">
+                    <li>Используем определение логарифма: log<sub>a</sub>b = c ⇔ b = a<sup>c</sup></li>
+                    <li>Переходим от логарифмического уравнения к тригонометрическому</li>
+                    <li>Выражаем cos2x через sin²x по формуле cos2x = 1 − 2sin²x</li>
+                    <li>Получаем простое уравнение относительно sin²x</li>
+                    <li>Находим sin x и записываем общий ответ</li>
+                </ol>
+            </div>
+            
+            <div class="step">
+                <div class="step-title"><span class="step-number">1</span>Что дано</div>
+                <p>Логарифмическое уравнение с тригонометрическими функциями:</p>
+                <div class="formula">log<sub>¹⁄₃</sub>(2sin²x − 3cos2x + 6) = −2</div>
+                <p><strong>Основание логарифма:</strong> a = ¹⁄₃ (0 &lt; a &lt; 1)</p>
+                <p><strong>Подлогарифмическое выражение:</strong> f(x) = 2sin²x − 3cos2x + 6</p>
+            </div>
+            
+            <div class="step">
+                <div class="step-title"><span class="step-number">2</span>Область допустимых значений (ОДЗ)</div>
+                <div class="ods-box">
+                    <div class="ods-title">⚠️ Условие существования логарифма:</div>
+                    <p>Подлогарифмическое выражение должно быть строго положительным:</p>
+                    <div class="formula">2sin²x − 3cos2x + 6 &gt; 0</div>
+                    <p>Проверим это условие после нахождения потенциальных корней.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-title"><span class="step-number">3</span>Применяем определение логарифма</div>
+                <p>По определению логарифма:</p>
+                <div class="formula">log<sub>a</sub>f(x) = b &nbsp;&Longleftrightarrow;&nbsp; f(x) = a<sup>b</sup></div>
+                <p>В нашем случае:</p>
+                <div class="formula">2sin²x − 3cos2x + 6 = (¹⁄₃)<sup>−2</sup></div>
+                <p>Вычисляем правую часть:</p>
+                <div class="formula">(¹⁄₃)<sup>−2</sup> = 3² = 9</div>
+                <p>Получаем тригонометрическое уравнение:</p>
+                <div class="formula">2sin²x − 3cos2x + 6 = 9</div>
+            </div>
+            
+            <div class="step">
+                <div class="step-title"><span class="step-number">4</span>Упрощаем уравнение</div>
+                <p>Переносим 9 в левую часть:</p>
+                <div class="formula">2sin²x − 3cos2x + 6 − 9 = 0</div>
+                <div class="formula">2sin²x − 3cos2x − 3 = 0</div>
+            </div>
+            
+            <div class="step">
+                <div class="step-title"><span class="step-number">5</span>Используем формулу двойного угла</div>
+                <p>Ключевая идея: выразить cos2x через sin²x, чтобы получить уравнение с одной тригонометрической функцией.</p>
+                <div class="key-formula">
+                    <strong>Формула:</strong> cos2x = 1 − 2sin²x
+                </div>
+                <p>Подставляем в уравнение:</p>
+                <div class="formula">2sin²x − 3(1 − 2sin²x) − 3 = 0</div>
+            </div>
+            
+            <div class="step">
+                <div class="step-title"><span class="step-number">6</span>Раскрываем скобки и приводим подобные</div>
+                <p>Раскрываем скобки:</p>
+                <div class="formula">2sin²x − 3 + 6sin²x − 3 = 0</div>
+                <p>Приводим подобные слагаемые:</p>
+                <div class="formula">8sin²x − 6 = 0</div>
+            </div>
+            
+            <div class="step">
+                <div class="step-title"><span class="step-number">7</span>Решаем уравнение относительно sin²x</div>
+                <p>Переносим −6 в правую часть:</p>
+                <div class="formula">8sin²x = 6</div>
+                <p>Делим на 8:</p>
+                <div class="formula">sin²x = ⁶⁄₈ = ³⁄₄</div>
+            </div>
+            
+            <div class="step">
+                <div class="step-title"><span class="step-number">8</span>Находим sin x</div>
+                <p>Извлекаем квадратный корень:</p>
+                <div class="formula">sin x = ±√(³⁄₄) = ±√3⁄2</div>
+                <p>Получаем два случая:</p>
+                <div class="formula">sin x = √3⁄2 &nbsp;&nbsp;или&nbsp;&nbsp; sin x = −√3⁄2</div>
+            </div>
+            
+            <div class="step">
+                <div class="step-title"><span class="step-number">9</span>Решаем простейшие тригонометрические уравнения</div>
+                <p><strong>Случай 1:</strong> sin x = √3⁄2</p>
+                <div class="formula">x = π⁄3 + 2πk &nbsp;&nbsp;или&nbsp;&nbsp; x = 2π⁄3 + 2πk, &nbsp;&nbsp;k ∈ ℤ</div>
+                <p><strong>Случай 2:</strong> sin x = −√3⁄2</p>
+                <div class="formula">x = −π⁄3 + 2πk &nbsp;&nbsp;или&nbsp;&nbsp; x = −2π⁄3 + 2πk, &nbsp;&nbsp;k ∈ ℤ</div>
+                <p>Можно объединить решения в две серии:</p>
+                <div class="formula">x = π⁄3 + πk &nbsp;&nbsp;или&nbsp;&nbsp; x = 2π⁄3 + πk, &nbsp;&nbsp;k ∈ ℤ</div>
+            </div>
+            
+            <div class="step">
+                <div class="step-title"><span class="step-number">10</span>Проверка ОДЗ</div>
+                <p>Проверим, что найденные значения удовлетворяют условию 2sin²x − 3cos2x + 6 &gt; 0.</p>
+                <p>Для всех найденных решений sin²x = ³⁄₄, тогда:</p>
+                <div class="formula">cos2x = 1 − 2sin²x = 1 − 2·³⁄₄ = 1 − ³⁄₂ = −¹⁄₂</div>
+                <p>Подставляем в подлогарифмическое выражение:</p>
+                <div class="formula">2·³⁄₄ − 3·(−¹⁄₂) + 6 = ³⁄₂ + ³⁄₂ + 6 = 3 + 6 = 9 &gt; 0</div>
+                <p>✅ Условие ОДЗ выполнено для всех найденных значений.</p>
+            </div>
+            
+            <div class="answer-box">
+                <div class="answer-title">✓ Ответ</div>
+                <div class="formula" style="background: transparent; font-size: 1.2rem;">
+                    x = π⁄3 + πk &nbsp;&nbsp;или&nbsp;&nbsp; x = 2π⁄3 + πk, &nbsp;&nbsp;k ∈ ℤ
+                </div>
+            </div>
+            
+            <div class="errors-section">
+                <div class="errors-title">⚠️ Типичные ошибки</div>
+                <div class="error-item">
+                    <strong>Ошибка 1:</strong> Забыли проверить ОДЗ. Всегда проверяйте, что подлогарифмическое выражение положительно!
+                </div>
+                <div class="error-item">
+                    <strong>Ошибка 2:</strong> Неправильное вычисление (¹⁄₃)<sup>−2</sup>. Помните: a<sup>−n</sup> = 1⁄a<sup>n</sup>, поэтому (¹⁄₃)<sup>−2</sup> = 3² = 9.
+                </div>
+                <div class="error-item">
+                    <strong>Ошибка 3:</strong> Неверная формула для cos2x. Правильно: cos2x = 1 − 2sin²x (а не 2sin²x − 1).
+                </div>
+                <div class="error-item">
+                    <strong>Ошибка 4:</strong> Потеря одного из случаев при извлечении корня. Из sin²x = ³⁄₄ следует sin x = ±√3⁄2.
+                </div>
+                <div class="error-item">
+                    <strong>Ошибка 5:</strong> Неправильная запись общего ответа. Для sin x = ±√3⁄2 получаем две серии с периодом π.
+                </div>
+            </div>
+            
+            <div class="quiz-container">
+                <div class="training-title">🧠 Мини-квиз для самопроверки</div>
+                
+                <div class="quiz-question" data-correct="1">
+                    <p><strong>Вопрос 1:</strong> Чему равно (¹⁄₃)<sup>−2</sup>?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">−9</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">9</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">¹⁄₉</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">−¹⁄₉</div>
+                    </div>
+                </div>
+                
+                <div class="quiz-question" data-correct="2">
+                    <p><strong>Вопрос 2:</strong> Какая формула связывает cos2x и sin²x?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">cos2x = 2sin²x − 1</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">cos2x = 1 − 2sin²x</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">cos2x = sin²x − cos²x</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">cos2x = 2cos²x − 1</div>
+                    </div>
+                </div>
+                
+                <div class="quiz-question" data-correct="0">
+                    <p><strong>Вопрос 3:</strong> Какое условие ОДЗ для логарифма log<sub>a</sub>f(x)?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">f(x) &gt; 0</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">f(x) ≥ 0</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">f(x) ≠ 0</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">f(x) &lt; 0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="training-section">
+                <div class="training-title">📝 Тренировочные задания</div>
+                
+                <div class="training-task">
+                    <strong>1.</strong> Решите уравнение: log<sub>¹⁄₃</sub>(sin²x − cos2x + 2) = −1
+                    <div class="training-answer">Ответ: x = (−1)<sup>k</sup>arcsin(√6⁄3) + πk, k ∈ ℤ</div>
+                </div>
+                
+                <div class="training-task">
+                    <strong>2.</strong> Решите уравнение: log<sub>¹⁄₄</sub>(2sin²x − cos2x + 2) = −1
+                    <div class="training-answer">Ответ: x = π⁄3 + πk или x = 2π⁄3 + πk, k ∈ ℤ</div>
+                </div>
+                
+                <div class="training-task">
+                    <strong>3.</strong> Решите уравнение: log<sub>2</sub>(2sin²x − cos2x + 1) = 1
+                    <div class="training-answer">Ответ: x = π⁄4 + πk⁄2, k ∈ ℤ</div>
+                </div>
+                
+                <div class="training-task">
+                    <strong>4.</strong> Решите уравнение: log<sub>¹⁄₅</sub>(5sin²x − 2cos2x + 2) = −1
+                    <div class="training-answer">Ответ: x = (−1)<sup>k</sup>arcsin(√5⁄3) + πk, k ∈ ℤ</div>
+                </div>
+                
+                <div class="training-task">
+                    <strong>5.</strong> Решите уравнение: log<sub>¹⁄₃</sub>(4sin²x − 3cos2x + 4) = −2
+                    <div class="training-answer">Ответ: x = (−1)<sup>k</sup>arcsin(2√5⁄5) + πk, k ∈ ℤ</div>
+                </div>
+            </div>
+        </main>
+        
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">📐 Ключевые формулы</div>
+                <div class="key-formula">
+                    <strong>Определение логарифма:</strong><br>
+                    log<sub>a</sub>f(x) = b ⇔ f(x) = a<sup>b</sup>
+                </div>
+                <div class="key-formula">
+                    <strong>Формула двойного угла:</strong><br>
+                    cos2x = 1 − 2sin²x
+                </div>
+                <div class="key-formula">
+                    <strong>Табличные значения:</strong><br>
+                    sin(π⁄3) = √3⁄2<br>
+                    sin(2π⁄3) = √3⁄2<br>
+                    sin(−π⁄3) = −√3⁄2<br>
+                    sin(−2π⁄3) = −√3⁄2
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">⚠️ Условия ОДЗ</div>
+                <div class="ods-box">
+                    <div class="ods-title">Для log<sub>a</sub>f(x):</div>
+                    <ul style="margin-left: 15px; font-size: 0.9rem;">
+                        <li>f(x) &gt; 0</li>
+                        <li>a &gt; 0</li>
+                        <li>a ≠ 1</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">📊 Визуализация</div>
+                <div class="viz-container">
+                    <canvas id="graphCanvas"></canvas>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e94560;"></div>
+                        <span>y = 2sin²x − 3cos2x + 6</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4ade80;"></div>
+                        <span>y = 9 (решение)</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Масштаб графика</label>
+                    <input type="range" id="zoomSlider" min="0.5" max="2" step="0.1" value="1">
+                </div>
+                
+                <div class="control-group">
+                    <button class="btn btn-outline" onclick="resetZoom()">↺ Сброс</button>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Показать элементы:</label>
+                    <button class="toggle-btn active" onclick="toggleElement('curve')">Кривая</button>
+                    <button class="toggle-btn active" onclick="toggleElement('line')">Линия y=9</button>
+                    <button class="toggle-btn active" onclick="toggleElement('points')">Точки</button>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">🔍 Этапы решения</div>
+                <ol style="font-size: 0.85rem; margin-left: 15px; color: var(--text-secondary);">
+                    <li>Применить определение логарифма</li>
+                    <li>Вычислить правую часть</li>
+                    <li>Упростить уравнение</li>
+                    <li>Выразить cos2x через sin²x</li>
+                    <li>Решить относительно sin²x</li>
+                    <li>Найти sin x</li>
+                    <li>Записать общий ответ</li>
+                    <li>Проверить ОДЗ</li>
+                </ol>
+            </div>
+        </aside>
+    </div>
+    
+    <script>
+        // График функции
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let zoom = 1;
+        let showCurve = true;
+        let showLine = true;
+        let showPoints = true;
+        
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width - 30;
+            canvas.height = 250;
+            drawGraph();
+        }
+        
+        function f(x) {
+            return 2 * Math.pow(Math.sin(x), 2) - 3 * Math.cos(2 * x) + 6;
+        }
+        
+        function drawGraph() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const scaleX = (width / 2 - 20) / (4 * Math.PI) * zoom;
+            const scaleY = (height / 2 - 20) / 6 * zoom;
+            
+            // Рисуем оси
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(20, centerY);
+            ctx.lineTo(width - 20, centerY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX, 20);
+            ctx.lineTo(centerX, height - 20);
+            ctx.stroke();
+            
+            // Подписи осей
+            ctx.fillStyle = '#888';
+            ctx.font = '12px Arial';
+            ctx.fillText('x', width - 25, centerY - 5);
+            ctx.fillText('y', centerX + 5, 25);
+            
+            // Рисуем линию y = 9
+            if (showLine) {
+                const y9 = centerY - (9 - 6) * scaleY;
+                ctx.strokeStyle = '#4ade80';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(20, y9);
+                ctx.lineTo(width - 20, y9);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                ctx.fillStyle = '#4ade80';
+                ctx.fillText('y = 9', width - 50, y9 - 5);
+            }
+            
+            // Рисуем кривую
+            if (showCurve) {
+                ctx.strokeStyle = '#e94560';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                for (let px = 20; px < width - 20; px++) {
+                    const x = (px - centerX) / scaleX;
+                    const y = f(x);
+                    const py = centerY - (y - 6) * scaleY;
+                    
+                    if (px === 20) {
+                        ctx.moveTo(px, py);
+                    } else {
+                        ctx.lineTo(px, py);
+                    }
+                }
+                ctx.stroke();
+            }
+            
+            // Рисуем точки пересечения
+            if (showPoints && showCurve && showLine) {
+                const solutions = [
+                    Math.PI / 3, 2 * Math.PI / 3, 
+                    -Math.PI / 3, -2 * Math.PI / 3,
+                    Math.PI / 3 + 2 * Math.PI, 2 * Math.PI / 3 + 2 * Math.PI
+                ];
+                
+                ctx.fillStyle = '#ffeb3b';
+                solutions.forEach(sol => {
+                    const px = centerX + sol * scaleX;
+                    const py = centerY - (9 - 6) * scaleY;
+                    
+                    if (px > 20 && px < width - 20) {
+                        ctx.beginPath();
+                        ctx.arc(px, py, 5, 0, 2 * Math.PI);
+                        ctx.fill();
+                    }
+                });
+            }
+            
+            // Подписи точек
+            ctx.fillStyle = '#aaa';
+            ctx.font = '11px Arial';
+            ctx.fillText('π/3', centerX + (Math.PI / 3) * scaleX + 5, centerY + 15);
+            ctx.fillText('2π/3', centerX + (2 * Math.PI / 3) * scaleX + 5, centerY + 15);
+        }
+        
+        function resetZoom() {
+            zoom = 1;
+            document.getElementById('zoomSlider').value = 1;
+            drawGraph();
+        }
+        
+        function toggleElement(element) {
+            if (element === 'curve') showCurve = !showCurve;
+            if (element === 'line') showLine = !showLine;
+            if (element === 'points') showPoints = !showPoints;
+            drawGraph();
+        }
+        
+        document.getElementById('zoomSlider').addEventListener('input', function(e) {
+            zoom = parseFloat(e.target.value);
+            drawGraph();
+        });
+        
+        // Проверка ответов квиза
+        function checkAnswer(element, isCorrect) {
+            const parent = element.parentElement;
+            const options = parent.querySelectorAll('.quiz-option');
+            
+            options.forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+            });
+            
+            if (isCorrect) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('incorrect');
+            }
+        }
+        
+        // Инициализация
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+    </script>
+</body>
+</html>
