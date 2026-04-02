@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Задача 8: Показательное тригонометрическое уравнение</title>
+    <style>
+        :root {
+            --bg-dark: #1a1a2e;
+            --bg-card: #16213e;
+            --accent: #00d9c7;
+            --accent-dark: #00a896;
+            --text-primary: #e8e8e8;
+            --text-secondary: #b0b0b0;
+            --border-color: #2d3a4f;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #f87171;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+        
+        header {
+            grid-column: 1 / -1;
+            background: var(--bg-card);
+            padding: 25px 30px;
+            border-radius: 12px;
+            border-bottom: 3px solid var(--accent);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: var(--accent);
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+        }
+        
+        .main-content {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            align-self: start;
+        }
+        
+        .idea-block {
+            background: linear-gradient(135deg, rgba(0, 217, 199, 0.1), rgba(0, 168, 150, 0.1));
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .idea-block h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .idea-block ol {
+            padding-left: 20px;
+        }
+        
+        .idea-block li {
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        
+        .step {
+            background: rgba(45, 58, 79, 0.5);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-dark);
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--bg-dark);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .formula {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+        }
+        
+        .answer-block {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(45, 58, 79, 0.5));
+            border: 2px solid var(--success);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .answer-block h3 {
+            color: var(--success);
+            margin-bottom: 10px;
+        }
+        
+        .training-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid var(--border-color);
+        }
+        
+        .training-section h2 {
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+        
+        .training-task {
+            background: rgba(45, 58, 79, 0.3);
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .training-task:hover {
+            background: rgba(45, 58, 79, 0.6);
+            transform: translateX(5px);
+        }
+        
+        .training-answer {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(74, 222, 128, 0.1);
+            border-radius: 5px;
+            color: var(--success);
+        }
+        
+        .training-task.show-answer .training-answer {
+            display: block;
+        }
+        
+        .mistakes-block {
+            background: linear-gradient(135deg, rgba(248, 113, 113, 0.1), rgba(45, 58, 79, 0.5));
+            border-left: 4px solid var(--error);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .mistakes-block h3 {
+            color: var(--error);
+            margin-bottom: 15px;
+        }
+        
+        .mistakes-block li {
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        
+        .quiz-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(45, 58, 79, 0.3);
+            border-radius: 8px;
+        }
+        
+        .quiz-question {
+            margin-bottom: 20px;
+        }
+        
+        .quiz-options label {
+            display: block;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .quiz-options label:hover {
+            background: rgba(0, 217, 199, 0.1);
+        }
+        
+        .quiz-feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .quiz-feedback.correct {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--success);
+            display: block;
+        }
+        
+        .quiz-feedback.incorrect {
+            background: rgba(248, 113, 113, 0.2);
+            color: var(--error);
+            display: block;
+        }
+        
+        .visualization-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        canvas {
+            width: 100%;
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 8px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: var(--accent);
+            color: var(--bg-dark);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+        
+        button.secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+        
+        button.secondary:hover {
+            background: rgba(0, 217, 199, 0.1);
+        }
+        
+        .key-formulas {
+            margin-bottom: 20px;
+        }
+        
+        .key-formulas h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .formula-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .toggle-switch input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .nav-links {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links a {
+            background: var(--bg-card);
+            color: var(--accent);
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            border: 2px solid var(--accent);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background: var(--accent);
+            color: var(--bg-dark);
+        }
+        
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            
+            .container {
+                display: block;
+            }
+            
+            .sidebar {
+                position: static;
+                margin-top: 30px;
+            }
+            
+            button, .controls, .nav-links {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Задача 8: Показательное тригонометрическое уравнение</h1>
+            <p class="subtitle">Решение уравнения вида a^(sin² x) = b^(sin 2x) · c</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="idea-block">
+                <h3>💡 Идея решения</h3>
+                <ol>
+                    <li>Привести обе части уравнения к одному основанию степени (в данном случае к основанию 5)</li>
+                    <li>Приравнять показатели степеней, так как основания равны</li>
+                    <li>Использовать формулу sin 2x = 2 sin x cos x для перехода к одинаковым аргументам</li>
+                    <li>Заменить единицу на sin² x + cos² x для получения однородного уравнения</li>
+                    <li>Разложить полученное выражение на множители и решить два простых уравнения</li>
+                </ol>
+            </div>
+            
+            <h2 style="color: var(--accent); margin: 25px 0;">Дано уравнение:</h2>
+            <div class="formula">125^(sin² x) = (√5)^(5 sin 2x) · 0,2</div>
+            
+            <h2 style="color: var(--accent); margin: 25px 0;">Пошаговое решение:</h2>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Приведём обе части к основанию 5:</strong>
+                <div class="formula">
+                    125^(sin² x) = (5³)^(sin² x) = 5^(3 sin² x)<br><br>
+                    (√5)^(5 sin 2x) · 0,2 = (5^(1/2))^(5 sin 2x) · 5^(-1) = 5^((5/2) sin 2x) · 5^(-1) = 5^((5/2) sin 2x - 1)
+                </div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>Приравниваем показатели степеней:</strong>
+                <div class="formula">3 sin² x = (5/2) sin 2x - 1</div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>Подставляем формулу двойного угла:</strong>
+                <div class="formula">sin 2x = 2 sin x cos x</div>
+                <p>Получаем:</p>
+                <div class="formula">3 sin² x = (5/2) · 2 sin x cos x - 1<br>3 sin² x = 5 sin x cos x - 1</div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">4</span>
+                <strong>Переносим все члены в одну сторону:</strong>
+                <div class="formula">3 sin² x - 5 sin x cos x + 1 = 0</div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">5</span>
+                <strong>Заменяем единицу на основное тригонометрическое тождество:</strong>
+                <div class="formula">1 = sin² x + cos² x</div>
+                <p>Тогда уравнение принимает вид:</p>
+                <div class="formula">3 sin² x - 5 sin x cos x + sin² x + cos² x = 0<br>4 sin² x - 5 sin x cos x + cos² x = 0</div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">6</span>
+                <strong>Раскладываем на множители:</strong>
+                <div class="formula">(4 sin x - cos x)(sin x - cos x) = 0</div>
+                <p>Проверка раскрытия скобок:</p>
+                <div class="formula">4 sin² x - 4 sin x cos x - sin x cos x + cos² x = 4 sin² x - 5 sin x cos x + cos² x ✓</div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">7</span>
+                <strong>Решаем два полученных уравнения:</strong>
+                <div class="formula">
+                    1) 4 sin x - cos x = 0 ⟹ 4 sin x = cos x ⟹ tg x = 1/4<br>
+                    x = arctg(1/4) + πk<br><br>
+                    2) sin x - cos x = 0 ⟹ sin x = cos x ⟹ tg x = 1<br>
+                    x = π/4 + πk
+                </div>
+            </div>
+            
+            <div class="answer-block">
+                <h3>✓ Ответ:</h3>
+                <div class="formula">x = arctg(1/4) + πk &nbsp;&nbsp;или&nbsp;&nbsp; x = π/4 + πk, &nbsp;&nbsp;k ∈ Z</div>
+            </div>
+            
+            <div class="visualization-container">
+                <h3 style="color: var(--accent); margin-bottom: 15px;">📊 График функции</h3>
+                <canvas id="graphCanvas" width="350" height="300"></canvas>
+                <div class="controls">
+                    <button onclick="zoomIn()">+</button>
+                    <button onclick="zoomOut()">−</button>
+                    <button onclick="resetZoom()">Сброс</button>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="showLeft" checked onchange="drawGraph()"> Левая часть
+                    </label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="showRight" checked onchange="drawGraph()"> Правая часть
+                    </label>
+                </div>
+            </div>
+            
+            <div class="mistakes-block">
+                <h3>⚠️ Типичные ошибки</h3>
+                <ul>
+                    <li><strong>Неправильное приведение к основанию:</strong> забывают, что 125 = 5³, √5 = 5^(1/2), 0,2 = 5^(-1)</li>
+                    <li><strong>Ошибка при приравнивании показателей:</strong> пытаются приравнять сами степени, а не показатели</li>
+                    <li><strong>Неполное использование формул:</strong> забывают формулу sin 2x = 2 sin x cos x</li>
+                    <li><strong>Ошибка при разложении на множители:</strong> неправильно раскладывают квадратное выражение</li>
+                    <li><strong>Потеря корней:</strong> забывают записать оба случая из произведения или забывают +πk</li>
+                </ul>
+            </div>
+            
+            <div class="quiz-section">
+                <h3 style="color: var(--accent); margin-bottom: 20px;">🧠 Мини-квиз</h3>
+                
+                <div class="quiz-question">
+                    <p><strong>Вопрос 1:</strong> К какому основанию нужно привести обе части уравнения?</p>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q1" value="wrong1"> к основанию 125</label>
+                        <label><input type="radio" name="q1" value="correct"> к основанию 5</label>
+                        <label><input type="radio" name="q1" value="wrong2"> к основанию √5</label>
+                    </div>
+                    <div class="quiz-feedback" id="feedback1"></div>
+                </div>
+                
+                <div class="quiz-question">
+                    <p><strong>Вопрос 2:</strong> Какое тождество используется для замены единицы?</p>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q2" value="wrong1"> sin² x − cos² x = 1</label>
+                        <label><input type="radio" name="q2" value="correct"> sin² x + cos² x = 1</label>
+                        <label><input type="radio" name="q2" value="wrong2"> 1 + tg² x = 1/cos² x</label>
+                    </div>
+                    <div class="quiz-feedback" id="feedback2"></div>
+                </div>
+                
+                <div class="quiz-question">
+                    <p><strong>Вопрос 3:</strong> Какие значения tg x получаются после разложения на множители?</p>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q3" value="correct"> tg x = 1/4 и tg x = 1</label>
+                        <label><input type="radio" name="q3" value="wrong1"> tg x = 4 и tg x = 1</label>
+                        <label><input type="radio" name="q3" value="wrong2"> tg x = 1/4 и tg x = 3</label>
+                    </div>
+                    <div class="quiz-feedback" id="feedback3"></div>
+                </div>
+                
+                <button onclick="checkQuiz()" style="margin-top: 15px;">Проверить ответы</button>
+            </div>
+            
+            <div class="training-section">
+                <h2>📝 Тренировочные задания</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Нажмите на задание, чтобы увидеть ответ</p>
+                
+                <div class="training-task" onclick="this.classList.toggle('show-answer')">
+                    <strong>1.</strong> 25^(sin² x) = 5^(sin 2x)
+                    <div class="training-answer">Ответ: x = πk или x = π/4 + πk, k ∈ Z</div>
+                </div>
+                
+                <div class="training-task" onclick="this.classList.toggle('show-answer')">
+                    <strong>2.</strong> 125^(sin² x) = (√5)^(3 sin 2x) · 5^(-1)
+                    <div class="training-answer">Ответ: ∅ (нет решений)</div>
+                </div>
+                
+                <div class="training-task" onclick="this.classList.toggle('show-answer')">
+                    <strong>3.</strong> 25^(sin² x) = 5^(2 sin 2x - 1)
+                    <div class="training-answer">Ответ: x = arctg(1/3) + πk или x = π/4 + πk, k ∈ Z</div>
+                </div>
+                
+                <div class="training-task" onclick="this.classList.toggle('show-answer')">
+                    <strong>4.</strong> 625^(sin² x) = 5^(4 sin 2x)
+                    <div class="training-answer">Ответ: x = πk или x = arctg 2 + πk, k ∈ Z</div>
+                </div>
+                
+                <div class="training-task" onclick="this.classList.toggle('show-answer')">
+                    <strong>5.</strong> 125^(sin² x) = (√5)^(10 sin 2x) · 5^(-2)
+                    <div class="training-answer">Ответ: x = arctg(1 + √15/5) + πk или x = arctg(1 − √15/5) + πk, k ∈ Z</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sidebar">
+            <div class="key-formulas">
+                <h3>📐 Ключевые формулы</h3>
+                <div class="formula-item">a^m · a^n = a^(m+n)</div>
+                <div class="formula-item">(a^m)^n = a^(mn)</div>
+                <div class="formula-item">a^m = a^n ⟹ m = n (при a > 0, a ≠ 1)</div>
+                <div class="formula-item">sin 2x = 2 sin x cos x</div>
+                <div class="formula-item">sin² x + cos² x = 1</div>
+                <div class="formula-item">125 = 5³, √5 = 5^(1/2), 0,2 = 5^(-1)</div>
+            </div>
+            
+            <div class="key-formulas">
+                <h3>🎯 Этапы решения</h3>
+                <div class="formula-item">1. Приведение к основанию 5</div>
+                <div class="formula-item">2. Приравнивание показателей</div>
+                <div class="formula-item">3. Формула двойного угла</div>
+                <div class="formula-item">4. Замена 1 = sin² x + cos² x</div>
+                <div class="formula-item">5. Разложение на множители</div>
+                <div class="formula-item">6. Решение двух уравнений</div>
+            </div>
+            
+            <div class="key-formulas">
+                <h3>📌 Важно помнить</h3>
+                <div class="formula-item">• Основание должно быть положительным и не равно 1</div>
+                <div class="formula-item">• При делении на cos x проверить cos x ≠ 0</div>
+                <div class="formula-item">• Не забывать +πk в ответе</div>
+                <div class="formula-item">• Проверять разложение на множители</div>
+            </div>
+        </div>
+        
+        <div class="nav-links">
+            <a href="index.html">Главная</a>
+            <a href="task7.html">← Задача 7</a>
+            <a href="task9.html">Задача 9 →</a>
+        </div>
+    </div>
+    
+    <script>
+        let scale = 1;
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function f_left(x) {
+            return Math.pow(125, Math.pow(Math.sin(x), 2));
+        }
+        
+        function f_right(x) {
+            return Math.pow(Math.sqrt(5), 5 * Math.sin(2*x)) * 0.2;
+        }
+        
+        function drawGraph() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const showLeft = document.getElementById('showLeft').checked;
+            const showRight = document.getElementById('showRight').checked;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Сетка
+            ctx.strokeStyle = '#2d3a4f';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i <= width; i += 35) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, height);
+                ctx.stroke();
+            }
+            
+            for (let i = 0; i <= height; i += 30) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(width, i);
+                ctx.stroke();
+            }
+            
+            // Оси
+            ctx.strokeStyle = '#00d9c7';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, height/2);
+            ctx.lineTo(width, height/2);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(width/2, 0);
+            ctx.lineTo(width/2, height);
+            ctx.stroke();
+            
+            // Масштабирование
+            const xMin = -Math.PI * scale;
+            const xMax = Math.PI * scale;
+            const yMin = -1 * scale;
+            const yMax = 125 * scale;
+            
+            function toCanvasX(x) {
+                return ((x - xMin) / (xMax - xMin)) * width;
+            }
+            
+            function toCanvasY(y) {
+                return height - ((y - yMin) / (yMax - yMin)) * height;
+            }
+            
+            // График левой части
+            if (showLeft) {
+                ctx.strokeStyle = '#4ade80';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                for (let px = 0; px <= width; px++) {
+                    const x = xMin + (px / width) * (xMax - xMin);
+                    const y = f_left(x);
+                    
+                    if (px === 0) {
+                        ctx.moveTo(px, toCanvasY(y));
+                    } else {
+                        ctx.lineTo(px, toCanvasY(y));
+                    }
+                }
+                ctx.stroke();
+            }
+            
+            // График правой части
+            if (showRight) {
+                ctx.strokeStyle = '#fbbf24';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                for (let px = 0; px <= width; px++) {
+                    const x = xMin + (px / width) * (xMax - xMin);
+                    const y = f_right(x);
+                    
+                    if (px === 0) {
+                        ctx.moveTo(px, toCanvasY(y));
+                    } else {
+                        ctx.lineTo(px, toCanvasY(y));
+                    }
+                }
+                ctx.stroke();
+            }
+            
+            // Подписи
+            ctx.fillStyle = '#e8e8e8';
+            ctx.font = '12px Arial';
+            ctx.fillText('x', width - 15, height/2 - 10);
+            ctx.fillText('y', width/2 + 10, 15);
+            ctx.fillText('π', toCanvasX(Math.PI) - 5, height/2 + 20);
+            ctx.fillText('-π', toCanvasX(-Math.PI) - 15, height/2 + 20);
+            
+            // Легенда
+            ctx.fillStyle = '#4ade80';
+            ctx.fillRect(10, 10, 15, 15);
+            ctx.fillStyle = '#e8e8e8';
+            ctx.fillText('Левая часть', 30, 22);
+            
+            ctx.fillStyle = '#fbbf24';
+            ctx.fillRect(10, 30, 15, 15);
+            ctx.fillStyle = '#e8e8e8';
+            ctx.fillText('Правая часть', 30, 42);
+        }
+        
+        function zoomIn() {
+            scale *= 1.3;
+            drawGraph();
+        }
+        
+        function zoomOut() {
+            scale /= 1.3;
+            drawGraph();
+        }
+        
+        function resetZoom() {
+            scale = 1;
+            drawGraph();
+        }
+        
+        function checkQuiz() {
+            const answers = {
+                q1: 'correct',
+                q2: 'correct',
+                q3: 'correct'
+            };
+            
+            for (let i = 1; i <= 3; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                const feedback = document.getElementById(`feedback${i}`);
+                
+                if (selected && selected.value === 'correct') {
+                    feedback.className = 'quiz-feedback correct';
+                    feedback.textContent = '✓ Верно!';
+                } else {
+                    feedback.className = 'quiz-feedback incorrect';
+                    feedback.textContent = '✗ Неверно, попробуйте ещё раз';
+                }
+            }
+        }
+        
+        // Отрисовка графика при загрузке
+        drawGraph();
+    </script>
+</body>
+</html>
