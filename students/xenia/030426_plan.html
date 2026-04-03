@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — биссектриса треугольника</title>
+    <style>
+        :root{
+            --bg:#071318;
+            --bg2:#0c1c23;
+            --panel:#0f222b;
+            --panel2:#102a33;
+            --text:#e9f5f4;
+            --muted:#9bb8b5;
+            --line:#1f4650;
+            --accent:#43d4cf;
+            --accent2:#1db8c7;
+            --accent3:#8ef7f0;
+            --warn:#ffd166;
+            --danger:#ff7b7b;
+            --good:#7df7b9;
+            --shadow:0 10px 30px rgba(0,0,0,.28);
+            --radius:22px;
+            --stepA:#79fff3;
+            --stepB:#7ebdff;
+            --stepC:#ffc857;
+            --stepD:#ff9f9f;
+            --stepE:#92ff9a;
+            --stepF:#c8a2ff;
+            --stepG:#ffffff;
+            --zoom:1;
+            --diagram-h:560px;
+        }
+
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:radial-gradient(circle at top,#112a33 0%,var(--bg) 50%,#050c10 100%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;scroll-behavior:smooth}
+        body{min-height:100vh;line-height:1.55}
+        button,input,select{font:inherit}
+        .page{max-width:1500px;margin:0 auto;padding:20px}
+
+        .hero{
+            display:grid;
+            grid-template-columns:1.15fr .85fr;
+            gap:18px;
+            margin-bottom:18px;
+        }
+
+        .hero-card,.panel{
+            background:linear-gradient(180deg,rgba(16,42,51,.95),rgba(8,23,29,.96));
+            border:1px solid rgba(67,212,207,.16);
+            border-radius:var(--radius);
+            box-shadow:var(--shadow);
+            overflow:hidden;
+        }
+
+        .hero-card{padding:28px 28px 22px}
+        .badge{
+            display:inline-flex;align-items:center;gap:8px;
+            padding:6px 12px;border-radius:999px;
+            background:rgba(67,212,207,.1);color:var(--accent3);
+            border:1px solid rgba(67,212,207,.25);font-size:13px;font-weight:700;letter-spacing:.02em
+        }
+        h1{font-size:clamp(32px,4vw,52px);line-height:1.06;margin:16px 0 14px}
+        .lead{font-size:18px;color:#cfe6e2;max-width:70ch}
+        .meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+        .meta{
+            background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+            border-radius:16px;padding:14px 14px 12px
+        }
+        .meta .k{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+        .meta .v{font-size:15px;font-weight:700;margin-top:4px}
+
+        .quick-map{padding:22px}
+        .quick-map h2{margin:0 0 10px;font-size:22px}
+        .quick-map ol{margin:0;padding-left:20px;color:#cfe3e0}
+        .quick-map li{margin:8px 0}
+
+        .workspace{display:grid;grid-template-columns:minmax(0,1fr) 520px;gap:18px;align-items:start}
+        .left{min-width:0}
+        .right{position:relative}
+        .sticky{position:sticky;top:16px;display:flex;flex-direction:column;gap:16px}
+
+        .section{padding:22px 22px 18px;margin-bottom:16px}
+        .section h2{margin:0 0 14px;font-size:28px}
+        .section h3{margin:20px 0 10px;font-size:21px;color:var(--accent3)}
+        .subtle{color:var(--muted)}
+        .chips{display:flex;flex-wrap:wrap;gap:8px}
+        .chip{padding:8px 12px;border-radius:999px;background:rgba(67,212,207,.08);border:1px solid rgba(67,212,207,.15);color:#dcfffb;font-size:14px}
+
+        .idea-box,.warn-box,.check-box,.mistake-box,.quiz-box,.generator-box,.self-box{
+            border-radius:18px;padding:16px 16px 14px;margin-top:12px;
+            background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.02));
+            border:1px solid rgba(255,255,255,.08)
+        }
+        .idea-box{border-color:rgba(67,212,207,.23)}
+        .warn-box{border-color:rgba(255,209,102,.22)}
+        .check-box{border-color:rgba(125,247,185,.22)}
+        .mistake-box{border-color:rgba(255,123,123,.2)}
+
+        .stepper{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+        .step-btn{
+            border:none;cursor:pointer;color:#eafdfb;background:#11303a;border:1px solid rgba(255,255,255,.08);
+            padding:10px 14px;border-radius:14px;font-weight:700;transition:.25s transform,.25s background,.25s border-color,.25s box-shadow
+        }
+        .step-btn:hover,.step-btn:focus-visible{transform:translateY(-1px);box-shadow:0 0 0 3px rgba(67,212,207,.14)}
+        .step-btn.active{background:linear-gradient(180deg,rgba(67,212,207,.25),rgba(29,184,199,.18));border-color:rgba(67,212,207,.55)}
+
+        .stage{
+            border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px 16px 14px;margin:12px 0;
+            background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015));
+            transition:.25s border-color,.25s box-shadow,.25s transform,.25s opacity
+        }
+        .stage.locked{opacity:.48;filter:saturate(.7)}
+        .stage.current{border-color:rgba(67,212,207,.45);box-shadow:0 0 0 3px rgba(67,212,207,.08)}
+        .stage h4{margin:0 0 10px;font-size:19px;display:flex;align-items:center;gap:10px}
+        .stage p,.stage li{color:#d8ece9}
+        .stage ul{margin:8px 0 0;padding-left:20px}
+        .formula{
+            margin:12px 0;padding:12px 14px;border-radius:14px;background:#0c1f27;border:1px solid rgba(67,212,207,.12);
+            font-size:clamp(16px,1.8vw,22px);font-weight:700;letter-spacing:.01em;overflow:auto
+        }
+        .mini-formula{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+        .note{font-size:14px;color:#b7d3cf}
+        .callout{
+            display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:16px;margin-top:10px;
+            background:rgba(67,212,207,.06);border:1px solid rgba(67,212,207,.14)
+        }
+        .dot{width:12px;height:12px;border-radius:50%;background:var(--accent);margin-top:8px;flex:0 0 auto}
+
+        .controls{padding:16px}
+        .controls h3{margin:0 0 12px;font-size:21px}
+        .controls-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .control{
+            background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);padding:12px;border-radius:16px;position:relative
+        }
+        .control label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+        select,input[type="range"]{
+            width:100%;background:#0a1b21;color:var(--text);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px
+        }
+        .radio-row,.toggle-row,.zoom-row,.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+        .pill,.small-btn{
+            border:none;cursor:pointer;border-radius:12px;padding:10px 12px;background:#12323c;color:#defefd;border:1px solid rgba(255,255,255,.08);font-weight:700;
+            transition:.2s transform,.2s background,.2s border-color,.2s box-shadow
+        }
+        .pill.active,.small-btn:hover,.small-btn:focus-visible{background:#164653;border-color:rgba(67,212,207,.35);box-shadow:0 0 0 3px rgba(67,212,207,.12)}
+        .pill:hover{transform:translateY(-1px)}
+        .small-btn.primary{background:linear-gradient(180deg,#1baeb6,#128999);color:#021014}
+        .small-btn.warn{background:linear-gradient(180deg,#f4c660,#c88c18);color:#1b1300}
+        .small-btn.ghost{background:#102830}
+
+        .diagram-card{padding:0;overflow:hidden}
+        .diagram-top{
+            display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.07);gap:10px
+        }
+        .diagram-top h3{margin:0;font-size:21px}
+        .legend{display:flex;flex-wrap:wrap;gap:8px}
+        .legend span{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.03);font-size:12px;color:#d7efec;border:1px solid rgba(255,255,255,.06)}
+        .sw{width:10px;height:10px;border-radius:50%}
+        .diagram-wrap{position:relative;height:var(--diagram-h);background:radial-gradient(circle at 50% 30%,rgba(67,212,207,.09),transparent 30%),linear-gradient(180deg,#0b1b22,#081118);overflow:hidden}
+        svg{display:block;width:100%;height:100%}
+        .diagram-tools{padding:14px 16px;border-top:1px solid rgba(255,255,255,.07);display:grid;gap:12px}
+        .zoom-box,.switches{background:rgba(255,255,255,.03);border-radius:16px;padding:12px;border:1px solid rgba(255,255,255,.07)}
+        .switches label{display:flex;align-items:center;gap:10px;margin:8px 0;color:#ddf3f1}
+
+        .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .cardline{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+        .cardline:last-child{border-bottom:none}
+        .vbig{font-size:20px;font-weight:800;color:#fff}
+
+        .text-step{border-left:4px solid transparent;transition:.2s background,.2s border-color,.2s box-shadow;padding-left:12px;margin:10px 0;border-radius:8px}
+        .text-step[data-ref]:hover,.text-step[data-ref]:focus-within{background:rgba(67,212,207,.05);border-color:var(--accent);box-shadow:0 0 0 2px rgba(67,212,207,.08)}
+        .text-step.active-ref{background:rgba(67,212,207,.08);border-color:var(--accent3)}
+
+        .obj{transition:.22s opacity,.22s filter,.22s stroke-width,.22s transform}
+        .obj.dim{opacity:.16}
+        .obj.hot{filter:drop-shadow(0 0 10px rgba(142,247,240,.7))}
+        .obj.hot-line{stroke-width:4!important}
+
+        details{border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:12px 14px;background:rgba(255,255,255,.02)}
+        details+details{margin-top:10px}
+        summary{cursor:pointer;font-weight:800;color:#e8fbf9}
+
+        .qa{display:grid;gap:12px}
+        .q{padding:14px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07)}
+        .q button{margin-top:10px}
+        .ans{display:none;margin-top:10px;color:#c8e8e4}
+        .ans.show{display:block}
+
+        .footer-note{color:#9ec6c3;font-size:13px;text-align:center;padding:18px}
+
+        .hint-trigger{
+            position:relative;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;
+            border:1px solid rgba(67,212,207,.45);background:rgba(67,212,207,.13);color:#d8fffc;cursor:pointer;font-size:13px;font-weight:900;
+            animation:hintPulse 2.2s infinite;
+            outline:none;
+        }
+        .hint-trigger:focus-visible,.hint-trigger.active{animation:hintBounce .6s ease, hintPulse 2.2s infinite;box-shadow:0 0 0 3px rgba(67,212,207,.16)}
+        .hint-target.glow{animation:borderGlow 1.2s ease-in-out 2}
+
+        .tooltip{
+            position:absolute;z-index:30;max-width:320px;width:max-content;min-width:250px;padding:14px 14px 12px;border-radius:16px;
+            background:linear-gradient(180deg,#0f1f29,#081117);color:#eefdff;border:1px solid transparent;
+            background-image:linear-gradient(#0f1f29,#081117),linear-gradient(135deg,rgba(126,255,244,.9),rgba(24,170,190,.85));
+            background-origin:border-box;background-clip:padding-box,border-box;
+            box-shadow:0 18px 40px rgba(0,0,0,.45);opacity:0;pointer-events:none;transform:translateY(8px) scale(.98);
+            transition:.25s ease;
+        }
+        .tooltip.show{opacity:1;pointer-events:auto;transform:translateY(0) scale(1)}
+        .tooltip .t-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}
+        .tooltip .t-head strong{font-size:15px}
+        .tooltip .close-tip{background:none;border:none;color:#dffcf9;font-size:18px;cursor:pointer;line-height:1}
+        .tooltip .math{padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.04);margin:8px 0;font-size:14px;overflow:auto}
+        .tooltip .tip-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+        .tooltip .tip-actions button{border:none;border-radius:10px;padding:8px 10px;cursor:pointer;background:#163e49;color:#eff;font-weight:700}
+        .tooltip[data-pos="top"]::after,.tooltip[data-pos="bottom"]::after,.tooltip[data-pos="left"]::after,.tooltip[data-pos="right"]::after{
+            content:"";position:absolute;width:12px;height:12px;background:#0c1720;border-right:1px solid rgba(126,255,244,.5);border-bottom:1px solid rgba(126,255,244,.5);transform:rotate(45deg)
+        }
+        .tooltip[data-pos="top"]::after{bottom:-7px;left:26px}
+        .tooltip[data-pos="bottom"]::after{top:-7px;left:26px}
+        .tooltip[data-pos="left"]::after{right:-7px;top:22px}
+        .tooltip[data-pos="right"]::after{left:-7px;top:22px}
+
+        .toast{
+            position:fixed;right:18px;bottom:18px;z-index:40;padding:12px 14px;border-radius:14px;background:rgba(10,20,26,.95);border:1px solid rgba(67,212,207,.22);
+            color:#eafffd;box-shadow:var(--shadow);opacity:0;transform:translateY(12px);pointer-events:none;transition:.25s
+        }
+        .toast.show{opacity:1;transform:translateY(0)}
+
+        .mathline{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#f5fffe}
+
+        .print-only{display:none}
+
+        @keyframes hintPulse{
+            0%,100%{box-shadow:0 0 0 0 rgba(67,212,207,.28),0 0 12px rgba(67,212,207,.08)}
+            50%{box-shadow:0 0 0 8px rgba(67,212,207,0),0 0 18px rgba(67,212,207,.22)}
+        }
+        @keyframes borderGlow{
+            0%,100%{box-shadow:0 0 0 0 rgba(67,212,207,0)}
+            50%{box-shadow:0 0 0 4px rgba(67,212,207,.18)}
+        }
+        @keyframes hintBounce{
+            0%{transform:scale(.82)}
+            50%{transform:scale(1.15)}
+            100%{transform:scale(1)}
+        }
+
+        @media (max-width:1200px){
+            .workspace{grid-template-columns:1fr}
+            .sticky{position:relative;top:0}
+            .hero{grid-template-columns:1fr}
+            .meta-grid{grid-template-columns:1fr 1fr}
+        }
+        @media (max-width:760px){
+            .page{padding:12px}
+            .hero-card,.section,.quick-map,.controls{padding:16px}
+            .controls-grid,.mini-grid,.meta-grid{grid-template-columns:1fr}
+            :root{--diagram-h:440px}
+            .tooltip{min-width:220px;max-width:min(90vw,300px)}
+            .diagram-top{flex-direction:column;align-items:flex-start}
+            .stepper{overflow:auto;flex-wrap:nowrap;padding-bottom:4px}
+            .step-btn{white-space:nowrap}
+        }
+
+        @media print{
+            :root{--bg:#fff;--bg2:#fff;--panel:#fff;--panel2:#fff;--text:#111;--muted:#444;--line:#bbb;--accent:#1e6b6b;--accent2:#1e6b6b;--accent3:#1e6b6b;--shadow:none}
+            body{background:#fff;color:#111}
+            .page{max-width:none;padding:0}
+            .hero,.workspace{display:block}
+            .right{margin-top:20px}
+            .sticky{position:relative}
+            .panel,.hero-card,.section{box-shadow:none;background:#fff;border-color:#bbb}
+            .controls,.diagram-tools,.tooltip,.toast,.hint-trigger,.no-print{display:none!important}
+            .diagram-wrap{background:#fff;height:420px}
+            .print-only{display:block}
+            a{color:#111;text-decoration:none}
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header class="hero">
+        <section class="hero-card panel">
+            <span class="badge">Лёвин Артём Александрович · Наглядная математика с генерацией</span>
+            <h1>Биссектриса треугольника:<br>теория и задачи по мотивам пособия</h1>
+            <p class="lead">Эта страница помогает повторить свойства биссектрисы, научиться решать типовые задачи школьными методами и сразу сверять каждый шаг с интерактивной моделью.</p>
+            <div class="meta-grid">
+                <div class="meta"><div class="k">Цель</div><div class="v">повторение</div></div>
+                <div class="meta"><div class="k">Уровень</div><div class="v">уверенный</div></div>
+                <div class="meta"><div class="k">Фокус</div><div class="v">графическая интерпретация</div></div>
+                <div class="meta"><div class="k">Стиль</div><div class="v">максимально наглядно</div></div>
+                <div class="meta"><div class="k">Режим</div><div class="v">пошаговое раскрытие</div></div>
+                <div class="meta"><div class="k">Методы</div><div class="v">только школьные</div></div>
+            </div>
+        </section>
+        <aside class="quick-map panel">
+            <h2>Что Вы получите на странице</h2>
+            <ol>
+                <li>Короткую стратегию решения до вычислений.</li>
+                <li>Подробный разбор по шагам: что дано → идея → вычисления → проверка.</li>
+                <li>Интерактивный чертёж с подсветкой соответствий между текстом и рисунком.</li>
+                <li>Переключение подробности объяснения.</li>
+                <li>Генератор похожей задачи с готовым ответом и краткой идеей.</li>
+                <li>Мини-квиз и блок самопроверки.</li>
+            </ol>
+        </aside>
+    </header>
+
+    <div class="workspace">
+        <main class="left">
+            <section class="panel section">
+                <h2>Что дано в основном примере</h2>
+                <div class="chips">
+                    <span class="chip">Треугольник ABC</span>
+                    <span class="chip">AK — биссектриса угла A</span>
+                    <span class="chip">AB = 20</span>
+                    <span class="chip">AC = 5</span>
+                    <span class="chip">BC = 20</span>
+                    <span class="chip">Найти AK</span>
+                </div>
+                <div class="idea-box">
+                    <h3>Идея решения</h3>
+                    <ol>
+                        <li>Сначала биссектриса делит сторону BC в отношении прилежащих сторон: BK : KC = AB : AC.</li>
+                        <li>Значит, можно найти отрезки BK и KC.</li>
+                        <li>После этого применяем формулу для длины биссектрисы: AK² = AB·AC − BK·KC.</li>
+                        <li>В конце обязательно проверяем, что найденные BK и KC дают правильную сумму BC.</li>
+                    </ol>
+                </div>
+            </section>
+
+            <section class="panel section">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+                    <h2 style="margin:0">Пошаговое решение</h2>
+                    <div class="stepper" id="stepper"></div>
+                </div>
+                <div class="subtle">Можно раскрывать решение по этапам и сразу смотреть, что именно подсвечивается на чертеже.</div>
+                <div id="stages"></div>
+            </section>
+
+            <section class="panel section">
+                <h2>Ключевые формулы темы</h2>
+                <div class="text-step" data-ref="BK KC AB AC">
+                    <div class="formula">BK : KC = AB : AC</div>
+                    <div class="note">Главное свойство биссектрисы: она делит противоположную сторону в отношении прилежащих сторон.</div>
+                </div>
+                <div class="text-step" data-ref="AK AB AC BK KC">
+                    <div class="formula">AK² = AB · AC − BK · KC</div>
+                    <div class="note">Формула особенно удобна, когда части BC уже найдены.</div>
+                </div>
+                <div class="text-step" data-ref="A AB AC AK">
+                    <div class="formula">AK = 2 · AB · AC · cos(A/2) / (AB + AC)</div>
+                    <div class="note">Эта формула полезна, если известны стороны AB, AC и угол A.</div>
+                </div>
+                <div class="warn-box">
+                    <strong>Важно.</strong> Биссектриса вообще не обязана делить сторону пополам. Пополам делит медиана. Для биссектрисы нужен именно <strong>отношение</strong>, а не равенство частей.
+                </div>
+            </section>
+
+            <section class="panel section">
+                <h2>Типичные ошибки</h2>
+                <div class="mistake-box">
+                    <ul>
+                        <li>Путают порядок в отношении и пишут KC : BK = AB : AC без проверки.</li>
+                        <li>Находят отношение верно, но забывают, что BK + KC = BC.</li>
+                        <li>Сразу подставляют в формулу для AK неверные части BC.</li>
+                        <li>Считают, что в равнобедренном треугольнике любая биссектриса сразу является медианой к той же стороне.</li>
+                        <li>После нахождения ответа не проверяют, согласуются ли все числа с условием.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="panel section generator-box" id="generatorSection">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+                    <h2 style="margin:0">Генератор похожей задачи</h2>
+                    <button class="small-btn primary hint-target" id="generateBtn">Сгенерировать новую задачу</button>
+                </div>
+                <p class="subtle">Генератор сохраняет тот же метод: сначала отношение, потом — при необходимости — формула длины биссектрисы.</p>
+                <div class="mini-grid">
+                    <div class="panel" style="padding:14px;border-radius:18px;background:rgba(255,255,255,.03)">
+                        <div class="cardline"><span>Тип</span><strong id="genType">—</strong></div>
+                        <div class="cardline"><span>AB</span><strong id="gAB">—</strong></div>
+                        <div class="cardline"><span>AC</span><strong id="gAC">—</strong></div>
+                        <div class="cardline"><span>BC</span><strong id="gBC">—</strong></div>
+                    </div>
+                    <div class="panel" style="padding:14px;border-radius:18px;background:rgba(255,255,255,.03)">
+                        <div class="cardline"><span>Ответ</span><strong id="genAnswer">—</strong></div>
+                        <div class="cardline"><span>Идея</span><strong id="genIdea" style="font-size:14px;line-height:1.35;text-align:right">—</strong></div>
+                    </div>
+                </div>
+                <div class="idea-box" style="margin-top:14px">
+                    <strong>Условие сгенерированной задачи:</strong>
+                    <div id="genText" style="margin-top:8px">Нажмите кнопку, чтобы получить новую безопасную задачу.</div>
+                </div>
+            </section>
+
+            <section class="panel section quiz-box">
+                <h2>Мини-квиз</h2>
+                <div class="qa">
+                    <div class="q">
+                        <div><strong>1.</strong> Что верно для биссектрисы AK в треугольнике ABC?</div>
+                        <button class="small-btn ghost" data-answer="a1">Показать ответ</button>
+                        <div class="ans" id="a1">Верно соотношение <span class="mathline">BK : KC = AB : AC</span>.</div>
+                    </div>
+                    <div class="q">
+                        <div><strong>2.</strong> Почему нельзя сразу считать, что BK = KC?</div>
+                        <button class="small-btn ghost" data-answer="a2">Показать ответ</button>
+                        <div class="ans" id="a2">Потому что пополам сторону делит медиана, а биссектриса делит сторону в отношении прилежащих сторон.</div>
+                    </div>
+                    <div class="q">
+                        <div><strong>3.</strong> Что нужно сделать перед применением формулы AK² = AB·AC − BK·KC, если части BC ещё не известны?</div>
+                        <button class="small-btn ghost" data-answer="a3">Показать ответ</button>
+                        <div class="ans" id="a3">Сначала найти BK и KC по свойству биссектрисы и сумме BK + KC = BC.</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel section self-box">
+                <h2>Самопроверка</h2>
+                <details open>
+                    <summary>Что Вы должны уметь после этой страницы</summary>
+                    <ul>
+                        <li>Распознавать, где в задаче нужно использовать именно свойство биссектрисы.</li>
+                        <li>Правильно составлять отношение отрезков на стороне BC.</li>
+                        <li>Находить BK и KC через одну переменную или через деление суммы по отношению.</li>
+                        <li>Находить длину биссектрисы по формуле AK² = AB·AC − BK·KC.</li>
+                        <li>Проверять результат по условию.</li>
+                    </ul>
+                </details>
+                <details>
+                    <summary>Быстрая проверка себя без подсказки</summary>
+                    <ol>
+                        <li>Сможете ли Вы за 20 секунд записать основное свойство биссектрисы?</li>
+                        <li>Сможете ли Вы объяснить, почему BK + KC = BC обязательно используется вместе с отношением?</li>
+                        <li>Сможете ли Вы по рисунку без вычислений понять, какой отрезок больше: BK или KC?</li>
+                    </ol>
+                </details>
+            </section>
+        </main>
+
+        <aside class="right">
+            <div class="sticky">
+                <section class="panel controls">
+                    <h3>Управление разбором
+                        <span tabindex="0" class="hint-trigger" data-tip="detailTip" aria-label="Подсказка про уровень подробности">i</span>
+                    </h3>
+                    <div class="controls-grid">
+                        <div class="control hint-target" id="detailControl">
+                            <label>Подробность</label>
+                            <select id="detailSelect">
+                                <option value="short">Кратко</option>
+                                <option value="standard" selected>Стандартно</option>
+                                <option value="full">Очень подробно</option>
+                            </select>
+                        </div>
+                        <div class="control">
+                            <label>Режим открытия</label>
+                            <div class="radio-row">
+                                <button class="pill active" data-open="step">По шагам</button>
+                                <button class="pill" data-open="all">Показать всё</button>
+                            </div>
+                        </div>
+                        <div class="control hint-target" id="modeControl">
+                            <label>Что подсвечивать на схеме <span tabindex="0" class="hint-trigger" data-tip="switchTip" aria-label="Подсказка про переключатели">?</span></label>
+                            <div class="toggle-row">
+                                <button class="pill active" data-layer="labels">Подписи</button>
+                                <button class="pill active" data-layer="ratio">Отношение</button>
+                                <button class="pill active" data-layer="formula">Формулу</button>
+                            </div>
+                        </div>
+                        <div class="control">
+                            <label>Готовая подсказка</label>
+                            <div class="btn-row">
+                                <button class="small-btn warn" id="nextHintBtn">Следующая мысль</button>
+                                <button class="small-btn ghost" id="resetFlowBtn">Сбросить шаги</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel diagram-card">
+                    <div class="diagram-top">
+                        <div>
+                            <h3>Интерактивная модель
+                                <span tabindex="0" class="hint-trigger" data-tip="genTip" aria-label="Подсказка про генерацию">!</span>
+                            </h3>
+                            <div class="subtle">Связь текста и чертежа работает в обе стороны: наведите на шаг или на объект.</div>
+                        </div>
+                        <div class="legend">
+                            <span><i class="sw" style="background:var(--stepA)"></i>AB</span>
+                            <span><i class="sw" style="background:var(--stepB)"></i>AC</span>
+                            <span><i class="sw" style="background:var(--stepC)"></i>BK</span>
+                            <span><i class="sw" style="background:var(--stepD)"></i>KC</span>
+                            <span><i class="sw" style="background:var(--stepE)"></i>AK</span>
+                        </div>
+                    </div>
+                    <div class="diagram-wrap" id="diagramWrap">
+                        <svg id="diagram" viewBox="0 0 520 560" aria-label="Чертёж треугольника с биссектрисой">
+                            <g id="zoomRoot"></g>
+                        </svg>
+                    </div>
+                    <div class="diagram-tools">
+                        <div class="zoom-box hint-target" id="zoomControl">
+                            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+                                <strong>Зум чертежа</strong>
+                                <span class="subtle">Масштаб: <span id="zoomVal">100%</span></span>
+                            </div>
+                            <div class="zoom-row">
+                                <button class="small-btn ghost" id="zoomOut">−</button>
+                                <input id="zoomRange" type="range" min="70" max="180" value="100" step="5" />
+                                <button class="small-btn ghost" id="zoomIn">+</button>
+                                <button class="small-btn ghost" id="zoomReset">Сброс</button>
+                            </div>
+                        </div>
+                        <div class="switches">
+                            <strong>Показывать на рисунке</strong>
+                            <label><input type="checkbox" id="showSplit" checked /> деление стороны BC на BK и KC</label>
+                            <label><input type="checkbox" id="showMeasure" checked /> численные значения длин</label>
+                            <label><input type="checkbox" id="showIdea" checked /> стрелки идеи решения</label>
+                        </div>
+                        <div class="panel" style="padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.03);margin-top:4px">
+                            <div class="cardline"><span>BK</span><span class="vbig" id="valBK">16</span></div>
+                            <div class="cardline"><span>KC</span><span class="vbig" id="valKC">4</span></div>
+                            <div class="cardline"><span>AK</span><span class="vbig" id="valAK">6</span></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </aside>
+    </div>
+
+    <div class="footer-note">Локальная автономная страница: без внешних библиотек, с мобильной адаптацией и режимом печати.</div>
+</div>
+
+<div class="tooltip" id="detailTip" data-pos="bottom" role="tooltip" aria-hidden="true">
+    <div class="t-head"><strong>Как работает подробность</strong><button class="close-tip" aria-label="Закрыть">×</button></div>
+    <div>Переключатель меняет количество пояснений, но логика решения остаётся той же.</div>
+    <div class="math">
+        <math display="block">
+            <mrow><mi>BK</mi><mo>:</mo><mi>KC</mi><mo>=</mo><mi>AB</mi><mo>:</mo><mi>AC</mi></mrow>
+        </math>
+    </div>
+    <div>Для повторения обычно удобен стандартный режим, а для самостоятельного изучения — очень подробный.</div>
+    <div class="tip-actions">
+        <button data-tip-action="set-full">Очень подробно</button>
+        <button data-tip-action="show-example">Показать пример шага</button>
+    </div>
+</div>
+
+<div class="tooltip" id="genTip" data-pos="left" role="tooltip" aria-hidden="true">
+    <div class="t-head"><strong>Что делает генератор</strong><button class="close-tip" aria-label="Закрыть">×</button></div>
+    <div>Он создаёт новую безопасную задачу того же типа. Модель и ответ сразу пересчитываются.</div>
+    <div class="math">
+        <math display="block">
+            <mrow><msup><mi>AK</mi><mn>2</mn></msup><mo>=</mo><mi>AB</mi><mo>·</mo><mi>AC</mi><mo>−</mo><mi>BK</mi><mo>·</mo><mi>KC</mi></mrow>
+        </math>
+    </div>
+    <div class="tip-actions">
+        <button data-tip-action="generate-now">Сгенерировать сейчас</button>
+        <button data-tip-action="try-other">Другой тип</button>
+    </div>
+</div>
+
+<div class="tooltip" id="switchTip" data-pos="top" role="tooltip" aria-hidden="true">
+    <div class="t-head"><strong>Зачем переключатели</strong><button class="close-tip" aria-label="Закрыть">×</button></div>
+    <div>Можно упростить рисунок и оставить только нужную идею: отношение, подписи или формулу.</div>
+    <div>Это удобно, когда хочется увидеть, какой именно объект отвечает за конкретный шаг решения.</div>
+    <div class="tip-actions">
+        <button data-tip-action="focus-ratio">Оставить отношение</button>
+        <button data-tip-action="focus-all">Показать всё</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const state = {
+        detail:'standard',
+        openMode:'step',
+        currentStep:1,
+        layers:{labels:true,ratio:true,formula:true},
+        zoom:100,
+        showSplit:true,
+        showMeasure:true,
+        showIdea:true,
+        data:{AB:20,AC:5,BC:20,BK:16,KC:4,AK:6, title:'Основной пример'}
+    };
+
+    const stageContent = {
+        short:[
+            {
+                title:'1. Что дано',
+                ref:['AB','AC','BC','A','AK'],
+                html:`<div class="text-step" data-ref="AB AC BC AK">
+            <p>В треугольнике ABC дана биссектриса AK. Известно: AB = 20, AC = 5, BC = 20. Нужно найти AK.</p>
+          </div>`
+            },
+            {
+                title:'2. Что означает условие',
+                ref:['BK','KC','AB','AC'],
+                html:`<div class="text-step" data-ref="BK KC AB AC">
+            <p>Раз AK — биссектриса, то <strong>BK : KC = AB : AC</strong>.</p>
+          </div>`
+            },
+            {
+                title:'3. Идея',
+                ref:['BK','KC','AK'],
+                html:`<div class="text-step" data-ref="BK KC AK">
+            <p>Сначала найдём BK и KC, потом подставим их в формулу для AK.</p>
+          </div>`
+            },
+            {
+                title:'4. Вычисления',
+                ref:['BK','KC','BC','AK','AB','AC'],
+                html:`<div class="text-step" data-ref="BK KC BC">
+            <p>Из отношения 20 : 5 = 4 : 1 следует, что BC делится на 5 равных частей.</p>
+            <div class="formula">BK = 16, KC = 4</div>
+          </div>
+          <div class="text-step" data-ref="AK AB AC BK KC">
+            <div class="formula">AK² = 20·5 − 16·4 = 100 − 64 = 36</div>
+            <div class="formula">AK = 6</div>
+          </div>`
+            },
+            {
+                title:'5. Проверка',
+                ref:['BK','KC','BC','AK'],
+                html:`<div class="text-step" data-ref="BK KC BC">
+            <p>Проверка: 16 + 4 = 20, сумма совпала с BC. Формула дала AK² = 36, значит AK = 6 подходит.</p>
+          </div>`
+            },
+            {
+                title:'6. Вывод',
+                ref:['AK'],
+                html:`<div class="text-step" data-ref="AK">
+            <p><strong>Ответ: AK = 6.</strong></p>
+          </div>`
+            }
+        ],
+        standard:[
+            {
+                title:'1. Что дано',
+                ref:['AB','AC','BC','AK'],
+                html:`<div class="text-step" data-ref="AB AC BC AK">
+            <p>Рассматриваем треугольник ABC. Из вершины A к стороне BC проведена биссектриса AK.</p>
+            <ul>
+              <li>AB = 20</li>
+              <li>AC = 5</li>
+              <li>BC = 20</li>
+              <li>Нужно найти длину AK</li>
+            </ul>
+          </div>`
+            },
+            {
+                title:'2. Что означает каждое условие',
+                ref:['A','AK','BK','KC','AB','AC'],
+                html:`<div class="text-step" data-ref="A AK">
+            <p>Слово <strong>биссектриса</strong> означает, что AK делит угол A пополам.</p>
+          </div>
+          <div class="text-step" data-ref="BK KC AB AC">
+            <p>Для стороны BC это даёт ключевое свойство:</p>
+            <div class="formula">BK : KC = AB : AC</div>
+            <p>То есть сторона BC делится не пополам, а в отношении 20 : 5.</p>
+          </div>`
+            },
+            {
+                title:'3. Геометрическая интерпретация',
+                ref:['BC','BK','KC'],
+                html:`<div class="text-step" data-ref="BC BK KC">
+            <p>Отношение 20 : 5 можно сократить:</p>
+            <div class="formula">20 : 5 = 4 : 1</div>
+            <p>Значит, весь отрезок BC состоит из 5 одинаковых долей: 4 доли приходятся на BK и 1 доля — на KC.</p>
+          </div>`
+            },
+            {
+                title:'4. Ключевая идея',
+                ref:['BK','KC','AK'],
+                html:`<div class="text-step" data-ref="BK KC AK">
+            <p>Сначала найдём части BC по отношению 4 : 1, а затем вычислим AK по формуле длины биссектрисы.</p>
+          </div>`
+            },
+            {
+                title:'5. Пошаговое доведение до ответа',
+                ref:['BK','KC','BC','AK','AB','AC'],
+                html:`<div class="text-step" data-ref="BC BK KC">
+            <p>Так как BC = 20 и это 5 долей, одна доля равна:</p>
+            <div class="formula">20 / 5 = 4</div>
+          </div>
+          <div class="text-step" data-ref="BK KC">
+            <p>Тогда:</p>
+            <div class="formula">BK = 4 · 4 = 16,   KC = 1 · 4 = 4</div>
+          </div>
+          <div class="text-step" data-ref="AK AB AC BK KC">
+            <p>Теперь используем формулу:</p>
+            <div class="formula">AK² = AB · AC − BK · KC</div>
+            <div class="formula">AK² = 20 · 5 − 16 · 4 = 100 − 64 = 36</div>
+            <div class="formula">AK = 6</div>
+          </div>`
+            },
+            {
+                title:'6. Явная проверка ответа',
+                ref:['BK','KC','BC','AK'],
+                html:`<div class="text-step" data-ref="BK KC BC">
+            <p>Проверим деление стороны:</p>
+            <div class="formula">BK + KC = 16 + 4 = 20 = BC</div>
+          </div>
+          <div class="text-step" data-ref="AK">
+            <p>Проверим длину биссектрисы:</p>
+            <div class="formula">AK² = 36, значит AK = 6</div>
+            <p>Положительное значение подходит по смыслу задачи. Других положительных значений у длины быть не может.</p>
+          </div>`
+            },
+            {
+                title:'7. Краткий вывод',
+                ref:['AK'],
+                html:`<div class="text-step" data-ref="AK">
+            <p>Мы использовали два шага: свойство биссектрисы → формулу длины биссектрисы.</p>
+            <div class="formula">Ответ: AK = 6</div>
+          </div>`
+            }
+        ],
+        full:[
+            {
+                title:'1. Что дано',
+                ref:['AB','AC','BC','AK'],
+                html:`<div class="text-step" data-ref="AB AC BC AK">
+            <p>Перед нами треугольник ABC. Из вершины A к стороне BC проведён отрезок AK.</p>
+            <p>По условию этот отрезок является биссектрисой, то есть делит угол A на две равные части.</p>
+            <ul>
+              <li>AB = 20</li>
+              <li>AC = 5</li>
+              <li>BC = 20</li>
+              <li>Требуется найти AK</li>
+            </ul>
+          </div>`
+            },
+            {
+                title:'2. Что означает каждое условие',
+                ref:['A','AK','BK','KC','AB','AC'],
+                html:`<div class="text-step" data-ref="A AK">
+            <p>Если AK — биссектриса, то она связана с двумя идеями:</p>
+            <ul>
+              <li>делит угол A пополам;</li>
+              <li>делит противоположную сторону BC в отношении прилежащих сторон AB и AC.</li>
+            </ul>
+          </div>
+          <div class="text-step" data-ref="BK KC AB AC">
+            <p>Значит, сразу можно записать:</p>
+            <div class="formula">BK : KC = AB : AC = 20 : 5</div>
+          </div>
+          <div class="text-step" data-ref="BK KC AB AC">
+            <p>Сократим отношение:</p>
+            <div class="formula">20 : 5 = 4 : 1</div>
+            <p>Это особенно удобно визуально: отрезок BC разбивается на 5 равных частей, из которых 4 части — это BK, а 1 часть — KC.</p>
+          </div>`
+            },
+            {
+                title:'3. Геометрическая интерпретация',
+                ref:['BC','BK','KC'],
+                html:`<div class="text-step" data-ref="BC BK KC">
+            <p>Поскольку весь отрезок BC равен 20, найдём одну долю:</p>
+            <div class="formula">1 доля = BC / (4 + 1) = 20 / 5 = 4</div>
+          </div>
+          <div class="text-step" data-ref="BK KC">
+            <p>Отсюда:</p>
+            <div class="formula">BK = 4 · 4 = 16</div>
+            <div class="formula">KC = 1 · 4 = 4</div>
+          </div>`
+            },
+            {
+                title:'4. Ключевая идея',
+                ref:['BK','KC','AK'],
+                html:`<div class="text-step" data-ref="BK KC AK">
+            <p>Теперь всё готово для второго шага. Когда части BC уже известны, биссектрису удобно находить по формуле:</p>
+            <div class="formula">AK² = AB · AC − BK · KC</div>
+            <p>Эта формула хороша тем, что использует только длины отрезков.</p>
+          </div>`
+            },
+            {
+                title:'5. Пошаговое доведение до ответа',
+                ref:['AK','AB','AC','BK','KC'],
+                html:`<div class="text-step" data-ref="AK AB AC BK KC">
+            <p>Подставляем найденные и заданные величины:</p>
+            <div class="formula">AK² = 20 · 5 − 16 · 4</div>
+            <div class="formula">AK² = 100 − 64 = 36</div>
+          </div>
+          <div class="text-step" data-ref="AK">
+            <p>Так как длина отрезка не может быть отрицательной, берём положительный корень:</p>
+            <div class="formula">AK = √36 = 6</div>
+          </div>`
+            },
+            {
+                title:'6. Финальная проверка ответа по условию',
+                ref:['BK','KC','BC','AK'],
+                html:`<div class="text-step" data-ref="BK KC BC">
+            <p>Проверка деления стороны:</p>
+            <div class="formula">BK + KC = 16 + 4 = 20 = BC</div>
+            <p>Сторона BC действительно поделена без ошибки.</p>
+          </div>
+          <div class="text-step" data-ref="BK KC AB AC">
+            <p>Проверка отношения:</p>
+            <div class="formula">BK : KC = 16 : 4 = 4 : 1</div>
+            <div class="formula">AB : AC = 20 : 5 = 4 : 1</div>
+            <p>Отношения совпали, значит деление выполнено верно.</p>
+          </div>
+          <div class="text-step" data-ref="AK">
+            <p>Проверка длины:</p>
+            <div class="formula">AK² = 36 ⇒ AK = 6</div>
+            <p>Другого значения длины нет, потому что отрицательная длина геометрического смысла не имеет.</p>
+          </div>`
+            },
+            {
+                title:'7. Краткий вывод',
+                ref:['AK'],
+                html:`<div class="text-step" data-ref="AK">
+            <p>В задачах такого типа почти всегда работает один и тот же маршрут:</p>
+            <ol>
+              <li>по свойству биссектрисы найти BK и KC;</li>
+              <li>по формуле вычислить AK;</li>
+              <li>обязательно проверить сумму частей и отношение.</li>
+            </ol>
+            <div class="formula">Ответ: AK = 6</div>
+          </div>`
+            }
+        ]
+    };
+
+    const stagesEl = document.getElementById('stages');
+    const stepperEl = document.getElementById('stepper');
+    const toast = document.getElementById('toast');
+
+    function renderSteps(){
+        const arr = stageContent[state.detail];
+        stepperEl.innerHTML = arr.map((s,i)=>`<button class="step-btn ${state.currentStep===i+1?'active':''}" data-step="${i+1}">${i+1}. ${s.title}</button>`).join('');
+        stagesEl.innerHTML = arr.map((s,i)=>{
+            const idx=i+1;
+            const locked = state.openMode==='step' && idx>state.currentStep;
+            const current = state.currentStep===idx;
+            return `<article class="stage ${locked?'locked':''} ${current?'current':''}" data-stage="${idx}">
+          <h4><span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:rgba(67,212,207,.14);border:1px solid rgba(67,212,207,.25)">${idx}</span>${s.title}</h4>
+          ${locked?'<p class="subtle">Этот этап откроется, когда Вы дойдёте до него.</p>':s.html}
+        </article>`;
+        }).join('');
+        bindTextRefs();
+        bindStepButtons();
+    }
+
+    function bindStepButtons(){
+        document.querySelectorAll('.step-btn').forEach(btn=>btn.addEventListener('click',()=>{
+            state.currentStep=+btn.dataset.step;
+            renderSteps();
+            showToast(`Открыт этап ${state.currentStep}`);
+            syncStageHighlight();
+        }));
+    }
+
+    function bindTextRefs(){
+        document.querySelectorAll('[data-ref]').forEach(el=>{
+            const enter=()=>highlightRefs(el.dataset.ref.split(/\s+/));
+            const leave=()=>clearRefs();
+            el.addEventListener('mouseenter',enter);
+            el.addEventListener('mouseleave',leave);
+            el.addEventListener('focusin',enter);
+            el.addEventListener('focusout',leave);
+        });
+    }
+
+    function syncStageHighlight(){
+        const arr = stageContent[state.detail];
+        const s = arr[state.currentStep-1];
+        if(s) highlightRefs(s.ref);
+    }
+
+    const P = {A:{x:190,y:95},B:{x:105,y:425},C:{x:410,y:425},K:{x:349,y:425}};
+
+    function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+    function mid(a,b,t=.5){return {x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}}
+
+    function renderDiagram(){
+        const root = document.getElementById('zoomRoot');
+        const z = state.zoom/100;
+        const tx = 260 - 260*z;
+        const ty = 280 - 280*z;
+        root.setAttribute('transform',`translate(${tx},${ty}) scale(${z})`);
+
+        const d = state.data;
+        const layers = state.layers;
+
+        const ABm = mid(P.A,P.B,.48), ACm = mid(P.A,P.C,.52), BKm = mid(P.B,P.K,.48), KCm=mid(P.K,P.C,.52), AKm=mid(P.A,P.K,.52);
+        const angleArc = describeArc(P.A.x,P.A.y,48,104,76);
+        const angleArc2 = describeArc(P.A.x,P.A.y,60,76,50);
+
+        root.innerHTML = `
+        <defs>
+          <marker id="arrowGlow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="${css('--accent')}"/></marker>
+          <filter id="softGlow"><feGaussianBlur stdDeviation="3" result="c"/><feMerge><feMergeNode in="c"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <g id="baseGrid" opacity="0.12">
+          ${Array.from({length:12},(_,i)=>`<line x1="0" y1="${50+i*40}" x2="520" y2="${50+i*40}" stroke="#6fe8de" stroke-width="1"/>`).join('')}
+          ${Array.from({length:10},(_,i)=>`<line x1="${40+i*45}" y1="0" x2="${40+i*45}" y2="560" stroke="#6fe8de" stroke-width="1"/>`).join('')}
+        </g>
+
+        <g id="triangles">
+          <line class="obj obj-AB ${layers.labels?'':'dim'} hot-area" data-name="AB" x1="${P.A.x}" y1="${P.A.y}" x2="${P.B.x}" y2="${P.B.y}" stroke="${css('--stepA')}" stroke-width="3" />
+          <line class="obj obj-AC ${layers.labels?'':'dim'} hot-area" data-name="AC" x1="${P.A.x}" y1="${P.A.y}" x2="${P.C.x}" y2="${P.C.y}" stroke="${css('--stepB')}" stroke-width="3" />
+          <line class="obj obj-BC hot-area" data-name="BC" x1="${P.B.x}" y1="${P.B.y}" x2="${P.C.x}" y2="${P.C.y}" stroke="#d0ece9" stroke-width="3" />
+          <line class="obj obj-AK ${layers.formula?'':'dim'} hot-area" data-name="AK" x1="${P.A.x}" y1="${P.A.y}" x2="${P.K.x}" y2="${P.K.y}" stroke="${css('--stepE')}" stroke-width="4" filter="url(#softGlow)" />
+        </g>
+
+        <g id="splitLayer" style="display:${state.showSplit?'block':'none'}">
+          <circle class="obj obj-BK hot-area" data-name="BK" cx="${BKm.x}" cy="${BKm.y}" r="0.01" fill="none" />
+          <circle class="obj obj-KC hot-area" data-name="KC" cx="${KCm.x}" cy="${KCm.y}" r="0.01" fill="none" />
+          <line class="obj obj-BK hot-area" data-name="BK" x1="${P.B.x}" y1="${P.B.y}" x2="${P.K.x}" y2="${P.K.y}" stroke="${css('--stepC')}" stroke-width="6" opacity="0.4" />
+          <line class="obj obj-KC hot-area" data-name="KC" x1="${P.K.x}" y1="${P.K.y}" x2="${P.C.x}" y2="${P.C.y}" stroke="${css('--stepD')}" stroke-width="6" opacity="0.4" />
+          <circle class="obj obj-K hot-area" data-name="K" cx="${P.K.x}" cy="${P.K.y}" r="6" fill="${css('--stepE')}" stroke="#fff" stroke-width="2" />
+        </g>
+
+        <g id="ideaLayer" style="display:${state.showIdea?'block':'none'}">
+          <path class="obj obj-ratio ${layers.ratio?'':'dim'}" data-name="ratio" d="M130 463 C180 505, 290 505, 340 458" fill="none" stroke="${css('--accent')}" stroke-width="2.5" stroke-dasharray="7 7" marker-end="url(#arrowGlow)" />
+          <text x="220" y="510" fill="${css('--accent3')}" font-size="18" font-weight="700">делим BC по отношению 4 : 1</text>
+          <path class="obj obj-formula ${layers.formula?'':'dim'}" data-name="formula" d="M370 180 C445 190, 445 270, 388 290" fill="none" stroke="${css('--stepE')}" stroke-width="2.5" stroke-dasharray="7 7" marker-end="url(#arrowGlow)" />
+          <text x="365" y="165" fill="${css('--stepE')}" font-size="16" font-weight="700">потом ищем AK</text>
+        </g>
+
+        <g id="angleLayer" style="display:${layers.labels?'block':'none'}">
+          <path class="obj obj-A hot-area" data-name="A" d="${angleArc}" fill="none" stroke="#eafdfb" stroke-width="2.4" />
+          <path class="obj obj-A hot-area" data-name="A" d="${angleArc2}" fill="none" stroke="#eafdfb" stroke-width="2.4" />
+          <text x="228" y="153" fill="#eff" font-size="18">∠BAK = ∠KAC</text>
+        </g>
+
+        <g id="measureLayer" style="display:${state.showMeasure?'block':'none'}">
+          <text class="obj obj-AB hot-area" data-name="AB" x="${ABm.x-26}" y="${ABm.y-6}" fill="${css('--stepA')}" font-size="20" font-weight="800">AB = ${fmt(d.AB)}</text>
+          <text class="obj obj-AC hot-area" data-name="AC" x="${ACm.x+12}" y="${ACm.y-4}" fill="${css('--stepB')}" font-size="20" font-weight="800">AC = ${fmt(d.AC)}</text>
+          <text class="obj obj-BK hot-area" data-name="BK" x="${BKm.x-26}" y="${BKm.y-18}" fill="${css('--stepC')}" font-size="20" font-weight="800">BK = ${fmt(d.BK)}</text>
+          <text class="obj obj-KC hot-area" data-name="KC" x="${KCm.x-10}" y="${KCm.y-18}" fill="${css('--stepD')}" font-size="20" font-weight="800">KC = ${fmt(d.KC)}</text>
+          <text class="obj obj-AK hot-area" data-name="AK" x="${AKm.x+18}" y="${AKm.y+8}" fill="${css('--stepE')}" font-size="20" font-weight="800">AK = ${fmt(d.AK)}</text>
+          <text class="obj obj-BC hot-area" data-name="BC" x="${(P.B.x+P.C.x)/2-28}" y="${P.B.y+28}" fill="#e7f5f4" font-size="20" font-weight="800">BC = ${fmt(d.BC)}</text>
+        </g>
+
+        <g id="points">
+          ${['A','B','C'].map(name=>`<circle class="obj obj-${name} hot-area" data-name="${name}" cx="${P[name].x}" cy="${P[name].y}" r="5.6" fill="#ffffff" stroke="#0b1820" stroke-width="2" />`).join('')}
+          ${['A','B','C','K'].map(name=>`<text class="obj obj-${name} hot-area" data-name="${name}" x="${P[name].x + (name==='A'?10:-6)}" y="${P[name].y + (name==='A'?-10: -10)}" fill="#fff" font-size="19" font-weight="800">${name}</text>`).join('')}
+        </g>
+      `;
+
+        document.getElementById('valBK').textContent = fmt(d.BK);
+        document.getElementById('valKC').textContent = fmt(d.KC);
+        document.getElementById('valAK').textContent = fmt(d.AK);
+        bindDiagramRefs();
+        syncStageHighlight();
+    }
+
+    function describeArc(x,y,r,start,end){
+        const s=polar(x,y,r,end), e=polar(x,y,r,start), large=end-start<=180?0:1;
+        return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 0 ${e.x} ${e.y}`;
+    }
+    function polar(cx,cy,r,a){const rad=(a-90)*Math.PI/180;return {x:cx+r*Math.cos(rad),y:cy+r*Math.sin(rad)}}
+    function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
+    function fmt(n){return Number.isInteger(n)?String(n):String(n).replace('.',',')}
+
+    function clearRefs(){
+        document.querySelectorAll('.obj').forEach(o=>o.classList.remove('hot','hot-line','dim'));
+        document.querySelectorAll('.text-step').forEach(t=>t.classList.remove('active-ref'));
+    }
+
+    function highlightRefs(refs){
+        const map = refs.flatMap(r=>[r, r.toUpperCase(), r.toLowerCase()]);
+        document.querySelectorAll('.obj').forEach(o=>{
+            const name=(o.dataset.name||'');
+            if(!name) return;
+            const hit = map.includes(name);
+            if(hit){o.classList.add('hot'); if(o.tagName==='line'||o.tagName==='path') o.classList.add('hot-line')} else {o.classList.add('dim')}
+        });
+        document.querySelectorAll('.text-step').forEach(t=>{
+            const r=(t.dataset.ref||'').split(/\s+/);
+            const hit = r.some(v=>map.includes(v));
+            t.classList.toggle('active-ref',hit);
+        });
+    }
+
+    function bindDiagramRefs(){
+        document.querySelectorAll('.hot-area').forEach(el=>{
+            const enter=()=>highlightRefs([el.dataset.name]);
+            const leave=()=>clearRefs();
+            el.addEventListener('mouseenter',enter);
+            el.addEventListener('mouseleave',leave);
+            el.addEventListener('focusin',enter);
+            el.addEventListener('focusout',leave);
+        });
+    }
+
+    document.getElementById('detailSelect').addEventListener('change',e=>{
+        state.detail=e.target.value;
+        state.currentStep=1;
+        renderSteps();
+        showToast(detailText(state.detail));
+    });
+
+    function detailText(v){return v==='short'?'Краткий режим включён':v==='standard'?'Стандартный режим включён':'Очень подробный режим включён'}
+
+    document.querySelectorAll('[data-open]').forEach(btn=>btn.addEventListener('click',()=>{
+        document.querySelectorAll('[data-open]').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        state.openMode=btn.dataset.open;
+        if(state.openMode==='all') state.currentStep=stageContent[state.detail].length;
+        else state.currentStep=1;
+        renderSteps();
+        showToast(state.openMode==='all'?'Открыты все шаги':'Включён пошаговый режим');
+    }));
+
+    document.querySelectorAll('[data-layer]').forEach(btn=>btn.addEventListener('click',()=>{
+        const k=btn.dataset.layer;
+        state.layers[k]=!state.layers[k];
+        btn.classList.toggle('active',state.layers[k]);
+        renderDiagram();
+        showToast(`Слой «${labelLayer(k)}» ${state.layers[k]?'включён':'скрыт'}`);
+    }));
+    function labelLayer(k){return k==='labels'?'подписи':k==='ratio'?'отношение':'формула'}
+
+    document.getElementById('nextHintBtn').addEventListener('click',()=>{
+        const total=stageContent[state.detail].length;
+        if(state.currentStep<total){state.currentStep++; renderSteps(); showToast(`Подсказка: смотрим этап ${state.currentStep}`);} else showToast('Все этапы уже открыты');
+    });
+    document.getElementById('resetFlowBtn').addEventListener('click',()=>{
+        state.currentStep=1; state.openMode='step';
+        document.querySelectorAll('[data-open]').forEach(b=>b.classList.toggle('active',b.dataset.open==='step'));
+        renderSteps(); showToast('Разбор сброшен к первому шагу');
+    });
+
+    ['showSplit','showMeasure','showIdea'].forEach(id=>document.getElementById(id).addEventListener('change',e=>{
+        state[id]=e.target.checked; renderDiagram();
+    }));
+
+    const zoomRange=document.getElementById('zoomRange');
+    function setZoom(v){state.zoom=Math.max(70,Math.min(180,v));zoomRange.value=state.zoom;document.getElementById('zoomVal').textContent=state.zoom+'%';renderDiagram();}
+    zoomRange.addEventListener('input',e=>setZoom(+e.target.value));
+    document.getElementById('zoomIn').addEventListener('click',()=>setZoom(state.zoom+10));
+    document.getElementById('zoomOut').addEventListener('click',()=>setZoom(state.zoom-10));
+    document.getElementById('zoomReset').addEventListener('click',()=>setZoom(100));
+    document.getElementById('diagramWrap').addEventListener('wheel',e=>{e.preventDefault(); setZoom(state.zoom + (e.deltaY<0?5:-5));},{passive:false});
+
+    function generateProblem(mode='random'){
+        const types = ['findAK','findSplit'];
+        let type = mode==='other' ? (Math.random()<.5?'findAK':'findSplit') : types[Math.floor(Math.random()*types.length)];
+        let AB, AC, parts, BC, BK, KC, AK;
+
+        const safePresets = [
+            {AB:12,AC:3,BC:15},
+            {AB:18,AC:6,BC:16},
+            {AB:15,AC:5,BC:20},
+            {AB:14,AC:7,BC:18},
+            {AB:21,AC:7,BC:20},
+            {AB:16,AC:4,BC:25},
+            {AB:10,AC:5,BC:12},
+            {AB:24,AC:6,BC:25}
+        ];
+        const p = safePresets[Math.floor(Math.random()*safePresets.length)];
+        AB=p.AB; AC=p.AC; BC=p.BC;
+        const g=gcd(AB,AC); const r1=AB/g, r2=AC/g; const sum=r1+r2;
+        BK=+(BC*r1/sum).toFixed(2); KC=+(BC*r2/sum).toFixed(2);
+        const sq=AB*AC-BK*KC;
+        AK=+(Math.sqrt(sq)).toFixed(2);
+
+        // avoid awkward if needed
+        if(type==='findAK'){
+            document.getElementById('genType').textContent='найти биссектрису';
+            document.getElementById('genText').textContent=`В треугольнике ABC к стороне BC проведена биссектриса AK. Известно: AB = ${fmt(AB)}, AC = ${fmt(AC)}, BC = ${fmt(BC)}. Найдите длину AK.`;
+            document.getElementById('genAnswer').textContent=`AK = ${fmt(AK)}`;
+            document.getElementById('genIdea').textContent='Сначала найти BK и KC по отношению AB : AC, затем применить формулу для AK.';
+        } else {
+            document.getElementById('genType').textContent='найти части BC';
+            document.getElementById('genText').textContent=`В треугольнике ABC к стороне BC проведена биссектриса AK. Известно: AB = ${fmt(AB)}, AC = ${fmt(AC)}, BC = ${fmt(BC)}. Найдите BK и KC.`;
+            document.getElementById('genAnswer').textContent=`BK = ${fmt(BK)}, KC = ${fmt(KC)}`;
+            document.getElementById('genIdea').textContent='Разделить BC в отношении AB : AC.';
+        }
+        document.getElementById('gAB').textContent=fmt(AB);
+        document.getElementById('gAC').textContent=fmt(AC);
+        document.getElementById('gBC').textContent=fmt(BC);
+
+        // apply to diagram too
+        state.data={AB,AC,BC,BK,KC,AK,title:'Сгенерированная задача'};
+        renderDiagram();
+        showToast('Сгенерирована новая задача и обновлена модель');
+    }
+
+    function gcd(a,b){return b?gcd(b,a%b):Math.abs(a)}
+    document.getElementById('generateBtn').addEventListener('click',()=>generateProblem('random'));
+
+    document.querySelectorAll('[data-answer]').forEach(btn=>btn.addEventListener('click',()=>{
+        document.getElementById(btn.dataset.answer).classList.toggle('show');
+    }));
+
+    function showToast(text){
+        toast.textContent=text;
+        toast.classList.add('show');
+        clearTimeout(showToast._t);
+        showToast._t=setTimeout(()=>toast.classList.remove('show'),2300);
+    }
+
+    // tooltip system
+    const tips = Array.from(document.querySelectorAll('.tooltip'));
+    let tipTimer;
+    function closeTips(){tips.forEach(t=>{t.classList.remove('show');t.setAttribute('aria-hidden','true')});document.querySelectorAll('.hint-trigger').forEach(t=>t.classList.remove('active'));}
+    function openTip(id, trigger){
+        closeTips();
+        const tip = document.getElementById(id);
+        if(!tip||!trigger) return;
+        positionTip(tip,trigger);
+        tip.classList.add('show');
+        tip.setAttribute('aria-hidden','false');
+        trigger.classList.add('active');
+        const target = trigger.closest('.hint-target') || trigger.parentElement;
+        if(target) target.classList.add('glow');
+        clearTimeout(tipTimer);
+        tipTimer=setTimeout(closeTips,15000);
+    }
+    function positionTip(tip, trigger){
+        const pos=tip.dataset.pos||'bottom';
+        const r=trigger.getBoundingClientRect();
+        const sX=window.scrollX, sY=window.scrollY;
+        tip.style.left='0px'; tip.style.top='0px';
+        document.body.appendChild(tip);
+        const tr = tip.getBoundingClientRect();
+        let left=sX+r.left, top=sY+r.bottom+12;
+        if(pos==='top'){top=sY+r.top-tr.height-12; left=sX+r.left-10}
+        if(pos==='bottom'){top=sY+r.bottom+12; left=sX+r.left-10}
+        if(pos==='left'){top=sY+r.top-8; left=sX+r.left-tr.width-14}
+        if(pos==='right'){top=sY+r.top-8; left=sX+r.right+14}
+        left=Math.max(8,Math.min(left,window.scrollX+window.innerWidth-tr.width-8));
+        top=Math.max(8,Math.min(top,window.scrollY+window.innerHeight-tr.height-8));
+        tip.style.left=left+'px'; tip.style.top=top+'px';
+    }
+    document.querySelectorAll('.hint-trigger').forEach(tr=>{
+        const open=()=>openTip(tr.dataset.tip,tr);
+        tr.addEventListener('mouseenter',open);
+        tr.addEventListener('focus',open);
+        tr.addEventListener('click',open);
+    });
+    document.querySelectorAll('.close-tip').forEach(btn=>btn.addEventListener('click',closeTips));
+    document.addEventListener('keydown',e=>{if(e.key==='Escape') closeTips()});
+    document.addEventListener('click',e=>{if(!e.target.closest('.tooltip') && !e.target.closest('.hint-trigger')) closeTips()});
+
+    document.querySelectorAll('[data-tip-action]').forEach(btn=>btn.addEventListener('click',()=>{
+        const act=btn.dataset.tipAction;
+        if(act==='set-full'){document.getElementById('detailSelect').value='full'; state.detail='full'; state.currentStep=1; renderSteps(); showToast('Включён подробный разбор');}
+        if(act==='show-example'){state.currentStep=Math.min(4,stageContent[state.detail].length); renderSteps(); showToast('Открыт пример вычислений');}
+        if(act==='generate-now'){generateProblem('random');}
+        if(act==='try-other'){generateProblem('other');}
+        if(act==='focus-ratio'){
+            state.layers={labels:false,ratio:true,formula:false};
+            document.querySelectorAll('[data-layer]').forEach(b=>b.classList.toggle('active',state.layers[b.dataset.layer]));
+            renderDiagram(); showToast('Оставлен только слой отношения');
+        }
+        if(act==='focus-all'){
+            state.layers={labels:true,ratio:true,formula:true};
+            document.querySelectorAll('[data-layer]').forEach(b=>b.classList.add('active'));
+            renderDiagram(); showToast('Все слои снова показаны');
+        }
+        closeTips();
+    }));
+
+    setTimeout(()=>{
+        if(!sessionStorage.getItem('importantHintShown')){
+            const trg=document.querySelector('[data-tip="genTip"]');
+            openTip('genTip',trg);
+            sessionStorage.setItem('importantHintShown','1');
+        }
+    },3000);
+
+    renderSteps();
+    renderDiagram();
+    generateProblem('random');
+</script>
+</body>
+</html>

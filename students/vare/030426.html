@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — логарифмические неравенства</title>
+    <style>
+        :root{
+            --bg:#0f1418;
+            --bg2:#151c22;
+            --panel:#1a232b;
+            --panel2:#202b34;
+            --text:#ecf3f7;
+            --muted:#9fb1bd;
+            --soft:#7f939f;
+            --accent:#42c7bd;
+            --accent2:#8be9dd;
+            --warn:#ffd27d;
+            --danger:#ff8f8f;
+            --good:#9ff0b1;
+            --line:#31414d;
+            --chip:#23313c;
+            --shadow:0 18px 40px rgba(0,0,0,.28);
+            --radius:20px;
+            --stickyTop:16px;
+            --hint-glow:0 0 20px rgba(139,233,221,.6), 0 0 40px rgba(66,199,189,.3);
+            --hint-pulse:0 0 0 0 rgba(139,233,221,.4);
+        }
+
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            font-family: Inter, Arial, Helvetica, sans-serif;
+            background:
+            radial-gradient(circle at top right, rgba(66,199,189,.08), transparent 24%),
+            radial-gradient(circle at bottom left, rgba(139,233,221,.06), transparent 22%),
+            linear-gradient(180deg, #0c1014, var(--bg));
+            color:var(--text);
+            line-height:1.6;
+        }
+        .page{
+            max-width:1440px;
+            margin:0 auto;
+            padding:22px;
+        }
+        .hero{
+            border:1px solid rgba(255,255,255,.06);
+            background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+            border-radius:28px;
+            padding:28px;
+            box-shadow:var(--shadow);
+            position:relative;
+            overflow:hidden;
+        }
+        .hero::after{
+            content:"";
+            position:absolute;
+            inset:auto -12% -45% auto;
+            width:460px;
+            height:460px;
+            border-radius:50%;
+            background:radial-gradient(circle, rgba(66,199,189,.14), transparent 62%);
+            pointer-events:none;
+        }
+        .hero-top{
+            display:flex;
+            flex-wrap:wrap;
+            gap:14px;
+            align-items:flex-start;
+            justify-content:space-between;
+        }
+        .eyebrow{
+            display:inline-flex;
+            gap:8px;
+            align-items:center;
+            padding:8px 12px;
+            border-radius:999px;
+            background:rgba(66,199,189,.1);
+            color:var(--accent2);
+            font-size:13px;
+            letter-spacing:.02em;
+        }
+        h1{
+            margin:12px 0 10px;
+            font-size:clamp(32px, 5vw, 58px);
+            line-height:1.06;
+            max-width:900px;
+        }
+        .subtitle{
+            max-width:940px;
+            color:var(--muted);
+            font-size:18px;
+        }
+        .meta-grid{
+            margin-top:18px;
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+            gap:12px;
+        }
+        .meta-card{
+            border:1px solid rgba(255,255,255,.06);
+            background:rgba(255,255,255,.02);
+            border-radius:18px;
+            padding:12px 14px;
+            min-height:78px;
+        }
+        .meta-card .k{color:var(--soft); font-size:12px; text-transform:uppercase; letter-spacing:.08em}
+        .meta-card .v{font-size:16px; margin-top:4px; font-weight:700}
+
+        .layout{
+            display:grid;
+            grid-template-columns:minmax(0,1.18fr) minmax(360px,.82fr);
+            gap:20px;
+            margin-top:20px;
+            align-items:start;
+        }
+
+        .left-col{display:flex; flex-direction:column; gap:18px; min-width:0}
+        .right-col{position:relative}
+        .sticky{
+            position:sticky;
+            top:var(--stickyTop);
+            display:flex;
+            flex-direction:column;
+            gap:16px;
+            max-height:calc(100vh - 32px);
+            overflow:auto;
+            padding-right:2px;
+        }
+        .card{
+            background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.018));
+            border:1px solid rgba(255,255,255,.06);
+            border-radius:24px;
+            padding:18px;
+            box-shadow:var(--shadow);
+            overflow:hidden;
+        }
+        .card h2,.card h3{margin:0 0 12px}
+        .section-title{
+            display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px
+        }
+        .section-title .num{
+            width:34px;height:34px;border-radius:50%;display:inline-grid;place-items:center;
+            background:rgba(66,199,189,.12); color:var(--accent2); font-weight:800;
+        }
+        .lead{color:var(--muted); margin:0}
+        .chips{display:flex;gap:8px;flex-wrap:wrap}
+        .chip{
+            background:var(--chip); color:var(--text); border:1px solid rgba(255,255,255,.06);
+            padding:8px 10px; border-radius:999px; font-size:13px
+        }
+        .controls-row{
+            display:flex;flex-wrap:wrap;gap:10px;align-items:center
+        }
+        select, button, input[type="range"]{
+            accent-color:var(--accent);
+        }
+        select, .button, button{
+            background:#132029;
+            color:var(--text);
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:12px;
+            padding:10px 12px;
+            font:inherit;
+        }
+        button,.button{cursor:pointer}
+        button:hover,.button:hover{filter:brightness(1.08)}
+        button:active{transform:translateY(1px)}
+        .button.secondary{background:#18242d;color:var(--muted)}
+        .button.accent, button.accent{background:linear-gradient(180deg, #1d6c67, #184c49); color:#effffe}
+        .small{font-size:14px;color:var(--muted)}
+
+        .idea-list,.check-list,.mistakes-list,.quiz-list{margin:0;padding-left:20px}
+        .idea-list li,.check-list li,.mistakes-list li,.quiz-list li{margin:7px 0}
+
+        .stepper-bar{
+            display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 8px;
+        }
+        .step-pill{
+            padding:8px 11px; border-radius:999px; background:#1b2831; color:var(--muted);
+            border:1px solid rgba(255,255,255,.06); cursor:pointer; user-select:none; font-size:13px
+        }
+        .step-pill.active{background:rgba(66,199,189,.12); color:var(--accent2); border-color:rgba(66,199,189,.35)}
+        .step-card{
+            margin-top:12px; padding:16px; border-radius:18px; background:rgba(255,255,255,.018);
+            border:1px solid rgba(255,255,255,.06); position:relative; transition:.18s ease;
+        }
+        .step-card.hidden-by-mode{display:none}
+        .step-card .step-head{
+            display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+        }
+        .step-card .step-index{
+            color:var(--accent2); font-weight:800; letter-spacing:.04em; font-size:12px; text-transform:uppercase;
+        }
+        .step-card[data-highlight="true"], .step-card:hover{
+            border-color:rgba(66,199,189,.34);
+            box-shadow:0 0 0 1px rgba(66,199,189,.12) inset;
+            transform:translateY(-1px);
+        }
+        .formula{
+            margin:10px 0; padding:10px 12px; border-radius:14px;
+            background:#10181f; border:1px solid rgba(255,255,255,.05);
+            font-size:clamp(17px, 2vw, 22px); overflow-x:auto;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .formula math{display:block; width:100%; text-align:center}
+        .system{
+            display:grid; grid-template-columns:auto 1fr; gap:10px; align-items:start; margin:12px 0;
+        }
+        .brace{
+            font-size:40px; line-height:1; transform:translateY(-2px); color:var(--accent2); font-weight:400;
+        }
+        .system-lines{display:grid; gap:6px}
+        .inline-note{
+            display:inline-block; padding:3px 8px; border-radius:999px; background:rgba(255,255,255,.05); color:var(--warn); font-size:13px; margin-left:6px
+        }
+
+        .legend{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-top:12px}
+        .legend-item{display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,.018); border-radius:14px; padding:10px 12px; border:1px solid rgba(255,255,255,.05)}
+        .swatch{width:14px;height:14px;border-radius:50%; margin-top:5px; flex:0 0 14px}
+
+        .viewer-shell{display:flex; flex-direction:column; gap:12px}
+        .viewer-title{display:flex; justify-content:space-between; gap:12px; align-items:flex-start; flex-wrap:wrap}
+        .task-box{
+            padding:14px; border-radius:18px; background:#121b22; border:1px solid rgba(255,255,255,.06)
+        }
+        .task-main{font-size:24px; line-height:1.28; font-weight:800; letter-spacing:.01em}
+        .task-main math{vertical-align:middle}
+        .task-sub{margin-top:6px; color:var(--muted); font-size:14px}
+
+        .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+        .toolbar .zoom-readout{min-width:70px;text-align:center;color:var(--muted)}
+        .range-wrap{display:flex; align-items:center; gap:10px; min-width:200px; flex:1}
+        .range-wrap input{width:100%}
+        .svg-wrap{
+            border-radius:22px; overflow:hidden; background:linear-gradient(180deg,#0d1419,#121b22);
+            border:1px solid rgba(255,255,255,.06);
+            min-height:380px;
+        }
+        svg{display:block; width:100%; height:auto}
+        .caption-line{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:13px;flex-wrap:wrap}
+        .toggle-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+        .toggle{
+            display:flex; gap:10px; align-items:center; background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.05);
+            border-radius:14px; padding:10px 12px
+        }
+        .toggle input{transform:scale(1.15)}
+
+        .tip-box,.result-box,.warning-box,.success-box{
+            border-radius:18px; padding:14px 16px; margin-top:10px; border:1px solid rgba(255,255,255,.06)
+        }
+        .tip-box{background:rgba(66,199,189,.07)}
+        .result-box{background:rgba(139,233,221,.06)}
+        .warning-box{background:rgba(255,210,125,.07)}
+        .success-box{background:rgba(159,240,177,.08)}
+
+        .two-col{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px}
+        .mini-card{padding:14px; border-radius:18px; background:rgba(255,255,255,.018); border:1px solid rgba(255,255,255,.05)}
+        .quiz-option{display:block; margin:8px 0; padding:8px 10px; border-radius:12px; background:#152028; border:1px solid rgba(255,255,255,.05); cursor:pointer}
+        .quiz-option.correct{outline:1px solid rgba(159,240,177,.75); background:rgba(159,240,177,.09)}
+        .quiz-option.wrong{outline:1px solid rgba(255,143,143,.75); background:rgba(255,143,143,.09)}
+
+        details{
+            border:1px solid rgba(255,255,255,.06);
+            border-radius:16px;
+            padding:0 14px;
+            background:rgba(255,255,255,.018)
+        }
+        details + details{margin-top:10px}
+        summary{
+            cursor:pointer; list-style:none; padding:12px 0; font-weight:700
+        }
+        summary::-webkit-details-marker{display:none}
+        summary::after{content:"▾"; float:right; color:var(--accent2)}
+        details[open] summary::after{content:"▴"}
+
+        .footer-note{color:var(--soft); font-size:13px; text-align:center; margin:28px 0 8px}
+
+        .print-only{display:none}
+
+        /* ========== DYNAMIC HINTS SYSTEM ========== */
+        .hint-trigger{
+            position:relative;
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            cursor:pointer;
+            padding:4px 8px;
+            border-radius:8px;
+            transition:background .2s;
+        }
+        .hint-trigger:hover{
+            background:rgba(66,199,189,.15);
+        }
+        .hint-icon{
+            width:20px;
+            height:20px;
+            border-radius:50%;
+            background:linear-gradient(135deg, var(--accent), var(--accent2));
+            display:inline-grid;
+            place-items:center;
+            color:#0f1418;
+            font-weight:800;
+            font-size:12px;
+            animation:hintPulse 2s infinite;
+            box-shadow:var(--hint-glow);
+        }
+        @keyframes hintPulse{
+            0%{box-shadow:0 0 0 0 rgba(139,233,221,.4)}
+            50%{box-shadow:0 0 0 12px rgba(139,233,221,0)}
+            100%{box-shadow:0 0 0 0 rgba(139,233,221,0)}
+        }
+        .hint-icon.bounce{
+            animation:hintBounce .6s ease;
+        }
+        @keyframes hintBounce{
+            0%,100%{transform:scale(1)}
+            50%{transform:scale(1.3)}
+        }
+
+        .hint-popover{
+            position:absolute;
+            z-index:1000;
+            min-width:280px;
+            max-width:340px;
+            background:linear-gradient(180deg, var(--panel), var(--panel2));
+            border:1px solid rgba(139,233,221,.4);
+            border-radius:16px;
+            padding:14px 16px;
+            box-shadow:var(--hint-glow), var(--shadow);
+            pointer-events:none;
+            opacity:0;
+            transform:translateY(8px) scale(.98);
+            transition:opacity .2s, transform .2s;
+        }
+        .hint-popover.visible{
+            opacity:1;
+            transform:translateY(0) scale(1);
+            pointer-events:auto;
+        }
+        .hint-popover::before{
+            content:"";
+            position:absolute;
+            width:12px;
+            height:12px;
+            background:var(--panel);
+            border-left:1px solid rgba(139,233,221,.4);
+            border-top:1px solid rgba(139,233,221,.4);
+            transform:rotate(45deg);
+        }
+        .hint-popover[data-placement="top"]::before{
+            bottom:-7px;
+            left:50%;
+            margin-left:-6px;
+            border-right:none;
+            border-bottom:none;
+        }
+        .hint-popover[data-placement="bottom"]::before{
+            top:-7px;
+            left:50%;
+            margin-left:-6px;
+            border-left:none;
+            border-top:none;
+        }
+        .hint-popover[data-placement="left"]::before{
+            right:-7px;
+            top:50%;
+            margin-top:-6px;
+            border-top:none;
+            border-left:none;
+        }
+        .hint-popover[data-placement="right"]::before{
+            left:-7px;
+            top:50%;
+            margin-top:-6px;
+            border-bottom:none;
+            border-right:none;
+        }
+        .hint-title{
+            font-weight:700;
+            color:var(--accent2);
+            margin-bottom:6px;
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+        .hint-title::before{
+            content:"💡";
+            font-size:14px;
+        }
+        .hint-content{
+            color:var(--muted);
+            font-size:14px;
+            line-height:1.5;
+        }
+        .hint-content strong{
+            color:var(--text);
+        }
+        .hint-actions{
+            margin-top:10px;
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+        }
+        .hint-btn{
+            padding:6px 12px;
+            border-radius:8px;
+            font-size:12px;
+            cursor:pointer;
+            border:none;
+            background:rgba(66,199,189,.2);
+            color:var(--accent2);
+            transition:background .2s;
+        }
+        .hint-btn:hover{
+            background:rgba(66,199,189,.35);
+        }
+        .hint-close{
+            position:absolute;
+            top:8px;
+            right:8px;
+            width:20px;
+            height:20px;
+            border-radius:50%;
+            border:none;
+            background:rgba(255,255,255,.1);
+            color:var(--muted);
+            cursor:pointer;
+            display:grid;
+            place-items:center;
+            font-size:14px;
+            transition:background .2s, color .2s;
+        }
+        .hint-close:hover{
+            background:rgba(255,255,255,.2);
+            color:var(--text);
+        }
+
+        .hint-highlight{
+            position:relative;
+        }
+        .hint-highlight::after{
+            content:"";
+            position:absolute;
+            inset:-4px;
+            border-radius:12px;
+            border:2px solid transparent;
+            background:linear-gradient(135deg, var(--accent), var(--accent2)) border-box;
+            -webkit-mask:linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite:xor;
+            mask-composite:exclude;
+            animation:borderGlow 1.5s ease infinite;
+            pointer-events:none;
+        }
+        @keyframes borderGlow{
+            0%,100%{opacity:.6}
+            50%{opacity:1}
+        }
+
+        /* Family selector highlight */
+        #familySelectWrapper{
+            position:relative;
+        }
+        #familySelectWrapper.hint-active select{
+            border-color:var(--accent);
+            box-shadow:0 0 0 3px rgba(66,199,189,.2);
+        }
+
+        /* MathML styling */
+        math{
+            font-family: "Latin Modern Math", "STIX Two Math", "Cambria Math", "Asana Math", serif;
+            font-size: 1.1em;
+            line-height: 1.4;
+        }
+        math[display="true"]{
+            display: block;
+            text-align: center;
+            margin: 0.5em 0;
+        }
+        mrow, mfenced, mfrac, msqrt, msup, msub, msubsup, munder, mover, munderover{
+            display: inline-block;
+        }
+        mfrac{
+            display: inline-block;
+            vertical-align: middle;
+        }
+        mfrac > *{
+            display: block;
+            text-align: center;
+        }
+        mi, mn, mo, mtext{
+            display: inline;
+        }
+        mi{
+            font-style: italic;
+        }
+        mo{
+            padding: 0 0.1em;
+        }
+        msub, msup, msubsup{
+            position: relative;
+        }
+        msub > *:last-child, msup > *:last-child, msubsup > *:nth-child(2){
+            font-size: 0.75em;
+            position: absolute;
+        }
+        msub > *:last-child{
+            bottom: -0.3em;
+            right: -0.2em;
+        }
+        msup > *:last-child{
+            top: -0.5em;
+            right: -0.2em;
+        }
+        msubsup > *:nth-child(2){
+            bottom: -0.3em;
+            right: -0.2em;
+        }
+        msubsup > *:last-child{
+            top: -0.5em;
+            right: -0.2em;
+        }
+        mtext{
+            font-style: normal;
+        }
+        mtext[mathvariant="normal"]{
+            font-style: normal;
+        }
+        mtext[mathvariant="bold"]{
+            font-weight: bold;
+        }
+        semantics, annotation, annotation-xml{
+            display: none;
+        }
+
+        @media (max-width: 1100px){
+            .layout{grid-template-columns:1fr}
+            .sticky{position:relative; top:auto; max-height:none; overflow:visible}
+        }
+        @media (max-width: 740px){
+            .page{padding:12px}
+            .hero{padding:18px}
+            .card{padding:14px}
+            .task-main{font-size:20px}
+            .two-col{grid-template-columns:1fr}
+            .system{grid-template-columns:20px 1fr}
+            .brace{font-size:34px}
+            .meta-grid{grid-template-columns:1fr 1fr}
+            .hint-popover{min-width:240px; max-width:280px}
+        }
+        @media print{
+            :root{--bg:#fff; --bg2:#fff; --panel:#fff; --panel2:#fff; --text:#000; --muted:#333; --soft:#555; --line:#bbb; --chip:#f2f2f2}
+            body{background:#fff; color:#000}
+            .page{max-width:none; padding:0}
+            .layout{grid-template-columns:1fr}
+            .right-col{page-break-inside:avoid}
+            .sticky{position:relative; top:auto; max-height:none; overflow:visible}
+            .hero, .card, .task-box, .mini-card, details, .step-card, .svg-wrap{box-shadow:none; background:#fff; color:#000; border-color:#ccc}
+            .button, button, select, input, .toolbar, .toggle-grid, .stepper-bar, .controls-row, .no-print, .hint-trigger, .hint-popover{display:none !important}
+            .print-only{display:block}
+            a{color:#000; text-decoration:none}
+            .swatch{border:1px solid #666}
+            .hero::after{display:none}
+            math{font-size:1em}
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <section class="hero">
+        <div class="hero-top">
+            <div>
+                <div class="eyebrow">ЕГЭ · уверенный уровень · максимально наглядно</div>
+                <h1>Логарифмические неравенства: живая модель, пошаговый разбор и генерация похожей задачи</h1>
+                <p class="subtitle">
+                    Страница построена по мотивам пособия из предыдущего сообщения: с опорой на школьные методы, графическую интерпретацию,
+                    пошаговое раскрытие и явную проверку ответа. Главная мысль темы — не просто «снять логарифм», а аккуратно совместить ОДЗ и основное неравенство.
+                </p>
+            </div>
+        </div>
+        <div class="meta-grid">
+            <div class="meta-card"><div class="k">Цель</div><div class="v">Подготовка к ЕГЭ</div></div>
+            <div class="meta-card"><div class="k">Фокус</div><div class="v">Графическая интерпретация</div></div>
+            <div class="meta-card"><div class="k">Интерактивность</div><div class="v">Расширенная</div></div>
+            <div class="meta-card"><div class="k">Режим</div><div class="v">Пошаговое раскрытие</div></div>
+            <div class="meta-card"><div class="k">Ограничения</div><div class="v">Только школьные методы</div></div>
+            <div class="meta-card"><div class="k">Автор</div><div class="v">Лёвин Артём Александрович</div></div>
+        </div>
+    </section>
+
+    <div class="layout">
+        <main class="left-col">
+            <section class="card">
+                <div class="section-title"><span class="num">0</span><h2>Как пользоваться страницей</h2></div>
+                <p class="lead">Слева — теория, идея и решение. Справа — интерактивная модель: задача, числовая ось, переключатели, зум, генерация похожего примера и мини-квиз.</p>
+                <div class="chips" style="margin-top:12px">
+                    <span class="chip">Кратко / стандартно / очень подробно</span>
+                    <span class="chip">Пошаговое раскрытие</span>
+                    <span class="chip">Подсветка «шаг ↔ рисунок»</span>
+                    <span class="chip">Самопроверка</span>
+                    <span class="chip">Печать</span>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="section-title"><span class="num">1</span><h2>Что дано и что вообще происходит в этой теме</h2></div>
+                <p>Мы решаем логарифмические неравенства, чаще всего вида:</p>
+                <div class="formula">
+                    <math display="true">
+                        <mrow>
+                            <msub><mi>log</mi><mi>a</mi></msub>
+                            <mo fence="true">(</mo>
+                            <mrow><mi>f</mi><mo fence="true">(</mo><mi>x</mi><mo fence="true">)</mo></mrow>
+                            <mo fence="true">)</mo>
+                            <mo>&gt;</mo>
+                            <mi>c</mi>
+                            <mo>,</mo>
+                            <mspace width="1em"/>
+                            <msub><mi>log</mi><mi>a</mi></msub>
+                            <mo fence="true">(</mo>
+                            <mrow><mi>f</mi><mo fence="true">(</mo><mi>x</mi><mo fence="true">)</mo></mrow>
+                            <mo fence="true">)</mo>
+                            <mo>&lt;</mo>
+                            <mi>c</mi>
+                            <mo>,</mo>
+                            <mspace width="1em"/>
+                            <msub><mi>log</mi><mi>a</mi></msub>
+                            <mo fence="true">(</mo>
+                            <mrow><mi>f</mi><mo fence="true">(</mo><mi>x</mi><mo fence="true">)</mo></mrow>
+                            <mo fence="true">)</mo>
+                            <mo>≷</mo>
+                            <msub><mi>log</mi><mi>a</mi></msub>
+                            <mo fence="true">(</mo>
+                            <mrow><mi>g</mi><mo fence="true">(</mo><mi>x</mi><mo fence="true">)</mo></mrow>
+                            <mo fence="true">)</mo>
+                        </mrow>
+                    </math>
+                </div>
+                <p>Ключевой объект — <strong>аргумент логарифма</strong>. Он обязан быть <strong>строго положительным</strong>. Это и есть ОДЗ.</p>
+                <div class="system">
+                    <div class="brace">⎧</div>
+                    <div class="system-lines">
+                        <div>основание: <math><mrow><mi>a</mi><mo>&gt;</mo><mn>0</mn><mo>,</mo><mi>a</mi><mo>≠</mo><mn>1</mn></mrow></math>;</div>
+                        <div>аргумент: <math><mrow><mi>f</mi><mo fence="true">(</mo><mi>x</mi><mo fence="true">)</mo><mo>&gt;</mo><mn>0</mn></mrow></math>.</div>
+                    </div>
+                </div>
+                <div class="tip-box">В этой теме ответ почти всегда рождается как <strong>пересечение</strong> нескольких условий на числовой оси.</div>
+            </section>
+
+            <section class="card">
+                <div class="section-title"><span class="num">2</span><h2>Идея решения</h2></div>
+                <ol class="idea-list">
+                    <li>Сначала отдельно выписываем ОДЗ: где логарифм вообще существует.</li>
+                    <li>Потом смотрим на основание: при <math><mrow><mi>a</mi><mo>&gt;</mo><mn>1</mn></mrow></math> знак сохраняется, при <math><mrow><mn>0</mn><mo>&lt;</mo><mi>a</mi><mo>&lt;</mo><mn>1</mn></mrow></math> знак меняется.</li>
+                    <li>После этого снимаем логарифм и получаем обычное неравенство.</li>
+                    <li>На числовой оси отмечаем оба условия и берём только их пересечение.</li>
+                    <li>В конце обязательно проверяем: подходят ли найденные x и не потеряна ли ОДЗ.</li>
+                </ol>
+            </section>
+
+            <section class="card">
+                <div class="section-title"><span class="num">3</span><h2>Теория в одном месте</h2></div>
+                <details open>
+                    <summary>Правило 1. Если основание больше 1</summary>
+                    <p>Логарифмическая функция возрастает. Значит, при переходе от логарифмов к аргументам знак неравенства <strong>не меняется</strong>.</p>
+                    <div class="formula">
+                        <math display="true">
+                            <mrow>
+                                <mi>a</mi><mo>&gt;</mo><mn>1</mn>
+                                <mo>⇒</mo>
+                                <msub><mi>log</mi><mi>a</mi></msub><mo fence="true">(</mo><mi>u</mi><mo fence="true">)</mo>
+                                <mo>&gt;</mo>
+                                <msub><mi>log</mi><mi>a</mi></msub><mo fence="true">(</mo><mi>v</mi><mo fence="true">)</mo>
+                                <mo>⇔</mo>
+                                <mi>u</mi><mo>&gt;</mo><mi>v</mi>
+                            </mrow>
+                        </math>
+                    </div>
+                    <p>Пример: <math><mrow><msub><mi>log</mi><mn>2</mn></msub><mo fence="true">(</mo><mi>x</mi><mo fence="true">)</mo><mo>&gt;</mo><mn>1</mn><mo>⇔</mo><mi>x</mi><mo>&gt;</mo><mn>2</mn></mrow></math>, но при этом ещё нужно <math><mrow><mi>x</mi><mo>&gt;</mo><mn>0</mn></mrow></math>.</p>
+                </details>
+                <details>
+                    <summary>Правило 2. Если основание между 0 и 1</summary>
+                    <p>Логарифмическая функция убывает. Поэтому знак неравенства <strong>меняется на противоположный</strong>.</p>
+                    <div class="formula">
+                        <math display="true">
+                            <mrow>
+                                <mn>0</mn><mo>&lt;</mo><mi>a</mi><mo>&lt;</mo><mn>1</mn>
+                                <mo>⇒</mo>
+                                <msub><mi>log</mi><mi>a</mi></msub><mo fence="true">(</mo><mi>u</mi><mo fence="true">)</mo>
+                                <mo>&gt;</mo>
+                                <msub><mi>log</mi><mi>a</mi></msub><mo fence="true">(</mo><mi>v</mi><mo fence="true">)</mo>
+                                <mo>⇔</mo>
+                                <mi>u</mi><mo>&lt;</mo><mi>v</mi>
+                            </mrow>
+                        </math>
+                    </div>
+                    <p>Пример: <math><mrow><msub><mi>log</mi><mfrac><mn>1</mn><mn>2</mn></mfrac></msub><mo fence="true">(</mo><mi>x</mi><mo fence="true">)</mo><mo>&gt;</mo><mn>1</mn><mo>⇔</mo><mi>x</mi><mo>&lt;</mo><mfrac><mn>1</mn><mn>2</mn></mfrac></mrow></math>, но одновременно <math><mrow><mi>x</mi><mo>&gt;</mo><mn>0</mn></mrow></math>.</p>
+                </details>
+                <details>
+                    <summary>Правило 3. Если справа просто число</summary>
+                    <p>Число удобно переписать как логарифм с тем же основанием.</p>
+                    <div class="formula">
+                        <math display="true">
+                            <mrow>
+                                <mi>c</mi><mo>=</mo>
+                                <msub><mi>log</mi><mi>a</mi></msub>
+                                <mo fence="true">(</mo>
+                                <msup><mi>a</mi><mi>c</mi></msup>
+                                <mo fence="true">)</mo>
+                            </mrow>
+                        </math>
+                    </div>
+                    <p>Тогда задача превращается в сравнение двух логарифмов.</p>
+                </details>
+                <details>
+                    <summary>Правило 4. Если внутри дробь</summary>
+                    <p>Нужно аккуратно работать со знаком дроби. Иногда помогает метод интервалов, иногда видно, что знаменатель всегда положителен и влияет только числитель.</p>
+                </details>
+            </section>
+
+            <section class="card" id="solutionCard">
+                <div class="section-title"><span class="num">4</span><h2>Разбор текущей задачи</h2></div>
+                <div class="controls-row no-print" style="margin-bottom:10px">
+                    <label>
+                        <span class="small">Подробность</span><br>
+                        <select id="detailSelect">
+                            <option value="short">кратко</option>
+                            <option value="standard" selected>стандартно</option>
+                            <option value="full">очень подробно</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="small">Показ решения</span><br>
+                        <select id="revealMode">
+                            <option value="step" selected>по шагам</option>
+                            <option value="all">сразу всё</option>
+                        </select>
+                    </label>
+                    <button class="accent" id="nextStepBtn">Открыть следующий шаг</button>
+                    <button class="secondary" id="resetStepsBtn">Свернуть</button>
+                </div>
+                <div class="stepper-bar no-print" id="stepperBar"></div>
+                <div id="stepsContainer"></div>
+            </section>
+
+            <section class="card">
+                <div class="section-title"><span class="num">5</span><h2>Типичные ошибки</h2></div>
+                <ul class="mistakes-list">
+                    <li>Забыть ОДЗ и сразу сравнить только аргументы.</li>
+                    <li>Не поменять знак, если основание меньше 1.</li>
+                    <li>Перепутать пересечение условий с объединением.</li>
+                    <li>Не заметить, что при строгом неравенстве граница не входит в ответ.</li>
+                    <li>В дробных выражениях проверить только числитель, забыв про знак знаменателя.</li>
+                </ul>
+            </section>
+
+            <section class="card">
+                <div class="section-title"><span class="num">6</span><h2>Мини-квиз</h2></div>
+                <div id="quizBlock" class="quiz-list"></div>
+            </section>
+
+            <section class="card">
+                <div class="section-title"><span class="num">7</span><h2>Самопроверка</h2></div>
+                <ul class="check-list">
+                    <li><input type="checkbox"> Я выписал(а) ОДЗ отдельно.</li>
+                    <li><input type="checkbox"> Я проверил(а), больше ли основание 1 или меньше.</li>
+                    <li><input type="checkbox"> Я правильно снял(а) логарифм.</li>
+                    <li><input type="checkbox"> Я нашёл(нашла) пересечение всех условий, а не просто одно из них.</li>
+                    <li><input type="checkbox"> Я отдельно убедился(убедилась), что ответ действительно подходит исходному неравенству.</li>
+                </ul>
+            </section>
+
+            <section class="card">
+                <div class="section-title"><span class="num">8</span><h2>Ещё один блок по теме: когда условие выполняется автоматически</h2></div>
+                <p>Иногда после снятия логарифма получается система, где одно неравенство уже следует из другого.</p>
+                <div class="formula">
+                    <math display="true">
+                        <mrow>
+                            <msub><mi>log</mi><mn>5</mn></msub>
+                            <mo fence="true">(</mo>
+                            <mfrac>
+                                <mrow><mn>3</mn><mi>x</mi><mo>−</mo><mn>2</mn></mrow>
+                                <mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow>
+                            </mfrac>
+                            <mo fence="true">)</mo>
+                            <mo>&gt;</mo>
+                            <mn>0</mn>
+                            <mo>⇔</mo>
+                            <mfrac>
+                                <mrow><mn>3</mn><mi>x</mi><mo>−</mo><mn>2</mn></mrow>
+                                <mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow>
+                            </mfrac>
+                            <mo>&gt;</mo>
+                            <mn>1</mn>
+                        </mrow>
+                    </math>
+                </div>
+                <p>Почему так можно? Потому что если дробь больше 1, то она автоматически больше 0. Значит, отдельная запись «дробь &gt; 0» уже не нужна как самостоятельный этап решения.</p>
+                <div class="warning-box">Это не магия и не сокращение шагов ради скорости. Это логический вывод: более сильное условие уже тянет за собой более слабое.</div>
+            </section>
+        </main>
+
+        <aside class="right-col">
+            <div class="sticky">
+                <section class="card viewer-shell">
+                    <div class="viewer-title">
+                        <div>
+                            <h3 style="margin-bottom:6px">Интерактивная модель</h3>
+                            <div class="small">Тот же рисунок применяется и к похожей сгенерированной задаче.</div>
+                        </div>
+                        <div class="controls-row no-print">
+                            <label id="familySelectWrapper">
+                                <span class="small">Семейство <span class="hint-trigger" data-hint="family" data-placement="bottom">
+                                    <span class="hint-icon">?</span>
+                                </span></span><br>
+                                <select id="familySelect">
+                                    <option value="single">один логарифм и число</option>
+                                    <option value="compare">два логарифма</option>
+                                </select>
+                            </label>
+                            <button id="generateBtn" class="accent hint-trigger" data-hint="generate" data-placement="left">
+                                Сгенерировать 1 задачу
+                                <span class="hint-icon">!</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="task-box">
+                        <div class="task-main" id="taskMain"></div>
+                        <div class="task-sub" id="taskSub"></div>
+                    </div>
+
+                    <div class="toolbar no-print">
+                        <button id="zoomOutBtn">−</button>
+                        <div class="range-wrap">
+                            <span class="small">масштаб</span>
+                            <input type="range" min="70" max="190" step="5" value="100" id="zoomRange">
+                        </div>
+                        <div class="zoom-readout" id="zoomReadout">100%</div>
+                        <button id="zoomInBtn">+</button>
+                        <button id="zoomResetBtn">сброс</button>
+                    </div>
+
+                    <div class="toggle-grid no-print">
+                        <label class="toggle"><input type="checkbox" id="showODZ" checked> <span>показывать ОДЗ</span></label>
+                        <label class="toggle"><input type="checkbox" id="showMain" checked> <span>показывать основное</span></label>
+                        <label class="toggle"><input type="checkbox" id="showInter" checked> <span>показывать пересечение</span></label>
+                        <label class="toggle"><input type="checkbox" id="showMarks" checked> <span>подписи и точки</span></label>
+                    </div>
+
+                    <div class="svg-wrap" id="svgWrap">
+                        <svg id="viz" viewBox="0 0 860 560" xmlns="http://www.w3.org/2000/svg" aria-label="Числовая ось и связь условий">
+                            <defs>
+                                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                                    <feGaussianBlur stdDeviation="3" result="blur"/>
+                                    <feMerge>
+                                        <feMergeNode in="blur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            <g id="zoomLayer">
+                                <rect x="0" y="0" width="860" height="560" fill="transparent"/>
+                                <text x="40" y="38" fill="#9fb1bd" font-size="18">Комбинированная модель: монотонность + числовая ось</text>
+                                <text x="40" y="66" fill="#7f939f" font-size="14" id="monotonicText"></text>
+
+                                <line x1="60" y1="130" x2="800" y2="130" stroke="#31414d" stroke-width="2"/>
+                                <line x1="60" y1="130" x2="60" y2="86" stroke="#31414d" stroke-width="2"/>
+                                <line x1="800" y1="130" x2="800" y2="86" stroke="#31414d" stroke-width="2"/>
+                                <path id="curvePath" d="" fill="none" stroke="#42c7bd" stroke-width="4" filter="url(#glow)"/>
+                                <text x="54" y="82" fill="#9fb1bd" font-size="14">x</text>
+                                <text x="754" y="82" fill="#9fb1bd" font-size="14">logₐ(x)</text>
+                                <text x="396" y="95" fill="#9fb1bd" font-size="14" id="curveLabel"></text>
+
+                                <text x="40" y="205" fill="#9fb1bd" font-size="18">Числовая ось условий</text>
+                                <g id="axisLayer"></g>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="caption-line">
+                        <span>Наведите на шаг решения слева — связанный слой на рисунке подсветится.</span>
+                        <span>Колесо мыши над чертежом тоже меняет масштаб.</span>
+                    </div>
+
+                    <div class="legend">
+                        <div class="legend-item"><span class="swatch" style="background:#5da9ff"></span><div><strong>ОДЗ</strong><br><span class="small">где логарифм существует</span></div></div>
+                        <div class="legend-item"><span class="swatch" style="background:#ffbf69"></span><div><strong>Основное</strong><br><span class="small">после снятия логарифма</span></div></div>
+                        <div class="legend-item"><span class="swatch" style="background:#8be9dd"></span><div><strong>Ответ</strong><br><span class="small">пересечение условий</span></div></div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h3>Ответ и короткая идея</h3>
+                    <div class="result-box" id="answerBox"></div>
+                    <div class="tip-box" id="ideaBox"></div>
+                    <div class="success-box" id="checkBox"></div>
+                </section>
+            </div>
+        </aside>
+    </div>
+
+    <div class="footer-note print-only">Печатная версия: теория, базовый алгоритм, разбор текущей задачи, ответ, типичные ошибки и самопроверка.</div>
+    <div class="footer-note">Страница автономна: без внешних библиотек, с адаптацией под мобильные экраны и печать.</div>
+</div>
+
+<!-- ========== HINT POPOVERS ========== -->
+<div class="hint-popover" id="hint-family" data-placement="bottom" role="tooltip" aria-hidden="true">
+    <button class="hint-close" aria-label="Закрыть подсказку">×</button>
+    <div class="hint-title">Выбор типа задачи</div>
+    <div class="hint-content">
+        <p><strong>«Один логарифм и число»:</strong><br>
+            Неравенство вида <math display="inline"><mrow><msub><mi>log</mi><mi>a</mi></msub><mo fence="true">(</mo><mi>f</mi><mo fence="true">(</mo><mi>x</mi><mo fence="true">)</mo><mo fence="true">)</mo><mo>&gt;</mo><mi>c</mi></mrow></math></p>
+        <p><strong>«Два логарифма»:</strong><br>
+            Сравнение <math display="inline"><mrow><msub><mi>log</mi><mi>a</mi></msub><mo fence="true">(</mo><mi>f</mi><mo fence="true">(</mo><mi>x</mi><mo fence="true">)</mo><mo fence="true">)</mo><mo>≷</mo><msub><mi>log</mi><mi>a</mi></msub><mo fence="true">(</mo><mi>g</mi><mo fence="true">(</mo><mi>x</mi><mo fence="true">)</mo><mo fence="true">)</mo></mrow></math></p>
+        <p>Переключите, чтобы увидеть разницу в решении!</p>
+    </div>
+    <div class="hint-actions">
+        <button class="hint-btn" data-action="switch-family">Попробовать другой тип</button>
+        <button class="hint-btn" data-action="close-hint">Понятно</button>
+    </div>
+</div>
+
+<div class="hint-popover" id="hint-generate" data-placement="left" role="tooltip" aria-hidden="true">
+    <button class="hint-close" aria-label="Закрыть подсказку">×</button>
+    <div class="hint-title">Генерация новой задачи</div>
+    <div class="hint-content">
+        <p>Нажмите, чтобы получить <strong>случайную задачу</strong> выбранного типа.</p>
+        <p>Каждый раз параметры меняются: основание, коэффициенты, знак неравенства — но логика решения остаётся той же.</p>
+        <p class="small" style="color:var(--warn); margin-top:8px">💡 Совет: сгенерируйте 3-4 задачи подряд, чтобы увидеть паттерны!</p>
+    </div>
+    <div class="hint-actions">
+        <button class="hint-btn" data-action="generate-now">Сгенерировать сейчас</button>
+        <button class="hint-btn" data-action="close-hint">Закрыть</button>
+    </div>
+</div>
+
+<script>
+    // ========== HINT SYSTEM ==========
+    const hints = {
+        family: {
+            title: 'Выбор типа задачи',
+            content: `
+                <p><strong>«Один логарифм и число»:</strong><br>
+                Неравенство вида <math display="inline"><mrow><msub><mi>log</mi><mi>a</mi></msub><mo fence="true">(</mo><mi>f</mi><mo fence="true">(</mo><mi>x</mi><mo fence="true">)</mo><mo fence="true">)</mo><mo>&gt;</mo><mi>c</mi></mrow></math></p>
+                <p><strong>«Два логарифма»:</strong><br>
+                Сравнение <math display="inline"><mrow><msub><mi>log</mi><mi>a</mi></msub><mo fence="true">(</mo><mi>f</mi><mo fence="true">(</mo><mi>x</mi><mo fence="true">)</mo><mo fence="true">)</mo><mo>≷</mo><msub><mi>log</mi><mi>a</mi></msub><mo fence="true">(</mo><mi>g</mi><mo fence="true">(</mo><mi>x</mi><mo fence="true">)</mo><mo fence="true">)</mo></mrow></math></p>
+                <p>Переключите, чтобы увидеть разницу в решении!</p>
+            `,
+            actions: [
+                { label: 'Попробовать другой тип', action: 'switch-family' },
+                { label: 'Понятно', action: 'close-hint' }
+            ]
+        },
+        generate: {
+            title: 'Генерация новой задачи',
+            content: `
+                <p>Нажмите, чтобы получить <strong>случайную задачу</strong> выбранного типа.</p>
+                <p>Каждый раз параметры меняются: основание, коэффициенты, знак неравенства — но логика решения остаётся той же.</p>
+                <p class="small" style="color:var(--warn); margin-top:8px">💡 Совет: сгенерируйте 3-4 задачи подряд, чтобы увидеть паттерны!</p>
+            `,
+            actions: [
+                { label: 'Сгенерировать сейчас', action: 'generate-now' },
+                { label: 'Закрыть', action: 'close-hint' }
+            ]
+        }
+    };
+
+    let activeHint = null;
+    let hintTimeout = null;
+
+    function showHint(hintKey, triggerEl){
+        if(activeHint === hintKey) return;
+        hideAllHints();
+
+        const popover = document.getElementById(`hint-${hintKey}`);
+        if(!popover) return;
+
+        // Position popover
+        const rect = triggerEl.getBoundingClientRect();
+        const placement = popover.dataset.placement || 'top';
+
+        popover.style.opacity = '0';
+        popover.style.transform = 'translateY(8px) scale(.98)';
+        popover.setAttribute('aria-hidden', 'false');
+
+        // Calculate position
+        let top, left;
+        const popoverRect = popover.getBoundingClientRect();
+
+        switch(placement){
+            case 'top':
+                top = rect.top - popoverRect.height - 12;
+                left = rect.left + rect.width/2 - popoverRect.width/2;
+                break;
+            case 'bottom':
+                top = rect.bottom + 12;
+                left = rect.left + rect.width/2 - popoverRect.width/2;
+                break;
+            case 'left':
+                top = rect.top + rect.height/2 - popoverRect.height/2;
+                left = rect.left - popoverRect.width - 12;
+                break;
+            case 'right':
+                top = rect.top + rect.height/2 - popoverRect.height/2;
+                left = rect.right + 12;
+                break;
+        }
+
+        // Keep within viewport
+        const padding = 16;
+        top = Math.max(padding, Math.min(top, window.innerHeight - popoverRect.height - padding));
+        left = Math.max(padding, Math.min(left, window.innerWidth - popoverRect.width - padding));
+
+        popover.style.top = `${top}px`;
+        popover.style.left = `${left}px`;
+        popover.style.position = 'fixed';
+
+        // Animate in
+        requestAnimationFrame(() => {
+            popover.classList.add('visible');
+            popover.style.opacity = '1';
+            popover.style.transform = 'translateY(0) scale(1)';
+        });
+
+        // Highlight trigger
+        triggerEl.closest('.hint-highlight')?.classList.add('hint-highlight');
+        if(!triggerEl.classList.contains('hint-highlight')){
+            triggerEl.classList.add('hint-highlight');
+        }
+
+        // Bounce icon
+        const icon = triggerEl.querySelector('.hint-icon');
+        if(icon){
+            icon.classList.remove('bounce');
+            void icon.offsetWidth; // reflow
+            icon.classList.add('bounce');
+        }
+
+        activeHint = hintKey;
+
+        // Auto-hide after 15s if not interacted
+        hintTimeout = setTimeout(() => {
+            if(activeHint === hintKey) hideHint(hintKey);
+        }, 15000);
+    }
+
+    function hideHint(hintKey){
+        const popover = document.getElementById(`hint-${hintKey}`);
+        if(!popover) return;
+
+        popover.classList.remove('visible');
+        popover.style.opacity = '0';
+        popover.style.transform = 'translateY(8px) scale(.98)';
+        popover.setAttribute('aria-hidden', 'true');
+
+        // Remove highlights
+        document.querySelectorAll('.hint-highlight').forEach(el => {
+            if(!el.querySelector('.hint-popover')){
+                el.classList.remove('hint-highlight');
+            }
+        });
+
+        if(activeHint === hintKey){
+            activeHint = null;
+        }
+        if(hintTimeout){
+            clearTimeout(hintTimeout);
+            hintTimeout = null;
+        }
+    }
+
+    function hideAllHints(){
+        Object.keys(hints).forEach(key => hideHint(key));
+    }
+
+    function initHints(){
+        // Setup triggers
+        document.querySelectorAll('.hint-trigger').forEach(trigger => {
+            const hintKey = trigger.dataset.hint;
+            if(!hintKey) return;
+
+            // Show on hover/focus (desktop)
+            trigger.addEventListener('mouseenter', () => {
+                if(window.matchMedia('(hover: hover)').matches){
+                    showHint(hintKey, trigger);
+                }
+            });
+            trigger.addEventListener('focus', () => showHint(hintKey, trigger));
+
+            // Hide on blur
+            trigger.addEventListener('mouseleave', () => {
+                // Delay hide to allow moving to popover
+                setTimeout(() => {
+                    const popover = document.getElementById(`hint-${hintKey}`);
+                    if(popover && !popover.matches(':hover')){
+                        hideHint(hintKey);
+                    }
+                }, 200);
+            });
+
+            // Close button
+            const popover = document.getElementById(`hint-${hintKey}`);
+            if(popover){
+                popover.querySelector('.hint-close')?.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    hideHint(hintKey);
+                });
+
+                // Keep popover open on hover
+                popover.addEventListener('mouseenter', () => {
+                    if(hintTimeout) clearTimeout(hintTimeout);
+                });
+                popover.addEventListener('mouseleave', () => {
+                    hintTimeout = setTimeout(() => hideHint(hintKey), 300);
+                });
+
+                // Action buttons
+                popover.querySelectorAll('.hint-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const action = btn.dataset.action;
+                        e.stopPropagation();
+
+                        switch(action){
+                            case 'switch-family':
+                                const select = document.getElementById('familySelect');
+                                select.value = select.value === 'single' ? 'compare' : 'single';
+                                select.dispatchEvent(new Event('change'));
+                                hideHint(hintKey);
+                                break;
+                            case 'generate-now':
+                                document.getElementById('generateBtn').click();
+                                hideHint(hintKey);
+                                break;
+                            case 'close-hint':
+                                hideHint(hintKey);
+                                break;
+                        }
+                    });
+                });
+            }
+        });
+
+        // Hide hints on scroll
+        let scrollTimeout;
+        window.addEventListener('scroll', () => {
+            if(activeHint){
+                hideAllHints();
+            }
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                // Optionally re-show hints after scroll stops
+            }, 200);
+        });
+
+        // Hide on Escape
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'Escape') hideAllHints();
+        });
+
+        // First-time hint: show family hint after 3s delay
+        setTimeout(() => {
+            if(!sessionStorage.getItem('hintsSeen')){
+                const familyTrigger = document.querySelector('[data-hint="family"]');
+                if(familyTrigger) showHint('family', familyTrigger);
+                sessionStorage.setItem('hintsSeen', 'true');
+            }
+        }, 3000);
+    }
+
+    // ========== MAIN APP CODE ==========
+    const stepsContainer = document.getElementById('stepsContainer');
+    const stepperBar = document.getElementById('stepperBar');
+    const detailSelect = document.getElementById('detailSelect');
+    const revealMode = document.getElementById('revealMode');
+    const nextStepBtn = document.getElementById('nextStepBtn');
+    const resetStepsBtn = document.getElementById('resetStepsBtn');
+    const familySelect = document.getElementById('familySelect');
+    const generateBtn = document.getElementById('generateBtn');
+    const taskMain = document.getElementById('taskMain');
+    const taskSub = document.getElementById('taskSub');
+    const answerBox = document.getElementById('answerBox');
+    const ideaBox = document.getElementById('ideaBox');
+    const checkBox = document.getElementById('checkBox');
+    const monotonicText = document.getElementById('monotonicText');
+    const curvePath = document.getElementById('curvePath');
+    const curveLabel = document.getElementById('curveLabel');
+    const axisLayer = document.getElementById('axisLayer');
+    const quizBlock = document.getElementById('quizBlock');
+
+    const zoomLayer = document.getElementById('zoomLayer');
+    const zoomRange = document.getElementById('zoomRange');
+    const zoomReadout = document.getElementById('zoomReadout');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomResetBtn = document.getElementById('zoomResetBtn');
+    const svgWrap = document.getElementById('svgWrap');
+
+    const showODZ = document.getElementById('showODZ');
+    const showMain = document.getElementById('showMain');
+    const showInter = document.getElementById('showInter');
+    const showMarks = document.getElementById('showMarks');
+
+    const state = {
+        detail:'standard',
+        reveal:'step',
+        opened:1,
+        current:null,
+        zoom:100,
+        highlight:null,
+        currentQuiz:null,
+    };
+
+    function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a||1; }
+    function fracToStr(n,d){
+        if(d===0) return '—';
+        const sign = (n*d<0) ? '−' : '';
+        n=Math.abs(n); d=Math.abs(d);
+        const g=gcd(n,d); n/=g; d/=g;
+        if(d===1) return sign + String(n);
+        return sign + n + '/' + d;
+    }
+    function rationalText(value){
+        if(Number.isInteger(value)) return String(value).replace('-', '−');
+        const sign = value<0 ? '−' : '';
+        const abs=Math.abs(value);
+        const rounded=Math.round(abs*1000)/1000;
+        return sign + String(rounded).replace('.', ',');
+    }
+    function formatInterval(obj){
+        if(obj.kind==='empty') return '∅';
+        if(obj.kind==='rayR') return '('+obj.left+'; +∞)';
+        if(obj.kind==='rayL') return '(−∞; '+obj.right+')';
+        if(obj.kind==='segment') return (obj.leftInc?'[':'(')+obj.left+'; '+obj.right+(obj.rightInc?']':')');
+        if(obj.kind==='union') return obj.parts.map(formatInterval).join(' ∪ ');
+        return '';
+    }
+    function deepClone(x){ return JSON.parse(JSON.stringify(x)); }
+
+    function makeSingleTask(base, m, b, sign, c){
+        const threshold = Math.pow(base, c);
+        const odzBound = -b / m;
+        const odzSign = m > 0 ? '>' : '<';
+        let mainSign = sign;
+        if(base < 1) mainSign = sign === '>' ? '<' : (sign === '<' ? '>' : sign);
+        const mainBound = (threshold - b) / m;
+        const mainDir = (m>0) ? mainSign : (mainSign === '>' ? '<' : '>');
+
+        const odzInterval = m>0 ? {kind:'rayR', left:rationalText(odzBound)} : {kind:'rayL', right:rationalText(odzBound)};
+        const mainInterval = mainDir==='>' ? {kind:'rayR', left:rationalText(mainBound)} : {kind:'rayL', right:rationalText(mainBound)};
+        const solution = intersectHalfLines(odzBound, m>0, mainBound, mainDir==='>');
+
+        const thresholdText = Number.isInteger(threshold) ? String(threshold) : threshold.toFixed(3).replace('.', ',');
+        const task = {
+            family:'single',
+            base, m, b, sign, c, threshold,
+            pretty: buildMathMLLogInequality(base, m, b, sign, c),
+            note: base>1 ? 'Основание больше 1, знак при снятии логарифма сохраняется.' : 'Основание меньше 1, знак при снятии логарифма меняется.',
+            odzText: buildMathMLLinearIneq(m, b, odzSign),
+            compareNumberText: buildMathMLEqualLog(base, c, thresholdText),
+            mainText: buildMathMLLinearIneq(m, b, mainDir, thresholdText),
+            odzInterval,
+            mainInterval,
+            solution,
+            answerText: formatIntervalObj(solution),
+            idea:[
+                'Сначала требуем положительность аргумента логарифма.',
+                (base>1 ? 'Так как основание больше 1, знак не меняется.' : 'Так как основание меньше 1, знак меняется.'),
+                'После этого решаем обычное линейное неравенство и пересекаем два условия.'
+            ],
+            check:[
+                'Любая точка из найденного интервала делает аргумент положительным.',
+                'Она же удовлетворяет неравенству после снятия логарифма.',
+                'Вне пересечения хотя бы одно из условий нарушается, поэтому других решений нет.'
+            ]
+        };
+        return task;
+    }
+
+    function buildMathMLLogInequality(base, m, b, sign, c){
+        const baseSub = String(base).replace('0.5','₁⁄₂').replace('0.25','₁⁄₄').replace('0.2','₀,₂').replace('0.3333333333333333','₁⁄₃').replace('2','₂').replace('3','₃').replace('4','₄').replace('5','₅').replace('10','₁₀');
+        const linExpr = buildLinExprMathML(m, b);
+        const signOp = sign === '>' ? '&gt;' : '&lt;';
+        return `<math display="inline"><mrow><msub><mi>log</mi><mn>${base}</mn></msub><mo fence="true">(</mo>${linExpr}<mo fence="true">)</mo><mo>${signOp}</mo><mn>${c}</mn></mrow></math>`;
+    }
+
+    function buildLinExprMathML(m, b){
+        let content = '';
+        if(m === 1) content = '<mi>x</mi>';
+        else if(m === -1) content = '<mo>−</mo><mi>x</mi>';
+        else content = `<mn>${Math.abs(m)}</mn><mi>x</mi>`;
+        if(b > 0) content += ` <mo>+</mo> <mn>${b}</mn>`;
+        if(b < 0) content += ` <mo>−</mo> <mn>${Math.abs(b)}</mn>`;
+        return `<mrow>${content}</mrow>`;
+    }
+
+    function buildMathMLLinearIneq(m, b, sign, rhs = '0'){
+        const linExpr = buildLinExprMathML(m, b);
+        const signOp = sign === '>' ? '&gt;' : '&lt;';
+        return `<math display="inline"><mrow>${linExpr}<mo>${signOp}</mo><mn>${rhs}</mn></mrow></math>`;
+    }
+
+    function buildMathMLEqualLog(base, c, threshold){
+        return `<math display="inline"><mrow><mn>${c}</mn><mo>=</mo><msub><mi>log</mi><mn>${base}</mn></msub><mo fence="true">(</mo><mn>${threshold}</mn><mo fence="true">)</mo></mrow></math>`;
+    }
+
+    function linExpr(m,b){
+        let out='';
+        if(m===1) out='x';
+        else if(m===-1) out='−x';
+        else out=String(m).replace('-', '−')+'x';
+        if(b>0) out += ' + ' + b;
+        if(b<0) out += ' − ' + Math.abs(b);
+        return out;
+    }
+    function baseSub(base){
+        return String(base).replace('0.5','₁⁄₂').replace('0.25','₁⁄₄').replace('0.2','₀,₂').replace('0.3333333333333333','₁⁄₃').replace('2','₂').replace('3','₃').replace('4','₄').replace('5','₅').replace('10','₁₀');
+    }
+    function formatIntervalObj(sol){
+        if(sol.kind==='empty') return '∅';
+        if(sol.kind==='rayR') return '('+rationalText(sol.left)+'; +∞)';
+        if(sol.kind==='rayL') return '(−∞; '+rationalText(sol.right)+')';
+        if(sol.kind==='segment') return '('+rationalText(sol.left)+'; '+rationalText(sol.right)+')';
+        return '';
+    }
+    function intersectHalfLines(bound1, right1, bound2, right2){
+        if(right1 && right2) return {kind:'rayR', left:Math.max(bound1,bound2)};
+        if(!right1 && !right2) return {kind:'rayL', right:Math.min(bound1,bound2)};
+        if(right1 && !right2){
+            if(bound1 < bound2) return {kind:'segment', left:bound1, right:bound2};
+            return {kind:'empty'};
+        }
+        if(!right1 && right2){
+            if(bound2 < bound1) return {kind:'segment', left:bound2, right:bound1};
+            return {kind:'empty'};
+        }
+    }
+
+    function solveCompareTask(base, m1,b1,m2,b2, sign){
+        const odz1 = solveLinearPositive(m1,b1);
+        const odz2 = solveLinearPositive(m2,b2);
+        let compareSign = sign;
+        if(base<1) compareSign = sign==='>'?'<':(sign==='<'?'>':sign);
+        const dm = m1-m2, db = b1-b2;
+        const main = solveLinearBySign(dm,db,compareSign,0);
+        const solution = intersectThree(odz1, odz2, main);
+        return {
+            family:'compare', base,m1,b1,m2,b2,sign,
+            pretty: buildMathMLLogCompare(base, m1, b1, m2, b2, sign),
+            note: base>1 ? 'Основание больше 1, сравнение аргументов идёт с тем же знаком.' : 'Основание меньше 1, знак при сравнении аргументов меняется.',
+            odzText1: buildMathMLLinearIneq(m1, b1, '>'),
+            odzText2: buildMathMLLinearIneq(m2, b2, '>'),
+            mainText: buildMathMLLogCompareArgs(m1, b1, m2, b2, compareSign),
+            mainReduced: dm===0 ? '0 '+compareSign+' '+(-db) : `${linExpr(dm,db)} ${compareSign} 0`,
+            odzInterval: odz1,
+            secondInterval: odz2,
+            mainInterval: main,
+            solution,
+            answerText: formatGeneralSolution(solution),
+            idea:[
+                'Нужно выписать два ограничения: оба аргумента логарифмов должны быть положительными.',
+                (base>1 ? 'Так как основание больше 1, сравниваем аргументы без смены знака.' : 'Так как основание меньше 1, при сравнении аргументов меняем знак.'),
+                'Потом берём пересечение трёх условий на одной числовой оси.'
+            ],
+            check:[
+                'В ответе оба логарифма существуют.',
+                'Сравнение аргументов даёт верный знак исходного неравенства.',
+                'Вне ответа ломается либо ОДЗ, либо основное сравнение.'
+            ]
+        };
+    }
+
+    function buildMathMLLogCompare(base, m1, b1, m2, b2, sign){
+        const expr1 = buildLinExprMathML(m1, b1);
+        const expr2 = buildLinExprMathML(m2, b2);
+        const signOp = sign === '>' ? '&gt;' : '&lt;';
+        return `<math display="inline"><mrow><msub><mi>log</mi><mn>${base}</mn></msub><mo fence="true">(</mo>${expr1}<mo fence="true">)</mo><mo>${signOp}</mo><msub><mi>log</mi><mn>${base}</mn></msub><mo fence="true">(</mo>${expr2}<mo fence="true">)</mo></mrow></math>`;
+    }
+
+    function buildMathMLLogCompareArgs(m1, b1, m2, b2, sign){
+        const expr1 = buildLinExprMathML(m1, b1);
+        const expr2 = buildLinExprMathML(m2, b2);
+        const signOp = sign === '>' ? '&gt;' : '&lt;';
+        return `<math display="inline"><mrow>${expr1}<mo>${signOp}</mo>${expr2}</mrow></math>`;
+    }
+
+    function solveLinearPositive(m,b){ return solveLinearBySign(m,b,'>',0); }
+    function solveLinearBySign(m,b,sign,rhs){
+        const c = rhs - b;
+        if(m===0){
+            const ok = sign==='>' ? (b>rhs) : (b<rhs);
+            return ok ? {kind:'all'} : {kind:'empty'};
+        }
+        const bound = c/m;
+        let dir = sign;
+        if(m<0) dir = sign==='>'?'<':'>';
+        return dir==='>' ? {kind:'rayR', left:bound} : {kind:'rayL', right:bound};
+    }
+    function intersectGeneral(a,b){
+        if(a.kind==='empty'||b.kind==='empty') return {kind:'empty'};
+        if(a.kind==='all') return deepClone(b);
+        if(b.kind==='all') return deepClone(a);
+        if(a.kind==='rayR'&&b.kind==='rayR') return {kind:'rayR', left:Math.max(a.left,b.left)};
+        if(a.kind==='rayL'&&b.kind==='rayL') return {kind:'rayL', right:Math.min(a.right,b.right)};
+        if(a.kind==='rayR'&&b.kind==='rayL') return a.left < b.right ? {kind:'segment', left:a.left, right:b.right} : {kind:'empty'};
+        if(a.kind==='rayL'&&b.kind==='rayR') return b.left < a.right ? {kind:'segment', left:b.left, right:a.right} : {kind:'empty'};
+        if(a.kind==='segment'){
+            if(b.kind==='rayR') return b.left < a.right ? {kind:'segment', left:Math.max(a.left,b.left), right:a.right} : {kind:'empty'};
+            if(b.kind==='rayL') return a.left < b.right ? {kind:'segment', left:a.left, right:Math.min(a.right,b.right)} : {kind:'empty'};
+        }
+        if(b.kind==='segment') return intersectGeneral(b,a);
+        if(a.kind==='segment'&&b.kind==='segment'){
+            const L=Math.max(a.left,b.left), R=Math.min(a.right,b.right);
+            return L<R ? {kind:'segment', left:L,right:R} : {kind:'empty'};
+        }
+        return {kind:'empty'};
+    }
+    function intersectThree(a,b,c){ return intersectGeneral(intersectGeneral(a,b),c); }
+    function formatGeneralSolution(sol){
+        if(sol.kind==='empty') return '∅';
+        if(sol.kind==='all') return 'все действительные числа';
+        if(sol.kind==='rayR') return '('+rationalText(sol.left)+'; +∞)';
+        if(sol.kind==='rayL') return '(−∞; '+rationalText(sol.right)+')';
+        if(sol.kind==='segment') return '('+rationalText(sol.left)+'; '+rationalText(sol.right)+')';
+        return '—';
+    }
+
+    function createTask(family){
+        if(family==='single'){
+            const configs = [
+                [2,1,0,'>',1],
+                [3,2,1,'>',2],
+                [5,3,-2,'<',1],
+                [0.5,1,4,'>',1],
+                [0.25,2,-3,'<',1]
+            ];
+            const [base,m,b,sign,c] = configs[Math.floor(Math.random()*configs.length)];
+            return makeSingleTask(base,m,b,sign,c);
+        }
+        const configs = [
+            [10,3,-4,2,1,'<'],
+            [2,2,3,1,-1,'>'],
+            [3,4,-1,2,5,'<'],
+            [0.5,3,2,1,6,'>']
+        ];
+        const [base,m1,b1,m2,b2,sign] = configs[Math.floor(Math.random()*configs.length)];
+        return solveCompareTask(base,m1,b1,m2,b2,sign);
+    }
+
+    function buildSteps(task){
+        const common = [];
+        if(task.family==='single'){
+            common.push({
+                title:'Что дано', map:'task',
+                short:`Решаем неравенство ${task.pretty}.`,
+                standard:`Перед нами логарифмическое неравенство ${task.pretty}. Здесь нужно не просто «отбросить логарифм», а сначала проверить, где он существует.`,
+                full:`Перед нами логарифмическое неравенство ${task.pretty}. В задачах такого типа всегда есть два смысловых слоя: сначала область допустимых значений, затем основное сравнение после снятия логарифма. Именно поэтому решение удобно строить как систему.`
+            });
+            common.push({
+                title:'Что означает условие логарифма', map:'odz',
+                short:`Аргумент должен быть положительным: ${task.odzText}.`,
+                standard:`Логарифм существует только тогда, когда его аргумент строго больше нуля. Поэтому первое обязательное условие: ${task.odzText}.`,
+                full:`Первое, что делаем, — выписываем ОДЗ. Для логарифма недостаточно просто решить неравенство после снятия знака логарифма: нужно ещё гарантировать существование самого выражения. Поэтому обязательно требуем: ${task.odzText}. На рисунке это отдельный луч.`
+            });
+            common.push({
+                title:'Геометрическая и графическая интерпретация', map:'mono',
+                short: task.note,
+                standard:`Смотрим на основание. ${task.note}`,
+                full:`Теперь определяем, возрастает или убывает функция y = logₐ(x). Это ключевой момент: ${task.note} Именно от этого зависит, сохранится ли знак неравенства при переходе к аргументам.`
+            });
+            common.push({
+                title:'Ключевая идея', map:'main',
+                short:`Представляем число ${task.c} как логарифм и снимаем логарифм.`,
+                standard:`Представим число ${task.c} в виде логарифма с тем же основанием: ${task.compareNumberText}. После этого сравниваем аргументы и получаем: ${task.mainText}.`,
+                full:`Чтобы сравнение стало однотипным, число справа переписываем как логарифм с тем же основанием: ${task.compareNumberText}. Теперь обе части имеют одинаковый логарифм, и можно переходить к сравнению аргументов. Получаем основное неравенство: ${task.mainText}. Это второе условие системы.`
+            });
+            common.push({
+                title:'Пошаговое доведение до ответа', map:'inter',
+                short:`Берём пересечение двух условий на оси.`,
+                standard:`На числовой оси отмечаем отдельно ОДЗ и отдельно основное неравенство. Ответ — только та область, где есть обе штриховки сразу.`,
+                full:`Теперь важнейший визуальный шаг: не выбираем условия по отдельности, а пересекаем их. ОДЗ даёт один луч, основное неравенство — второй. Решением будет именно их пересечение. Если одна из границ получается строгой, она не входит в ответ.`
+            });
+            common.push({
+                title:'Финальная проверка', map:'check',
+                short:`Проверяем, что в ответе аргумент положителен и неравенство верно.`,
+                standard:`Проверка состоит из двух частей: любой x из ответа делает аргумент положительным и удовлетворяет полученному обычному неравенству.`,
+                full:`Финальная проверка обязательна. Берём смысловую проверку: для любого x из найденного интервала логарифм существует, потому что аргумент положителен; кроме того, x удовлетворяет основному неравенству после снятия логарифма. Вне найденного интервала нарушается либо существование логарифма, либо основное сравнение, значит других решений нет.`
+            });
+            common.push({
+                title:'Краткий вывод', map:'result',
+                short:`Ответ: <math display="inline"><mrow><mi>x</mi><mo>∈</mo><mn>${task.answerText}</mn></mrow></math>.`,
+                standard:`Итак, окончательный ответ: <math display="inline"><mrow><mi>x</mi><mo>∈</mo><mn>${task.answerText}</mn></mrow></math>.`,
+                full:`Итак, решение завершено: после выписывания ОДЗ, учёта основания и пересечения условий получаем окончательный ответ <math display="inline"><mrow><mi>x</mi><mo>∈</mo><mn>${task.answerText}</mn></mrow></math>. Это и есть вся логика темы в чистом виде.`
+            });
+        } else {
+            common.push({title:'Что дано', map:'task', short:`Решаем ${task.pretty}.`, standard:`Перед нами логарифмическое неравенство ${task.pretty}. Здесь нужно учесть существование сразу двух логарифмов.`, full:`Перед нами логарифмическое неравенство ${task.pretty}. В таких задачах особенно важно не потерять ни одно ограничение: существовать должны оба логарифма, а затем нужно ещё выполнить основное сравнение.`});
+            common.push({title:'Что означает каждое условие', map:'odz', short:`Нужно два ограничения: ${task.odzText1} и ${task.odzText2}.`, standard:`Так как логарифмов два, получаем два ограничения: ${task.odzText1}; ${task.odzText2}.`, full:`Каждый логарифм существует только при положительном аргументе. Поэтому выписываем сразу два ограничения: ${task.odzText1}; ${task.odzText2}. На числовой оси это два отдельных луча.`});
+            common.push({title:'Графическая интерпретация', map:'mono', short:task.note, standard:`Определяем поведение функции y = logₐ(x). ${task.note}`, full:`Здесь важно понять монотонность логарифмической функции. ${task.note} Это правило позволяет перейти от сравнения логарифмов к сравнению аргументов.`});
+            common.push({title:'Ключевая идея', map:'main', short:`Сравниваем аргументы.`, standard:`После снятия логарифмов получаем: ${task.mainText}. Затем приводим к обычному линейному неравенству: ${task.mainReduced}.`, full:`Когда основания одинаковы, сравнение логарифмов сводится к сравнению аргументов — с тем же знаком или с противоположным, в зависимости от основания. В результате получаем ${task.mainText}, а затем — уже обычное линейное неравенство ${task.mainReduced}.`});
+            common.push({title:'Пошаговое доведение до ответа', map:'inter', short:`Ищем пересечение трёх условий.`, standard:`Теперь надо совместить на одной оси два ограничения и главное неравенство. Решением будет общая часть всех трёх областей.`, full:`Это место, где чаще всего ошибаются: нельзя брать только одно красивое условие. Нужно совместить на одной оси все три результата: первое ограничение, второе ограничение и главное неравенство. Только общая область всех трёх штриховок и даёт ответ.`});
+            common.push({title:'Финальная проверка', map:'check', short:`Проверяем существование обоих логарифмов и сравнение аргументов.`, standard:`Для любой точки из ответа существуют оба логарифма, и выполнено сравнение аргументов, значит выполнено и исходное неравенство.`, full:`Финальная проверка здесь особенно важна: нужно убедиться, что оба логарифма определены, а также что сравнение аргументов даёт верный знак исходного неравенства. Вне найденной области хотя бы одно из трёх условий нарушается.`});
+            common.push({title:'Краткий вывод', map:'result', short:`Ответ: <math display="inline"><mrow><mi>x</mi><mo>∈</mo><mn>${task.answerText}</mn></mrow></math>.`, standard:`Окончательно получаем <math display="inline"><mrow><mi>x</mi><mo>∈</mo><mn>${task.answerText}</mn></mrow></math>.`, full:`Итак, итоговое решение найдено как пересечение трёх условий, а не как отдельный красивый луч. Окончательный ответ: <math display="inline"><mrow><mi>x</mi><mo>∈</mo><mn>${task.answerText}</mn></mrow></math>.`});
+        }
+        return common;
+    }
+
+    function renderSteps(){
+        const steps = buildSteps(state.current);
+        stepsContainer.innerHTML = '';
+        stepperBar.innerHTML = '';
+        steps.forEach((step, idx) => {
+            const pill = document.createElement('button');
+            pill.className = 'step-pill' + ((state.reveal==='all' || idx < state.opened)?' active':'');
+            pill.textContent = (idx+1)+'. '+step.title;
+            pill.addEventListener('click', ()=>{
+                state.opened = idx+1;
+                updateUI();
+            });
+            stepperBar.appendChild(pill);
+
+            const card = document.createElement('div');
+            const visible = state.reveal==='all' || idx < state.opened;
+            card.className = 'step-card' + (visible ? '' : ' hidden-by-mode');
+            card.dataset.map = step.map;
+            card.innerHTML = `
+          <div class="step-head">
+            <div>
+              <div class="step-index">Шаг ${idx+1}</div>
+              <h3 style="margin:3px 0 0">${step.title}</h3>
+            </div>
+            <div class="small">связан с моделью справа</div>
+          </div>
+          <div style="margin-top:8px">${step[state.detail]}</div>
+        `;
+            card.addEventListener('mouseenter', ()=>{ state.highlight = step.map; paintAxis(); syncStepHighlights(); });
+            card.addEventListener('mouseleave', ()=>{ state.highlight = null; paintAxis(); syncStepHighlights(); });
+            stepsContainer.appendChild(card);
+        });
+        syncStepHighlights();
+    }
+
+    function syncStepHighlights(){
+        document.querySelectorAll('.step-card').forEach(card => {
+            card.dataset.highlight = state.highlight && card.dataset.map===state.highlight ? 'true' : 'false';
+        });
+    }
+
+    function setCurrentTask(task){
+        state.current = task;
+        taskMain.innerHTML = task.pretty;
+        taskSub.textContent = task.note;
+        answerBox.innerHTML = `<strong>Ответ:</strong> <math display="inline"><mrow><mi>x</mi><mo>∈</mo><mn>${task.answerText}</mn></mrow></math>`;
+        ideaBox.innerHTML = '<strong>Короткая идея.</strong><br>' + task.idea.map((s,i)=>`${i+1}) ${s}`).join('<br>');
+        checkBox.innerHTML = '<strong>Проверка ответа.</strong><br>' + task.check.map((s,i)=>`${i+1}) ${s}`).join('<br>');
+        state.currentQuiz = buildQuiz(task);
+        renderQuiz();
+        renderSteps();
+        paintMonotonicity();
+        paintAxis();
+    }
+
+    function buildQuiz(task){
+        if(task.family==='single'){
+            return {
+                q:'Что нужно сделать первым действием?',
+                options:['Сразу сравнить аргумент с числом справа','Выписать ОДЗ: аргумент логарифма должен быть положительным','Перенести всё влево и раскрыть скобки'],
+                correct:1,
+                explain:'Сначала всегда проверяем существование логарифма: аргумент должен быть строго больше нуля.'
+            };
+        }
+        return {
+            q:'Сколько условий надо совместить в этой задаче?',
+            options:['Одно: только после снятия логарифма','Два: только ОДЗ','Три: два ограничения и основное неравенство'],
+            correct:2,
+            explain:'При сравнении двух логарифмов нужны оба ограничения на аргументы и ещё само сравнение после снятия логарифмов.'
+        };
+    }
+
+    function renderQuiz(){
+        const quiz = state.currentQuiz;
+        quizBlock.innerHTML = `<p><strong>${quiz.q}</strong></p>`;
+        quiz.options.forEach((opt,idx)=>{
+            const lab = document.createElement('label');
+            lab.className = 'quiz-option';
+            lab.innerHTML = `<input type="radio" name="quizOpt" style="margin-right:8px"> ${opt}`;
+            lab.addEventListener('click', ()=>{
+                document.querySelectorAll('.quiz-option').forEach(el=>el.classList.remove('correct','wrong'));
+                if(idx===quiz.correct){ lab.classList.add('correct'); }
+                else { lab.classList.add('wrong'); document.querySelectorAll('.quiz-option')[quiz.correct].classList.add('correct'); }
+                const expl = document.createElement('div');
+                expl.className = 'tip-box';
+                expl.style.marginTop='12px';
+                expl.innerHTML = `<strong>Пояснение.</strong> ${quiz.explain}`;
+                const old = quizBlock.querySelector('.tip-box'); if(old) old.remove();
+                quizBlock.appendChild(expl);
+            });
+            quizBlock.appendChild(lab);
+        });
+    }
+
+    function paintMonotonicity(){
+        const t = state.current;
+        const increasing = t.base > 1;
+        monotonicText.textContent = increasing ? 'При a > 1 график возрастает, знак неравенства сохраняется.' : 'При 0 < a < 1 график убывает, знак неравенства меняется.';
+        curveLabel.textContent = increasing ? 'возрастающая логарифмическая функция' : 'убывающая логарифмическая функция';
+        if(increasing){
+            curvePath.setAttribute('d','M 108 130 C 170 128, 220 118, 265 98 C 320 72, 390 36, 790 4');
+        } else {
+            curvePath.setAttribute('d','M 108 4 C 180 34, 250 68, 325 94 C 410 122, 515 127, 790 130');
+        }
+    }
+
+    function axisX(value, minX, maxX){
+        return 82 + (value-minX)/(maxX-minX)*686;
+    }
+    function drawInterval(g, interval, y, color, label, dash=false, opacity=1){
+        if(interval.kind==='empty') return;
+        const minX = g.dataset.minXAsNum ? parseFloat(g.dataset.minXAsNum) : -6;
+        const maxX = g.dataset.maxXAsNum ? parseFloat(g.dataset.maxXAsNum) : 8;
+        const leftPad = minX, rightPad = maxX;
+        let x1=82, x2=768;
+        if(interval.kind==='rayR'){ x1 = axisX(interval.left, minX, maxX); x2 = axisX(rightPad, minX, maxX); }
+        if(interval.kind==='rayL'){ x1 = axisX(leftPad, minX, maxX); x2 = axisX(interval.right, minX, maxX); }
+        if(interval.kind==='segment'){ x1 = axisX(interval.left, minX, maxX); x2 = axisX(interval.right, minX, maxX); }
+        const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('x1',x1); line.setAttribute('x2',x2); line.setAttribute('y1',y); line.setAttribute('y2',y);
+        line.setAttribute('stroke',color); line.setAttribute('stroke-width',10); line.setAttribute('stroke-linecap','round');
+        line.setAttribute('opacity',opacity);
+        if(dash) line.setAttribute('stroke-dasharray','12 8');
+        g.appendChild(line);
+        const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+        txt.setAttribute('x', 82); txt.setAttribute('y', y-16); txt.setAttribute('fill', color); txt.setAttribute('font-size', '16');
+        txt.textContent = label;
+        g.appendChild(txt);
+    }
+    function drawBoundary(g, value, y, color, closed=false, opacity=1){
+        const minX = parseFloat(g.dataset.minXAsNum), maxX = parseFloat(g.dataset.maxXAsNum);
+        const x = axisX(value,minX,maxX);
+        const circ = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        circ.setAttribute('cx',x); circ.setAttribute('cy',y); circ.setAttribute('r',7.5);
+        circ.setAttribute('stroke',color); circ.setAttribute('stroke-width',3); circ.setAttribute('fill', closed ? color : '#121b22');
+        circ.setAttribute('opacity',opacity);
+        g.appendChild(circ);
+        if(showMarks.checked){
+            const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+            txt.setAttribute('x',x); txt.setAttribute('y',y+26); txt.setAttribute('text-anchor','middle'); txt.setAttribute('fill','#c8d7df'); txt.setAttribute('font-size','15');
+            txt.textContent = rationalText(value);
+            txt.setAttribute('opacity',opacity);
+            g.appendChild(txt);
+        }
+    }
+
+    function paintAxis(){
+        axisLayer.innerHTML='';
+        const t = state.current;
+        const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+        let bounds=[];
+        if(t.odzInterval.kind==='rayR') bounds.push(t.odzInterval.left);
+        if(t.odzInterval.kind==='rayL') bounds.push(t.odzInterval.right);
+        if(t.secondInterval){ if(t.secondInterval.kind==='rayR') bounds.push(t.secondInterval.left); if(t.secondInterval.kind==='rayL') bounds.push(t.secondInterval.right); }
+        if(t.mainInterval.kind==='rayR') bounds.push(t.mainInterval.left);
+        if(t.mainInterval.kind==='rayL') bounds.push(t.mainInterval.right);
+        if(t.solution.kind==='segment'){ bounds.push(t.solution.left,t.solution.right); }
+        const finite = bounds.filter(v=>Number.isFinite(v));
+        const minX = (finite.length?Math.min(...finite)-2:-6), maxX = (finite.length?Math.max(...finite)+2:8);
+        g.dataset.minXAsNum = minX; g.dataset.maxXAsNum = maxX;
+
+        const yAxis = 300;
+        const axis = document.createElementNS('http://www.w3.org/2000/svg','line');
+        axis.setAttribute('x1',82); axis.setAttribute('x2',768); axis.setAttribute('y1',yAxis); axis.setAttribute('y2',yAxis);
+        axis.setAttribute('stroke','#d4dde3'); axis.setAttribute('stroke-width','2');
+        g.appendChild(axis);
+        for(let i=Math.ceil(minX); i<=Math.floor(maxX); i++){
+            const x=axisX(i,minX,maxX);
+            const tick=document.createElementNS('http://www.w3.org/2000/svg','line');
+            tick.setAttribute('x1',x); tick.setAttribute('x2',x); tick.setAttribute('y1',292); tick.setAttribute('y2',308);
+            tick.setAttribute('stroke','#70818c'); tick.setAttribute('stroke-width','1.5');
+            g.appendChild(tick);
+            if(showMarks.checked){
+                const label=document.createElementNS('http://www.w3.org/2000/svg','text');
+                label.setAttribute('x',x); label.setAttribute('y',330); label.setAttribute('text-anchor','middle'); label.setAttribute('fill','#80939f'); label.setAttribute('font-size','14');
+                label.textContent=String(i).replace('-', '−');
+                g.appendChild(label);
+            }
+        }
+        const arrow = document.createElementNS('http://www.w3.org/2000/svg','path');
+        arrow.setAttribute('d', 'M 768 300 l -14 -8 l 0 16 z');
+        arrow.setAttribute('fill','#d4dde3'); g.appendChild(arrow);
+
+        const dim = (key, defaultOpacity=.5) => state.highlight && state.highlight!==key ? 0.18 : defaultOpacity;
+        if(showODZ.checked){
+            drawInterval(g, t.odzInterval, 376, '#5da9ff', t.family==='single' ? 'ОДЗ' : 'ОДЗ 1', false, dim('odz', .82));
+            if(t.odzInterval.kind==='rayR') drawBoundary(g,t.odzInterval.left,376,'#5da9ff',false,dim('odz', .92));
+            if(t.odzInterval.kind==='rayL') drawBoundary(g,t.odzInterval.right,376,'#5da9ff',false,dim('odz', .92));
+        }
+        if(t.secondInterval && showODZ.checked){
+            drawInterval(g, t.secondInterval, 430, '#90c6ff', 'ОДЗ 2', true, dim('odz', .78));
+            if(t.secondInterval.kind==='rayR') drawBoundary(g,t.secondInterval.left,430,'#90c6ff',false,dim('odz', .9));
+            if(t.secondInterval.kind==='rayL') drawBoundary(g,t.secondInterval.right,430,'#90c6ff',false,dim('odz', .9));
+        }
+        if(showMain.checked){
+            drawInterval(g, t.mainInterval, 484, '#ffbf69', 'основное', false, dim('main', .84));
+            if(t.mainInterval.kind==='rayR') drawBoundary(g,t.mainInterval.left,484,'#ffbf69',false,dim('main', .94));
+            if(t.mainInterval.kind==='rayL') drawBoundary(g,t.mainInterval.right,484,'#ffbf69',false,dim('main', .94));
+        }
+        if(showInter.checked){
+            const sol = t.solution;
+            if(sol.kind!=='empty'){
+                drawInterval(g, sol, 250, '#8be9dd', 'ответ', false, dim('inter', .96));
+                if(sol.kind==='rayR') drawBoundary(g,sol.left,250,'#8be9dd',false,dim('inter', 1));
+                if(sol.kind==='rayL') drawBoundary(g,sol.right,250,'#8be9dd',false,dim('inter', 1));
+                if(sol.kind==='segment'){ drawBoundary(g,sol.left,250,'#8be9dd',false,dim('inter', 1)); drawBoundary(g,sol.right,250,'#8be9dd',false,dim('inter', 1)); }
+            } else {
+                const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+                txt.setAttribute('x',420); txt.setAttribute('y',250); txt.setAttribute('text-anchor','middle'); txt.setAttribute('fill','#ff8f8f'); txt.setAttribute('font-size','22'); txt.setAttribute('font-weight','700');
+                txt.textContent='Пересечение пусто: решений нет';
+                txt.setAttribute('opacity', dim('inter', 1));
+                g.appendChild(txt);
+            }
+        }
+        axisLayer.appendChild(g);
+    }
+
+    function applyZoom(){
+        const z = state.zoom/100;
+        zoomLayer.setAttribute('transform', `scale(${z})`);
+        zoomReadout.textContent = `${state.zoom}%`;
+    }
+
+    function updateUI(){
+        state.detail = detailSelect.value;
+        state.reveal = revealMode.value;
+        renderSteps();
+        paintAxis();
+    }
+
+    detailSelect.addEventListener('change', updateUI);
+    revealMode.addEventListener('change', updateUI);
+    nextStepBtn.addEventListener('click', ()=>{ const max = buildSteps(state.current).length; if(state.opened<max) state.opened++; updateUI(); });
+    resetStepsBtn.addEventListener('click', ()=>{ state.opened=1; updateUI(); });
+
+    familySelect.addEventListener('change', ()=>{
+        setCurrentTask(createTask(familySelect.value));
+        state.opened=1;
+        // Show quick feedback
+        const wrapper = document.getElementById('familySelectWrapper');
+        wrapper.classList.add('hint-active');
+        setTimeout(() => wrapper.classList.remove('hint-active'), 800);
+    });
+    generateBtn.addEventListener('click', ()=>{
+        setCurrentTask(createTask(familySelect.value));
+        state.opened=1;
+        // Visual feedback on generate
+        generateBtn.style.transform = 'scale(0.98)';
+        setTimeout(() => generateBtn.style.transform = '', 150);
+    });
+
+    showODZ.addEventListener('change', paintAxis);
+    showMain.addEventListener('change', paintAxis);
+    showInter.addEventListener('change', paintAxis);
+    showMarks.addEventListener('change', paintAxis);
+
+    zoomRange.addEventListener('input', ()=>{ state.zoom = +zoomRange.value; applyZoom(); });
+    zoomOutBtn.addEventListener('click', ()=>{ state.zoom = Math.max(70, state.zoom-10); zoomRange.value=state.zoom; applyZoom(); });
+    zoomInBtn.addEventListener('click', ()=>{ state.zoom = Math.min(190, state.zoom+10); zoomRange.value=state.zoom; applyZoom(); });
+    zoomResetBtn.addEventListener('click', ()=>{ state.zoom=100; zoomRange.value=100; applyZoom(); });
+    svgWrap.addEventListener('wheel', (e)=>{
+        e.preventDefault();
+        state.zoom += e.deltaY<0 ? 5 : -5;
+        state.zoom = Math.max(70, Math.min(190, state.zoom));
+        zoomRange.value = state.zoom;
+        applyZoom();
+    }, {passive:false});
+
+    // Initialize
+    const startTask = solveCompareTask(10,3,-4,2,1,'<');
+    setCurrentTask(startTask);
+    applyZoom();
+    initHints();
+</script>
+</body>
+</html>

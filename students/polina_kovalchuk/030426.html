@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Сечения многогранников — наглядная математика</title>
+    <style>
+        :root{
+            --bg:#0f1418;
+            --panel:#161d23;
+            --panel-2:#1d2630;
+            --text:#e9f1f3;
+            --muted:#aebdc4;
+            --accent:#45c0b8;
+            --accent-2:#7ee5d9;
+            --line:#2a3943;
+            --good:#93e26f;
+            --warn:#ffd67a;
+            --bad:#ff9a9a;
+            --shadow:0 14px 42px rgba(0,0,0,.28);
+            --radius:20px;
+            --stickyTop:16px;
+        }
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            font-family:Inter,Segoe UI,Arial,sans-serif;
+            background:
+            radial-gradient(1200px 700px at 10% -10%, #17313a 0%, transparent 60%),
+            radial-gradient(900px 600px at 100% 0%, #1b2b35 0%, transparent 55%),
+            var(--bg);
+            color:var(--text);
+            line-height:1.55;
+        }
+        .wrap{
+            max-width:1500px;
+            margin:0 auto;
+            padding:20px 18px 60px;
+        }
+        .header{
+            display:flex;
+            gap:16px;
+            align-items:flex-start;
+            justify-content:space-between;
+            margin-bottom:18px;
+            flex-wrap:wrap;
+        }
+        .hero{
+            flex:1 1 760px;
+            background:linear-gradient(180deg, rgba(69,192,184,.08), rgba(69,192,184,.03));
+            border:1px solid rgba(126,229,217,.15);
+            border-radius:26px;
+            padding:22px 22px 18px;
+            box-shadow:var(--shadow);
+        }
+        .hero h1{
+            margin:0 0 8px;
+            font-size:clamp(28px, 4.2vw, 46px);
+            line-height:1.06;
+            letter-spacing:.2px;
+        }
+        .hero p{margin:8px 0;color:var(--muted);max-width:1000px}
+        .pillrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+        .pill{
+            padding:8px 12px;border-radius:999px;background:#142028;border:1px solid #27404b;color:#d9f3f0;
+            font-size:14px
+        }
+        .layout{
+            display:grid;
+            grid-template-columns:minmax(0, 1.05fr) minmax(360px, .82fr);
+            gap:18px;
+            align-items:start;
+        }
+        .leftCol{min-width:0}
+        .rightCol{position:sticky; top:var(--stickyTop); align-self:start}
+        .panel{
+            background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+            border:1px solid var(--line);
+            border-radius:var(--radius);
+            box-shadow:var(--shadow);
+        }
+        .card{padding:18px 18px 16px;margin-bottom:16px}
+        h2{
+            margin:0 0 12px;
+            font-size:clamp(21px, 2vw, 29px);
+            line-height:1.15;
+        }
+        h3{
+            margin:0 0 10px;
+            font-size:clamp(18px, 1.5vw, 24px);
+            line-height:1.18;
+        }
+        h4{margin:8px 0 8px;font-size:17px}
+        .sub{color:var(--muted);font-size:14px}
+        .idea{
+            display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px
+        }
+        .idea .mini{
+            background:#121920;border:1px solid var(--line);border-radius:16px;padding:12px 12px 10px
+        }
+        .mini strong{display:block;color:var(--accent-2);margin-bottom:4px}
+        .toc{
+            display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px
+        }
+        .toc a{
+            text-decoration:none;color:var(--text);background:#121920;border:1px solid var(--line);
+            border-radius:16px;padding:12px;display:block;transition:.2s transform,.2s border-color
+        }
+        .toc a:hover{transform:translateY(-2px);border-color:#3b6971}
+        .sectionBlock{
+            display:grid;gap:12px
+        }
+        .infoGrid{
+            display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px
+        }
+        .infoBox{
+            background:#121920;border:1px solid var(--line);border-radius:16px;padding:13px
+        }
+        .formula{
+            background:#111a1e;border:1px solid #23414b;border-radius:14px;padding:12px 14px;
+            font-family:"DejaVu Sans","Segoe UI Symbol",sans-serif;
+            overflow:auto
+        }
+        .legend{
+            display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;
+            margin-top:8px
+        }
+        .legendItem{
+            display:flex;align-items:center;gap:10px;background:#121920;border:1px solid var(--line);
+            border-radius:14px;padding:10px 12px
+        }
+        .swatch{width:18px;height:18px;border-radius:50%}
+        .stepperTop{
+            display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px
+        }
+        .btnRow{display:flex;gap:8px;flex-wrap:wrap}
+        button, .chipBtn, select{
+            border:none;border-radius:12px;padding:10px 12px;background:#1e2b34;color:var(--text);
+            border:1px solid #31444f;cursor:pointer;font:inherit
+        }
+        button:hover,.chipBtn:hover,select:hover{border-color:#4b6b77}
+        button.primary{background:linear-gradient(180deg,#1f635f,#134845);border-color:#2a7a74}
+        button.ghost{background:#121920}
+        .chipGroup{display:flex;gap:8px;flex-wrap:wrap}
+        .chipBtn.active{background:#214d4f;border-color:#4fb0a8;color:#ecffff}
+        .steps{display:grid;gap:10px}
+        .step{
+            background:#121920;border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;
+            transition:.2s border-color,.2s transform,.2s background;
+        }
+        .step.active{border-color:#4bc6bc;background:#132127}
+        .step.hovered{box-shadow:0 0 0 1px rgba(126,229,217,.35) inset}
+        .stepHeader{display:flex;gap:10px;align-items:center}
+        .stepNum{
+            width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+            background:#193238;color:#dffffb;font-weight:700;flex:0 0 auto
+        }
+        .stepBody{margin-top:10px}
+        .mode-short .detail-standard,.mode-short .detail-long{display:none}
+        .mode-standard .detail-long{display:none}
+        .collapsible[hidden]{display:none}
+        .tagline{
+            display:inline-flex;align-items:center;gap:8px;font-size:13px;color:#d3f9f3;background:#193238;
+            padding:7px 10px;border-radius:999px;border:1px solid #2d5956
+        }
+        ul.tight, ol.tight{margin:8px 0 0 18px;padding:0}
+        .warningList li{margin-bottom:6px}
+        .quizQ{
+            background:#121920;border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:10px
+        }
+        .option{display:block;margin:6px 0;padding:10px;border-radius:12px;background:#0f151a;border:1px solid #283640;cursor:pointer}
+        .option.correct{border-color:#3b7e2b;background:#132113}
+        .option.wrong{border-color:#7e2b2b;background:#211313}
+        .result{
+            margin-top:8px;padding:10px 12px;border-radius:12px;background:#111920;border:1px solid var(--line)
+        }
+
+        .viewer{
+            padding:14px 14px 12px;
+            display:grid;gap:12px
+        }
+        .canvasWrap{
+            background:linear-gradient(180deg,#0d1419,#0d151b 50%, #101920);
+            border:1px solid #26333b;
+            border-radius:18px;
+            padding:10px;
+        }
+        canvas{width:100%;height:auto;display:block;border-radius:12px;background:linear-gradient(180deg,#0d1217,#111a1f)}
+        .controls{
+            display:grid;gap:10px
+        }
+        .controlGroup{
+            background:#121920;border:1px solid var(--line);border-radius:16px;padding:12px
+        }
+        .controlGroup h4{margin:0 0 8px;font-size:15px;color:#ddfbf7}
+        .inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+        input[type="range"]{width:100%}
+        .taskBox{
+            background:#121920;border:1px solid var(--line);border-radius:16px;padding:12px
+        }
+        .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+        .helperList{margin:8px 0 0 18px;padding:0}
+        .footerNote{color:var(--muted);font-size:13px}
+        .printOnly{display:none}
+        .checkList label{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
+        .checkList input{margin-top:4px}
+        .twoCols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .small{font-size:14px}
+        .focusLink{
+            cursor:pointer;border-bottom:1px dashed rgba(126,229,217,.45)
+        }
+        .kbd{
+            display:inline-block; padding:2px 7px; border-radius:8px; background:#0f151a; border:1px solid #2f3d45; font-size:12px
+        }
+        .systemWrap{
+            display:inline-grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;
+            background:#121920;border:1px solid var(--line);padding:10px 12px;border-radius:14px
+        }
+        .brace{
+            font-size:36px;line-height:1;transform:translateY(-2px);color:var(--accent-2)
+        }
+        .lines > div{white-space:nowrap}
+        @media (max-width:1080px){
+            .layout{grid-template-columns:1fr}
+            .rightCol{position:relative; top:auto}
+        }
+        @media (max-width:640px){
+            .wrap{padding:14px 12px 40px}
+            .hero{padding:18px}
+            .card{padding:16px 14px}
+            .twoCols{grid-template-columns:1fr}
+            .stepHeader{align-items:flex-start}
+            .stepNum{width:28px;height:28px}
+        }
+        @media print{
+            body{background:white;color:black}
+            .wrap{max-width:none;padding:0}
+            .layout{display:block}
+            .rightCol{position:static}
+            .panel,.hero,.step,.mini,.infoBox,.controlGroup,.taskBox,.quizQ,.option,.formula,.legendItem,.toc a{
+                box-shadow:none;border:1px solid #bbb;background:white !important;color:black !important
+            }
+            .header{display:block}
+            .hero{margin-bottom:14px}
+            .noPrint{display:none !important}
+            .printOnly{display:block}
+            canvas{border:1px solid #bbb}
+            a{text-decoration:none;color:black}
+        }
+    </style>
+</head>
+<body class="mode-standard">
+<div class="wrap">
+    <div class="header">
+        <div class="hero">
+            <div class="tagline">Лёвин Артём Александрович · подготовка к ЕГЭ · сечения многогранников</div>
+            <h1>Сечения многогранников: понять логику, а не запоминать рисунки</h1>
+            <p>Это интерактивная страница по мотивам пособия: здесь собраны ключевые методы занятия, один большой визуальный модуль, пошаговый разбор, тренировка, мини-квиз и генерация похожей задачи. Фокус — на <strong>геометрической идее</strong>: как переходить между гранями и как доказывать, что новая точка действительно лежит в плоскости сечения.</p>
+            <div class="pillrow">
+                <div class="pill">Уровень: уверенный</div>
+                <div class="pill">Режим: пошаговое раскрытие</div>
+                <div class="pill">Методы: только школьные</div>
+                <div class="pill">Визуализация: комбинированная модель</div>
+                <div class="pill">Печать поддерживается</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layout">
+        <main class="leftCol">
+            <section class="panel card">
+                <h2>Что Вы получите с этой страницы</h2>
+                <div class="idea">
+                    <div class="mini"><strong>1. База</strong> Что такое секущая плоскость, сечение, почему стороны в параллельных гранях параллельны.</div>
+                    <div class="mini"><strong>2. Алгоритм</strong> Как начать построение, когда две точки лежат в одной грани, и что делать, если не лежат.</div>
+                    <div class="mini"><strong>3. Хитрые случаи</strong> Проекции, параллельный перенос прямой, вспомогательные точки в основании.</div>
+                    <div class="mini"><strong>4. ЕГЭ-практика</strong> Один основной разбор, генератор похожей задачи, мини-квиз и чек-лист самопроверки.</div>
+                </div>
+            </section>
+
+            <section class="panel card">
+                <h2>Быстрый маршрут</h2>
+                <div class="toc">
+                    <a href="#theory">Опорная теория</a>
+                    <a href="#algorithm">Универсальный алгоритм</a>
+                    <a href="#mainTask">Главный разбор</a>
+                    <a href="#parallel">Сечение через прямую и параллельность</a>
+                    <a href="#errors">Типичные ошибки</a>
+                    <a href="#quiz">Мини-квиз</a>
+                    <a href="#generator">Похожая задача</a>
+                    <a href="#selfcheck">Самопроверка</a>
+                </div>
+            </section>
+
+            <section id="theory" class="panel card">
+                <h2>Опорная теория</h2>
+                <div class="infoGrid">
+                    <div class="infoBox">
+                        <h3>Что дано</h3>
+                        <p>Есть многогранник и плоскость, которая его «режет».</p>
+                    </div>
+                    <div class="infoBox">
+                        <h3>Что означает условие</h3>
+                        <p><strong>Секущая плоскость</strong> — это плоскость, по обе стороны которой есть точки многогранника. Она пересекает грани по отрезкам.</p>
+                    </div>
+                    <div class="infoBox">
+                        <h3>Геометрическая интерпретация</h3>
+                        <p>Сечение — это многоугольник, вершины которого лежат на рёбрах многогранника, а стороны — в гранях.</p>
+                    </div>
+                    <div class="infoBox">
+                        <h3>Ключевая идея</h3>
+                        <p>Главное не «угадывать картинку», а последовательно доказывать: <span class="focusLink" data-focus-target="points">каждая новая точка действительно принадлежит плоскости сечения</span>.</p>
+                    </div>
+                </div>
+                <div class="formula" style="margin-top:12px">
+                    Если две точки прямой лежат в плоскости α, то и вся прямая лежит в плоскости α. <br>
+                    Если прямая уже лежит в α и пересекает ребро многогранника в точке P, то точка P тоже лежит в α.
+                </div>
+                <div class="legend">
+                    <div class="legendItem"><span class="swatch" style="background:#45c0b8"></span> зелёным — рёбра сечения</div>
+                    <div class="legendItem"><span class="swatch" style="background:#ffd67a"></span> жёлтым — заданные точки</div>
+                    <div class="legendItem"><span class="swatch" style="background:#7aa7ff"></span> голубым — вспомогательные линии</div>
+                    <div class="legendItem"><span class="swatch" style="background:#ff8fb8"></span> розовым — плоскость сечения</div>
+                </div>
+            </section>
+
+            <section id="algorithm" class="panel card">
+                <h2>Универсальный алгоритм построения</h2>
+                <div class="steps">
+                    <article class="step" data-step="algo1">
+                        <div class="stepHeader"><div class="stepNum">1</div><div><strong>Сначала ищем пару точек в одной грани</strong><div class="sub">Это самый удобный первый ход.</div></div></div>
+                        <div class="stepBody">
+                            <div class="detail-short">Если две заданные точки лежат в одной грани, их можно сразу соединить.</div>
+                            <div class="detail-standard">Не начинайте с «пространственного угадывания». Сначала ищите, какие две точки лежат в одной и той же грани. Их соединение — первая надёжная прямая плоскости сечения.</div>
+                            <div class="detail-long">Именно этот шаг делает задачу устойчивой: Вы переходите от набора точек к реальному объекту в плоскости сечения — прямой. После этого уже можно искать её пересечения с рёбрами и переходить в соседние грани.</div>
+                        </div>
+                    </article>
+                    <article class="step" data-step="algo2">
+                        <div class="stepHeader"><div class="stepNum">2</div><div><strong>Если две точки нельзя соединить напрямую — ищем общее ребро двух граней</strong><div class="sub">Это главный технический переход.</div></div></div>
+                        <div class="stepBody">
+                            <div class="detail-short">Продлеваем уже построенную прямую до ребра, которое связывает нужные грани.</div>
+                            <div class="detail-standard">Когда нужная третья точка лежит в другой грани, надо найти ребро, которое принадлежит и текущей грани, и новой. До этого ребра продлевают уже построенную прямую.</div>
+                            <div class="detail-long">После пересечения с таким ребром возникает новая опорная точка. Она одновременно лежит и в плоскости сечения, и в соседней грани. Это ровно то, что позволяет продолжить построение уже внутри новой грани.</div>
+                        </div>
+                    </article>
+                    <article class="step" data-step="algo3">
+                        <div class="stepHeader"><div class="stepNum">3</div><div><strong>Замыкаем многоугольник</strong><div class="sub">Проверяем, не пропущены ли вершины на задних гранях.</div></div></div>
+                        <div class="stepBody">
+                            <div class="detail-short">Строим все следующие вершины тем же способом, пока контур не замкнётся.</div>
+                            <div class="detail-standard">Каждая следующая вершина возникает либо как пересечение уже проведённой прямой с ребром, либо как результат перехода в новую грань.</div>
+                            <div class="detail-long">В конце обязательно проверьте: все ли вершины сечения лежат на рёбрах, нет ли лишних отрезков, не пропущено ли пересечение на задней или нижней грани. Ошибка в таких задачах часто не в идее, а в незамкнутом контуре.</div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section id="mainTask" class="panel card">
+                <div class="stepperTop">
+                    <div>
+                        <h2 style="margin-bottom:6px">Главный разбор: сечение куба по трём точкам</h2>
+                        <div class="sub">Это базовый тип ЕГЭ-задачи: через три точки на рёбрах проходит плоскость сечения.</div>
+                    </div>
+                    <div class="btnRow noPrint">
+                        <button id="prevStep" class="ghost">← шаг назад</button>
+                        <button id="nextStep" class="primary">шаг вперёд →</button>
+                        <button id="showAllSteps" class="ghost">показать всё</button>
+                    </div>
+                </div>
+
+                <div class="infoGrid" style="margin-bottom:12px">
+                    <div class="infoBox">
+                        <h3>Что дано</h3>
+                        <p>Куб. На трёх рёбрах отмечены точки K, L, M. Через них проходит искомая плоскость α.</p>
+                    </div>
+                    <div class="infoBox">
+                        <h3>Что означает каждое условие</h3>
+                        <p>Плоскость α обязана содержать и сами точки, и все прямые, которые мы строим через пары точек внутри одной грани.</p>
+                    </div>
+                    <div class="infoBox">
+                        <h3>Геометрическая интерпретация</h3>
+                        <p>Мы не ищем «красивую фигуру». Мы по очереди находим новые точки пересечения плоскости α с рёбрами куба.</p>
+                    </div>
+                    <div class="infoBox">
+                        <h3>Ключевая идея</h3>
+                        <p>Начать с пары точек в одной грани, затем перейти в соседнюю грань через общее ребро.</p>
+                    </div>
+                </div>
+
+                <div class="formula">
+                    <strong>Идея решения в 4 пунктах</strong>
+                    <ol class="tight">
+                        <li>Соединяем ту пару точек, которую можно соединить внутри одной грани.</li>
+                        <li>Продлеваем полученную прямую до ребра, общего для двух нужных граней.</li>
+                        <li>Через новую точку переходим в следующую грань и строим следующий отрезок сечения.</li>
+                        <li>Повторяем, пока не получится замкнутый многоугольник.</li>
+                    </ol>
+                </div>
+
+                <div class="steps" id="mainSteps">
+                    <article class="step active" data-focus="given,points">
+                        <div class="stepHeader"><div class="stepNum">1</div><div><strong>Фиксируем заданные точки</strong><div class="sub">Плоскость α уже проходит через K, L и M.</div></div></div>
+                        <div class="stepBody">
+                            <div class="detail-short">Точки K, L, M принадлежат α по условию.</div>
+                            <div class="detail-standard">Это старт: пока у нас есть только три точки. Но уже сейчас можно искать пару, лежащую в одной грани куба.</div>
+                            <div class="detail-long">Замечание для ЕГЭ: не надо сразу вести линии «в пространстве». Сначала смотрите, какие точки живут в одной грани, потому что именно там Вы имеете право проводить прямую без дополнительных построений.</div>
+                        </div>
+                    </article>
+
+                    <article class="step collapsible" hidden data-focus="kl,front">
+                        <div class="stepHeader"><div class="stepNum">2</div><div><strong>Соединяем K и L</strong><div class="sub">Они лежат в одной грани.</div></div></div>
+                        <div class="stepBody">
+                            <div class="detail-short">Раз K и L в одной грани, то отрезок KL — часть плоскости α.</div>
+                            <div class="detail-standard">Поскольку K и L лежат в одной грани и обе принадлежат α, вся прямая KL лежит в α. Это первая опорная прямая нашего сечения.</div>
+                            <div class="detail-long">Именно отсюда рождается всё дальнейшее построение. Мы уже работаем не с абстрактной плоскостью, а с конкретной прямой, лежащей в ней. Следующий шаг — использовать её пересечение с ребром куба для перехода в соседнюю грань.</div>
+                        </div>
+                    </article>
+
+                    <article class="step collapsible" hidden data-focus="helper1,edgeLink">
+                        <div class="stepHeader"><div class="stepNum">3</div><div><strong>Продлеваем KL до общего ребра</strong><div class="sub">Нужен мостик к грани, где находится M.</div></div></div>
+                        <div class="stepBody">
+                            <div class="detail-short">Ищем ребро, которое принадлежит и текущей, и следующей грани.</div>
+                            <div class="detail-standard">Прямую KL продлеваем до пересечения с ребром, которое связывает текущую грань с гранью, через которую удобно выйти к точке M. В точке пересечения появляется новая опорная точка P.</div>
+                            <div class="detail-long">Почему это законно: точка P лежит на прямой KL, а значит, лежит в α. Одновременно она лежит на ребре куба, которое принадлежит соседней грани. Значит, через P можно строить следующий отрезок уже в этой новой грани.</div>
+                        </div>
+                    </article>
+
+                    <article class="step collapsible" hidden data-focus="pm,side">
+                        <div class="stepHeader"><div class="stepNum">4</div><div><strong>Соединяем новую точку с M внутри соседней грани</strong><div class="sub">Так появляется следующая вершина сечения.</div></div></div>
+                        <div class="stepBody">
+                            <div class="detail-short">Через P и M строим отрезок в общей грани.</div>
+                            <div class="detail-standard">Точки P и M теперь лежат в одной грани, поэтому их можно соединить. Продолжая эту прямую до пересечения с другим ребром грани, получаем следующую вершину N.</div>
+                            <div class="detail-long">Это типовой цикл: точка на линии сечения + ребро новой грани → ещё одна точка сечения. Дальше задача решается повторением этого шаблона, пока многоугольник не замкнётся.</div>
+                        </div>
+                    </article>
+
+                    <article class="step collapsible" hidden data-focus="section,polygon">
+                        <div class="stepHeader"><div class="stepNum">5</div><div><strong>Замыкаем контур</strong><div class="sub">Получается многоугольник сечения.</div></div></div>
+                        <div class="stepBody">
+                            <div class="detail-short">Все найденные точки соединяются по порядку по граням.</div>
+                            <div class="detail-standard">После последовательных переходов по граням мы получаем замкнутый контур. Это и есть искомое сечение куба плоскостью α.</div>
+                            <div class="detail-long">Финальная проверка: каждая вершина должна лежать на ребре куба, каждая сторона — в одной из граней, а соседние вершины сечения должны быть соединены отрезком, реально лежащим в грани. Если что-то не выполняется, контур построен неверно.</div>
+                        </div>
+                    </article>
+
+                    <article class="step collapsible" hidden data-focus="check,polygon">
+                        <div class="stepHeader"><div class="stepNum">6</div><div><strong>Проверка ответа</strong><div class="sub">Почему других вершин нет.</div></div></div>
+                        <div class="stepBody">
+                            <div class="detail-short">Плоскость пересекает только те рёбра, через которые реально проходит её контур.</div>
+                            <div class="detail-standard">Мы прошли по всем смежным граням, через которые секущая плоскость может выйти дальше. После замыкания контура новые точки появиться уже не могут: плоскость сечения образовала один замкнутый многоугольник.</div>
+                            <div class="detail-long">Это важный момент на ЕГЭ: ответ считается полным не тогда, когда рисунок «похож», а когда ясно, что контур построен целиком и других пересечений плоскости с рёбрами многогранника нет. Значит, найденный многоугольник действительно является всем сечением, а не его частью.</div>
+                        </div>
+                    </article>
+
+                    <article class="step collapsible" hidden data-focus="section">
+                        <div class="stepHeader"><div class="stepNum">7</div><div><strong>Краткий вывод</strong><div class="sub">Главный метод здесь — переход через общее ребро двух граней.</div></div></div>
+                        <div class="stepBody">
+                            <div class="detail-short">В этом типе задач всё держится на переходе между гранями.</div>
+                            <div class="detail-standard">Если Вы умеете находить общее ребро нужных граней и правильно продлевать уже построенную прямую, то большая часть задач на сечения в кубе и параллелепипеде становится стандартной.</div>
+                            <div class="detail-long">Запоминать готовые картинки бесполезно: меняются точки, меняется положение плоскости, меняется число вершин сечения. А вот алгоритм остаётся тем же. Именно его и нужно тренировать.</div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section id="parallel" class="panel card">
+                <h2>Отдельный важный тип: плоскость проходит через прямую и параллельна другой прямой</h2>
+                <div class="twoCols">
+                    <div class="infoBox">
+                        <h3>Что дано</h3>
+                        <p>Например, в пирамиде задана прямая AM, а плоскость сечения должна быть параллельна BD.</p>
+                        <div class="systemWrap">
+                            <div class="brace">{</div>
+                            <div class="lines">
+                                <div>AM лежит в секущей плоскости</div>
+                                <div>секущая плоскость ∥ BD</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="infoBox">
+                        <h3>Как мыслить</h3>
+                        <p>Через уже известную точку сечения в подходящей грани проводят прямую, параллельную BD. Эта новая прямая тоже будет лежать в плоскости сечения.</p>
+                    </div>
+                </div>
+                <div class="formula" style="margin-top:12px">
+                    <strong>Ключевая логика:</strong><br>
+                    если секущая плоскость α проходит через прямую AM и α ∥ BD, то в нужной грани через точку M можно провести прямую, параллельную BD; эта прямая станет частью сечения.
+                </div>
+                <p class="small" style="margin-top:12px;color:var(--muted)">На правой модели можно переключиться в режим <strong>«Пирамида»</strong> и посмотреть именно этот случай: плоскость задаётся прямой A–M и направлением, параллельным диагонали основания.</p>
+            </section>
+
+            <section class="panel card">
+                <h2>Ещё один хитрый тип: когда три точки не лежат попарно в общих гранях</h2>
+                <div class="infoGrid">
+                    <div class="infoBox">
+                        <h3>Проблема</h3>
+                        <p>Нельзя сразу соединить никакую пару точек в одной грани — обычный старт ломается.</p>
+                    </div>
+                    <div class="infoBox">
+                        <h3>Решение</h3>
+                        <p>Часто помогает метод проекций: сначала опускаем одну из точек на основание, работаем в основании, а потом поднимаемся обратно в боковые грани.</p>
+                    </div>
+                    <div class="infoBox">
+                        <h3>Зачем это работает</h3>
+                        <p>Проекция даёт новую точку в удобной плоскости. А плоскость основания обычно проще всего для первых построений.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="errors" class="panel card">
+                <h2>Типичные ошибки</h2>
+                <ol class="tight warningList">
+                    <li><strong>Соединяют точки, которые не лежат в одной грани.</strong> Это самая частая ошибка начала.</li>
+                    <li><strong>Продлевают прямую не к тому ребру.</strong> Нужно искать ребро, которое действительно связывает две нужные грани.</li>
+                    <li><strong>Рисуют красивый контур без доказательства принадлежности точек плоскости α.</strong> На ЕГЭ этого недостаточно.</li>
+                    <li><strong>Пропускают вершину на задней грани.</strong> Контур должен быть замкнут полностью.</li>
+                    <li><strong>Путают вспомогательную точку и вершину сечения.</strong> Некоторые точки нужны только для перехода к следующей грани.</li>
+                </ol>
+            </section>
+
+            <section id="quiz" class="panel card">
+                <h2>Мини-квиз</h2>
+                <div class="sub">Три быстрых вопроса, чтобы проверить, удержалась ли логика.</div>
+
+                <div class="quizQ" data-answer="b">
+                    <strong>1. С чего лучше начинать построение сечения по трём точкам?</strong>
+                    <label class="option"><input type="radio" name="q1" value="a"> С любой пары точек, даже если они не лежат в одной грани</label>
+                    <label class="option"><input type="radio" name="q1" value="b"> С пары точек, лежащих в одной грани</label>
+                    <label class="option"><input type="radio" name="q1" value="c"> С проведения диагонали куба</label>
+                </div>
+
+                <div class="quizQ" data-answer="c">
+                    <strong>2. Зачем продлевают уже построенную прямую до ребра многогранника?</strong>
+                    <label class="option"><input type="radio" name="q2" value="a"> Чтобы рисунок был симметричным</label>
+                    <label class="option"><input type="radio" name="q2" value="b"> Потому что так удобнее чертить</label>
+                    <label class="option"><input type="radio" name="q2" value="c"> Чтобы получить новую точку, лежащую и в плоскости сечения, и в соседней грани</label>
+                </div>
+
+                <div class="quizQ" data-answer="a">
+                    <strong>3. Если плоскость сечения проходит через прямую AM и параллельна BD, что надо сделать?</strong>
+                    <label class="option"><input type="radio" name="q3" value="a"> В подходящей грани через точку сечения провести прямую, параллельную BD</label>
+                    <label class="option"><input type="radio" name="q3" value="b"> Соединить A и D</label>
+                    <label class="option"><input type="radio" name="q3" value="c"> Всегда строить только проекции</label>
+                </div>
+
+                <div class="btnRow noPrint" style="margin-top:10px">
+                    <button id="checkQuiz" class="primary">проверить квиз</button>
+                    <button id="resetQuiz" class="ghost">сбросить</button>
+                </div>
+                <div id="quizResult" class="result" style="display:none"></div>
+            </section>
+
+            <section id="generator" class="panel card">
+                <h2>Похожая задача</h2>
+                <div class="sub">Генератор даёт одну корректную задачу того же метода и сразу подстраивает правую модель под неё.</div>
+                <div class="btnRow noPrint" style="margin:10px 0 12px">
+                    <button id="genSimilar" class="primary">сгенерировать задачу</button>
+                    <button id="revealGenerated" class="ghost">показать ответ и идею</button>
+                </div>
+                <div class="taskBox">
+                    <h3 style="margin-top:0">Условие</h3>
+                    <div id="generatedText">Нажмите «сгенерировать задачу» — и здесь появится новый безопасный вариант.</div>
+                </div>
+                <div class="taskBox" style="margin-top:10px">
+                    <h3 style="margin-top:0">Ответ и идея</h3>
+                    <div id="generatedAnswer" class="small">Пока скрыто.</div>
+                </div>
+            </section>
+
+            <section id="selfcheck" class="panel card">
+                <h2>Самопроверка перед тем, как закрыть тему</h2>
+                <div class="checkList">
+                    <label><input type="checkbox"> Я понимаю, почему нельзя соединять любые две точки «на глаз».</label>
+                    <label><input type="checkbox"> Я умею искать общее ребро двух нужных граней.</label>
+                    <label><input type="checkbox"> Я могу объяснить, почему новая точка принадлежит плоскости сечения.</label>
+                    <label><input type="checkbox"> Я различаю вершины сечения и вспомогательные точки.</label>
+                    <label><input type="checkbox"> Я знаю, когда использовать параллельный перенос прямой, а когда — метод проекций.</label>
+                </div>
+            </section>
+
+            <section class="panel card printOnly">
+                <h2>Краткий печатный конспект</h2>
+                <ul class="tight">
+                    <li>Начинайте с пары точек в одной грани.</li>
+                    <li>Переходите в соседнюю грань через общее ребро.</li>
+                    <li>Каждую новую точку обосновывайте как точку плоскости сечения.</li>
+                    <li>Если есть условие параллельности — проводите параллельную прямую в нужной грани.</li>
+                    <li>Если старт не получается — подумайте о проекциях на основание.</li>
+                </ul>
+            </section>
+        </main>
+
+        <aside class="rightCol">
+            <section class="panel viewer">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+                    <div>
+                        <h2 style="margin-bottom:6px">Интерактивная модель</h2>
+                        <div class="sub">Поворачивайте фигуру мышью или пальцем. Колёсико — зум.</div>
+                    </div>
+                    <div class="tagline noPrint">Управление скроллится вместе с чертежом</div>
+                </div>
+
+                <div class="canvasWrap">
+                    <canvas id="scene" width="900" height="700" aria-label="Интерактивный чертёж сечения многогранника"></canvas>
+                </div>
+
+                <div class="controls noPrint">
+                    <div class="controlGroup">
+                        <h4>Сцена</h4>
+                        <div class="chipGroup" id="sceneSwitcher">
+                            <button class="chipBtn active" data-scene="cube">Куб · 3 точки</button>
+                            <button class="chipBtn" data-scene="pyramid">Пирамида · AM ∥ BD</button>
+                            <button class="chipBtn" data-scene="generated">Сгенерированная</button>
+                        </div>
+                    </div>
+
+                    <div class="controlGroup">
+                        <h4>Подробность текста</h4>
+                        <div class="chipGroup" id="detailSwitcher">
+                            <button class="chipBtn" data-mode="short">кратко</button>
+                            <button class="chipBtn active" data-mode="standard">стандартно</button>
+                            <button class="chipBtn" data-mode="long">очень подробно</button>
+                        </div>
+                    </div>
+
+                    <div class="controlGroup">
+                        <h4>Что показать на чертеже</h4>
+                        <div class="inline">
+                            <label><input type="checkbox" id="togglePlane" checked> плоскость сечения</label>
+                            <label><input type="checkbox" id="toggleHelpers" checked> вспомогательные линии</label>
+                            <label><input type="checkbox" id="toggleLabels" checked> подписи</label>
+                            <label><input type="checkbox" id="toggleHidden" checked> скрытые рёбра пунктиром</label>
+                        </div>
+                    </div>
+
+                    <div class="controlGroup">
+                        <h4>Зум</h4>
+                        <div class="inline" style="margin-bottom:8px">
+                            <button id="zoomOut">−</button>
+                            <button id="zoomIn">+</button>
+                            <button id="zoomReset" class="ghost">сброс</button>
+                        </div>
+                        <input type="range" id="zoomRange" min="0.65" max="1.8" step="0.01" value="1.02">
+                    </div>
+
+                    <div class="controlGroup">
+                        <h4>Подсказка</h4>
+                        <div id="hintBox">Шаг 1. Сначала найдите пару точек в одной грани. На текущей сцене такая пара уже подсвечена.</div>
+                    </div>
+
+                    <div class="controlGroup">
+                        <h4>Легенда модели</h4>
+                        <ul class="helperList small">
+                            <li>жёлтые точки — точки, заданные по условию;</li>
+                            <li>голубые — вспомогательные точки;</li>
+                            <li>зелёный контур — искомое сечение;</li>
+                            <li>розовая полупрозрачная грань — сама секущая плоскость.</li>
+                        </ul>
+                    </div>
+
+                    <div class="footerNote">Совет: наведите курсор на шаг решения слева — соответствующие элементы справа подсветятся.</div>
+                </div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+<script>
+    (() => {
+        const canvas = document.getElementById('scene');
+        const ctx = canvas.getContext('2d');
+        const state = {
+            rotY: -0.78,
+            rotX: -0.42,
+            zoom: 1.02,
+            scene: 'cube',
+            currentStep: 0,
+            focus: null,
+            revealAll: false,
+            generatedTask: null,
+            showGeneratedAnswer: false,
+            options: {
+                plane: true,
+                helpers: true,
+                labels: true,
+                hidden: true
+            }
+        };
+
+        const hintBox = document.getElementById('hintBox');
+
+        const cube = {
+            name: 'Куб',
+            vertices: {
+                A:[-1,-1,-1], B:[1,-1,-1], C:[1,1,-1], D:[-1,1,-1],
+                A1:[-1,-1,1], B1:[1,-1,1], C1:[1,1,1], D1:[-1,1,1]
+            },
+            edges: [
+                ['A','B'],['B','C'],['C','D'],['D','A'],
+                ['A1','B1'],['B1','C1'],['C1','D1'],['D1','A1'],
+                ['A','A1'],['B','B1'],['C','C1'],['D','D1']
+            ],
+            faces: [
+                {name:'bottom', verts:['A','B','C','D']},
+                {name:'top', verts:['A1','B1','C1','D1']},
+                {name:'front', verts:['A','B','B1','A1']},
+                {name:'right', verts:['B','C','C1','B1']},
+                {name:'back', verts:['C','D','D1','C1']},
+                {name:'left', verts:['D','A','A1','D1']}
+            ],
+            edgeFaces: {}
+        };
+
+        const pyramid = {
+            name: 'Пирамида',
+            vertices: {
+                A:[-1,-1,-1], B:[1,-1,-1], C:[1,1,-1], D:[-1,1,-1], S:[0,0,1.55], O:[0,0,-1]
+            },
+            edges: [
+                ['A','B'],['B','C'],['C','D'],['D','A'],
+                ['S','A'],['S','B'],['S','C'],['S','D']
+            ],
+            faces: [
+                {name:'base', verts:['A','B','C','D']},
+                {name:'SAB', verts:['S','A','B']},
+                {name:'SBC', verts:['S','B','C']},
+                {name:'SCD', verts:['S','C','D']},
+                {name:'SDA', verts:['S','D','A']}
+            ],
+            edgeFaces: {}
+        };
+
+        function buildEdgeFaces(poly){
+            const map = {};
+            poly.faces.forEach((f, fi) => {
+                const vs = f.verts;
+                for(let i=0;i<vs.length;i++){
+                    const a=vs[i], b=vs[(i+1)%vs.length];
+                    const key=[a,b].sort().join('|');
+                    map[key] ??= [];
+                    map[key].push(fi);
+                }
+            });
+            poly.edgeFaces = map;
+        }
+        buildEdgeFaces(cube); buildEdgeFaces(pyramid);
+
+        function lerp(a,b,t){ return a + (b-a)*t; }
+        function mix3(p,q,t){ return [lerp(p[0],q[0],t), lerp(p[1],q[1],t), lerp(p[2],q[2],t)]; }
+        function sub(a,b){ return [a[0]-b[0], a[1]-b[1], a[2]-b[2]]; }
+        function add(a,b){ return [a[0]+b[0], a[1]+b[1], a[2]+b[2]]; }
+        function mul(a,s){ return [a[0]*s, a[1]*s, a[2]*s]; }
+        function dot(a,b){ return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
+        function cross(a,b){ return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
+        function len(a){ return Math.hypot(a[0],a[1],a[2]); }
+        function norm(a){ const l=len(a)||1; return [a[0]/l,a[1]/l,a[2]/l]; }
+        function avg(points){ const n=points.length; return points.reduce((s,p)=>add(s,p),[0,0,0]).map(v=>v/n); }
+        function signedArea2D(pts){ let s=0; for(let i=0;i<pts.length;i++){ const a=pts[i], b=pts[(i+1)%pts.length]; s += a.x*b.y - b.x*a.y; } return s/2; }
+
+        function rotatePoint(p){
+            let [x,y,z]=p;
+            const cy=Math.cos(state.rotY), sy=Math.sin(state.rotY);
+            let x1 = x*cy + z*sy;
+            let z1 = -x*sy + z*cy;
+            const cx=Math.cos(state.rotX), sx=Math.sin(state.rotX);
+            let y2 = y*cx - z1*sx;
+            let z2 = y*sx + z1*cx;
+            return [x1,y2,z2];
+        }
+        function project(p){
+            const [x,y,z] = rotatePoint(p);
+            const cam = 5.2;
+            const k = (cam/(cam-z))*170*state.zoom;
+            return {x: canvas.width/(2*(window.devicePixelRatio||1)) + x*k, y: canvas.height/(2*(window.devicePixelRatio||1)) - y*k, z};
+        }
+
+        function pointOnEdge(poly, a, b, t){
+            return mix3(poly.vertices[a], poly.vertices[b], t);
+        }
+
+        function planeFrom3Points(a,b,c){
+            const n = norm(cross(sub(b,a), sub(c,a)));
+            return {point:a, normal:n};
+        }
+        function planeFromLineAndDir(a,m,dir){
+            const n = norm(cross(sub(m,a), dir));
+            return {point:a, normal:n};
+        }
+
+        function planeIntersectPolyhedron(poly, plane){
+            const pts = [];
+            const seen = [];
+            for(const [va,vb] of poly.edges){
+                const p = poly.vertices[va], q = poly.vertices[vb];
+                const d1 = dot(sub(p,plane.point), plane.normal);
+                const d2 = dot(sub(q,plane.point), plane.normal);
+                if (Math.abs(d1) < 1e-9 && Math.abs(d2) < 1e-9) continue;
+                if ((d1<=0 && d2>=0) || (d1>=0 && d2<=0)) {
+                    const denom = d1-d2;
+                    if (Math.abs(denom) < 1e-9) continue;
+                    const t = d1/(d1-d2);
+                    if (t < -1e-6 || t > 1+1e-6) continue;
+                    const pt = mix3(p,q,t);
+                    const key = pt.map(v => v.toFixed(6)).join(',');
+                    if (!seen.includes(key)) {
+                        seen.push(key);
+                        pts.push({p:pt, edge:[va,vb], t, key});
+                    }
+                }
+            }
+            if (pts.length < 3) return [];
+            const center = avg(pts.map(o=>o.p));
+            let u = cross(Math.abs(plane.normal[0])<0.8 ? [1,0,0] : [0,1,0], plane.normal);
+            u = norm(u);
+            const v = norm(cross(plane.normal,u));
+            pts.forEach(o => {
+                const rel = sub(o.p, center);
+                o.angle = Math.atan2(dot(rel,v), dot(rel,u));
+            });
+            pts.sort((a,b)=>a.angle-b.angle);
+            return pts;
+        }
+
+        function intersectInfiniteLines3D(lineA,lineB, edgeA, edgeB){
+            const u = sub(lineB,lineA), v = sub(edgeB,edgeA), w0 = sub(lineA,edgeA);
+            const a=dot(u,u), b=dot(u,v), c=dot(v,v), d=dot(u,w0), e=dot(v,w0);
+            const denom = a*c-b*b;
+            if (Math.abs(denom)<1e-7) return null;
+            const s=(b*e-c*d)/denom;
+            const t=(a*e-b*d)/denom;
+            const p1=add(lineA,mul(u,s)), p2=add(edgeA,mul(v,t));
+            if (len(sub(p1,p2))>0.08) return null;
+            return p1;
+        }
+
+        function edgeLabel(edge){ return edge.join(''); }
+
+        function buildCubeScene(){
+            const K = pointOnEdge(cube,'A','A1',0.34);
+            const L = pointOnEdge(cube,'B','C',0.28);
+            const M = pointOnEdge(cube,'C1','D1',0.36);
+            const plane = planeFrom3Points(K,L,M);
+            const section = planeIntersectPolyhedron(cube, plane);
+            const P = intersectInfiniteLines3D(K,L, cube.vertices.A1, cube.vertices.B1) || mix3(cube.vertices.A1, cube.vertices.B1, .34);
+            const Q = intersectInfiniteLines3D(P,M, cube.vertices.D, cube.vertices.D1) || mix3(cube.vertices.D, cube.vertices.D1, .55);
+            return {
+                type:'cube', poly:cube, plane, section,
+                given:{K,L,M},
+                helpers:{P,Q},
+                stepHints:[
+                    'Шаг 1. Заданы точки K, L, M.',
+                    'Шаг 2. Соединяем K и L в одной грани.',
+                    'Шаг 3. Продлеваем KL к общему ребру и получаем вспомогательную точку P.',
+                    'Шаг 4. Через P переходим к M в соседней грани.',
+                    'Шаг 5. Замыкаем зелёный многоугольник сечения.',
+                    'Шаг 6. Проверяем, что контур замкнут и новых вершин нет.',
+                    'Шаг 7. Главная идея — переход между гранями через общее ребро.'
+                ],
+                label:'Куб: три точки на рёбрах',
+                narrativeAnswer:`Сечение — ${section.length}-угольник. Его вершины лежат на рёбрах: ` + section.map(s => edgeLabel(s.edge)).join(', ') + '.'
+            };
+        }
+
+        function buildPyramidScene(ratio=1/3){
+            const A = pyramid.vertices.A;
+            const C = pyramid.vertices.C;
+            const O = pyramid.vertices.O;
+            const M = mix3(O, C, ratio);
+            const dir = sub(pyramid.vertices.D, pyramid.vertices.B);
+            const plane = planeFromLineAndDir(A,M,dir);
+            const section = planeIntersectPolyhedron(pyramid, plane);
+            return {
+                type:'pyramid', poly:pyramid, plane, section,
+                given:{A,M},
+                helpers:{O, T:add(M, norm(dir))},
+                stepHints:[
+                    'Шаг 1. В плоскости уже лежит прямая AM.',
+                    'Шаг 2. По условию плоскость параллельна BD.',
+                    'Шаг 3. Через точку сечения в нужной грани проводим прямую, параллельную BD.',
+                    'Шаг 4. Находим точки пересечения этой прямой с рёбрами пирамиды.',
+                    'Шаг 5. Замыкаем контур сечения.',
+                    'Шаг 6. Проверяем, что каждая вершина лежит на ребре пирамиды.',
+                    'Шаг 7. Для отношения на ребре используем медиану или Фалеса.'
+                ],
+                label:'Пирамида: через AM и параллельно BD',
+                narrativeAnswer:`Сечение — ${section.length}-угольник. Для отношения на ребре нужно перейти к подходящему треугольнику и использовать школьную планиметрию.`
+            };
+        }
+
+        function randomChoice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+        function generateSimilarTask(){
+            const mode = randomChoice(['cube','pyramid']);
+            if(mode==='cube'){
+                const presets = [
+                    [['A','A1',0.22], ['B','C',0.64], ['C1','D1',0.42]],
+                    [['A','B',0.28], ['B1','C1',0.34], ['D','D1',0.58]],
+                    [['A','D',0.39], ['B','B1',0.31], ['C1','D1',0.66]],
+                    [['A1','B1',0.41], ['B','C',0.27], ['D','D1',0.47]]
+                ];
+                const p = randomChoice(presets);
+                const labels = ['K','L','M'];
+                const pts = p.map(([a,b,t],i)=>({label:labels[i], edge:[a,b], p:pointOnEdge(cube,a,b,t), t}));
+                const plane = planeFrom3Points(pts[0].p, pts[1].p, pts[2].p);
+                const section = planeIntersectPolyhedron(cube, plane);
+                const sceneData = {
+                    type:'cube', poly:cube, plane, section,
+                    given:Object.fromEntries(pts.map(o=>[o.label,o.p])),
+                    helpers:{},
+                    stepHints:[
+                        'Подсказка: начните с пары точек, которая лежит в одной грани.',
+                        'Подсказка: ищите ребро-переход между текущей гранью и следующей.',
+                        'Подсказка: замыкание контура даст полный многоугольник сечения.'
+                    ],
+                    label:'Сгенерированный куб',
+                    narrativeAnswer:`Сечение — ${section.length}-угольник; вершины лежат на рёбрах ${section.map(s=>edgeLabel(s.edge)).join(', ')}.`
+                };
+                state.generatedTask = {
+                    type:'cube',
+                    sceneData,
+                    text:`В кубе отмечены точки K, L, M: K лежит на ребре ${pts[0].edge.join('')}, L — на ребре ${pts[1].edge.join('')}, M — на ребре ${pts[2].edge.join('')}. Постройте сечение куба плоскостью KLM.`,
+                    answer:`Ответ: ${sceneData.narrativeAnswer}<br>Идея: сначала соедините точки, которые можно соединить в одной грани; затем продлите прямую до общего ребра соседних граней и замкните контур.`
+                };
+            } else {
+                const ratios = [
+                    {text:'OM:MC = 1:2', value:1/3},
+                    {text:'OM:MC = 1:1', value:1/2},
+                    {text:'OM:MC = 2:3', value:2/5}
+                ];
+                const rr = randomChoice(ratios);
+                const sceneData = buildPyramidScene(rr.value);
+                state.generatedTask = {
+                    type:'pyramid',
+                    sceneData,
+                    text:`В пирамиде SABCD основание ABCD — параллелограмм, O — точка пересечения диагоналей. Точка M лежит на CO, причём ${rr.text}. Постройте сечение плоскостью, проходящей через AM и параллельной BD.`,
+                    answer:`Ответ: ${sceneData.narrativeAnswer}<br>Идея: прямая AM уже лежит в секущей плоскости; затем через точку сечения в нужной грани проводится прямая, параллельная BD, после чего находятся остальные вершины контура.`
+                };
+            }
+            state.showGeneratedAnswer = false;
+            document.getElementById('generatedText').innerHTML = state.generatedTask.text;
+            document.getElementById('generatedAnswer').innerHTML = 'Пока скрыто.';
+            state.scene = 'generated';
+            updateSceneButtons();
+            render();
+        }
+
+        function getCurrentSceneData(){
+            if(state.scene==='cube') return buildCubeScene();
+            if(state.scene==='pyramid') return buildPyramidScene(1/3);
+            if(state.scene==='generated' && state.generatedTask) return state.generatedTask.sceneData;
+            return buildCubeScene();
+        }
+
+        function pathFrom(pts, close=true){
+            if(!pts.length) return;
+            ctx.beginPath();
+            ctx.moveTo(pts[0].x,pts[0].y);
+            for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+            if(close) ctx.closePath();
+        }
+        function drawSegment(a,b){ ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); }
+        function extendLine(a,b,scale=0.5){
+            const vx = b.x-a.x, vy = b.y-a.y;
+            return {a:{x:a.x-vx*scale,y:a.y-vy*scale}, b:{x:b.x+vx*scale,y:b.y+vy*scale}};
+        }
+        function drawPoint(x,y,color,r=6,glow=0){
+            ctx.save();
+            if(glow){ ctx.shadowBlur = glow; ctx.shadowColor = color; }
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+            ctx.lineWidth=2; ctx.strokeStyle='rgba(11,16,20,.9)'; ctx.stroke();
+            ctx.restore();
+        }
+        function labelAt(x,y,text){
+            ctx.save();
+            ctx.font='600 16px Inter, Segoe UI, Arial';
+            ctx.fillStyle='#eef9fb';
+            ctx.strokeStyle='rgba(6,10,12,.8)';
+            ctx.lineWidth=4;
+            ctx.strokeText(text,x,y);
+            ctx.fillText(text,x,y);
+            ctx.restore();
+        }
+        function drawCompass(){
+            ctx.save();
+            const x = 78, y = 610;
+            ctx.fillStyle='rgba(255,255,255,.08)';
+            ctx.strokeStyle='rgba(255,255,255,.12)';
+            ctx.fillRect(x-42,y-48,116,70);
+            ctx.strokeRect(x-42,y-48,116,70);
+            const origin = {x,y};
+            const axes = [
+                {v:[1,0,0], c:'#ff9a9a', t:'x'},
+                {v:[0,1,0], c:'#93e26f', t:'y'},
+                {v:[0,0,1], c:'#7aa7ff', t:'z'}
+            ];
+            axes.forEach(a=>{
+                const pr = project(a.v);
+                const cen = project([0,0,0]);
+                ctx.beginPath(); ctx.moveTo(origin.x,origin.y); ctx.lineTo(origin.x+(pr.x-cen.x)*.18, origin.y+(pr.y-cen.y)*.18);
+                ctx.strokeStyle=a.c; ctx.lineWidth=2.5; ctx.stroke();
+                ctx.fillStyle=a.c; ctx.fillText(a.t, origin.x+(pr.x-cen.x)*.22+4, origin.y+(pr.y-cen.y)*.22+4);
+            });
+            ctx.restore();
+        }
+
+        function focusMatch(key){
+            if(!state.focus) return false;
+            return state.focus.split(',').some(s => s.trim()===key);
+        }
+
+        function drawHelpers(sceneData){
+            const g = sceneData.given;
+            ctx.save();
+            ctx.lineWidth = 2.3;
+            ctx.strokeStyle = 'rgba(122,167,255,.85)';
+            ctx.setLineDash([10,8]);
+
+            if(sceneData.type==='cube'){
+                if(g.K && g.L && (focusMatch('kl') || focusMatch('front') || !state.focus)){
+                    drawSegment(project(g.K), project(g.L));
+                }
+                if(sceneData.helpers.P && g.K && g.L && (focusMatch('helper1') || focusMatch('edgeLink') || !state.focus)){
+                    const dir = extendLine(project(g.K), project(g.L), 0.6);
+                    drawSegment(dir.a, dir.b);
+                }
+                if(sceneData.helpers.P && g.M && (focusMatch('pm') || focusMatch('side') || !state.focus)){
+                    drawSegment(project(sceneData.helpers.P), project(g.M));
+                }
+            } else {
+                if(g.A && g.M) drawSegment(project(g.A), project(g.M));
+                const sec = sceneData.section.map(s=>project(s.p));
+                if(sec.length>=2){
+                    for(let i=0;i<sec.length;i++) if(i%2===0) drawSegment(sec[i], sec[(i+1)%sec.length]);
+                }
+            }
+            ctx.restore();
+        }
+
+        function drawPolyhedron(sceneData){
+            const poly = sceneData.poly;
+            const proj = {};
+            Object.entries(poly.vertices).forEach(([k,p]) => proj[k]=project(p));
+
+            const faceInfo = poly.faces.map(face => {
+                const pts = face.verts.map(v=>proj[v]);
+                const area = signedArea2D(pts);
+                return {visible: area < 0, pts, face};
+            });
+
+            const sec = sceneData.section.map(s => ({...s, proj:project(s.p)}));
+            const secProj = sec.map(s => s.proj);
+
+            if(state.options.plane && sec.length>=3){
+                ctx.save();
+                ctx.fillStyle='rgba(255,143,184,0.18)';
+                ctx.strokeStyle='rgba(255,143,184,0.55)';
+                ctx.lineWidth=2;
+                pathFrom(secProj);
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            faceInfo.forEach(f => {
+                ctx.save();
+                ctx.fillStyle = f.visible ? 'rgba(255,255,255,0.015)' : 'rgba(255,255,255,0.006)';
+                ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+                ctx.lineWidth = 1;
+                pathFrom(f.pts);
+                ctx.fill(); ctx.stroke();
+                ctx.restore();
+            });
+
+            poly.edges.forEach(([a,b]) => {
+                const pa=proj[a], pb=proj[b];
+                const key=[a,b].sort().join('|');
+                const adj = poly.edgeFaces[key] || [];
+                let visible = true;
+                if(adj.length) visible = adj.some(fi => faceInfo[fi]?.visible);
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(pa.x,pa.y); ctx.lineTo(pb.x,pb.y);
+                ctx.lineWidth = 2;
+                if(!visible && state.options.hidden){
+                    ctx.setLineDash([8,7]);
+                    ctx.strokeStyle = 'rgba(195,214,224,.38)';
+                } else if(!visible){
+                    ctx.restore(); return;
+                } else {
+                    ctx.strokeStyle = 'rgba(204,221,230,.62)';
+                }
+                ctx.stroke();
+                ctx.restore();
+            });
+
+            if(state.options.helpers) drawHelpers(sceneData);
+
+            if(sec.length>=2){
+                ctx.save();
+                ctx.strokeStyle='#45c0b8';
+                ctx.lineWidth=4;
+                ctx.setLineDash([]);
+                pathFrom(secProj, true);
+                ctx.stroke();
+                ctx.restore();
+                sec.forEach((s, i) => {
+                    const glow = focusMatch('section') || focusMatch('polygon') ? 10 : 0;
+                    drawPoint(s.proj.x, s.proj.y, '#45c0b8', 6, glow);
+                    if(state.options.labels){ labelAt(s.proj.x+8, s.proj.y-10, String.fromCharCode(78+i)); }
+                });
+            }
+
+            Object.entries(sceneData.given).forEach(([name,p]) => {
+                const pr = project(p);
+                const bright = focusMatch('given') || focusMatch('points') || focusMatch(name.toLowerCase()) ? 12 : 0;
+                drawPoint(pr.x, pr.y, '#ffd67a', 7, bright);
+                if(state.options.labels) labelAt(pr.x+10, pr.y-10, name);
+            });
+
+            if(state.options.helpers){
+                Object.entries(sceneData.helpers||{}).forEach(([name,p]) => {
+                    if(!p) return;
+                    const pr = project(p);
+                    const bright = focusMatch('helper1') || focusMatch('edgeLink') || focusMatch(name.toLowerCase()) ? 10 : 0;
+                    drawPoint(pr.x, pr.y, '#7aa7ff', 5, bright);
+                    if(state.options.labels) labelAt(pr.x+8, pr.y-9, name);
+                });
+            }
+
+            drawCompass();
+        }
+
+        function render(){
+            const ratio = window.devicePixelRatio || 1;
+            ctx.clearRect(0,0,canvas.width/ratio,canvas.height/ratio);
+            ctx.save();
+            ctx.strokeStyle='rgba(255,255,255,.03)';
+            ctx.lineWidth=1;
+            const w = canvas.width/ratio, h=canvas.height/ratio;
+            for(let x=0;x<w;x+=50){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+            for(let y=0;y<h;y+=50){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+            ctx.restore();
+            const sceneData = getCurrentSceneData();
+            drawPolyhedron(sceneData);
+            hintBox.textContent = sceneData.stepHints[Math.min(state.currentStep, sceneData.stepHints.length-1)] || sceneData.stepHints[0];
+        }
+
+        const steps = Array.from(document.querySelectorAll('#mainSteps .step'));
+        function updateStepVisibility(){
+            steps.forEach((step, i) => {
+                if(i===0 || state.revealAll || i<=state.currentStep){
+                    step.hidden = false;
+                    step.classList.toggle('active', i===state.currentStep && !state.revealAll);
+                } else {
+                    step.hidden = true;
+                    step.classList.remove('active');
+                }
+            });
+        }
+        function setStep(step){
+            state.currentStep = Math.max(0, Math.min(steps.length-1, step));
+            state.revealAll = false;
+            updateStepVisibility();
+            render();
+        }
+        updateStepVisibility();
+
+        document.getElementById('nextStep').addEventListener('click', ()=> setStep(state.currentStep+1));
+        document.getElementById('prevStep').addEventListener('click', ()=> setStep(state.currentStep-1));
+        document.getElementById('showAllSteps').addEventListener('click', ()=>{
+            state.revealAll = true;
+            steps.forEach(s=>s.hidden=false);
+            steps.forEach(s=>s.classList.remove('active'));
+            render();
+        });
+
+        document.getElementById('detailSwitcher').addEventListener('click', e => {
+            const btn = e.target.closest('[data-mode]');
+            if(!btn) return;
+            document.body.classList.remove('mode-short','mode-standard','mode-long');
+            document.body.classList.add('mode-'+btn.dataset.mode);
+            document.querySelectorAll('#detailSwitcher .chipBtn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+
+        function updateSceneButtons(){
+            document.querySelectorAll('#sceneSwitcher .chipBtn').forEach(b=>b.classList.toggle('active', b.dataset.scene===state.scene));
+        }
+        document.getElementById('sceneSwitcher').addEventListener('click', e => {
+            const btn = e.target.closest('[data-scene]');
+            if(!btn) return;
+            if(btn.dataset.scene==='generated' && !state.generatedTask){
+                generateSimilarTask();
+                return;
+            }
+            state.scene = btn.dataset.scene;
+            updateSceneButtons();
+            render();
+        });
+
+        document.getElementById('togglePlane').addEventListener('change', e => { state.options.plane=e.target.checked; render();});
+        document.getElementById('toggleHelpers').addEventListener('change', e => { state.options.helpers=e.target.checked; render();});
+        document.getElementById('toggleLabels').addEventListener('change', e => { state.options.labels=e.target.checked; render();});
+        document.getElementById('toggleHidden').addEventListener('change', e => { state.options.hidden=e.target.checked; render();});
+
+        const zoomRange = document.getElementById('zoomRange');
+        function setZoom(v){ state.zoom = Math.max(0.65, Math.min(1.8, v)); zoomRange.value = state.zoom.toFixed(2); render(); }
+        document.getElementById('zoomIn').addEventListener('click', ()=>setZoom(state.zoom+0.08));
+        document.getElementById('zoomOut').addEventListener('click', ()=>setZoom(state.zoom-0.08));
+        document.getElementById('zoomReset').addEventListener('click', ()=>setZoom(1.02));
+        zoomRange.addEventListener('input', e=> setZoom(parseFloat(e.target.value)));
+
+        let dragging=false, lastX=0, lastY=0;
+        function startDrag(x,y){ dragging=true; lastX=x; lastY=y; }
+        function moveDrag(x,y){
+            if(!dragging) return;
+            const dx=x-lastX, dy=y-lastY;
+            lastX=x; lastY=y;
+            state.rotY += dx*0.01;
+            state.rotX += dy*0.008;
+            state.rotX = Math.max(-1.2, Math.min(1.2, state.rotX));
+            render();
+        }
+        function stopDrag(){ dragging=false; }
+        canvas.addEventListener('mousedown', e=> startDrag(e.clientX,e.clientY));
+        window.addEventListener('mousemove', e=> moveDrag(e.clientX,e.clientY));
+        window.addEventListener('mouseup', stopDrag);
+        canvas.addEventListener('touchstart', e=>{ const t=e.touches[0]; startDrag(t.clientX,t.clientY); }, {passive:true});
+        window.addEventListener('touchmove', e=>{ if(!dragging) return; const t=e.touches[0]; moveDrag(t.clientX,t.clientY); }, {passive:true});
+        window.addEventListener('touchend', stopDrag);
+        canvas.addEventListener('wheel', e=>{ e.preventDefault(); setZoom(state.zoom + (e.deltaY<0 ? 0.06 : -0.06)); }, {passive:false});
+
+        document.querySelectorAll('[data-focus]').forEach(el => {
+            el.addEventListener('mouseenter', ()=>{ state.focus = el.dataset.focus; el.classList.add('hovered'); render(); });
+            el.addEventListener('mouseleave', ()=>{ state.focus = null; el.classList.remove('hovered'); render(); });
+        });
+        document.querySelectorAll('[data-focus-target]').forEach(el => {
+            el.addEventListener('mouseenter', ()=>{ state.focus = el.dataset.focusTarget; render(); });
+            el.addEventListener('mouseleave', ()=>{ state.focus = null; render(); });
+        });
+
+        document.getElementById('checkQuiz').addEventListener('click', ()=>{
+            let correct = 0, total = 0;
+            document.querySelectorAll('.quizQ').forEach(box=>{
+                total++;
+                const answer = box.dataset.answer;
+                const chosen = box.querySelector('input:checked');
+                box.querySelectorAll('.option').forEach(opt=>opt.classList.remove('correct','wrong'));
+                if(chosen){
+                    const label = chosen.closest('.option');
+                    if(chosen.value===answer){ correct++; label.classList.add('correct'); }
+                    else {
+                        label.classList.add('wrong');
+                        const right = box.querySelector(`input[value="${answer}"]`).closest('.option');
+                        right.classList.add('correct');
+                    }
+                }
+            });
+            const res = document.getElementById('quizResult');
+            res.style.display='block';
+            res.innerHTML = correct===total
+            ? `Отлично: ${correct} из ${total}. Логика построения держится.`
+            : `Сейчас ${correct} из ${total}. Если были ошибки, вернитесь к блоку «Универсальный алгоритм» и к шагам главного разбора.`;
+        });
+        document.getElementById('resetQuiz').addEventListener('click', ()=>{
+            document.querySelectorAll('.quizQ input').forEach(i=>i.checked=false);
+            document.querySelectorAll('.option').forEach(o=>o.classList.remove('correct','wrong'));
+            const res = document.getElementById('quizResult');
+            res.style.display='none';
+        });
+
+        document.getElementById('genSimilar').addEventListener('click', generateSimilarTask);
+        document.getElementById('revealGenerated').addEventListener('click', ()=>{
+            if(!state.generatedTask){
+                document.getElementById('generatedAnswer').innerHTML = 'Сначала сгенерируйте задачу.';
+                return;
+            }
+            state.showGeneratedAnswer = true;
+            document.getElementById('generatedAnswer').innerHTML = state.generatedTask.answer;
+            state.scene = 'generated';
+            updateSceneButtons();
+            render();
+        });
+
+        function resizeCanvas(){
+            const rect = canvas.getBoundingClientRect();
+            const ratio = window.devicePixelRatio || 1;
+            canvas.width = Math.round(rect.width * ratio);
+            canvas.height = Math.round(rect.width * 0.77 * ratio);
+            ctx.setTransform(ratio,0,0,ratio,0,0);
+            render();
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+    })();
+</script>
+</body>
+</html>
