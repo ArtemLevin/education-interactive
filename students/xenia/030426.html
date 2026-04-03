@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — алгебра, таблицы, графики</title>
+    <style>
+        :root{
+            --bg:#0c1117;
+            --bg2:#121923;
+            --panel:#151f2c;
+            --panel2:#192535;
+            --soft:#213246;
+            --text:#e8f0f7;
+            --muted:#9fb0c2;
+            --accent:#50c7c7;
+            --accent2:#8ce0dd;
+            --good:#7bd88f;
+            --warn:#ffcc66;
+            --danger:#ff8f8f;
+            --shadow:0 12px 32px rgba(0,0,0,.32);
+            --radius:20px;
+            --radius-sm:14px;
+            --line:rgba(255,255,255,.08);
+            --step-accent:#4fd1c5;
+            --highlight:rgba(80,199,199,.12);
+            --stickyTop:16px;
+        }
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            background:radial-gradient(circle at top, #152231 0%, var(--bg) 40%, #091017 100%);
+            color:var(--text);
+            font:16px/1.55 Inter,Segoe UI,Arial,sans-serif;
+        }
+        .page{
+            max-width:1500px;
+            margin:0 auto;
+            padding:18px;
+        }
+        .hero{
+            background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+            border:1px solid var(--line);
+            border-radius:28px;
+            padding:26px;
+            box-shadow:var(--shadow);
+            position:relative;
+            overflow:hidden;
+        }
+        .hero:before,.hero:after{
+            content:"";
+            position:absolute;
+            border-radius:50%;
+            filter:blur(35px);
+            opacity:.2;
+            pointer-events:none;
+        }
+        .hero:before{width:280px;height:280px;background:var(--accent);right:-80px;top:-120px}
+        .hero:after{width:220px;height:220px;background:#6aa6ff;left:-100px;bottom:-120px}
+        .eyebrow{color:var(--accent2);letter-spacing:.08em;text-transform:uppercase;font-weight:700;font-size:12px}
+        h1{margin:.3rem 0 1rem;font-size:clamp(30px,4vw,52px);line-height:1.08}
+        .hero p{max-width:950px;color:var(--muted);font-size:clamp(15px,1.2vw,19px)}
+        .hero-grid{display:grid;grid-template-columns:1.5fr .9fr;gap:18px;align-items:start}
+        .statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+        .stat{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+        .stat b{display:block;font-size:20px;color:#fff}
+        .stat span{color:var(--muted);font-size:14px}
+        .mini-card{background:rgba(10,17,23,.55);border:1px solid var(--line);padding:16px;border-radius:20px}
+        .mini-card h3{margin:0 0 10px;font-size:17px}
+        .mini-card ul{margin:0;padding-left:18px;color:var(--muted)}
+        .toolbar{
+            display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0;
+        }
+        .seg,.pillbar,.actions{display:flex;flex-wrap:wrap;gap:8px}
+        button,.btn,select,input[type="range"]{
+            font:inherit;
+        }
+        button,.btn{
+            border:none;background:var(--soft);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;
+            transition:.2s transform,.2s background,.2s border-color,.2s opacity;
+            border:1px solid transparent;
+        }
+        button:hover,.btn:hover{transform:translateY(-1px);background:#28405a}
+        .btn.active,.seg button.active,.tab.active{background:linear-gradient(180deg,#2e6070,#214b59);border-color:rgba(255,255,255,.14)}
+        .btn.ghost{background:transparent;border-color:var(--line)}
+        .btn.good{background:linear-gradient(180deg,#1e6f56,#185645)}
+        .btn.warn{background:linear-gradient(180deg,#75581c,#5c4312)}
+        .controls-card{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:18px;padding:14px}
+        .topnav{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+        .tab{padding:12px 15px;border-radius:999px;background:#172433;border:1px solid var(--line)}
+        .layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(360px,.92fr);gap:18px;margin-top:18px;align-items:start}
+        .leftcol{display:grid;gap:18px}
+        .rightcol{position:sticky;top:var(--stickyTop)}
+        .panel{background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+        .section{padding:20px}
+        .section h2{margin:0 0 12px;font-size:28px}
+        .section h3{margin:0 0 10px;font-size:20px}
+        .subtle{color:var(--muted)}
+        .idea-list,.mistakes,.legend,.checklist{display:grid;gap:10px}
+        .idea-item,.mistake-item,.legend-item,.check-item{
+            background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:16px;padding:14px;
+        }
+        .idea-item strong,.mistake-item strong,.legend-item strong,.check-item strong{color:#fff}
+        .stepper{display:grid;gap:12px}
+        .step{
+            border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.03);overflow:hidden;
+            transition:border-color .2s, transform .2s, background .2s;
+        }
+        .step:hover{border-color:rgba(255,255,255,.16)}
+        .step-header{
+            width:100%;text-align:left;background:none;border:none;color:inherit;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;justify-content:space-between;
+        }
+        .step-badge{min-width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(79,209,197,.18);color:var(--accent2);font-weight:800}
+        .step-title-wrap{flex:1}
+        .step-title{font-size:18px;font-weight:700;margin-bottom:2px}
+        .step-sub{font-size:14px;color:var(--muted)}
+        .step-body{padding:0 16px 16px 62px;display:block}
+        .step.collapsed .step-body{display:none}
+        .step.highlight{border-color:var(--step-accent);background:var(--highlight);box-shadow:0 0 0 1px rgba(79,209,197,.15) inset}
+        .formula,.system,.result-box,.hint-box,.proof-box,.quiz-box{
+            background:#101925;border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:10px 0;
+        }
+        .formula{font-family:"DejaVu Sans",Arial,sans-serif;font-size:18px;overflow:auto}
+        .result-box{border-left:4px solid var(--good)}
+        .hint-box{border-left:4px solid var(--warn)}
+        .proof-box{border-left:4px solid var(--accent)}
+        .small{font-size:14px}
+        .math-list{margin:8px 0 0;padding-left:18px}
+        .math-list li{margin:7px 0}
+        .sticky-shell{padding:16px}
+        .viz-header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+        .viz-card{background:linear-gradient(180deg,#132131,#101824);border:1px solid var(--line);border-radius:20px;padding:14px}
+        .canvas-wrap{
+            position:relative;border:1px solid var(--line);border-radius:18px;background:#0b131b;overflow:hidden;min-height:380px;
+        }
+        .canvas-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 8px}
+        .canvas-toolbar .cluster{display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.03);border:1px solid var(--line);padding:8px 10px;border-radius:14px}
+        .canvas-toolbar label{font-size:13px;color:var(--muted)}
+        .legend-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+        .legend-chip{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:10px}
+        .dot{width:12px;height:12px;border-radius:999px;flex:0 0 12px}
+        .accent{background:var(--accent)}
+        .accent2{background:#8cb6ff}
+        .accent3{background:#ff8ea0}
+        .accent4{background:#ffd27d}
+        .codeish{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+        .line-link{cursor:pointer;border-bottom:1px dashed rgba(255,255,255,.18)}
+        .dual-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .mini-table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+        .mini-table th,.mini-table td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+        .mini-table th{color:#fff}
+        .train-card{padding:16px;border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:18px}
+        .train-title{font-weight:800;margin-bottom:8px}
+        .answer{color:var(--good);font-weight:700}
+        .muted{color:var(--muted)}
+        .hidden{display:none!important}
+        .footer-space{height:10px}
+        .switches{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+        .switches button{padding:8px 11px;font-size:14px}
+        .link-step{cursor:pointer}
+        svg text{font-family:Inter,Segoe UI,Arial,sans-serif}
+        .printnote{display:none}
+
+        @media (max-width:1100px){
+            .hero-grid,.layout,.dual-grid,.legend-grid,.statrow{grid-template-columns:1fr}
+            .rightcol{position:relative;top:0}
+            .canvas-wrap{min-height:330px}
+        }
+        @media (max-width:720px){
+            .page{padding:12px}
+            .hero,.section,.sticky-shell{padding:16px}
+            h1{font-size:32px}
+            .step-body{padding:0 14px 14px 14px}
+            .step-header{padding:14px}
+            .mini-card,.controls-card,.viz-card{padding:14px}
+            .canvas-toolbar .cluster{width:100%;justify-content:space-between}
+        }
+        @media print{
+            body{background:#fff;color:#111;font-size:12pt}
+            .page{max-width:none;padding:0}
+            .hero,.panel,.viz-card,.train-card,.step,.idea-item,.mistake-item,.legend-item,.check-item,.formula,.result-box,.hint-box,.proof-box,.quiz-box,.canvas-wrap{box-shadow:none;background:#fff;border:1px solid #b7b7b7;color:#111}
+            .toolbar,.topnav,.canvas-toolbar,.switches,.btn,.print-hide{display:none!important}
+            .layout{grid-template-columns:1fr}
+            .rightcol{position:relative;top:0}
+            .step-body{display:block!important}
+            .printnote{display:block;margin:16px 0;color:#444}
+            svg{max-width:100%;height:auto}
+            .subtle,.muted,.hero p,.mini-card ul,.step-sub{color:#444!important}
+            a{color:#111;text-decoration:none}
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <section class="hero panel">
+        <div class="hero-grid">
+            <div>
+                <div class="eyebrow">Наглядная математика с генерацией</div>
+                <h1>Алгебра, таблицы и графики<br>по мотивам занятия</h1>
+                <p>
+                    Страница собрана для уверенного повторения: слева — пошаговый разбор, справа — живая модель.
+                    Внутри три ядра темы: сворачивание выражений и факторизация, текстовые задачи через таблицу,
+                    график кусочной функции с модулем и параметром k в прямой y = kx.
+                </p>
+                <div class="statrow">
+                    <div class="stat"><b>3</b><span>связанные темы занятия</span></div>
+                    <div class="stat"><b>1</b><span>генератор похожей задачи по активному блоку</span></div>
+                    <div class="stat"><b>∞</b><span>пошаговая проверка и визуальная сверка</span></div>
+                </div>
+            </div>
+            <div class="mini-card">
+                <h3>Как лучше работать со страницей</h3>
+                <ul>
+                    <li>Сначала прочитайте блок «Идея решения».</li>
+                    <li>Потом раскрывайте шаги по одному.</li>
+                    <li>Наводите на шаги: справа подсветятся нужные объекты.</li>
+                    <li>Меняйте уровень подробности, не теряя логику решения.</li>
+                    <li>В конце сгенерируйте одну похожую задачу и проверьте себя.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div class="controls-card">
+                <div class="small subtle">Уровень объяснения</div>
+                <div class="seg" id="detailSeg">
+                    <button class="active" data-detail="standard">стандартно</button>
+                    <button data-detail="short">кратко</button>
+                    <button data-detail="full">очень подробно</button>
+                </div>
+            </div>
+            <div class="controls-card">
+                <div class="small subtle">Пошаговое раскрытие</div>
+                <div class="seg" id="stepModeSeg">
+                    <button class="active" data-stepmode="guided">по шагам</button>
+                    <button data-stepmode="open">показать всё</button>
+                </div>
+            </div>
+            <div class="controls-card">
+                <div class="small subtle">Быстрые действия</div>
+                <div class="actions">
+                    <button class="btn ghost" id="openAllBtn">раскрыть текущий блок</button>
+                    <button class="btn ghost" id="collapseAllBtn">свернуть текущий блок</button>
+                    <button class="btn ghost" id="scrollVizBtn">к модели</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="topnav" id="topicTabs">
+        <button class="tab active" data-topic="equation">1. Уравнение и факторизация</button>
+        <button class="tab" data-topic="mixture">2. Таблица и растворы</button>
+        <button class="tab" data-topic="graph">3. График и параметр k</button>
+    </div>
+
+    <div class="layout">
+        <main class="leftcol">
+            <section class="panel section">
+                <h2 id="topicTitle">Уравнение и факторизация</h2>
+                <p class="subtle" id="topicIntro"></p>
+                <div class="idea-list" id="ideaBlock"></div>
+            </section>
+
+            <section class="panel section">
+                <h2>Пошаговый разбор</h2>
+                <div class="stepper" id="stepper"></div>
+            </section>
+
+            <section class="panel section">
+                <h2>Типичные ошибки</h2>
+                <div class="mistakes" id="mistakesBlock"></div>
+            </section>
+
+            <section class="panel section">
+                <h2>Мини-квиз</h2>
+                <div id="quizHost"></div>
+            </section>
+
+            <section class="panel section">
+                <h2>Самопроверка</h2>
+                <div class="checklist" id="selfCheck"></div>
+            </section>
+
+            <section class="panel section">
+                <h2>Похожая задача</h2>
+                <div class="train-card">
+                    <div class="train-title" id="genTitle">Нажмите на кнопку справа, чтобы получить задачу по текущему блоку.</div>
+                    <div id="generatedTask" class="subtle">Сейчас здесь появится новая задача, её ответ и короткая идея.</div>
+                </div>
+                <div class="printnote">В печатной версии интерактивные элементы скрыты, но основная теория и задачи сохраняются.</div>
+            </section>
+            <div class="footer-space"></div>
+        </main>
+
+        <aside class="rightcol" id="vizCol">
+            <section class="panel sticky-shell">
+                <div class="viz-header">
+                    <div>
+                        <div class="eyebrow">Интерактивная модель</div>
+                        <h3 id="vizTitle" style="margin:.25rem 0 0; font-size:24px">Живая схема решения</h3>
+                    </div>
+                    <button class="btn ghost print-hide" id="newTaskBtn">сгенерировать 1 задачу</button>
+                </div>
+
+                <div class="viz-card">
+                    <div class="canvas-toolbar">
+                        <div class="cluster">
+                            <label for="zoomRange">Масштаб</label>
+                            <input id="zoomRange" type="range" min="70" max="220" step="1" value="100" />
+                            <span id="zoomLabel" class="small">100%</span>
+                        </div>
+                        <div class="cluster">
+                            <button class="btn ghost" id="zoomOutBtn">−</button>
+                            <button class="btn ghost" id="zoomInBtn">+</button>
+                            <button class="btn ghost" id="zoomResetBtn">сброс</button>
+                        </div>
+                    </div>
+
+                    <div class="canvas-wrap" id="canvasWrap">
+                        <svg id="vizSvg" viewBox="0 0 900 620" width="100%" height="100%" aria-label="Интерактивная визуализация"></svg>
+                    </div>
+
+                    <div class="switches print-hide" id="vizSwitches"></div>
+
+                    <div class="legend-grid" id="legendGrid"></div>
+                </div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+<script>
+    const topics = {
+        equation: {
+            title: 'Уравнение и факторизация',
+            intro: 'Главный навык здесь — не бросаться сразу в громоздкое раскрытие скобок, а сначала заметить квадрат суммы и общий множитель. Это самый быстрый школьный путь.',
+            vizTitle: 'Схема: от квадрата суммы к произведению',
+            idea: [
+                'Сначала распознаём x² + 8x + 16 как (x + 4)².',
+                'После замены ищем общий множитель x + 4.',
+                'Разбиваем произведение на два уравнения.',
+                'Отдельно дорешиваем квадратное уравнение и проверяем все корни.'
+            ],
+            steps: [
+                {
+                    key:'given',
+                    title:'Что дано',
+                    subtitle:'Исходное уравнение и цель преобразования',
+                    link:'eq-given',
+                    content:{
+                        short:`<div class="formula">(x − 2)(x² + 8x + 16) = 7(x + 4)</div>
+                 <p>Цель: заметить знакомый шаблон и не тратить время на лишнее раскрытие скобок.</p>`,
+                        standard:`<div class="formula">(x − 2)(x² + 8x + 16) = 7(x + 4)</div>
+                    <p>Перед нами уравнение, где внутри уже спрятана формула сокращённого умножения. Если её увидеть сразу, решение резко упрощается.</p>`,
+                        full:`<div class="formula">(x − 2)(x² + 8x + 16) = 7(x + 4)</div>
+                <p>Вместо лобового раскрытия скобок полезно сначала просканировать выражение на два признака:</p>
+                <ul class="math-list"><li>есть ли квадрат суммы или квадрат разности;</li><li>появится ли после замены общий множитель.</li></ul>`
+                    }
+                },
+                {
+                    key:'meaning',
+                    title:'Что означает условие',
+                    subtitle:'Ключевой шаблон внутри скобки',
+                    link:'eq-square',
+                    content:{
+                        short:`<div class="formula">x² + 8x + 16 = (x + 4)²</div>`,
+                        standard:`<div class="formula">x² + 8x + 16 = x² + 2·x·4 + 4² = (x + 4)²</div>
+                    <p>Это обычный квадрат суммы: a² + 2ab + b² = (a + b)².</p>`,
+                        full:`<div class="formula">x² + 8x + 16 = x² + 2·x·4 + 4² = (x + 4)²</div>
+                <p>Средний член 8x — это именно 2·x·4. Последнее число 16 — это 4². Значит, трёхчлен сворачивается без остатка в квадрат двучлена.</p>`
+                    }
+                },
+                {
+                    key:'interpretation',
+                    title:'Алгебраическая интерпретация',
+                    subtitle:'После свёртки появляется общий множитель',
+                    link:'eq-factor',
+                    content:{
+                        short:`<div class="formula">(x − 2)(x + 4)² = 7(x + 4)</div>
+                 <div class="formula">(x + 4)((x − 2)(x + 4) − 7) = 0</div>`,
+                        standard:`<div class="formula">(x − 2)(x + 4)² = 7(x + 4)</div>
+                    <div class="formula">(x + 4)((x − 2)(x + 4) − 7) = 0</div>
+                    <p>С обеих сторон есть множитель x + 4. Мы не сокращаем, а именно выносим его, чтобы не потерять корень x = −4.</p>`,
+                        full:`<div class="formula">(x − 2)(x + 4)² = 7(x + 4)</div>
+                <p>Дальше важно сделать корректный шаг: не делить на x + 4, потому что при x = −4 это выражение равно нулю. Нужно перенести всё влево и вынести общий множитель:</p>
+                <div class="formula">(x − 2)(x + 4)² − 7(x + 4) = 0</div>
+                <div class="formula">(x + 4)((x − 2)(x + 4) − 7) = 0</div>`
+                    }
+                },
+                {
+                    key:'idea',
+                    title:'Ключевая идея',
+                    subtitle:'Правило нуля для произведения',
+                    link:'eq-split',
+                    content:{
+                        short:`<div class="formula">x + 4 = 0 &nbsp; или &nbsp; (x − 2)(x + 4) − 7 = 0</div>`,
+                        standard:`<div class="formula">(x + 4)((x − 2)(x + 4) − 7) = 0</div>
+                    <div class="formula">x + 4 = 0 &nbsp; или &nbsp; (x − 2)(x + 4) − 7 = 0</div>`,
+                        full:`<div class="formula">AB = 0 &nbsp; ⇔ &nbsp; A = 0 &nbsp; или &nbsp; B = 0</div>
+                <p>Здесь A = x + 4, B = (x − 2)(x + 4) − 7. Значит, достаточно решить два более простых уравнения вместо одного громоздкого.</p>
+                <div class="formula">x + 4 = 0</div>
+                <div class="formula">(x − 2)(x + 4) − 7 = 0</div>`
+                    }
+                },
+                {
+                    key:'steps',
+                    title:'Пошаговое доведение до ответа',
+                    subtitle:'Дорешиваем квадратное уравнение',
+                    link:'eq-quadratic',
+                    content:{
+                        short:`<div class="formula">x = −4</div>
+                 <div class="formula">(x − 2)(x + 4) − 7 = 0 ⇒ x² + 2x − 15 = 0</div>
+                 <div class="formula">(x + 5)(x − 3) = 0 ⇒ x = −5, 3</div>`,
+                        standard:`<div class="formula">x + 4 = 0 ⇒ x = −4</div>
+                    <div class="formula">(x − 2)(x + 4) − 7 = 0</div>
+                    <div class="formula">x² + 2x − 8 − 7 = 0</div>
+                    <div class="formula">x² + 2x − 15 = 0</div>
+                    <div class="formula">(x + 5)(x − 3) = 0 ⇒ x = −5, 3</div>`,
+                        full:`<div class="formula">x + 4 = 0 ⇒ x = −4</div>
+                <p>Во второй ветви аккуратно раскрываем скобки:</p>
+                <div class="formula">(x − 2)(x + 4) − 7 = 0</div>
+                <div class="formula">x² + 4x − 2x − 8 − 7 = 0</div>
+                <div class="formula">x² + 2x − 15 = 0</div>
+                <p>Квадратный трёхчлен раскладывается на множители:</p>
+                <div class="formula">x² + 2x − 15 = (x + 5)(x − 3)</div>
+                <div class="formula">x = −5, 3</div>`
+                    }
+                },
+                {
+                    key:'check',
+                    title:'Финальная проверка',
+                    subtitle:'Почему все найденные корни подходят',
+                    link:'eq-check',
+                    content:{
+                        short:`<div class="result-box">Ответ: x = −5, −4, 3.</div>
+                 <p>Мы не делили на x + 4, значит корень x = −4 не потерян.</p>`,
+                        standard:`<div class="result-box">Ответ: x = −5, −4, 3.</div>
+                    <div class="proof-box">Ключевая проверка: мы не сокращали на x + 4. Поэтому корень x = −4 сохранён и должен остаться в ответе.</div>`,
+                        full:`<div class="result-box">Ответ: x = −5, −4, 3.</div>
+                <p>Здесь особенно важна содержательная проверка.</p>
+                <ul class="math-list">
+                  <li>Корень x = −4 появился из множителя x + 4 = 0 и не должен теряться.</li>
+                  <li>Корни x = −5 и x = 3 получены из второй ветви квадратного уравнения.</li>
+                  <li>Других корней нет, потому что произведение разбито полностью на две ветви, и каждая из них решена до конца.</li>
+                </ul>`
+                    }
+                },
+                {
+                    key:'conclusion',
+                    title:'Краткий вывод',
+                    subtitle:'Что нужно запомнить',
+                    link:'eq-final',
+                    content:{
+                        short:`<p>Сначала формула, потом общий множитель, потом правило нуля произведения.</p>`,
+                        standard:`<p>Если в уравнении виден квадрат суммы или разности, сначала сворачиваем его, а уже потом решаем. Это быстрее и безопаснее.</p>`,
+                        full:`<p>Главная стратегия: заметить структуру раньше вычислений. В задачах этого типа скорость даёт не дискриминант, а умение увидеть шаблон, вынести общий множитель и только потом решать знакомые маленькие уравнения.</p>`
+                    }
+                }
+            ],
+            mistakes:[
+                ['Сразу раскрывают все скобки','Так решение становится длиннее и легче ошибиться в знаках.'],
+                ['Сокращают на x + 4','Так можно потерять корень x = −4.'],
+                ['Неправильно распознают x² + 8x + 16','Это именно (x + 4)², а не просто «что-то похожее».'],
+                ['Забывают вторую ветвь после разложения','Если произведение равно нулю, нужно проверить обе скобки.']
+            ],
+            quiz:{
+                question:'Какой первый шаг здесь самый рациональный?',
+                options:['Сразу раскрыть все скобки','Свернуть x² + 8x + 16 в (x + 4)²','Сразу применить дискриминант','Поделить обе части на x + 4'],
+                correct:1,
+                explain:'Сначала нужно заметить квадрат суммы. Деление на x + 4 опасно: можно потерять корень.'
+            },
+            selfCheck:[
+                'Я проверил, что x² + 8x + 16 = (x + 4)².',
+                'Я не сокращал на выражение, которое может обращаться в ноль.',
+                'Я получил две ветви и дорешал каждую до конца.',
+                'Я отдельно убедился, что корень x = −4 не потерян.'
+            ],
+            legend:[
+                ['#50c7c7','Исходный трёхчлен','x² + 8x + 16'],
+                ['#8cb6ff','Квадрат суммы','(x + 4)²'],
+                ['#ff8ea0','Общий множитель','x + 4'],
+                ['#ffd27d','Финальные корни','−5, −4, 3']
+            ]
+        },
+        mixture: {
+            title: 'Таблица и растворы',
+            intro: 'Здесь главное — не пытаться составить уравнение наугад. Сначала таблица: масса раствора, концентрация, масса вещества. После этого уравнение получается почти автоматически.',
+            vizTitle: 'Схема: таблица и смешивание растворов',
+            idea: [
+                'Для каждого раствора выписываем массу, концентрацию и массу растворённого вещества.',
+                'Используем формулу: масса вещества = масса раствора × концентрация.',
+                'Для первой смеси составляем уравнение по сумме растворённого вещества.',
+                'Для второй смеси с равными массами сокращаем общий множитель и получаем второе уравнение.'
+            ],
+            steps: [
+                {
+                    key:'given', title:'Что дано', subtitle:'Два раствора и две смеси', link:'mix-given',
+                    content:{
+                        short:`<p>Есть 40 кг первого раствора и 20 кг второго. Их смесь имеет концентрацию 33%.</p>
+                 <p>Если затем взять равные массы тех же растворов, получится смесь 47%.</p>`,
+                        standard:`<p>Нужно найти концентрацию первого раствора. Известны две независимые ситуации смешивания:</p>
+                     <ul class="math-list"><li>40 кг и 20 кг дают 33%;</li><li>равные массы тех же растворов дают 47%.</li></ul>`,
+                        full:`<p>Задача не решается напрямую одним уравнением, потому что концентрации обоих исходных растворов неизвестны. Но здесь есть два разных условия смешивания, и именно это позволяет составить систему.</p>`
+                    }
+                },
+                {
+                    key:'meaning', title:'Что означает каждое условие', subtitle:'Три величины в таблице', link:'mix-meaning',
+                    content:{
+                        short:`<div class="formula">масса вещества = масса раствора × концентрация</div>`,
+                        standard:`<div class="formula">m(вещества) = m(раствора) · c</div>
+                    <p>Концентрацию обязательно переводим в доли: 33% = 0,33; 47% = 0,47.</p>`,
+                        full:`<div class="formula">m(вещества) = m(раствора) · c</div>
+                <p>Именно масса растворённого вещества складывается при смешивании. Массы растворов тоже складываются, но ключевое уравнение строится по веществу, потому что концентрация — это доля вещества в растворе.</p>`
+                    }
+                },
+                {
+                    key:'interpretation', title:'Алгебраическая интерпретация', subtitle:'Заполняем первую таблицу', link:'mix-table1',
+                    content:{
+                        short:`<table class="mini-table"><tr><th>Раствор</th><th>Масса</th><th>Конц.</th><th>Вещество</th></tr><tr><td>1</td><td>40</td><td>x</td><td>40x</td></tr><tr><td>2</td><td>20</td><td>y</td><td>20y</td></tr><tr><td>смесь</td><td>60</td><td>0,33</td><td>19,8</td></tr></table>`,
+                        standard:`<table class="mini-table"><tr><th>Раствор</th><th>Масса</th><th>Конц.</th><th>Вещество</th></tr><tr><td>1</td><td>40</td><td>x</td><td>40x</td></tr><tr><td>2</td><td>20</td><td>y</td><td>20y</td></tr><tr><td>смесь</td><td>60</td><td>0,33</td><td>60·0,33</td></tr></table>
+                    <div class="formula">40x + 20y = 60·0,33</div>`,
+                        full:`<p>Обозначим концентрацию первого раствора через x, второго — через y.</p>
+                <table class="mini-table"><tr><th>Раствор</th><th>Масса раствора</th><th>Концентрация</th><th>Масса вещества</th></tr><tr><td>1</td><td>40</td><td>x</td><td>40x</td></tr><tr><td>2</td><td>20</td><td>y</td><td>20y</td></tr><tr><td>смесь</td><td>60</td><td>0,33</td><td>60·0,33</td></tr></table>
+                <div class="formula">40x + 20y = 60·0,33</div>`
+                    }
+                },
+                {
+                    key:'idea', title:'Ключевая идея', subtitle:'Вторая смесь даёт второе уравнение', link:'mix-table2',
+                    content:{
+                        short:`<div class="formula">mx + my = 2m·0,47 ⇒ x + y = 0,94</div>`,
+                        standard:`<p>Во второй ситуации берут равные массы растворов. Пусть каждая масса равна m.</p>
+                    <div class="formula">mx + my = 2m·0,47</div>
+                    <div class="formula">x + y = 0,94</div>`,
+                        full:`<p>Во второй смеси масса каждого выбранного куска одинакова. Это очень удобно: появляется общий множитель m, который можно сократить.</p>
+                <div class="formula">mx + my = 2m·0,47</div>
+                <div class="formula">m(x + y) = 0,94m</div>
+                <div class="formula">x + y = 0,94</div>`
+                    }
+                },
+                {
+                    key:'steps', title:'Пошаговое доведение до ответа', subtitle:'Решаем систему школьным способом', link:'mix-solve',
+                    content:{
+                        short:`<div class="formula">40x + 20y = 19,8</div>
+                 <div class="formula">x + y = 0,94</div>
+                 <div class="formula">y = 0,94 − x</div>
+                 <div class="formula">40x + 20(0,94 − x) = 19,8 ⇒ x = 0,05</div>`,
+                        standard:`<div class="formula">40x + 20y = 19,8</div>
+                    <div class="formula">x + y = 0,94</div>
+                    <div class="formula">y = 0,94 − x</div>
+                    <div class="formula">40x + 20(0,94 − x) = 19,8</div>
+                    <div class="formula">20x = 1 ⇒ x = 0,05</div>
+                    <div class="result-box">Концентрация первого раствора: 5%.</div>`,
+                        full:`<div class="formula">40x + 20y = 60·0,33 = 19,8</div>
+                <div class="formula">x + y = 0,94</div>
+                <p>Из второго уравнения выражаем y:</p>
+                <div class="formula">y = 0,94 − x</div>
+                <p>Подставляем в первое:</p>
+                <div class="formula">40x + 20(0,94 − x) = 19,8</div>
+                <div class="formula">40x + 18,8 − 20x = 19,8</div>
+                <div class="formula">20x = 1</div>
+                <div class="formula">x = 0,05</div>
+                <div class="result-box">Значит, концентрация первого раствора равна 5%.</div>`
+                    }
+                },
+                {
+                    key:'check', title:'Финальная проверка ответа', subtitle:'Почему 5% действительно подходит', link:'mix-check',
+                    content:{
+                        short:`<div class="proof-box">Если x = 0,05, то y = 0,89. Проверка проходит в обоих условиях.</div>`,
+                        standard:`<div class="formula">x = 0,05 ⇒ y = 0,89</div>
+                    <div class="proof-box">Проверка 1: 40·0,05 + 20·0,89 = 2 + 17,8 = 19,8 = 60·0,33.</div>
+                    <div class="proof-box">Проверка 2: 0,05 + 0,89 = 0,94 = 2·0,47.</div>`,
+                        full:`<div class="formula">x = 0,05 ⇒ y = 0,94 − 0,05 = 0,89</div>
+                <p>Проверяем первое условие:</p>
+                <div class="formula">40·0,05 + 20·0,89 = 2 + 17,8 = 19,8</div>
+                <div class="formula">60·0,33 = 19,8</div>
+                <p>Проверяем второе условие:</p>
+                <div class="formula">x + y = 0,05 + 0,89 = 0,94 = 2·0,47</div>
+                <p>Значит, найденное значение подходит, и других значений нет, потому что система двух уравнений решена полностью.</p>`
+                    }
+                },
+                {
+                    key:'conclusion', title:'Краткий вывод', subtitle:'Что нужно запомнить', link:'mix-final',
+                    content:{
+                        short:`<p>В задачах на растворы таблица почти всегда обязательна.</p>`,
+                        standard:`<p>Если правильно заполнить таблицу, то уравнение по массе растворённого вещества составляется почти без усилий.</p>`,
+                        full:`<p>Основной навык тут не вычислительный, а структурный: выбрать обозначения, перевести проценты в доли и не путать массу раствора с массой вещества. Тогда даже сложная текстовая задача становится обычной системой.</p>`
+                    }
+                }
+            ],
+            mistakes:[
+                ['Путают 33% и 0,33','В уравнениях нужна доля, а не число процентов.'],
+                ['Пишут уравнение без таблицы','Так легко перепутать, где масса раствора, а где масса вещества.'],
+                ['Складывают концентрации вместо масс вещества','Складываются не проценты, а количество растворённого вещества.'],
+                ['Не используют равенство масс во второй смеси','Именно оно даёт простое уравнение x + y = 0,94.']
+            ],
+            quiz:{
+                question:'Что нужно складывать при смешивании растворов?',
+                options:['Только концентрации','Массы растворённого вещества','Только проценты','Ничего складывать не надо'],
+                correct:1,
+                explain:'При смешивании складываются массы растворов и массы растворённого вещества. Концентрации напрямую не складывают.'
+            },
+            selfCheck:[
+                'Я перевёл все проценты в десятичные дроби.',
+                'Я выписал для каждого раствора массу, концентрацию и массу вещества.',
+                'Я составил уравнение именно по сумме растворённого вещества.',
+                'Я использовал условие про равные массы и сократил общий множитель.'
+            ],
+            legend:[
+                ['#50c7c7','Первый раствор','40 кг, концентрация x'],
+                ['#8cb6ff','Второй раствор','20 кг, концентрация y'],
+                ['#ff8ea0','Смесь 33%','первая ситуация'],
+                ['#ffd27d','Смесь 47%','равные массы']
+            ]
+        },
+        graph: {
+            title: 'График и параметр k',
+            intro: 'Этот блок требует аккуратности: сначала ОДЗ, потом разбор по случаям, затем выколотые точки и только после этого анализ прямой y = kx.',
+            vizTitle: 'График функции и прямая y = kx',
+            idea: [
+                'После упрощения график разбивается на две ветви: слева y = 1/x, справа y = −1/x.',
+                'Из ОДЗ исключаются x = 0 и x = ±2/3, поэтому на графике появляются выколотые точки.',
+                'Прямая y = kx вращается вокруг начала координат.',
+                'Нет общих точек именно тогда, когда прямая проходит через выколотые точки или становится горизонтальной.'
+            ],
+            steps: [
+                {
+                    key:'given', title:'Что дано', subtitle:'Итоговая функция после преобразований', link:'gr-given',
+                    content:{
+                        short:`<div class="system"><div>y = 1/x, если x &lt; 0</div><div>y = −1/x, если x &gt; 0</div></div>`,
+                        standard:`<div class="system"><div>y = 1/x, если x &lt; 0</div><div>y = −1/x, если x &gt; 0</div></div>
+                    <p>Дополнительно: x ≠ 0, ±2/3.</p>`,
+                        full:`<div class="system"><div>y = 1/x, если x &lt; 0</div><div>y = −1/x, если x &gt; 0</div></div>
+                <p>Это уже упрощённая форма исходного выражения после раскрытия модулей и сокращения. Но ограничения из исходной записи обязательно нужно сохранить: x ≠ 0, ±2/3.</p>`
+                    }
+                },
+                {
+                    key:'meaning', title:'Что означает каждое условие', subtitle:'Разбор по случаям и ОДЗ', link:'gr-odz',
+                    content:{
+                        short:`<p>Слева берём ветвь 1/x, справа — ветвь −1/x. Точки x = 0, ±2/3 запрещены.</p>`,
+                        standard:`<div class="formula">x &lt; 0 ⇒ y = 1/x</div>
+                    <div class="formula">x &gt; 0 ⇒ y = −1/x</div>
+                    <div class="formula">x ≠ 0, ±2/3</div>`,
+                        full:`<p>Условия x &lt; 0 и x &gt; 0 отвечают за разные формулы. Отдельно выписываем ОДЗ. Даже если после сокращения функция выглядит проще, точки, где исходное выражение не было определено, нужно оставить выколотыми.</p>
+                <div class="formula">x ≠ 0, x ≠ −2/3, x ≠ 2/3</div>`
+                    }
+                },
+                {
+                    key:'interpretation', title:'Алгебраическая и графическая интерпретация', subtitle:'Как выглядят ветви', link:'gr-branches',
+                    content:{
+                        short:`<p>Получаем две ветви ниже оси Ox: слева часть графика y = 1/x, справа часть графика y = −1/x.</p>`,
+                        standard:`<p>Обе рабочие ветви лежат ниже оси Ox:</p>
+                    <ul class="math-list"><li>при x &lt; 0 функция 1/x отрицательна;</li><li>при x &gt; 0 функция −1/x тоже отрицательна.</li></ul>`,
+                        full:`<p>Это удобный быстрый контроль здравого смысла. Если на чертеже вдруг оказалась ветвь выше оси Ox, значит при раскрытии модулей или при подстановке знака была допущена ошибка.</p>
+                <div class="hint-box">Обе допустимые ветви должны идти в нижней полуплоскости.</div>`
+                    }
+                },
+                {
+                    key:'idea', title:'Ключевая идея', subtitle:'Находим выколотые точки', link:'gr-holes',
+                    content:{
+                        short:`<div class="formula">x = 2/3 ⇒ y = −3/2</div><div class="formula">x = −2/3 ⇒ y = −3/2</div>`,
+                        standard:`<div class="formula">x = 2/3 ⇒ y = −1 ÷ (2/3) = −3/2</div>
+                    <div class="formula">x = −2/3 ⇒ y = 1 ÷ (−2/3) = −3/2</div>
+                    <div class="result-box">Выколотые точки: (2/3, −3/2) и (−2/3, −3/2).</div>`,
+                        full:`<p>Запрещённые значения x = ±2/3 не исчезают: они превращаются в выколотые точки на уже построенных ветвях.</p>
+                <div class="formula">x = 2/3 &gt; 0 ⇒ используем формулу y = −1/x</div>
+                <div class="formula">y = −1 ÷ (2/3) = −3/2</div>
+                <div class="formula">x = −2/3 &lt; 0 ⇒ используем формулу y = 1/x</div>
+                <div class="formula">y = 1 ÷ (−2/3) = −3/2</div>
+                <div class="result-box">Обе выколотые точки имеют ординату −3/2.</div>`
+                    }
+                },
+                {
+                    key:'steps', title:'Пошаговое доведение до ответа', subtitle:'Когда прямая y = kx не имеет общих точек', link:'gr-k',
+                    content:{
+                        short:`<div class="formula">Через (2/3, −3/2): k = (−3/2) ÷ (2/3) = −9/4</div>
+                 <div class="formula">Через (−2/3, −3/2): k = (−3/2) ÷ (−2/3) = 9/4</div>
+                 <div class="formula">Ещё один случай: k = 0</div>`,
+                        standard:`<p>Прямая не должна пересекать график в допустимых точках. Это происходит в трёх ситуациях:</p>
+                    <ul class="math-list"><li>она проходит через правую выколотую точку ⇒ k = −9/4;</li><li>она проходит через левую выколотую точку ⇒ k = 9/4;</li><li>она горизонтальна ⇒ k = 0.</li></ul>`,
+                        full:`<p>Прямая y = kx вращается вокруг начала координат. Если она касается «бывшей» точки графика, которая на самом деле выколота, допустимого пересечения нет.</p>
+                <div class="formula">−3/2 = k·(2/3) ⇒ k = −9/4</div>
+                <div class="formula">−3/2 = k·(−2/3) ⇒ k = 9/4</div>
+                <p>Отдельно проверяем горизонтальную прямую:</p>
+                <div class="formula">k = 0 ⇒ y = 0</div>
+                <p>Обе ветви графика лежат ниже оси Ox, поэтому прямая y = 0 с ними не пересекается.</p>`
+                    }
+                },
+                {
+                    key:'check', title:'Финальная проверка ответа', subtitle:'Почему других значений нет', link:'gr-check',
+                    content:{
+                        short:`<div class="result-box">Ответ: k = −9/4, 0, 9/4.</div>`,
+                        standard:`<div class="result-box">Ответ: k = −9/4, 0, 9/4.</div>
+                    <div class="proof-box">Любой другой наклон даст пересечение хотя бы с одной из рабочих ветвей.</div>`,
+                        full:`<div class="result-box">Ответ: k = −9/4, 0, 9/4.</div>
+                <p>Почему список полный:</p>
+                <ul class="math-list">
+                  <li>через каждую выколотую точку проходит ровно одна прямая вида y = kx;</li>
+                  <li>горизонтальный случай даёт отдельное значение k = 0;</li>
+                  <li>если прямая не совпадает ни с одним из этих трёх положений, она обязательно пересекает хотя бы одну из допустимых ветвей.</li>
+                </ul>`
+                    }
+                },
+                {
+                    key:'conclusion', title:'Краткий вывод', subtitle:'Что нужно запомнить', link:'gr-final',
+                    content:{
+                        short:`<p>Сначала ОДЗ, потом график, потом выколотые точки, и только после этого параметр k.</p>`,
+                        standard:`<p>В задачах на график с параметром правильный порядок действий важнее вычислений: ОДЗ → случаи → выколотые точки → анализ прямой.</p>`,
+                        full:`<p>Самая частая причина ошибок здесь — преждевременная работа с прямой y = kx без полного понимания самого графика. Сначала надо до конца восстановить допустимую геометрию функции, а уже потом говорить о параметре.</p>`
+                    }
+                }
+            ],
+            mistakes:[
+                ['Забывают ОДЗ после сокращения','Точки x = 0, ±2/3 всё равно остаются запрещёнными.'],
+                ['Подставляют x = 2/3 не в ту ветвь','Для положительного x нужно брать y = −1/x.'],
+                ['Строят одну ветвь выше оси Ox','Обе допустимые ветви лежат ниже оси Ox.'],
+                ['Не учитывают случай k = 0','Горизонтальная прямая y = 0 тоже не пересекает график.'],
+                ['Ищут только выколотые точки и забывают доказать полноту ответа','Нужно объяснить, почему других k нет.']
+            ],
+            quiz:{
+                question:'Какая последовательность действий здесь правильная?',
+                options:['Сразу искать k','Сначала ОДЗ и ветви графика, потом выколотые точки, потом k','Сначала дискриминант','Сначала взять случай k = 1'],
+                correct:1,
+                explain:'В этой задаче порядок критичен: без ОДЗ и выколотых точек анализ параметра будет неверным.'
+            },
+            selfCheck:[
+                'Я отдельно выписал запрещённые значения x = 0, ±2/3.',
+                'Я правильно выбрал формулу для x > 0 и для x < 0.',
+                'Я вычислил координаты обеих выколотых точек.',
+                'Я отдельно рассмотрел случай k = 0.',
+                'Я объяснил, почему других значений k нет.'
+            ],
+            legend:[
+                ['#50c7c7','Левая ветвь','y = 1/x при x < 0'],
+                ['#8cb6ff','Правая ветвь','y = −1/x при x > 0'],
+                ['#ff8ea0','Выколотые точки','x = ±2/3'],
+                ['#ffd27d','Прямая y = kx','наклон зависит от k']
+            ]
+        }
+    };
+
+    let state = {
+        topic:'equation',
+        detail:'standard',
+        stepmode:'guided',
+        zoom:1,
+        openSteps:{equation:1, mixture:1, graph:1},
+        stepExpanded:new Set(['equation-0']),
+        graphK:0,
+        graphShowLine:true,
+        graphShowHoles:true,
+        graphShowGuides:true,
+        equationShowExpansion:true,
+        equationShowFactors:true,
+        mixtureShowEquation:true,
+        mixtureShowSecondMix:true,
+        generated:{equation:null, mixture:null, graph:null},
+        quizAnswered:{}
+    };
+
+    const stepper = document.getElementById('stepper');
+    const ideaBlock = document.getElementById('ideaBlock');
+    const mistakesBlock = document.getElementById('mistakesBlock');
+    const selfCheck = document.getElementById('selfCheck');
+    const quizHost = document.getElementById('quizHost');
+    const legendGrid = document.getElementById('legendGrid');
+    const vizSvg = document.getElementById('vizSvg');
+    const topicTitle = document.getElementById('topicTitle');
+    const topicIntro = document.getElementById('topicIntro');
+    const vizTitle = document.getElementById('vizTitle');
+    const genTitle = document.getElementById('genTitle');
+    const generatedTask = document.getElementById('generatedTask');
+    const vizSwitches = document.getElementById('vizSwitches');
+    const canvasWrap = document.getElementById('canvasWrap');
+
+    function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+    function setActiveButtons(container, attr, value){
+        [...container.querySelectorAll('button')].forEach(btn=>btn.classList.toggle('active', btn.dataset[attr]===value));
+    }
+
+    function renderTopic(){
+        const t = topics[state.topic];
+        topicTitle.textContent = t.title;
+        topicIntro.textContent = t.intro;
+        vizTitle.textContent = t.vizTitle;
+
+        ideaBlock.innerHTML = t.idea.map((item,i)=>`<div class="idea-item"><strong>${i+1}.</strong> ${item}</div>`).join('');
+        mistakesBlock.innerHTML = t.mistakes.map(([a,b])=>`<div class="mistake-item"><strong>${a}.</strong> <span class="subtle">${b}</span></div>`).join('');
+        selfCheck.innerHTML = t.selfCheck.map(item=>`<label class="check-item"><input type="checkbox" style="margin-right:10px; transform:translateY(1px)"> ${item}</label>`).join('');
+        legendGrid.innerHTML = t.legend.map(([c,a,b])=>`<div class="legend-chip"><span class="dot" style="background:${c}"></span><div><strong>${a}</strong><div class="subtle small">${b}</div></div></div>`).join('');
+
+        renderSteps();
+        renderQuiz();
+        renderGenerated();
+        renderVizControls();
+        renderViz();
+    }
+
+    function isStepOpen(index){
+        if(state.stepmode==='open') return true;
+        return index <= state.openSteps[state.topic]-1 || state.stepExpanded.has(`${state.topic}-${index}`);
+    }
+
+    function renderSteps(){
+        const t = topics[state.topic];
+        stepper.innerHTML = t.steps.map((step,index)=>{
+            const open = isStepOpen(index);
+            return `<article class="step ${open?'':'collapsed'}" data-step-index="${index}" data-link="${step.link}">
+      <button class="step-header link-step" data-step-header="${index}">
+        <div class="step-badge">${index+1}</div>
+        <div class="step-title-wrap">
+          <div class="step-title">${step.title}</div>
+          <div class="step-sub">${step.subtitle}</div>
+        </div>
+        <div class="small subtle">${open?'свернуть':'раскрыть'}</div>
+      </button>
+      <div class="step-body">${step.content[state.detail]}</div>
+    </article>`;
+        }).join('');
+
+        [...stepper.querySelectorAll('.step-header')].forEach(btn=>{
+            btn.addEventListener('click',()=>toggleStep(+btn.dataset.stepHeader));
+            btn.addEventListener('mouseenter',()=>highlightLink(stepper.querySelector(`[data-step-index="${btn.dataset.stepHeader}"]`).dataset.link));
+            btn.addEventListener('mouseleave',clearHighlights);
+        });
+    }
+
+    function toggleStep(index){
+        const key = `${state.topic}-${index}`;
+        if(state.stepmode==='guided'){
+            if(index === state.openSteps[state.topic]) state.openSteps[state.topic]++;
+            if(state.stepExpanded.has(key)) state.stepExpanded.delete(key); else state.stepExpanded.add(key);
+        } else {
+            if(state.stepExpanded.has(key)) state.stepExpanded.delete(key); else state.stepExpanded.add(key);
+        }
+        renderSteps();
+    }
+
+    function renderQuiz(){
+        const q = topics[state.topic].quiz;
+        const ans = state.quizAnswered[state.topic];
+        quizHost.innerHTML = `<div class="quiz-box">
+    <div style="font-weight:800; margin-bottom:10px">${q.question}</div>
+    <div class="switches">${q.options.map((opt,i)=>`<button class="btn ${ans===i?(i===q.correct?'good':'warn'):'ghost'}" data-quiz-opt="${i}">${escapeHtml(opt)}</button>`).join('')}</div>
+    ${ans===undefined?'<p class="subtle small" style="margin:.8rem 0 0">Выберите вариант и сразу получите комментарий.</p>':`<div class="proof-box" style="margin-top:12px"><strong>${ans===q.correct?'Верно.':'Почти.'}</strong> ${q.explain}</div>`}
+  </div>`;
+        [...quizHost.querySelectorAll('[data-quiz-opt]')].forEach(btn=>btn.addEventListener('click',()=>{state.quizAnswered[state.topic]=+btn.dataset.quizOpt;renderQuiz();}));
+    }
+
+    function renderGenerated(){
+        const data = state.generated[state.topic];
+        if(!data){
+            genTitle.textContent = 'Нажмите на кнопку справа, чтобы получить задачу по текущему блоку.';
+            generatedTask.innerHTML = '<span class="subtle">Здесь появится одна корректная похожая задача, её ответ и краткая идея.</span>';
+            return;
+        }
+        genTitle.textContent = data.title;
+        generatedTask.innerHTML = `
+    <div class="formula">${data.task}</div>
+    <div class="result-box"><strong>Ответ:</strong> ${data.answer}</div>
+    <div class="hint-box"><strong>Короткая идея:</strong> ${data.idea}</div>
+  `;
+    }
+
+    function randInt(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+    function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+    function generateEquationTask(){
+        const p = pick([2,3,4,5,6]);
+        const q = pick([1,2,3,4]);
+        const a = pick([1,2,3,4]);
+        const c = a*a;
+        const mid = 2*a;
+        const roots2 = [];
+        let r1 = randInt(-6,-2), r2 = randInt(2,6);
+        let constTarget = r1*r2;
+        let sumTarget = -(r1+r2);
+        // Create (x-p)(x+a)^2 = q(x+a)
+        // => (x+a)[(x-p)(x+a)-q]=0 => x=-a or x^2+(a-p)x-pa-q=0
+        // Need integer roots for quadratic
+        // choose desired roots then solve for q? q = -(r1*r2) - p*a? wait x^2+(a-p)x-(pa+q)
+        // sum = p-a, product = -(pa+q)
+        // Use roots matching sum/product
+        const sum = p-a;
+        const candidates=[];
+        for(let u=-8;u<=8;u++) for(let v=-8;v<=8;v++) if(u+v===sum && u!==0 && v!==0){
+            const qv = -(u*v)-p*a;
+            if(qv>0 && qv<=24) candidates.push([u,v,qv]);
+        }
+        const ch = pick(candidates.length?candidates:[[ -a-1, p+1, q ]]);
+        const [u,v,qv] = ch;
+        return {
+            title:'Похожая задача на факторизацию',
+            task:`(x − ${p})(x² + ${mid}x + ${c}) = ${qv}(x + ${a})`,
+            answer:`x = ${-a}, ${u}, ${v}`,
+            idea:`Сначала сверните x² + ${mid}x + ${c} в (x + ${a})², затем вынесите общий множитель x + ${a}.`
+        };
+    }
+
+    function generateMixtureTask(){
+        const x = pick([0.08,0.12,0.15,0.18,0.22]);
+        const y = pick([0.52,0.58,0.64,0.71,0.76,0.82]);
+        const m1 = pick([20,30,40,50]);
+        const m2 = pick([10,20,30,40,50].filter(v=>v!==m1));
+        const c1 = ((m1*x + m2*y)/(m1+m2));
+        const c2 = ((x+y)/2);
+        const fmt = n => (Math.round(n*10000)/100).toFixed(2).replace('.',',').replace(/,00$/,'');
+        return {
+            title:'Похожая задача на растворы',
+            task:`Смешали ${m1} кг первого раствора и ${m2} кг второго раствора и получили раствор концентрации ${fmt(c1)}%. Если затем взять равные массы этих же растворов, получится смесь концентрации ${fmt(c2)}%. Найдите концентрацию первого раствора.`,
+            answer:`${fmt(x*100)}%`,
+            idea:`Введите x и y — концентрации исходных растворов. Первое условие даёт уравнение по массе вещества, второе — уравнение x + y = 2·${fmt(c2/100)}.`
+        };
+    }
+
+    function generateGraphTask(){
+        const holeX = pick([0.5, 2/3, 0.75, 1.25]);
+        const yRight = -(1/holeX);
+        const yLeft = 1/(-holeX);
+        const k1 = yRight / holeX;
+        const k2 = yLeft / (-holeX);
+        const frac = n => {
+            const s = Math.sign(n); const x = Math.abs(n);
+            for(let d=1;d<=16;d++){
+                const num = Math.round(x*d);
+                if(Math.abs(num/d - x) < 1e-9) return `${s<0?'−':''}${num}${d===1?'':'/'+d}`;
+            }
+            return String(Math.round(n*100)/100).replace('-', '−');
+        };
+        return {
+            title:'Похожая задача на график и параметр',
+            task:`Для функции y = 1/x при x &lt; 0 и y = −1/x при x &gt; 0 дополнительно выколоты точки при x = ±${frac(holeX)}. Найдите все значения k, при которых прямая y = kx не имеет общих точек с графиком.`,
+            answer:`k = ${frac(k1)}, 0, ${frac(k2)}`,
+            idea:`Сначала вычислите координаты выколотых точек. Затем найдите наклоны прямых из начала координат через эти точки и не забудьте про горизонтальную прямую y = 0.`
+        };
+    }
+
+    function generateTask(){
+        if(state.topic==='equation') state.generated.equation = generateEquationTask();
+        if(state.topic==='mixture') state.generated.mixture = generateMixtureTask();
+        if(state.topic==='graph') state.generated.graph = generateGraphTask();
+        renderGenerated();
+    }
+
+    function renderVizControls(){
+        if(state.topic==='equation'){
+            vizSwitches.innerHTML = `
+      <button class="btn ${state.equationShowExpansion?'active':''}" data-sw="eqexp">показать квадрат суммы</button>
+      <button class="btn ${state.equationShowFactors?'active':''}" data-sw="eqfac">показать факторизацию</button>`;
+        } else if(state.topic==='mixture'){
+            vizSwitches.innerHTML = `
+      <button class="btn ${state.mixtureShowEquation?'active':''}" data-sw="mxeq">уравнения</button>
+      <button class="btn ${state.mixtureShowSecondMix?'active':''}" data-sw="mx2">вторая смесь</button>`;
+        } else {
+            vizSwitches.innerHTML = `
+      <button class="btn ${state.graphShowLine?'active':''}" data-sw="grline">прямая y = kx</button>
+      <button class="btn ${state.graphShowHoles?'active':''}" data-sw="grholes">выколотые точки</button>
+      <button class="btn ${state.graphShowGuides?'active':''}" data-sw="grguides">направляющие</button>
+      <div class="cluster" style="display:inline-flex;gap:8px;align-items:center;padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;margin-left:8px">
+        <label for="kRange">k</label>
+        <input id="kRange" type="range" min="-3" max="3" step="0.01" value="${state.graphK}">
+        <span id="kLabel" class="small codeish">${formatK(state.graphK)}</span>
+      </div>`;
+        }
+        [...vizSwitches.querySelectorAll('[data-sw]')].forEach(btn=>btn.addEventListener('click',()=>{
+            const sw = btn.dataset.sw;
+            if(sw==='eqexp') state.equationShowExpansion = !state.equationShowExpansion;
+            if(sw==='eqfac') state.equationShowFactors = !state.equationShowFactors;
+            if(sw==='mxeq') state.mixtureShowEquation = !state.mixtureShowEquation;
+            if(sw==='mx2') state.mixtureShowSecondMix = !state.mixtureShowSecondMix;
+            if(sw==='grline') state.graphShowLine = !state.graphShowLine;
+            if(sw==='grholes') state.graphShowHoles = !state.graphShowHoles;
+            if(sw==='grguides') state.graphShowGuides = !state.graphShowGuides;
+            renderVizControls();
+            renderViz();
+        }));
+        const kRange = document.getElementById('kRange');
+        if(kRange){
+            kRange.addEventListener('input',e=>{state.graphK=+e.target.value;renderViz();document.getElementById('kLabel').textContent=formatK(state.graphK);});
+        }
+    }
+
+    function formatK(v){
+        const r = Math.round(v*100)/100;
+        return r===0?'0':String(r).replace('-', '−');
+    }
+
+    function applyZoom(){
+        vizSvg.style.transform = `scale(${state.zoom})`;
+        vizSvg.style.transformOrigin = '50% 50%';
+        document.getElementById('zoomRange').value = Math.round(state.zoom*100);
+        document.getElementById('zoomLabel').textContent = `${Math.round(state.zoom*100)}%`;
+    }
+
+    function renderViz(){
+        if(state.topic==='equation') renderEquationViz();
+        if(state.topic==='mixture') renderMixtureViz();
+        if(state.topic==='graph') renderGraphViz();
+        applyZoom();
+    }
+
+    function renderEquationViz(){
+        const showSq = state.equationShowExpansion;
+        const showFac = state.equationShowFactors;
+        vizSvg.innerHTML = `
+  <rect x="0" y="0" width="900" height="620" fill="#0b131b"/>
+  <g>
+    <text x="40" y="58" font-size="24" fill="#e8f0f7" font-weight="700">Структура уравнения</text>
+    <rect x="36" y="88" rx="18" ry="18" width="828" height="122" fill="#132131" stroke="rgba(255,255,255,.08)"/>
+    <text x="60" y="145" font-size="34" fill="#e8f0f7">(x − 2)(x² + 8x + 16) = 7(x + 4)</text>
+    <text x="60" y="185" font-size="17" fill="#9fb0c2">Здесь внутри спрятан квадрат суммы.</text>
+
+    ${showSq?`
+    <rect x="36" y="240" rx="18" ry="18" width="390" height="122" fill="#102235" stroke="#8cb6ff" stroke-width="2"/>
+    <text x="60" y="292" font-size="28" fill="#8cb6ff">x² + 8x + 16</text>
+    <text x="60" y="330" font-size="20" fill="#d8e6ff">= (x + 4)²</text>
+    <line x1="426" y1="301" x2="478" y2="301" stroke="#8cb6ff" stroke-width="3" marker-end="url(#arrowBlue)"/>
+    <rect x="486" y="240" rx="18" ry="18" width="378" height="122" fill="#132131" stroke="rgba(255,255,255,.08)"/>
+    <text x="510" y="292" font-size="28" fill="#e8f0f7">(x − 2)(x + 4)² = 7(x + 4)</text>
+    <text x="510" y="330" font-size="18" fill="#9fb0c2">После свёртки появляется общий множитель x + 4.</text>`:''}
+
+    ${showFac?`
+    <rect x="36" y="394" rx="18" ry="18" width="828" height="160" fill="#101925" stroke="#ff8ea0" stroke-width="2"/>
+    <text x="60" y="440" font-size="28" fill="#e8f0f7">(x + 4)((x − 2)(x + 4) − 7) = 0</text>
+    <text x="60" y="476" font-size="22" fill="#ff8ea0">x + 4 = 0</text>
+    <text x="210" y="476" font-size="20" fill="#9fb0c2">или</text>
+    <text x="260" y="476" font-size="22" fill="#ffd27d">(x − 2)(x + 4) − 7 = 0</text>
+    <text x="60" y="516" font-size="22" fill="#7bd88f">Ответ: x = −5, −4, 3</text>
+    <text x="60" y="542" font-size="17" fill="#9fb0c2">Важно: не делим на x + 4, чтобы не потерять корень x = −4.</text>`:''}
+  </g>
+  <defs>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#8cb6ff"/></marker>
+  </defs>`;
+    }
+
+    function renderMixtureViz(){
+        vizSvg.innerHTML = `
+    <rect x="0" y="0" width="900" height="620" fill="#0b131b"/>
+    <text x="40" y="56" font-size="24" fill="#e8f0f7" font-weight="700">Таблица и смысл смешивания</text>
+    <rect x="36" y="88" width="828" height="214" rx="20" fill="#132131" stroke="rgba(255,255,255,.08)"/>
+    <text x="60" y="128" font-size="17" fill="#9fb0c2">Первая ситуация</text>
+    <text x="60" y="168" font-size="20" fill="#e8f0f7">Раствор</text>
+    <text x="220" y="168" font-size="20" fill="#e8f0f7">Масса</text>
+    <text x="370" y="168" font-size="20" fill="#e8f0f7">Концентрация</text>
+    <text x="580" y="168" font-size="20" fill="#e8f0f7">Масса вещества</text>
+    <line x1="60" y1="182" x2="830" y2="182" stroke="rgba(255,255,255,.14)" />
+
+    <text x="60" y="220" font-size="22" fill="#50c7c7">1-й</text>
+    <text x="220" y="220" font-size="22" fill="#e8f0f7">40 кг</text>
+    <text x="370" y="220" font-size="22" fill="#e8f0f7">x</text>
+    <text x="580" y="220" font-size="22" fill="#e8f0f7">40x</text>
+
+    <text x="60" y="258" font-size="22" fill="#8cb6ff">2-й</text>
+    <text x="220" y="258" font-size="22" fill="#e8f0f7">20 кг</text>
+    <text x="370" y="258" font-size="22" fill="#e8f0f7">y</text>
+    <text x="580" y="258" font-size="22" fill="#e8f0f7">20y</text>
+
+    <text x="60" y="296" font-size="22" fill="#ff8ea0">смесь</text>
+    <text x="220" y="296" font-size="22" fill="#e8f0f7">60 кг</text>
+    <text x="370" y="296" font-size="22" fill="#e8f0f7">0,33</text>
+    <text x="580" y="296" font-size="22" fill="#e8f0f7">60·0,33</text>
+
+    ${state.mixtureShowEquation?`
+      <rect x="36" y="330" width="828" height="96" rx="18" fill="#101925" stroke="#ff8ea0"/>
+      <text x="60" y="388" font-size="28" fill="#e8f0f7">40x + 20y = 60·0,33</text>`:''}
+
+    ${state.mixtureShowSecondMix?`
+      <rect x="36" y="456" width="828" height="118" rx="18" fill="#102235" stroke="#ffd27d"/>
+      <text x="60" y="500" font-size="18" fill="#9fb0c2">Вторая ситуация: равные массы</text>
+      <text x="60" y="536" font-size="26" fill="#e8f0f7">mx + my = 2m·0,47  ⇒  x + y = 0,94</text>
+      <text x="60" y="566" font-size="17" fill="#9fb0c2">Общий множитель m сокращается, потому что m ≠ 0.</text>`:''}
+  `;
+    }
+
+    function mapGraphX(x){ return 450 + x*120; }
+    function mapGraphY(y){ return 300 - y*120; }
+    function graphPath(fn, from, to, step){
+        let d='';
+        let first=true;
+        for(let x=from;x<=to+1e-9;x+=step){
+            const y=fn(x);
+            if(!isFinite(y)) continue;
+            const X=mapGraphX(x), Y=mapGraphY(y);
+            d += `${first?'M':'L'}${X.toFixed(2)},${Y.toFixed(2)} `;
+            first=false;
+        }
+        return d;
+    }
+    function renderGraphViz(){
+        const k=state.graphK;
+        const hole = 2/3;
+        const holeY = -3/2;
+        const leftHole = [mapGraphX(-hole), mapGraphY(holeY)];
+        const rightHole = [mapGraphX(hole), mapGraphY(holeY)];
+        const linePath = (()=>{
+            const x1=-3.4, x2=3.4;
+            return `M ${mapGraphX(x1)} ${mapGraphY(k*x1)} L ${mapGraphX(x2)} ${mapGraphY(k*x2)}`;
+        })();
+        const special = [0, 9/4, -9/4];
+        const isSpecial = special.some(v=>Math.abs(v-k)<0.03);
+        vizSvg.innerHTML = `
+    <rect x="0" y="0" width="900" height="620" fill="#0b131b"/>
+    <defs>
+      <marker id="arrowAxis" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#6d8296"/></marker>
+    </defs>
+    <g>
+      <text x="36" y="52" font-size="24" fill="#e8f0f7" font-weight="700">График функции и прямая y = kx</text>
+      <text x="36" y="78" font-size="16" fill="#9fb0c2">Наводите на шаги слева и двигайте ползунок k.</text>
+
+      ${state.graphShowGuides?`
+      ${[-3,-2,-1,1,2,3].map(x=>`<line x1="${mapGraphX(x)}" y1="80" x2="${mapGraphX(x)}" y2="560" stroke="rgba(255,255,255,.05)"/>`).join('')}
+      ${[-3,-2,-1,1,2].map(y=>`<line x1="90" y1="${mapGraphY(y)}" x2="820" y2="${mapGraphY(y)}" stroke="rgba(255,255,255,.05)"/>`).join('')}
+      `:''}
+
+      <line x1="96" y1="300" x2="818" y2="300" stroke="#6d8296" stroke-width="2" marker-end="url(#arrowAxis)"/>
+      <line x1="450" y1="548" x2="450" y2="82" stroke="#6d8296" stroke-width="2" marker-end="url(#arrowAxis)"/>
+
+      <text x="820" y="292" font-size="18" fill="#9fb0c2">x</text>
+      <text x="460" y="92" font-size="18" fill="#9fb0c2">y</text>
+      ${[-3,-2,-1,1,2,3].map(x=>`<text x="${mapGraphX(x)-6}" y="324" font-size="14" fill="#9fb0c2">${x}</text>`).join('')}
+      ${[-3,-2,-1,1,2].map(y=>`<text x="424" y="${mapGraphY(y)+5}" font-size="14" fill="#9fb0c2">${y}</text>`).join('')}
+
+      <path d="${graphPath(x=>1/x,-3.2,-0.1,0.01)}" fill="none" stroke="#50c7c7" stroke-width="4" stroke-linecap="round" id="left-branch"/>
+      <path d="${graphPath(x=>-1/x,0.1,3.2,0.01)}" fill="none" stroke="#8cb6ff" stroke-width="4" stroke-linecap="round" id="right-branch"/>
+
+      ${state.graphShowLine?`<path d="${linePath}" fill="none" stroke="#ffd27d" stroke-width="${isSpecial?5:4}" stroke-linecap="round" opacity="0.98" id="line-k"/>`:''}
+
+      ${state.graphShowHoles?`
+      <circle cx="${leftHole[0]}" cy="${leftHole[1]}" r="8" fill="#0b131b" stroke="#ff8ea0" stroke-width="4" id="hole-left"/>
+      <circle cx="${rightHole[0]}" cy="${rightHole[1]}" r="8" fill="#0b131b" stroke="#ff8ea0" stroke-width="4" id="hole-right"/>
+      <text x="${leftHole[0]-108}" y="${leftHole[1]-14}" font-size="16" fill="#ffb4c0">(−2/3, −3/2)</text>
+      <text x="${rightHole[0]+12}" y="${rightHole[1]-14}" font-size="16" fill="#ffb4c0">(2/3, −3/2)</text>`:''}
+
+      <rect x="580" y="96" width="276" height="116" rx="18" fill="#101925" stroke="rgba(255,255,255,.08)"/>
+      <text x="602" y="130" font-size="17" fill="#9fb0c2">Текущий параметр</text>
+      <text x="602" y="170" font-size="28" fill="#ffd27d">k = ${formatK(k)}</text>
+      <text x="602" y="198" font-size="16" fill="${isSpecial?'#7bd88f':'#9fb0c2'}">${isSpecial?'Особое положение прямой.':'Обычное положение прямой.'}</text>
+
+      <rect x="36" y="566" width="828" height="34" rx="12" fill="#101925" stroke="rgba(255,255,255,.08)"/>
+      <text x="56" y="589" font-size="15" fill="#9fb0c2">Ключевой порядок: ОДЗ → ветви графика → выколотые точки → прямая y = kx → значения k.</text>
+    </g>
+  `;
+    }
+
+    function highlightLink(link){
+        clearHighlights();
+        document.querySelectorAll(`[data-link="${link}"]`).forEach(el=>el.classList.add('highlight'));
+        const ids = {
+            'eq-given':[], 'eq-square':['eq-square'], 'eq-factor':['eq-factor'], 'eq-split':['eq-factor'], 'eq-quadratic':['eq-factor'], 'eq-check':['eq-factor'], 'eq-final':[],
+            'mix-given':[], 'mix-meaning':[], 'mix-table1':[], 'mix-table2':[], 'mix-solve':[], 'mix-check':[], 'mix-final':[],
+            'gr-given':['left-branch','right-branch'], 'gr-odz':['left-branch','right-branch'], 'gr-branches':['left-branch','right-branch'], 'gr-holes':['hole-left','hole-right'], 'gr-k':['line-k','hole-left','hole-right'], 'gr-check':['line-k','hole-left','hole-right'], 'gr-final':['left-branch','right-branch']
+        };
+        (ids[link]||[]).forEach(id=>{
+            const el=document.getElementById(id);
+            if(el){
+                el.dataset.oldStroke = el.getAttribute('stroke')||'';
+                el.setAttribute('stroke','#ffffff');
+                el.setAttribute('filter','drop-shadow(0 0 8px rgba(255,255,255,.5))');
+            }
+        });
+    }
+    function clearHighlights(){
+        document.querySelectorAll('.step.highlight').forEach(el=>el.classList.remove('highlight'));
+        ['left-branch','right-branch','line-k','hole-left','hole-right'].forEach(id=>{
+            const el=document.getElementById(id);
+            if(el){
+                if(id==='left-branch') el.setAttribute('stroke','#50c7c7');
+                if(id==='right-branch') el.setAttribute('stroke','#8cb6ff');
+                if(id==='line-k') el.setAttribute('stroke','#ffd27d');
+                if(id==='hole-left' || id==='hole-right') el.setAttribute('stroke','#ff8ea0');
+                el.removeAttribute('filter');
+            }
+        });
+    }
+
+    // top controls
+    const detailSeg = document.getElementById('detailSeg');
+    const stepModeSeg = document.getElementById('stepModeSeg');
+    const topicTabs = document.getElementById('topicTabs');
+
+    detailSeg.addEventListener('click',e=>{
+        const btn=e.target.closest('button[data-detail]'); if(!btn) return;
+        state.detail=btn.dataset.detail; setActiveButtons(detailSeg,'detail',state.detail); renderTopic();
+    });
+    stepModeSeg.addEventListener('click',e=>{
+        const btn=e.target.closest('button[data-stepmode]'); if(!btn) return;
+        state.stepmode=btn.dataset.stepmode; setActiveButtons(stepModeSeg,'stepmode',state.stepmode); renderSteps();
+    });
+    topicTabs.addEventListener('click',e=>{
+        const btn=e.target.closest('button[data-topic]'); if(!btn) return;
+        state.topic=btn.dataset.topic;
+        [...topicTabs.querySelectorAll('button')].forEach(b=>b.classList.toggle('active', b===btn));
+        renderTopic();
+    });
+
+    document.getElementById('openAllBtn').addEventListener('click',()=>{
+        state.stepmode='open';
+        setActiveButtons(stepModeSeg,'stepmode','open');
+        renderSteps();
+    });
+    document.getElementById('collapseAllBtn').addEventListener('click',()=>{
+        state.stepmode='guided';
+        state.openSteps[state.topic]=1;
+        state.stepExpanded = new Set([`${state.topic}-0`]);
+        setActiveButtons(stepModeSeg,'stepmode','guided');
+        renderSteps();
+    });
+    document.getElementById('scrollVizBtn').addEventListener('click',()=>document.getElementById('vizCol').scrollIntoView({behavior:'smooth',block:'start'}));
+    document.getElementById('newTaskBtn').addEventListener('click',generateTask);
+
+    // zoom controls
+    function setZoom(z){ state.zoom=Math.max(.7,Math.min(2.2,z)); applyZoom(); }
+    document.getElementById('zoomRange').addEventListener('input',e=>setZoom(+e.target.value/100));
+    document.getElementById('zoomInBtn').addEventListener('click',()=>setZoom(state.zoom+0.1));
+    document.getElementById('zoomOutBtn').addEventListener('click',()=>setZoom(state.zoom-0.1));
+    document.getElementById('zoomResetBtn').addEventListener('click',()=>setZoom(1));
+    canvasWrap.addEventListener('wheel',e=>{ e.preventDefault(); setZoom(state.zoom + (e.deltaY<0?0.06:-0.06)); }, {passive:false});
+
+    renderTopic();
+    applyZoom();
+</script>
+</body>
+</html>
