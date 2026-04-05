@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — окружность, средние линии и площади</title>
+    <style>
+        :root{
+            --bg:#08131a;
+            --bg2:#0e1d26;
+            --panel:#10242e;
+            --panel2:#132d39;
+            --soft:#183948;
+            --text:#e9f5f7;
+            --muted:#a7c3cb;
+            --accent:#4dd0c8;
+            --accent2:#76f0e7;
+            --warn:#ffd166;
+            --danger:#ff7f7f;
+            --ok:#88f7b1;
+            --line:#2b5668;
+            --shadow:0 18px 40px rgba(0,0,0,.35);
+            --radius:22px;
+            --stepGlow:0 0 0 1px rgba(77,208,200,.35), 0 0 25px rgba(77,208,200,.08);
+            --stickyTop:16px;
+            --zoom:1;
+            --font: Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            font-family:var(--font);
+            background:
+            radial-gradient(circle at 10% 10%, rgba(77,208,200,.12), transparent 25%),
+            radial-gradient(circle at 90% 0%, rgba(118,240,231,.08), transparent 22%),
+            linear-gradient(180deg, #061118 0%, #0a161c 100%);
+            color:var(--text);
+            line-height:1.6;
+        }
+
+        .page{
+            max-width:1500px;
+            margin:0 auto;
+            padding:22px;
+        }
+
+        .hero{
+            background:linear-gradient(180deg, rgba(15,36,45,.92), rgba(10,25,31,.9));
+            border:1px solid rgba(118,240,231,.14);
+            border-radius:30px;
+            box-shadow:var(--shadow);
+            padding:26px 24px 20px;
+            margin-bottom:18px;
+            position:relative;
+            overflow:hidden;
+        }
+        .hero::after{
+            content:"";
+            position:absolute;
+            inset:auto -10% -40% auto;
+            width:380px;
+            height:380px;
+            border-radius:50%;
+            background:radial-gradient(circle, rgba(77,208,200,.11), transparent 62%);
+            pointer-events:none;
+        }
+
+        .eyebrow{
+            display:inline-flex;
+            align-items:center;
+            gap:10px;
+            font-size:13px;
+            letter-spacing:.08em;
+            text-transform:uppercase;
+            color:var(--accent2);
+            font-weight:700;
+            margin-bottom:10px;
+        }
+        .eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+
+        h1{
+            margin:0 0 8px;
+            font-size:clamp(30px, 4.1vw, 56px);
+            line-height:1.08;
+        }
+        .subtitle{
+            max-width:980px;
+            color:var(--muted);
+            font-size:clamp(16px, 2vw, 20px);
+            margin:0 0 18px;
+        }
+
+        .hero-grid{
+            display:grid;
+            grid-template-columns:1.6fr 1fr;
+            gap:16px;
+            align-items:start;
+        }
+
+        .chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:8px}
+        .chip{
+            padding:10px 14px;
+            border-radius:999px;
+            background:rgba(77,208,200,.08);
+            border:1px solid rgba(77,208,200,.16);
+            color:#d7fbf6;
+            font-size:14px;
+        }
+
+        .metrics{
+            display:grid;
+            grid-template-columns:repeat(2,1fr);
+            gap:12px;
+        }
+        .metric{
+            background:rgba(8,20,25,.55);
+            border:1px solid rgba(118,240,231,.12);
+            border-radius:18px;
+            padding:14px;
+        }
+        .metric .k{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+        .metric .v{font-size:22px;font-weight:800;margin-top:5px}
+
+        .layout{
+            display:grid;
+            grid-template-columns:minmax(0,1.08fr) minmax(360px,.92fr);
+            gap:20px;
+            align-items:start;
+        }
+
+        .left-col{min-width:0}
+        .right-col{min-width:0; position:relative}
+
+        .card{
+            background:linear-gradient(180deg, rgba(15,33,41,.94), rgba(11,26,33,.94));
+            border:1px solid rgba(118,240,231,.12);
+            border-radius:var(--radius);
+            box-shadow:var(--shadow);
+            padding:18px;
+            margin-bottom:16px;
+        }
+
+        .section-title{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            margin:0 0 12px;
+            font-size:clamp(18px,2vw,26px);
+        }
+
+        .section-title .badge{
+            width:32px;height:32px;border-radius:10px;
+            display:grid;place-items:center;
+            background:rgba(77,208,200,.12);
+            color:var(--accent2);
+            font-weight:800;
+            flex:0 0 auto;
+        }
+
+        .small-muted{color:var(--muted); font-size:14px}
+
+        .mode-grid{
+            display:grid;
+            grid-template-columns:repeat(2, minmax(0,1fr));
+            gap:12px;
+            margin-top:10px;
+        }
+
+        .mode-btn{
+            text-align:left;
+            padding:14px 14px 12px;
+            border-radius:18px;
+            border:1px solid rgba(118,240,231,.14);
+            background:linear-gradient(180deg, rgba(14,34,42,.9), rgba(11,25,32,.9));
+            color:var(--text);
+            cursor:pointer;
+            transition:.22s transform, .22s border-color, .22s background, .22s box-shadow;
+            min-height:106px;
+            position:relative;
+            overflow:hidden;
+        }
+        .mode-btn:hover, .mode-btn:focus-visible{transform:translateY(-2px); border-color:rgba(118,240,231,.33); box-shadow:var(--stepGlow)}
+        .mode-btn.active{background:linear-gradient(180deg, rgba(24,63,78,.92), rgba(16,39,49,.92)); border-color:rgba(118,240,231,.42); box-shadow:var(--stepGlow)}
+        .mode-btn strong{display:block; margin-bottom:5px; font-size:16px}
+        .mode-btn span{display:block; color:var(--muted); font-size:13px; line-height:1.4}
+
+        .formula-box, .idea-box, .check-box, .warn-box, .quiz-box{
+            border-radius:18px;
+            padding:16px;
+            background:rgba(8,20,25,.52);
+            border:1px solid rgba(118,240,231,.1);
+        }
+        .idea-box{background:linear-gradient(180deg, rgba(22,52,64,.6), rgba(10,25,31,.48));}
+        .check-box{background:linear-gradient(180deg, rgba(15,48,36,.55), rgba(8,25,19,.5)); border-color:rgba(136,247,177,.16)}
+        .warn-box{background:linear-gradient(180deg, rgba(65,40,18,.38), rgba(34,22,9,.35)); border-color:rgba(255,209,102,.2)}
+        .quiz-box{background:linear-gradient(180deg, rgba(31,28,64,.56), rgba(12,12,29,.44)); border-color:rgba(171,161,255,.18)}
+
+        .math-line{
+            display:inline-flex;
+            flex-wrap:wrap;
+            gap:.25em;
+            align-items:baseline;
+            font-size:clamp(18px, 2.5vw, 26px);
+            font-weight:700;
+            margin:6px 0;
+        }
+
+        .steps{display:grid; gap:12px}
+        .step{
+            border-radius:20px;
+            padding:14px 16px;
+            background:rgba(10,22,28,.56);
+            border:1px solid rgba(118,240,231,.09);
+            transition:.22s transform, .22s border-color, .22s box-shadow, .22s background;
+            position:relative;
+        }
+        .step.revealed{border-color:rgba(118,240,231,.26); background:rgba(15,33,41,.84)}
+        .step.highlight, .legend-item.highlight{box-shadow:var(--stepGlow); border-color:rgba(118,240,231,.42)}
+        .step h3{
+            margin:0 0 8px;
+            font-size:18px;
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+        .step p, .step li{color:#dbedf1}
+        .step .step-tag{
+            width:28px;height:28px;border-radius:10px;display:grid;place-items:center;
+            background:rgba(77,208,200,.12); color:var(--accent2); font-weight:800; font-size:14px;
+        }
+
+        .step[data-hidden="1"] .step-body{display:none}
+        .step.expanded .step-body{display:block}
+        .step-toggle{margin-top:10px; display:inline-flex}
+
+        .btn, button, select, input{
+            font:inherit;
+        }
+        .btn{
+            appearance:none; border:none; cursor:pointer;
+            border-radius:14px; padding:11px 14px; font-weight:700;
+            color:#072127; background:linear-gradient(180deg, var(--accent2), var(--accent));
+            box-shadow:0 10px 25px rgba(77,208,200,.22);
+            transition:.22s transform, .22s filter, .22s box-shadow;
+        }
+        .btn:hover, .btn:focus-visible{transform:translateY(-1px); filter:brightness(1.05)}
+        .btn.secondary{
+            color:var(--text);
+            background:rgba(77,208,200,.08);
+            border:1px solid rgba(118,240,231,.18);
+            box-shadow:none;
+        }
+        .btn.ghost{background:rgba(255,255,255,.04); color:var(--text); box-shadow:none; border:1px solid rgba(255,255,255,.08)}
+        .btn.warn{background:linear-gradient(180deg, #ffdf8c, var(--warn)); color:#342300}
+
+        .toolbar{
+            display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+        }
+
+        .sticky-wrap{
+            position:sticky;
+            top:var(--stickyTop);
+            display:grid;
+            gap:16px;
+        }
+
+        .control-grid{
+            display:grid;
+            grid-template-columns:repeat(2, minmax(0,1fr));
+            gap:12px;
+        }
+        .control{
+            display:grid; gap:6px;
+        }
+        .control label{
+            font-size:13px;
+            color:var(--muted);
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+        select, input[type="range"], .fake-input{
+            width:100%;
+        }
+        select, .fake-input{
+            background:#0b1b22;
+            color:var(--text);
+            border:1px solid rgba(118,240,231,.15);
+            border-radius:12px;
+            padding:12px;
+            min-height:46px;
+        }
+
+        .switches{display:grid; gap:10px; margin-top:4px}
+        .switch{
+            display:flex; align-items:center; justify-content:space-between;
+            gap:12px; padding:11px 12px; border-radius:14px;
+            background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06)
+        }
+        .switch input{width:20px;height:20px;accent-color:var(--accent)}
+
+        .viz-shell{
+            border-radius:22px;
+            overflow:hidden;
+            background:radial-gradient(circle at 50% 20%, rgba(118,240,231,.08), transparent 30%), linear-gradient(180deg, #09161c, #071117);
+            border:1px solid rgba(118,240,231,.14);
+            position:relative;
+        }
+        .viz-header{
+            display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+            gap:10px; padding:12px 14px; border-bottom:1px solid rgba(118,240,231,.1)
+        }
+        .zoombar{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+        .zoombar input[type="range"]{width:140px}
+        .stage-wrap{
+            position:relative;
+            min-height:480px;
+            overflow:hidden;
+        }
+        #stage{
+            width:100%;
+            height:560px;
+            display:block;
+            transform-origin:center center;
+            transition:transform .15s ease-out;
+            touch-action:none;
+            background:linear-gradient(180deg, rgba(5,10,14,.04), rgba(0,0,0,.08));
+        }
+
+        .legend{
+            display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;
+            margin-top:12px;
+        }
+        .legend-item{
+            display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:14px;
+            background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06)
+        }
+        .swatch{width:18px;height:6px;border-radius:999px;background:var(--accent)}
+        .swatch.b{background:#6fa8ff}
+        .swatch.c{background:#ffcf6e}
+        .swatch.d{background:#e58bff}
+
+        .result-panel{
+            display:grid; gap:10px;
+            margin-top:12px;
+        }
+        .result-line{
+            background:rgba(8,20,25,.58);
+            border:1px solid rgba(118,240,231,.1);
+            padding:12px 14px;
+            border-radius:14px;
+            font-size:15px;
+        }
+        .big-answer{
+            font-size:clamp(24px, 3vw, 34px);
+            font-weight:900;
+            color:var(--accent2);
+        }
+
+        .generator-box{display:grid; gap:12px}
+        .generated-task{
+            border-radius:18px;
+            border:1px dashed rgba(118,240,231,.26);
+            padding:14px;
+            background:rgba(7,18,22,.6)
+        }
+        .task-answer{color:var(--ok); font-weight:700}
+        .task-idea{color:var(--muted)}
+
+        .quiz-options{display:grid; gap:10px; margin-top:12px}
+        .quiz-options button{text-align:left}
+        .quiz-feedback{margin-top:10px; font-weight:700}
+
+        .selfcheck-list{display:grid; gap:10px; margin-top:10px}
+        .selfcheck-item{display:flex; gap:12px; align-items:flex-start; padding:10px 12px; border-radius:14px; background:rgba(255,255,255,.03)}
+        .selfcheck-item input{margin-top:4px; transform:scale(1.2); accent-color:var(--accent)}
+
+        .print-note{font-size:14px;color:var(--muted)}
+
+        .link-step{cursor:pointer; border-bottom:1px dashed rgba(118,240,231,.35)}
+        .inline-mark{color:var(--accent2); font-weight:800}
+
+        .hint-trigger{
+            --size:20px;
+            width:var(--size);
+            height:var(--size);
+            display:inline-grid;
+            place-items:center;
+            border-radius:50%;
+            background:linear-gradient(180deg, rgba(118,240,231,.22), rgba(77,208,200,.14));
+            color:var(--accent2);
+            font-size:12px;
+            font-weight:900;
+            border:1px solid rgba(118,240,231,.32);
+            cursor:pointer;
+            position:relative;
+            animation:hintPulse 2.1s infinite;
+            box-shadow:0 0 0 rgba(118,240,231,0);
+            flex:0 0 auto;
+        }
+        .hint-trigger.active{animation:hintBounce .6s ease, hintPulse 2.1s infinite}
+        .hint-focus{animation:borderGlow 1.5s ease}
+
+        .hint-pop{
+            position:absolute;
+            z-index:40;
+            width:min(320px, calc(100vw - 36px));
+            background:linear-gradient(180deg, rgba(11,23,30,.98), rgba(8,18,24,.98));
+            border:1px solid transparent;
+            background-clip:padding-box;
+            color:var(--text);
+            border-radius:18px;
+            box-shadow:0 22px 60px rgba(0,0,0,.45);
+            padding:14px 14px 12px;
+            opacity:0;
+            transform:translateY(6px) scale(.98);
+            pointer-events:none;
+            transition:.22s ease;
+        }
+        .hint-pop::before{
+            content:"";
+            position:absolute;
+            inset:0;
+            border-radius:18px;
+            padding:1px;
+            background:linear-gradient(135deg, rgba(118,240,231,.7), rgba(77,208,200,.15), rgba(118,240,231,.6));
+            -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite:xor;
+            mask-composite:exclude;
+            pointer-events:none;
+        }
+        .hint-pop.visible{opacity:1; transform:translateY(0) scale(1); pointer-events:auto}
+        .hint-pop .title{display:flex; align-items:center; justify-content:space-between; gap:10px; font-weight:800; color:var(--accent2); margin-bottom:8px}
+        .hint-pop .close{
+            background:none; border:none; color:var(--muted); cursor:pointer; font-size:18px; padding:0 4px
+        }
+        .hint-pop .actions{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+        .hint-pop p{margin:8px 0; color:#dff2f5; font-size:14px}
+        .hint-pop math{font-size:1.06em}
+        .hint-pop[data-pos="top"] .arrow,
+        .hint-pop[data-pos="bottom"] .arrow,
+        .hint-pop[data-pos="left"] .arrow,
+        .hint-pop[data-pos="right"] .arrow{
+            position:absolute; width:14px; height:14px; background:#0d1f28; transform:rotate(45deg); border-left:1px solid rgba(118,240,231,.4); border-top:1px solid rgba(118,240,231,.4);
+        }
+        .hint-pop[data-pos="top"] .arrow{bottom:-7px; left:22px}
+        .hint-pop[data-pos="bottom"] .arrow{top:-7px; left:22px}
+        .hint-pop[data-pos="left"] .arrow{right:-7px; top:22px}
+        .hint-pop[data-pos="right"] .arrow{left:-7px; top:22px}
+
+        .helper-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+
+        @keyframes hintPulse{
+            0%{box-shadow:0 0 0 0 rgba(77,208,200,.35), 0 0 0 0 rgba(77,208,200,.15)}
+            70%{box-shadow:0 0 0 10px rgba(77,208,200,0), 0 0 0 20px rgba(77,208,200,0)}
+            100%{box-shadow:0 0 0 0 rgba(77,208,200,0), 0 0 0 0 rgba(77,208,200,0)}
+        }
+        @keyframes borderGlow{
+            0%,100%{box-shadow:0 0 0 0 rgba(118,240,231,0)}
+            50%{box-shadow:0 0 0 2px rgba(118,240,231,.45), 0 0 28px rgba(118,240,231,.15)}
+        }
+        @keyframes hintBounce{
+            0%{transform:scale(.88)}
+            40%{transform:scale(1.15)}
+            100%{transform:scale(1)}
+        }
+
+        .footer-space{height:24px}
+
+        @media (max-width: 1180px){
+            .layout{grid-template-columns:1fr}
+            .sticky-wrap{position:relative; top:auto}
+            .hero-grid{grid-template-columns:1fr}
+        }
+        @media (max-width: 760px){
+            .page{padding:12px}
+            .card{padding:14px}
+            .mode-grid, .control-grid, .legend{grid-template-columns:1fr}
+            #stage{height:420px}
+            .zoombar input[type="range"]{width:100px}
+            .hint-pop{width:min(280px, calc(100vw - 24px))}
+            .subtitle{font-size:16px}
+        }
+
+        @media print{
+            body{background:#fff; color:#000}
+            .hero,.card,.viz-shell,.generated-task,.step,.metric,.legend-item,.switch,.result-line{box-shadow:none; background:#fff !important; color:#000; border-color:#bbb}
+            .layout{grid-template-columns:1fr}
+            .sticky-wrap{position:static}
+            .btn,.hint-trigger,.mode-btn,.toolbar,.switches,.control-grid,.zoombar,.quiz-options button,.hint-pop{display:none !important}
+            .stage-wrap{min-height:auto}
+            #stage{height:380px; background:#fff}
+            .small-muted,.subtitle,.metric .k,.chip,.print-note,.task-idea{color:#333 !important}
+            .big-answer,.inline-mark,.eyebrow,.section-title .badge{color:#000 !important}
+            a{color:#000; text-decoration:none}
+            .step[data-hidden="1"] .step-body{display:block}
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <section class="hero">
+        <div class="eyebrow"><span class="dot"></span>Наглядная математика с генерацией</div>
+        <h1>Теория и задачи по теме: окружность, средние линии, отношения площадей</h1>
+        <p class="subtitle">
+            Страница для <strong>подготовки к ЕГЭ</strong> на <strong>уверенном уровне</strong>: акцент на графическую интерпретацию,
+            пошаговое раскрытие, безопасную генерацию похожих задач и понятную визуальную модель, которую можно сверять с каждым шагом решения.
+        </p>
+        <div class="hero-grid">
+            <div>
+                <div class="chips">
+                    <div class="chip">Только школьные методы</div>
+                    <div class="chip">Без LaTeX в интерфейсе</div>
+                    <div class="chip">Пошаговое раскрытие</div>
+                    <div class="chip">Мини-квиз и самопроверка</div>
+                    <div class="chip">Усиленная мобильная версия</div>
+                    <div class="chip">Печать поддерживается</div>
+                </div>
+            </div>
+            <div class="metrics">
+                <div class="metric"><div class="k">Режимов разбора</div><div class="v">4</div></div>
+                <div class="metric"><div class="k">Похожая задача</div><div class="v">1 за раз</div></div>
+                <div class="metric"><div class="k">Интерактивность</div><div class="v">Расширенная</div></div>
+                <div class="metric"><div class="k">Формат решения</div><div class="v">7 этапов</div></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="layout">
+        <main class="left-col">
+            <section class="card" id="theme-card">
+                <h2 class="section-title"><span class="badge">1</span>Выберите тип задачи</h2>
+                <p class="small-muted">Все режимы построены по мотивам пособия из предыдущего сообщения и используют один и тот же стиль рассуждений: сначала идея, потом связка с рисунком, потом аккуратная проверка.</p>
+                <div class="mode-grid" id="modeButtons"></div>
+            </section>
+
+            <section class="card">
+                <h2 class="section-title"><span class="badge">2</span>Идея решения</h2>
+                <div class="idea-box" id="ideaBox"></div>
+            </section>
+
+            <section class="card">
+                <h2 class="section-title"><span class="badge">3</span>Подробный разбор</h2>
+                <div class="toolbar" style="margin-bottom:12px">
+                    <button class="btn secondary" id="revealNextBtn">Открыть следующий шаг</button>
+                    <button class="btn ghost" id="revealAllBtn">Показать всё</button>
+                    <button class="btn ghost" id="collapseBtn">Свернуть</button>
+                    <div class="helper-row">
+                        <label class="small-muted" for="detailLevel">Подробность</label>
+                        <select id="detailLevel" aria-label="Уровень подробности">
+                            <option value="brief">Кратко</option>
+                            <option value="standard" selected>Стандартно</option>
+                            <option value="full">Очень подробно</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="steps" id="stepsContainer"></div>
+            </section>
+
+            <section class="card">
+                <h2 class="section-title"><span class="badge">4</span>Типичные ошибки</h2>
+                <div class="warn-box" id="mistakesBox"></div>
+            </section>
+
+            <section class="card">
+                <h2 class="section-title"><span class="badge">5</span>Похожая задача</h2>
+                <div class="generator-box">
+                    <div class="toolbar">
+                        <button class="btn" id="generateTaskBtn">Сгенерировать похожую задачу</button>
+                        <button class="btn secondary" id="applyGeneratedBtn">Применить к модели</button>
+                        <span class="small-muted">Генератор сохраняет тот же метод решения и избегает вырожденных случаев.</span>
+                    </div>
+                    <div class="generated-task" id="generatedTaskBox">Нажмите кнопку, чтобы получить новую задачу с ответом и короткой идеей.</div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2 class="section-title"><span class="badge">6</span>Мини-квиз</h2>
+                <div class="quiz-box">
+                    <div id="quizQuestion">Загрузка вопроса…</div>
+                    <div class="quiz-options" id="quizOptions"></div>
+                    <div class="quiz-feedback" id="quizFeedback" aria-live="polite"></div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2 class="section-title"><span class="badge">7</span>Самопроверка</h2>
+                <div class="selfcheck-list" id="selfcheckList"></div>
+                <p class="print-note">Для печати все скрытые шаги автоматически раскрываются, а управляющие элементы убираются.</p>
+            </section>
+        </main>
+
+        <aside class="right-col">
+            <div class="sticky-wrap">
+                <section class="card">
+                    <h2 class="section-title"><span class="badge">A</span>Управление моделью</h2>
+                    <div class="control-grid">
+                        <div class="control">
+                            <label for="taskTypeSelect">Тип задачи
+                                <span class="hint-trigger" tabindex="0" data-hint="taskTypeHint" aria-label="Подсказка про типы задач">?</span>
+                            </label>
+                            <select id="taskTypeSelect"></select>
+                        </div>
+                        <div class="control">
+                            <label for="variantSelect">Сюжет внутри режима</label>
+                            <select id="variantSelect"></select>
+                        </div>
+                        <div class="control">
+                            <label for="zoomRange">Масштаб чертежа
+                                <span class="hint-trigger" tabindex="0" data-hint="zoomHint" aria-label="Подсказка про масштаб">i</span>
+                            </label>
+                            <input type="range" id="zoomRange" min="0.7" max="1.8" step="0.01" value="1" />
+                        </div>
+                        <div class="control">
+                            <label for="seedBox">Текущий набор параметров</label>
+                            <div class="fake-input" id="seedBox">—</div>
+                        </div>
+                    </div>
+                    <div class="toolbar" style="margin-top:12px">
+                        <button class="btn" id="newVariantBtn">Новый вариант</button>
+                        <button class="btn secondary" id="resetModelBtn">Сбросить</button>
+                        <button class="btn warn" id="printBtn">Печать</button>
+                        <span class="hint-trigger" tabindex="0" data-hint="generateHint" aria-label="Подсказка про генерацию">!</span>
+                    </div>
+                    <div class="switches">
+                        <label class="switch"><span>Показать подписи на чертеже</span><input type="checkbox" id="showLabelsToggle" checked></label>
+                        <label class="switch"><span>Показать вспомогательные линии</span><input type="checkbox" id="showAuxToggle" checked></label>
+                        <label class="switch"><span>Подсветка связи «текст ↔ рисунок»</span><input type="checkbox" id="showHighlightsToggle" checked></label>
+                    </div>
+                </section>
+
+                <section class="viz-shell" id="vizPanel">
+                    <div class="viz-header">
+                        <div>
+                            <strong id="vizTitle">Интерактивный чертёж</strong>
+                            <div class="small-muted" id="vizSubtitle">Модель обновляется вместе с задачей и шагами решения.</div>
+                        </div>
+                        <div class="zoombar">
+                            <button class="btn secondary" id="zoomOutBtn">−</button>
+                            <button class="btn secondary" id="zoomResetBtn">Сброс</button>
+                            <button class="btn secondary" id="zoomInBtn">+</button>
+                            <input type="range" id="zoomRangeTop" min="0.7" max="1.8" step="0.01" value="1" />
+                        </div>
+                    </div>
+                    <div class="stage-wrap">
+                        <svg id="stage" viewBox="0 0 760 560" aria-label="Интерактивная математическая модель"></svg>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2 class="section-title"><span class="badge">B</span>Легенда и ключевой результат</h2>
+                    <div class="legend" id="legendBox"></div>
+                    <div class="result-panel">
+                        <div class="result-line" id="resultSummary"></div>
+                        <div class="result-line big-answer" id="resultAnswer"></div>
+                        <div class="check-box" id="resultCheck"></div>
+                    </div>
+                </section>
+            </div>
+        </aside>
+    </div>
+
+    <div class="footer-space"></div>
+</div>
+
+<div class="hint-pop" id="hintPopup" role="tooltip" aria-hidden="true" data-pos="bottom">
+    <div class="arrow"></div>
+    <div class="title"><span id="hintTitle">Подсказка</span><button class="close" id="hintCloseBtn" aria-label="Закрыть подсказку">×</button></div>
+    <div id="hintBody"></div>
+    <div class="actions" id="hintActions"></div>
+</div>
+
+<script>
+    (() => {
+        const stage = document.getElementById('stage');
+        const stepsContainer = document.getElementById('stepsContainer');
+        const ideaBox = document.getElementById('ideaBox');
+        const mistakesBox = document.getElementById('mistakesBox');
+        const legendBox = document.getElementById('legendBox');
+        const resultSummary = document.getElementById('resultSummary');
+        const resultAnswer = document.getElementById('resultAnswer');
+        const resultCheck = document.getElementById('resultCheck');
+        const modeButtons = document.getElementById('modeButtons');
+        const taskTypeSelect = document.getElementById('taskTypeSelect');
+        const variantSelect = document.getElementById('variantSelect');
+        const detailLevel = document.getElementById('detailLevel');
+        const quizQuestion = document.getElementById('quizQuestion');
+        const quizOptions = document.getElementById('quizOptions');
+        const quizFeedback = document.getElementById('quizFeedback');
+        const selfcheckList = document.getElementById('selfcheckList');
+        const seedBox = document.getElementById('seedBox');
+        const generatedTaskBox = document.getElementById('generatedTaskBox');
+        const vizTitle = document.getElementById('vizTitle');
+        const vizSubtitle = document.getElementById('vizSubtitle');
+        const zoomRange = document.getElementById('zoomRange');
+        const zoomRangeTop = document.getElementById('zoomRangeTop');
+        const showLabelsToggle = document.getElementById('showLabelsToggle');
+        const showAuxToggle = document.getElementById('showAuxToggle');
+        const showHighlightsToggle = document.getElementById('showHighlightsToggle');
+        const hintPopup = document.getElementById('hintPopup');
+        const hintTitle = document.getElementById('hintTitle');
+        const hintBody = document.getElementById('hintBody');
+        const hintActions = document.getElementById('hintActions');
+        const hintCloseBtn = document.getElementById('hintCloseBtn');
+
+        const state = {
+            mode: 'circleChord',
+            variantIndex: 0,
+            detail: 'standard',
+            revealCount: 1,
+            zoom: 1,
+            showLabels: true,
+            showAux: true,
+            showHighlights: true,
+            activeShapeIds: [],
+            generated: null,
+            quiz: null,
+            rngSeed: 102938,
+        };
+
+        const modeDefs = {
+            circleChord: {
+                label: 'Хорда, радиус и вписанный угол',
+                short: 'По хорде и радиусу находим угол или наоборот.',
+                variants: [
+                    { type:'angleFromChord', chord: 8*Math.sqrt(3), radius: 8, need:'obtuse' },
+                    { type:'chordFromAngle', radius: 5, angle: 30 },
+                    { type:'arcAngle', arc: 94 },
+                    { type:'angleFromChord', chord: 10*Math.sqrt(3), radius: 10, need:'acute' }
+                ]
+            },
+            triangleMidline: {
+                label: 'Средняя линия и площади в треугольнике',
+                short: 'Малый треугольник имеет площадь в 4 раза меньше большого.',
+                variants: [
+                    { type:'trapFromBig', trapArea:36 },
+                    { type:'smallFromBig', smallArea:12 },
+                    { type:'trapFromBig', trapArea:27 },
+                    { type:'smallFromBig', smallArea:7 }
+                ]
+            },
+            parallelogramArea: {
+                label: 'Параллелограмм и середина стороны',
+                short: 'Отделённый треугольник составляет четверть площади параллелограмма.',
+                variants: [
+                    { trapArea:72 },
+                    { trapArea:45 },
+                    { wholeArea:96 },
+                    { wholeArea:120 }
+                ]
+            },
+            trapezoidMidpoints: {
+                label: 'Середины диагоналей в трапеции',
+                short: 'Отрезок между серединами диагоналей равен половине разности оснований.',
+                variants: [
+                    { smallBase:29, largeBase:44 },
+                    { smallBase:18, largeBase:32 },
+                    { smallBase:14, largeBase:26 },
+                    { smallBase:17, largeBase:41 }
+                ]
+            }
+        };
+
+        const hints = {
+            taskTypeHint: {
+                title:'Как выбирать тип задачи',
+                pos:'bottom',
+                body:`
+            <p>Переключатель меняет не только текст, но и сам математический метод на правом чертеже.</p>
+            <p>Например, для хорды работает формула:</p>
+            <math display="block"><mrow><mi>AB</mi><mo>=</mo><mn>2</mn><mi>R</mi><mi>sin</mi><mi>∠ACB</mi></mrow></math>
+            <p>А для средней линии ключевой коэффициент по площадям равен 1:4.</p>
+          `,
+                actions:[
+                    {label:'Попробовать другой тип', action:'cycleMode'},
+                    {label:'Показать пример', action:'showExample'}
+                ]
+            },
+            generateHint: {
+                title:'Что делает генератор',
+                pos:'left',
+                body:`
+            <p>Кнопка создаёт новую задачу того же метода. Чертёж, ответ и пояснение меняются согласованно.</p>
+            <p>Формулы остаются школьными. Вырожденные и случайно некорректные случаи отбрасываются автоматически.</p>
+          `,
+                actions:[
+                    {label:'Сгенерировать сейчас', action:'generateNow'},
+                    {label:'Показать идею', action:'showIdea'}
+                ]
+            },
+            zoomHint: {
+                title:'Как управлять масштабом',
+                pos:'bottom',
+                body:`
+            <p>Масштаб меняет только отображение схемы, а не сами вычисления.</p>
+            <p>Можно использовать ползунок, кнопки +/− и колесо мыши прямо на чертеже. На мобильных устройствах удобнее работать ползунком.</p>
+          `,
+                actions:[
+                    {label:'Сбросить масштаб', action:'resetZoom'}
+                ]
+            }
+        };
+
+        function rand(){
+            state.rngSeed = (1664525 * state.rngSeed + 1013904223) % 4294967296;
+            return state.rngSeed / 4294967296;
+        }
+        function choice(arr){ return arr[Math.floor(rand()*arr.length)] }
+        function round(n, d=2){ return Number(n.toFixed(d)) }
+        function fmt(n){
+            if (typeof n === 'string') return n;
+            if (Math.abs(n - Math.round(n)) < 1e-9) return String(Math.round(n));
+            return String(round(n)).replace('.', ',');
+        }
+        function gcd(a,b){ while(b){ [a,b]=[b,a%b] } return Math.abs(a) }
+        function frac(n,d){ const g = gcd(Math.round(n), Math.round(d)); return `${Math.round(n/g)}/${Math.round(d/g)}` }
+
+        function modeVariant(){ return modeDefs[state.mode].variants[state.variantIndex] }
+
+        function computeCurrent(){
+            const v = modeVariant();
+            if(state.mode === 'circleChord') return computeCircle(v);
+            if(state.mode === 'triangleMidline') return computeTriangleMidline(v);
+            if(state.mode === 'parallelogramArea') return computeParallelogram(v);
+            return computeTrapezoid(v);
+        }
+
+        function computeCircle(v){
+            if(v.type === 'arcAngle'){
+                return {
+                    topic:'Вписанный угол и дуга',
+                    given:[`дуга AB = ${fmt(v.arc)}°`, 'нужно найти вписанный угол, который опирается на дугу AB'],
+                    meaning:[
+                        'вписанный угол измеряется половиной дуги, на которую он опирается',
+                        'значит, здесь сразу работает формула «угол = дуга / 2»'
+                    ],
+                    interpretation:'На чертеже точка C лежит на окружности, поэтому ∠ACB — вписанный угол. Он видит именно дугу AB.',
+                    idea:[
+                        'Сначала определяем, какая дуга соответствует углу.',
+                        'Потом делим градусную меру дуги пополам.',
+                        'Дополнительных вычислений здесь не требуется.'
+                    ],
+                    steps:[
+                        {
+                            title:'Что дано', key:'arc', brief:'Известна дуга AB.',
+                            standard:`По условию дуга AB равна <span class="inline-mark">${fmt(v.arc)}°</span>. Нужно найти угол ACB, который на неё опирается.`,
+                            full:`На окружности важна связь между дугой и вписанным углом. Здесь угол ACB опирается именно на дугу AB, поэтому в задаче достаточно правильно распознать объект: дана не сторона и не центральный угол, а именно дуга.`
+                        },
+                        {
+                            title:'Что означает условие', key:'arc', brief:'Вписанный угол равен половине дуги.',
+                            standard:'Используем правило: вписанный угол равен половине дуги, на которую он опирается.',
+                            full:'Это базовое свойство окружности: если вершина угла лежит на окружности, а стороны угла пересекают окружность в точках A и B, то градусная мера угла в 2 раза меньше соответствующей дуги AB.'
+                        },
+                        {
+                            title:'Переходим к вычислению', key:'formula', brief:'Делим дугу на 2.',
+                            standard:`Получаем: ∠ACB = ${fmt(v.arc)}° / 2 = <span class="inline-mark">${fmt(v.arc/2)}°</span>.`,
+                            full:`Прямо подставляем значение дуги: ∠ACB = ${fmt(v.arc)}° / 2 = ${fmt(v.arc/2)}°. Здесь нет скрытых ограничений, потому что для любой дуги меньше 360° соответствующий вписанный угол определяется однозначно.`
+                        },
+                        {
+                            title:'Проверка', key:'formula', brief:'Проверяем обратной операцией.',
+                            standard:`Если удвоить найденный угол, получится ${fmt(v.arc/2)}° · 2 = ${fmt(v.arc)}°, то есть исходная дуга.`,
+                            full:'Проверка очень простая: удваиваем найденный вписанный угол и возвращаемся к исходной дуге. Значит, ответ полностью согласуется с условием.'
+                        },
+                        {
+                            title:'Вывод', key:'answer', brief:`Ответ: ${fmt(v.arc/2)}°`,
+                            standard:`Итак, искомый вписанный угол равен <span class="inline-mark">${fmt(v.arc/2)}°</span>.`,
+                            full:`Эта задача показывает самый короткий сценарий работы с окружностью: увидели дугу → узнали вписанный угол → разделили на 2.`
+                        }
+                    ],
+                    mistakes:[
+                        'перепутать: иногда по ошибке делят угол на 2, хотя делить нужно дугу;',
+                        'спутать вписанный угол с центральным;',
+                        'взять не ту дугу, если на рисунке их две.'
+                    ],
+                    answer:`∠ACB = ${fmt(v.arc/2)}°`,
+                    summary:'Ключевое соотношение: вписанный угол = половина дуги.',
+                    check:`Проверка: 2 · ${fmt(v.arc/2)}° = ${fmt(v.arc)}° — условие выполнено.`,
+                    legend:[['Дуга AB','accent'],['Вписанный угол ACB','b'],['Радиус окружности','c']],
+                    quiz:{
+                        q:'Что верно для вписанного угла?',
+                        opts:['Он равен дуге','Он равен половине дуги','Он в 2 раза больше дуги'],
+                        correct:1,
+                        exp:'Для вписанного угла всегда работает правило: угол = 1/2 дуги.'
+                    },
+                    selfcheck:[
+                        'Я точно определил, на какую дугу опирается угол.',
+                        'Я не перепутал вписанный и центральный угол.',
+                        'Я сделал обратную проверку: удвоил найденный угол.'
+                    ]
+                };
+            }
+
+            if(v.type === 'chordFromAngle'){
+                const chord = 2*v.radius*Math.sin(v.angle*Math.PI/180);
+                return {
+                    topic:'Хорда по радиусу и вписанному углу',
+                    given:[`радиус R = ${fmt(v.radius)}`, `вписанный угол = ${fmt(v.angle)}°`, 'нужно найти хорду AB'],
+                    meaning:[
+                        'хорда AB лежит напротив вписанного угла, который на неё опирается',
+                        'для такой пары удобно использовать школьную форму теоремы синусов: AB / sin(угол) = 2R'
+                    ],
+                    interpretation:'На рисунке хорда AB стягивает дугу, а угол ACB видит эту хорду. Поэтому длина хорды выражается через синус угла и радиус окружности.',
+                    idea:[
+                        'Берём формулу AB = 2R · sin(угол).',
+                        'Подставляем известные числа.',
+                        'Используем табличное значение синуса.'
+                    ],
+                    steps:[
+                        {title:'Что дано', key:'chord', brief:'Известны радиус и вписанный угол.', standard:`Известно: R = ${fmt(v.radius)}, ∠ACB = ${fmt(v.angle)}°. Нужно найти хорду AB.`, full:'Так как угол ACB опирается на хорду AB, эта хорда является стороной треугольника, лежащей напротив угла ACB. Именно поэтому формула через синус подходит напрямую.'},
+                        {title:'Формула', key:'formula', brief:'Используем AB = 2R · sin ∠ACB.', standard:'Записываем школьную формулу: AB = 2R · sin ∠ACB.', full:'Это следствие теоремы синусов для треугольника, вписанного в окружность. В удобной для задач форме она выглядит так: сторона, лежащая напротив угла, равна 2R · sin этого угла.'},
+                        {title:'Подстановка', key:'formula', brief:'Подставляем числа.', standard:`AB = 2 · ${fmt(v.radius)} · sin ${fmt(v.angle)}°`, full:`После подстановки получаем AB = 2 · ${fmt(v.radius)} · sin ${fmt(v.angle)}°. Теперь остаётся вычислить табличное значение синуса.`},
+                        {title:'Вычисление', key:'formula', brief:'Используем табличный синус.', standard:`sin ${fmt(v.angle)}° = 1/2, значит AB = 2 · ${fmt(v.radius)} · 1/2 = <span class="inline-mark">${fmt(chord)}</span>.`, full:`Так как sin ${fmt(v.angle)}° = 1/2, формула упрощается: AB = 2 · ${fmt(v.radius)} · 1/2 = ${fmt(chord)}. Всё сокращается очень прозрачно.`},
+                        {title:'Проверка', key:'answer', brief:'Сверяем с формулой обратно.', standard:`Проверка: ${fmt(chord)} / (2 · ${fmt(v.radius)}) = 1/2 = sin ${fmt(v.angle)}°.`, full:'Проверяем найденную хорду обратной подстановкой: если разделить длину хорды на удвоенный радиус, должен получиться синус данного угла. Именно это и происходит.'},
+                        {title:'Вывод', key:'answer', brief:`Ответ: AB = ${fmt(chord)}`, standard:`Ответ: <span class="inline-mark">AB = ${fmt(chord)}</span>.`, full:'В задачах такого вида главное не запоминать много формул, а уверенно узнавать типовую схему «радиус + угол ↔ хорда».'}
+                    ],
+                    mistakes:[
+                        'подставить угол, который не опирается на нужную хорду;',
+                        'забыть множитель 2R;',
+                        'ошибиться в табличном значении синуса.'
+                    ],
+                    answer:`AB = ${fmt(chord)}`,
+                    summary:'Ключевое соотношение: AB = 2R · sin(вписанный угол).',
+                    check:`Проверка: ${fmt(chord)} / ${fmt(2*v.radius)} = 1/2, значит всё согласовано.`,
+                    legend:[['Хорда AB','accent'],['Вписанный угол ACB','b'],['Радиус R','c']],
+                    quiz:{q:'Как найти хорду по радиусу и вписанному углу?', opts:['AB = R · sin α','AB = 2R · sin α','AB = 2R · cos α'], correct:1, exp:'Нужная формула: AB = 2R · sin α.'},
+                    selfcheck:['Я взял угол, который опирается именно на нужную хорду.','Я не потерял множитель 2 перед радиусом.','Я проверил результат обратной подстановкой.']
+                };
+            }
+
+            const ratio = v.chord / (2*v.radius);
+            const acute = Math.asin(Math.min(1, Math.max(-1, ratio))) * 180/Math.PI;
+            const ans = v.need === 'obtuse' ? 180-acute : acute;
+            return {
+                topic:'Угол по хорде и радиусу',
+                given:[`радиус R = ${fmt(v.radius)}`, `хорда AB = ${fmt(v.chord)}`, 'нужно найти вписанный угол, который опирается на хорду AB'],
+                meaning:[
+                    'хорда связана с вписанным углом формулой AB = 2R · sin α',
+                    'сначала найдём синус угла, потом восстановим сам угол'
+                ],
+                interpretation:'Хорда AB фиксирует одну и ту же дугу, поэтому любой вписанный угол, опирающийся на неё, выражается через отношение AB к 2R.',
+                idea:[
+                    'Сначала выражаем sin α из формулы AB = 2R · sin α.',
+                    'Получаем табличное значение синуса.',
+                    'Если по условию угол тупой, берём 180° − острый угол.'
+                ],
+                steps:[
+                    {title:'Что дано', key:'chord', brief:'Известны хорда и радиус.', standard:`Известно: AB = ${fmt(v.chord)}, R = ${fmt(v.radius)}. Нужно найти угол α = ∠ACB.`, full:'Это типовая задача на обратное использование формулы для хорды: длина хорды известна, радиус тоже известен, значит можно восстановить синус вписанного угла, опирающегося на эту хорду.'},
+                    {title:'Записываем формулу', key:'formula', brief:'AB = 2R · sin α.', standard:'Используем формулу AB = 2R · sin α.', full:'В этой формуле α — именно тот вписанный угол, который опирается на хорду AB. Очень важно не перепутать его с каким-то другим углом на рисунке.'},
+                    {title:'Находим синус', key:'formula', brief:'Делим AB на 2R.', standard:`sin α = AB / (2R) = ${fmt(v.chord)} / ${fmt(2*v.radius)} = ${fmt(ratio)}` + (Math.abs(ratio - Math.sqrt(3)/2) < 1e-8 ? ' = √3/2' : ''), full:`Переносим всё, кроме синуса, в другую часть: sin α = AB / (2R). Подстановка даёт sin α = ${fmt(v.chord)} / ${fmt(2*v.radius)} = ${fmt(ratio)}.`},
+                    {title:'Восстанавливаем угол', key:'answer', brief:'Берём табличный угол.', standard:`Острый угол равен ${fmt(acute)}°. ${v.need === 'obtuse' ? 'Но по условию нужен тупой, поэтому берём 180° − ' + fmt(acute) + '° = ' + fmt(ans) + '°.' : 'По условию нужен острый угол, значит ответ сразу ' + fmt(ans) + '°.'}`, full:`Из таблицы синусов получаем острый угол ${fmt(acute)}°. Дальше учитываем текст задачи: если требуется тупой угол, то берём дополнительный угол ${fmt(ans)}°, потому что sin α = sin(180° − α).`},
+                    {title:'Проверка', key:'answer', brief:'Подставляем найденный угол обратно.', standard:`Проверка: 2R · sin ${fmt(ans)}° = ${fmt(2*v.radius)} · ${fmt(ratio)} = ${fmt(v.chord)}.`, full:'Проверка особенно важна в задаче с тупым углом: у синуса два угла на интервале от 0° до 180° могут давать одно и то же значение. Поэтому текст условия нужно проверить ещё раз.'},
+                    {title:'Вывод', key:'answer', brief:`Ответ: ${fmt(ans)}°`, standard:`Ответ: <span class="inline-mark">${fmt(ans)}°</span>.`, full:'Схема решения здесь всегда одна и та же: хорда → синус → нужный по условию угол.'}
+                ],
+                mistakes:[
+                    'забыть, что синус одинаков у углов α и 180° − α;',
+                    'не прочитать условие на «острый» или «тупой» угол;',
+                    'ошибиться в преобразовании AB / (2R).'
+                ],
+                answer:`∠ACB = ${fmt(ans)}°`,
+                summary:'Ключевое соотношение: sin α = AB / (2R).',
+                check:`Проверка: 2 · ${fmt(v.radius)} · sin ${fmt(ans)}° = ${fmt(v.chord)}.`,
+                legend:[['Хорда AB','accent'],['Угол α','b'],['Радиус R','c']],
+                quiz:{q:'Почему в ответе иногда берут 180° − α?', opts:['Потому что хорда отрицательна','Потому что синус у тупого и дополнительного острого угла одинаков','Потому что так красивее'], correct:1, exp:'Если условие требует тупой угол, берут дополнительный, потому что его синус совпадает с синусом острого.'},
+                selfcheck:['Я нашёл именно sin α, а не сам угол сразу.','Я проверил требование: угол острый или тупой.','Я сделал обратную подстановку в формулу хорды.']
+            };
+        }
+
+        function computeTriangleMidline(v){
+            const bigArea = v.trapArea ? v.trapArea * 4/3 : v.smallArea*4;
+            const smallArea = v.trapArea ? v.trapArea/3 : v.smallArea;
+            const trapArea = v.trapArea ?? bigArea-smallArea;
+            return {
+                topic:'Средняя линия и отношение площадей в треугольнике',
+                given:[
+                    'в треугольнике проведена средняя линия DE параллельно AB',
+                    'точки D и E — середины сторон AC и BC',
+                    v.trapArea ? `площадь трапеции ABED = ${fmt(v.trapArea)}` : `площадь малого треугольника CDE = ${fmt(v.smallArea)}`
+                ],
+                meaning:[
+                    'средняя линия делит стороны пополам',
+                    'малый треугольник подобен большому с коэффициентом 1/2',
+                    'по площадям это даёт коэффициент 1/4'
+                ],
+                interpretation:'На рисунке верхняя часть — трапеция ABED, а у вершины C остаётся маленький треугольник CDE. Он подобен большому треугольнику ABC.',
+                idea:[
+                    'Замечаем подобие треугольников CDE и CBA.',
+                    'Используем коэффициент подобия 1/2 и отношение площадей 1/4.',
+                    'После этого связываем площадь малого треугольника, трапеции и большого треугольника.'
+                ],
+                steps:[
+                    {title:'Что дано', key:'midline', brief:'DE — средняя линия.', standard:'Точки D и E — середины сторон, значит DE — средняя линия треугольника ABC.', full:'Средняя линия — это отрезок, который соединяет середины двух сторон треугольника. Здесь это особенно важно, потому что сразу возникают параллельность и коэффициент 1/2 по длинам.'},
+                    {title:'Что означает условие', key:'midline', brief:'Малый треугольник подобен большому.', standard:'Так как DE ∥ AB, треугольники CDE и CBA подобны.', full:'У треугольников CDE и CBA общий угол при вершине C, а ещё по параллельности DE ∥ AB соответствующие углы равны. Значит, треугольники подобны.'},
+                    {title:'Переходим к площадям', key:'formula', brief:'Коэффициент по длинам 1/2, по площадям 1/4.', standard:'Коэффициент подобия равен 1/2, поэтому площадь малого треугольника составляет 1/4 площади большого.', full:'Если стороны уменьшаются в 2 раза, то площадь уменьшается в 4 раза. Значит S(CDE) = 1/4 · S(ABC), а S(ABC) = 4 · S(CDE).'},
+                    {title:'Связываем части фигуры', key:'trap', brief:'Большой треугольник = трапеция + малый треугольник.', standard:`Имеем: S(ABC) = S(ABED) + S(CDE).`, full:'Внутри большого треугольника нет лишних фигур: трапеция ABED и маленький треугольник CDE полностью заполняют треугольник ABC без наложений.'},
+                    {title:'Находим ответ', key:'answer', brief:'Подставляем данные.', standard: v.trapArea
+                    ? `Так как S(CDE) : S(ABED) : S(ABC) = 1 : 3 : 4, при S(ABED) = ${fmt(trapArea)} получаем S(ABC) = <span class="inline-mark">${fmt(bigArea)}</span>.`
+                    : `Так как S(ABC) = 4 · S(CDE), получаем S(ABC) = 4 · ${fmt(smallArea)} = <span class="inline-mark">${fmt(bigArea)}</span>.`,
+                        full: v.trapArea
+                        ? `Из отношения 1 : 3 : 4 видно, что трапеция составляет 3 части, а весь треугольник — 4 части. Поэтому S(ABC) = ${fmt(trapArea)} · 4 / 3 = ${fmt(bigArea)}.`
+                        : `Подставляем площадь малого треугольника: S(ABC) = 4 · ${fmt(smallArea)} = ${fmt(bigArea)}. Затем можно найти и площадь трапеции: ${fmt(bigArea)} − ${fmt(smallArea)} = ${fmt(trapArea)}.`
+                    },
+                    {title:'Проверка', key:'answer', brief:'Сверяем соотношения 1:3:4.', standard:`Проверка: малый треугольник = ${fmt(smallArea)}, трапеция = ${fmt(trapArea)}, весь треугольник = ${fmt(bigArea)}. Это действительно отношение 1 : 3 : 4.`, full:'Хорошая проверка здесь — не подстановка в формулу, а проверка отношения. Если все три площади дают масштабированное отношение 1 : 3 : 4, значит решение согласовано с геометрией средней линии.'},
+                    {title:'Вывод', key:'answer', brief:`Ответ: ${fmt(bigArea)}`, standard:`Ответ: <span class="inline-mark">S(ABC) = ${fmt(bigArea)}</span>.`, full:'Главная мысль: средняя линия почти автоматически даёт отношение площадей, и этим часто можно пользоваться быстрее, чем длинными вычислениями.'}
+                ],
+                mistakes:[
+                    'перепутать коэффициент по длинам 1/2 с коэффициентом по площадям 1/2 вместо 1/4;',
+                    'забыть, что трапеция и малый треугольник вместе дают весь большой треугольник;',
+                    'ошибиться в переходе от 1:3:4 к конкретным числам.'
+                ],
+                answer:`S(ABC) = ${fmt(bigArea)}`,
+                summary:'Для средней линии в треугольнике площади относятся как 1 : 3 : 4.',
+                check:`Проверка: ${fmt(smallArea)} + ${fmt(trapArea)} = ${fmt(bigArea)}.`,
+                legend:[['Средняя линия DE','accent'],['Малый треугольник CDE','b'],['Трапеция ABED','c']],
+                quiz:{q:'Если коэффициент подобия треугольников 1/2, то коэффициент площадей равен…', opts:['1/2','1/3','1/4'], correct:2, exp:'Площади относятся как квадраты коэффициента подобия: (1/2)² = 1/4.'},
+                selfcheck:['Я отличаю коэффициент по длинам от коэффициента по площадям.','Я могу восстановить соотношение 1:3:4 без подсказки.','Я проверил, что сумма частей даёт весь треугольник.']
+            };
+        }
+
+        function computeParallelogram(v){
+            const whole = v.wholeArea ?? v.trapArea * 4/3;
+            const tri = whole/4;
+            const trap = v.trapArea ?? whole - tri;
+            return {
+                topic:'Параллелограмм и середина стороны',
+                given:[
+                    'ABCD — параллелограмм',
+                    'точка E — середина стороны AD',
+                    v.trapArea ? `площадь трапеции BCDE = ${fmt(v.trapArea)}` : `площадь параллелограмма ABCD = ${fmt(v.wholeArea)}`
+                ],
+                meaning:[
+                    'AE = 1/2 · AD',
+                    'треугольник ABE и весь параллелограмм имеют общий угол при A',
+                    'отношение площадей удобно искать через формулы площадей'
+                ],
+                interpretation:'На чертеже от вершины A отрезана точка E — середина AD. Поэтому маленький треугольник ABE имеет ту же высотную идею, что и весь параллелограмм, но опирается на половину стороны AD.',
+                idea:[
+                    'Сравниваем площадь треугольника ABE и площадь параллелограмма ABCD через общий угол.',
+                    'После деления формул получаем отношение 1/4.',
+                    'Оставшаяся часть BCDE даёт ещё 3/4 всей площади.'
+                ],
+                steps:[
+                    {title:'Что дано', key:'par', brief:'E — середина AD.', standard:'Так как E — середина AD, то AE = AD / 2.', full:'Это главный числовой факт в задаче. Он заменяет длинные вычисления и позволяет быстро перейти к отношению площадей.'},
+                    {title:'Записываем две площади', key:'formula', brief:'Треугольник и параллелограмм считаем через общий угол.', standard:'S(ABE) = 1/2 · AB · AE · sin∠BAD, а S(ABCD) = AB · AD · sin∠BAD.', full:'У обеих фигур используются стороны AB и направление AD, поэтому формулы очень хорошо делятся друг на друга: сокращаются общий множитель AB и общий синус угла.'},
+                    {title:'Делим одну формулу на другую', key:'formula', brief:'Получаем отношение 1/4.', standard:'После деления: S(ABE) / S(ABCD) = 1/2 · AE/AD = 1/2 · 1/2 = 1/4.', full:'Здесь особенно красиво работает середина: AE/AD = 1/2. Поэтому отношение площадей мгновенно превращается в 1/4. Значит, маленький треугольник занимает четверть параллелограмма.'},
+                    {title:'Связываем с трапецией', key:'trap', brief:'Трапеция — это оставшиеся 3/4.', standard:'Трапеция BCDE дополняет треугольник ABE до всего параллелограмма, значит её площадь равна 3/4 площади параллелограмма.', full:'Так как весь параллелограмм состоит из треугольника ABE и трапеции BCDE, то S(BCDE) = S(ABCD) − S(ABE) = 3/4 · S(ABCD).'},
+                    {title:'Находим ответ', key:'answer', brief:'Подставляем числа.', standard: v.trapArea
+                    ? `Если 3/4 всей площади равно ${fmt(trap)}, то S(ABCD) = ${fmt(trap)} · 4 / 3 = <span class="inline-mark">${fmt(whole)}</span>.`
+                    : `Если весь параллелограмм равен ${fmt(whole)}, то S(ABE) = ${fmt(whole)} / 4 = ${fmt(tri)}, а S(BCDE) = ${fmt(whole)} − ${fmt(tri)} = <span class="inline-mark">${fmt(trap)}</span>.`,
+                        full: v.trapArea
+                        ? `Работаем с отношением 1 : 3 : 4. Трапеция — это 3 части, весь параллелограмм — 4 части, поэтому весь параллелограмм равен ${fmt(trap)} · 4 / 3 = ${fmt(whole)}.`
+                        : `Сразу используем отношение: треугольник ABE — 1 часть из 4, то есть ${fmt(tri)}. Тогда трапеция BCDE — оставшиеся 3 части, то есть ${fmt(trap)}.`
+                    },
+                    {title:'Проверка', key:'answer', brief:'Проверяем сумму частей.', standard:`Проверка: ${fmt(tri)} + ${fmt(trap)} = ${fmt(whole)}.`, full:'В этой задаче самая надёжная проверка — сумма частей. Если маленький треугольник плюс трапеция дают всю площадь параллелограмма, рассуждение согласовано.'},
+                    {title:'Вывод', key:'answer', brief: v.trapArea ? `Ответ: ${fmt(whole)}` : `Ответ: ${fmt(trap)}`, standard: v.trapArea ? `Ответ: <span class="inline-mark">S(ABCD) = ${fmt(whole)}</span>.` : `Ответ: <span class="inline-mark">S(BCDE) = ${fmt(trap)}</span>.`, full:'Середина стороны в параллелограмме очень часто означает соотношение 1/4 и 3/4. Это стоит уверенно узнавать на экзамене.'}
+                ],
+                mistakes:[
+                    'считать, что треугольник занимает половину параллелограмма, а не четверть;',
+                    'забыть множитель 1/2 в формуле площади треугольника;',
+                    'не увидеть, что трапеция и маленький треугольник составляют весь параллелограмм.'
+                ],
+                answer: v.trapArea ? `S(ABCD) = ${fmt(whole)}` : `S(BCDE) = ${fmt(trap)}`,
+                summary:'Здесь работает отношение площадей 1 : 3 : 4.',
+                check:`Проверка: 1/4 от ${fmt(whole)} равно ${fmt(tri)}, а 3/4 равно ${fmt(trap)}.`,
+                legend:[['Сторона AD и её середина E','accent'],['Треугольник ABE','b'],['Трапеция BCDE','c']],
+                quiz:{q:'Какую часть площади параллелограмма составляет треугольник ABE, если E — середина AD?', opts:['1/2','1/3','1/4'], correct:2, exp:'После сравнения формул площадей получается 1/4.'},
+                selfcheck:['Я вспомнил, что для треугольника есть множитель 1/2.','Я использовал факт AE = AD/2.','Я проверил, что трапеция — это оставшаяся часть параллелограмма.']
+            };
+        }
+
+        function computeTrapezoid(v){
+            const mt = (v.largeBase - v.smallBase)/2;
+            return {
+                topic:'Середины диагоналей в трапеции',
+                given:[`основания трапеции: ${fmt(v.smallBase)} и ${fmt(v.largeBase)}`, 'M и T — середины диагоналей', 'нужно найти MT'],
+                meaning:[
+                    'отрезок между серединами диагоналей параллелен основаниям',
+                    'его длина равна половине разности оснований'
+                ],
+                interpretation:'Нужный отрезок лучше не угадывать по рисунку, а искать через треугольники, где он является частью средней линии. Именно этот ход был ключевым на занятии.',
+                idea:[
+                    'Ищем треугольники, внутри которых нужные куски становятся средними линиями.',
+                    'Получаем две половины оснований.',
+                    'Берём их разность и получаем формулу MT = (большее основание − меньшее основание) / 2.'
+                ],
+                steps:[
+                    {title:'Что дано', key:'trapz', brief:'Известны основания трапеции.', standard:`Меньшее основание равно ${fmt(v.smallBase)}, большее основание равно ${fmt(v.largeBase)}.`, full:'Точки M и T — не на сторонах, а на диагоналях, поэтому прямое применение свойства средней линии невозможно. Нужно сначала увидеть, в каких треугольниках эти точки помогут построить средние линии.'},
+                    {title:'Геометрическая интерпретация', key:'trapz', brief:'Ищем треугольники.', standard:'Внутри трапеции удобно рассмотреть треугольники, где отрезки через M и T становятся средними линиями.', full:'Это типичный приём: если нужный отрезок непонятен сам по себе, надо искать треугольники. Как только нужный кусок оказывается средней линией, длина находится через половину соответствующей стороны.'},
+                    {title:'Ключевой факт', key:'formula', brief:'Получаем половины оснований.', standard:`Один вспомогательный отрезок выражается как ${fmt(v.largeBase)}/2, другой — как ${fmt(v.smallBase)}/2.`, full:'Потому что середины диагоналей дают середины в соответствующих треугольниках, и нужные вспомогательные отрезки становятся средними линиями. Следовательно, они равны половинам оснований трапеции.'},
+                    {title:'Находим MT', key:'answer', brief:'Берём разность половин.', standard:`MT = ${fmt(v.largeBase)}/2 − ${fmt(v.smallBase)}/2 = (${fmt(v.largeBase)} − ${fmt(v.smallBase)})/2 = <span class="inline-mark">${fmt(mt)}</span>.`, full:`Так как отрезки направлены параллельно основаниям, длина MT равна разности двух полученных половин: ${fmt(v.largeBase/2)} − ${fmt(v.smallBase/2)} = ${fmt(mt)}.`},
+                    {title:'Проверка', key:'answer', brief:'Сверяем с общей формулой.', standard:`Проверка: MT = (a − b)/2 = (${fmt(v.largeBase)} − ${fmt(v.smallBase)})/2 = ${fmt(mt)}.`, full:'Полученное значение полностью совпадает с известным общим результатом для трапеции: отрезок между серединами диагоналей равен половине разности оснований.'},
+                    {title:'Вывод', key:'answer', brief:`Ответ: ${fmt(mt)}`, standard:`Ответ: <span class="inline-mark">MT = ${fmt(mt)}</span>.`, full:'Эта задача учит полезному рефлексу: если в трапеции неясно, что делать, ищите треугольники и средние линии.'}
+                ],
+                mistakes:[
+                    'сложить основания вместо того, чтобы взять разность;',
+                    'забыть деление на 2;',
+                    'пытаться решать задачу только по внешнему виду рисунка без выделения треугольников.'
+                ],
+                answer:`MT = ${fmt(mt)}`,
+                summary:'Главная формула: MT = (большее основание − меньшее основание) / 2.',
+                check:`Проверка: (${fmt(v.largeBase)} − ${fmt(v.smallBase)}) / 2 = ${fmt(mt)}.`,
+                legend:[['Большее основание','accent'],['Меньшее основание','b'],['Искомый отрезок MT','c']],
+                quiz:{q:'Как находится отрезок между серединами диагоналей трапеции?', opts:['Полусумма оснований','Половина разности оснований','Разность оснований без деления'], correct:1, exp:'Нужен именно модуль разности оснований, делённый на 2.'},
+                selfcheck:['Я беру разность оснований, а не сумму.','Я не забываю делить на 2.','Я понимаю, почему здесь появляются средние линии в треугольниках.']
+            };
+        }
+
+        function buildModeButtons(){
+            modeButtons.innerHTML = '';
+            taskTypeSelect.innerHTML = '';
+            Object.entries(modeDefs).forEach(([key, def]) => {
+                const btn = document.createElement('button');
+                btn.className = 'mode-btn' + (state.mode===key?' active':'');
+                btn.innerHTML = `<strong>${def.label}</strong><span>${def.short}</span>`;
+                btn.addEventListener('click', () => setMode(key, true));
+                modeButtons.appendChild(btn);
+
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = def.label;
+                if (key===state.mode) opt.selected = true;
+                taskTypeSelect.appendChild(opt);
+            });
+        }
+
+        function refreshVariantSelect(){
+            variantSelect.innerHTML = '';
+            modeDefs[state.mode].variants.forEach((v, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = variantName(state.mode, v, i);
+                if (i===state.variantIndex) opt.selected = true;
+                variantSelect.appendChild(opt);
+            });
+        }
+
+        function variantName(mode, v, i){
+            if(mode==='circleChord'){
+                if(v.type==='arcAngle') return `Вариант ${i+1}: дуга → угол`;
+                if(v.type==='chordFromAngle') return `Вариант ${i+1}: радиус + угол → хорда`;
+                return `Вариант ${i+1}: радиус + хорда → угол`;
+            }
+            if(mode==='triangleMidline') return `Вариант ${i+1}: средняя линия и площади`;
+            if(mode==='parallelogramArea') return `Вариант ${i+1}: параллелограмм и середина`;
+            return `Вариант ${i+1}: трапеция и диагонали`;
+        }
+
+        function render(){
+            buildModeButtons();
+            refreshVariantSelect();
+            taskTypeSelect.value = state.mode;
+            detailLevel.value = state.detail;
+            zoomRange.value = state.zoom;
+            zoomRangeTop.value = state.zoom;
+            stage.style.transform = `scale(${state.zoom})`;
+            seedBox.textContent = seedText();
+            const data = computeCurrent();
+            vizTitle.textContent = data.topic;
+            vizSubtitle.textContent = data.summary;
+            renderIdea(data);
+            renderSteps(data);
+            renderMistakes(data);
+            renderLegend(data);
+            renderResult(data);
+            renderQuiz(data.quiz);
+            renderSelfcheck(data.selfcheck);
+            drawScene(data);
+        }
+
+        function renderIdea(data){
+            ideaBox.innerHTML = `<ol>${data.idea.map(x=>`<li>${x}</li>`).join('')}</ol>`;
+        }
+
+        function renderSteps(data){
+            stepsContainer.innerHTML = '';
+            data.steps.forEach((step, idx) => {
+                const article = document.createElement('article');
+                const hidden = idx >= state.revealCount;
+                article.className = 'step ' + (!hidden ? 'revealed expanded' : '');
+                article.dataset.hidden = hidden ? '1' : '0';
+                article.dataset.key = step.key;
+                article.innerHTML = `
+            <h3><span class="step-tag">${idx+1}</span>${step.title}</h3>
+            <div class="step-body">${step[state.detail]}</div>
+            ${hidden ? '<div class="step-toggle"><button class="btn secondary">Открыть этот шаг</button></div>' : ''}
+          `;
+                article.addEventListener('mouseenter',()=>highlightKey(step.key));
+                article.addEventListener('mouseleave',()=>clearHighlights());
+                article.querySelector('.btn.secondary')?.addEventListener('click',()=>{ state.revealCount = Math.max(state.revealCount, idx+1); render(); focusViz(); });
+                stepsContainer.appendChild(article);
+            });
+        }
+
+        function renderMistakes(data){
+            mistakesBox.innerHTML = `<ul>${data.mistakes.map(m=>`<li>${m}</li>`).join('')}</ul>`;
+        }
+
+        function renderLegend(data){
+            legendBox.innerHTML = data.legend.map(([label, cls]) => `
+          <div class="legend-item" data-key="${label.toLowerCase()}">
+            <span class="swatch ${cls==='accent'?'':cls}"></span>
+            <span>${label}</span>
+          </div>`).join('');
+        }
+
+        function renderResult(data){
+            resultSummary.textContent = data.summary;
+            resultAnswer.textContent = data.answer;
+            resultCheck.innerHTML = `<strong>Проверка.</strong> ${data.check}`;
+        }
+
+        function renderQuiz(q){
+            state.quiz = q;
+            quizQuestion.textContent = q.q;
+            quizFeedback.textContent = '';
+            quizOptions.innerHTML = '';
+            q.opts.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn secondary';
+                btn.textContent = opt;
+                btn.addEventListener('click', ()=>{
+                    const ok = idx === q.correct;
+                    quizFeedback.textContent = ok ? `Верно. ${q.exp}` : `Пока нет. ${q.exp}`;
+                    quizFeedback.style.color = ok ? 'var(--ok)' : 'var(--warn)';
+                });
+                quizOptions.appendChild(btn);
+            });
+        }
+
+        function renderSelfcheck(items){
+            selfcheckList.innerHTML = items.map((txt,i)=>`
+          <label class="selfcheck-item"><input type="checkbox" /> <span>${txt}</span></label>
+        `).join('');
+        }
+
+        function seedText(){
+            const v = modeVariant();
+            if(state.mode==='circleChord') return JSON.stringify(v).replace(/[{}\"]/g,'').replace(/,/g,' · ');
+            if(state.mode==='triangleMidline') return v.trapArea ? `S(ABED)=${fmt(v.trapArea)}` : `S(CDE)=${fmt(v.smallArea)}`;
+            if(state.mode==='parallelogramArea') return v.trapArea ? `S(BCDE)=${fmt(v.trapArea)}` : `S(ABCD)=${fmt(v.wholeArea)}`;
+            return `основания ${fmt(v.smallBase)} и ${fmt(v.largeBase)}`;
+        }
+
+        function setMode(mode, showHintToast=false){
+            state.mode = mode;
+            state.variantIndex = 0;
+            state.revealCount = 1;
+            render();
+            if(showHintToast) pulseHint(taskTypeSelect.closest('.control'));
+        }
+
+        function pulseHint(el){
+            if(!el) return;
+            el.classList.remove('hint-focus');
+            void el.offsetWidth;
+            el.classList.add('hint-focus');
+        }
+
+        function revealNext(){
+            const total = computeCurrent().steps.length;
+            state.revealCount = Math.min(total, state.revealCount + 1);
+            render();
+        }
+
+        function focusViz(){ document.getElementById('vizPanel').scrollIntoView({behavior:'smooth', block:'nearest'}); }
+
+        function drawScene(data){
+            stage.innerHTML = '';
+            const svg = stage;
+            const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+            defs.innerHTML = `
+          <filter id="glow"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#76f0e7"/></marker>
+        `;
+            svg.appendChild(defs);
+
+            if(state.mode==='circleChord') drawCircleMode(svg, data);
+            if(state.mode==='triangleMidline') drawTriangleMidline(svg, data);
+            if(state.mode==='parallelogramArea') drawParallelogram(svg, data);
+            if(state.mode==='trapezoidMidpoints') drawTrapezoid(svg, data);
+
+            svg.querySelectorAll('[data-key]').forEach(el => {
+                el.addEventListener('mouseenter',()=>highlightKey(el.dataset.key));
+                el.addEventListener('mouseleave',()=>clearHighlights());
+            });
+        }
+
+        function make(tag, attrs={}, parent=stage){
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            for(const [k,v] of Object.entries(attrs)) el.setAttribute(k,v);
+            parent.appendChild(el);
+            return el;
+        }
+        function label(x,y,text,key,color='#e9f5f7'){
+            if(!state.showLabels) return;
+            make('text',{x,y,'font-size':'18','font-weight':'700',fill:color,'data-key':key}, stage).textContent = text;
+        }
+        function group(key){ return make('g', {'data-key':key}, stage); }
+        function point(x,y,key,name,color='#76f0e7'){
+            make('circle',{cx:x,cy:y,r:5,fill:color,stroke:'#08131a','stroke-width':'2','data-key':key}, stage);
+            label(x+10,y-10,name,key,color);
+        }
+        function line(x1,y1,x2,y2,key,opt={}){
+            make('line',{x1,y1,x2,y2,stroke:opt.stroke||'#4dd0c8','stroke-width':opt.w||3,'stroke-dasharray':opt.dash||'','data-key':key,opacity:opt.opacity||1}, stage);
+        }
+        function textBox(x,y,txt,key,color='#a7c3cb'){
+            const t = make('text',{x,y,'font-size':'18',fill:color,'data-key':key}, stage); t.textContent = txt; return t;
+        }
+        function pathD(points){ return points.map((p,i)=>`${i?'L':'M'} ${p[0]} ${p[1]}`).join(' '); }
+
+        function drawCircleMode(svg, data){
+            const cx=380, cy=275, r=180;
+            const A=[cx-r*0.85, cy+35], B=[cx+r*0.78, cy+18], C=[cx+10, cy-r*0.9];
+            make('circle',{cx,cy,r,fill:'none',stroke:'#335b68','stroke-width':3,'data-key':'arc'});
+            if(state.showAux){
+                line(cx,cy,A[0],A[1],'radius',{stroke:'#ffcf6e',w:2.5,opacity:.8});
+                line(cx,cy,B[0],B[1],'radius',{stroke:'#ffcf6e',w:2.5,opacity:.8});
+            }
+            line(A[0],A[1],B[0],B[1],'chord',{stroke:'#4dd0c8',w:4});
+            line(C[0],C[1],A[0],A[1],'formula',{stroke:'#6fa8ff',w:3});
+            line(C[0],C[1],B[0],B[1],'formula',{stroke:'#6fa8ff',w:3});
+            point(A[0],A[1],'chord','A'); point(B[0],B[1],'chord','B'); point(C[0],C[1],'answer','C');
+            point(cx,cy,'radius','O','#ffcf6e');
+            const arcPath = `M ${A[0]} ${A[1]} A ${r} ${r} 0 0 0 ${B[0]} ${B[1]}`;
+            make('path',{d:arcPath,fill:'none',stroke:'#ffcf6e','stroke-width':5,'stroke-linecap':'round','data-key':'arc',opacity:.9, filter:'url(#glow)'});
+
+            // angle mark at C
+            const ang1 = Math.atan2(A[1]-C[1], A[0]-C[0]);
+            const ang2 = Math.atan2(B[1]-C[1], B[0]-C[0]);
+            const rr=40;
+            const p1=[C[0]+rr*Math.cos(ang1), C[1]+rr*Math.sin(ang1)];
+            const p2=[C[0]+rr*Math.cos(ang2), C[1]+rr*Math.sin(ang2)];
+            make('path',{d:`M ${p1[0]} ${p1[1]} A ${rr} ${rr} 0 0 1 ${p2[0]} ${p2[1]}`, fill:'none', stroke:'#e58bff','stroke-width':4,'data-key':'answer'});
+            textBox(C[0]+52, C[1]+12, 'α', 'answer', '#e58bff');
+
+            textBox(cx-45, cy-r-20, data.topic, 'formula', '#a7c3cb');
+            textBox(44, 500, computeCurrent().answer, 'answer', '#76f0e7');
+        }
+
+        function drawTriangleMidline(svg, data){
+            const A=[120,420], B=[630,420], C=[280,110];
+            const D=[(A[0]+C[0])/2,(A[1]+C[1])/2], E=[(B[0]+C[0])/2,(B[1]+C[1])/2];
+            make('path',{d:pathD([A,B,C,[A[0],A[1]]]),fill:'rgba(255,207,110,.08)',stroke:'#335b68','stroke-width':3,'data-key':'midline'});
+            if(state.showAux) make('path',{d:pathD([D,E]),fill:'none',stroke:'#4dd0c8','stroke-width':4,'data-key':'midline'});
+            make('path',{d:pathD([C,D,E,[C[0],C[1]]]),fill:'rgba(111,168,255,.14)',stroke:'#6fa8ff','stroke-width':3,'data-key':'formula'});
+            make('path',{d:pathD([A,B,E,D,[A[0],A[1]]]),fill:'rgba(77,208,200,.11)',stroke:'rgba(77,208,200,.15)','stroke-width':1.5,'data-key':'trap'});
+            point(...A,'midline','A'); point(...B,'midline','B'); point(...C,'midline','C'); point(...D,'midline','D','#4dd0c8'); point(...E,'midline','E','#4dd0c8');
+            textBox(70,500,'S(CDE) = 1/4 · S(ABC)', 'formula', '#76f0e7');
+            textBox(70,528, computeCurrent().answer, 'answer', '#e9f5f7');
+        }
+
+        function drawParallelogram(svg, data){
+            const A=[140,410], B=[510,410], D=[250,160], C=[620,160], E=[(A[0]+D[0])/2,(A[1]+D[1])/2];
+            make('path',{d:pathD([A,B,C,D,[A[0],A[1]]]),fill:'rgba(255,207,110,.07)',stroke:'#335b68','stroke-width':3,'data-key':'par'});
+            make('path',{d:pathD([B,C,D,E,[B[0],B[1]]]),fill:'rgba(77,208,200,.12)',stroke:'rgba(77,208,200,.15)','stroke-width':2,'data-key':'trap'});
+            make('path',{d:pathD([A,B,E,[A[0],A[1]]]),fill:'rgba(111,168,255,.16)',stroke:'#6fa8ff','stroke-width':3,'data-key':'formula'});
+            if(state.showAux) line(A[0],A[1],E[0],E[1],'par',{stroke:'#e58bff',w:3});
+            point(...A,'par','A'); point(...B,'par','B'); point(...C,'par','C'); point(...D,'par','D'); point(...E,'par','E','#4dd0c8');
+            textBox(70,500,'S(ABE) = 1/4 · S(ABCD)', 'formula', '#76f0e7');
+            textBox(70,528, computeCurrent().answer, 'answer', '#e9f5f7');
+        }
+
+        function drawTrapezoid(svg, data){
+            const A=[120,430], D=[650,430], B=[230,180], C=[520,180];
+            const M=[(A[0]+C[0])/2,(A[1]+C[1])/2], T=[(B[0]+D[0])/2,(B[1]+D[1])/2];
+            make('path',{d:pathD([A,B,C,D,[A[0],A[1]]]),fill:'rgba(255,207,110,.07)',stroke:'#335b68','stroke-width':3,'data-key':'trapz'});
+            line(A[0],A[1],C[0],C[1],'trapz',{stroke:'#6fa8ff',w:3});
+            line(B[0],B[1],D[0],D[1],'trapz',{stroke:'#6fa8ff',w:3});
+            line(M[0],M[1],T[0],T[1],'answer',{stroke:'#4dd0c8',w:4});
+            if(state.showAux){
+                line(A[0],A[1],D[0],D[1],'formula',{stroke:'#ffcf6e',w:4,opacity:.9});
+                line(B[0],B[1],C[0],C[1],'formula',{stroke:'#e58bff',w:4,opacity:.85});
+            }
+            point(...A,'trapz','A'); point(...B,'trapz','B'); point(...C,'trapz','C'); point(...D,'trapz','D'); point(...M,'answer','M','#4dd0c8'); point(...T,'answer','T','#4dd0c8');
+            textBox(64,500,'MT = (большее основание − меньшее основание) / 2', 'formula', '#76f0e7');
+            textBox(64,528, computeCurrent().answer, 'answer', '#e9f5f7');
+        }
+
+        function highlightKey(key){
+            if(!state.showHighlights) return;
+            clearHighlights();
+            document.querySelectorAll(`[data-key="${key}"]`).forEach(el => el.classList?.add('highlight'));
+            stage.querySelectorAll(`[data-key="${key}"]`).forEach(el => {
+                if(el.tagName==='line' || el.tagName==='path' || el.tagName==='circle' || el.tagName==='text'){
+                    el.setAttribute('filter','url(#glow)');
+                }
+            });
+        }
+        function clearHighlights(){
+            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+            stage.querySelectorAll('[filter="url(#glow)"]').forEach(el => {
+                if(el.dataset.key!=='arc') el.removeAttribute('filter');
+            });
+        }
+
+        function genSimilar(){
+            let generated;
+            if(state.mode==='circleChord'){
+                const mode = choice(['arcAngle','chordFromAngle','angleFromChord']);
+                if(mode==='arcAngle'){
+                    const arc = choice([64,72,88,104,126,144]);
+                    generated = {mode:'circleChord', variant:{type:'arcAngle', arc}, text:`В окружности дуга AB равна ${arc}°. Найдите вписанный угол, который опирается на эту дугу.`, answer:`${arc/2}°`, idea:'Делим градусную меру дуги пополам.'};
+                } else if(mode==='chordFromAngle'){
+                    const radius = choice([4,5,6,8,10]);
+                    const angle = choice([30,45,60]);
+                    const ans = round(2*radius*Math.sin(angle*Math.PI/180));
+                    generated = {mode:'circleChord', variant:{type:'chordFromAngle', radius, angle}, text:`Радиус окружности равен ${radius}, вписанный угол, опирающийся на хорду AB, равен ${angle}°. Найдите AB.`, answer:`${fmt(ans)}`, idea:'Используем формулу AB = 2R · sin α.'};
+                } else {
+                    const radius = choice([6,8,10]);
+                    const ratioName = choice([{sin:0.5,ch:'',acute:30},{sin:Math.sqrt(2)/2,ch:'',acute:45},{sin:Math.sqrt(3)/2,ch:'',acute:60}]);
+                    const chord = round(2*radius*ratioName.sin);
+                    const need = choice(['acute','obtuse']);
+                    const ans = need==='acute'?ratioName.acute:180-ratioName.acute;
+                    generated = {mode:'circleChord', variant:{type:'angleFromChord', radius, chord, need}, text:`В окружности радиуса ${radius} хорда AB равна ${fmt(chord)}. Найдите вписанный угол, опирающийся на хорду AB, если он ${need==='acute'?'острый':'тупой'}.`, answer:`${ans}°`, idea:'Находим sin α = AB / (2R), затем выбираем угол по условию.'};
+                }
+            }
+            if(state.mode==='triangleMidline'){
+                const type = choice(['trapFromBig','smallFromBig']);
+                if(type==='trapFromBig'){
+                    const trapArea = choice([18,24,30,39,42,54]);
+                    generated = {mode:'triangleMidline', variant:{type:'trapFromBig', trapArea}, text:`В треугольнике проведена средняя линия. Площадь трапеции между основанием и средней линией равна ${trapArea}. Найдите площадь всего треугольника.`, answer:`${fmt(trapArea*4/3)}`, idea:'Используем отношение площадей 1 : 3 : 4.'};
+                } else {
+                    const smallArea = choice([5,6,8,9,11,14]);
+                    generated = {mode:'triangleMidline', variant:{type:'smallFromBig', smallArea}, text:`В треугольнике проведена средняя линия. Площадь малого треугольника у вершины равна ${smallArea}. Найдите площадь большого треугольника.`, answer:`${smallArea*4}`, idea:'Малый треугольник составляет 1/4 площади большого.'};
+                }
+            }
+            if(state.mode==='parallelogramArea'){
+                const trapArea = choice([36,48,57,63,75,84]);
+                generated = {mode:'parallelogramArea', variant:{trapArea}, text:`В параллелограмме ABCD точка E — середина AD. Площадь трапеции BCDE равна ${trapArea}. Найдите площадь параллелограмма.`, answer:`${fmt(trapArea*4/3)}`, idea:'Треугольник ABE составляет 1/4 площади, а трапеция — 3/4.'};
+            }
+            if(state.mode==='trapezoidMidpoints'){
+                const smallBase = choice([12,15,18,21,24]);
+                const largeBase = smallBase + choice([10,12,14,16,18]);
+                generated = {mode:'trapezoidMidpoints', variant:{smallBase, largeBase}, text:`В трапеции основания равны ${smallBase} и ${largeBase}. Найдите отрезок, соединяющий середины диагоналей.`, answer:`${(largeBase-smallBase)/2}`, idea:'Берём половину разности оснований.'};
+            }
+            state.generated = generated;
+            generatedTaskBox.innerHTML = `
+          <div><strong>Условие.</strong> ${generated.text}</div>
+          <div class="task-answer" style="margin-top:10px">Ответ: ${generated.answer}</div>
+          <div class="task-idea" style="margin-top:8px"><strong>Короткая идея.</strong> ${generated.idea}</div>
+        `;
+        }
+
+        function applyGenerated(){
+            if(!state.generated) return;
+            setMode(state.generated.mode);
+            const variants = modeDefs[state.mode].variants;
+            variants.push(state.generated.variant);
+            state.variantIndex = variants.length - 1;
+            state.revealCount = 1;
+            render();
+        }
+
+        function attachEvents(){
+            taskTypeSelect.addEventListener('change', e=>setMode(e.target.value, true));
+            variantSelect.addEventListener('change', e=>{ state.variantIndex = +e.target.value; state.revealCount = 1; render(); });
+            detailLevel.addEventListener('change', e=>{ state.detail = e.target.value; render(); });
+            document.getElementById('revealNextBtn').addEventListener('click', revealNext);
+            document.getElementById('revealAllBtn').addEventListener('click', ()=>{ state.revealCount = computeCurrent().steps.length; render(); });
+            document.getElementById('collapseBtn').addEventListener('click', ()=>{ state.revealCount = 1; render(); });
+            document.getElementById('newVariantBtn').addEventListener('click', ()=>{ state.variantIndex = (state.variantIndex + 1) % modeDefs[state.mode].variants.length; state.revealCount = 1; render(); showSmallModeHint('Параметры обновлены: рисунок и объяснение перестроены.'); });
+            document.getElementById('resetModelBtn').addEventListener('click', ()=>{ state.zoom=1; state.revealCount=1; zoomRange.value=zoomRangeTop.value=1; render(); });
+            document.getElementById('generateTaskBtn').addEventListener('click', ()=>{ genSimilar(); openHintById('generateHint', document.querySelector('[data-hint="generateHint"]')); });
+            document.getElementById('applyGeneratedBtn').addEventListener('click', applyGenerated);
+            document.getElementById('printBtn').addEventListener('click', ()=>window.print());
+            document.getElementById('zoomInBtn').addEventListener('click', ()=>setZoom(state.zoom + 0.1));
+            document.getElementById('zoomOutBtn').addEventListener('click', ()=>setZoom(state.zoom - 0.1));
+            document.getElementById('zoomResetBtn').addEventListener('click', ()=>setZoom(1));
+            [zoomRange, zoomRangeTop].forEach(inp=>inp.addEventListener('input', e=>setZoom(+e.target.value, false)));
+            showLabelsToggle.addEventListener('change', e=>{state.showLabels=e.target.checked; render();});
+            showAuxToggle.addEventListener('change', e=>{state.showAux=e.target.checked; render();});
+            showHighlightsToggle.addEventListener('change', e=>{state.showHighlights=e.target.checked; if(!state.showHighlights) clearHighlights();});
+
+            stage.addEventListener('wheel', e => {
+                e.preventDefault();
+                const delta = Math.sign(e.deltaY) * -0.08;
+                setZoom(state.zoom + delta, false);
+            }, {passive:false});
+
+            document.querySelectorAll('.hint-trigger').forEach(tr => {
+                tr.addEventListener('mouseenter', ()=>openHintById(tr.dataset.hint, tr));
+                tr.addEventListener('focus', ()=>openHintById(tr.dataset.hint, tr));
+                tr.addEventListener('click', ()=>openHintById(tr.dataset.hint, tr));
+            });
+            hintCloseBtn.addEventListener('click', closeHint);
+            document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeHint(); });
+            document.addEventListener('click', e=>{
+                if(!hintPopup.contains(e.target) && !e.target.closest('.hint-trigger')) closeHint();
+            });
+        }
+
+        function setZoom(z, rerender=true){
+            state.zoom = Math.max(0.7, Math.min(1.8, round(z,2)));
+            zoomRange.value = zoomRangeTop.value = state.zoom;
+            stage.style.transform = `scale(${state.zoom})`;
+            if(rerender) render();
+        }
+
+        function openHintById(id, anchor){
+            const info = hints[id];
+            if(!info) return;
+            hintTitle.textContent = info.title;
+            hintBody.innerHTML = info.body;
+            hintActions.innerHTML = '';
+            (info.actions||[]).forEach(a => {
+                const b = document.createElement('button');
+                b.className='btn secondary';
+                b.textContent=a.label;
+                b.addEventListener('click', ()=>runHintAction(a.action));
+                hintActions.appendChild(b);
+            });
+            hintPopup.dataset.pos = info.pos || 'bottom';
+            positionHint(anchor, info.pos || 'bottom');
+            hintPopup.classList.add('visible');
+            hintPopup.setAttribute('aria-hidden','false');
+            anchor?.classList.add('active');
+            clearTimeout(openHintById.timer);
+            openHintById.timer = setTimeout(closeHint, 15000);
+        }
+
+        function positionHint(anchor, pos){
+            if(!anchor) return;
+            const a = anchor.getBoundingClientRect();
+            const p = hintPopup;
+            p.style.left = '-9999px'; p.style.top='-9999px';
+            p.classList.add('visible');
+            const box = p.getBoundingClientRect();
+            let left = a.left + window.scrollX, top = a.bottom + window.scrollY + 12;
+            if(pos==='top'){ top = a.top + window.scrollY - box.height - 12; }
+            if(pos==='left'){ left = a.left + window.scrollX - box.width - 12; top = a.top + window.scrollY; }
+            if(pos==='right'){ left = a.right + window.scrollX + 12; top = a.top + window.scrollY; }
+            left = Math.max(12, Math.min(left, window.scrollX + window.innerWidth - box.width - 12));
+            top = Math.max(12, top);
+            p.style.left = left + 'px';
+            p.style.top = top + 'px';
+        }
+
+        function closeHint(){
+            hintPopup.classList.remove('visible');
+            hintPopup.setAttribute('aria-hidden','true');
+            document.querySelectorAll('.hint-trigger.active').forEach(x=>x.classList.remove('active'));
+        }
+
+        function runHintAction(action){
+            if(action==='cycleMode'){
+                const keys = Object.keys(modeDefs);
+                const idx = keys.indexOf(state.mode);
+                setMode(keys[(idx+1)%keys.length], true);
+            }
+            if(action==='showExample'){
+                state.revealCount = 2; render();
+            }
+            if(action==='generateNow') genSimilar();
+            if(action==='showIdea') document.querySelector('.idea-box')?.scrollIntoView({behavior:'smooth', block:'center'});
+            if(action==='resetZoom') setZoom(1, false);
+            closeHint();
+        }
+
+        function showSmallModeHint(text){
+            hintTitle.textContent='Изменение режима';
+            hintBody.innerHTML=`<p>${text}</p>`;
+            hintActions.innerHTML='';
+            const anchor = document.querySelector('[data-hint="taskTypeHint"]') || taskTypeSelect;
+            positionHint(anchor, 'bottom');
+            hintPopup.classList.add('visible');
+            hintPopup.setAttribute('aria-hidden','false');
+            clearTimeout(openHintById.timer);
+            openHintById.timer = setTimeout(closeHint, 4500);
+        }
+
+        function autoHint(){
+            if(sessionStorage.getItem('math-hint-shown')) return;
+            setTimeout(()=>{
+                sessionStorage.setItem('math-hint-shown','1');
+                openHintById('taskTypeHint', document.querySelector('[data-hint="taskTypeHint"]'));
+            }, 3000);
+        }
+
+        // Initial render
+        attachEvents();
+        render();
+        genSimilar();
+        autoHint();
+    })();
+</script>
+</body>
+</html>

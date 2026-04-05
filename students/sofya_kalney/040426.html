@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — углы, трапеции и отношения площадей</title>
+    <style>
+        :root{
+            --bg:#081218;
+            --bg2:#0d1d26;
+            --panel:#102430;
+            --panel2:#15303e;
+            --soft:#1a3a49;
+            --text:#eef7f8;
+            --muted:#adc8cf;
+            --accent:#57d0c8;
+            --accent2:#8bf4ea;
+            --blue:#78a9ff;
+            --gold:#ffd27c;
+            --violet:#df9cff;
+            --ok:#8ff3ae;
+            --warn:#ffd166;
+            --danger:#ff8c8c;
+            --line:#2c576a;
+            --shadow:0 20px 50px rgba(0,0,0,.35);
+            --radius:22px;
+            --font: Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+            --stickyTop:16px;
+        }
+
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            font-family:var(--font);
+            color:var(--text);
+            background:
+            radial-gradient(circle at 10% 10%, rgba(87,208,200,.12), transparent 24%),
+            radial-gradient(circle at 88% 3%, rgba(120,169,255,.10), transparent 20%),
+            linear-gradient(180deg, #071017 0%, #0a151b 100%);
+            line-height:1.6;
+        }
+
+        .page{max-width:1500px; margin:0 auto; padding:22px}
+
+        .hero{
+            position:relative;
+            overflow:hidden;
+            background:linear-gradient(180deg, rgba(13,30,39,.95), rgba(10,22,29,.92));
+            border:1px solid rgba(139,244,234,.12);
+            box-shadow:var(--shadow);
+            border-radius:30px;
+            padding:26px 24px 20px;
+            margin-bottom:18px;
+        }
+        .hero::after{
+            content:"";
+            position:absolute;
+            right:-90px; bottom:-120px;
+            width:380px; height:380px; border-radius:50%;
+            background:radial-gradient(circle, rgba(87,208,200,.13), transparent 60%);
+            pointer-events:none;
+        }
+        .eyebrow{
+            display:inline-flex; align-items:center; gap:10px;
+            color:var(--accent2); font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:.08em;
+            margin-bottom:10px;
+        }
+        .eyebrow .dot{width:8px; height:8px; border-radius:50%; background:var(--accent)}
+        h1{margin:0 0 10px; font-size:clamp(30px,4vw,56px); line-height:1.07}
+        .subtitle{margin:0 0 18px; max-width:1000px; color:var(--muted); font-size:clamp(16px,2vw,20px)}
+
+        .hero-grid{display:grid; grid-template-columns:1.6fr 1fr; gap:16px; align-items:start}
+        .chips{display:flex; flex-wrap:wrap; gap:10px}
+        .chip{
+            border-radius:999px; padding:10px 14px; font-size:14px;
+            background:rgba(87,208,200,.08); border:1px solid rgba(87,208,200,.16); color:#dffbf8;
+        }
+        .metrics{display:grid; grid-template-columns:repeat(2,1fr); gap:12px}
+        .metric{background:rgba(7,18,22,.55); border:1px solid rgba(139,244,234,.11); border-radius:18px; padding:14px}
+        .metric .k{font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted)}
+        .metric .v{font-size:22px; font-weight:900; margin-top:5px}
+
+        .layout{display:grid; grid-template-columns:minmax(0,1.08fr) minmax(360px,.92fr); gap:20px; align-items:start}
+        .left-col,.right-col{min-width:0}
+        .sticky-wrap{position:sticky; top:var(--stickyTop); display:grid; gap:16px}
+
+        .card{
+            background:linear-gradient(180deg, rgba(14,31,40,.95), rgba(10,22,29,.95));
+            border:1px solid rgba(139,244,234,.12);
+            box-shadow:var(--shadow);
+            border-radius:var(--radius);
+            padding:18px;
+            margin-bottom:16px;
+        }
+        .section-title{display:flex; align-items:center; gap:10px; margin:0 0 12px; font-size:clamp(18px,2vw,26px)}
+        .section-title .badge{
+            width:32px; height:32px; border-radius:10px; display:grid; place-items:center;
+            background:rgba(87,208,200,.12); color:var(--accent2); font-weight:900; flex:0 0 auto;
+        }
+        .small-muted{color:var(--muted); font-size:14px}
+
+        .mode-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:10px}
+        .mode-btn{
+            text-align:left; min-height:106px; cursor:pointer;
+            background:linear-gradient(180deg, rgba(14,34,42,.92), rgba(10,24,31,.92));
+            color:var(--text); border:1px solid rgba(139,244,234,.14); border-radius:18px; padding:14px;
+            transition:.22s transform,.22s border-color,.22s box-shadow,.22s background;
+        }
+        .mode-btn:hover,.mode-btn:focus-visible{transform:translateY(-2px); border-color:rgba(139,244,234,.34); box-shadow:0 0 0 1px rgba(87,208,200,.22),0 0 24px rgba(87,208,200,.08)}
+        .mode-btn.active{background:linear-gradient(180deg, rgba(24,63,78,.95), rgba(14,35,45,.95)); border-color:rgba(139,244,234,.42)}
+        .mode-btn strong{display:block; margin-bottom:6px; font-size:16px}
+        .mode-btn span{display:block; color:var(--muted); font-size:13px; line-height:1.4}
+
+        .idea-box,.warn-box,.check-box,.quiz-box,.formula-box{
+            padding:16px; border-radius:18px; border:1px solid rgba(139,244,234,.11); background:rgba(7,18,22,.55)
+        }
+        .idea-box{background:linear-gradient(180deg, rgba(20,50,62,.58), rgba(10,24,31,.5))}
+        .warn-box{background:linear-gradient(180deg, rgba(60,38,19,.42), rgba(28,19,10,.36)); border-color:rgba(255,209,102,.20)}
+        .check-box{background:linear-gradient(180deg, rgba(15,46,35,.55), rgba(8,24,19,.46)); border-color:rgba(143,243,174,.18)}
+        .quiz-box{background:linear-gradient(180deg, rgba(29,27,67,.52), rgba(12,12,28,.44)); border-color:rgba(160,153,255,.18)}
+
+        .toolbar{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+        .btn, button, select, input{font:inherit}
+        .btn{
+            appearance:none; border:none; cursor:pointer; border-radius:14px; padding:11px 14px; font-weight:800;
+            background:linear-gradient(180deg, var(--accent2), var(--accent)); color:#072027;
+            box-shadow:0 10px 25px rgba(87,208,200,.22); transition:.22s transform,.22s filter;
+        }
+        .btn:hover,.btn:focus-visible{transform:translateY(-1px); filter:brightness(1.05)}
+        .btn.secondary{background:rgba(87,208,200,.08); color:var(--text); border:1px solid rgba(139,244,234,.17); box-shadow:none}
+        .btn.ghost{background:rgba(255,255,255,.04); color:var(--text); border:1px solid rgba(255,255,255,.08); box-shadow:none}
+        .btn.warn{background:linear-gradient(180deg,#ffe29e,var(--warn)); color:#342300}
+
+        .steps{display:grid; gap:12px}
+        .step{
+            padding:14px 16px; border-radius:20px; background:rgba(9,20,26,.58);
+            border:1px solid rgba(139,244,234,.08); transition:.22s background,.22s border-color,.22s box-shadow;
+        }
+        .step.revealed{border-color:rgba(139,244,234,.25); background:rgba(14,30,38,.86)}
+        .step.highlight{box-shadow:0 0 0 1px rgba(87,208,200,.28),0 0 26px rgba(87,208,200,.11); border-color:rgba(139,244,234,.44)}
+        .step h3{margin:0 0 8px; font-size:18px; display:flex; align-items:center; gap:10px}
+        .step-tag{width:28px; height:28px; border-radius:10px; display:grid; place-items:center; background:rgba(87,208,200,.12); color:var(--accent2); font-weight:900; font-size:14px}
+        .step[data-hidden="1"] .step-body{display:none}
+        .step.expanded .step-body{display:block}
+        .step-toggle{margin-top:10px}
+
+        .control-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px}
+        .control{display:grid; gap:6px}
+        .control label{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted)}
+        select,.fake-input{
+            width:100%; min-height:46px; border-radius:12px; padding:12px;
+            background:#0a1a21; color:var(--text); border:1px solid rgba(139,244,234,.15)
+        }
+        .switches{display:grid; gap:10px; margin-top:4px}
+        .switch{
+            display:flex; align-items:center; justify-content:space-between; gap:12px;
+            padding:11px 12px; border-radius:14px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06)
+        }
+        .switch input{width:20px; height:20px; accent-color:var(--accent)}
+
+        .viz-shell{border-radius:22px; overflow:hidden; border:1px solid rgba(139,244,234,.13); background:linear-gradient(180deg,#09151b,#071117)}
+        .viz-header{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; padding:12px 14px; border-bottom:1px solid rgba(139,244,234,.09)}
+        .zoombar{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+        .zoombar input[type="range"]{width:140px}
+        .stage-wrap{position:relative; min-height:500px; overflow:hidden}
+        #stage{
+            width:100%; height:580px; display:block; background:linear-gradient(180deg, rgba(255,255,255,.01), rgba(255,255,255,.02));
+            transform-origin:center center; transition:transform .16s ease-out; touch-action:none;
+        }
+
+        .legend{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:12px}
+        .legend-item{display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:14px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06)}
+        .legend-item.highlight{box-shadow:0 0 0 1px rgba(87,208,200,.28),0 0 26px rgba(87,208,200,.11)}
+        .swatch{width:18px; height:6px; border-radius:999px; background:var(--accent)}
+        .swatch.b{background:var(--blue)} .swatch.c{background:var(--gold)} .swatch.d{background:var(--violet)}
+        .result-panel{display:grid; gap:10px; margin-top:12px}
+        .result-line{padding:12px 14px; border-radius:14px; border:1px solid rgba(139,244,234,.10); background:rgba(7,18,22,.56)}
+        .big-answer{font-size:clamp(24px,3vw,34px); font-weight:900; color:var(--accent2)}
+
+        .generated-task{border-radius:18px; border:1px dashed rgba(139,244,234,.26); padding:14px; background:rgba(6,16,20,.6)}
+        .task-answer{color:var(--ok); font-weight:800}
+        .task-idea{color:var(--muted)}
+
+        .quiz-options{display:grid; gap:10px; margin-top:12px}
+        .quiz-feedback{margin-top:10px; font-weight:800}
+        .selfcheck-list{display:grid; gap:10px; margin-top:10px}
+        .selfcheck-item{display:flex; gap:12px; align-items:flex-start; padding:10px 12px; border-radius:14px; background:rgba(255,255,255,.03)}
+        .selfcheck-item input{margin-top:4px; transform:scale(1.2); accent-color:var(--accent)}
+
+        .hint-trigger{
+            width:20px; height:20px; display:inline-grid; place-items:center; border-radius:50%; cursor:pointer;
+            background:linear-gradient(180deg, rgba(139,244,234,.24), rgba(87,208,200,.14));
+            color:var(--accent2); font-size:12px; font-weight:900; border:1px solid rgba(139,244,234,.34);
+            animation:hintPulse 2.1s infinite;
+        }
+        .hint-trigger.active{animation:hintBounce .6s ease, hintPulse 2.1s infinite}
+        .hint-pop{
+            position:absolute; z-index:40; width:min(320px, calc(100vw - 36px));
+            background:linear-gradient(180deg, rgba(10,22,29,.98), rgba(8,18,24,.98));
+            border-radius:18px; box-shadow:0 22px 60px rgba(0,0,0,.45); padding:14px 14px 12px;
+            opacity:0; transform:translateY(6px) scale(.98); pointer-events:none; transition:.22s ease;
+        }
+        .hint-pop::before{
+            content:""; position:absolute; inset:0; border-radius:18px; padding:1px;
+            background:linear-gradient(135deg, rgba(139,244,234,.7), rgba(87,208,200,.15), rgba(120,169,255,.55));
+            -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none;
+        }
+        .hint-pop.visible{opacity:1; transform:translateY(0) scale(1); pointer-events:auto}
+        .hint-pop .title{display:flex; align-items:center; justify-content:space-between; gap:10px; color:var(--accent2); font-weight:900; margin-bottom:8px}
+        .hint-pop .close{background:none; border:none; color:var(--muted); font-size:18px; cursor:pointer}
+        .hint-pop p{margin:8px 0; font-size:14px; color:#def0f2}
+        .hint-pop .actions{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+        .hint-pop .arrow{position:absolute; width:14px; height:14px; background:#0d1f28; transform:rotate(45deg); border-left:1px solid rgba(139,244,234,.4); border-top:1px solid rgba(139,244,234,.4)}
+        .hint-pop[data-pos="bottom"] .arrow{top:-7px; left:22px}
+        .hint-pop[data-pos="top"] .arrow{bottom:-7px; left:22px}
+        .hint-pop[data-pos="left"] .arrow{right:-7px; top:22px}
+        .hint-pop[data-pos="right"] .arrow{left:-7px; top:22px}
+        .inline-mark{color:var(--accent2); font-weight:900}
+
+        @keyframes hintPulse{
+            0%{box-shadow:0 0 0 0 rgba(87,208,200,.35), 0 0 0 0 rgba(87,208,200,.14)}
+            70%{box-shadow:0 0 0 10px rgba(87,208,200,0), 0 0 0 20px rgba(87,208,200,0)}
+            100%{box-shadow:0 0 0 0 rgba(87,208,200,0), 0 0 0 0 rgba(87,208,200,0)}
+        }
+        @keyframes hintBounce{0%{transform:scale(.86)}40%{transform:scale(1.14)}100%{transform:scale(1)}}
+
+        @media (max-width:1180px){
+            .layout{grid-template-columns:1fr}
+            .sticky-wrap{position:relative; top:auto}
+            .hero-grid{grid-template-columns:1fr}
+        }
+        @media (max-width:760px){
+            .page{padding:12px}
+            .mode-grid,.control-grid,.legend{grid-template-columns:1fr}
+            .card{padding:14px}
+            #stage{height:430px}
+            .zoombar input[type="range"]{width:100px}
+        }
+        @media print{
+            body{background:#fff; color:#000}
+            .hero,.card,.viz-shell,.generated-task,.step,.metric,.legend-item,.switch,.result-line{box-shadow:none; background:#fff !important; color:#000; border-color:#bbb}
+            .layout{grid-template-columns:1fr}
+            .sticky-wrap{position:static}
+            .btn,.hint-trigger,.toolbar,.control-grid,.switches,.zoombar,.hint-pop,.mode-btn{display:none !important}
+            #stage{height:380px; background:#fff}
+            .step[data-hidden="1"] .step-body{display:block}
+            .subtitle,.small-muted,.chip{color:#333 !important}
+            a{text-decoration:none; color:#000}
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <section class="hero">
+        <div class="eyebrow"><span class="dot"></span>Наглядная математика с генерацией</div>
+        <h1>Повторение: равнобедренные треугольники, трапеции, общая высота и отношения площадей</h1>
+        <p class="subtitle">
+            Страница по мотивам последнего пособия: <strong>уверенный уровень</strong>, <strong>максимально наглядный</strong> стиль,
+            фокус на графической интерпретации, только школьные методы, пошаговое раскрытие решения и одна безопасная похожая задача за раз.
+        </p>
+        <div class="hero-grid">
+            <div>
+                <div class="chips">
+                    <div class="chip">Повторение</div>
+                    <div class="chip">Комбинированная модель</div>
+                    <div class="chip">Только школьные методы</div>
+                    <div class="chip">Пошаговое раскрытие</div>
+                    <div class="chip">Мини-квиз</div>
+                    <div class="chip">Самопроверка</div>
+                    <div class="chip">Печать и мобильная версия</div>
+                </div>
+            </div>
+            <div class="metrics">
+                <div class="metric"><div class="k">Сюжетов</div><div class="v">4</div></div>
+                <div class="metric"><div class="k">Генератор</div><div class="v">1 задача</div></div>
+                <div class="metric"><div class="k">Основной фокус</div><div class="v">Чертёж ↔ текст</div></div>
+                <div class="metric"><div class="k">Разбор</div><div class="v">7 этапов</div></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="layout">
+        <main class="left-col">
+            <section class="card">
+                <h2 class="section-title"><span class="badge">1</span>Выберите тип задачи</h2>
+                <p class="small-muted">Каждый режим соответствует одному из ключевых методов занятия: равнобедренные треугольники, выход к прямоугольному треугольнику, трапеция с высотами, отношения площадей через общую высоту.</p>
+                <div class="mode-grid" id="modeButtons"></div>
+            </section>
+
+            <section class="card">
+                <h2 class="section-title"><span class="badge">2</span>Идея решения</h2>
+                <div class="idea-box" id="ideaBox"></div>
+            </section>
+
+            <section class="card">
+                <h2 class="section-title"><span class="badge">3</span>Подробный разбор</h2>
+                <div class="toolbar" style="margin-bottom:12px">
+                    <button class="btn secondary" id="revealNextBtn">Открыть следующий шаг</button>
+                    <button class="btn ghost" id="revealAllBtn">Показать всё</button>
+                    <button class="btn ghost" id="collapseBtn">Свернуть</button>
+                    <label class="small-muted" for="detailLevel">Подробность</label>
+                    <select id="detailLevel" aria-label="Подробность решения">
+                        <option value="brief">Кратко</option>
+                        <option value="standard" selected>Стандартно</option>
+                        <option value="full">Очень подробно</option>
+                    </select>
+                </div>
+                <div class="steps" id="stepsContainer"></div>
+            </section>
+
+            <section class="card">
+                <h2 class="section-title"><span class="badge">4</span>Типичные ошибки</h2>
+                <div class="warn-box" id="mistakesBox"></div>
+            </section>
+
+            <section class="card">
+                <h2 class="section-title"><span class="badge">5</span>Похожая задача</h2>
+                <div class="toolbar" style="margin-bottom:12px">
+                    <button class="btn" id="generateTaskBtn">Сгенерировать похожую задачу</button>
+                    <button class="btn secondary" id="applyGeneratedBtn">Применить к модели</button>
+                    <span class="small-muted">Новая задача сохраняет тот же метод решения и сразу получает ответ.</span>
+                </div>
+                <div class="generated-task" id="generatedTaskBox">Нажмите кнопку, чтобы получить задачу по текущему методу.</div>
+            </section>
+
+            <section class="card">
+                <h2 class="section-title"><span class="badge">6</span>Мини-квиз</h2>
+                <div class="quiz-box">
+                    <div id="quizQuestion">Загрузка вопроса…</div>
+                    <div class="quiz-options" id="quizOptions"></div>
+                    <div class="quiz-feedback" id="quizFeedback" aria-live="polite"></div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2 class="section-title"><span class="badge">7</span>Самопроверка</h2>
+                <div class="selfcheck-list" id="selfcheckList"></div>
+                <p class="small-muted">В печатной версии скрытые шаги раскрываются автоматически.</p>
+            </section>
+        </main>
+
+        <aside class="right-col">
+            <div class="sticky-wrap">
+                <section class="card">
+                    <h2 class="section-title"><span class="badge">A</span>Управление моделью</h2>
+                    <div class="control-grid">
+                        <div class="control">
+                            <label for="taskTypeSelect">Тип задачи <span class="hint-trigger" tabindex="0" data-hint="taskTypeHint" aria-label="Подсказка о выборе типа задачи">?</span></label>
+                            <select id="taskTypeSelect"></select>
+                        </div>
+                        <div class="control">
+                            <label for="variantSelect">Вариант внутри режима</label>
+                            <select id="variantSelect"></select>
+                        </div>
+                        <div class="control">
+                            <label for="zoomRange">Масштаб чертежа <span class="hint-trigger" tabindex="0" data-hint="zoomHint" aria-label="Подсказка про масштаб">i</span></label>
+                            <input type="range" id="zoomRange" min="0.7" max="1.8" step="0.01" value="1" />
+                        </div>
+                        <div class="control">
+                            <label for="seedBox">Текущие параметры</label>
+                            <div class="fake-input" id="seedBox">—</div>
+                        </div>
+                    </div>
+                    <div class="toolbar" style="margin-top:12px">
+                        <button class="btn" id="newVariantBtn">Новый вариант</button>
+                        <button class="btn secondary" id="resetModelBtn">Сбросить</button>
+                        <button class="btn warn" id="printBtn">Печать</button>
+                        <span class="hint-trigger" tabindex="0" data-hint="generateHint" aria-label="Подсказка о генераторе">!</span>
+                    </div>
+                    <div class="switches">
+                        <label class="switch"><span>Показывать подписи</span><input type="checkbox" id="showLabelsToggle" checked></label>
+                        <label class="switch"><span>Показывать вспомогательные линии</span><input type="checkbox" id="showAuxToggle" checked></label>
+                        <label class="switch"><span>Подсветка связи текст ↔ рисунок</span><input type="checkbox" id="showHighlightsToggle" checked></label>
+                    </div>
+                </section>
+
+                <section class="viz-shell" id="vizPanel">
+                    <div class="viz-header">
+                        <div>
+                            <strong id="vizTitle">Интерактивный чертёж</strong>
+                            <div class="small-muted" id="vizSubtitle">Модель меняется вместе с ходом решения.</div>
+                        </div>
+                        <div class="zoombar">
+                            <button class="btn secondary" id="zoomOutBtn">−</button>
+                            <button class="btn secondary" id="zoomResetBtn">Сброс</button>
+                            <button class="btn secondary" id="zoomInBtn">+</button>
+                            <input type="range" id="zoomRangeTop" min="0.7" max="1.8" step="0.01" value="1" />
+                        </div>
+                    </div>
+                    <div class="stage-wrap">
+                        <svg id="stage" viewBox="0 0 760 580" aria-label="Интерактивная геометрическая модель"></svg>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2 class="section-title"><span class="badge">B</span>Легенда и результат</h2>
+                    <div class="legend" id="legendBox"></div>
+                    <div class="result-panel">
+                        <div class="result-line" id="resultSummary"></div>
+                        <div class="result-line big-answer" id="resultAnswer"></div>
+                        <div class="check-box" id="resultCheck"></div>
+                    </div>
+                </section>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<div class="hint-pop" id="hintPopup" role="tooltip" aria-hidden="true" data-pos="bottom">
+    <div class="arrow"></div>
+    <div class="title"><span id="hintTitle">Подсказка</span><button class="close" id="hintCloseBtn" aria-label="Закрыть подсказку">×</button></div>
+    <div id="hintBody"></div>
+    <div class="actions" id="hintActions"></div>
+</div>
+
+<script>
+    (() => {
+        const stage = document.getElementById('stage');
+        const stepsContainer = document.getElementById('stepsContainer');
+        const ideaBox = document.getElementById('ideaBox');
+        const mistakesBox = document.getElementById('mistakesBox');
+        const legendBox = document.getElementById('legendBox');
+        const resultSummary = document.getElementById('resultSummary');
+        const resultAnswer = document.getElementById('resultAnswer');
+        const resultCheck = document.getElementById('resultCheck');
+        const modeButtons = document.getElementById('modeButtons');
+        const taskTypeSelect = document.getElementById('taskTypeSelect');
+        const variantSelect = document.getElementById('variantSelect');
+        const detailLevel = document.getElementById('detailLevel');
+        const quizQuestion = document.getElementById('quizQuestion');
+        const quizOptions = document.getElementById('quizOptions');
+        const quizFeedback = document.getElementById('quizFeedback');
+        const selfcheckList = document.getElementById('selfcheckList');
+        const seedBox = document.getElementById('seedBox');
+        const generatedTaskBox = document.getElementById('generatedTaskBox');
+        const vizTitle = document.getElementById('vizTitle');
+        const vizSubtitle = document.getElementById('vizSubtitle');
+        const zoomRange = document.getElementById('zoomRange');
+        const zoomRangeTop = document.getElementById('zoomRangeTop');
+        const showLabelsToggle = document.getElementById('showLabelsToggle');
+        const showAuxToggle = document.getElementById('showAuxToggle');
+        const showHighlightsToggle = document.getElementById('showHighlightsToggle');
+        const hintPopup = document.getElementById('hintPopup');
+        const hintTitle = document.getElementById('hintTitle');
+        const hintBody = document.getElementById('hintBody');
+        const hintActions = document.getElementById('hintActions');
+        const hintCloseBtn = document.getElementById('hintCloseBtn');
+
+        const state = {
+            mode:'isoscelesAngles',
+            variantIndex:0,
+            detail:'standard',
+            revealCount:1,
+            zoom:1,
+            showLabels:true,
+            showAux:true,
+            showHighlights:true,
+            generated:null,
+            rngSeed:1234567,
+        };
+
+        const modeDefs = {
+            isoscelesAngles:{
+                label:'Равнобедренные треугольники и углы',
+                short:'Находим углы по равным сторонам и биссектрисе.',
+                variants:[
+                    {A:40, extra:'equalInner'},
+                    {A:50, extra:'equalInner'},
+                    {A:30, extra:'equalInner'},
+                    {A:70, extra:'equalInner'}
+                ]
+            },
+            rightTriangleIdea:{
+                label:'Выход к прямоугольному треугольнику',
+                short:'Сторона + углы → высота → Пифагор.',
+                variants:[
+                    {topA:75, innerA:30, hyp:10},
+                    {topA:70, innerA:25, hyp:13},
+                    {topA:80, innerA:35, hyp:17},
+                    {topA:65, innerA:20, hyp:5*Math.sqrt(2)}
+                ]
+            },
+            trapezoidHeight:{
+                label:'Трапеция, средняя линия и высота',
+                short:'Используем среднюю линию и два прямоугольных треугольника.',
+                variants:[
+                    {AB:40, CD:41, BC:16},
+                    {AB:13, CD:15, BC:8},
+                    {AB:25, CD:26, BC:10},
+                    {AB:20, CD:29, BC:12}
+                ]
+            },
+            areaRatio:{
+                label:'Отношения площадей',
+                short:'Общая высота, медиана, параллельная прямая и маленькая площадь x.',
+                variants:[
+                    {type:'abk_to_kpcm'},
+                    {type:'mqk_inside', ratio:[3,4], whole:1},
+                    {type:'abk_to_kpcm'},
+                    {type:'mqk_inside', ratio:[2,5], whole:1}
+                ]
+            }
+        };
+
+        const hints = {
+            taskTypeHint:{
+                title:'Как выбирать режим', pos:'bottom',
+                body:`
+            <p>Каждый режим — это отдельный геометрический метод из занятия.</p>
+            <p>Например, для площадей с общей высотой используется правило:</p>
+            <math display="block"><mrow><mfrac><msub><mi>S</mi><mn>1</mn></msub><msub><mi>S</mi><mn>2</mn></msub></mfrac><mo>=</mo><mfrac><msub><mi>a</mi><mn>1</mn></msub><msub><mi>a</mi><mn>2</mn></msub></mfrac></mrow></math>
+            <p>А для трапеции часто выгодно перейти к средней линии и высоте.</p>
+          `,
+                actions:[
+                    {label:'Попробовать другой тип', action:'cycleMode'},
+                    {label:'Показать пример', action:'showExample'}
+                ]
+            },
+            zoomHint:{
+                title:'Масштабирование', pos:'bottom',
+                body:`
+            <p>Масштаб меняет только вид схемы, но не ответ.</p>
+            <p>Можно использовать ползунок, кнопки +/− и колесо мыши прямо на чертеже.</p>
+          `,
+                actions:[{label:'Сбросить масштаб', action:'resetZoom'}]
+            },
+            generateHint:{
+                title:'Генератор похожих задач', pos:'left',
+                body:`
+            <p>Генератор создаёт новую задачу с тем же приёмом решения.</p>
+            <p>Он сразу даёт ответ и короткую идею, а затем задачу можно перенести на интерактивную модель.</p>
+          `,
+                actions:[
+                    {label:'Сгенерировать сейчас', action:'generateNow'},
+                    {label:'Показать идею', action:'showIdea'}
+                ]
+            }
+        };
+
+        function rand(){ state.rngSeed = (1664525*state.rngSeed + 1013904223) % 4294967296; return state.rngSeed/4294967296; }
+        function choice(arr){ return arr[Math.floor(rand()*arr.length)] }
+        function round(n,d=2){ return Number(n.toFixed(d)) }
+        function fmt(n){ if(typeof n==='string') return n; if(Math.abs(n-Math.round(n))<1e-9) return ''+Math.round(n); return String(round(n)).replace('.', ','); }
+        function gcd(a,b){ while(b){ [a,b]=[b,a%b]; } return Math.abs(a); }
+        function frac(a,b){ const g=gcd(a,b); return `${a/g}:${b/g}`; }
+        const currentVariant = () => modeDefs[state.mode].variants[state.variantIndex];
+
+        function computeCurrent(){
+            const v=currentVariant();
+            if(state.mode==='isoscelesAngles') return computeIsosceles(v);
+            if(state.mode==='rightTriangleIdea') return computeRightIdea(v);
+            if(state.mode==='trapezoidHeight') return computeTrapezoid(v);
+            return computeAreaRatio(v);
+        }
+
+        function computeIsosceles(v){
+            const base = (180 - v.A)/2;
+            const alpha = 180 - base;
+            return {
+                topic:'Равнобедренный треугольник и поиск угла',
+                given:[`AB = AC`, `∠BAC = ${fmt(v.A)}°`, 'внутри построен второй равнобедренный треугольник с равными отрезками'],
+                meaning:[
+                    'из AB = AC сразу получаем равенство углов при основании',
+                    'равные внутренние отрезки создают ещё один равнобедренный треугольник',
+                    'дальше задача сводится к цепочке вычисления углов'
+                ],
+                interpretation:'Главная идея рисунка — заметить не один, а два равнобедренных треугольника. Тогда углы начинают последовательно «раскрываться».',
+                idea:[
+                    'Сначала находим углы большого равнобедренного треугольника.',
+                    'Потом отмечаем второй равнобедренный треугольник по равным отрезкам.',
+                    'Используем сумму углов и получаем искомый угол.'
+                ],
+                steps:[
+                    {title:'Что дано', key:'iso', brief:'Дан равнобедренный треугольник.', standard:`По условию AB = AC, значит треугольник ABC равнобедренный с вершиной при A.`, full:'Это сразу фиксирует основу решения: в равнобедренном треугольнике сначала ищут углы при основании, потому что они равны и легко выражаются через вершину.'},
+                    {title:'Что означает условие', key:'iso', brief:'Углы при основании равны.', standard:`Следовательно, ∠ABC = ∠BCA = (180° − ${fmt(v.A)}°)/2 = <span class="inline-mark">${fmt(base)}°</span>.`, full:`Используем сумму углов треугольника: два угла при основании одинаковы, поэтому каждый из них равен половине остатка после вычитания вершины.`},
+                    {title:'Геометрическая интерпретация', key:'inner', brief:'Внутри появляется второй равнобедренный треугольник.', standard:'По равным внутренним отрезкам получаем ещё один равнобедренный треугольник, а значит — ещё пару равных углов.', full:'Это типичный ход с занятия: после добавления точки или отрезка нужно проверить, не возник ли новый равнобедренный треугольник. Именно он даёт недостающие связи между углами.'},
+                    {title:'Ключевая идея', key:'formula', brief:'Собираем углы цепочкой.', standard:`Теперь используем равенство углов и сумму углов в подходящем маленьком треугольнике. В результате искомый угол получается равным <span class="inline-mark">${fmt(alpha)}°</span>.`, full:`Когда известны углы большого треугольника и углы внутри второго равнобедренного треугольника, задача превращается в аккуратный подсчёт углов. Важно не спешить и каждый раз явно подписывать, откуда взялось равенство.`},
+                    {title:'Доведение до ответа', key:'answer', brief:'Получаем искомый угол.', standard:`Искомый угол равен ${fmt(alpha)}°.`, full:`В этой конфигурации искомый угол оказывается дополнительным к найденному углу при основании, поэтому его значение равно ${fmt(alpha)}°.`},
+                    {title:'Проверка', key:'answer', brief:'Проверяем сумму и равенства углов.', standard:`Проверка: углы большого треугольника ${fmt(v.A)}° + ${fmt(base)}° + ${fmt(base)}° дают 180°, а внутренние равенства не нарушены.`, full:'Проверка здесь чисто геометрическая: все использованные треугольники остаются корректными, сумма углов даёт 180°, и ни одно равенство сторон не противоречит найденным углам.'},
+                    {title:'Вывод', key:'answer', brief:`Ответ: ${fmt(alpha)}°`, standard:`Ответ: <span class="inline-mark">${fmt(alpha)}°</span>.`, full:'Главный навык из этой задачи — быстро замечать второй равнобедренный треугольник внутри первого.'}
+                ],
+                mistakes:[
+                    'заметить только внешний равнобедренный треугольник и пропустить внутренний;',
+                    'не разделить остаток 180° − ∠A пополам;',
+                    'смешать углы из разных треугольников без явного обоснования.'
+                ],
+                answer:`Искомый угол = ${fmt(alpha)}°`,
+                summary:'Сначала большой равнобедренный треугольник, потом внутренний, потом сумма углов.',
+                check:`Проверка: ${fmt(v.A)}° + ${fmt(base)}° + ${fmt(base)}° = 180°.`,
+                legend:[['Равные стороны AB и AC','accent'],['Внутренний равнобедренный треугольник','b'],['Искомый угол','c']],
+                quiz:{q:'Что делаем первым в равнобедренном треугольнике при известном угле вершины?', opts:['Ищем высоту','Находим равные углы при основании','Сразу пишем Пифагора'], correct:1, exp:'Первый шаг — найти равные углы при основании.'},
+                selfcheck:['Я нашёл углы при основании через угол вершины.','Я проверил, не появился ли второй равнобедренный треугольник.','Я сделал итоговую проверку по сумме углов.']
+            };
+        }
+
+        function computeRightIdea(v){
+            const apex=v.topA;
+            const base=(180-apex)/2;
+            const ay=v.hyp*Math.sin(v.innerA*Math.PI/180);
+            return {
+                topic:'Выход к прямоугольному треугольнику',
+                given:[`большой треугольник равнобедренный`, `угол при вершине = ${fmt(apex)}°`, `внутренний угол даёт прямоугольный треугольник`, `известна гипотенуза ${fmt(v.hyp)}`],
+                meaning:[
+                    'по внешнему равнобедренному треугольнику можно найти все базовые углы',
+                    'внутри выгодно построить или заметить прямой угол',
+                    'после этого задача решается через Пифагора или свойства прямоугольного треугольника'
+                ],
+                interpretation:'Сюжет занятия здесь такой: когда есть и сторона, и углы, почти всегда нужно прийти к прямоугольному треугольнику.',
+                idea:[
+                    'Сначала восстанавливаем углы большого треугольника.',
+                    'Потом замечаем прямоугольный внутренний треугольник.',
+                    'Используем либо Пифагора, либо синус/косинус, либо специальный треугольник 30°–60°–90°.'
+                ],
+                steps:[
+                    {title:'Что дано', key:'outer', brief:'Есть большой равнобедренный треугольник.', standard:`Внешний треугольник равнобедренный, его вершина имеет угол ${fmt(apex)}°.`, full:'Это даёт быстрый доступ к остальным углам большого треугольника. Именно с этого обычно и начинается решение, чтобы не работать вслепую.'},
+                    {title:'Что означает условие', key:'outer', brief:'Находим углы при основании.', standard:`Углы при основании равны: (180° − ${fmt(apex)}°)/2 = <span class="inline-mark">${fmt(base)}°</span>.`, full:'Обе боковые стороны равны, значит и углы при основании равны. Каждый из них равен половине от остатка после вычитания вершины.'},
+                    {title:'Геометрическая интерпретация', key:'right', brief:'Внутри получаем прямоугольный треугольник.', standard:'После аккуратного подсчёта внутренних углов появляется прямоугольный треугольник.', full:'Именно этот момент был ключевым на занятии: не нужно бояться сложной картинки, нужно искать прямой угол или способ его построить. После этого задача резко упрощается.'},
+                    {title:'Ключевая идея', key:'formula', brief:'Переходим к школьной тригонометрии или Пифагору.', standard:`В прямоугольном треугольнике используем известную гипотенузу ${fmt(v.hyp)} и нужный острый угол ${fmt(v.innerA)}°.`, full:'Теперь уже не нужно держать всю исходную конструкцию в голове. Достаточно выделить прямоугольный треугольник и работать с ним как с отдельной задачей: через Пифагора или через соотношения в прямоугольном треугольнике.'},
+                    {title:'Доведение до ответа', key:'answer', brief:'Находим нужный отрезок.', standard:`Например, один из катетов можно найти как ${fmt(v.hyp)} · sin ${fmt(v.innerA)}° ≈ <span class="inline-mark">${fmt(ay)}</span>.`, full:`Если нужен катет, противолежащий углу ${fmt(v.innerA)}°, то он равен ${fmt(v.hyp)} · sin ${fmt(v.innerA)}°. Получаем приблизительно ${fmt(ay)}.`},
+                    {title:'Проверка', key:'answer', brief:'Проверяем геометрию и численное значение.', standard:'Проверяем, что найденная длина меньше гипотенузы и согласуется с прямоугольным треугольником.', full:'Любой катет прямоугольного треугольника должен быть меньше гипотенузы. Это быстрая численная проверка, которая позволяет заметить грубую ошибку ещё до конца решения.'},
+                    {title:'Вывод', key:'answer', brief:`Нужный отрезок ≈ ${fmt(ay)}`, standard:`Главный вывод: когда в задаче есть сторона и углы, выгодно искать прямоугольный треугольник.`, full:'Это не единственный способ решать подобные задачи, но это самый школьный, прозрачный и устойчивый метод.'}
+                ],
+                mistakes:[
+                    'не перейти к прямоугольному треугольнику и пытаться считать всё сразу;',
+                    'перепутать катет, прилежащий и противолежащий угол;',
+                    'не проверить, что найденный катет меньше гипотенузы.'
+                ],
+                answer:`Нужный катет ≈ ${fmt(ay)}`,
+                summary:'Если даны сторона и углы, ищем прямоугольный треугольник.',
+                check:`Проверка: ${fmt(ay)} < ${fmt(v.hyp)}, значит численно ответ правдоподобен.`,
+                legend:[['Большой равнобедренный треугольник','accent'],['Внутренний прямоугольный треугольник','b'],['Искомый катет','c']],
+                quiz:{q:'Что чаще всего ищут в сложной задаче с углами и известной стороной?', opts:['Окружность','Прямоугольный треугольник','Параллелограмм'], correct:1, exp:'На занятии ключевой идеей был выход к прямоугольному треугольнику.'},
+                selfcheck:['Я сначала нашёл углы большого треугольника.','Я выделил прямоугольный внутренний треугольник.','Я проверил ответ на здравый смысл: катет меньше гипотенузы.']
+            };
+        }
+
+        function solveTrapezoidExact(v){
+            // system: x^2+y^2=AB^2, x^2+(9-y)^2=CD^2 where AD=2*QT-BC = CD-BC? from lesson exact if QT=CD/2 due isosceles triangle. So AD = CD - BC.
+            const AD = v.CD - v.BC;
+            const delta = AD - v.BC;
+            const y = (delta*delta + v.AB*v.AB - v.CD*v.CD)/(2*delta);
+            const x = Math.sqrt(Math.max(0, v.AB*v.AB - y*y));
+            const area = (AD + v.BC)/2 * x;
+            return {AD,x,y,delta,area};
+        }
+
+        function computeTrapezoid(v){
+            const s = solveTrapezoidExact(v);
+            return {
+                topic:'Трапеция: средняя линия, высоты и Пифагор',
+                given:[`AB = ${fmt(v.AB)}`, `CD = ${fmt(v.CD)}`, `BC = ${fmt(v.BC)}`, 'биссектриса угла проходит через середину боковой стороны'],
+                meaning:[
+                    'через середину удобно провести среднюю линию трапеции',
+                    'средняя линия заменяет полусумму оснований',
+                    'высоты дают два прямоугольных треугольника и систему по Пифагору'
+                ],
+                interpretation:'Задача выглядит тяжёлой, но распадается на два блока: сначала получить основание или среднюю линию, затем найти высоту.',
+                idea:[
+                    'Через середину вводим среднюю линию трапеции.',
+                    'Через геометрию равнобедренного треугольника находим среднюю линию и большее основание.',
+                    'Проводим высоты и составляем две теоремы Пифагора.'
+                ],
+                steps:[
+                    {title:'Что дано', key:'trap', brief:'Известны боковые стороны и малое основание.', standard:`Известно: AB = ${fmt(v.AB)}, CD = ${fmt(v.CD)}, BC = ${fmt(v.BC)}. Нужно найти площадь трапеции.`, full:'Напрямую площади не найти, потому что нет ни высоты, ни второго основания. Значит, сначала нужно построить удобную вспомогательную конфигурацию.'},
+                    {title:'Что означает условие', key:'midline', brief:'Появляется средняя линия.', standard:'Если взять середину боковой стороны и провести среднюю линию трапеции, то можно заменить полусумму оснований одной длиной.', full:'Это важный школьный приём: вместо формулы S = ((a+b)/2)·h можно работать как с S = m·h, где m — средняя линия трапеции.'},
+                    {title:'Геометрическая интерпретация', key:'midline', brief:'Находим среднюю линию и основание AD.', standard:`Из конструкции получается средняя линия ${fmt(v.CD/2)}, а тогда большее основание равно ${fmt(s.AD)}.`, full:`На занятии использовалась связка: один из вспомогательных треугольников оказывается равнобедренным, поэтому средняя линия быстро выражается через боковую сторону. После этого большее основание восстанавливается из формулы средней линии.`},
+                    {title:'Ключевая идея', key:'right', brief:'Проводим две высоты.', standard:'Теперь проводим две высоты и получаем два прямоугольных треугольника.', full:'Именно этот момент превращает сложную трапецию в обычную алгебру. Пусть высота равна x, а один горизонтальный кусок равен y. Тогда второй выражается через основание.'},
+                    {title:'Доведение до ответа', key:'formula', brief:'Составляем две теоремы Пифагора.', standard:`Получаем систему: x² + y² = ${fmt(v.AB*v.AB)}, x² + (${fmt(s.delta)} − y)² = ${fmt(v.CD*v.CD)}. Отсюда x = <span class="inline-mark">${fmt(s.x)}</span>.`, full:`Из первого прямоугольного треугольника: x² + y² = ${fmt(v.AB*v.AB)}. Из второго: x² + (${fmt(s.delta)} − y)² = ${fmt(v.CD*v.CD)}. Решив систему, получаем y = ${fmt(s.y)} и затем x = ${fmt(s.x)}.`},
+                    {title:'Проверка', key:'answer', brief:'Подставляем в формулу площади.', standard:`S = ((${fmt(s.AD)} + ${fmt(v.BC)})/2) · ${fmt(s.x)} = <span class="inline-mark">${fmt(s.area)}</span>.`, full:`Теперь уже всё найдено: средняя линия или полусумма оснований равна ${(fmt((s.AD + v.BC)/2))}, высота равна ${fmt(s.x)}. Значит, площадь трапеции равна ${fmt(s.area)}.`},
+                    {title:'Вывод', key:'answer', brief:`Площадь = ${fmt(s.area)}`, standard:`Ответ: <span class="inline-mark">${fmt(s.area)}</span>.`, full:'Главный урок этой задачи: если в трапеции удалось получить два прямоугольных треугольника, геометрия почти закончилась и начинается аккуратная алгебра.'}
+                ],
+                mistakes:[
+                    'не ввести среднюю линию и сразу пытаться искать основание напрямую;',
+                    'забыть, что площадь трапеции равна средней линии, умноженной на высоту;',
+                    'составить только одну теорему Пифагора, хотя неизвестных две.'
+                ],
+                answer:`S = ${fmt(s.area)}`,
+                summary:'Средняя линия + две высоты + две теоремы Пифагора.',
+                check:`Проверка: высота ${fmt(s.x)} положительна, а площадь ${fmt(s.area)} тоже положительна и согласуется с формулой трапеции.`,
+                legend:[['Средняя линия трапеции','accent'],['Две высоты','b'],['Большее основание AD','c'],['Малое основание BC','d']],
+                quiz:{q:'Что особенно полезно в такой трапеции перед поиском площади?', opts:['Сразу искать площадь по диагоналям','Ввести среднюю линию и высоты','Считать только углы'], correct:1, exp:'На занятии сначала вводили среднюю линию, а затем высоты.'},
+                selfcheck:['Я выразил площадь через среднюю линию и высоту.','Я получил два прямоугольных треугольника.','Я составил две теоремы Пифагора, а не одну.']
+            };
+        }
+
+        function computeAreaRatio(v){
+            if(v.type==='mqk_inside'){
+                const [a,b]=v.ratio;
+                const total=a+b;
+                const ans=a/total*v.whole;
+                return {
+                    topic:'Площадь по отношению отрезков на одной стороне',
+                    given:[`площадь большого треугольника равна ${fmt(v.whole)}`, `основание разделено в отношении ${a}:${b}`],
+                    meaning:[
+                        'малый и большой треугольники имеют общую высоту',
+                        'значит площади относятся как соответствующие основания'
+                    ],
+                    interpretation:'Это самый чистый вариант метода общей высоты: геометрия почти сразу превращается в отношение отрезков.',
+                    idea:[
+                        'Сравниваем треугольники с общей высотой.',
+                        'Меняем вопрос про площади на вопрос про отрезки.',
+                        'Восстанавливаем полное основание и берём нужную долю площади.'
+                    ],
+                    steps:[
+                        {title:'Что дано', key:'area', brief:'Известна площадь большого треугольника.', standard:`Площадь большого треугольника равна ${fmt(v.whole)}. Основание разделено на части ${a} и ${b}.`, full:'В таких задачах важно сразу увидеть, что площадь известна у большого треугольника, а искать нужно площадь меньшего куска, который имеет ту же высоту.'},
+                        {title:'Что означает условие', key:'height', brief:'Высота общая.', standard:'У малого и большого треугольников одна и та же высота, потому что вершина одна и та же, а основания лежат на одной прямой.', full:'Это ключевая школьная идея: если вершина фиксирована, а основания лежат на одной прямой, то высота к этим основаниям одинакова.'},
+                        {title:'Геометрическая интерпретация', key:'height', brief:'Площади относятся как основания.', standard:`Следовательно, площадь малого треугольника относится к площади большого как ${a} : ${a+b}.`, full:`Если основания относятся как ${a}:${a+b}, то и площади относятся точно так же. Здесь не нужны ни координаты, ни длинные вычисления.`},
+                        {title:'Ключевая идея', key:'formula', brief:'Берём нужную долю от всей площади.', standard:`Площадь малого треугольника равна ${fmt(v.whole)} · ${a}/${a+b}.`, full:`Мы просто берём от полной площади ту долю, которая соответствует доле основания. Это и есть главный переход «площади → отрезки».`},
+                        {title:'Доведение до ответа', key:'answer', brief:'Считаем.', standard:`Получаем: ${fmt(v.whole)} · ${a}/${a+b} = <span class="inline-mark">${fmt(ans)}</span>.`, full:`Так как всё основание состоит из ${a+b} равных частей, а нужный участок — из ${a} частей, малая площадь составляет ${a}/${a+b} от всей площади.`},
+                        {title:'Проверка', key:'answer', brief:'Проверяем здравый смысл.', standard:`Ответ ${fmt(ans)} меньше всей площади ${fmt(v.whole)}, что естественно.`, full:'Это обязательная быстрая проверка: площадь части не может быть больше площади всей фигуры.'},
+                        {title:'Вывод', key:'answer', brief:`Ответ: ${fmt(ans)}`, standard:`Ответ: <span class="inline-mark">${fmt(ans)}</span>.`, full:'Эта задача — эталонный пример применения общей высоты.'}
+                    ],
+                    mistakes:[
+                        'взять отношение a:b вместо a:(a+b);',
+                        'не восстановить полное основание;',
+                        'получить площадь части больше площади целого.'
+                    ],
+                    answer:`Искомая площадь = ${fmt(ans)}`,
+                    summary:'При общей высоте площади относятся как основания.',
+                    check:`Проверка: ${fmt(ans)} < ${fmt(v.whole)}.`,
+                    legend:[['Большой треугольник','accent'],['Малый треугольник','b'],['Основание из частей','c']],
+                    quiz:{q:'Если основание разделено как 3:4, то малая площадь относится к большой как…', opts:['3:4','3:7','4:7'], correct:1, exp:'Нужно сравнивать малую часть со всем основанием: 3:(3+4)=3:7.'},
+                    selfcheck:['Я восстановил всё основание, а не только вторую часть.','Я использовал общую высоту.','Я проверил, что площадь части меньше площади целого.']
+                };
+            }
+
+            return {
+                topic:'Сложное отношение площадей через медиану и параллельную прямую',
+                given:['в треугольнике проведена медиана BM', 'точка K — середина медианы BM', 'через K проведена прямая, параллельная AP, которая пересекает BC в точке P', 'нужно найти отношение S(ABK) : S(KPCM)'],
+                meaning:[
+                    'медиана делит треугольник на два равновеликих',
+                    'параллельная прямая даёт средние линии и равные отрезки',
+                    'удобно ввести маленькую площадь x и выразить через неё всё остальное'
+                ],
+                interpretation:'Это уже задача повышенной сложности: нужно не считать в лоб, а собирать конструкцию из стандартных кирпичиков.',
+                idea:[
+                    'Проводим вспомогательную прямую, параллельную одной из сторон.',
+                    'Получаем средние линии и деление стороны на удобные части.',
+                    'Выражаем площади через маленький треугольник площадью x, а потом сокращаем x.'
+                ],
+                steps:[
+                    {title:'Что дано', key:'med', brief:'Есть медиана и середина медианы.', standard:'В треугольнике ABC проведена медиана BM, а точка K делит BM пополам.', full:'Это уже очень сильная информация: медиана даёт равновеликие треугольники, а середина медианы часто запускает дополнительные построения с параллельными прямыми.'},
+                    {title:'Что означает условие', key:'parallel', brief:'Проводим параллельную прямую.', standard:'Через точку K проводится параллельная прямая. Благодаря этому появляются равные углы и средние линии.', full:'Параллельная прямая — один из главных приёмов занятия. Она помогает получить подобные треугольники, равные отрезки и деление стороны на удобные части.'},
+                    {title:'Геометрическая интерпретация', key:'parallel', brief:'Сторона делится на части.', standard:'После дополнительного построения оказывается, что сторона BC делится на три равные части.', full:'Из средней линии в одном треугольнике получаем, что одна точка делит сторону пополам, а из средней линии в другом — ещё одно деление. В сумме сторона BC распадается на три одинаковых куска.'},
+                    {title:'Ключевая идея', key:'x', brief:'Вводим маленькую площадь x.', standard:'Обозначим площадь самого маленького треугольника через x.', full:'Это важный методический ход: если выражать все площади через одну маленькую, то в конце она всё равно сократится, а вычисления станут прозрачнее.'},
+                    {title:'Доведение до ответа', key:'formula', brief:'Последовательно выражаем остальные площади.', standard:'Из общей высоты и отношений оснований получаем соседние площади: сначала 2x, потом 3x, затем 6x. После этого S(ABK)=3x, а S(KPCM)=5x.', full:'Маленький треугольник и соседний с ним имеют общую высоту, значит их площади относятся как основания. Затем используется факт, что медиана делит треугольник на равновеликие части, и так шаг за шагом получаем выражения 2x, 3x, 6x и далее.'},
+                    {title:'Проверка', key:'answer', brief:'Сокращаем x.', standard:'Итак, S(ABK) : S(KPCM) = 3x : 5x = <span class="inline-mark">3:5</span>.', full:'В этом месте видно, зачем вводили x: промежуточная величина просто сокращается, а остаётся чистое отношение площадей.'},
+                    {title:'Вывод', key:'answer', brief:'Ответ 3:5.', standard:'Ответ: <span class="inline-mark">3:5</span>.', full:'Главный вывод из этой задачи — сложная картинка часто разбирается через стандартные вещи: параллельные прямые, медиану, общую высоту и одну маленькую площадь x.'}
+                ],
+                mistakes:[
+                    'не провести дополнительную параллельную прямую;',
+                    'не использовать медиану как источник равновеликих треугольников;',
+                    'пытаться считать площади напрямую без введения x.'
+                ],
+                answer:'S(ABK) : S(KPCM) = 3:5',
+                summary:'Параллельная прямая + медиана + общая высота + маленькая площадь x.',
+                check:'Проверка: общий множитель x сокращается, и отношение не зависит от абсолютных размеров рисунка.',
+                legend:[['Медиана BM','accent'],['Точка K — середина BM','b'],['Параллельная вспомогательная прямая','c'],['Маленький треугольник x','d']],
+                quiz:{q:'Что удобнее всего сделать в сложной задаче на отношение площадей?', opts:['Сразу подставлять числа','Ввести маленькую площадь x и выразить через неё остальные','Строить окружность'], correct:1, exp:'Именно так на занятии упрощали длинные отношения площадей.'},
+                selfcheck:['Я понял, зачем нужна параллельная прямая.','Я использовал медиану как источник равновеликих треугольников.','Я смог выразить все площади через одну маленькую x.']
+            };
+        }
+
+        function buildModeButtons(){
+            modeButtons.innerHTML=''; taskTypeSelect.innerHTML='';
+            Object.entries(modeDefs).forEach(([key,def])=>{
+                const btn=document.createElement('button');
+                btn.className='mode-btn'+(state.mode===key?' active':'');
+                btn.innerHTML=`<strong>${def.label}</strong><span>${def.short}</span>`;
+                btn.addEventListener('click',()=>setMode(key,true));
+                modeButtons.appendChild(btn);
+                const opt=document.createElement('option'); opt.value=key; opt.textContent=def.label; if(key===state.mode) opt.selected=true; taskTypeSelect.appendChild(opt);
+            });
+        }
+
+        function variantName(mode,v,i){
+            if(mode==='isoscelesAngles') return `Вариант ${i+1}: угол вершины ${fmt(v.A)}°`;
+            if(mode==='rightTriangleIdea') return `Вариант ${i+1}: вершина ${fmt(v.topA)}°`;
+            if(mode==='trapezoidHeight') return `Вариант ${i+1}: ${fmt(v.AB)}, ${fmt(v.CD)}, ${fmt(v.BC)}`;
+            if(v.type==='mqk_inside') return `Вариант ${i+1}: отношение ${v.ratio[0]}:${v.ratio[1]}`;
+            return `Вариант ${i+1}: сложное отношение площадей`;
+        }
+        function refreshVariantSelect(){
+            variantSelect.innerHTML='';
+            modeDefs[state.mode].variants.forEach((v,i)=>{
+                const opt=document.createElement('option'); opt.value=i; opt.textContent=variantName(state.mode,v,i); if(i===state.variantIndex) opt.selected=true; variantSelect.appendChild(opt);
+            });
+        }
+
+        function render(){
+            buildModeButtons(); refreshVariantSelect(); taskTypeSelect.value=state.mode; detailLevel.value=state.detail; zoomRange.value=zoomRangeTop.value=state.zoom; stage.style.transform=`scale(${state.zoom})`; seedBox.textContent=seedText();
+            const data=computeCurrent();
+            vizTitle.textContent=data.topic; vizSubtitle.textContent=data.summary;
+            ideaBox.innerHTML=`<ol>${data.idea.map(x=>`<li>${x}</li>`).join('')}</ol>`;
+            renderSteps(data); renderMistakes(data); renderLegend(data); renderResult(data); renderQuiz(data.quiz); renderSelfcheck(data.selfcheck); drawScene(data);
+        }
+
+        function renderSteps(data){
+            stepsContainer.innerHTML='';
+            data.steps.forEach((step,idx)=>{
+                const hidden=idx>=state.revealCount;
+                const article=document.createElement('article');
+                article.className='step '+(!hidden?'revealed expanded':''); article.dataset.hidden=hidden?'1':'0'; article.dataset.key=step.key;
+                article.innerHTML=`<h3><span class="step-tag">${idx+1}</span>${step.title}</h3><div class="step-body">${step[state.detail]}</div>${hidden?'<div class="step-toggle"><button class="btn secondary">Открыть этот шаг</button></div>':''}`;
+                article.addEventListener('mouseenter',()=>highlightKey(step.key)); article.addEventListener('mouseleave',clearHighlights);
+                article.querySelector('.btn.secondary')?.addEventListener('click',()=>{state.revealCount=Math.max(state.revealCount,idx+1); render();});
+                stepsContainer.appendChild(article);
+            });
+        }
+        function renderMistakes(data){ mistakesBox.innerHTML=`<ul>${data.mistakes.map(x=>`<li>${x}</li>`).join('')}</ul>`; }
+        function renderLegend(data){ legendBox.innerHTML=data.legend.map(([label,cls])=>`<div class="legend-item" data-key="${label.toLowerCase()}"><span class="swatch ${cls==='accent'?'':cls}"></span><span>${label}</span></div>`).join(''); }
+        function renderResult(data){ resultSummary.textContent=data.summary; resultAnswer.textContent=data.answer; resultCheck.innerHTML=`<strong>Проверка.</strong> ${data.check}`; }
+        function renderQuiz(q){ quizQuestion.textContent=q.q; quizOptions.innerHTML=''; quizFeedback.textContent=''; q.opts.forEach((opt,idx)=>{ const b=document.createElement('button'); b.className='btn secondary'; b.textContent=opt; b.addEventListener('click',()=>{ const ok=idx===q.correct; quizFeedback.textContent=(ok?'Верно. ':'Пока нет. ')+q.exp; quizFeedback.style.color=ok?'var(--ok)':'var(--warn)'; }); quizOptions.appendChild(b); }); }
+        function renderSelfcheck(items){ selfcheckList.innerHTML=items.map(t=>`<label class="selfcheck-item"><input type="checkbox" /><span>${t}</span></label>`).join(''); }
+
+        function seedText(){ const v=currentVariant(); if(state.mode==='isoscelesAngles') return `∠A=${fmt(v.A)}°`; if(state.mode==='rightTriangleIdea') return `∠A=${fmt(v.topA)}°, внутренний угол ${fmt(v.innerA)}°, гипотенуза ${fmt(v.hyp)}`; if(state.mode==='trapezoidHeight') return `AB=${fmt(v.AB)}, CD=${fmt(v.CD)}, BC=${fmt(v.BC)}`; return v.type==='mqk_inside' ? `отношение ${v.ratio[0]}:${v.ratio[1]}` : 'медиана + параллельная'; }
+
+        function setMode(mode,toast=false){ state.mode=mode; state.variantIndex=0; state.revealCount=1; render(); if(toast) showSmallHint('Режим изменён: обновились и модель, и план решения.'); }
+        function setZoom(z){ state.zoom=Math.max(0.7,Math.min(1.8,round(z,2))); zoomRange.value=zoomRangeTop.value=state.zoom; stage.style.transform=`scale(${state.zoom})`; }
+
+        function defs(){
+            const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');
+            defs.innerHTML=`<filter id="glow"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+            stage.appendChild(defs);
+        }
+        function make(tag,attrs,parent=stage){ const el=document.createElementNS('http://www.w3.org/2000/svg',tag); Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v)); parent.appendChild(el); return el; }
+        function line(x1,y1,x2,y2,key,opt={}){ make('line',{x1,y1,x2,y2,stroke:opt.stroke||'#57d0c8','stroke-width':opt.w||3,'stroke-dasharray':opt.dash||'','data-key':key,opacity:opt.opacity||1}); }
+        function text(x,y,t,key,color='#eef7f8',size=18){ const el=make('text',{x,y,fill:color,'font-size':size,'font-weight':'700','data-key':key}); el.textContent=t; return el; }
+        function point(x,y,key,name,color='#8bf4ea'){ make('circle',{cx:x,cy:y,r:5,fill:color,stroke:'#081218','stroke-width':2,'data-key':key}); if(state.showLabels) text(x+10,y-10,name,key,color,18); }
+        function poly(points,key,fill='none',stroke='#2c576a',w=3){ make('path',{d:points.map((p,i)=>`${i?'L':'M'} ${p[0]} ${p[1]}`).join(' ')+' Z', fill, stroke, 'stroke-width':w, 'data-key':key}); }
+        function path(points,key,stroke='#57d0c8',w=3){ make('path',{d:points.map((p,i)=>`${i?'L':'M'} ${p[0]} ${p[1]}`).join(' '), fill:'none', stroke, 'stroke-width':w, 'data-key':key}); }
+
+        function drawScene(data){ stage.innerHTML=''; defs(); if(state.mode==='isoscelesAngles') drawIsosceles(); if(state.mode==='rightTriangleIdea') drawRightIdea(); if(state.mode==='trapezoidHeight') drawTrap(); if(state.mode==='areaRatio') drawAreaMode(); stage.querySelectorAll('[data-key]').forEach(el=>{ el.addEventListener('mouseenter',()=>highlightKey(el.dataset.key)); el.addEventListener('mouseleave',clearHighlights); }); }
+
+        function drawIsosceles(){
+            const A=[380,110], B=[170,430], C=[590,430], X=[330,280], Y=[430,280];
+            poly([A,B,C],'iso','rgba(255,210,124,.08)');
+            if(state.showAux){ path([A,X,B],'inner','#78a9ff',3); path([A,Y,C],'inner','#78a9ff',3); }
+            line(X[0],X[1],Y[0],Y[1],'inner',{stroke:'#df9cff',w:3});
+            point(...A,'iso','A'); point(...B,'iso','B'); point(...C,'iso','C'); point(...X,'inner','X','#78a9ff'); point(...Y,'inner','Y','#78a9ff');
+            text(88,512,'Сначала ищем углы большого равнобедренного треугольника', 'formula', '#8bf4ea', 18);
+        }
+
+        function drawRightIdea(){
+            const A=[180,430], B=[620,430], C=[320,110], X=[320,430], Y=[430,260];
+            poly([A,B,C],'outer','rgba(255,210,124,.07)');
+            if(state.showAux){ line(C[0],C[1],X[0],X[1],'right',{stroke:'#df9cff',w:3,dash:'8 7'}); }
+            path([A,Y,C],'right','#78a9ff',3); line(Y[0],Y[1],X[0],X[1],'right',{stroke:'#57d0c8',w:3});
+            point(...A,'outer','A'); point(...B,'outer','B'); point(...C,'outer','C'); point(...X,'right','H','#df9cff'); point(...Y,'right','Y','#78a9ff');
+            text(80,515,'Ищем внутренний прямоугольный треугольник', 'formula', '#8bf4ea', 18);
+        }
+
+        function drawTrap(){
+            const A=[150,420], B=[265,190], C=[425,190], D=[610,420], H=[425,420], K=[265,420], Q=[207.5,305], T=[357.5,305];
+            poly([A,B,C,D],'trap','rgba(255,210,124,.07)');
+            line(Q[0],Q[1],T[0],T[1],'midline',{stroke:'#57d0c8',w:4});
+            if(state.showAux){ line(B[0],B[1],K[0],K[1],'right',{stroke:'#78a9ff',w:3,dash:'8 7'}); line(C[0],C[1],H[0],H[1],'right',{stroke:'#78a9ff',w:3,dash:'8 7'}); }
+            point(...A,'trap','A'); point(...B,'trap','B'); point(...C,'trap','C'); point(...D,'trap','D'); point(...Q,'midline','Q','#57d0c8'); point(...T,'midline','T','#57d0c8'); point(...K,'right','K','#78a9ff'); point(...H,'right','H','#78a9ff');
+            text(70,515,'Средняя линия + две высоты → Пифагор', 'formula', '#8bf4ea', 18);
+        }
+
+        function drawAreaMode(){
+            if(currentVariant().type==='mqk_inside'){
+                const A=[170,430], B=[600,430], C=[310,130], Q=[354,430], M=[310,130];
+                poly([A,B,C],'area','rgba(255,210,124,.07)');
+                line(M[0],M[1],Q[0],Q[1],'height',{stroke:'#57d0c8',w:3});
+                point(...A,'area','M'); point(...B,'area','T'); point(...C,'area','K'); point(...Q,'height','Q','#78a9ff');
+                text(60,515,'Общая высота: площади относятся как основания', 'formula', '#8bf4ea', 18);
+                return;
+            }
+            const A=[150,130], B=[120,450], C=[630,450], M=[390,450], K=[255,290], P=[290,450], T=[505,290];
+            poly([A,B,C],'med','rgba(255,210,124,.07)');
+            if(state.showAux){ line(B[0],B[1],M[0],M[1],'med',{stroke:'#78a9ff',w:3}); line(K[0],K[1],T[0],T[1],'parallel',{stroke:'#df9cff',w:3,dash:'8 7'}); }
+            line(A[0],A[1],P[0],P[1],'parallel',{stroke:'#57d0c8',w:3}); line(K[0],K[1],P[0],P[1],'parallel',{stroke:'#57d0c8',w:3}); line(M[0],M[1],T[0],T[1],'parallel',{stroke:'#df9cff',w:3});
+            point(...A,'med','A'); point(...B,'med','B'); point(...C,'med','C'); point(...M,'med','M','#78a9ff'); point(...K,'med','K','#78a9ff'); point(...P,'parallel','P','#57d0c8'); point(...T,'parallel','T','#df9cff');
+            text(60,515,'Маленькая площадь x помогает выразить остальные', 'formula', '#8bf4ea', 18);
+        }
+
+        function highlightKey(key){
+            if(!state.showHighlights) return;
+            clearHighlights();
+            document.querySelectorAll(`[data-key="${key}"]`).forEach(el=>el.classList?.add('highlight'));
+            stage.querySelectorAll(`[data-key="${key}"]`).forEach(el=>el.setAttribute('filter','url(#glow)'));
+        }
+        function clearHighlights(){ document.querySelectorAll('.highlight').forEach(el=>el.classList.remove('highlight')); stage.querySelectorAll('[filter="url(#glow)"]').forEach(el=>el.removeAttribute('filter')); }
+
+        function genSimilar(){
+            let g;
+            if(state.mode==='isoscelesAngles'){
+                const A=choice([20,30,40,50,60,70]); const ans=(180-A)/2;
+                g={mode:'isoscelesAngles', variant:{A,extra:'equalInner'}, text:`В равнобедренном треугольнике ABC выполнено AB = AC и ∠A = ${A}°. Найдите углы при основании.`, answer:`${ans}° и ${ans}°`, idea:'Два угла при основании равны и вместе дают 180° − ∠A.'};
+            }
+            if(state.mode==='rightTriangleIdea'){
+                const topA=choice([60,70,80]); const innerA=choice([20,25,30,35]); const hyp=choice([10,13,15]); const cat=round(hyp*Math.sin(innerA*Math.PI/180));
+                g={mode:'rightTriangleIdea', variant:{topA,innerA,hyp}, text:`Внутри конфигурации получается прямоугольный треугольник с гипотенузой ${hyp} и острым углом ${innerA}°. Найдите противолежащий катет.`, answer:`≈ ${fmt(cat)}`, idea:'Используем формулу катет = гипотенуза · sin угла.'};
+            }
+            if(state.mode==='trapezoidHeight'){
+                const AB=choice([13,15,17,20]); const CD=AB+choice([1,2,3,4]); const BC=choice([6,8,10,12]); const s=solveTrapezoidExact({AB,CD,BC});
+                g={mode:'trapezoidHeight', variant:{AB,CD,BC}, text:`В трапеции боковые стороны равны ${AB} и ${CD}, малое основание равно ${BC}. После введения средней линии найдите площадь.`, answer:`≈ ${fmt(s.area)}`, idea:'Сначала средняя линия и основание, потом две высоты и Пифагор.'};
+            }
+            if(state.mode==='areaRatio'){
+                if(choice([0,1])===0){ const a=choice([2,3,4]); const b=choice([3,4,5]); g={mode:'areaRatio', variant:{type:'mqk_inside', ratio:[a,b], whole:1}, text:`Площадь большого треугольника равна 1. Основание делится в отношении ${a}:${b}. Найдите площадь меньшего треугольника с общей высотой.`, answer:`${fmt(a/(a+b))}`, idea:'При общей высоте площади относятся как основания.'}; }
+                else { g={mode:'areaRatio', variant:{type:'abk_to_kpcm'}, text:'В треугольнике с медианой и дополнительной параллельной прямой найдите отношение S(ABK):S(KPCM).', answer:'3:5', idea:'Вводим маленькую площадь x и выражаем через неё остальные части.'}; }
+            }
+            state.generated=g;
+            generatedTaskBox.innerHTML=`<div><strong>Условие.</strong> ${g.text}</div><div class="task-answer" style="margin-top:10px">Ответ: ${g.answer}</div><div class="task-idea" style="margin-top:8px"><strong>Короткая идея.</strong> ${g.idea}</div>`;
+        }
+
+        function applyGenerated(){ if(!state.generated) return; setMode(state.generated.mode); modeDefs[state.mode].variants.push(state.generated.variant); state.variantIndex=modeDefs[state.mode].variants.length-1; state.revealCount=1; render(); }
+
+        function attach(){
+            taskTypeSelect.addEventListener('change',e=>setMode(e.target.value,true));
+            variantSelect.addEventListener('change',e=>{state.variantIndex=+e.target.value; state.revealCount=1; render();});
+            detailLevel.addEventListener('change',e=>{state.detail=e.target.value; render();});
+            document.getElementById('revealNextBtn').addEventListener('click',()=>{state.revealCount=Math.min(computeCurrent().steps.length,state.revealCount+1); render();});
+            document.getElementById('revealAllBtn').addEventListener('click',()=>{state.revealCount=computeCurrent().steps.length; render();});
+            document.getElementById('collapseBtn').addEventListener('click',()=>{state.revealCount=1; render();});
+            document.getElementById('newVariantBtn').addEventListener('click',()=>{state.variantIndex=(state.variantIndex+1)%modeDefs[state.mode].variants.length; state.revealCount=1; render(); showSmallHint('Параметры обновлены: схема и объяснение перестроены.');});
+            document.getElementById('resetModelBtn').addEventListener('click',()=>{state.zoom=1; zoomRange.value=zoomRangeTop.value=1; state.revealCount=1; render();});
+            document.getElementById('generateTaskBtn').addEventListener('click',()=>{genSimilar(); openHintById('generateHint', document.querySelector('[data-hint="generateHint"]'));});
+            document.getElementById('applyGeneratedBtn').addEventListener('click',applyGenerated);
+            document.getElementById('printBtn').addEventListener('click',()=>window.print());
+            document.getElementById('zoomInBtn').addEventListener('click',()=>setZoom(state.zoom+0.1));
+            document.getElementById('zoomOutBtn').addEventListener('click',()=>setZoom(state.zoom-0.1));
+            document.getElementById('zoomResetBtn').addEventListener('click',()=>setZoom(1));
+            [zoomRange,zoomRangeTop].forEach(inp=>inp.addEventListener('input',e=>setZoom(+e.target.value)));
+            showLabelsToggle.addEventListener('change',e=>{state.showLabels=e.target.checked; render();});
+            showAuxToggle.addEventListener('change',e=>{state.showAux=e.target.checked; render();});
+            showHighlightsToggle.addEventListener('change',e=>{state.showHighlights=e.target.checked; if(!state.showHighlights) clearHighlights();});
+            stage.addEventListener('wheel',e=>{e.preventDefault(); setZoom(state.zoom + (Math.sign(e.deltaY)*-0.08));},{passive:false});
+            document.querySelectorAll('.hint-trigger').forEach(tr=>{ tr.addEventListener('mouseenter',()=>openHintById(tr.dataset.hint,tr)); tr.addEventListener('focus',()=>openHintById(tr.dataset.hint,tr)); tr.addEventListener('click',()=>openHintById(tr.dataset.hint,tr)); });
+            hintCloseBtn.addEventListener('click',closeHint);
+            document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeHint(); });
+            document.addEventListener('click',e=>{ if(!hintPopup.contains(e.target) && !e.target.closest('.hint-trigger')) closeHint(); });
+        }
+
+        function openHintById(id,anchor){
+            const info=hints[id]; if(!info) return;
+            hintTitle.textContent=info.title; hintBody.innerHTML=info.body; hintActions.innerHTML='';
+            (info.actions||[]).forEach(a=>{ const b=document.createElement('button'); b.className='btn secondary'; b.textContent=a.label; b.addEventListener('click',()=>runHintAction(a.action)); hintActions.appendChild(b); });
+            hintPopup.dataset.pos=info.pos||'bottom'; positionHint(anchor, info.pos||'bottom'); hintPopup.classList.add('visible'); hintPopup.setAttribute('aria-hidden','false'); anchor?.classList.add('active'); clearTimeout(openHintById.timer); openHintById.timer=setTimeout(closeHint,15000);
+        }
+        function positionHint(anchor,pos){ if(!anchor) return; const a=anchor.getBoundingClientRect(); hintPopup.style.left='-9999px'; hintPopup.style.top='-9999px'; hintPopup.classList.add('visible'); const b=hintPopup.getBoundingClientRect(); let left=a.left+window.scrollX, top=a.bottom+window.scrollY+12; if(pos==='top') top=a.top+window.scrollY-b.height-12; if(pos==='left'){ left=a.left+window.scrollX-b.width-12; top=a.top+window.scrollY; } if(pos==='right'){ left=a.right+window.scrollX+12; top=a.top+window.scrollY; } left=Math.max(12,Math.min(left,window.scrollX+window.innerWidth-b.width-12)); top=Math.max(12,top); hintPopup.style.left=left+'px'; hintPopup.style.top=top+'px'; }
+        function closeHint(){ hintPopup.classList.remove('visible'); hintPopup.setAttribute('aria-hidden','true'); document.querySelectorAll('.hint-trigger.active').forEach(x=>x.classList.remove('active')); }
+        function runHintAction(action){ if(action==='cycleMode'){ const keys=Object.keys(modeDefs); const idx=keys.indexOf(state.mode); setMode(keys[(idx+1)%keys.length],true); } if(action==='showExample'){ state.revealCount=Math.max(2,state.revealCount); render(); } if(action==='resetZoom') setZoom(1); if(action==='generateNow') genSimilar(); if(action==='showIdea') document.querySelector('.idea-box')?.scrollIntoView({behavior:'smooth', block:'center'}); closeHint(); }
+        function showSmallHint(text){ hintTitle.textContent='Изменение'; hintBody.innerHTML=`<p>${text}</p>`; hintActions.innerHTML=''; positionHint(document.querySelector('[data-hint="taskTypeHint"]')||taskTypeSelect,'bottom'); hintPopup.classList.add('visible'); hintPopup.setAttribute('aria-hidden','false'); clearTimeout(openHintById.timer); openHintById.timer=setTimeout(closeHint,4500); }
+        function autoHint(){ if(sessionStorage.getItem('math-geo-hint-shown')) return; setTimeout(()=>{ sessionStorage.setItem('math-geo-hint-shown','1'); openHintById('taskTypeHint', document.querySelector('[data-hint="taskTypeHint"]')); },3000); }
+
+        attach(); render(); genSimilar(); autoHint();
+    })();
+</script>
+</body>
+</html>

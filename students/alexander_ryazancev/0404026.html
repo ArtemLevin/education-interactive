@@ -1,0 +1,2816 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — теория и задачи по мотивам пособия</title>
+    <style>
+        :root{
+            --bg:#061116;
+            --bg2:#08171d;
+            --panel:#0c1c23;
+            --panel2:#102832;
+            --line:rgba(255,255,255,.10);
+            --line-strong:rgba(142,247,240,.34);
+            --text:#ecf7f8;
+            --muted:#9db8bd;
+            --accent:#36d7d1;
+            --accent2:#159a98;
+            --accent3:#8ef7f0;
+            --gold:#ffd166;
+            --pink:#ff7a90;
+            --violet:#c7b7ff;
+            --blue:#71b7ff;
+            --ok:#88f7a1;
+            --warn:#ffd166;
+            --danger:#ff8094;
+            --shadow:0 18px 42px rgba(0,0,0,.32);
+            --radius:22px;
+            --radius-sm:16px;
+            --step-glow:0 0 0 1px rgba(54,215,209,.28), 0 0 26px rgba(54,215,209,.12);
+            --sticky-top:16px;
+            --font:Inter,Segoe UI,Arial,sans-serif;
+            --curve-color:var(--accent);
+            --axis-color:var(--accent3);
+            --vertex-color:var(--gold);
+            --point-color:var(--pink);
+            --root-color:var(--violet);
+            --coin-head:#ffd166;
+            --coin-tail:#8ec5ff;
+            --trap-color:#8ef7f0;
+        }
+
+        *{box-sizing:border-box}
+        html,body{
+            margin:0;
+            padding:0;
+            background:
+            radial-gradient(circle at top, #11303d 0%, #08141b 35%, #040b0f 100%);
+            color:var(--text);
+            font-family:var(--font);
+            scroll-behavior:smooth;
+        }
+        body{min-height:100vh}
+        button,input,select,textarea{font:inherit}
+        svg text{font-family:var(--font)}
+        a{color:var(--accent3)}
+        .sr-only{
+            position:absolute!important;
+            width:1px!important;
+            height:1px!important;
+            padding:0!important;
+            margin:-1px!important;
+            overflow:hidden!important;
+            clip:rect(0,0,0,0)!important;
+            white-space:nowrap!important;
+            border:0!important;
+        }
+
+        .page{
+            max-width:1500px;
+            margin:0 auto;
+            padding:20px;
+        }
+
+        .hero{
+            display:grid;
+            grid-template-columns:minmax(0,1.18fr) minmax(380px,.96fr);
+            gap:18px;
+            align-items:stretch;
+            margin-bottom:18px;
+        }
+
+        .card,
+        .panel,
+        .controlCard,
+        .heroCard,
+        .quizCard,
+        .printCard{
+            border:1px solid var(--line);
+            border-radius:var(--radius);
+            background:
+            linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.015));
+            backdrop-filter:blur(10px);
+            box-shadow:var(--shadow);
+            min-width:0;
+        }
+
+        .heroCard{
+            padding:28px;
+            position:relative;
+            overflow:hidden;
+        }
+        .heroCard::before{
+            content:"";
+            position:absolute;
+            right:-110px;
+            bottom:-110px;
+            width:460px;
+            height:460px;
+            border-radius:50%;
+            background:radial-gradient(circle, rgba(54,215,209,.18), transparent 62%);
+            pointer-events:none;
+        }
+
+        .badge{
+            display:inline-flex;
+            align-items:center;
+            gap:10px;
+            border-radius:999px;
+            padding:8px 14px;
+            border:1px solid rgba(54,215,209,.28);
+            background:rgba(54,215,209,.08);
+            color:var(--accent3);
+            font-size:14px;
+            margin-bottom:14px;
+        }
+
+        h1{
+            margin:0 0 12px;
+            font-size:clamp(30px,4.1vw,50px);
+            line-height:1.05;
+            max-width:18ch;
+        }
+
+        .lead{
+            margin:0 0 16px;
+            color:var(--muted);
+            font-size:18px;
+            line-height:1.62;
+            max-width:78ch;
+        }
+
+        .meta{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+        }
+        .meta span{
+            border:1px solid var(--line);
+            background:rgba(255,255,255,.035);
+            padding:8px 12px;
+            border-radius:999px;
+            font-size:14px;
+            color:#dbf5f7;
+        }
+
+        .controlCard{
+            padding:20px;
+            display:grid;
+            grid-template-rows:auto auto auto auto 1fr;
+            gap:14px;
+        }
+
+        .kicker{
+            font-size:12px;
+            text-transform:uppercase;
+            letter-spacing:.12em;
+            color:var(--accent3);
+            margin-bottom:10px;
+        }
+
+        .toolbar{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:12px;
+        }
+
+        .field{
+            position:relative;
+            border:1px solid var(--line);
+            background:rgba(255,255,255,.03);
+            border-radius:18px;
+            padding:12px;
+            min-width:0;
+        }
+
+        .field label{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            font-size:13px;
+            color:#dff3f5;
+            margin-bottom:8px;
+        }
+
+        .field select,
+        .field input[type="range"]{
+            width:100%;
+            min-width:0;
+        }
+
+        .field select{
+            border:1px solid var(--line);
+            border-radius:12px;
+            padding:10px 12px;
+            background:#071117;
+            color:var(--text);
+            outline:none;
+        }
+
+        .field select:focus,
+        .btn:focus-visible,
+        .hintTrigger:focus-visible,
+        .stepPill:focus-visible,
+        .modeChip:focus-visible,
+        .legendBadge:focus-visible,
+        input[type="text"]:focus-visible{
+            outline:2px solid rgba(142,247,240,.66);
+            outline-offset:2px;
+        }
+
+        .toggleRow{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+        }
+
+        .toggle{
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            padding:10px 12px;
+            border-radius:999px;
+            border:1px solid var(--line);
+            background:#08131a;
+            color:#d6edf0;
+            cursor:pointer;
+            user-select:none;
+        }
+        .toggle input{accent-color:var(--accent)}
+
+        .actions{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            align-items:center;
+        }
+
+        .btn{
+            border:none;
+            border-radius:14px;
+            padding:12px 16px;
+            cursor:pointer;
+            font-weight:800;
+            transition:transform .22s ease, box-shadow .22s ease, background .22s ease, opacity .22s ease;
+            min-height:46px;
+        }
+        .btn:hover{transform:translateY(-1px)}
+        .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+        .btn.primary{
+            background:linear-gradient(135deg, var(--accent), var(--accent2));
+            color:#032528;
+            box-shadow:0 10px 28px rgba(54,215,209,.22);
+        }
+        .btn.primary:hover{box-shadow:0 14px 34px rgba(54,215,209,.28)}
+        .btn.secondary{
+            background:#09141a;
+            color:var(--text);
+            border:1px solid var(--line);
+            box-shadow:none;
+        }
+        .btn.ghost{
+            background:rgba(255,255,255,.03);
+            color:var(--text);
+            border:1px solid var(--line);
+            box-shadow:none;
+        }
+        .btn.small{
+            padding:8px 12px;
+            min-height:38px;
+            border-radius:12px;
+            font-size:14px;
+            font-weight:700;
+        }
+
+        .layout{
+            display:grid;
+            grid-template-columns:minmax(0,1.08fr) minmax(390px,.92fr);
+            gap:18px;
+            align-items:start;
+        }
+
+        .leftCol{
+            display:grid;
+            gap:18px;
+            min-width:0;
+        }
+
+        .rightCol{
+            position:sticky;
+            top:var(--sticky-top);
+            display:grid;
+            gap:18px;
+            align-self:start;
+            min-width:0;
+        }
+
+        .panel,
+        .quizCard,
+        .printCard{
+            padding:20px;
+            min-width:0;
+            overflow-wrap:anywhere;
+        }
+
+        .panel h2,
+        .panel h3,
+        .quizCard h2,
+        .printCard h2{
+            margin:0 0 12px;
+        }
+
+        .subtle{
+            color:var(--muted);
+            line-height:1.62;
+        }
+
+        .topicGrid{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:10px;
+        }
+
+        .factGrid{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:10px;
+        }
+
+        .topicBadge,
+        .factRow,
+        .ideaItem,
+        .mistakeItem,
+        .legendItem,
+        .checkItem,
+        .quizItem,
+        .microItem,
+        .anchorItem,
+        .modelNote,
+        .theoryItem,
+        .exerciseItem,
+        .answerItem{
+            border:1px solid var(--line);
+            border-radius:18px;
+            padding:14px 16px;
+            background:rgba(255,255,255,.03);
+            min-width:0;
+        }
+
+        .ideaList,
+        .mistakeList,
+        .legendList,
+        .checkList,
+        .microList,
+        .anchorList,
+        .theoryList,
+        .exerciseList,
+        .answersList{
+            display:grid;
+            gap:10px;
+        }
+
+        .topicSection{
+            border-top:1px solid rgba(255,255,255,.08);
+            padding-top:12px;
+            margin-top:12px;
+        }
+        .topicSection:first-of-type{
+            border-top:none;
+            padding-top:0;
+            margin-top:0;
+        }
+
+        .stepNav{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            margin-bottom:14px;
+        }
+
+        .stepPill,
+        .modeChip{
+            border:1px solid var(--line);
+            border-radius:999px;
+            background:#09131a;
+            color:#d4edf1;
+            padding:10px 12px;
+            cursor:pointer;
+            transition:.2s ease;
+        }
+        .stepPill:hover,
+        .stepPill.active,
+        .modeChip:hover,
+        .modeChip.active{
+            border-color:rgba(54,215,209,.46);
+            color:#fff;
+            box-shadow:var(--step-glow);
+        }
+
+        .step{
+            border:1px solid var(--line);
+            border-radius:20px;
+            padding:18px;
+            background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02));
+            margin-bottom:14px;
+            scroll-margin-top:20px;
+            transition:border-color .22s ease, box-shadow .22s ease, transform .22s ease, background .22s ease;
+            min-width:0;
+        }
+        .step:hover{transform:translateY(-1px)}
+        .step.locked{display:none}
+        .step.active{
+            border-color:rgba(54,215,209,.52);
+            box-shadow:var(--step-glow);
+        }
+        .step.linked{
+            border-color:rgba(54,215,209,.54);
+            box-shadow:0 0 0 1px rgba(54,215,209,.26), 0 0 22px rgba(54,215,209,.13);
+            background:linear-gradient(180deg, rgba(54,215,209,.09), rgba(255,255,255,.02));
+        }
+
+        .stepHeader{
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+            gap:12px;
+            margin-bottom:10px;
+        }
+        .stepHeader h3{
+            margin:0;
+            font-size:22px;
+            line-height:1.2;
+        }
+        .stepTag{
+            white-space:nowrap;
+            font-size:12px;
+            color:var(--accent3);
+            border:1px solid rgba(54,215,209,.24);
+            border-radius:999px;
+            padding:7px 10px;
+            background:rgba(54,215,209,.08);
+        }
+
+        .math{
+            font-weight:700;
+            letter-spacing:.01em;
+        }
+        .formula{
+            margin:10px 0;
+            padding:12px 14px;
+            border-left:4px solid var(--accent);
+            border-radius:12px;
+            background:rgba(54,215,209,.08);
+            overflow:auto hidden;
+            line-height:1.65;
+        }
+        .callout{
+            margin:12px 0;
+            padding:12px 14px;
+            border-radius:14px;
+            border:1px solid rgba(255,209,102,.28);
+            background:rgba(255,209,102,.08);
+            color:#fff2c7;
+        }
+        .proof{
+            margin:12px 0;
+            padding:12px 14px;
+            border-radius:14px;
+            border:1px solid rgba(136,247,161,.24);
+            background:rgba(136,247,161,.08);
+            color:#defce7;
+        }
+        .dangerBox{
+            margin:12px 0;
+            padding:12px 14px;
+            border-radius:14px;
+            border:1px solid rgba(255,122,144,.28);
+            background:rgba(255,122,144,.08);
+            color:#ffe4ea;
+        }
+
+        .linkTarget{
+            border-bottom:1px dashed rgba(142,247,240,.42);
+            cursor:pointer;
+        }
+
+        .detail{display:none}
+        .detail.visible{display:block}
+        .small{
+            color:var(--muted);
+            font-size:13px;
+            line-height:1.55;
+        }
+
+        .exerciseHeader{
+            display:flex;
+            justify-content:space-between;
+            gap:10px;
+            align-items:flex-start;
+            margin-bottom:8px;
+        }
+
+        .visualWrap{
+            min-height:680px;
+        }
+
+        .visualHead{
+            display:flex;
+            flex-wrap:wrap;
+            justify-content:space-between;
+            gap:12px;
+            align-items:flex-start;
+            margin-bottom:10px;
+        }
+        .visualHead h2{
+            margin:0;
+            font-size:22px;
+        }
+
+        .statusBar{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+        }
+        .statusBar span{
+            padding:8px 10px;
+            border-radius:999px;
+            background:#09141a;
+            border:1px solid var(--line);
+            color:#daf7f4;
+            font-size:13px;
+            max-width:100%;
+        }
+
+        .modeRow{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+            margin-bottom:12px;
+        }
+
+        .canvasShell{
+            border:1px solid var(--line);
+            border-radius:24px;
+            padding:12px;
+            background:
+            radial-gradient(circle at 30% 20%, rgba(54,215,209,.1), transparent 25%),
+            #081117;
+            overflow:hidden;
+            min-width:0;
+        }
+
+        .svgWrap{
+            position:relative;
+            min-height:500px;
+            border-radius:18px;
+            overflow:hidden;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:
+            linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px),
+            radial-gradient(circle at center, rgba(54,215,209,.07), transparent 58%);
+            background-size:36px 36px, 36px 36px, auto;
+            touch-action:none;
+            contain:layout paint style;
+        }
+
+        svg{
+            display:block;
+            width:100%;
+            height:520px;
+            max-width:100%;
+            overflow:visible;
+            transform-origin:50% 50%;
+            transition:transform .14s ease-out;
+            will-change:transform;
+        }
+
+        .zoomPanel{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+            align-items:center;
+            margin:12px 0 8px;
+        }
+        .zoomPanel input[type="range"]{flex:1;min-width:120px}
+        .zoomReadout{
+            min-width:70px;
+            text-align:center;
+            padding:10px 12px;
+            border-radius:12px;
+            border:1px solid var(--line);
+            background:#09141a;
+            font-size:13px;
+            color:#dbf7f4;
+        }
+
+        .legend{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:10px;
+            margin-top:10px;
+        }
+        .legendBadge{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            border:1px solid var(--line);
+            border-radius:14px;
+            padding:10px 12px;
+            background:#0a1419;
+            cursor:pointer;
+            transition:.2s ease;
+            min-width:0;
+        }
+        .legendBadge:hover,
+        .legendBadge.active{
+            border-color:rgba(54,215,209,.42);
+            box-shadow:var(--step-glow);
+        }
+        .swatch{
+            width:14px;
+            height:14px;
+            border-radius:50%;
+            flex:0 0 auto;
+            box-shadow:0 0 0 4px rgba(255,255,255,.03);
+        }
+
+        .generatedCard,
+        .selfCheck{
+            border:1px solid var(--line);
+            border-radius:18px;
+            padding:16px;
+            background:rgba(255,255,255,.03);
+        }
+
+        .generatedControls{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            margin-top:12px;
+            align-items:center;
+        }
+
+        .answerLine{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            align-items:center;
+            margin-top:10px;
+        }
+        .answerLine input{
+            flex:1;
+            min-width:220px;
+            border-radius:12px;
+            border:1px solid var(--line);
+            background:#081117;
+            color:var(--text);
+            padding:12px 14px;
+        }
+
+        .feedback{
+            display:none;
+            margin-top:10px;
+            padding:12px 14px;
+            border-radius:14px;
+        }
+        .feedback.ok{
+            display:block;
+            background:rgba(136,247,161,.1);
+            border:1px solid rgba(136,247,161,.28);
+            color:#ecfff1;
+        }
+        .feedback.bad{
+            display:block;
+            background:rgba(255,122,144,.1);
+            border:1px solid rgba(255,122,144,.28);
+            color:#ffeaf0;
+        }
+
+        .quizList{
+            display:grid;
+            gap:10px;
+            margin-top:10px;
+        }
+        .quizItem{
+            display:block;
+            cursor:pointer;
+            min-width:0;
+        }
+        .quizItem input{
+            margin-right:8px;
+            accent-color:var(--accent);
+        }
+
+        .hintTrigger{
+            display:inline-flex;
+            justify-content:center;
+            align-items:center;
+            width:22px;
+            height:22px;
+            border-radius:50%;
+            background:linear-gradient(135deg, rgba(54,215,209,.24), rgba(26,163,160,.42));
+            color:#dffdfc;
+            font-weight:900;
+            font-size:13px;
+            cursor:pointer;
+            box-shadow:0 0 0 1px rgba(54,215,209,.35), 0 0 18px rgba(54,215,209,.22);
+            animation:hintPulse 2.4s infinite;
+            user-select:none;
+            flex:0 0 auto;
+        }
+
+        .focusGlow{animation:borderGlow 1.5s ease 1}
+        .hintTrigger.bump{animation:hintBounce .6s ease}
+
+        @keyframes hintPulse{
+            0%{box-shadow:0 0 0 0 rgba(54,215,209,.34), 0 0 10px rgba(54,215,209,.14)}
+            70%{box-shadow:0 0 0 10px rgba(54,215,209,0), 0 0 22px rgba(54,215,209,.22)}
+            100%{box-shadow:0 0 0 0 rgba(54,215,209,0), 0 0 10px rgba(54,215,209,.12)}
+        }
+        @keyframes borderGlow{
+            0%{box-shadow:0 0 0 0 rgba(54,215,209,.14)}
+            50%{box-shadow:0 0 0 3px rgba(54,215,209,.22), 0 0 24px rgba(54,215,209,.18)}
+            100%{box-shadow:0 0 0 0 rgba(54,215,209,.14)}
+        }
+        @keyframes hintBounce{
+            0%{transform:translateY(0)}
+            30%{transform:translateY(-5px)}
+            60%{transform:translateY(1px)}
+            100%{transform:translateY(0)}
+        }
+
+        .tooltip{
+            position:fixed;
+            z-index:60;
+            max-width:360px;
+            min-width:250px;
+            padding:14px;
+            border-radius:18px;
+            border:1px solid transparent;
+            background:
+            linear-gradient(#081117,#081117) padding-box,
+            linear-gradient(135deg, rgba(54,215,209,.95), rgba(26,163,160,.45)) border-box;
+            box-shadow:0 18px 44px rgba(0,0,0,.38), 0 0 0 1px rgba(54,215,209,.14);
+            opacity:0;
+            transform:translateY(8px) scale(.98);
+            pointer-events:none;
+            transition:opacity .24s ease, transform .24s ease;
+        }
+        .tooltip.show{
+            opacity:1;
+            transform:translateY(0) scale(1);
+            pointer-events:auto;
+        }
+        .tooltip[aria-hidden="true"]{opacity:0}
+        .tooltip .tipClose{
+            position:absolute;
+            top:8px;
+            right:10px;
+            background:none;
+            border:none;
+            color:#d8f9f7;
+            font-size:18px;
+            cursor:pointer;
+        }
+        .tooltip .tipTitle{
+            margin:0 28px 8px 0;
+            font-weight:800;
+        }
+        .tooltip .tipBody{
+            color:#d9edf1;
+            font-size:14px;
+            line-height:1.55;
+        }
+        .tooltip .tipActions{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+            margin-top:10px;
+        }
+        .tooltip::after{
+            content:"";
+            position:absolute;
+            width:14px;
+            height:14px;
+            background:#081117;
+            border-left:1px solid rgba(54,215,209,.9);
+            border-top:1px solid rgba(54,215,209,.9);
+            transform:rotate(45deg);
+        }
+        .tooltip[data-pos="top"]::after{bottom:-8px;left:24px}
+        .tooltip[data-pos="bottom"]::after{top:-8px;left:24px}
+        .tooltip[data-pos="left"]::after{right:-8px;top:24px;transform:rotate(135deg)}
+        .tooltip[data-pos="right"]::after{left:-8px;top:24px;transform:rotate(-45deg)}
+
+        .compact-system{
+            display:inline-grid;
+            grid-template-columns:auto 1fr;
+            align-items:start;
+            gap:6px;
+            vertical-align:middle;
+        }
+        .compact-system .brace{
+            font-size:28px;
+            line-height:1;
+            transform:translateY(1px);
+            color:var(--accent3);
+        }
+        .compact-system .lines{
+            display:grid;
+            gap:3px;
+        }
+
+        .transient{
+            position:fixed;
+            right:16px;
+            bottom:16px;
+            z-index:70;
+            max-width:340px;
+            padding:12px 14px;
+            border-radius:14px;
+            background:rgba(8,17,23,.95);
+            border:1px solid rgba(54,215,209,.3);
+            color:#e7fbfa;
+            box-shadow:0 14px 34px rgba(0,0,0,.35);
+            opacity:0;
+            transform:translateY(10px);
+            transition:.22s ease;
+            pointer-events:none;
+        }
+
+        .hidden{display:none!important}
+        .printOnly{display:none}
+        .pillRow{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+            margin-top:12px;
+        }
+        .pill{
+            border:1px solid var(--line);
+            background:#0a1419;
+            border-radius:999px;
+            padding:8px 10px;
+            font-size:13px;
+            color:#d8eff1;
+        }
+
+        .tableLike{
+            display:grid;
+            gap:8px;
+            margin-top:10px;
+        }
+        .tableRow{
+            display:grid;
+            grid-template-columns:70px 1fr;
+            gap:10px;
+            border:1px solid var(--line);
+            background:rgba(255,255,255,.03);
+            border-radius:14px;
+            padding:12px 14px;
+        }
+        .tableRow strong{color:var(--accent3)}
+
+        footer{
+            margin-top:24px;
+            text-align:center;
+            color:var(--muted);
+            padding:24px 8px 50px;
+        }
+
+        @media (max-width:1180px){
+            .hero{grid-template-columns:1fr}
+            .layout{grid-template-columns:1fr}
+            .rightCol{position:relative;top:0}
+            .visualWrap{min-height:auto}
+        }
+
+        @media (max-width:760px){
+            .page{padding:12px}
+            .toolbar{grid-template-columns:1fr}
+            .topicGrid,.factGrid,.legend{grid-template-columns:1fr}
+            .stepHeader,.exerciseHeader{flex-direction:column;align-items:flex-start}
+            .svgWrap{min-height:380px}
+            svg{height:430px}
+            .answerLine input{min-width:100%}
+            .tooltip{max-width:min(88vw,320px);min-width:unset}
+            .meta span,.statusBar span,.pill,.tableRow{font-size:12px}
+            .heroCard,.controlCard,.panel,.quizCard,.printCard{padding:16px}
+        }
+
+        @media print{
+            :root{
+                --text:#111;
+                --muted:#444;
+            }
+            html,body{background:#fff;color:#111}
+            .page{max-width:none;padding:0}
+            .hero,.layout{display:block}
+            .controlCard,
+            .rightCol,
+            .quizCard,
+            .hintTrigger,
+            .tooltip,
+            .zoomPanel,
+            .actions,
+            .stepNav,
+            .transient,
+            .modeRow{
+                display:none!important;
+            }
+            .heroCard,.panel,.printCard{
+                background:#fff;
+                box-shadow:none;
+                border:1px solid #d0d0d0;
+                color:#111;
+            }
+            .panel,.heroCard,.printCard,.step{break-inside:avoid;page-break-inside:avoid}
+            .step.locked{display:block!important}
+            .step,
+            .formula,
+            .callout,
+            .proof,
+            .dangerBox,
+            .topicBadge,
+            .factRow,
+            .generatedCard,
+            .selfCheck,
+            .ideaItem,
+            .mistakeItem,
+            .legendItem,
+            .checkItem,
+            .microItem,
+            .anchorItem,
+            .theoryItem,
+            .exerciseItem,
+            .answerItem,
+            .tableRow{
+                background:#fafafa!important;
+                border-color:#d0d0d0!important;
+                color:#111!important;
+                box-shadow:none!important;
+            }
+            .printOnly{display:block}
+            .small,.kicker,.subtle{color:#444!important}
+            .meta span,.pill,.statusBar span{border-color:#d0d0d0;background:#fafafa;color:#111}
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <section class="hero">
+        <article class="heroCard">
+            <div class="badge">Наглядная математика с генерацией • по мотивам пособия • ЕГЭ / уверенный уровень</div>
+            <h1>Теория и задачи по мотивам пособия</h1>
+            <p class="lead">
+                На этой странице собраны и переработаны в интерактивный формат ключевые разборы из пособия:
+                <strong>проценты, степени, тригонометрия, тригонометрические уравнения, вероятность, множества, геометрия и квадратичная функция</strong>.
+                Слева — структурированный разбор и тренировочные задачи, справа — sticky-модель с переключаемыми режимами:
+                парабола, монета и трапеция.
+            </p>
+            <div class="meta">
+                <span>Автор: Лёвин Артём Александрович</span>
+                <span>Только школьные методы</span>
+                <span>Без LaTeX в интерфейсе</span>
+                <span>Печать поддерживается</span>
+                <span>Мобильная версия усилена</span>
+                <span>Разборы из пособия встроены</span>
+            </div>
+            <div class="pillRow">
+                <span class="pill">Цель: подготовка к ЕГЭ</span>
+                <span class="pill">Стиль: максимально наглядно</span>
+                <span class="pill">Интерактивность: расширенная</span>
+                <span class="pill">Мини-квиз: да</span>
+                <span class="pill">Самопроверка: да</span>
+            </div>
+        </article>
+
+        <aside class="controlCard" aria-label="Управление страницей">
+            <div>
+                <div class="kicker">Настройка разбора</div>
+                <div class="toolbar">
+                    <div class="field">
+                        <label for="detailSelect">
+                            Подробность
+                            <span class="hintTrigger" tabindex="0" data-tip="detailTip" aria-label="Подсказка о выборе подробности">i</span>
+                        </label>
+                        <select id="detailSelect">
+                            <option value="short">Кратко</option>
+                            <option value="standard" selected>Стандартно</option>
+                            <option value="full">Очень подробно</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="modeSelect">Режим решения</label>
+                        <select id="modeSelect">
+                            <option value="step" selected>Пошаговое раскрытие</option>
+                            <option value="full">Показать всё сразу</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="kicker">Элементы модели</div>
+                <div class="toggleRow" role="group" aria-label="Переключатели элементов схемы">
+                    <label class="toggle"><input type="checkbox" id="showVertex" checked><span>вершина / ключевая точка</span></label>
+                    <label class="toggle"><input type="checkbox" id="showAxis" checked><span>ось / опорная линия</span></label>
+                    <label class="toggle"><input type="checkbox" id="showPoint" checked><span>узловая точка</span></label>
+                    <label class="toggle"><input type="checkbox" id="showRoots" checked><span>доп. элементы</span></label>
+                    <label class="toggle"><input type="checkbox" id="showLabels" checked><span>подписи</span></label>
+                </div>
+            </div>
+
+            <div>
+                <div class="kicker">Режим правого блока</div>
+                <div class="modeRow" aria-label="Выбор режима интерактивной модели">
+                    <button type="button" class="modeChip active" data-mode="parabola">Парабола</button>
+                    <button type="button" class="modeChip" data-mode="coin">Монета</button>
+                    <button type="button" class="modeChip" data-mode="trapezoid">Трапеция</button>
+                </div>
+            </div>
+
+            <div>
+                <div class="kicker">Действия</div>
+                <div class="actions">
+                    <button class="btn primary" id="genBtn" type="button">Сгенерировать похожую задачу</button>
+                    <span class="hintTrigger" tabindex="0" data-tip="genTip" aria-label="Подсказка о генераторе">?</span>
+                    <button class="btn secondary" id="nextStepBtn" type="button">Следующий шаг</button>
+                    <button class="btn ghost" id="resetMainBtn" type="button">Вернуться к основной задаче</button>
+                    <button class="btn ghost" id="printBtn" type="button">Печать / PDF</button>
+                    <span class="hintTrigger" tabindex="0" data-tip="zoomTip" aria-label="Подсказка о зуме">!</span>
+                </div>
+                <p class="small" style="margin-top:10px">
+                    При наведении на шаг решения подсвечиваются связанные элементы рисунка. Подсказки работают по hover, focus, Escape и click outside.
+                </p>
+            </div>
+
+            <div class="modelNote">
+                <strong>Логика страницы.</strong><br>
+                Основной подробный разбор сохранён для параболы, а остальные темы из пособия вынесены в отдельные теоретические блоки и тренировочный раздел.
+                Правый sticky-блок помогает визуализировать три главные идеи: чтение графика, перебор исходов и геометрическую конфигурацию.
+            </div>
+        </aside>
+    </section>
+
+    <div class="layout">
+        <main class="leftCol">
+            <section class="panel" aria-labelledby="topics-map-title">
+                <div class="kicker">Карта тем пособия</div>
+                <h2 id="topics-map-title">Что есть на странице</h2>
+                <div class="topicGrid">
+                    <div class="topicBadge">1. Проценты и переход от процентов к количеству</div>
+                    <div class="topicBadge">2. Степени и преобразование выражений</div>
+                    <div class="topicBadge">3. Формулы тригонометрии и приведение углов</div>
+                    <div class="topicBadge">4. Тригонометрические уравнения</div>
+                    <div class="topicBadge">5. Геометрия: углы, биссектрисы, Пифагор</div>
+                    <div class="topicBadge">6. Теория вероятностей: монета и исходы</div>
+                    <div class="topicBadge">7. Множества: пересечение</div>
+                    <div class="topicBadge">8. Квадратичная функция и чтение графика</div>
+                </div>
+            </section>
+
+            <section class="panel" aria-labelledby="idea-title">
+                <div class="kicker">Идея страницы</div>
+                <h2 id="idea-title">Как лучше учить этот материал</h2>
+                <div class="ideaList">
+                    <div class="ideaItem">1. Сначала читать не отдельные ответы, а <strong>метод</strong>: что является опорной формулой, что — смыслом условия, а что — проверкой.</div>
+                    <div class="ideaItem">2. В процентах, вероятности и множествах главное — не техника, а правильное понимание: часть от целого, часть от остатка, благоприятные исходы, общая часть множеств.</div>
+                    <div class="ideaItem">3. В тригонометрии сначала приводим выражение к удобному виду, затем следим за <strong>знаком</strong> и за тем, меняется ли функция на кофункцию.</div>
+                    <div class="ideaItem">4. В геометрии нельзя «верить рисунку на глаз» — нужно опираться на свойства углов, биссектрис, параллельности и теорему Пифагора.</div>
+                    <div class="ideaItem">5. В параболе самый надёжный путь — вершина → вершинная форма → подстановка точки → явная проверка.</div>
+                </div>
+            </section>
+
+            <section class="panel" aria-labelledby="theory-title">
+                <div class="kicker">Разборы из пособия</div>
+                <h2 id="theory-title">Теория по темам занятия</h2>
+
+                <div class="topicSection" id="topic-percent">
+                    <h3>1. Проценты и переход от процентов к количеству</h3>
+                    <div class="theoryList">
+                        <div class="theoryItem">
+                            <strong>Базовая формула.</strong>
+                            <div class="formula">p% от числа a = (p / 100) · a.</div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Если нужно найти остаток.</strong>
+                            <div class="formula">Остаток = a − x = ((100 − p) / 100) · a.</div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Типовой сюжет из пособия.</strong>
+                            <div class="formula">
+                                30% от 800 = 0,3 · 800 = 240.<br>
+                                Тогда не начальная школа: 800 − 240 = 560.<br>
+                                20% от 560 = 0,2 · 560 = 112.
+                            </div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Типичные ошибки.</strong>
+                            Не путать процент от всего и процент от оставшейся части; не подменять количество процентом; не менять местами «30% от 800» и «800% от 30».
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topicSection" id="topic-powers">
+                    <h3>2. Степени и преобразование выражений</h3>
+                    <div class="theoryList">
+                        <div class="theoryItem">
+                            <strong>Основные правила.</strong>
+                            <div class="formula">
+                                (aⁿ)ᵏ = aⁿᵏ,<br>
+                                aᵐ · aⁿ = aᵐ⁺ⁿ,<br>
+                                aᵐ / aⁿ = aᵐ⁻ⁿ, если a ≠ 0.
+                            </div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Степень произведения.</strong>
+                            <div class="formula">(ab)ⁿ = aⁿbⁿ.</div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Типовой пример.</strong>
+                            <div class="formula">(18x²⁰) / (9x²⁰) = 2x⁰ = 2, при x ≠ 0.</div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Что проверять.</strong>
+                            Не складывать показатели там, где надо умножать; помнить условие x ≠ 0, если переменная была в знаменателе; помнить, что x⁰ = 1 только при x ≠ 0.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topicSection" id="topic-trig">
+                    <h3>3. Формулы тригонометрии и приведение углов</h3>
+                    <div class="theoryList">
+                        <div class="theoryItem">
+                            <strong>Формулы двойного угла.</strong>
+                            <div class="formula">
+                                sin 2α = 2sin α cos α.<br>
+                                cos 2α = cos² α − sin² α = 2cos² α − 1 = 1 − 2sin² α.
+                            </div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Полезные шаблоны.</strong>
+                            <div class="formula">
+                                sin(180° − α) = sin α,<br>
+                                sin(360° − α) = −sin α,<br>
+                                cos(180° − α) = −cos α,<br>
+                                cos(360° − α) = cos α,<br>
+                                sin(90° − α) = cos α,<br>
+                                cos(90° − α) = sin α.
+                            </div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Примеры из пособия.</strong>
+                            <div class="formula">
+                                sin 341° = sin(360° − 19°) = −sin 19°.<br>
+                                sin 80° = sin(90° − 10°) = cos 10°.
+                            </div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Главное.</strong>
+                            Сначала сделать углы одинаковыми или удобными, затем аккуратно отследить знак и замену на кофункцию.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topicSection" id="topic-trig-eq">
+                    <h3>4. Тригонометрические уравнения: разложение на множители</h3>
+                    <div class="theoryList">
+                        <div class="theoryItem">
+                            <strong>Типовой приём.</strong>
+                            <div class="formula">Если есть sin 2x, сначала раскрываем: sin 2x = 2sin x cos x.</div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Образец.</strong>
+                            <div class="formula">
+                                2sin x cos x − √3 sin x = 0<br>
+                                sin x(2cos x − √3) = 0.
+                            </div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Дальше два уравнения.</strong>
+                            <div class="formula">
+                                sin x = 0 &nbsp; или &nbsp; 2cos x − √3 = 0.
+                            </div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Ловушка.</strong>
+                            Нельзя сокращать уравнение на sin x или cos x, потому что это может уничтожить часть корней.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topicSection" id="topic-geometry">
+                    <h3>5. Геометрия: углы, биссектрисы, прямоугольный треугольник</h3>
+                    <div class="theoryList">
+                        <div class="theoryItem">
+                            <strong>Сумма углов треугольника.</strong>
+                            <div class="formula">∠A + ∠B + ∠C = 180°.</div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Трапеция и биссектрисы.</strong>
+                            Если AD ∥ BC, то внутренние односторонние углы при секущей AB дополняют друг друга до 180°.
+                            Поэтому половины этих углов тоже дают 90°, значит ∠AFB = 90°.
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Пифагор в этой конфигурации.</strong>
+                            <div class="formula">
+                                Если AF = 20 и BF = 15, то AB = √(20² + 15²) = √625 = 25.
+                            </div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Что особенно важно.</strong>
+                            В геометрии нужно опираться на свойства, а не на «видно с рисунка». Для стереометрии это особенно критично.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topicSection" id="topic-probability">
+                    <h3>6. Теория вероятностей: монета и таблица исходов</h3>
+                    <div class="theoryList">
+                        <div class="theoryItem">
+                            <strong>Классическая формула вероятности.</strong>
+                            <div class="formula">P(A) = число благоприятных исходов / число всех равновозможных исходов.</div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Три броска монеты.</strong>
+                            Всего исходов: <span class="math">2³ = 8</span>.
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Ровно два орла.</strong>
+                            <div class="formula">
+                                ООР, ОРО, РОО — всего 3 исхода.<br>
+                                Значит, P = 3 / 8.
+                            </div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Хотя бы один орёл.</strong>
+                            <div class="formula">
+                                Это дополнение к событию РРР.<br>
+                                P = 1 − 1/8 = 7/8.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topicSection" id="topic-sets">
+                    <h3>7. Множества: пересечение</h3>
+                    <div class="theoryList">
+                        <div class="theoryItem">
+                            <strong>Определение.</strong>
+                            Пересечение A ∩ B — это элементы, которые принадлежат и A, и B.
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Как действовать.</strong>
+                            Выписываем только общие элементы.
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Типичная ошибка.</strong>
+                            Не путать A ∩ B и A ∪ B. Пересечение — это не «всё вместе», а только общая часть.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topicSection" id="topic-parabola">
+                    <h3>8. Квадратичная функция и чтение графика параболы</h3>
+                    <div class="theoryList">
+                        <div class="theoryItem">
+                            <strong>Общий вид.</strong>
+                            <div class="formula">f(x) = ax² + bx + c, &nbsp; a ≠ 0.</div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Направление ветвей.</strong>
+                            <div class="formula">a &gt; 0 ⇒ ветви вверх, &nbsp; a &lt; 0 ⇒ ветви вниз.</div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Координата вершины.</strong>
+                            <div class="formula">x₀ = −b / (2a), то есть b = −2ax₀.</div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Метод узловой точки.</strong>
+                            Если известна точка (x₁; y₁), подставляем её координаты в формулу:
+                            <div class="formula">y₁ = ax₁² + bx₁ + c.</div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Типовой пример из пособия.</strong>
+                            <div class="formula">
+                                a = 1, x₀ = −4 ⇒ b = 8.<br>
+                                Точка (−2; −3): −3 = (−2)² + 8·(−2) + c = 4 − 16 + c.<br>
+                                Отсюда c = 9, значит f(x) = x² + 8x + 9.
+                            </div>
+                        </div>
+                        <div class="theoryItem">
+                            <strong>Что значит f(−12).</strong>
+                            Это подстановка:
+                            <div class="formula">f(−12) = 144 − 96 + 9 = 57.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel" aria-labelledby="solution-title">
+                <div class="kicker">Главный подробный разбор</div>
+                <h2 id="solution-title">Основная задача по параболе</h2>
+
+                <div class="factGrid">
+                    <div class="factRow"><strong>Вершина:</strong> V(−4; −7)</div>
+                    <div class="factRow"><strong>Направление ветвей:</strong> вверх</div>
+                    <div class="factRow"><strong>Узловая точка:</strong> P(−2; −3)</div>
+                    <div class="factRow"><strong>Найти:</strong> формулу f(x) и значение f(−12)</div>
+                </div>
+
+                <div class="anchorList" style="margin-top:12px">
+                    <div class="anchorItem">Сначала используем вершину, потому что она сразу даёт вершинную форму.</div>
+                    <div class="anchorItem">Потом подставляем точку P, чтобы найти коэффициент a строго, а не «по виду графика».</div>
+                    <div class="anchorItem">После получения формулы отдельно проверяем вершину, направление ветвей и принадлежность точки P графику.</div>
+                </div>
+
+                <div class="stepNav" id="stepNav" aria-label="Навигация по этапам решения"></div>
+
+                <div id="stepsContainer">
+                    <article class="step" id="step1" data-objects="vertex,axis,curve" tabindex="0">
+                        <div class="stepHeader">
+                            <h3>1) Что дано</h3>
+                            <span class="stepTag">Старт</span>
+                        </div>
+                        <div class="detail short standard full">
+                            <p>
+                                По графику известны вершина <span class="math linkTarget" data-obj="vertex">V(−4; −7)</span>,
+                                направление ветвей вверх и точка <span class="math linkTarget" data-obj="point">P(−2; −3)</span>,
+                                через которую проходит парабола.
+                            </p>
+                        </div>
+                        <div class="detail full">
+                            <p>
+                                Значит, функция квадратичная. Её можно записать либо в стандартной форме <span class="math">ax² + bx + c</span>,
+                                либо в вершинной форме <span class="math">a(x − h)² + k</span>. Здесь удобнее начинать именно с вершины.
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class="step locked" id="step2" data-objects="curve,vertex" tabindex="0">
+                        <div class="stepHeader">
+                            <h3>2) Что означает каждое условие</h3>
+                            <span class="stepTag">Смысл условий</span>
+                        </div>
+                        <div class="detail short">
+                            <p>Ветви вверх ⇒ <span class="math">a &gt; 0</span>. Вершина V(−4; −7) ⇒ вершинная форма <span class="math">f(x)=a(x+4)²−7</span>.</p>
+                        </div>
+                        <div class="detail standard full">
+                            <p>Если вершина параболы имеет координаты <span class="math">V(h; k)</span>, то функцию удобно записывать так:</p>
+                            <div class="formula">f(x) = a(x − h)² + k.</div>
+                            <p>В нашей задаче <span class="math">h = −4</span>, <span class="math">k = −7</span>, значит:</p>
+                            <div class="formula">f(x) = a(x + 4)² − 7.</div>
+                            <p>Поскольку ветви направлены вверх, коэффициент <span class="math">a</span> положителен.</p>
+                        </div>
+                        <div class="detail full">
+                            <p>Коэффициент <span class="math">a</span> отвечает за вертикальное растяжение или сжатие: чем больше |a|, тем парабола уже.</p>
+                        </div>
+                    </article>
+
+                    <article class="step locked" id="step3" data-objects="axis,vertex,point" tabindex="0">
+                        <div class="stepHeader">
+                            <h3>3) Геометрическая / графическая интерпретация</h3>
+                            <span class="stepTag">Связь с рисунком</span>
+                        </div>
+                        <div class="detail short">
+                            <p>Ось симметрии проходит через вершину, поэтому её уравнение: <span class="math">x = −4</span>.</p>
+                        </div>
+                        <div class="detail standard full">
+                            <p>
+                                На графике видно, что вершина лежит на вертикальной оси симметрии
+                                <span class="math linkTarget" data-obj="axis">x = −4</span>.
+                            </p>
+                            <p>Точка P(−2; −3) находится на 2 единицы правее вершины и на 4 единицы выше неё:</p>
+                            <div class="formula">
+                                (−2) − (−4) = 2,<br>
+                                (−3) − (−7) = 4.
+                            </div>
+                        </div>
+                        <div class="detail full">
+                            <p>Это подсказывает, что при подстановке точки P в формулу <span class="math">a(x + 4)² − 7</span> должно получиться уравнение на a.</p>
+                        </div>
+                    </article>
+
+                    <article class="step locked" id="step4" data-objects="point,vertex,curve" tabindex="0">
+                        <div class="stepHeader">
+                            <h3>4) Ключевая идея</h3>
+                            <span class="stepTag">Найти a</span>
+                        </div>
+                        <div class="detail short">
+                            <p>Подставляем координаты точки P(−2; −3) в вершинную форму <span class="math">f(x)=a(x+4)²−7</span>.</p>
+                        </div>
+                        <div class="detail standard full">
+                            <p>Так как точка <span class="math linkTarget" data-obj="point">P(−2; −3)</span> лежит на графике, её координаты удовлетворяют формуле:</p>
+                            <div class="formula">−3 = a(−2 + 4)² − 7.</div>
+                            <div class="formula">−3 = a · 2² − 7 = 4a − 7.</div>
+                            <div class="formula">4 = 4a, &nbsp; a = 1.</div>
+                        </div>
+                        <div class="detail full">
+                            <p>Это строгое место решения: коэффициент <span class="math">a</span> не угадывается по виду, а вычисляется по условию.</p>
+                        </div>
+                    </article>
+
+                    <article class="step locked" id="step5" data-objects="curve,point,vertex" tabindex="0">
+                        <div class="stepHeader">
+                            <h3>5) Пошаговое доведение до ответа</h3>
+                            <span class="stepTag">Вычисления</span>
+                        </div>
+                        <div class="detail short">
+                            <p>Получаем <span class="math">f(x)=(x+4)²−7=x²+8x+9</span>, затем считаем <span class="math">f(−12)</span>.</p>
+                        </div>
+                        <div class="detail standard full">
+                            <p>Подставим найденное <span class="math">a = 1</span>:</p>
+                            <div class="formula">f(x) = (x + 4)² − 7.</div>
+                            <p>Раскроем скобки:</p>
+                            <div class="formula">(x + 4)² − 7 = x² + 8x + 16 − 7 = x² + 8x + 9.</div>
+                            <p>Значит:</p>
+                            <div class="formula"><strong>f(x) = x² + 8x + 9.</strong></div>
+                            <p>Теперь найдём значение при <span class="math">x = −12</span>:</p>
+                            <div class="formula">f(−12) = 144 − 96 + 9 = 57.</div>
+                        </div>
+                        <div class="detail full">
+                            <div class="callout">
+                                <strong>Важно.</strong><br>
+                                <span class="math">f(−12)</span> — это подстановка числа в формулу.<br>
+                                Это не уравнение и не поиск корней.
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="step locked" id="step6" data-objects="vertex,axis,point,curve,roots" tabindex="0">
+                        <div class="stepHeader">
+                            <h3>6) Финальная проверка ответа</h3>
+                            <span class="stepTag">Обязательно</span>
+                        </div>
+                        <div class="detail short">
+                            <p>Проверяем вершину, направление ветвей и точку P. Всё совпадает.</p>
+                        </div>
+                        <div class="detail standard full">
+                            <div class="proof">
+                                <strong>Проверка 1.</strong> Коэффициент при x² равен 1, значит ветви действительно направлены вверх.<br><br>
+                                <strong>Проверка 2.</strong> Вершинная форма функции — <span class="math">(x + 4)² − 7</span>, поэтому вершина действительно V(−4; −7).<br><br>
+                                <strong>Проверка 3.</strong> <span class="math">f(−2)=4−16+9=−3</span>, значит точка P(−2; −3) лежит на графике.
+                            </div>
+                            <p>
+                                Почему других значений нет? Вершина задаёт форму <span class="math">a(x + 4)² − 7</span>, а точка P даёт единственное уравнение на a.
+                                Мы получили единственное значение <span class="math">a = 1</span>.
+                            </p>
+                        </div>
+                        <div class="detail full">
+                            <p>
+                                Дополнительная проверка: нули функции равны <span class="math">x = −4 ± √7</span>, и они симметричны относительно оси <span class="math">x = −4</span>,
+                                что согласуется с рисунком.
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class="step locked" id="step7" data-objects="curve,vertex,point" tabindex="0">
+                        <div class="stepHeader">
+                            <h3>7) Краткий вывод</h3>
+                            <span class="stepTag">Итог</span>
+                        </div>
+                        <div class="detail short standard full">
+                            <p><strong>Ответ:</strong> <span class="math">f(x)=x²+8x+9</span>, <span class="math">f(−12)=57</span>.</p>
+                            <p>Главная идея: при известной вершине и ещё одной точке параболу удобнее всего восстанавливать через вершинную форму.</p>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="panel" aria-labelledby="mistakes-title">
+                <div class="kicker">Типичные ошибки</div>
+                <h2 id="mistakes-title">Что чаще всего идёт не так</h2>
+                <div class="mistakeList">
+                    <div class="mistakeItem">1. В параболе пишут <span class="math">a(x − 4)² − 7</span> вместо правильного <span class="math">a(x + 4)² − 7</span>.</div>
+                    <div class="mistakeItem">2. В процентах считают процент не от той группы: от всего вместо остатка или наоборот.</div>
+                    <div class="mistakeItem">3. В тригонометрии ошибаются со знаком по четверти или забывают замену на кофункцию при угле вида 90° ± α.</div>
+                    <div class="mistakeItem">4. В тригонометрическом уравнении сокращают на выражение с переменной и теряют корни.</div>
+                    <div class="mistakeItem">5. В геометрии доверяют картинке, а не свойствам углов, параллельности и теореме Пифагора.</div>
+                </div>
+            </section>
+
+            <section class="panel" aria-labelledby="training-title">
+                <div class="kicker">Тренировочный блок</div>
+                <h2 id="training-title">Задачи из пособия для самостоятельной работы</h2>
+
+                <h3>Простые задачи</h3>
+                <div class="exerciseList">
+                    <div class="exerciseItem">
+                        <div class="exerciseHeader">
+                            <strong>1.</strong>
+                            <span class="stepTag">Проценты</span>
+                        </div>
+                        В школе 900 учеников. 40% из них — ученики младших классов. Сколько это учеников?
+                    </div>
+                    <div class="exerciseItem">
+                        <div class="exerciseHeader">
+                            <strong>2.</strong>
+                            <span class="stepTag">Степени</span>
+                        </div>
+                        Упростите выражение:
+                        <div class="formula">(12x⁷) / (3x⁴).</div>
+                    </div>
+                    <div class="exerciseItem">
+                        <div class="exerciseHeader">
+                            <strong>3.</strong>
+                            <span class="stepTag">Геометрия</span>
+                        </div>
+                        В треугольнике два угла равны 47° и 63°. Найдите третий угол.
+                    </div>
+                </div>
+
+                <h3 style="margin-top:18px">Средний уровень</h3>
+                <div class="exerciseList">
+                    <div class="exerciseItem">
+                        <div class="exerciseHeader">
+                            <strong>4.</strong>
+                            <span class="stepTag">Тригонометрия</span>
+                        </div>
+                        Найдите значение <span class="math">sin 350°</span>. Выразите ответ через синус острого угла.
+                    </div>
+                    <div class="exerciseItem">
+                        <div class="exerciseHeader">
+                            <strong>5.</strong>
+                            <span class="stepTag">Вероятность</span>
+                        </div>
+                        Монету бросили 3 раза. Найдите вероятность того, что орёл выпадет ровно один раз.
+                    </div>
+                    <div class="exerciseItem">
+                        <div class="exerciseHeader">
+                            <strong>6.</strong>
+                            <span class="stepTag">Множества</span>
+                        </div>
+                        Найдите пересечение множеств
+                        <div class="formula">
+                            A = {1, 2, 4, 7, 9},<br>
+                            B = {0, 2, 3, 7, 8, 9}.
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top:18px">Выше среднего</h3>
+                <div class="exerciseList">
+                    <div class="exerciseItem">
+                        <div class="exerciseHeader">
+                            <strong>7.</strong>
+                            <span class="stepTag">Тригонометрическое уравнение</span>
+                        </div>
+                        Решите уравнение:
+                        <div class="formula">2sin x cos x − sin x = 0.</div>
+                    </div>
+                    <div class="exerciseItem">
+                        <div class="exerciseHeader">
+                            <strong>8.</strong>
+                            <span class="stepTag">Трапеция</span>
+                        </div>
+                        В трапеции AD ∥ BC. Биссектрисы углов A и B пересекаются в точке F. Известно, что AF = 24, BF = 7. Найдите AB.
+                    </div>
+                    <div class="exerciseItem">
+                        <div class="exerciseHeader">
+                            <strong>9.</strong>
+                            <span class="stepTag">Парабола</span>
+                        </div>
+                        Парабола задана формулой <span class="math">f(x)=x²−6x+5</span>. Найдите <span class="math">f(−2)</span>.
+                    </div>
+                </div>
+
+                <h3 style="margin-top:18px">Сложная задача</h3>
+                <div class="exerciseList">
+                    <div class="exerciseItem">
+                        <div class="exerciseHeader">
+                            <strong>10.</strong>
+                            <span class="stepTag">Парабола по графику</span>
+                        </div>
+                        По графику известно, что квадратичная функция имеет вершину в точке (2; −3) и проходит через точку (0; 5).
+                        Найдите формулу <span class="math">f(x)=ax²+bx+c</span>, а затем вычислите <span class="math">f(−1)</span>.
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel" aria-labelledby="answers-title">
+                <div class="kicker">Ответы для самопроверки</div>
+                <h2 id="answers-title">Краткие ответы к тренировочному блоку</h2>
+                <p class="subtle">Пароль к блоку — «Проверяю себя честно».</p>
+
+                <div class="tableLike">
+                    <div class="tableRow"><strong>1</strong><div>360.</div></div>
+                    <div class="tableRow"><strong>2</strong><div>4x³.</div></div>
+                    <div class="tableRow"><strong>3</strong><div>70°.</div></div>
+                    <div class="tableRow"><strong>4</strong><div>sin 350° = −sin 10°.</div></div>
+                    <div class="tableRow"><strong>5</strong><div>3/8.</div></div>
+                    <div class="tableRow"><strong>6</strong><div>A ∩ B = {2, 7, 9}.</div></div>
+                    <div class="tableRow"><strong>7</strong><div>x = πn или x = π/3 + 2πn, или x = −π/3 + 2πn, где n ∈ ℤ.</div></div>
+                    <div class="tableRow"><strong>8</strong><div>25.</div></div>
+                    <div class="tableRow"><strong>9</strong><div>21.</div></div>
+                    <div class="tableRow"><strong>10</strong><div>f(x)=2x²−8x+5, поэтому f(−1)=15.</div></div>
+                </div>
+            </section>
+
+            <section class="quizCard" aria-labelledby="quiz-title">
+                <div class="kicker">Мини-квиз</div>
+                <h2 id="quiz-title">Быстрая проверка понимания</h2>
+                <p><strong>Какой первый шаг наиболее рационален в основной задаче про параболу?</strong></p>
+                <div class="quizList">
+                    <label class="quizItem"><input type="radio" name="quiz1" value="a"> Сразу искать корни функции</label>
+                    <label class="quizItem"><input type="radio" name="quiz1" value="b"> Записать вершинную форму по координатам вершины</label>
+                    <label class="quizItem"><input type="radio" name="quiz1" value="c"> Сначала вычислить дискриминант</label>
+                </div>
+                <div class="answerLine">
+                    <button class="btn secondary" id="checkQuizBtn" type="button">Проверить</button>
+                </div>
+                <div class="feedback" id="quizFeedback" aria-live="polite"></div>
+            </section>
+
+            <section class="printCard" aria-labelledby="self-title">
+                <div class="kicker">Самопроверка</div>
+                <h2 id="self-title">Что важно повторить перед следующей практикой</h2>
+                <div class="selfCheck">
+                    <div class="checkList">
+                        <div class="checkItem">□ Проценты: часть от целого и часть от остатка.</div>
+                        <div class="checkItem">□ Степени: три базовых правила и ограничения на знаменатель.</div>
+                        <div class="checkItem">□ Приведение углов и знаки по четвертям в тригонометрии.</div>
+                        <div class="checkItem">□ Разложение тригонометрических уравнений на множители.</div>
+                        <div class="checkItem">□ Сумма углов треугольника, трапеция с биссектрисами и Пифагор.</div>
+                        <div class="checkItem">□ Вероятность для нескольких бросков монеты.</div>
+                        <div class="checkItem">□ Пересечение множеств.</div>
+                        <div class="checkItem">□ Восстановление формулы параболы по графику.</div>
+                        <div class="checkItem">□ Различие между задачами вида f(a) и f(x)=b.</div>
+                    </div>
+                </div>
+                <div class="printOnly">
+                    <p><strong>Ключевой ответ к основной задаче:</strong> <span class="math">f(x)=x²+8x+9</span>, <span class="math">f(−12)=57</span>.</p>
+                </div>
+            </section>
+        </main>
+
+        <aside class="rightCol">
+            <section class="panel visualWrap" aria-labelledby="model-title">
+                <div class="visualHead">
+                    <div>
+                        <div class="kicker">Sticky-модель</div>
+                        <h2 id="model-title">Интерактивный блок</h2>
+                    </div>
+                    <div class="statusBar" aria-live="polite">
+                        <span id="statusScenario">Основная задача</span>
+                        <span id="statusMode">Режим: парабола</span>
+                        <span id="statusInfoA">V(−4; −7)</span>
+                        <span id="statusInfoB">P(−2; −3)</span>
+                        <span id="statusFormula">f(x)=x²+8x+9</span>
+                    </div>
+                </div>
+
+                <div class="canvasShell">
+                    <div class="svgWrap" id="svgWrap">
+                        <svg id="mainSvg" viewBox="0 0 760 560" preserveAspectRatio="xMidYMid meet" aria-label="Интерактивная математическая модель">
+                            <g id="grid"></g>
+                            <g id="axes"></g>
+
+                            <!-- ПАРАБОЛА -->
+                            <g id="modeParabola">
+                                <line id="axisLine" data-obj="axis" x1="0" y1="0" x2="0" y2="0" stroke="var(--axis-color)" stroke-width="2.6" stroke-dasharray="10 8" opacity=".95" />
+                                <path id="curvePath" data-obj="curve" d="" fill="none" stroke="var(--curve-color)" stroke-width="4.2" stroke-linecap="round" />
+                                <circle id="vertexDot" data-obj="vertex" r="7.5" fill="var(--vertex-color)" stroke="#fff" stroke-width="2" />
+                                <circle id="pointDot" data-obj="point" r="7.5" fill="var(--point-color)" stroke="#fff" stroke-width="2" />
+                                <circle id="root1Dot" data-obj="roots" r="6.2" fill="var(--root-color)" stroke="#fff" stroke-width="1.8" />
+                                <circle id="root2Dot" data-obj="roots" r="6.2" fill="var(--root-color)" stroke="#fff" stroke-width="1.8" />
+                                <text id="vertexLabel" data-obj="vertex" fill="#fff6d8" font-size="20" font-weight="700">V</text>
+                                <text id="pointLabel" data-obj="point" fill="#ffe2e8" font-size="20" font-weight="700">P</text>
+                                <text id="root1Label" data-obj="roots" fill="#efe9ff" font-size="17" font-weight="700">x₁</text>
+                                <text id="root2Label" data-obj="roots" fill="#efe9ff" font-size="17" font-weight="700">x₂</text>
+                            </g>
+
+                            <!-- МОНЕТА -->
+                            <g id="modeCoin" class="hidden">
+                                <text x="380" y="62" text-anchor="middle" fill="#dff8f7" font-size="28" font-weight="800">Три броска монеты</text>
+                                <text id="coinSummary" x="380" y="92" text-anchor="middle" fill="#9bd7d3" font-size="16">Всего 8 равновозможных исходов</text>
+
+                                <g id="coinCells"></g>
+
+                                <g id="coinLegend">
+                                    <circle cx="110" cy="520" r="10" fill="var(--coin-head)"></circle>
+                                    <text x="130" y="526" fill="#fff4cc" font-size="16">О — орёл</text>
+                                    <circle cx="260" cy="520" r="10" fill="var(--coin-tail)"></circle>
+                                    <text x="280" y="526" fill="#dceeff" font-size="16">Р — решка</text>
+                                </g>
+                            </g>
+
+                            <!-- ТРАПЕЦИЯ -->
+                            <g id="modeTrapezoid" class="hidden">
+                                <text x="380" y="58" text-anchor="middle" fill="#dff8f7" font-size="28" font-weight="800">Трапеция и биссектрисы</text>
+                                <text x="380" y="86" text-anchor="middle" fill="#9bd7d3" font-size="16">Идея: половины односторонних углов дают 90°</text>
+
+                                <polygon id="trapPolygon" points="150,380 280,190 530,190 620,380" fill="rgba(54,215,209,.07)" stroke="var(--trap-color)" stroke-width="3"></polygon>
+                                <line id="trapAF" data-obj="vertex" x1="150" y1="380" x2="335" y2="290" stroke="var(--gold)" stroke-width="3"></line>
+                                <line id="trapBF" data-obj="point" x1="280" y1="190" x2="335" y2="290" stroke="var(--pink)" stroke-width="3"></line>
+
+                                <circle id="trapA" cx="150" cy="380" r="6" fill="var(--trap-color)"></circle>
+                                <circle id="trapB" cx="280" cy="190" r="6" fill="var(--trap-color)"></circle>
+                                <circle id="trapC" cx="530" cy="190" r="6" fill="var(--trap-color)"></circle>
+                                <circle id="trapD" cx="620" cy="380" r="6" fill="var(--trap-color)"></circle>
+                                <circle id="trapF" cx="335" cy="290" r="7" fill="var(--gold)" stroke="#fff" stroke-width="2"></circle>
+
+                                <text x="138" y="402" fill="#dff8f7" font-size="18" font-weight="700">A</text>
+                                <text x="270" y="182" fill="#dff8f7" font-size="18" font-weight="700">B</text>
+                                <text x="535" y="182" fill="#dff8f7" font-size="18" font-weight="700">C</text>
+                                <text x="626" y="402" fill="#dff8f7" font-size="18" font-weight="700">D</text>
+                                <text x="345" y="284" fill="#fff9d8" font-size="18" font-weight="700">F</text>
+
+                                <text x="220" y="350" fill="#fff4cc" font-size="18" font-weight="700">AF = 20</text>
+                                <text x="290" y="240" fill="#ffdce4" font-size="18" font-weight="700">BF = 15</text>
+                                <text x="356" y="305" fill="#fff" font-size="18" font-weight="700">90°</text>
+
+                                <path d="M188 350 A38 38 0 0 1 213 323" stroke="var(--gold)" stroke-width="2" fill="none"></path>
+                                <path d="M293 228 A28 28 0 0 1 315 238" stroke="var(--pink)" stroke-width="2" fill="none"></path>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="zoomPanel" aria-label="Управление масштабом">
+                        <button class="btn secondary" id="zoomOutBtn" type="button" aria-label="Уменьшить масштаб">−</button>
+                        <input type="range" id="zoomRange" min="70" max="190" step="1" value="100" aria-label="Ползунок масштаба" />
+                        <button class="btn secondary" id="zoomInBtn" type="button" aria-label="Увеличить масштаб">+</button>
+                        <button class="btn ghost" id="zoomResetBtn" type="button">Сброс</button>
+                        <div class="zoomReadout" id="zoomReadout">100%</div>
+                    </div>
+
+                    <div class="legend" aria-label="Легенда модели">
+                        <div class="legendBadge" data-obj="curve" tabindex="0"><span class="swatch" style="background:var(--curve-color)"></span> Парабола / график</div>
+                        <div class="legendBadge" data-obj="axis" tabindex="0"><span class="swatch" style="background:var(--axis-color)"></span> Ось / опорная линия</div>
+                        <div class="legendBadge" data-obj="vertex" tabindex="0"><span class="swatch" style="background:var(--vertex-color)"></span> Вершина / F / ключевой объект</div>
+                        <div class="legendBadge" data-obj="point" tabindex="0"><span class="swatch" style="background:var(--point-color)"></span> Узловая точка / BF</div>
+                        <div class="legendBadge" data-obj="roots" tabindex="0"><span class="swatch" style="background:var(--root-color)"></span> Дополнительные элементы</div>
+                    </div>
+
+                    <p class="small" id="modelCaption">
+                        Сейчас показана основная задача про параболу. При переключении режима справа меняется визуализация, но общая логика страницы остаётся прежней.
+                    </p>
+                </div>
+            </section>
+
+            <section class="panel" aria-labelledby="generator-title">
+                <div class="kicker">Генератор похожей задачи</div>
+                <h2 id="generator-title">Новая задача того же типа</h2>
+                <div class="generatedCard">
+                    <p id="genTaskText">
+                        <strong>Новая задача пока не сгенерирована.</strong>
+                        Генератор создаёт корректную задачу на восстановление квадратичной функции по вершине и одной точке.
+                        Она автоматически применяется к той же модели справа.
+                    </p>
+
+                    <div id="genAnswerBox" class="hidden">
+                        <div class="microList">
+                            <div class="microItem"><strong>Ответ:</strong> <span id="genAnswerText"></span></div>
+                            <div class="microItem"><strong>Идея:</strong> <span id="genIdeaText"></span></div>
+                            <div class="microItem"><strong>Проверка:</strong> <span id="genCheckText"></span></div>
+                        </div>
+
+                        <div class="generatedControls">
+                            <button class="btn secondary small" id="showGeneratedBtn" type="button">Показать на модели</button>
+                            <button class="btn ghost small" id="showMainBtn" type="button">Показать основную задачу</button>
+                        </div>
+
+                        <div class="answerLine">
+                            <input id="studentAnswer" type="text" placeholder="Введите ответ, например: x² − 6x + 5; f(−1)=12" aria-label="Поле для своего ответа" />
+                            <button class="btn secondary" id="checkAnswerBtn" type="button">Сверить</button>
+                        </div>
+                        <div class="feedback" id="genFeedback" aria-live="polite"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel" aria-labelledby="legend-title">
+                <div class="kicker">Легенда обозначений</div>
+                <h2 id="legend-title">Устойчивые обозначения на странице</h2>
+                <div class="legendList">
+                    <div class="legendItem"><strong>V</strong> — вершина параболы.</div>
+                    <div class="legendItem"><strong>P</strong> — заданная точка, через которую проходит график.</div>
+                    <div class="legendItem"><strong>x = h</strong> — ось симметрии параболы.</div>
+                    <div class="legendItem"><strong>AF, BF</strong> — биссектрисы / стороны прямоугольного треугольника в трапеции.</div>
+                    <div class="legendItem"><strong>О, Р</strong> — орёл и решка в вероятностной модели.</div>
+                    <div class="legendItem"><strong>a</strong> — коэффициент, определяющий направление ветвей и «ширину» параболы.</div>
+                </div>
+            </section>
+        </aside>
+    </div>
+
+    <footer>
+        Наглядная интерактивная веб-страница по мотивам пособия: теория, разборы, тренировка и самопроверка • полностью автономный index.html
+    </footer>
+</div>
+
+<div id="tooltip" class="tooltip" role="tooltip" aria-hidden="true" data-pos="top">
+    <button class="tipClose" id="tipClose" aria-label="Закрыть подсказку">×</button>
+    <div class="tipTitle" id="tipTitle"></div>
+    <div class="tipBody" id="tipBody"></div>
+    <div class="tipActions" id="tipActions"></div>
+</div>
+
+<script>
+    (function(){
+        "use strict";
+
+        const state = {
+            detail: "standard",
+            mode: "step",
+            currentStep: 1,
+            zoom: 1,
+            visualMode: "parabola",
+            activeScenario: "main",
+            main: createScenario({
+                name: "Основная задача",
+                h: -4,
+                k: -7,
+                a: 1,
+                sampleDx: 2,
+                targetX: -12
+            }),
+            generated: null
+        };
+
+        function createScenario({name,h,k,a,sampleDx,targetX}){
+            const px = h + sampleDx;
+            const py = a * (px - h) * (px - h) + k;
+            const b = -2 * a * h;
+            const c = a * h * h + k;
+            const targetY = a * targetX * targetX + b * targetX + c;
+            const roots = getRoots(a,b,c);
+            return {name,h,k,a,b,c,px,py,targetX,targetY,roots};
+        }
+
+        function getRoots(a,b,c){
+            const D = b*b - 4*a*c;
+            if(D < 0) return [];
+            if(Math.abs(D) < 1e-12) return [(-b)/(2*a)];
+            const sqrtD = Math.sqrt(D);
+            return [(-b - sqrtD)/(2*a), (-b + sqrtD)/(2*a)];
+        }
+
+        const stepEls = Array.from(document.querySelectorAll(".step"));
+        const stepNav = document.getElementById("stepNav");
+        const detailSelect = document.getElementById("detailSelect");
+        const modeSelect = document.getElementById("modeSelect");
+        const nextStepBtn = document.getElementById("nextStepBtn");
+        const genBtn = document.getElementById("genBtn");
+        const resetMainBtn = document.getElementById("resetMainBtn");
+        const printBtn = document.getElementById("printBtn");
+
+        const showVertex = document.getElementById("showVertex");
+        const showAxis = document.getElementById("showAxis");
+        const showPoint = document.getElementById("showPoint");
+        const showRoots = document.getElementById("showRoots");
+        const showLabels = document.getElementById("showLabels");
+
+        const statusScenario = document.getElementById("statusScenario");
+        const statusMode = document.getElementById("statusMode");
+        const statusInfoA = document.getElementById("statusInfoA");
+        const statusInfoB = document.getElementById("statusInfoB");
+        const statusFormula = document.getElementById("statusFormula");
+        const modelCaption = document.getElementById("modelCaption");
+
+        const mainSvg = document.getElementById("mainSvg");
+        const svgWrap = document.getElementById("svgWrap");
+        const zoomRange = document.getElementById("zoomRange");
+        const zoomReadout = document.getElementById("zoomReadout");
+
+        const gridG = document.getElementById("grid");
+        const axesG = document.getElementById("axes");
+
+        const modeParabola = document.getElementById("modeParabola");
+        const modeCoin = document.getElementById("modeCoin");
+        const modeTrapezoid = document.getElementById("modeTrapezoid");
+
+        const axisLine = document.getElementById("axisLine");
+        const curvePath = document.getElementById("curvePath");
+        const vertexDot = document.getElementById("vertexDot");
+        const pointDot = document.getElementById("pointDot");
+        const root1Dot = document.getElementById("root1Dot");
+        const root2Dot = document.getElementById("root2Dot");
+        const vertexLabel = document.getElementById("vertexLabel");
+        const pointLabel = document.getElementById("pointLabel");
+        const root1Label = document.getElementById("root1Label");
+        const root2Label = document.getElementById("root2Label");
+
+        const coinCells = document.getElementById("coinCells");
+        const coinSummary = document.getElementById("coinSummary");
+
+        const genTaskText = document.getElementById("genTaskText");
+        const genAnswerBox = document.getElementById("genAnswerBox");
+        const genAnswerText = document.getElementById("genAnswerText");
+        const genIdeaText = document.getElementById("genIdeaText");
+        const genCheckText = document.getElementById("genCheckText");
+        const studentAnswer = document.getElementById("studentAnswer");
+        const genFeedback = document.getElementById("genFeedback");
+        const showGeneratedBtn = document.getElementById("showGeneratedBtn");
+        const showMainBtn = document.getElementById("showMainBtn");
+
+        const checkQuizBtn = document.getElementById("checkQuizBtn");
+        const quizFeedback = document.getElementById("quizFeedback");
+
+        const graph = {
+            xmin: -11,
+            xmax: 5,
+            ymin: -12,
+            ymax: 14,
+            width: 760,
+            height: 560,
+            pad: 38
+        };
+
+        const objectToStepsMap = {
+            curve: ["step1","step2","step4","step5","step6","step7"],
+            axis: ["step1","step3","step6"],
+            vertex: ["step1","step2","step3","step4","step5","step6","step7"],
+            point: ["step1","step3","step4","step5","step6","step7"],
+            roots: ["step6"]
+        };
+
+        function sx(x){
+            return graph.pad + (x - graph.xmin) / (graph.xmax - graph.xmin) * (graph.width - 2*graph.pad);
+        }
+        function sy(y){
+            return graph.height - graph.pad - (y - graph.ymin) / (graph.ymax - graph.ymin) * (graph.height - 2*graph.pad);
+        }
+
+        function currentScenario(){
+            return state.activeScenario === "generated" && state.generated ? state.generated : state.main;
+        }
+
+        function formatQuadratic(a,b,c){
+            let parts = [];
+            if(a === 1) parts.push("x²");
+            else if(a === -1) parts.push("−x²");
+            else parts.push(String(a).replace("-", "−") + "x²");
+
+            if(b !== 0){
+                const sign = b > 0 ? " + " : " − ";
+                parts.push(sign + Math.abs(b) + "x");
+            }
+            if(c !== 0){
+                const sign = c > 0 ? " + " : " − ";
+                parts.push(sign + Math.abs(c));
+            }
+            return parts.join("");
+        }
+
+        function pathForQuadratic(s){
+            const step = (graph.xmax - graph.xmin) / 420;
+            let d = "";
+            let first = true;
+            for(let x = graph.xmin; x <= graph.xmax + 1e-9; x += step){
+                const y = s.a * x * x + s.b * x + s.c;
+                const px = sx(x);
+                const py = sy(y);
+                d += (first ? "M" : "L") + px.toFixed(2) + " " + py.toFixed(2) + " ";
+                first = false;
+            }
+            return d.trim();
+        }
+
+        function drawGrid(){
+            gridG.innerHTML = "";
+            axesG.innerHTML = "";
+
+            for(let x = Math.ceil(graph.xmin); x <= Math.floor(graph.xmax); x++){
+                const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+                line.setAttribute("x1", sx(x));
+                line.setAttribute("x2", sx(x));
+                line.setAttribute("y1", sy(graph.ymin));
+                line.setAttribute("y2", sy(graph.ymax));
+                line.setAttribute("stroke", x === 0 ? "rgba(255,255,255,.3)" : "rgba(255,255,255,.08)");
+                line.setAttribute("stroke-width", x === 0 ? "2.5" : "1");
+                gridG.appendChild(line);
+
+                const label = document.createElementNS("http://www.w3.org/2000/svg","text");
+                label.setAttribute("x", sx(x) + 4);
+                label.setAttribute("y", sy(0) - 8);
+                label.setAttribute("fill", "rgba(255,255,255,.68)");
+                label.setAttribute("font-size", "14");
+                label.textContent = x;
+                axesG.appendChild(label);
+            }
+
+            for(let y = Math.ceil(graph.ymin); y <= Math.floor(graph.ymax); y++){
+                const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+                line.setAttribute("x1", sx(graph.xmin));
+                line.setAttribute("x2", sx(graph.xmax));
+                line.setAttribute("y1", sy(y));
+                line.setAttribute("y2", sy(y));
+                line.setAttribute("stroke", y === 0 ? "rgba(255,255,255,.3)" : "rgba(255,255,255,.08)");
+                line.setAttribute("stroke-width", y === 0 ? "2.5" : "1");
+                gridG.appendChild(line);
+
+                if(y !== 0){
+                    const label = document.createElementNS("http://www.w3.org/2000/svg","text");
+                    label.setAttribute("x", sx(0) + 8);
+                    label.setAttribute("y", sy(y) - 6);
+                    label.setAttribute("fill", "rgba(255,255,255,.68)");
+                    label.setAttribute("font-size", "14");
+                    label.textContent = y;
+                    axesG.appendChild(label);
+                }
+            }
+
+            const xText = document.createElementNS("http://www.w3.org/2000/svg","text");
+            xText.setAttribute("x", sx(graph.xmax) - 18);
+            xText.setAttribute("y", sy(0) - 10);
+            xText.setAttribute("fill", "rgba(255,255,255,.9)");
+            xText.setAttribute("font-size", "16");
+            xText.setAttribute("font-weight", "700");
+            xText.textContent = "x";
+            axesG.appendChild(xText);
+
+            const yText = document.createElementNS("http://www.w3.org/2000/svg","text");
+            yText.setAttribute("x", sx(0) + 10);
+            yText.setAttribute("y", sy(graph.ymax) + 18);
+            yText.setAttribute("fill", "rgba(255,255,255,.9)");
+            yText.setAttribute("font-size", "16");
+            yText.setAttribute("font-weight", "700");
+            yText.textContent = "y";
+            axesG.appendChild(yText);
+        }
+
+        function updateStatusParabola(){
+            const s = currentScenario();
+            statusScenario.textContent = s.name;
+            statusMode.textContent = "Режим: парабола";
+            statusInfoA.textContent = "V(" + s.h + "; " + s.k + ")";
+            statusInfoB.textContent = "P(" + s.px + "; " + s.py + ")";
+            statusFormula.textContent = "f(x)=" + formatQuadratic(s.a,s.b,s.c);
+
+            if(state.activeScenario === "generated" && state.generated){
+                modelCaption.textContent = "Сейчас модель показывает сгенерированную задачу. Сравнивайте новые координаты с тем же методом решения: вершина → вершинная форма → подстановка точки P.";
+            }else{
+                modelCaption.textContent = "Сейчас показана основная задача про параболу. Она согласована с разбором слева: вершина, ось симметрии, узловая точка и нули функции.";
+            }
+        }
+
+        function updateStatusCoin(){
+            statusScenario.textContent = "Вероятность";
+            statusMode.textContent = "Режим: монета";
+            statusInfoA.textContent = "8 исходов";
+            statusInfoB.textContent = "ровно 2 орла → 3/8";
+            statusFormula.textContent = "хотя бы 1 орёл → 7/8";
+            modelCaption.textContent = "Этот режим визуализирует разбор из пособия по теории вероятностей: три броска монеты, все исходы и подсчёт благоприятных случаев.";
+        }
+
+        function updateStatusTrapezoid(){
+            statusScenario.textContent = "Геометрия";
+            statusMode.textContent = "Режим: трапеция";
+            statusInfoA.textContent = "AF = 20";
+            statusInfoB.textContent = "BF = 15";
+            statusFormula.textContent = "AB = 25";
+            modelCaption.textContent = "Этот режим показывает идею из пособия: биссектрисы односторонних углов трапеции образуют прямой угол, затем работает Пифагор.";
+        }
+
+        function placePoint(el,x,y){
+            el.setAttribute("cx", sx(x));
+            el.setAttribute("cy", sy(y));
+        }
+
+        function placeText(el,x,y,text,dx,dy){
+            el.setAttribute("x", sx(x) + dx);
+            el.setAttribute("y", sy(y) + dy);
+            el.textContent = text;
+        }
+
+        function renderParabola(){
+            const s = currentScenario();
+
+            curvePath.setAttribute("d", pathForQuadratic(s));
+            axisLine.setAttribute("x1", sx(s.h));
+            axisLine.setAttribute("x2", sx(s.h));
+            axisLine.setAttribute("y1", sy(graph.ymin));
+            axisLine.setAttribute("y2", sy(graph.ymax));
+
+            placePoint(vertexDot, s.h, s.k);
+            placePoint(pointDot, s.px, s.py);
+            placeText(vertexLabel, s.h, s.k, "V(" + s.h + "; " + s.k + ")", 12, -12);
+            placeText(pointLabel, s.px, s.py, "P(" + s.px + "; " + s.py + ")", 12, -12);
+
+            const roots = s.roots;
+            if(roots.length >= 1){
+                placePoint(root1Dot, roots[0], 0);
+                placeText(root1Label, roots[0], 0, "x₁", 8, -10);
+            }
+            if(roots.length >= 2){
+                placePoint(root2Dot, roots[1], 0);
+                placeText(root2Label, roots[1], 0, "x₂", 8, -10);
+            }
+
+            root1Dot.style.display = roots.length >= 1 ? "" : "none";
+            root1Label.style.display = roots.length >= 1 ? "" : "none";
+            root2Dot.style.display = roots.length >= 2 ? "" : "none";
+            root2Label.style.display = roots.length >= 2 ? "" : "none";
+
+            updateStatusParabola();
+            applyVisibility();
+        }
+
+        function renderCoin(){
+            coinCells.innerHTML = "";
+            const outcomes = ["ООО","ООР","ОРО","ОРР","РОО","РОР","РРО","РРР"];
+            const exactlyTwo = new Set(["ООР","ОРО","РОО"]);
+            const cellW = 150;
+            const cellH = 90;
+            const startX = 80;
+            const startY = 130;
+            const gapX = 20;
+            const gapY = 22;
+
+            outcomes.forEach((out, i)=>{
+                const row = Math.floor(i / 2);
+                const col = i % 2 + (Math.floor(i / 4) * 2);
+                const x = startX + col * (cellW + gapX);
+                const y = startY + row * (cellH + gapY);
+
+                const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+                const rect = document.createElementNS("http://www.w3.org/2000/svg","rect");
+                rect.setAttribute("x", x);
+                rect.setAttribute("y", y);
+                rect.setAttribute("width", cellW);
+                rect.setAttribute("height", cellH);
+                rect.setAttribute("rx", 16);
+                rect.setAttribute("fill", exactlyTwo.has(out) ? "rgba(255,209,102,.12)" : "rgba(255,255,255,.04)");
+                rect.setAttribute("stroke", exactlyTwo.has(out) ? "rgba(255,209,102,.55)" : "rgba(255,255,255,.10)");
+                rect.setAttribute("stroke-width", "2");
+                g.appendChild(rect);
+
+                const title = document.createElementNS("http://www.w3.org/2000/svg","text");
+                title.setAttribute("x", x + 16);
+                title.setAttribute("y", y + 26);
+                title.setAttribute("fill", "#f3fbfb");
+                title.setAttribute("font-size", "18");
+                title.setAttribute("font-weight", "800");
+                title.textContent = out;
+                g.appendChild(title);
+
+                for(let j = 0; j < 3; j++){
+                    const cx = x + 34 + j*36;
+                    const cy = y + 58;
+                    const circle = document.createElementNS("http://www.w3.org/2000/svg","circle");
+                    circle.setAttribute("cx", cx);
+                    circle.setAttribute("cy", cy);
+                    circle.setAttribute("r", 14);
+                    circle.setAttribute("fill", out[j] === "О" ? "var(--coin-head)" : "var(--coin-tail)");
+                    circle.setAttribute("stroke", "#fff");
+                    circle.setAttribute("stroke-width", "1.5");
+                    g.appendChild(circle);
+
+                    const txt = document.createElementNS("http://www.w3.org/2000/svg","text");
+                    txt.setAttribute("x", cx);
+                    txt.setAttribute("y", cy + 5);
+                    txt.setAttribute("text-anchor", "middle");
+                    txt.setAttribute("fill", "#102229");
+                    txt.setAttribute("font-size", "16");
+                    txt.setAttribute("font-weight", "800");
+                    txt.textContent = out[j];
+                    g.appendChild(txt);
+                }
+
+                if(exactlyTwo.has(out)){
+                    const mark = document.createElementNS("http://www.w3.org/2000/svg","text");
+                    mark.setAttribute("x", x + 116);
+                    mark.setAttribute("y", y + 28);
+                    mark.setAttribute("fill", "#fff2c7");
+                    mark.setAttribute("font-size", "14");
+                    mark.setAttribute("font-weight", "800");
+                    mark.textContent = "благ.";
+                    g.appendChild(mark);
+                }
+
+                coinCells.appendChild(g);
+            });
+
+            coinSummary.textContent = "Всего 8 равновозможных исходов; для события «ровно два орла» благоприятных исходов 3";
+            updateStatusCoin();
+        }
+
+        function renderTrapezoid(){
+            updateStatusTrapezoid();
+        }
+
+        function applyVisibility(){
+            if(state.visualMode === "parabola"){
+                const labelsOn = showLabels.checked ? "" : "none";
+                vertexDot.style.display = showVertex.checked ? "" : "none";
+                pointDot.style.display = showPoint.checked ? "" : "none";
+                axisLine.style.display = showAxis.checked ? "" : "none";
+                vertexLabel.style.display = showVertex.checked ? labelsOn : "none";
+                pointLabel.style.display = showPoint.checked ? labelsOn : "none";
+
+                const rootsVisible = showRoots.checked && currentScenario().roots.length > 0;
+                root1Dot.style.display = rootsVisible && currentScenario().roots.length >= 1 ? "" : "none";
+                root1Label.style.display = rootsVisible && currentScenario().roots.length >= 1 ? labelsOn : "none";
+                root2Dot.style.display = rootsVisible && currentScenario().roots.length >= 2 ? "" : "none";
+                root2Label.style.display = rootsVisible && currentScenario().roots.length >= 2 ? labelsOn : "none";
+            }
+        }
+
+        function updateVisibleDetails(){
+            document.querySelectorAll(".detail").forEach(el=>{
+                const show = el.classList.contains(state.detail);
+                el.classList.toggle("visible", show);
+            });
+        }
+
+        function setDetail(level){
+            state.detail = level;
+            detailSelect.value = level;
+            updateVisibleDetails();
+            showTransient("Подробность изменена: " + ({short:"кратко",standard:"стандартно",full:"очень подробно"}[level]));
+        }
+
+        function refreshSteps(){
+            const pills = Array.from(stepNav.children);
+            stepEls.forEach((step, idx)=>{
+                const n = idx + 1;
+                if(state.mode === "full"){
+                    step.classList.remove("locked");
+                }else{
+                    step.classList.toggle("locked", n > state.currentStep);
+                }
+                step.classList.toggle("active", n === state.currentStep);
+                if(pills[idx]) pills[idx].classList.toggle("active", n === state.currentStep);
+            });
+
+            if(state.mode === "step"){
+                nextStepBtn.textContent = state.currentStep >= stepEls.length ? "Все шаги открыты" : "Следующий шаг";
+            }else{
+                nextStepBtn.textContent = "Пошаговый режим";
+            }
+        }
+
+        function initStepNav(){
+            stepNav.innerHTML = "";
+            stepEls.forEach((step, idx)=>{
+                const btn = document.createElement("button");
+                btn.className = "stepPill";
+                btn.type = "button";
+                btn.textContent = String(idx + 1);
+                btn.title = step.querySelector("h3").textContent;
+                btn.addEventListener("click", ()=>goToStep(idx + 1, true));
+                stepNav.appendChild(btn);
+            });
+            refreshSteps();
+        }
+
+        function setMode(mode){
+            state.mode = mode;
+            modeSelect.value = mode;
+            if(mode === "full"){
+                state.currentStep = stepEls.length;
+            }else{
+                state.currentStep = 1;
+            }
+            refreshSteps();
+            showTransient(mode === "full" ? "Теперь весь разбор открыт сразу." : "Включён пошаговый режим раскрытия.");
+        }
+
+        function goToStep(stepNumber, scrollToIt){
+            if(state.mode === "step"){
+                state.currentStep = Math.max(state.currentStep, stepNumber);
+            }else{
+                state.currentStep = stepNumber;
+            }
+            refreshSteps();
+            const target = document.getElementById("step" + stepNumber);
+            if(scrollToIt && target){
+                target.scrollIntoView({behavior:"smooth", block:"start"});
+            }
+            if(target) pulseObjects(target.dataset.objects);
+        }
+
+        function clearObjectHighlights(){
+            [curvePath,axisLine,vertexDot,pointDot,root1Dot,root2Dot,vertexLabel,pointLabel,root1Label,root2Label]
+                .forEach(el=>{
+                if(!el) return;
+                el.style.filter = "";
+                el.style.opacity = "";
+            });
+
+            document.querySelectorAll(".legendBadge").forEach(el=>el.classList.remove("active"));
+            stepEls.forEach(el=>el.classList.remove("linked"));
+            document.querySelectorAll(".linkTarget").forEach(el=>el.classList.remove("focusGlow"));
+
+            document.querySelectorAll("#modeCoin rect, #modeTrapezoid line, #modeTrapezoid polygon, #modeTrapezoid circle").forEach(el=>{
+                el.style.filter = "";
+            });
+        }
+
+        function pulseObjects(list){
+            if(!list) return;
+            clearObjectHighlights();
+
+            const ids = list.split(",").map(s=>s.trim()).filter(Boolean);
+
+            if(state.visualMode === "parabola"){
+                const objectMap = {
+                    curve:[curvePath],
+                    axis:[axisLine],
+                    vertex:[vertexDot,vertexLabel],
+                    point:[pointDot,pointLabel],
+                    roots:[root1Dot,root2Dot,root1Label,root2Label]
+                };
+
+                ids.forEach(id=>{
+                    (objectMap[id] || []).forEach(el=>{
+                        if(el.style.display === "none") return;
+                        el.style.filter = "drop-shadow(0 0 14px rgba(54,215,209,.85))";
+                        el.style.opacity = "1";
+                    });
+                });
+            } else if(state.visualMode === "coin"){
+                document.querySelectorAll('#modeCoin rect').forEach((el, index)=>{
+                    if(ids.includes("roots") && index < 8){
+                        el.style.filter = "drop-shadow(0 0 12px rgba(255,209,102,.7))";
+                    }
+                });
+            } else if(state.visualMode === "trapezoid"){
+                document.querySelectorAll('#modeTrapezoid line, #modeTrapezoid polygon, #modeTrapezoid circle').forEach(el=>{
+                    el.style.filter = "drop-shadow(0 0 10px rgba(54,215,209,.75))";
+                });
+            }
+
+            ids.forEach(id=>{
+                document.querySelectorAll('.legendBadge[data-obj="' + id + '"]').forEach(el=>el.classList.add("active"));
+                (objectToStepsMap[id] || []).forEach(stepId=>{
+                    const step = document.getElementById(stepId);
+                    if(step) step.classList.add("linked");
+                });
+                document.querySelectorAll('.linkTarget[data-obj="' + id + '"]').forEach(el=>el.classList.add("focusGlow"));
+            });
+
+            window.clearTimeout(pulseObjects._timer);
+            pulseObjects._timer = window.setTimeout(()=>{
+                document.querySelectorAll(".linkTarget").forEach(el=>el.classList.remove("focusGlow"));
+            }, 900);
+        }
+
+        function bindModelToText(){
+            document.querySelectorAll("[data-obj]").forEach(el=>{
+                const obj = el.dataset.obj;
+                if(!obj) return;
+                ["mouseenter","focus"].forEach(evt=>{
+                    el.addEventListener(evt, ()=>pulseObjects(obj));
+                });
+                ["mouseleave","blur"].forEach(evt=>{
+                    el.addEventListener(evt, clearObjectHighlights);
+                });
+            });
+
+            stepEls.forEach(step=>{
+                ["mouseenter","focus"].forEach(evt=>{
+                    step.addEventListener(evt, ()=>pulseObjects(step.dataset.objects));
+                });
+                ["mouseleave","blur"].forEach(evt=>{
+                    step.addEventListener(evt, clearObjectHighlights);
+                });
+                step.addEventListener("click", ()=>{
+                    const index = stepEls.indexOf(step) + 1;
+                    goToStep(index, false);
+                });
+            });
+        }
+
+        function setZoom(z){
+            state.zoom = Math.max(0.7, Math.min(1.9, z));
+            mainSvg.style.transform = "scale(" + state.zoom.toFixed(2) + ")";
+            zoomRange.value = Math.round(state.zoom * 100);
+            zoomReadout.textContent = Math.round(state.zoom * 100) + "%";
+        }
+
+        function showScenario(which){
+            if(which === "generated" && state.generated){
+                state.activeScenario = "generated";
+                renderVisual();
+                showTransient("На модели показана сгенерированная задача.");
+            }else{
+                state.activeScenario = "main";
+                renderVisual();
+                showTransient("Возврат к основной задаче.");
+            }
+        }
+
+        function setVisualMode(mode){
+            state.visualMode = mode;
+            document.querySelectorAll(".modeChip").forEach(btn=>{
+                btn.classList.toggle("active", btn.dataset.mode === mode);
+            });
+
+            modeParabola.classList.toggle("hidden", mode !== "parabola");
+            modeCoin.classList.toggle("hidden", mode !== "coin");
+            modeTrapezoid.classList.toggle("hidden", mode !== "trapezoid");
+
+            if(mode === "parabola"){
+                drawGrid();
+                axesG.style.display = "";
+                gridG.style.display = "";
+            }else{
+                gridG.innerHTML = "";
+                axesG.innerHTML = "";
+            }
+
+            renderVisual();
+            showTransient("Переключён режим модели: " + ({parabola:"парабола",coin:"монета",trapezoid:"трапеция"}[mode]));
+        }
+
+        function renderVisual(){
+            clearObjectHighlights();
+            if(state.visualMode === "parabola"){
+                renderParabola();
+            }else if(state.visualMode === "coin"){
+                renderCoin();
+            }else{
+                renderTrapezoid();
+            }
+        }
+
+        function randint(min,max){
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateTask(){
+            let a = randint(1,3);
+            if(Math.random() < 0.35) a *= -1;
+
+            const h = randint(-5,3);
+            const k = randint(-7,5);
+
+            const possibleDx = [-3,-2,-1,1,2,3];
+            const sampleDx = possibleDx[randint(0, possibleDx.length - 1)];
+
+            const targetShiftPool = [-4,-3,-2,-1,1,2,3,4];
+            const targetX = h + targetShiftPool[randint(0, targetShiftPool.length - 1)];
+
+            const candidate = createScenario({
+                name: "Сгенерированная задача",
+                h, k, a, sampleDx, targetX
+            });
+
+            if(candidate.px === candidate.h || candidate.targetX === candidate.px) return generateTask();
+            if(Math.abs(candidate.targetY) > 180) return generateTask();
+
+            state.generated = candidate;
+            state.activeScenario = "generated";
+            state.visualMode = "parabola";
+
+            document.querySelectorAll(".modeChip").forEach(btn=>{
+                btn.classList.toggle("active", btn.dataset.mode === "parabola");
+            });
+            modeParabola.classList.remove("hidden");
+            modeCoin.classList.add("hidden");
+            modeTrapezoid.classList.add("hidden");
+            drawGrid();
+
+            const direction = candidate.a > 0 ? "вверх" : "вниз";
+
+            genTaskText.innerHTML = ""
+            + "<strong>Новая задача.</strong><br>"
+            + "Известно, что вершина параболы находится в точке "
+            + "<strong>V(" + candidate.h + "; " + candidate.k + ")</strong>, "
+            + "ветви направлены <strong>" + direction + "</strong>, "
+            + "а график проходит через точку "
+            + "<strong>P(" + candidate.px + "; " + candidate.py + ")</strong>."
+            + "<br>Восстановите формулу функции и найдите "
+            + "<strong>f(" + candidate.targetX + ")</strong>.";
+
+            genAnswerText.textContent = "f(x) = " + formatQuadratic(candidate.a,candidate.b,candidate.c) + ", f(" + candidate.targetX + ") = " + candidate.targetY;
+            genIdeaText.textContent = "Сначала запишите вершинную форму f(x)=a(x−h)²+k по вершине, затем подставьте точку P, найдите a, после этого раскройте скобки и вычислите нужное значение функции.";
+            genCheckText.textContent = "Проверка: вершина совпадает, точка P лежит на графике, направление ветвей " + direction + " сохраняется.";
+            genAnswerBox.classList.remove("hidden");
+            studentAnswer.value = "";
+            genFeedback.className = "feedback";
+            genFeedback.textContent = "";
+
+            renderVisual();
+            showTransient("Сгенерирована новая корректная задача того же типа.");
+        }
+
+        function normalizeFormulaString(str){
+            return str
+                .toLowerCase()
+                .replace(/\s+/g,"")
+                .replaceAll("−","-")
+                .replaceAll("²","^2");
+        }
+
+        function checkGeneratedAnswer(){
+            if(!state.generated) return;
+            const user = studentAnswer.value.trim();
+            if(!user){
+                genFeedback.className = "feedback bad";
+                genFeedback.textContent = "Сначала введите свою версию ответа.";
+                return;
+            }
+
+            const s = state.generated;
+            const normalized = normalizeFormulaString(user);
+            const formula1 = normalizeFormulaString(formatQuadratic(s.a,s.b,s.c));
+            const formula2 = normalizeFormulaString("f(x)=" + formatQuadratic(s.a,s.b,s.c));
+            const valueStrict = normalizeFormulaString("f(" + s.targetX + ")=" + s.targetY);
+
+            const hasFormula = normalized.includes(formula1) || normalized.includes(formula2);
+            const hasValue = normalized.includes(valueStrict) || normalized.includes(String(s.targetY));
+
+            if(hasFormula && hasValue){
+                genFeedback.className = "feedback ok";
+                genFeedback.textContent = "Отлично: и формула, и вычисленное значение совпали.";
+            }else if(hasFormula && !hasValue){
+                genFeedback.className = "feedback bad";
+                genFeedback.textContent = "Формула похожа на верную, но значение f(" + s.targetX + ") не совпало.";
+            }else if(!hasFormula && hasValue){
+                genFeedback.className = "feedback bad";
+                genFeedback.textContent = "Значение совпало, но формула записана неверно или не распознана.";
+            }else{
+                genFeedback.className = "feedback bad";
+                genFeedback.textContent = "Пока не совпало. Начните снова: вершина → вершинная форма → точка P.";
+            }
+        }
+
+        function checkQuiz(){
+            const selected = document.querySelector('input[name="quiz1"]:checked');
+            if(!selected){
+                quizFeedback.className = "feedback bad";
+                quizFeedback.textContent = "Сначала выберите вариант ответа.";
+                return;
+            }
+            if(selected.value === "b"){
+                quizFeedback.className = "feedback ok";
+                quizFeedback.textContent = "Верно. В этой задаче рациональнее всего сразу использовать вершину и записать вершинную форму.";
+            }else{
+                quizFeedback.className = "feedback bad";
+                quizFeedback.textContent = "Неверно. Здесь ключевой старт — вершина, поэтому первым делом надо записать вершинную форму.";
+            }
+        }
+
+        const tooltip = document.getElementById("tooltip");
+        const tipTitle = document.getElementById("tipTitle");
+        const tipBody = document.getElementById("tipBody");
+        const tipActions = document.getElementById("tipActions");
+        const tipClose = document.getElementById("tipClose");
+        let currentTrigger = null;
+        let tipTimer = null;
+
+        const TOOLTIP_DATA = {
+            detailTip: {
+                title: "Как работает переключение подробности",
+                body: `
+        <p>Эта настройка меняет глубину текста, но не меняет метод решения.</p>
+        <div class="formula" style="margin:8px 0">
+          <math display="inline">
+            <mrow>
+              <mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo>
+              <mo>=</mo>
+              <mi>a</mi>
+              <msup>
+                <mrow><mo stretchy="false">(</mo><mi>x</mi><mo>−</mo><mi>h</mi><mo stretchy="false">)</mo></mrow>
+                <mn>2</mn>
+              </msup>
+              <mo>+</mo><mi>k</mi>
+            </mrow>
+          </math>
+        </div>
+        <p>В «кратко» остаются только опорные идеи. В «очень подробно» добавляются пояснения, промежуточные переходы и проверки.</p>
+      `,
+                actions: [
+                    {label:"Сделать подробно", action:()=>setDetail("full")},
+                    {label:"Показать кратко", action:()=>setDetail("short")}
+                ],
+                pos: "bottom"
+            },
+            genTip: {
+                title: "Что делает генератор",
+                body: `
+        <p>Он создаёт новую корректную задачу <strong>того же типа</strong> — по вершине и точке восстановить квадратичную функцию.</p>
+        <div class="compact-system" aria-label="Система ключевых идей">
+          <div class="brace">{</div>
+          <div class="lines">
+            <div>f(x) = a(x − h)² + k</div>
+            <div>P(x<sub>P</sub>; y<sub>P</sub>) лежит на графике</div>
+          </div>
+        </div>
+        <p>Генерация защищена от вырождений: a ≠ 0, точка P не совпадает с вершиной, значения остаются разумными.</p>
+      `,
+                actions: [
+                    {label:"Сгенерировать сейчас", action:()=>generateTask()},
+                    {label:"Показать основную задачу", action:()=>showScenario("main")}
+                ],
+                pos: "bottom"
+            },
+            zoomTip: {
+                title: "Как работает зум и режимы",
+                body: `
+        <p>Масштаб меняется ползунком, кнопками «+ / −» и колесом мыши.</p>
+        <p>В верхней части правого блока можно переключать визуализацию: парабола, монета, трапеция.</p>
+      `,
+                actions: [
+                    {label:"Увеличить", action:()=>setZoom(state.zoom + 0.1)},
+                    {label:"Парабола", action:()=>setVisualMode("parabola")}
+                ],
+                pos: "left"
+            }
+        };
+
+        function positionTooltip(trigger, pos){
+            const r = trigger.getBoundingClientRect();
+            const tipRect = tooltip.getBoundingClientRect();
+
+            let left = 0;
+            let top = 0;
+
+            if(pos === "bottom"){
+                left = r.left - 12;
+                top = r.bottom + 14;
+            }else if(pos === "left"){
+                left = r.left - tipRect.width - 14;
+                top = r.top - 10;
+            }else if(pos === "right"){
+                left = r.right + 14;
+                top = r.top - 10;
+            }else{
+                left = r.left - 12;
+                top = r.top - tipRect.height - 14;
+            }
+
+            const maxLeft = window.innerWidth - tipRect.width - 10;
+            const maxTop = window.innerHeight - tipRect.height - 10;
+
+            left = Math.max(10, Math.min(left, maxLeft));
+            top = Math.max(10, Math.min(top, maxTop));
+
+            tooltip.style.left = left + "px";
+            tooltip.style.top = top + "px";
+            tooltip.dataset.pos = pos;
+        }
+
+        function showTip(id, trigger){
+            const data = TOOLTIP_DATA[id];
+            if(!data) return;
+
+            currentTrigger = trigger;
+            tipTitle.textContent = data.title;
+            tipBody.innerHTML = data.body;
+            tipActions.innerHTML = "";
+
+            data.actions.forEach(item=>{
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "btn secondary small";
+                btn.textContent = item.label;
+                btn.addEventListener("click", item.action);
+                tipActions.appendChild(btn);
+            });
+
+            tooltip.setAttribute("aria-hidden","false");
+            tooltip.classList.add("show");
+            positionTooltip(trigger, data.pos || "top");
+
+            clearTimeout(tipTimer);
+            tipTimer = setTimeout(hideTip, 15000);
+
+            trigger.classList.add("bump");
+            setTimeout(()=>trigger.classList.remove("bump"), 650);
+        }
+
+        function hideTip(){
+            tooltip.classList.remove("show");
+            tooltip.setAttribute("aria-hidden","true");
+        }
+
+        function showTransient(text){
+            const prev = document.querySelector(".transient");
+            if(prev) prev.remove();
+
+            const box = document.createElement("div");
+            box.className = "transient";
+            box.textContent = text;
+            document.body.appendChild(box);
+
+            requestAnimationFrame(()=>{
+                box.style.opacity = "1";
+                box.style.transform = "translateY(0)";
+            });
+
+            setTimeout(()=>{
+                box.style.opacity = "0";
+                box.style.transform = "translateY(10px)";
+                setTimeout(()=>{
+                    if(box.parentNode) box.parentNode.removeChild(box);
+                }, 260);
+            }, 2200);
+        }
+
+        function bindTooltips(){
+            document.querySelectorAll(".hintTrigger").forEach(trigger=>{
+                const id = trigger.dataset.tip;
+                ["mouseenter","focus"].forEach(evt=>{
+                    trigger.addEventListener(evt, ()=>showTip(id, trigger));
+                });
+                trigger.addEventListener("click", ()=>showTip(id, trigger));
+            });
+
+            tipClose.addEventListener("click", hideTip);
+
+            document.addEventListener("keydown", (e)=>{
+                if(e.key === "Escape") hideTip();
+            });
+
+            document.addEventListener("click", (e)=>{
+                const target = e.target;
+                if(!tooltip.contains(target) && !target.classList.contains("hintTrigger")) hideTip();
+            });
+
+            window.addEventListener("resize", ()=>{
+                if(currentTrigger && tooltip.classList.contains("show")){
+                    positionTooltip(currentTrigger, tooltip.dataset.pos || "top");
+                }
+            });
+
+            setTimeout(()=>{
+                try{
+                    if(!sessionStorage.getItem("nmwg-tip-shown")){
+                        const target = document.querySelector('[data-tip="genTip"]');
+                        if(target){
+                            showTip("genTip", target);
+                            sessionStorage.setItem("nmwg-tip-shown", "1");
+                        }
+                    }
+                }catch(_e){}
+            }, 3000);
+        }
+
+        function bindControls(){
+            detailSelect.addEventListener("change", e=>setDetail(e.target.value));
+            modeSelect.addEventListener("change", e=>setMode(e.target.value));
+
+            nextStepBtn.addEventListener("click", ()=>{
+                if(state.mode === "full"){
+                    setMode("step");
+                    return;
+                }
+                if(state.currentStep < stepEls.length){
+                    state.currentStep += 1;
+                    refreshSteps();
+                    const target = document.getElementById("step" + state.currentStep);
+                    if(target){
+                        target.scrollIntoView({behavior:"smooth", block:"start"});
+                        pulseObjects(target.dataset.objects);
+                    }
+                }
+            });
+
+            genBtn.addEventListener("click", generateTask);
+            resetMainBtn.addEventListener("click", ()=>showScenario("main"));
+            printBtn.addEventListener("click", ()=>window.print());
+
+            [showVertex,showAxis,showPoint,showRoots,showLabels].forEach(el=>{
+                el.addEventListener("change", ()=>{
+                    applyVisibility();
+                    showTransient("Модель обновлена.");
+                });
+            });
+
+            document.getElementById("zoomOutBtn").addEventListener("click", ()=>setZoom(state.zoom - 0.1));
+            document.getElementById("zoomInBtn").addEventListener("click", ()=>setZoom(state.zoom + 0.1));
+            document.getElementById("zoomResetBtn").addEventListener("click", ()=>setZoom(1));
+            zoomRange.addEventListener("input", e=>setZoom(+e.target.value / 100));
+
+            svgWrap.addEventListener("wheel", (e)=>{
+                e.preventDefault();
+                setZoom(state.zoom + (e.deltaY < 0 ? 0.05 : -0.05));
+            }, {passive:false});
+
+            checkQuizBtn.addEventListener("click", checkQuiz);
+            document.getElementById("checkAnswerBtn").addEventListener("click", checkGeneratedAnswer);
+            showGeneratedBtn.addEventListener("click", ()=>showScenario("generated"));
+            showMainBtn.addEventListener("click", ()=>showScenario("main"));
+
+            document.querySelectorAll(".modeChip").forEach(btn=>{
+                btn.addEventListener("click", ()=>setVisualMode(btn.dataset.mode));
+            });
+        }
+
+        function init(){
+            drawGrid();
+            initStepNav();
+            updateVisibleDetails();
+            renderVisual();
+            setZoom(1);
+            bindModelToText();
+            bindControls();
+            bindTooltips();
+            setDetail("standard");
+            setMode("step");
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
