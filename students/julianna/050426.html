@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Отношения отрезков в треугольнике • Наглядная геометрия • 9 класс, ОГЭ</title>
+    <style>
+        :root{
+            --bg:#071115;
+            --bg2:#0b171c;
+            --panel:#10242a;
+            --panel2:#142d34;
+            --panel3:#0c1b20;
+            --soft:#173840;
+            --text:#ecfbfa;
+            --muted:#abc9c7;
+            --muted2:#8eb2b0;
+            --accent:#27d3c3;
+            --accent2:#7cf8eb;
+            --accent3:#19b4a6;
+            --warn:#ffd166;
+            --danger:#ff8383;
+            --ok:#87f7b0;
+            --first:#1d6a88;
+            --second:#1ba091;
+            --third:#a27d32;
+            --bisector:#c97a4a;
+            --median:#8a6fbf;
+            --shadow:0 20px 56px rgba(0,0,0,.34);
+            --radius:22px;
+            --radius-sm:14px;
+            --border:1px solid rgba(122,248,235,.14);
+            --highlight:rgba(39,211,195,.16);
+            --current:rgba(124,248,235,.14);
+            --printText:#111;
+            --printBg:#fff;
+            --stickyTop:16px;
+        }
+
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+            color:var(--text);
+            line-height:1.55;
+            background:
+            radial-gradient(circle at 100% 0%, rgba(39,211,195,.08), transparent 26%),
+            radial-gradient(circle at 0% 100%, rgba(124,248,235,.06), transparent 28%),
+            linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%);
+        }
+
+        .app{max-width:1520px;margin:0 auto;padding:20px}
+
+        .topbar{
+            display:grid;
+            grid-template-columns:minmax(0,1.28fr) minmax(360px,.92fr);
+            gap:18px;
+            align-items:stretch;
+            margin-bottom:20px;
+        }
+
+        .hero,.control-card,.main-left,.sticky-shell,.section,.quiz-card,.print-card,.generator,.gen-box,.value-card,.legend-item{
+            background:linear-gradient(180deg,var(--panel),var(--panel2));
+            border:var(--border);
+            border-radius:var(--radius);
+            box-shadow:var(--shadow);
+        }
+
+        .hero{
+            padding:28px 28px 22px;
+            position:relative;
+            overflow:hidden;
+            min-height:272px;
+            isolation:isolate;
+        }
+        .hero::before{
+            content:"";
+            position:absolute;
+            width:340px;height:340px;right:-90px;bottom:-120px;border-radius:50%;
+            background:radial-gradient(circle, rgba(124,248,235,.12), transparent 64%);
+            pointer-events:none;
+            z-index:0;
+        }
+        .hero > *{position:relative;z-index:1}
+
+        .eyebrow{
+            display:inline-flex;align-items:center;gap:8px;
+            border-radius:999px;padding:8px 12px;
+            background:rgba(39,211,195,.08);
+            border:1px solid rgba(124,248,235,.16);
+            color:var(--accent2);
+            font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+        }
+
+        h1{
+            margin:14px 0 12px;
+            font-size:clamp(26px,3.8vw,42px);
+            line-height:1.06;
+            letter-spacing:-.03em;
+        }
+        .hero p{margin:0 0 16px;max-width:860px;color:var(--muted);font-size:16px}
+
+        .hero-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px}
+        .mini-stat{
+            min-height:82px;border-radius:18px;padding:12px 14px;
+            background:rgba(255,255,255,.03);
+            border:1px solid rgba(124,248,235,.12);
+        }
+        .mini-stat b{display:block;margin-bottom:6px;color:var(--accent2);font-size:13px}
+        .mini-stat span{display:block;color:var(--muted);font-size:13px}
+
+        .control-card{padding:18px;position:relative;overflow:visible}
+        .control-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+        label.ctrl{display:flex;flex-direction:column;gap:8px;color:var(--muted);font-size:14px;position:relative}
+        .ctrl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+        select,button,input[type="range"],textarea{
+            font:inherit;
+            color:var(--text);
+            outline:none;
+        }
+        select,button{
+            width:100%;
+            padding:12px 14px;
+            border-radius:14px;
+            border:1px solid rgba(124,248,235,.14);
+            background:#0c1b20;
+            transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease, opacity .18s ease;
+        }
+        select:focus,button:focus,textarea:focus{
+            box-shadow:0 0 0 3px rgba(39,211,195,.18);
+            border-color:rgba(124,248,235,.5);
+        }
+        button{cursor:pointer}
+        button:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.24)}
+        .btn-accent{
+            background:linear-gradient(180deg,var(--accent),var(--accent3));
+            color:#052123;font-weight:800;border:none;
+        }
+        .btn-ghost{background:rgba(255,255,255,.03)}
+        .btn-small{width:auto;padding:9px 11px;border-radius:12px;font-size:14px}
+
+        .chip-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+        .chip{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.03);border:1px solid rgba(124,248,235,.14);color:var(--muted);font-size:13px}
+
+        .main{
+            display:grid;
+            grid-template-columns:minmax(0,1fr) minmax(420px,520px);
+            gap:20px;
+            align-items:start;
+        }
+
+        .main-left{padding:20px;min-width:0}
+        .main-right{min-width:0}
+        .sticky-shell{
+            position:sticky;top:var(--stickyTop);
+            padding:18px;
+            overflow:visible;
+            contain:layout paint;
+        }
+
+        .tabs,.stepper,.chip-row-compact{display:flex;gap:10px;flex-wrap:wrap}
+        .tabs{margin-bottom:14px}
+        .tab,.step-btn{
+            width:auto;
+            padding:10px 14px;
+            border-radius:999px;
+            background:rgba(255,255,255,.03);
+            color:var(--muted);
+            border:1px solid rgba(124,248,235,.14);
+        }
+        .tab.active,.step-btn.active{background:rgba(39,211,195,.14);color:var(--text);border-color:rgba(124,248,235,.36)}
+
+        .section{padding:18px 18px 8px;margin-bottom:16px;background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.012))}
+        .section h2,.section h3{margin:0 0 12px;line-height:1.14;letter-spacing:-.02em}
+        .section h2{font-size:24px}
+        .section h3{font-size:20px;color:var(--accent2)}
+        .section p,.section li{color:#d8ecea}
+        .muted{color:var(--muted)}
+
+        .badge{
+            display:inline-flex;align-items:center;gap:8px;
+            border-radius:999px;padding:7px 12px;margin-bottom:10px;
+            background:rgba(39,211,195,.10);
+            border:1px solid rgba(124,248,235,.16);
+            color:var(--accent2);font-size:13px;font-weight:800;
+        }
+
+        .idea-list,.mistake-list,.legend-list,.check-list{display:grid;gap:10px;padding:0;margin:0 0 12px;list-style:none}
+        .idea-list li,.mistake-list li,.legend-list li,.check-list li{
+            padding:12px 14px;border-radius:16px;
+            background:rgba(255,255,255,.025);
+            border:1px solid rgba(124,248,235,.10);
+        }
+
+        .subgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+
+        .stepper{
+            position:sticky;top:0;z-index:5;
+            padding:6px 0 10px;
+            background:linear-gradient(180deg, rgba(16,36,42,.98), rgba(16,36,42,.84) 78%, transparent);
+            backdrop-filter:blur(4px);
+            margin-bottom:6px;
+        }
+        .steps-wrap{display:grid;gap:12px}
+        .step{
+            border-radius:18px;padding:16px;
+            background:linear-gradient(180deg,#15363d,#0f282e);
+            border:1px solid rgba(124,248,235,.10);
+            min-height:120px;
+            opacity:.58;
+            transform:translateY(6px);
+            transition:opacity .28s ease, transform .28s ease, box-shadow .28s ease, border-color .28s ease, background .28s ease;
+            scroll-margin-top:90px;
+        }
+        .step.visible{opacity:1;transform:none}
+        .step.current{background:linear-gradient(180deg,#18414a,#12333a);border-color:rgba(124,248,235,.40);box-shadow:0 0 0 2px rgba(39,211,195,.12)}
+        .step h4{margin:0 0 10px;font-size:18px}
+        .formula{
+            margin:10px 0 0;
+            padding:10px 12px;border-radius:14px;
+            background:#0a171a;border:1px solid rgba(124,248,235,.10);
+            overflow:auto;white-space:nowrap;font-family:"Segoe UI",Arial,sans-serif;font-size:15px
+        }
+        .step.glow,.viz-hotspot.glow{animation:borderGlow 1.25s ease infinite alternate}
+
+        .sticky-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+        .sticky-header h3,.sticky-header h4{margin:0}
+        .viz-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:10px;align-items:center;margin-bottom:12px}
+        .zoom-group{display:flex;gap:8px;flex-wrap:nowrap}
+        .toggle-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0 14px}
+        .toggle{
+            display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;
+            background:rgba(255,255,255,.03);border:1px solid rgba(124,248,235,.10);color:var(--muted)
+        }
+        .toggle input{accent-color:var(--accent)}
+
+        .viz-panel{background:#08161a;border-radius:22px;border:1px solid rgba(124,248,235,.14);padding:10px;overflow:hidden}
+        .viz-stage{
+            width:100%;aspect-ratio:1.03/1;
+            overflow:hidden;border-radius:18px;position:relative;
+            background:
+            radial-gradient(circle at 50% 0%, rgba(124,248,235,.05), transparent 35%),
+            linear-gradient(180deg,#09161a,#0b1a1f);
+        }
+        svg{width:100%;height:100%;display:block}
+
+        .legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+        .legend-item{
+            display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.03);font-size:14px;color:var(--muted)
+        }
+        .swatch{width:14px;height:14px;border-radius:4px;flex:0 0 14px}
+
+        .value-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+        .value-card{padding:12px;border-radius:16px;background:rgba(255,255,255,.03)}
+        .value-card b{display:block;margin-bottom:6px;color:var(--accent2);font-size:13px}
+        .value-card span{display:block;font-size:19px;font-weight:800}
+
+        .generator{padding:14px;margin-top:8px;background:rgba(255,255,255,.03)}
+        .gen-box{padding:14px;margin-top:10px;background:#08161a;border-radius:16px;min-height:140px}
+        .gen-answer{color:var(--ok);font-weight:800}
+
+        .quiz-wrap{display:grid;gap:14px}
+        .quiz-card{padding:18px}
+        .answers{display:grid;gap:8px;margin-top:12px}
+        .answer-btn{text-align:left}
+        .quiz-result{min-height:28px;margin-top:10px;font-weight:700}
+
+        .selfcheck{display:grid;gap:10px}
+        textarea{
+            width:100%;min-height:120px;padding:14px;border-radius:16px;
+            background:#0b1a1e;border:1px solid rgba(124,248,235,.12);resize:vertical
+        }
+
+        .compact-formula{
+            display:inline-grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;
+            padding:10px 12px;border-radius:14px;background:#0a171a;border:1px solid rgba(124,248,235,.10)
+        }
+        .brace{font-size:28px;line-height:1;transform:scaleY(1.18);transform-origin:top left;color:var(--accent2);padding-top:5px}
+        .sys-lines{display:grid;gap:2px}
+
+        .floating-toast{
+            position:fixed;right:18px;bottom:18px;z-index:60;
+            padding:12px 14px;border-radius:16px;
+            background:linear-gradient(180deg,#18383f,#112930);
+            border:1px solid rgba(124,248,235,.20);
+            color:var(--text);box-shadow:var(--shadow);
+            opacity:0;transform:translateY(12px);pointer-events:none;transition:.28s ease
+        }
+        .floating-toast.show{opacity:1;transform:none}
+
+        .hint-wrap{position:relative;display:inline-flex;align-items:center}
+        .hint-trigger{
+            width:28px;height:28px;padding:0;border-radius:50%;display:inline-grid;place-items:center;cursor:pointer;
+            color:#062124;font-weight:900;border:none;
+            background:linear-gradient(180deg,var(--accent2),var(--accent));
+            box-shadow:0 0 0 0 rgba(39,211,195,.45);
+            animation:hintPulse 2s ease infinite;
+        }
+        .hint-trigger.show-bounce{animation:hintBounce .7s ease, hintPulse 2s ease .7s infinite}
+        .hint-trigger[data-open="true"]{box-shadow:0 0 0 3px rgba(39,211,195,.16)}
+        .hint-pop{
+            position:absolute;z-index:70;min-width:270px;max-width:330px;
+            border-radius:18px;border:1px solid transparent;
+            opacity:0;pointer-events:none;transform:translateY(8px) scale(.98);
+            transition:opacity .22s ease, transform .22s ease;
+            box-shadow:var(--shadow);
+            background-image:linear-gradient(#11242a,#0b171b), linear-gradient(135deg, rgba(39,211,195,.90), rgba(124,248,235,.30));
+            background-origin:border-box;background-clip:padding-box,border-box;
+        }
+        .hint-pop.visible{opacity:1;pointer-events:auto;transform:none}
+        .hint-pop[data-pos="right"]{left:38px;top:-8px}
+        .hint-pop[data-pos="left"]{right:38px;top:-8px}
+        .hint-pop[data-pos="top"]{bottom:38px;left:50%;transform:translateX(-50%) translateY(6px) scale(.98)}
+        .hint-pop[data-pos="top"].visible{transform:translateX(-50%) translateY(0) scale(1)}
+        .hint-pop[data-pos="bottom"]{top:38px;left:50%;transform:translateX(-50%) translateY(-6px) scale(.98)}
+        .hint-pop[data-pos="bottom"].visible{transform:translateX(-50%) translateY(0) scale(1)}
+        .hint-inner{padding:14px}
+        .hint-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}
+        .hint-head b{font-size:15px;color:var(--accent2)}
+        .hint-close{width:auto;padding:0;border:none;background:none;color:var(--muted);box-shadow:none}
+        .hint-close:hover{transform:none;box-shadow:none}
+        .hint-pop p{margin:0 0 8px;color:#d7eceb;font-size:14px}
+        .hint-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+        .hint-arrow{position:absolute;width:14px;height:14px;background:#0f2025;border-left:1px solid rgba(124,248,235,.18);border-top:1px solid rgba(124,248,235,.18)}
+        .hint-pop[data-pos="right"] .hint-arrow{left:-7px;top:18px;transform:rotate(-45deg)}
+        .hint-pop[data-pos="left"] .hint-arrow{right:-7px;top:18px;transform:rotate(135deg)}
+        .hint-pop[data-pos="top"] .hint-arrow{left:50%;bottom:-7px;margin-left:-7px;transform:rotate(225deg)}
+        .hint-pop[data-pos="bottom"] .hint-arrow{left:50%;top:-7px;margin-left:-7px;transform:rotate(45deg)}
+
+        .mathml-box{background:#091519;border-radius:14px;padding:8px 10px;border:1px solid rgba(124,248,235,.10);overflow:auto}
+        math{color:#eafffe}
+
+        .print-card{padding:18px}
+        .hidden{display:none !important}
+        .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+        @keyframes hintPulse{
+            0%{box-shadow:0 0 0 0 rgba(39,211,195,.42), 0 0 0 0 rgba(124,248,235,.16)}
+            70%{box-shadow:0 0 0 12px rgba(39,211,195,0), 0 0 0 24px rgba(124,248,235,0)}
+            100%{box-shadow:0 0 0 0 rgba(39,211,195,0), 0 0 0 0 rgba(124,248,235,0)}
+        }
+        @keyframes borderGlow{
+            from{box-shadow:0 0 0 1px rgba(39,211,195,.18), 0 0 0 0 rgba(39,211,195,.10)}
+            to{box-shadow:0 0 0 1px rgba(39,211,195,.56), 0 0 24px 2px rgba(39,211,195,.18)}
+        }
+        @keyframes hintBounce{
+            0%,100%{transform:translateY(0)}
+            30%{transform:translateY(-7px)}
+            60%{transform:translateY(2px)}
+        }
+
+        @media (max-width: 1220px){
+            .topbar,.main{grid-template-columns:1fr}
+            .sticky-shell{position:relative;top:auto;contain:none}
+        }
+        @media (max-width: 920px){
+            .hero-grid,.control-grid,.subgrid,.legend,.value-board{grid-template-columns:1fr}
+            .viz-toolbar{grid-template-columns:1fr 1fr;align-items:stretch}
+            .toggle-grid{grid-template-columns:1fr}
+            .app{padding:14px}
+            .hero,.main-left,.sticky-shell{padding:16px}
+            .hint-pop{min-width:220px;max-width:min(88vw,320px)}
+        }
+        @media (max-width: 560px){
+            h1{font-size:24px}
+            .step h4{font-size:17px}
+            .sticky-header{flex-direction:column;align-items:flex-start}
+            .viz-toolbar{grid-template-columns:1fr}
+            .zoom-group{display:grid;grid-template-columns:repeat(3,1fr)}
+            .tabs,.stepper,.chip-row{gap:8px}
+            .hint-pop[data-pos="left"],.hint-pop[data-pos="right"]{left:0;right:auto;top:38px}
+            .hint-pop[data-pos="left"] .hint-arrow,.hint-pop[data-pos="right"] .hint-arrow{left:18px;top:-7px;transform:rotate(45deg)}
+        }
+
+        @media print{
+            :root{--text:#111;--muted:#444;--panel:#fff;--panel2:#fff;--printText:#111;--printBg:#fff}
+            body{background:#fff;color:#111}
+            .app{max-width:none;padding:0}
+            .hero,.control-card,.main-left,.sticky-shell,.section,.quiz-card,.print-card,.generator,.gen-box,.value-card,.legend-item{
+                background:#fff;border:1px solid #d5d5d5;box-shadow:none;color:#111
+            }
+            .topbar,.main{display:block}
+            .main-right{margin-top:14px}
+            .sticky-shell{position:relative;top:auto}
+            .control-card,.hint-wrap,.floating-toast,.stepper,.viz-toolbar button,#tabSelect,#detailSelect,#revealSelect,#generatorType{display:none !important}
+            .tabs{display:none}
+            .tab-panel{display:block !important}
+            .step{opacity:1 !important;transform:none !important;box-shadow:none;border-color:#d0d0d0;background:#fff}
+            .viz-panel,.generator,.section,.quiz-card,.print-card{break-inside:avoid-page}
+            svg text{fill:#111 !important}
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="topbar">
+        <section class="hero" aria-label="Введение">
+            <div class="eyebrow">Наглядная геометрия • 9 класс, ОГЭ • графическая интерпретация</div>
+            <h1>Отношения отрезков в треугольнике</h1>
+            <p>
+                Последовательный разбор методов: подобие, свойство биссектрисы, теорема Менелая.
+                Каждая задача — от условия до ответа через прозрачную логику и наглядную схему.
+            </p>
+            <div class="hero-grid">
+                <div class="mini-stat"><b>Тема</b><span>медианы, биссектрисы, параллельные прямые, секущие</span></div>
+                <div class="mini-stat"><b>Метод</b><span>схема → подобие/свойство → пропорция → ответ</span></div>
+                <div class="mini-stat"><b>Фокус</b><span>графическая интерпретация и пошаговая логика</span></div>
+                <div class="mini-stat"><b>Режим</b><span>пошаговое раскрытие + генератор похожих задач</span></div>
+            </div>
+        </section>
+
+        <aside class="control-card" aria-label="Панель управления страницей">
+            <div class="sticky-header">
+                <h3>Панель разбора</h3>
+                <div class="hint-wrap">
+                    <button class="hint-trigger" data-hint="hintMode" aria-label="Подсказка по режимам" aria-expanded="false">i</button>
+                    <div class="hint-pop" id="hintMode" data-pos="left" role="tooltip" aria-hidden="true" aria-label="Подсказка по режимам страницы">
+                        <div class="hint-arrow"></div>
+                        <div class="hint-inner">
+                            <div class="hint-head"><b>Как использовать режимы</b><button class="hint-close" aria-label="Закрыть подсказку">×</button></div>
+                            <p>Переключайте тему, глубину объяснения и способ показа шагов. Правая модель всегда синхронизируется с текущим содержанием.</p>
+                            <div class="mathml-box">
+                                <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mfrac><mrow><mi>A</mi><mi>D</mi></mrow><mrow><mi>D</mi><mi>B</mi></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>A</mi><mi>C</mi></mrow><mrow><mi>C</mi><mi>B</mi></mrow></mfrac></mrow></math>
+                            </div>
+                            <div class="hint-actions">
+                                <button class="btn-small btn-accent" data-action="switch-tab" data-tab="practice">Открыть практику</button>
+                                <button class="btn-small btn-ghost" data-action="set-detail" data-detail="very">Сделать подробнее</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="control-grid">
+                <label class="ctrl">
+            <span class="ctrl-row">Тема
+              <span class="hint-wrap">
+                <button class="hint-trigger" data-hint="hintTopic" aria-label="Подсказка по выбору темы" aria-expanded="false">?</button>
+                <span class="hint-pop" id="hintTopic" data-pos="right" role="tooltip" aria-hidden="true" aria-label="Подсказка по выбору темы">
+                  <span class="hint-arrow"></span>
+                  <span class="hint-inner">
+                    <span class="hint-head"><b>Чем отличаются темы</b><button class="hint-close" aria-label="Закрыть подсказку">×</button></span>
+                    <p><b>Теория</b> — опорные определения и стратегия. <b>Разбор</b> — полный образец решения. <b>Практика</b> — генерация и мини-квиз.</p>
+                    <div class="hint-actions">
+                      <button class="btn-small btn-accent" data-action="switch-tab" data-tab="example">Показать разбор</button>
+                      <button class="btn-small btn-ghost" data-action="switch-tab" data-tab="theory">Открыть теорию</button>
+                    </div>
+                  </span>
+                </span>
+              </span>
+            </span>
+                    <select id="tabSelect" aria-label="Выбор темы страницы">
+                        <option value="theory">Теория</option>
+                        <option value="example" selected>Разбор базовой задачи</option>
+                        <option value="practice">Практика и генерация</option>
+                    </select>
+                </label>
+
+                <label class="ctrl">
+                    <span>Подробность объяснения</span>
+                    <select id="detailSelect" aria-label="Выбор уровня подробности">
+                        <option value="short">Кратко</option>
+                        <option value="standard" selected>Стандартно</option>
+                        <option value="very">Очень подробно</option>
+                    </select>
+                </label>
+
+                <label class="ctrl">
+                    <span>Режим раскрытия</span>
+                    <select id="revealSelect" aria-label="Выбор режима показа решения">
+                        <option value="step" selected>Пошаговое раскрытие</option>
+                        <option value="all">Показать всё сразу</option>
+                    </select>
+                </label>
+
+                <label class="ctrl">
+            <span class="ctrl-row">Тип похожей задачи
+              <span class="hint-wrap">
+                <button class="hint-trigger" data-hint="hintGenType" aria-label="Подсказка по типу генерации" aria-expanded="false">!</button>
+                <span class="hint-pop" id="hintGenType" data-pos="right" role="tooltip" aria-hidden="true" aria-label="Подсказка по типу генерации">
+                  <span class="hint-arrow"></span>
+                  <span class="hint-inner">
+                    <span class="hint-head"><b>Как работает тип генерации</b><button class="hint-close" aria-label="Закрыть подсказку">×</button></span>
+                    <p>Можно тренировать задачи с медианой+параллельной, с биссектрисой или с теоремой Менелая. Метод решения остаётся тем же.</p>
+                    <div class="hint-actions">
+                      <button class="btn-small btn-accent" data-action="generate-now">Сгенерировать сейчас</button>
+                    </div>
+                  </span>
+                </span>
+              </span>
+            </span>
+                    <select id="generatorType" aria-label="Выбор типа похожей задачи">
+                        <option value="median">Медиана + параллельная</option>
+                        <option value="bisector">Биссектриса</option>
+                        <option value="menelaus">Теорема Менелая</option>
+                    </select>
+                </label>
+            </div>
+            <div class="chip-row">
+                <span class="chip">Только школьные методы</span>
+                <span class="chip">Без LaTeX в интерфейсе</span>
+                <span class="chip">Печать и усиленная мобильная адаптация</span>
+            </div>
+        </aside>
+    </div>
+
+    <div class="main">
+        <main class="main-left" aria-label="Основной учебный материал">
+            <div class="tabs" role="tablist" aria-label="Переключение разделов">
+                <button class="tab" data-tab="theory" role="tab" aria-selected="false">Теория</button>
+                <button class="tab active" data-tab="example" role="tab" aria-selected="true">Разбор</button>
+                <button class="tab" data-tab="practice" role="tab" aria-selected="false">Практика</button>
+            </div>
+
+            <section class="tab-panel hidden" id="panel-theory" role="tabpanel" aria-label="Теория">
+                <div class="section">
+                    <div class="badge">Что важно понять до решения задач</div>
+                    <h2>Ядро темы в одном взгляде</h2>
+                    <ul class="idea-list">
+                        <li><b>1.</b> Видеть в чертеже сигналы метода: параллельные прямые, медиану, биссектрису, секущую.</li>
+                        <li><b>2.</b> Понимать, какие треугольники сравнивать при подобии.</li>
+                        <li><b>3.</b> Уметь получать отношения отрезков через подобие, свойство биссектрисы и Менелая.</li>
+                        <li><b>4.</b> Удобно задавать отношения через параметры <i>x</i>, <i>t</i>, <i>k</i> и не смешивать коэффициенты.</li>
+                        <li><b>5.</b> Проверять ответ: подстановка, сумма частей, единственность решения.</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h3>Опорные определения</h3>
+                    <div class="subgrid">
+                        <div>
+                            <p><b>Медиана</b> — отрезок от вершины к середине противоположной стороны.</p>
+                            <p><b>Биссектриса</b> — отрезок, делящий угол пополам.</p>
+                            <p><b>Подобие</b> — два угла равны ⇒ треугольники подобны ⇒ стороны пропорциональны.</p>
+                        </div>
+                        <div>
+                            <div class="compact-formula" aria-label="Ключевые формулы">
+                                <div class="brace">{</div>
+                                <div class="sys-lines">
+                                    <div>Биссектриса: <i>AD/DB = AC/CB</i></div>
+                                    <div>Параллельные: <i>MK/KA = MF/FC</i></div>
+                                    <div>Менелай: <i>(AK/KB)·(BF/FC)·(CN/NA) = 1</i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Главная стратегия решения</h3>
+                    <ol class="check-list">
+                        <li>Выделите главный отрезок, про который спрашивают.</li>
+                        <li>Найдите треугольник, где этот отрезок — сторона или часть стороны.</li>
+                        <li>Проверьте: есть ли параллельные прямые, биссектриса, медиана?</li>
+                        <li>Составьте пропорцию по соответствующему свойству.</li>
+                        <li>Только после этого переходите к вычислениям.</li>
+                    </ol>
+                </div>
+
+                <div class="section">
+                    <h3>Типичные ошибки</h3>
+                    <ul class="mistake-list">
+                        <li><b>Перепутано направление отношения:</b> из <i>AK:KM = 1:3</i> делают <i>MK:KA = 1:3</i> вместо <i>3:1</i>.</li>
+                        <li><b>Пропорция между несоответствующими сторонами</b> подобных треугольников.</li>
+                        <li><b>Забыто, что медиана делит сторону пополам.</b></li>
+                        <li><b>Свойство биссектрисы применено к неправильной стороне.</b></li>
+                        <li><b>В теореме Менелая неверно выбран порядок обхода.</b></li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="tab-panel" id="panel-example" role="tabpanel" aria-label="Разбор задачи">
+                <div class="section">
+                    <div class="badge">Разбор по мотивам пособия</div>
+                    <h2>Базовая модель: медиана + параллельная прямая</h2>
+                    <p class="muted">В △<i>ABC</i> точка <i>M</i> — середина <i>BC</i>. На медиане <i>AM</i> взята точка <i>K</i>, причём <i>AK:KM = 1:2</i>. Через <i>K</i> проведена <i>KF ∥ AC</i>, <i>F ∈ BC</i>. Найти <i>MF:FC</i>.</p>
+                </div>
+
+                <div class="section">
+                    <h3>Идея решения</h3>
+                    <ul class="idea-list">
+                        <li>Заметить, что <i>KF ∥ AC</i> ⇒ △<i>MKF</i> ~ △<i>MAC</i> по двум углам.</li>
+                        <li>Из подобия получить пропорцию <i>MK/KA = MF/FC</i>.</li>
+                        <li>Подставить известное отношение <i>AK:KM = 1:2</i> ⇒ <i>MK:KA = 2:1</i>.</li>
+                        <li>Получить искомое отношение напрямую.</li>
+                        <li>Проверить: сумма частей на <i>BC</i> согласуется с тем, что <i>M</i> — середина.</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <div class="stepper" id="stepper" aria-label="Навигация по шагам решения"></div>
+                    <div class="steps-wrap" id="stepsWrap"></div>
+                </div>
+
+                <div class="section">
+                    <h3>Типичные ошибки именно в этой задаче</h3>
+                    <ul class="mistake-list">
+                        <li>Записать пропорцию как <i>AK/KM = MF/FC</i> вместо <i>MK/KA = MF/FC</i>.</li>
+                        <li>Не учесть, что <i>M</i> — середина, и ошибиться при проверке.</li>
+                        <li>Перепутать порядок вершин при записи подобия.</li>
+                        <li>Не проверить, что найденное отношение действительно даёт целочисленные части.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="tab-panel hidden" id="panel-practice" role="tabpanel" aria-label="Практика и генерация">
+                <div class="section">
+                    <div class="badge">Тренировка и самопроверка</div>
+                    <h2>Практика по тому же методу</h2>
+                    <p>Ниже — автоматически сгенерированная похожая задача. Она всегда использует тот же школьный путь: схема → подобие/свойство → пропорция → ответ → проверка.</p>
+                    <div class="generator">
+                        <div class="sticky-header">
+                            <h4>Генератор похожей задачи</h4>
+                            <div class="hint-wrap">
+                                <button class="hint-trigger" data-hint="hintGenerator" aria-label="Подсказка по генератору" aria-expanded="false">!</button>
+                                <div class="hint-pop" id="hintGenerator" data-pos="left" role="tooltip" aria-hidden="true" aria-label="Подсказка по генератору">
+                                    <div class="hint-arrow"></div>
+                                    <div class="hint-inner">
+                                        <div class="hint-head"><b>Что делает генератор</b><button class="hint-close" aria-label="Закрыть подсказку">×</button></div>
+                                        <p>Он подбирает корректные параметры без вырожденных случаев, сразу вычисляет ответ и автоматически обновляет модель справа.</p>
+                                        <div class="mathml-box">
+                                            <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mtext>схема</mtext><mo>→</mo><mtext>пропорция</mtext><mo>→</mo><mtext>ответ</mtext><mo>→</mo><mtext>проверка</mtext></mrow></math>
+                                        </div>
+                                        <div class="hint-actions">
+                                            <button class="btn-small btn-accent" data-action="generate-now">Сгенерировать сейчас</button>
+                                            <button class="btn-small btn-ghost" data-action="switch-tab" data-tab="example">Сначала увидеть образец</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chip-row">
+                            <button class="btn-accent" id="generateBtn">Сгенерировать задачу</button>
+                            <button class="btn-ghost" id="applyGeneratedBtn">Повторно применить к модели</button>
+                        </div>
+                        <div class="gen-box" id="generatedTaskBox">Нажмите «Сгенерировать задачу».</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Мини-квиз</h3>
+                    <div class="quiz-wrap" id="quizWrap"></div>
+                </div>
+
+                <div class="section">
+                    <h3>Самопроверка</h3>
+                    <div class="selfcheck">
+                        <ul class="check-list">
+                            <li>Я чётко вижу, какой отрезок требуется найти.</li>
+                            <li>Я умею распознавать подобие по двум углам.</li>
+                            <li>Я правильно записываю пропорцию для соответствующих сторон.</li>
+                            <li>Я не путаю направление отношения (<i>1:3</i> vs <i>3:1</i>).</li>
+                            <li>Я проверяю ответ подстановкой и суммой частей.</li>
+                        </ul>
+                        <textarea aria-label="Поле для самопроверки" placeholder="Коротко запишите, где у Вас сейчас самое слабое место: распознавание подобия, запись пропорции, работа с отношениями, проверка ответа."></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <section class="print-card" aria-label="Краткая памятка для печати">
+                <h3>Короткая памятка</h3>
+                <ol class="check-list">
+                    <li>Ищите сигналы: параллельные ⇒ подобие, биссектриса ⇒ свойство, секущая ⇒ Менелай.</li>
+                    <li>Записывайте подобие в правильном порядке вершин.</li>
+                    <li>Пропорция: соответствующие стороны подобных треугольников.</li>
+                    <li>Отношения задавайте через один параметр в каждой части чертежа.</li>
+                    <li>Проверяйте: подстановка, сумма частей, единственность.</li>
+                </ol>
+            </section>
+        </main>
+
+        <aside class="main-right" aria-label="Интерактивная модель и управление чертежом">
+            <div class="sticky-shell">
+                <div class="sticky-header">
+                    <h3>Интерактивная модель</h3>
+                    <div class="hint-wrap">
+                        <button class="hint-trigger" data-hint="hintZoom" aria-label="Подсказка по масштабу и видимости" aria-expanded="false">?</button>
+                        <div class="hint-pop" id="hintZoom" data-pos="left" role="tooltip" aria-hidden="true" aria-label="Подсказка по масштабу и видимости">
+                            <div class="hint-arrow"></div>
+                            <div class="hint-inner">
+                                <div class="hint-head"><b>Зум и видимость</b><button class="hint-close" aria-label="Закрыть подсказку">×</button></div>
+                                <p>Масштаб меняет схему без потери пропорций. Можно увеличивать ползунком, кнопками или колесом мыши прямо на рисунке. Отдельно включаются подписи, отношения, уравнения.</p>
+                                <div class="mathml-box">
+                                    <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mtext>масштаб</mtext><mo>↑</mo><mtext>детали виднее</mtext></mrow></math>
+                                </div>
+                                <div class="hint-actions">
+                                    <button class="btn-small btn-accent" data-action="zoom-reset">Сбросить зум</button>
+                                    <button class="btn-small btn-ghost" data-action="toggle-labels">Скрыть или показать подписи</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="viz-toolbar">
+                    <input type="range" id="zoomRange" min="70" max="170" step="1" value="100" aria-label="Масштаб схемы" />
+                    <div class="zoom-group" aria-label="Кнопки масштаба">
+                        <button id="zoomOut" class="btn-small btn-ghost" aria-label="Уменьшить масштаб">−</button>
+                        <button id="zoomIn" class="btn-small btn-ghost" aria-label="Увеличить масштаб">+</button>
+                        <button id="zoomReset" class="btn-small btn-ghost" aria-label="Сбросить масштаб">Сброс</button>
+                    </div>
+                    <button id="fitExample" class="btn-small btn-accent">Базовый пример</button>
+                    <button id="fitGenerated" class="btn-small btn-ghost">Последняя генерация</button>
+                </div>
+
+                <div class="toggle-grid">
+                    <label class="toggle"><input type="checkbox" id="toggleLabels" checked /> Подписи точек</label>
+                    <label class="toggle"><input type="checkbox" id="toggleRatios" checked /> Показать отношения</label>
+                    <label class="toggle"><input type="checkbox" id="toggleParallel" checked /> Параллельность</label>
+                    <label class="toggle"><input type="checkbox" id="toggleEquation" checked /> Показать пропорцию</label>
+                </div>
+
+                <div class="viz-panel">
+                    <div class="viz-stage" id="vizStage">
+                        <svg id="vizSvg" viewBox="0 0 920 860" aria-label="Схема треугольника с отрезками">
+                            <defs>
+                                <linearGradient id="gradAccent" x1="0" x2="1">
+                                    <stop offset="0%" stop-color="#1cccbc"/>
+                                    <stop offset="100%" stop-color="#82fff2"/>
+                                </linearGradient>
+                                <linearGradient id="gradFirst" x1="0" x2="1">
+                                    <stop offset="0%" stop-color="#14536b"/>
+                                    <stop offset="100%" stop-color="#1d6a88"/>
+                                </linearGradient>
+                                <linearGradient id="gradSecond" x1="0" x2="1">
+                                    <stop offset="0%" stop-color="#166a64"/>
+                                    <stop offset="100%" stop-color="#1ba091"/>
+                                </linearGradient>
+                                <linearGradient id="gradThird" x1="0" x2="1">
+                                    <stop offset="0%" stop-color="#6d5320"/>
+                                    <stop offset="100%" stop-color="#a27d32"/>
+                                </linearGradient>
+                                <filter id="softGlow">
+                                    <feGaussianBlur stdDeviation="6" result="blur" />
+                                    <feMerge>
+                                        <feMergeNode in="blur" />
+                                        <feMergeNode in="SourceGraphic" />
+                                    </feMerge>
+                                </filter>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#7cf8eb" />
+                                </marker>
+                            </defs>
+                            <g id="zoomGroup">
+                                <text x="30" y="48" fill="#dff7f4" font-size="28" font-weight="800">Модель задачи</text>
+                                <text x="30" y="80" fill="#98bfbd" font-size="18">Одинаковые цвета в схеме и в тексте обозначают одни и те же элементы.</text>
+
+                                <!-- Triangle ABC -->
+                                <g id="triangle" transform="translate(80,150)">
+                                    <polygon id="triABC" points="0,400 760,400 280,80" fill="none" stroke="#7cf8eb" stroke-width="2.5" opacity=".9"/>
+                                    <text id="labelA" x="280" y="65" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="middle">A</text>
+                                    <text id="labelB" x="-15" y="415" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="end">B</text>
+                                    <text id="labelC" x="775" y="415" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="start">C</text>
+                                </g>
+
+                                <!-- Median AM -->
+                                <g id="median" class="viz-hotspot" data-step="step1" data-group="median">
+                                    <line x1="360" y1="230" x2="460" y2="550" stroke="url(#gradAccent)" stroke-width="3" stroke-dasharray="8 4" opacity=".85"/>
+                                    <circle cx="460" cy="550" r="5" fill="#7cf8eb"/>
+                                    <text id="labelM" x="475" y="565" fill="#abc9c7" font-size="16">M</text>
+                                    <text id="medianLabel" x="410" y="380" fill="#7cf8eb" font-size="15" font-style="italic">медиана</text>
+                                </g>
+
+                                <!-- Point K on AM -->
+                                <g id="pointK" class="viz-hotspot" data-step="step2" data-group="pointK">
+                                    <circle cx="390" cy="330" r="6" fill="#27d3c3" stroke="#052123" stroke-width="2"/>
+                                    <text id="labelK" x="405" y="325" fill="#ecfbfa" font-size="18" font-weight="700">K</text>
+                                </g>
+
+                                <!-- Parallel line KF -->
+                                <g id="parallel" class="viz-hotspot" data-step="step3" data-group="parallel">
+                                    <line x1="390" y1="330" x2="620" y2="550" stroke="url(#gradSecond)" stroke-width="3.5" opacity=".95"/>
+                                    <circle cx="620" cy="550" r="5" fill="#1ba091"/>
+                                    <text id="labelF" x="635" y="565" fill="#ecfbfa" font-size="18">F</text>
+                                    <!-- Parallel markers -->
+                                    <g id="parallelMarkers" transform="translate(480,420)">
+                                        <line x1="0" y1="0" x2="0" y2="18" stroke="#7cf8eb" stroke-width="2"/>
+                                        <line x1="8" y1="0" x2="8" y2="18" stroke="#7cf8eb" stroke-width="2"/>
+                                    </g>
+                                    <text id="parallelLabel" x="510" y="450" fill="#7cf8eb" font-size="14" font-style="italic">KF ∥ AC</text>
+                                </g>
+
+                                <!-- Ratios on AM -->
+                                <g id="ratioAM" class="viz-hotspot" data-step="step4" data-group="ratioAM">
+                                    <text id="ratioAK" x="340" y="280" fill="#1d6a88" font-size="16" font-weight="700">AK</text>
+                                    <text id="ratioKM" x="420" y="430" fill="#1ba091" font-size="16" font-weight="700">KM</text>
+                                    <text id="ratioValue" x="380" y="360" fill="#7cf8eb" font-size="15">1 : 2</text>
+                                </g>
+
+                                <!-- Ratios on BC -->
+                                <g id="ratioBC" class="viz-hotspot" data-step="step5" data-group="ratioBC">
+                                    <text id="ratioMF" x="520" y="580" fill="#1ba091" font-size="16" font-weight="700">MF</text>
+                                    <text id="ratioFC" x="680" y="580" fill="#a27d32" font-size="16" font-weight="700">FC</text>
+                                    <text id="answerRatio" x="590" y="610" fill="#7cf8eb" font-size="18" font-weight="800">MF:FC = 2:1</text>
+                                </g>
+
+                                <!-- Proportion box -->
+                                <g id="propBox" class="viz-hotspot" data-step="step5" data-group="equation" transform="translate(80,620)">
+                                    <rect x="0" y="0" width="760" height="90" rx="18" fill="#091519" stroke="rgba(124,248,235,.18)"/>
+                                    <text id="propLine" x="380" y="55" fill="#eefefd" font-size="24" font-weight="800" text-anchor="middle">MK / KA = MF / FC</text>
+                                    <text id="propSub" x="380" y="82" fill="#97bdbc" font-size="17" text-anchor="middle">2 / 1 = MF / FC ⇒ MF:FC = 2:1</text>
+                                </g>
+
+                                <!-- Check block -->
+                                <g id="checkBlock" class="viz-hotspot" data-step="step6" data-group="check" transform="translate(80,740)">
+                                    <text x="0" y="0" fill="#d7f2ef" font-size="20" font-weight="700">Проверка</text>
+                                    <rect x="0" y="20" width="760" height="70" rx="16" fill="#091519" stroke="rgba(124,248,235,.18)"/>
+                                    <text id="checkText" x="20" y="45" fill="#dff6f4" font-size="16">Если MF = 2t, FC = t, то MC = 3t.</text>
+                                    <text id="checkText2" x="20" y="68" fill="#9ac0bf" font-size="15">M — середина ⇒ BM = MC = 3t ⇒ BF = 5t, FC = t ⇒ BF:FC = 5:1 (для расширенной задачи).</text>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="legend" aria-label="Легенда обозначений">
+                        <div class="legend-item"><span class="swatch" style="background:var(--median)"></span> медиана</div>
+                        <div class="legend-item"><span class="swatch" style="background:var(--second)"></span> параллельный отрезок</div>
+                        <div class="legend-item"><span class="swatch" style="background:var(--third)"></span> искомое отношение</div>
+                        <div class="legend-item"><span class="swatch" style="background:var(--accent2)"></span> связь с шагами решения</div>
+                    </div>
+
+                    <div class="value-board">
+                        <div class="value-card"><b>AK:KM</b><span id="valueRatio1">1:2</span></div>
+                        <div class="value-card"><b>MK:KA</b><span id="valueRatio2">2:1</span></div>
+                        <div class="value-card"><b>MF:FC</b><span id="valueAnswer">2:1</span></div>
+                        <div class="value-card"><b>Тип задачи</b><span id="valueType">Медиана + ∥</span></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<div class="floating-toast" id="toast" aria-live="polite"></div>
+
+<script>
+    const state = {
+        detail: 'standard',
+        reveal: 'step',
+        activeTab: 'example',
+        zoom: 100,
+        showLabels: true,
+        showRatios: true,
+        showParallel: true,
+        showEquation: true,
+        currentStep: 0,
+        example: {
+            type: 'median',
+            akKm: [1, 2],
+            mkKa: [2, 1],
+            mfFc: [2, 1],
+            description: 'Медиана + параллельная',
+            prop: 'MK/KA = MF/FC'
+        },
+        generated: null,
+        applied: 'example',
+        autoHintTimer: null
+    };
+
+    const detailText = {
+        short: {
+            given: 'Дано: △ABC, M — середина BC, K ∈ AM, AK:KM = 1:2, KF ∥ AC.',
+            meaning: 'KF ∥ AC ⇒ △MKF ~ △MAC по двум углам (накрест лежащие).',
+            interp: 'На схеме видно: параллельные прямые дают равные углы ⇒ подобие.',
+            idea: 'Из подобия: MK/KA = MF/FC. Подставляем MK:KA = 2:1.',
+            solve: '2/1 = MF/FC ⇒ MF:FC = 2:1.',
+            check: 'Проверка: если MF = 2t, FC = t, то MC = 3t. M — середина ⇒ согласуется.',
+            conclusion: 'Ответ: MF:FC = 2:1.'
+        },
+        standard: {
+            given: 'В треугольнике ABC точка M — середина стороны BC. На медиане AM взята точка K, причём AK:KM = 1:2. Через точку K проведена прямая KF, параллельная AC, точка F лежит на BC.',
+            meaning: 'Параллельность KF ∥ AC даёт равные накрест лежащие углы: ∠MKF = ∠MAC и ∠MFK = ∠MCA. Следовательно, △MKF подобен △MAC по двум углам.',
+            interp: 'На интерактивной схеме параллельные прямые выделены, равные углы можно увидеть визуально. Подобие означает пропорциональность соответствующих сторон.',
+            idea: 'Ключевой ход: записать пропорцию для соответствующих сторон подобных треугольников. Важно правильно сопоставить вершины: M↔M, K↔A, F↔C.',
+            solve: 'Из подобия: MK/MA = MF/MC = KF/AC. Но нам нужно отношение на BC, поэтому берём MK/KA = MF/FC (после преобразования). Так как AK:KM = 1:2, то MK:KA = 2:1. Следовательно, MF:FC = 2:1.',
+            check: 'Проверим: пусть FC = t, тогда MF = 2t, MC = 3t. Так как M — середина, то BM = 3t, и вся сторона BC = 6t. Все части целочисленные, условие выполнено. Других решений нет — пропорция линейная.',
+            conclusion: 'Искомое отношение: MF:FC = 2:1. Метод сработал: параллельность → подобие → пропорция → ответ.'
+        },
+        very: {
+            given: 'Рассматриваем задачу: в △ABC точка M — середина стороны BC, значит BM = MC. На медиане AM выбрана точка K так, что AK:KM = 1:2. Через K проведена прямая, параллельная стороне AC; она пересекает BC в точке F. Требуется найти отношение отрезков MF и FC.',
+            meaning: 'Параллельность двух прямых (KF и AC) при пересечении секущими (AM и BC) даёт пары равных углов: накрест лежащие ∠MKF и ∠MAC, а также ∠MFK и ∠MCA. Это классический признак подобия треугольников по двум углам: если два угла одного треугольника равны двум углам другого, то треугольники подобны.',
+            interp: 'Графическая модель наглядно показывает: при проведении параллельной прямой внутри треугольника образуется меньший треугольник, подобный исходному. Соответственные вершины: M общая, K соответствует A, F соответствует C. Это важно для правильной записи пропорции.',
+            idea: 'Стратегия: 1) установить подобие △MKF ~ △MAC; 2) выписать отношение соответствующих сторон; 3) выразить искомое отношение через известное; 4) подставить числовые значения. Ключ — не перепутать порядок вершин при записи подобия.',
+            solve: 'Из подобия △MKF ~ △MAC следует: MK/MA = MF/MC = KF/AC. Нам нужно отношение на стороне BC, поэтому преобразуем: из пропорции для отрезков на медиане и основании получаем MK/KA = MF/FC (это стандартное следствие для такой конфигурации). По условию AK:KM = 1:2, значит MK:KA = 2:1. Подставляем: 2/1 = MF/FC. Следовательно, MF:FC = 2:1.',
+            check: 'Детальная проверка: пусть единичный отрезок на ответе — t. Тогда FC = t, MF = 2t, значит вся часть от M до C равна MC = MF + FC = 3t. Поскольку M — середина BC, то и левая часть тоже 3t: BM = 3t. Тогда вся сторона BC = 6t, и все отношения целочисленные. Уравнение пропорции линейное, поэтому решение единственно. Подстановка в исходное условие подтверждает: при таком делении параллельность сохраняется.',
+            conclusion: 'Ответ: отношение отрезков на стороне равно 2:1. Алгоритм универсален: распознать параллельность → доказать подобие → записать пропорцию → подставить данные → проверить. Этот путь работает для всех задач данного типа.'
+        }
+    };
+
+    const stepsMeta = [
+        { id:'step1', title:'1) Что дано', field:'given', hotspot:'median', focus:'median' },
+        { id:'step2', title:'2) Что означает условие', field:'meaning', hotspot:'parallel', focus:'parallel' },
+        { id:'step3', title:'3) Графическая интерпретация', field:'interp', hotspot:'triangle', focus:'triangle' },
+        { id:'step4', title:'4) Ключевая идея', field:'idea', hotspot:'ratioAM', focus:'ratioAM' },
+        { id:'step5', title:'5) Пошаговое решение', field:'solve', hotspot:'propBox', focus:'equation' },
+        { id:'step6', title:'6) Проверка ответа', field:'check', hotspot:'checkBlock', focus:'check' },
+        { id:'step7', title:'7) Вывод', field:'conclusion', hotspot:'checkBlock', focus:'check' }
+    ];
+
+    const quizData = [
+        {
+            q: 'Если KF ∥ AC в △ABC, какие треугольники подобны?',
+            options: ['△AKF ~ △ABC', '△MKF ~ △MAC', '△KFC ~ △ABC'], correct:1,
+            expl:'Параллельные прямые дают равные накрест лежащие углы ⇒ △MKF ~ △MAC.'
+        },
+        {
+            q: 'Если AK:KM = 1:3, чему равно MK:KA?',
+            options: ['1:3', '3:1', '1:4'], correct:1,
+            expl:'Надо перевернуть отношение: из 1:3 получаем 3:1.'
+        },
+        {
+            q: 'Как записать пропорцию для задачи с медианой и параллельной?',
+            options: ['AK/KM = FC/MF', 'MK/KA = MF/FC', 'AM/MK = AC/KF'], correct:1,
+            expl:'Соответствующие стороны подобных треугольников: MK↔KA, MF↔FC.'
+        }
+    ];
+
+    const el = (sel, root=document) => root.querySelector(sel);
+    const els = (sel, root=document) => [...root.querySelectorAll(sel)];
+
+    function formatRatio(a,b){ return `${a}:${b}`; }
+
+    function showToast(text){
+        const t = el('#toast');
+        t.textContent = text;
+        t.classList.add('show');
+        clearTimeout(showToast._timer);
+        showToast._timer = setTimeout(()=>t.classList.remove('show'), 2400);
+    }
+
+    function activeData(){
+        return state.applied === 'generated' && state.generated ? state.generated : state.example;
+    }
+
+    function renderSteps(){
+        const wrap = el('#stepsWrap');
+        const stepper = el('#stepper');
+        const texts = detailText[state.detail];
+        wrap.innerHTML = '';
+        stepper.innerHTML = '';
+
+        stepsMeta.forEach((meta, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'step-btn' + (idx === state.currentStep ? ' active' : '');
+            btn.textContent = idx + 1;
+            btn.title = meta.title;
+            btn.setAttribute('aria-label', meta.title);
+            btn.addEventListener('click', () => {
+                state.currentStep = idx;
+                updateStepVisibility(true);
+            });
+            stepper.appendChild(btn);
+
+            const s = document.createElement('article');
+            s.className = 'step';
+            s.id = meta.id;
+            s.dataset.hotspot = meta.hotspot;
+            s.dataset.focus = meta.focus;
+
+            let extra = '';
+            if (meta.id === 'step4') extra = '<div class="formula">△MKF ~ △MAC ⇒ MK/KA = MF/FC</div>';
+            if (meta.id === 'step5') extra = '<div class="formula">AK:KM = 1:2 ⇒ MK:KA = 2:1 ⇒ MF:FC = 2:1</div>';
+            if (meta.id === 'step6') extra = '<div class="formula">Проверка: MF=2t, FC=t ⇒ MC=3t, BM=3t ✓</div>';
+
+            s.innerHTML = `<h4>${meta.title}</h4><p>${texts[meta.field]}</p>${extra}`;
+            s.addEventListener('mouseenter', () => syncHighlight(meta));
+            s.addEventListener('focusin', () => syncHighlight(meta));
+            s.addEventListener('mouseleave', clearHighlights);
+            wrap.appendChild(s);
+        });
+
+        updateStepVisibility(false);
+    }
+
+    function updateStepVisibility(scrollIntoView){
+        const all = els('.step');
+        const btns = els('.step-btn');
+        all.forEach((s, idx) => {
+            const visible = state.reveal === 'all' || idx <= state.currentStep;
+            s.classList.toggle('visible', visible);
+            s.classList.toggle('current', idx === state.currentStep);
+        });
+        btns.forEach((b, idx) => b.classList.toggle('active', idx === state.currentStep));
+        const meta = stepsMeta[state.currentStep];
+        syncHighlight(meta);
+        if (scrollIntoView && state.reveal === 'step') {
+            const current = el('#' + meta.id);
+            if (current) current.scrollIntoView({block:'nearest', behavior:'smooth'});
+        }
+    }
+
+    function clearHighlights(){
+        els('.viz-hotspot').forEach(x => x.classList.remove('glow'));
+        els('.step').forEach(x => x.classList.remove('glow'));
+    }
+
+    function syncHighlight(meta){
+        clearHighlights();
+        const hot = el('#' + meta.hotspot);
+        if (hot) hot.classList.add('glow');
+        const step = el('#' + meta.id);
+        if (step) step.classList.add('glow');
+    }
+
+    function renderQuiz(){
+        const wrap = el('#quizWrap');
+        wrap.innerHTML = '';
+        quizData.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.className = 'quiz-card';
+            card.innerHTML = `<b>Вопрос ${idx + 1}</b><p>${item.q}</p><div class="answers"></div><div class="quiz-result" id="qr${idx}"></div>`;
+            const ans = el('.answers', card);
+            item.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn btn-ghost';
+                btn.textContent = opt;
+                btn.addEventListener('click', () => {
+                    const res = el('#qr' + idx);
+                    if (i === item.correct) {
+                        res.textContent = 'Верно. ' + item.expl;
+                        res.style.color = 'var(--ok)';
+                    } else {
+                        res.textContent = 'Пока нет. ' + item.expl;
+                        res.style.color = 'var(--warn)';
+                    }
+                });
+                ans.appendChild(btn);
+            });
+            wrap.appendChild(card);
+        });
+    }
+
+    function updateViz(){
+        const d = activeData();
+        const scale = state.zoom / 100;
+        el('#zoomGroup').setAttribute('transform', `scale(${scale})`);
+
+        // Update labels visibility
+        ['labelA','labelB','labelC','labelM','labelK','labelF'].forEach(id => {
+            const lbl = el('#'+id);
+            if(lbl) lbl.style.visibility = state.showLabels ? 'visible' : 'hidden';
+        });
+
+        // Update ratios visibility
+        ['ratioAK','ratioKM','ratioValue','ratioMF','ratioFC','answerRatio'].forEach(id => {
+            const lbl = el('#'+id);
+            if(lbl) lbl.style.visibility = state.showRatios ? 'visible' : 'hidden';
+        });
+
+        // Update parallel markers
+        el('#parallelMarkers').style.visibility = state.showParallel ? 'visible' : 'hidden';
+        el('#parallelLabel').style.visibility = state.showParallel ? 'visible' : 'hidden';
+
+        // Update equation box
+        el('#propBox').style.visibility = state.showEquation ? 'visible' : 'hidden';
+
+        // Update text content
+        el('#ratioValue').textContent = `${d.akKm[0]} : ${d.akKm[1]}`;
+        el('#valueRatio1').textContent = formatRatio(d.akKm[0], d.akKm[1]);
+        el('#valueRatio2').textContent = formatRatio(d.mkKa[0], d.mkKa[1]);
+        el('#valueAnswer').textContent = formatRatio(d.mfFc[0], d.mfFc[1]);
+        el('#answerRatio').textContent = `MF:FC = ${d.mfFc[0]}:${d.mfFc[1]}`;
+        el('#propLine').textContent = d.prop;
+        el('#propSub').textContent = `${d.mkKa[0]} / ${d.mkKa[1]} = MF / FC ⇒ MF:FC = ${d.mfFc[0]}:${d.mfFc[1]}`;
+        el('#valueType').textContent = d.description;
+    }
+
+    function switchTab(tab){
+        state.activeTab = tab;
+        els('.tab').forEach(b => {
+            const active = b.dataset.tab === tab;
+            b.classList.toggle('active', active);
+            b.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        els('.tab-panel').forEach(p => p.classList.add('hidden'));
+        el('#panel-' + tab).classList.remove('hidden');
+        el('#tabSelect').value = tab;
+        if (tab === 'practice') showToast('Открыта практика. Генератор готов.');
+        if (tab === 'theory') showToast('Открыта теория.');
+        if (tab === 'example') showToast('Открыт подробный разбор.');
+    }
+
+    function setDetail(detail){
+        state.detail = detail;
+        el('#detailSelect').value = detail;
+        renderSteps();
+        showToast(detail === 'very' ? 'Включён очень подробный режим.' : detail === 'short' ? 'Включён краткий режим.' : 'Включён стандартный режим.');
+    }
+
+    function updateControls(){
+        state.showLabels = el('#toggleLabels').checked;
+        state.showRatios = el('#toggleRatios').checked;
+        state.showParallel = el('#toggleParallel').checked;
+        state.showEquation = el('#toggleEquation').checked;
+        state.zoom = +el('#zoomRange').value;
+        updateViz();
+    }
+
+    function randomInt(a, b){ return a + Math.floor(Math.random() * (b - a + 1)); }
+
+    function generateTask(type){
+        let data;
+        if (type === 'median') {
+            const ratios = [[1,2],[1,3],[2,3],[2,5],[3,4]];
+            const [a,b] = ratios[randomInt(0, ratios.length-1)];
+            data = {
+                type: 'median',
+                akKm: [a,b],
+                mkKa: [b,a],
+                mfFc: [b,a],
+                description: 'Медиана + ∥',
+                prop: 'MK/KA = MF/FC'
+            };
+        } else if (type === 'bisector') {
+            const sides = [[6,9],[8,12],[5,10],[7,14],[9,15]];
+            const [ac,bc] = sides[randomInt(0, sides.length-1)];
+            const sum = ac + bc;
+            data = {
+                type: 'bisector',
+                ac: ac, bc: bc,
+                ad: ac, db: bc,
+                ratio: `${ac}:${bc}`,
+                description: 'Биссектриса',
+                prop: `AD/DB = AC/CB = ${ac}/${bc}`
+            };
+        } else { // menelaus
+            const configs = [
+                {ak_kb:[1,1], cn_na:[1,2], bf_fc:[2,1]},
+                {ak_kb:[2,1], cn_na:[1,3], bf_fc:[3,2]},
+                {ak_kb:[1,2], cn_na:[2,1], bf_fc:[1,2]}
+            ];
+            const cfg = configs[randomInt(0, configs.length-1)];
+            data = {
+                type: 'menelaus',
+                ...cfg,
+                description: 'Менелай',
+                prop: `(AK/KB)·(BF/FC)·(CN/NA) = 1`
+            };
+        }
+
+        state.generated = data;
+        state.applied = 'generated';
+        renderGeneratedTask();
+        updateViz();
+        switchTab('practice');
+        showToast('Сгенерирована корректная задача и сразу применена к модели.');
+    }
+
+    function renderGeneratedTask(){
+        const d = state.generated;
+        if (!d) return;
+        let html = '';
+        if (d.type === 'median') {
+            html = `
+          <div><b>Задача.</b> В △<i>ABC</i> точка <i>M</i> — середина <i>BC</i>. На медиане <i>AM</i> взята точка <i>K</i>, причём <i>AK:KM = ${d.akKm[0]}:${d.akKm[1]}</i>. Через <i>K</i> проведена <i>KF ∥ AC</i>, <i>F ∈ BC</i>. Найти <i>MF:FC</i>.</div>
+          <div style="margin-top:10px"><b>Идея.</b> Параллельность ⇒ △<i>MKF</i> ~ △<i>MAC</i> ⇒ пропорция <i>MK/KA = MF/FC</i>.</div>
+          <div style="margin-top:10px"><b>Решение.</b> <i>MK:KA = ${d.mkKa[0]}:${d.mkKa[1]}</i> ⇒ <i>MF:FC = ${d.mfFc[0]}:${d.mfFc[1]}</i>.</div>
+          <div style="margin-top:10px" class="gen-answer">Ответ: ${formatRatio(d.mfFc[0], d.mfFc[1])}</div>
+        `;
+        } else if (d.type === 'bisector') {
+            html = `
+          <div><b>Задача.</b> В △<i>ABC</i> биссектриса <i>CD</i> угла <i>∠ACB</i> делит сторону <i>AB</i>. Известно: <i>AC = ${d.ac}</i>, <i>BC = ${d.bc}</i>. Найти <i>AD:DB</i>.</div>
+          <div style="margin-top:10px"><b>Идея.</b> Свойство биссектрисы: отношение отрезков на стороне равно отношению прилежащих сторон.</div>
+          <div style="margin-top:10px"><b>Решение.</b> <i>AD/DB = AC/CB = ${d.ac}/${d.bc}</i>.</div>
+          <div style="margin-top:10px" class="gen-answer">Ответ: ${d.ratio}</div>
+        `;
+        } else { // menelaus
+            html = `
+          <div><b>Задача.</b> В △<i>ABC</i> на продолжении <i>AC</i> за <i>C</i> взята точка <i>N</i>, причём <i>CN:NA = ${d.cn_na[0]}:${d.cn_na[1]}</i>. Точка <i>K</i> делит <i>AB</i> в отношении <i>AK:KB = ${d.ak_kb[0]}:${d.ak_kb[1]}</i>. Прямая <i>KN</i> пересекает <i>BC</i> в точке <i>F</i>. Найти <i>BF:FC</i>.</div>
+          <div style="margin-top:10px"><b>Идея.</b> Теорема Менелая для секущей <i>KN</i>.</div>
+          <div style="margin-top:10px"><b>Решение.</b> <i>(${d.ak_kb[0]}/${d.ak_kb[1]})·(BF/FC)·(${d.cn_na[0]}/${d.cn_na[1]}) = 1</i> ⇒ <i>BF/FC = ${d.bf_fc[0]}/${d.bf_fc[1]}</i>.</div>
+          <div style="margin-top:10px" class="gen-answer">Ответ: ${formatRatio(d.bf_fc[0], d.bf_fc[1])}</div>
+        `;
+        }
+        el('#generatedTaskBox').innerHTML = html;
+    }
+
+    function applyGenerated(){
+        if (!state.generated) { showToast('Сначала сгенерируйте задачу.'); return; }
+        state.applied = 'generated';
+        updateViz();
+        showToast('Модель справа настроена на последнюю генерацию.');
+    }
+
+    function applyExample(){
+        state.applied = 'example';
+        updateViz();
+        showToast('Возвращён базовый пример.');
+    }
+
+    function closeAllHints(){
+        els('.hint-pop').forEach(p => { p.classList.remove('visible'); p.setAttribute('aria-hidden', 'true'); });
+        els('.hint-trigger').forEach(t => { t.setAttribute('aria-expanded', 'false'); t.dataset.open = 'false'; });
+    }
+
+    function openHint(trigger){
+        const pop = el('#' + trigger.dataset.hint);
+        if (!pop) return;
+        closeAllHints();
+        pop.classList.add('visible');
+        pop.setAttribute('aria-hidden', 'false');
+        trigger.setAttribute('aria-expanded', 'true');
+        trigger.dataset.open = 'true';
+        clearTimeout(state.autoHintTimer);
+        state.autoHintTimer = setTimeout(closeAllHints, 15000);
+    }
+
+    function initHints(){
+        els('.hint-trigger').forEach(tr => {
+            tr.addEventListener('mouseenter', () => openHint(tr));
+            tr.addEventListener('focus', () => openHint(tr));
+            tr.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const open = tr.dataset.open === 'true';
+                open ? closeAllHints() : openHint(tr);
+            });
+        });
+        els('.hint-close').forEach(btn => btn.addEventListener('click', closeAllHints));
+        els('[data-action]').forEach(btn => btn.addEventListener('click', () => {
+            const action = btn.dataset.action;
+            if (action === 'switch-tab') switchTab(btn.dataset.tab);
+            if (action === 'set-detail') setDetail(btn.dataset.detail);
+            if (action === 'generate-now') generateTask(el('#generatorType').value);
+            if (action === 'zoom-reset') { state.zoom = 100; el('#zoomRange').value = 100; updateViz(); }
+            if (action === 'toggle-labels') { const c = el('#toggleLabels'); c.checked = !c.checked; updateControls(); }
+        }));
+        document.addEventListener('click', (e) => { if (!e.target.closest('.hint-wrap')) closeAllHints(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAllHints(); });
+        if (!sessionStorage.getItem('firstHintShown')) {
+            setTimeout(() => {
+                const first = els('.hint-trigger')[0];
+                if (first) {
+                    first.classList.add('show-bounce');
+                    openHint(first);
+                    setTimeout(() => first.classList.remove('show-bounce'), 1200);
+                    sessionStorage.setItem('firstHintShown', '1');
+                }
+            }, 3000);
+        }
+    }
+
+    function bindEvents(){
+        els('.tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+        el('#tabSelect').addEventListener('change', e => switchTab(e.target.value));
+        el('#detailSelect').addEventListener('change', e => setDetail(e.target.value));
+        el('#revealSelect').addEventListener('change', e => {
+            state.reveal = e.target.value;
+            updateStepVisibility(false);
+            showToast(state.reveal === 'all' ? 'Все шаги раскрыты.' : 'Включён пошаговый режим.');
+        });
+        el('#generatorType').addEventListener('change', () => showToast('Тип похожей задачи изменён.'));
+        el('#generateBtn').addEventListener('click', () => generateTask(el('#generatorType').value));
+        el('#applyGeneratedBtn').addEventListener('click', applyGenerated);
+        ['toggleLabels','toggleRatios','toggleParallel','toggleEquation','zoomRange'].forEach(id => el('#'+id).addEventListener('input', updateControls));
+        el('#zoomIn').addEventListener('click', () => { state.zoom = Math.min(170, state.zoom + 10); el('#zoomRange').value = state.zoom; updateViz(); });
+        el('#zoomOut').addEventListener('click', () => { state.zoom = Math.max(70, state.zoom - 10); el('#zoomRange').value = state.zoom; updateViz(); });
+        el('#zoomReset').addEventListener('click', () => { state.zoom = 100; el('#zoomRange').value = 100; updateViz(); });
+        el('#fitExample').addEventListener('click', applyExample);
+        el('#fitGenerated').addEventListener('click', applyGenerated);
+        const stage = el('#vizStage');
+        stage.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            state.zoom += e.deltaY < 0 ? 6 : -6;
+            state.zoom = Math.max(70, Math.min(170, state.zoom));
+            el('#zoomRange').value = state.zoom;
+            updateViz();
+        }, {passive:false});
+        els('.viz-hotspot').forEach(v => {
+            v.addEventListener('mouseenter', () => { clearHighlights(); v.classList.add('glow'); const stepId = v.dataset.step; const step = el('#' + stepId); if (step) step.classList.add('glow'); });
+            v.addEventListener('mouseleave', clearHighlights);
+        });
+    }
+
+    function init(){
+        renderSteps();
+        renderQuiz();
+        updateViz();
+        bindEvents();
+        initHints();
+        switchTab('example');
+    }
+
+    init();
+</script>
+</body>
+</html>
