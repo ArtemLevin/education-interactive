@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Мини-сайт по геометрии — маршрутизатор и маленькие страницы</title>
+    <style>
+        :root{
+            --bg:#071319;
+            --bg2:#0b1d24;
+            --panel:#102730;
+            --panel2:#143540;
+            --text:#ebfbfc;
+            --muted:#a6c9cd;
+            --soft:#82a7ac;
+            --accent:#39d7d7;
+            --accent2:#1aa4a4;
+            --accent3:#8df4ee;
+            --warn:#ffd166;
+            --good:#7be495;
+            --danger:#ff8080;
+            --line:#264952;
+            --shadow:0 16px 42px rgba(0,0,0,.28);
+            --radius:22px;
+            --zoom:1;
+        }
+
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            color:var(--text);
+            font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background:
+            radial-gradient(circle at 10% 10%, rgba(57,215,215,.08), transparent 20%),
+            radial-gradient(circle at 90% 8%, rgba(141,244,238,.08), transparent 22%),
+            linear-gradient(180deg, var(--bg), #081a20 100%);
+            line-height:1.58;
+            overflow-x:hidden;
+        }
+
+        .shell{max-width:1480px;margin:0 auto;padding:18px 16px 28px}
+        .site-head,.router-card,.page-card,.model-card,.mini-card,.formula-box,.legend,.stage-card,.task-card,.quiz-card,.note-card{
+            background:linear-gradient(180deg, rgba(20,53,64,.92), rgba(8,24,30,.98));
+            border:1px solid rgba(141,244,238,.10);
+            border-radius:22px;
+            box-shadow:var(--shadow);
+        }
+        .site-head{padding:22px 22px 18px;margin-bottom:16px;position:relative;overflow:hidden}
+        .site-head::after{
+            content:"";position:absolute;right:-80px;top:-80px;width:260px;height:260px;border-radius:50%;
+            background:radial-gradient(circle, rgba(57,215,215,.12), transparent 68%);
+            pointer-events:none;
+        }
+        .title{margin:0 0 10px;font-size:clamp(28px,4vw,46px);font-weight:900;line-height:1.06}
+        .accent{color:var(--accent3)}
+        .lead{margin:0;color:var(--muted);max-width:980px}
+        .pill-row,.router-nav,.page-grid,.mini-grid,.switch-row,.zoom-row,.legend-grid,.stage-grid,.actions,.quiz-options{display:flex;flex-wrap:wrap;gap:10px}
+        .pill{
+            display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;
+            background:rgba(57,215,215,.10);border:1px solid rgba(57,215,215,.18);color:var(--accent3);font-size:.92rem
+        }
+
+        .router-card{padding:16px 18px;margin-bottom:18px}
+        .router-title{margin:0 0 10px;font-size:1.18rem;font-weight:900}
+        .router-btn,button,select,input[type="range"]{font:inherit;border:none;outline:none}
+        .router-btn,button,select{
+            border-radius:14px;padding:11px 13px;background:rgba(7,19,25,.82);color:var(--text);
+            border:1px solid rgba(141,244,238,.14);cursor:pointer;
+            transition:transform .16s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease
+        }
+        .router-btn:hover,button:hover,select:hover{transform:translateY(-1px);border-color:rgba(141,244,238,.28)}
+        .router-btn.active,button.primary{background:linear-gradient(180deg,#22d1d1,#159191);color:#062126;font-weight:900}
+        button.secondary{background:rgba(57,215,215,.08);color:var(--accent3)}
+        button.ghost{background:rgba(255,255,255,.03)}
+        button.small{padding:8px 10px;border-radius:11px;font-size:.9rem}
+
+        .page-card{display:none;padding:18px}
+        .page-card.active{display:block}
+        .page-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:14px}
+        .page-title{margin:0;font-size:1.4rem;font-weight:900}
+        .page-sub{margin:4px 0 0;color:var(--muted)}
+        .page-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.9fr);gap:18px;align-items:start}
+        .content-col{display:flex;flex-direction:column;gap:16px;min-width:0}
+        .side-col{min-width:0}
+
+        .section-title{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:1.18rem;font-weight:900}
+        .num{
+            width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+            background:linear-gradient(180deg,var(--accent),var(--accent2));color:#062126;font-weight:900
+        }
+        .math-inline{display:inline-flex;align-items:center;vertical-align:middle}
+        math{font-size:1em;color:inherit}
+        .formula-box,.note-card,.task-card,.quiz-card,.mini-card{padding:14px 15px}
+        .math-block{
+            margin:10px 0;padding:12px 14px;border-radius:16px;background:rgba(7,19,25,.55);
+            border:1px solid rgba(141,244,238,.10);overflow:auto
+        }
+        .muted{color:var(--muted)}
+        .stage-grid{display:grid;gap:12px}
+        .stage-card{
+            padding:15px;background:linear-gradient(180deg, rgba(18,48,58,.94), rgba(8,24,30,.99));
+            border:1px solid rgba(141,244,238,.10);transition:.2s ease transform,.2s ease border-color,.2s ease box-shadow
+        }
+        .stage-card:hover,.stage-card.active-stage{transform:translateY(-1px);border-color:rgba(141,244,238,.26);box-shadow:0 10px 24px rgba(0,0,0,.22)}
+        .stage-card h3{margin:0 0 8px;font-size:1.02rem}
+        .stage-card p,.stage-card ul{margin:0;color:var(--text)}
+        .stage-card ul{padding-left:18px}
+
+        .model-card{padding:0;overflow:hidden;position:sticky;top:18px}
+        .switch-row{padding:12px 12px 0}
+        .model-btn{padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(141,244,238,.12);color:var(--text);cursor:pointer;font-weight:700}
+        .model-btn.active{background:linear-gradient(180deg,#22d1d1,#159191);color:#062126;border-color:transparent}
+        .viewer{position:relative;aspect-ratio:1/1;min-height:340px;background:linear-gradient(180deg,#061217,#0a1a20);overflow:hidden;border-top:1px solid rgba(141,244,238,.08);border-bottom:1px solid rgba(141,244,238,.08)}
+        .viewer-inner{width:100%;height:100%;transform:scale(var(--zoom));transform-origin:center center;transition:transform .16s ease}
+        svg{width:100%;height:100%;display:block}
+        .formula-strip{padding:12px}
+        .zoom-row{padding:0 12px 14px;align-items:center}
+        .zoom-label{min-width:60px;text-align:center}
+        .legend{padding:12px}
+        .legend-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+        .legend-item{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.93rem}
+        .swatch{width:18px;height:4px;border-radius:999px;background:var(--accent)}
+        .dot{width:12px;height:12px;border-radius:50%;background:var(--accent3);box-shadow:0 0 0 4px rgba(141,244,238,.14)}
+
+        .mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+        .mini-card h4{margin:0 0 6px;font-size:.94rem}
+        .mini-value{font-size:1.18rem;font-weight:900;color:var(--accent3)}
+        .quiz-options{display:grid;gap:10px;margin-top:10px}
+        .quiz-option{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(141,244,238,.08)}
+        .quiz-result{margin-top:12px;font-weight:900}
+        .good{color:var(--good)}
+        .bad{color:var(--danger)}
+
+        .shape-hot{filter:drop-shadow(0 0 10px rgba(141,244,238,.56)) brightness(1.08)}
+        .shape-dim{opacity:.2}
+        .hint-trigger{
+            width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;
+            background:linear-gradient(180deg, rgba(141,244,238,.24), rgba(57,215,215,.12));
+            color:var(--accent3);border:1px solid rgba(141,244,238,.38);cursor:pointer;font-size:.85rem;font-weight:900;
+            box-shadow:0 0 0 0 rgba(57,215,215,.5);animation:hintPulse 2.1s infinite
+        }
+        .tooltip{
+            position:fixed;z-index:60;max-width:min(360px,calc(100vw - 20px));padding:14px;border-radius:18px;
+            background:linear-gradient(180deg, rgba(6,18,23,.98), rgba(17,42,51,.98));
+            color:var(--text);border:1px solid transparent;
+            background-image:linear-gradient(180deg, rgba(6,18,23,.98), rgba(17,42,51,.98)),linear-gradient(135deg, rgba(57,215,215,.95), rgba(141,244,238,.34));
+            background-origin:border-box;background-clip:padding-box,border-box;
+            box-shadow:0 22px 40px rgba(0,0,0,.40);opacity:0;pointer-events:none;transform:translateY(8px) scale(.98);transition:opacity .22s ease,transform .22s ease
+        }
+        .tooltip.show{opacity:1;pointer-events:auto;transform:translateY(0) scale(1)}
+        .tooltip .arrow{position:absolute;width:14px;height:14px;background:#0d232b;border-top:1px solid rgba(141,244,238,.4);border-left:1px solid rgba(141,244,238,.4)}
+        .tooltip[data-side="bottom"] .arrow{top:-8px;left:28px;transform:rotate(45deg)}
+        .tip-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:8px}
+        .tip-title{font-weight:900;color:var(--accent3)}
+        .tip-close{padding:0 6px;background:transparent;border:none;color:#e7fbfc;cursor:pointer;font-size:1.05rem}
+
+        @keyframes hintPulse{
+            0%{box-shadow:0 0 0 0 rgba(57,215,215,.48)}
+            70%{box-shadow:0 0 0 12px rgba(57,215,215,0)}
+            100%{box-shadow:0 0 0 0 rgba(57,215,215,0)}
+        }
+
+        @media (max-width:1120px){
+            .page-grid{grid-template-columns:1fr}
+            .model-card{position:relative;top:0}
+        }
+        @media (max-width:820px){
+            .shell{padding:12px 10px 24px}
+            .site-head,.router-card,.page-card{padding:14px}
+            .structure-grid,.legend-grid,.mini-grid{grid-template-columns:1fr}
+            .viewer{min-height:300px}
+        }
+        @media print{
+            body{background:#fff;color:#111}
+            .shell{max-width:none;padding:0}
+            .router-card,.switch-row,.zoom-row,.hint-trigger,.tooltip,.actions,.router-nav{display:none !important}
+            .site-head,.page-card,.model-card,.mini-card,.formula-box,.legend,.stage-card,.task-card,.quiz-card,.note-card{background:#fff;color:#111;box-shadow:none;border:1px solid #ccc}
+            .page-card{display:block !important;break-before:page}
+            .model-card{position:static}
+        }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <header class="site-head">
+        <div class="pill-row" style="margin-bottom:12px">
+            <span class="pill">объяснение с нуля</span>
+            <span class="pill">маленькие страницы</span>
+            <span class="pill">страница-маршрутизатор</span>
+            <span class="pill">локально без зависимостей</span>
+        </div>
+        <h1 class="title">Мини-сайт по теме <span class="accent">«окружность, касательная и углы»</span></h1>
+        <p class="lead">Вместо одной большой страницы здесь несколько маленьких учебных страниц. Сверху — маршрутизатор. Каждая страница решает одну локальную задачу: главная идея, отдельная теорема, практика и самопроверка.</p>
+    </header>
+
+    <nav class="router-card" aria-label="Маршрутизатор страниц">
+        <h2 class="router-title">Страница-маршрутизатор</h2>
+        <div class="router-nav">
+            <button class="router-btn active" type="button" data-page="home">Маршрут</button>
+            <button class="router-btn" type="button" data-page="main-problem">Главная задача</button>
+            <button class="router-btn" type="button" data-page="tangent-theorem">Касательная и хорда</button>
+            <button class="router-btn" type="button" data-page="secants-theorem">Две секущие</button>
+            <button class="router-btn" type="button" data-page="practice">Практика</button>
+        </div>
+    </nav>
+
+    <section class="page-card active" id="page-home">
+        <div class="page-head">
+            <div>
+                <h2 class="page-title">Маршрут по мини-сайту</h2>
+                <p class="page-sub">Сначала коротко понять, потом посмотреть отдельные схемы, затем закрепить на практике.</p>
+            </div>
+        </div>
+        <div class="stage-grid">
+            <article class="stage-card"><h3>1. Главная задача</h3><p>Как найти угол между прямой <span class="math-inline"><math><mi>A</mi><mi>B</mi></math></span> и касательной в точке <span class="math-inline"><math><mi>C</mi></math></span>, если треугольник вписан в окружность.</p></article>
+            <article class="stage-card"><h3>2. Отдельная теорема</h3><p>Почему угол между касательной и хордой равен вписанному углу на той же дуге.</p></article>
+            <article class="stage-card"><h3>3. Ещё одна базовая схема</h3><p>Как работает угол между двумя секущими: полуразность дуг.</p></article>
+            <article class="stage-card"><h3>4. Практика</h3><p>Одна похожая задача, мини-квиз и самопроверка без перегруженного интерфейса.</p></article>
+        </div>
+    </section>
+
+    <section class="page-card" id="page-main-problem">
+        <div class="page-head">
+            <div>
+                <h2 class="page-title">Маленькая страница 1: главная задача</h2>
+                <p class="page-sub">Главный сюжет из пособия — коротко, по шагам и с простыми переключаемыми чертежами.</p>
+            </div>
+        </div>
+        <div class="page-grid">
+            <div class="content-col">
+                <section class="task-card">
+                    <h3 class="section-title"><span class="num">1</span> Условие</h3>
+                    <p>В окружность вписан треугольник <span class="math-inline"><math><mi>A</mi><mi>B</mi><mi>C</mi></math></span>, где <span class="math-inline"><math><mo>∠</mo><mi>A</mi><mo>=</mo><mn>37</mn><mo>°</mo></math></span> и <span class="math-inline"><math><mo>∠</mo><mi>B</mi><mo>=</mo><mn>63</mn><mo>°</mo></math></span>. В точке <span class="math-inline"><math><mi>C</mi></math></span> проведена касательная, пересекающая прямую <span class="math-inline"><math><mi>A</mi><mi>B</mi></math></span> в точке <span class="math-inline"><math><mi>F</mi></math></span>. Найти <span class="math-inline"><math><mo>∠</mo><mi>B</mi><mi>F</mi><mi>C</mi></math></span>.</p>
+                </section>
+
+                <section class="note-card">
+                    <h3 class="section-title"><span class="num">2</span> Идея</h3>
+                    <ul class="stage-list">
+                        <li>Рассматриваем треугольник <span class="math-inline"><math><mi>B</mi><mi>F</mi><mi>C</mi></math></span>.</li>
+                        <li>Находим <span class="math-inline"><math><mo>∠</mo><mi>F</mi><mi>B</mi><mi>C</mi></math></span> как смежный угол.</li>
+                        <li>Находим <span class="math-inline"><math><mo>∠</mo><mi>F</mi><mi>C</mi><mi>B</mi></math></span> по теореме о касательной и хорде.</li>
+                        <li>Завершаем через сумму углов треугольника.</li>
+                    </ul>
+                </section>
+
+                <section class="stage-grid">
+                    <article class="stage-card" data-shapes="triangleABC,pointA,pointB,pointC,circleMain"><h3>Шаг 1. Что дано</h3><p>Треугольник вписан в окружность, углы <span class="math-inline"><math><mi>A</mi></math></span> и <span class="math-inline"><math><mi>B</mi></math></span> известны, в точке <span class="math-inline"><math><mi>C</mi></math></span> есть касательная.</p></article>
+                    <article class="stage-card" data-shapes="lineAB,tangentC,pointF,triangleBFC"><h3>Шаг 2. Что ищем</h3><p>Ищем угол между прямой <span class="math-inline"><math><mi>A</mi><mi>B</mi></math></span> и касательной, то есть угол <span class="math-inline"><math><mo>∠</mo><mi>B</mi><mi>F</mi><mi>C</mi></math></span>.</p></article>
+                    <article class="stage-card" data-shapes="lineAB,triangleBFC"><h3>Шаг 3. Первый угол</h3><div class="math-block"><math display="block"><mrow><mo>∠</mo><mi>F</mi><mi>B</mi><mi>C</mi><mo>=</mo><mn>180</mn><mo>°</mo><mo>−</mo><mn>63</mn><mo>°</mo><mo>=</mo><mn>117</mn><mo>°</mo></mrow></math></div></article>
+                    <article class="stage-card" data-shapes="tangentC,BCseg,angleFCB,pointC"><h3>Шаг 4. Второй угол</h3><div class="math-block"><math display="block"><mrow><mo>∠</mo><mi>F</mi><mi>C</mi><mi>B</mi><mo>=</mo><mo>∠</mo><mi>C</mi><mi>A</mi><mi>B</mi><mo>=</mo><mn>37</mn><mo>°</mo></mrow></math></div></article>
+                    <article class="stage-card" data-shapes="triangleBFC,angleBFC"><h3>Шаг 5. Ответ</h3><div class="math-block"><math display="block"><mrow><mo>∠</mo><mi>B</mi><mi>F</mi><mi>C</mi><mo>=</mo><mn>180</mn><mo>°</mo><mo>−</mo><mn>117</mn><mo>°</mo><mo>−</mo><mn>37</mn><mo>°</mo><mo>=</mo><mn>26</mn><mo>°</mo></mrow></math></div></article>
+                </section>
+            </div>
+
+            <div class="side-col">
+                <section class="model-card">
+                    <div class="switch-row" role="tablist" aria-label="Переключение простых чертежей">
+                        <button class="model-btn active" type="button" data-model="main">Главный</button>
+                        <button class="model-btn" type="button" data-model="tangentChord">Касат. и хорда</button>
+                        <button class="model-btn" type="button" data-model="secants">Секущие</button>
+                    </div>
+                    <div class="viewer" id="viewerStage">
+                        <div class="viewer-inner" id="viewerInner">
+                            <svg id="geometrySvg" viewBox="0 0 760 760" role="img" aria-label="Переключаемые геометрические чертежи">
+                                <rect width="760" height="760" fill="#07151a"></rect>
+
+                                <g id="sceneMain" class="model-scene">
+                                    <circle id="circleMain" cx="360" cy="320" r="220" fill="rgba(57,215,215,.02)" stroke="#39d7d7" stroke-width="3"></circle>
+                                    <g id="arcsGroup"><path id="arcBC" fill="none" stroke="#8df4ee" stroke-width="6" stroke-linecap="round" opacity=".55"></path></g>
+                                    <g id="lineAB"><line id="lineABMain" x1="120" y1="530" x2="700" y2="530" stroke="#eef6f7" stroke-width="3"></line></g>
+                                    <g id="tangentC"><line id="tangentLine" x1="88" y1="165" x2="650" y2="740" stroke="#39d7d7" stroke-width="4"></line></g>
+                                    <g id="triangleABC">
+                                        <line id="ABseg" x1="180" y1="530" x2="610" y2="530" stroke="#e7f6f7" stroke-width="2.6"></line>
+                                        <line id="BCseg" x1="610" y1="530" x2="217" y2="135" stroke="#5ee0d5" stroke-width="3.2"></line>
+                                        <line id="CAseg" x1="217" y1="135" x2="180" y2="530" stroke="#ffd166" stroke-width="3.2"></line>
+                                    </g>
+                                    <g id="triangleBFC"><line id="FCseg" x1="133" y1="530" x2="217" y2="135" stroke="#39d7d7" stroke-width="3"></line></g>
+                                    <g id="anglesGroup">
+                                        <path id="angleAArc" fill="none" stroke="#ffd166" stroke-width="4"></path>
+                                        <text id="angleALabel" fill="#ffd166" font-size="26" font-weight="900">37°</text>
+                                        <path id="angleBArc" fill="none" stroke="#8be9ff" stroke-width="4"></path>
+                                        <text id="angleBLabel" fill="#8be9ff" font-size="26" font-weight="900">63°</text>
+                                        <path id="angleFCBArc" fill="none" stroke="#8df4ee" stroke-width="4"></path>
+                                        <text id="angleFCBLabel" fill="#8df4ee" font-size="27" font-weight="900">37°</text>
+                                        <path id="angleBFCArc" fill="none" stroke="#7be495" stroke-width="4"></path>
+                                        <text id="angleBFCLabel" fill="#7be495" font-size="27" font-weight="900">26°</text>
+                                    </g>
+                                    <g id="pointsGroup">
+                                        <g id="pointA"><circle cx="180" cy="530" r="8" fill="#ffd166"></circle><text x="162" y="559" fill="#ffd166" font-size="25" font-weight="900">A</text></g>
+                                        <g id="pointB"><circle cx="610" cy="530" r="8" fill="#8be9ff"></circle><text x="621" y="559" fill="#8be9ff" font-size="25" font-weight="900">B</text></g>
+                                        <g id="pointC"><circle cx="217" cy="135" r="8" fill="#8df4ee"></circle><text x="196" y="120" fill="#8df4ee" font-size="25" font-weight="900">C</text></g>
+                                        <g id="pointF"><circle cx="133" cy="530" r="8" fill="#7be495"></circle><text x="113" y="559" fill="#7be495" font-size="25" font-weight="900">F</text></g>
+                                    </g>
+                                </g>
+
+                                <g id="sceneTangentChord" class="model-scene" style="display:none">
+                                    <circle cx="360" cy="320" r="220" fill="rgba(57,215,215,.02)" stroke="#39d7d7" stroke-width="3"></circle>
+                                    <line x1="130" y1="140" x2="590" y2="140" stroke="#39d7d7" stroke-width="4"></line>
+                                    <line x1="360" y1="140" x2="545" y2="455" stroke="#ffd166" stroke-width="4"></line>
+                                    <line x1="205" y1="470" x2="360" y2="140" stroke="#8df4ee" stroke-width="4"></line>
+                                    <path d="M 392 140 A 42 42 0 0 1 410 176" fill="none" stroke="#7be495" stroke-width="4"></path>
+                                    <text x="418" y="184" fill="#7be495" font-size="28" font-weight="900">α</text>
+                                    <path d="M 332 171 A 58 58 0 0 1 284 183" fill="none" stroke="#7be495" stroke-width="4"></path>
+                                    <text x="246" y="201" fill="#7be495" font-size="28" font-weight="900">α</text>
+                                    <circle cx="360" cy="140" r="8" fill="#8df4ee"></circle><text x="345" y="119" fill="#8df4ee" font-size="25" font-weight="900">C</text>
+                                    <circle cx="545" cy="455" r="8" fill="#ffd166"></circle><text x="556" y="473" fill="#ffd166" font-size="25" font-weight="900">B</text>
+                                    <circle cx="205" cy="470" r="8" fill="#8df4ee"></circle><text x="184" y="490" fill="#8df4ee" font-size="25" font-weight="900">A</text>
+                                </g>
+
+                                <g id="sceneSecants" class="model-scene" style="display:none">
+                                    <circle cx="360" cy="320" r="220" fill="rgba(57,215,215,.02)" stroke="#39d7d7" stroke-width="3"></circle>
+                                    <line x1="70" y1="170" x2="610" y2="280" stroke="#eef6f7" stroke-width="3.5"></line>
+                                    <line x1="70" y1="170" x2="615" y2="505" stroke="#ffd166" stroke-width="3.5"></line>
+                                    <path d="M 116 181 A 42 42 0 0 1 123 220" fill="none" stroke="#7be495" stroke-width="4"></path>
+                                    <text x="132" y="230" fill="#7be495" font-size="28" font-weight="900">φ</text>
+                                    <circle cx="70" cy="170" r="8" fill="#7be495"></circle><text x="47" y="160" fill="#7be495" font-size="25" font-weight="900">P</text>
+                                    <circle cx="181" cy="193" r="8" fill="#8df4ee"></circle><text x="162" y="184" fill="#8df4ee" font-size="24" font-weight="900">A</text>
+                                    <circle cx="550" cy="268" r="8" fill="#8be9ff"></circle><text x="561" y="286" fill="#8be9ff" font-size="24" font-weight="900">B</text>
+                                    <circle cx="183" cy="239" r="8" fill="#ffd166"></circle><text x="164" y="258" fill="#ffd166" font-size="24" font-weight="900">C</text>
+                                    <circle cx="544" cy="461" r="8" fill="#ffb6b6"></circle><text x="555" y="480" fill="#ffb6b6" font-size="24" font-weight="900">D</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="formula-strip">
+                        <div class="formula-box" id="modelFormula">
+                            <div class="math-inline"><math><mrow><mo>∠</mo><mi>B</mi><mi>F</mi><mi>C</mi><mo>=</mo><mn>180</mn><mo>°</mo><mo>−</mo><mo>∠</mo><mi>F</mi><mi>B</mi><mi>C</mi><mo>−</mo><mo>∠</mo><mi>F</mi><mi>C</mi><mi>B</mi></mrow></math></div>
+                        </div>
+                    </div>
+                    <div class="zoom-row">
+                        <button class="small secondary" type="button" id="zoomOutBtn">−</button>
+                        <input type="range" id="zoomRange" min="70" max="170" value="100" aria-label="Масштаб чертежа">
+                        <button class="small secondary" type="button" id="zoomInBtn">+</button>
+                        <button class="small ghost" type="button" id="zoomResetBtn">Сброс</button>
+                        <span class="pill zoom-label" id="zoomLabel">100%</span>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-grid">
+                            <div class="legend-item"><span class="swatch" style="background:#39d7d7"></span> касательная</div>
+                            <div class="legend-item"><span class="swatch" style="background:#eef6f7"></span> прямая AB</div>
+                            <div class="legend-item"><span class="swatch" style="background:#ffd166"></span> угол A</div>
+                            <div class="legend-item"><span class="swatch" style="background:#7be495"></span> искомый угол</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </section>
+
+    <section class="page-card" id="page-tangent-theorem">
+        <div class="page-head">
+            <div>
+                <h2 class="page-title">Маленькая страница 2: касательная и хорда</h2>
+                <p class="page-sub">Одна короткая идея, один чертёж, одна формула.</p>
+            </div>
+        </div>
+        <div class="stage-grid">
+            <article class="stage-card"><h3>Формулировка</h3><p>Угол между касательной и хордой равен вписанному углу, который опирается на ту же дугу.</p></article>
+            <article class="stage-card"><div class="math-block"><math display="block"><mrow><mo>∠</mo><mtext>(касательная, хорда)</mtext><mo>=</mo><mo>∠</mo><mtext>вписанный</mtext></mrow></math></div></article>
+            <article class="stage-card"><h3>Зачем это нужно</h3><p>Эта теорема моментально даёт второй угол в главной задаче и сокращает длинные вычисления.</p></article>
+        </div>
+    </section>
+
+    <section class="page-card" id="page-secants-theorem">
+        <div class="page-head">
+            <div>
+                <h2 class="page-title">Маленькая страница 3: угол между секущими</h2>
+                <p class="page-sub">Ещё одна частая схема: внешний угол выражается через дуги.</p>
+            </div>
+        </div>
+        <div class="stage-grid">
+            <article class="stage-card"><h3>Главная формула</h3><div class="math-block"><math display="block"><mrow><mo>∠</mo><mtext>между секущими</mtext><mo>=</mo><mfrac><mrow><mtext>большая дуга</mtext><mo>−</mo><mtext>малая дуга</mtext></mrow><mn>2</mn></mfrac></mrow></math></div></article>
+            <article class="stage-card"><h3>Когда применять</h3><p>Когда из одной внешней точки выходят две секущие и нужно найти внешний угол между ними.</p></article>
+        </div>
+    </section>
+
+    <section class="page-card" id="page-practice">
+        <div class="page-head">
+            <div>
+                <h2 class="page-title">Маленькая страница 4: практика</h2>
+                <p class="page-sub">Одна похожая задача, один мини-квиз и быстрая самопроверка.</p>
+            </div>
+        </div>
+        <div class="page-grid">
+            <div class="content-col">
+                <section class="task-card">
+                    <h3 class="section-title"><span class="num">1</span> Похожая задача</h3>
+                    <div id="generatedTask"></div>
+                    <div class="actions" style="margin-top:12px">
+                        <button class="primary" type="button" id="generateBtn">Сгенерировать новую</button>
+                        <button class="secondary" type="button" id="applyGeneratedBtn">Применить к главной странице</button>
+                    </div>
+                </section>
+
+                <section class="quiz-card">
+                    <h3 class="section-title"><span class="num">2</span> Мини-квиз</h3>
+                    <p class="muted">Где именно в главной задаче используется специальная теорема окружности?</p>
+                    <div class="quiz-options">
+                        <label class="quiz-option"><input type="radio" name="quiz1" value="0"> При вычислении третьего угла треугольника ABC.</label>
+                        <label class="quiz-option"><input type="radio" name="quiz1" value="1"> При переходе от угла между касательной и хордой к вписанному углу на той же дуге.</label>
+                        <label class="quiz-option"><input type="radio" name="quiz1" value="0"> Только в момент записи ответа.</label>
+                    </div>
+                    <div class="actions" style="margin-top:12px"><button class="primary" type="button" id="checkQuizBtn">Проверить</button></div>
+                    <div class="quiz-result" id="quizResult" aria-live="polite"></div>
+                </section>
+            </div>
+
+            <div class="side-col">
+                <section class="note-card">
+                    <h3 class="section-title"><span class="num">3</span> Самопроверка</h3>
+                    <ul class="stage-list">
+                        <li>Могу ли я объяснить, зачем вводится точка <span class="math-inline"><math><mi>F</mi></math></span>?</li>
+                        <li>Могу ли я без подсказки найти смежный угол при <span class="math-inline"><math><mi>B</mi></math></span>?</li>
+                        <li>Могу ли я сформулировать теорему о касательной и хорде?</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="tooltip" id="tooltip" role="tooltip" aria-hidden="true" aria-label="Подсказка" data-side="bottom">
+    <div class="arrow"></div>
+    <div class="tip-head">
+        <div class="tip-title" id="tipTitle">Подсказка</div>
+        <button class="tip-close" id="tipClose" aria-label="Закрыть подсказку">×</button>
+    </div>
+    <div class="tip-body" id="tipBody"></div>
+</div>
+
+<script>
+    const $ = (s,root=document)=>root.querySelector(s);
+    const $$ = (s,root=document)=>Array.from(root.querySelectorAll(s));
+
+    const state = {
+        page:'home',
+        model:'main',
+        zoom:100,
+        current:{A:37,B:63},
+        generated:null
+    };
+
+    const hints = {
+        router:{title:'Как пользоваться маршрутизатором', body:'Сначала откройте «Главная задача», затем при необходимости переключитесь на маленькие страницы с отдельными схемами: «Касательная и хорда», «Секущие», «Практика».'}
+    };
+
+    function polarToCartesian(cx, cy, r, angleDeg){
+        const rad = (angleDeg - 90) * Math.PI / 180;
+        return {x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad)};
+    }
+    function describeArc(cx, cy, r, startAngle, endAngle){
+        const start = polarToCartesian(cx, cy, r, endAngle);
+        const end = polarToCartesian(cx, cy, r, startAngle);
+        return `M ${start.x} ${start.y} A ${r} ${r} 0 0 1 ${end.x} ${end.y}`;
+    }
+
+    function setPage(page){
+        state.page = page;
+        $$('.router-btn').forEach(btn=>btn.classList.toggle('active', btn.dataset.page===page));
+        $$('.page-card').forEach(card=>card.classList.remove('active'));
+        $(`#page-${page}`)?.classList.add('active');
+    }
+
+    function setModel(name){
+        state.model = name;
+        $$('.model-btn').forEach(btn=>btn.classList.toggle('active', btn.dataset.model===name));
+        $('#sceneMain').style.display = name==='main' ? '' : 'none';
+        $('#sceneTangentChord').style.display = name==='tangentChord' ? '' : 'none';
+        $('#sceneSecants').style.display = name==='secants' ? '' : 'none';
+        const formula = $('#modelFormula');
+        if(name==='main'){
+            formula.innerHTML = '<div class="math-inline"><math><mrow><mo>∠</mo><mi>B</mi><mi>F</mi><mi>C</mi><mo>=</mo><mn>180</mn><mo>°</mo><mo>−</mo><mo>∠</mo><mi>F</mi><mi>B</mi><mi>C</mi><mo>−</mo><mo>∠</mo><mi>F</mi><mi>C</mi><mi>B</mi></mrow></math></div>';
+        }else if(name==='tangentChord'){
+            formula.innerHTML = '<div class="math-inline"><math><mrow><mo>∠</mo><mtext>(касательная, хорда)</mtext><mo>=</mo><mo>∠</mo><mtext>вписанный</mtext></mrow></math></div>';
+        }else{
+            formula.innerHTML = '<div class="math-inline"><math><mrow><mo>∠</mo><mtext>между секущими</mtext><mo>=</mo><mfrac><mrow><mtext>большая дуга</mtext><mo>−</mo><mtext>малая дуга</mtext></mrow><mn>2</mn></mfrac></mrow></math></div>';
+        }
+    }
+
+    function setZoom(value){
+        state.zoom = Math.max(70, Math.min(170, value));
+        document.documentElement.style.setProperty('--zoom', state.zoom/100);
+        $('#zoomRange').value = String(state.zoom);
+        $('#zoomLabel').textContent = `${state.zoom}%`;
+    }
+
+    function updateMainValues(data){
+        const {A,B} = data;
+        state.current = {A,B};
+        const angleFBC = 180 - B;
+        const ans = B - A;
+        $('#angleALabel').textContent = `${A}°`;
+        $('#angleBLabel').textContent = `${B}°`;
+        $('#angleFCBLabel').textContent = `${A}°`;
+        $('#angleBFCLabel').textContent = `${ans}°`;
+        $('#arcBC').setAttribute('d', describeArc(360,320,220,168,237));
+        $('#angleAArc').setAttribute('d', 'M 191 484 A 48 48 0 0 1 228 492');
+        $('#angleBArc').setAttribute('d', 'M 570 530 A 40 40 0 0 0 583 502');
+        $('#angleFCBArc').setAttribute('d', 'M 244 167 A 48 48 0 0 1 252 123');
+        $('#angleBFCArc').setAttribute('d', 'M 170 530 A 38 38 0 0 0 151 502');
+        $('#angleALabel').setAttribute('x','214'); $('#angleALabel').setAttribute('y','470');
+        $('#angleBLabel').setAttribute('x','544'); $('#angleBLabel').setAttribute('y','501');
+        $('#angleFCBLabel').setAttribute('x','254'); $('#angleFCBLabel').setAttribute('y','122');
+        $('#angleBFCLabel').setAttribute('x','133'); $('#angleBFCLabel').setAttribute('y','494');
+
+        const cards = $$('#page-main-problem .stage-card');
+        if(cards[2]) cards[2].innerHTML = `<h3>Шаг 3. Первый угол</h3><div class="math-block"><math display="block"><mrow><mo>∠</mo><mi>F</mi><mi>B</mi><mi>C</mi><mo>=</mo><mn>180</mn><mo>°</mo><mo>−</mo><mn>${B}</mn><mo>°</mo><mo>=</mo><mn>${angleFBC}</mn><mo>°</mo></mrow></math></div>`;
+        if(cards[3]) cards[3].innerHTML = `<h3>Шаг 4. Второй угол</h3><div class="math-block"><math display="block"><mrow><mo>∠</mo><mi>F</mi><mi>C</mi><mi>B</mi><mo>=</mo><mo>∠</mo><mi>C</mi><mi>A</mi><mi>B</mi><mo>=</mo><mn>${A}</mn><mo>°</mo></mrow></math></div>`;
+        if(cards[4]) cards[4].innerHTML = `<h3>Шаг 5. Ответ</h3><div class="math-block"><math display="block"><mrow><mo>∠</mo><mi>B</mi><mi>F</mi><mi>C</mi><mo>=</mo><mn>180</mn><mo>°</mo><mo>−</mo><mn>${angleFBC}</mn><mo>°</mo><mo>−</mo><mn>${A}</mn><mo>°</mo><mo>=</mo><mn>${ans}</mn><mo>°</mo></mrow></math></div>`;
+    }
+
+    function safePairs(){
+        return [
+            {A:24,B:58},{A:26,B:61},{A:28,B:64},{A:29,B:66},{A:31,B:59},
+            {A:32,B:67},{A:34,B:62},{A:35,B:68},{A:36,B:63},{A:38,B:71}
+        ];
+    }
+
+    function renderGenerated(data){
+        const {A,B} = data;
+        const FBC = 180-B;
+        const ans = B-A;
+        state.generated = {A,B};
+        $('#generatedTask').innerHTML = `
+        <div class="formula-box">
+          <p style="margin:0 0 8px">В окружность вписан треугольник <span class="math-inline"><math><mi>A</mi><mi>B</mi><mi>C</mi></math></span>, где <span class="math-inline"><math><mo>∠</mo><mi>A</mi><mo>=</mo><mn>${A}</mn><mo>°</mo></math></span> и <span class="math-inline"><math><mo>∠</mo><mi>B</mi><mo>=</mo><mn>${B}</mn><mo>°</mo></math></span>. В точке <span class="math-inline"><math><mi>C</mi></math></span> проведена касательная. Найдите <span class="math-inline"><math><mo>∠</mo><mi>B</mi><mi>F</mi><mi>C</mi></math></span>.</p>
+          <div class="math-block"><math display="block"><mrow><mo>∠</mo><mi>F</mi><mi>B</mi><mi>C</mi><mo>=</mo><mn>${FBC}</mn><mo>°</mo><mo>,</mo><mo>∠</mo><mi>F</mi><mi>C</mi><mi>B</mi><mo>=</mo><mn>${A}</mn><mo>°</mo><mo>,</mo><mo>∠</mo><mi>B</mi><mi>F</mi><mi>C</mi><mo>=</mo><mn>${ans}</mn><mo>°</mo></mrow></math></div>
+        </div>
+      `;
+    }
+
+    function generateTask(){
+        const pair = safePairs()[Math.floor(Math.random()*safePairs().length)];
+        renderGenerated(pair);
+    }
+
+    function applyGenerated(){
+        if(!state.generated) return;
+        updateMainValues(state.generated);
+        setPage('main-problem');
+        setModel('main');
+    }
+
+    function checkQuiz(){
+        const selected = document.querySelector('input[name="quiz1"]:checked');
+        const out = $('#quizResult');
+        if(!selected){ out.innerHTML = '<span class="bad">Сначала выберите вариант.</span>'; return; }
+        if(selected.value==='1'){
+            out.innerHTML = '<span class="good">Верно.</span> Теорема используется при переходе от угла между касательной и хордой к вписанному углу.';
+        }else{
+            out.innerHTML = '<span class="bad">Пока нет.</span> Нужный момент — шаг с касательной и хордой.';
+        }
+    }
+
+    function clearHighlight(){
+        $$('svg [id]').forEach(el=>el.classList.remove('shape-hot','shape-dim'));
+        $$('#page-main-problem .stage-card').forEach(card=>card.classList.remove('active-stage'));
+    }
+    function highlight(ids){
+        clearHighlight();
+        $$('svg [id]').forEach(el=>el.classList.add('shape-dim'));
+        ['sceneRoot','sceneMain'].forEach(id=>document.getElementById(id)?.classList.remove('shape-dim'));
+        ids.forEach(id=>{ const el=document.getElementById(id); if(el){ el.classList.remove('shape-dim'); el.classList.add('shape-hot'); }});
+    }
+
+    function bindStepHover(){
+        $$('#page-main-problem .stage-card').forEach(card=>{
+            card.addEventListener('mouseenter', ()=>{
+                card.classList.add('active-stage');
+                const ids = (card.dataset.shapes || '').split(',').map(v=>v.trim()).filter(Boolean);
+                highlight(ids);
+            });
+            card.addEventListener('mouseleave', clearHighlight);
+        });
+    }
+
+    function bindControls(){
+        $$('.router-btn').forEach(btn=>btn.addEventListener('click', ()=>setPage(btn.dataset.page)));
+        $$('.model-btn').forEach(btn=>btn.addEventListener('click', ()=>setModel(btn.dataset.model)));
+        $('#zoomInBtn').addEventListener('click', ()=>setZoom(state.zoom+10));
+        $('#zoomOutBtn').addEventListener('click', ()=>setZoom(state.zoom-10));
+        $('#zoomResetBtn').addEventListener('click', ()=>setZoom(100));
+        $('#zoomRange').addEventListener('input', e=>setZoom(Number(e.target.value)));
+        $('#viewerStage').addEventListener('wheel', e=>{ e.preventDefault(); setZoom(state.zoom + (e.deltaY<0?6:-6)); }, {passive:false});
+        $('#generateBtn').addEventListener('click', generateTask);
+        $('#applyGeneratedBtn').addEventListener('click', applyGenerated);
+        $('#checkQuizBtn').addEventListener('click', checkQuiz);
+    }
+
+    function init(){
+        setPage('home');
+        setModel('main');
+        setZoom(100);
+        updateMainValues(state.current);
+        renderGenerated({A:28,B:64});
+        bindControls();
+        bindStepHover();
+    }
+
+    init();
+</script>
+</body>
+</html>

@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — логарифмические неравенства</title>
+    <style>
+        :root{
+            --bg:#0b1020;
+            --bg2:#121933;
+            --panel:#11182d;
+            --panel2:#17213f;
+            --text:#edf2ff;
+            --muted:#aeb9d9;
+            --soft:#7f8bb3;
+            --accent:#6ee7d8;
+            --accent2:#8ab4ff;
+            --accent3:#ffd166;
+            --good:#83f28f;
+            --bad:#ff8f8f;
+            --line:#2a355e;
+            --card:#0f1630;
+            --shadow:0 18px 50px rgba(0,0,0,.35);
+            --radius:24px;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:radial-gradient(circle at top,#18244a 0%,#0b1020 45%,#09101d 100%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;scroll-behavior:smooth}
+        body{line-height:1.55}
+        .wrap{max-width:1500px;margin:0 auto;padding:24px}
+        .hero{
+            background:linear-gradient(135deg,rgba(110,231,216,.12),rgba(138,180,255,.10));
+            border:1px solid rgba(255,255,255,.08);
+            box-shadow:var(--shadow);
+            border-radius:32px;
+            padding:28px;
+            position:relative;
+            overflow:hidden;
+        }
+        .hero:before{
+            content:"";position:absolute;right:-60px;top:-60px;width:240px;height:240px;border-radius:50%;
+            background:radial-gradient(circle,rgba(110,231,216,.16),transparent 70%);
+        }
+        .eyebrow{display:inline-flex;gap:10px;align-items:center;padding:8px 14px;border:1px solid rgba(255,255,255,.08);border-radius:999px;background:rgba(255,255,255,.04);color:var(--accent);font-weight:700;letter-spacing:.2px}
+        h1{margin:14px 0 10px;font-size:clamp(28px,4vw,52px);line-height:1.08}
+        .lead{max-width:920px;color:var(--muted);font-size:18px}
+        .hero-grid{display:grid;grid-template-columns:1.25fr .95fr;gap:20px;align-items:center;margin-top:22px}
+        .meta{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+        .meta .item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:14px}
+        .meta .k{font-size:12px;color:var(--soft);text-transform:uppercase;letter-spacing:.08em}
+        .meta .v{font-size:18px;font-weight:800;margin-top:6px}
+        .hero-card{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.08);border-radius:28px;padding:18px}
+        .formula{font-family:"Cambria Math","STIX Two Math","DejaVu Serif",serif;background:#0c1430;border:1px solid rgba(138,180,255,.16);padding:14px 16px;border-radius:18px;overflow:auto;color:#f6f8ff}
+        .formula.big{font-size:24px}
+        .layout{display:grid;grid-template-columns:minmax(0,1.15fr) 430px;gap:22px;margin-top:22px}
+        .left{min-width:0}
+        .right{position:relative}
+        .sticky{position:sticky;top:18px;display:flex;flex-direction:column;gap:16px}
+        .panel{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid rgba(255,255,255,.07);border-radius:var(--radius);box-shadow:var(--shadow)}
+        .section{padding:22px 24px;margin-bottom:18px}
+        h2{margin:0 0 14px;font-size:28px}
+        h3{margin:0 0 10px;font-size:22px;color:var(--accent)}
+        h4{margin:0 0 8px;font-size:18px;color:var(--accent3)}
+        .muted{color:var(--muted)}
+        .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+        .chip{padding:8px 12px;border-radius:999px;background:rgba(138,180,255,.10);border:1px solid rgba(138,180,255,.16);color:#dbe7ff;font-weight:700;font-size:14px}
+        .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:16px}
+        .callout{border-left:4px solid var(--accent);padding:12px 14px;background:rgba(110,231,216,.07);border-radius:0 16px 16px 0;margin:14px 0}
+        .warn{border-left-color:var(--accent3);background:rgba(255,209,102,.08)}
+        .danger{border-left-color:var(--bad);background:rgba(255,143,143,.08)}
+        .steps{display:grid;gap:12px;margin-top:10px}
+        .step{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);border-radius:20px;padding:16px;transition:.25s transform,.25s border-color,.25s background}
+        .step.active{border-color:rgba(110,231,216,.55);background:rgba(110,231,216,.08);transform:translateY(-1px)}
+        .stephead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}
+        .n{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#08101f;font-weight:900}
+        .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+        button,.toggle,label.select{appearance:none;border:none;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#08101f;font-weight:900;padding:10px 14px;border-radius:14px;box-shadow:var(--shadow)}
+        button.secondary,.toggle.secondary{background:rgba(255,255,255,.06);color:var(--text);border:1px solid rgba(255,255,255,.10);box-shadow:none}
+        .toolbar{display:grid;gap:12px}
+        .toolbar .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+        .range{width:100%}
+        .legend{display:grid;gap:8px;font-size:14px;color:var(--muted)}
+        .legend span{display:flex;align-items:center;gap:8px}
+        .dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+        .lineSample{width:24px;height:0;border-top:3px solid var(--accent);display:inline-block}
+        .axisWrap{background:#0a1023;border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:16px}
+        svg{max-width:100%;height:auto;display:block}
+        .kv{display:grid;grid-template-columns:1fr auto;gap:10px;padding:10px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+        .kv:last-child{border-bottom:none}
+        .value{font-weight:800;color:var(--accent)}
+        .tabs{display:flex;gap:8px;flex-wrap:wrap}
+        .tab{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);cursor:pointer;font-weight:800}
+        .tab.active{background:rgba(110,231,216,.12);border-color:rgba(110,231,216,.45);color:var(--accent)}
+        .hidden{display:none}
+        .mini{font-size:14px;color:var(--muted)}
+        .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);margin:18px 0}
+        .printNote{display:none}
+        .twoCols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .pill{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:13px;color:var(--muted)}
+        .check{color:var(--good);font-weight:800}
+        .bad{color:var(--bad);font-weight:800}
+        .footerCard{padding:18px 20px}
+        .quizQ{padding:14px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);margin-top:10px}
+        .quizQ button{margin:6px 8px 0 0}
+        .result{margin-top:8px;font-weight:800}
+        .smallcaps{font-variant:small-caps;letter-spacing:.04em;color:var(--accent2)}
+        @media (max-width: 1180px){
+            .layout{grid-template-columns:1fr}
+            .sticky{position:static}
+            .hero-grid{grid-template-columns:1fr}
+            .meta{grid-template-columns:repeat(2,1fr)}
+            .grid2,.twoCols{grid-template-columns:1fr}
+        }
+        @media (max-width: 760px){
+            .wrap{padding:14px}
+            .section{padding:18px}
+            .meta{grid-template-columns:1fr}
+            h2{font-size:24px}
+            .formula.big{font-size:20px}
+        }
+        @media print{
+            :root{--bg:white;--bg2:white;--panel:white;--panel2:white;--text:#111;--muted:#444;--soft:#666;--accent:#0b6b6b;--accent2:#355fa0;--accent3:#7a5a00;--line:#cfcfcf;--card:white}
+            body{background:white;color:#111}
+            .wrap{max-width:none;padding:0}
+            .panel,.hero,.card,.axisWrap{box-shadow:none;border:1px solid #d7d7d7;background:white !important}
+            .sticky{position:static}
+            .actions, .toolbar .row button, .tabs{display:none !important}
+            .layout,.hero-grid,.grid2,.twoCols{display:block}
+            .section{page-break-inside:avoid}
+            .printNote{display:block;color:#333;font-size:13px;margin-top:10px}
+            a{color:#111;text-decoration:none}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div class="eyebrow">Наглядная математика • 11 класс • неравенства</div>
+        <h1>Логарифмические неравенства без тумана:<br>от ОДЗ до ответа на числовой прямой</h1>
+        <p class="lead">Разбираем две задачи из вашего набора: одну через замену <b>t = lg x</b> и разложение на множители, вторую — через точный анализ знака логарифма в зависимости от основания. Справа — интерактивная модель, снизу — тренировка, самопроверка и генератор похожих задач.</p>
+        <div class="hero-grid">
+            <div>
+                <div class="chips">
+                    <div class="chip">Тема: логарифмические неравенства</div>
+                    <div class="chip">Уровень: 11 класс</div>
+                    <div class="chip">Фокус: ОДЗ + метод интервалов</div>
+                </div>
+                <div class="divider"></div>
+                <div class="formula big">1) lg⁴x − 4lg³x + 5lg²x − 2lgx ≥ 0</div>
+                <div style="height:10px"></div>
+                <div class="formula big">2) (5x − 13) · log<sub>2x−5</sub>(x² − 6x + 10) ≥ 0</div>
+            </div>
+            <div class="hero-card">
+                <div class="meta">
+                    <div class="item"><div class="k">ФИО ученика</div><div class="v">Иван Необутов</div></div>
+                    <div class="item"><div class="k">Альфа-код</div><div class="v">1</div></div>
+                    <div class="item"><div class="k">Бетта-код</div><div class="v">1</div></div>
+                    <div class="item"><div class="k">Гамма-код</div><div class="v">3</div></div>
+                </div>
+                <div class="printNote">Версия пригодна для печати: интерактивные элементы скрываются, а ключевые схемы и ответы сохраняются.</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="layout">
+        <main class="left">
+            <section class="panel section" id="theory">
+                <div class="pill">Опора на школьную программу</div>
+                <h2>Теория и схема решения</h2>
+                <div class="grid2">
+                    <div class="card">
+                        <h3>Что обязательно для логарифма</h3>
+                        <div class="formula">log<sub>a</sub>b определён только если<br>a &gt; 0, a ≠ 1, b &gt; 0.</div>
+                        <div class="callout warn">Самая частая ошибка: проверить только аргумент и забыть про условие <b>a ≠ 1</b>.</div>
+                    </div>
+                    <div class="card">
+                        <h3>Знак логарифма</h3>
+                        <div class="formula">Если a &gt; 1, то log<sub>a</sub>b &gt; 0 при b &gt; 1.<br>Если 0 &lt; a &lt; 1, то log<sub>a</sub>b &lt; 0 при b &gt; 1.</div>
+                        <div class="callout">Во второй задаче аргумент всегда больше 1 на ОДЗ, поэтому решает именно знак основания.</div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:14px">
+                    <h3>Схема решения неравенства</h3>
+                    <div class="twoCols">
+                        <div>
+                            <h4>Для задачи 1</h4>
+                            <ol>
+                                <li>Проверить, что x &gt; 0.</li>
+                                <li>Сделать замену t = lg x.</li>
+                                <li>Разложить многочлен на множители.</li>
+                                <li>Решить неравенство по t методом интервалов.</li>
+                                <li>Вернуться к x.</li>
+                            </ol>
+                        </div>
+                        <div>
+                            <h4>Для задачи 2</h4>
+                            <ol>
+                                <li>Выписать ОДЗ логарифма.</li>
+                                <li>Понять, что x² − 6x + 10 = (x − 3)² + 1.</li>
+                                <li>Сравнить аргумент с 1.</li>
+                                <li>Разбить ОДЗ по знаку основания 2x − 5.</li>
+                                <li>Перемножить знаки двух множителей.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel section" id="task1">
+                <div class="smallcaps">задача 9</div>
+                <h2>Решение 1: замена t = lg x</h2>
+                <div class="formula">lg⁴x − 4lg³x + 5lg²x − 2lgx ≥ 0</div>
+                <div class="callout"><b>Идея решения.</b> Здесь все степени стоят у одного и того же выражения <b>lg x</b>, значит естественно перейти к новой переменной и получить обычное алгебраическое неравенство.</div>
+
+                <div class="steps" id="steps1">
+                    <div class="step active" data-step="1">
+                        <div class="stephead"><div style="display:flex;align-items:center;gap:10px"><div class="n">1</div><h3 style="margin:0">ОДЗ</h3></div><span class="mini">смысл условия</span></div>
+                        <p>Логарифм <b>lg x</b> существует только при <b>x &gt; 0</b>.</p>
+                        <div class="formula">ОДЗ: x &gt; 0</div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="stephead"><div style="display:flex;align-items:center;gap:10px"><div class="n">2</div><h3 style="margin:0">Замена переменной</h3></div><span class="mini">перевод к алгебре</span></div>
+                        <p>Положим <b>t = lg x</b>. Тогда исходное неравенство превратится в</p>
+                        <div class="formula">t⁴ − 4t³ + 5t² − 2t ≥ 0</div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="stephead"><div style="display:flex;align-items:center;gap:10px"><div class="n">3</div><h3 style="margin:0">Разложение</h3></div><span class="mini">ключевая алгебра</span></div>
+                        <div class="formula">t⁴ − 4t³ + 5t² − 2t = t(t³ − 4t² + 5t − 2)</div>
+                        <p>Проверяем корень <b>t = 1</b>: 1 − 4 + 5 − 2 = 0.</p>
+                        <div class="formula">t³ − 4t² + 5t − 2 = (t − 1)(t² − 3t + 2) = (t − 1)²(t − 2)</div>
+                        <div class="formula">Итак: t(t − 1)²(t − 2) ≥ 0</div>
+                    </div>
+                    <div class="step" data-step="4">
+                        <div class="stephead"><div style="display:flex;align-items:center;gap:10px"><div class="n">4</div><h3 style="margin:0">Знаки на оси t</h3></div><span class="mini">метод интервалов</span></div>
+                        <p>Множитель <b>(t − 1)²</b> не меняет знак, потому что квадрат неотрицателен. Он только даёт нуль в точке <b>t = 1</b>.</p>
+                        <div class="formula">t ∈ (−∞, 0] ∪ {1} ∪ [2, +∞)</div>
+                    </div>
+                    <div class="step" data-step="5">
+                        <div class="stephead"><div style="display:flex;align-items:center;gap:10px"><div class="n">5</div><h3 style="margin:0">Возврат к x</h3></div><span class="mini">финальный перевод</span></div>
+                        <div class="formula">lg x ≤ 0 ⟹ 0 &lt; x ≤ 1</div>
+                        <div class="formula">lg x = 1 ⟹ x = 10</div>
+                        <div class="formula">lg x ≥ 2 ⟹ x ≥ 100</div>
+                        <div class="formula">Ответ: x ∈ (0, 1] ∪ {10} ∪ [100, +∞)</div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button onclick="playSteps('steps1')">Пошагово показать</button>
+                    <button class="secondary" onclick="showAll('steps1')">Показать всё сразу</button>
+                </div>
+
+                <div class="card" style="margin-top:14px">
+                    <h3>Типичные ошибки</h3>
+                    <ul>
+                        <li>Потерять условие <b>x &gt; 0</b>.</li>
+                        <li>Считать, что в точке <b>t = 1</b> знак меняется. Нет: корень чётной кратности знак не меняет.</li>
+                        <li>После решения по t забыть вернуться к x.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="panel section" id="task2">
+                <div class="smallcaps">задача 11</div>
+                <h2>Решение 2: анализ знака логарифма</h2>
+                <div class="formula">(5x − 13) · log<sub>2x−5</sub>(x² − 6x + 10) ≥ 0</div>
+                <div class="callout"><b>Идея решения.</b> Здесь невыгодно раскрывать логарифм. Намного умнее понять, когда сам логарифм положителен или отрицателен.</div>
+
+                <div class="steps" id="steps2">
+                    <div class="step active" data-step="1">
+                        <div class="stephead"><div style="display:flex;align-items:center;gap:10px"><div class="n">1</div><h3 style="margin:0">ОДЗ</h3></div><span class="mini">основание и аргумент</span></div>
+                        <div class="formula">2x − 5 &gt; 0, 2x − 5 ≠ 1, x² − 6x + 10 &gt; 0</div>
+                        <div class="formula">x² − 6x + 10 = (x − 3)² + 1 &gt; 0 всегда</div>
+                        <div class="formula">Итак: x &gt; 5/2, x ≠ 3</div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="stephead"><div style="display:flex;align-items:center;gap:10px"><div class="n">2</div><h3 style="margin:0">Сравнение аргумента с 1</h3></div><span class="mini">самая важная мысль</span></div>
+                        <div class="formula">x² − 6x + 10 = (x − 3)² + 1 ≥ 1</div>
+                        <p>Равенство возможно только при <b>x = 3</b>, но эта точка исключена из ОДЗ. Значит на ОДЗ всегда</p>
+                        <div class="formula">x² − 6x + 10 &gt; 1</div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="stephead"><div style="display:flex;align-items:center;gap:10px"><div class="n">3</div><h3 style="margin:0">Знак логарифма</h3></div><span class="mini">основа метода</span></div>
+                        <p>Если <b>5/2 &lt; x &lt; 3</b>, то <b>0 &lt; 2x − 5 &lt; 1</b>, а логарифм числа, большего 1, при таком основании <b>отрицателен</b>.</p>
+                        <p>Если <b>x &gt; 3</b>, то <b>2x − 5 &gt; 1</b>, и логарифм числа, большего 1, становится <b>положительным</b>.</p>
+                    </div>
+                    <div class="step" data-step="4">
+                        <div class="stephead"><div style="display:flex;align-items:center;gap:10px"><div class="n">4</div><h3 style="margin:0">Знак множителя 5x − 13</h3></div><span class="mini">второй множитель</span></div>
+                        <div class="formula">5x − 13 = 0 ⟹ x = 13/5</div>
+                        <p>Точка <b>13/5 = 2.6</b> лежит между <b>5/2</b> и <b>3</b>.</p>
+                    </div>
+                    <div class="step" data-step="5">
+                        <div class="stephead"><div style="display:flex;align-items:center;gap:10px"><div class="n">5</div><h3 style="margin:0">Итог по интервалам</h3></div><span class="mini">перемножаем знаки</span></div>
+                        <div class="formula">(5/2, 13/5): (−)·(−) = (+)</div>
+                        <div class="formula">x = 13/5: 0</div>
+                        <div class="formula">(13/5, 3): (+)·(−) = (−)</div>
+                        <div class="formula">(3, +∞): (+)·(+) = (+)</div>
+                        <div class="formula">Ответ: x ∈ (5/2, 13/5] ∪ (3, +∞)</div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button onclick="playSteps('steps2')">Пошагово показать</button>
+                    <button class="secondary" onclick="showAll('steps2')">Показать всё сразу</button>
+                </div>
+
+                <div class="card" style="margin-top:14px">
+                    <h3>Типичные ошибки</h3>
+                    <ul>
+                        <li>Забыть, что при основании <b>0 &lt; a &lt; 1</b> знак логарифма устроен наоборот.</li>
+                        <li>Не исключить точку <b>x = 3</b>, где основание равно 1.</li>
+                        <li>Сравнивать аргумент логарифма с нулём, а нужно — с единицей.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="panel section" id="practice">
+                <h2>Тренировка и самопроверка</h2>
+                <div class="grid2">
+                    <div class="card">
+                        <h3>Тренировка 1</h3>
+                        <div class="formula">lg⁴x − 2lg³x − lg²x + 2lgx ≤ 0</div>
+                        <p class="muted">Подсказка: сделайте замену t = lg x и разложите многочлен на множители.</p>
+                        <details>
+                            <summary>Показать ответ</summary>
+                            <div class="formula" style="margin-top:10px">x ∈ [1/10, 1] ∪ [10, 100]</div>
+                        </details>
+                    </div>
+                    <div class="card">
+                        <h3>Тренировка 2</h3>
+                        <div class="formula">(4x − 9) · log<sub>2x−3</sub>(x² − 4x + 5) ≤ 0</div>
+                        <p class="muted">Подсказка: x² − 4x + 5 = (x − 2)² + 1, то есть аргумент снова больше 1 на ОДЗ.</p>
+                        <details>
+                            <summary>Показать ответ</summary>
+                            <div class="formula" style="margin-top:10px">x ∈ (2, 9/4]</div>
+                        </details>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+                <h3>Блиц-опрос</h3>
+                <div class="quizQ">
+                    <div><b>1.</b> Почему при замене t = lg x нельзя забывать условие x &gt; 0?</div>
+                    <button onclick="quiz(this, true)">Потому что lg x определён только при x &gt; 0</button>
+                    <button class="secondary" onclick="quiz(this, false)">Потому что так удобнее считать</button>
+                    <div class="result"></div>
+                </div>
+                <div class="quizQ">
+                    <div><b>2.</b> Если 0 &lt; a &lt; 1 и b &gt; 1, то знак log<sub>a</sub>b какой?</div>
+                    <button onclick="quiz(this, true)">Отрицательный</button>
+                    <button class="secondary" onclick="quiz(this, false)">Положительный</button>
+                    <div class="result"></div>
+                </div>
+            </section>
+
+            <section class="panel section" id="generator">
+                <h2>Генератор похожих задач</h2>
+                <p class="muted">Здесь можно получить новые корректные задачи того же типа и сразу увидеть ответ. Генератор не делает случайных некорректных ловушек: структура подобрана так, чтобы решение существовало в рамках школьной программы.</p>
+                <div class="tabs">
+                    <div class="tab active" data-tab="gen1" onclick="switchTab(event)">Тип 1: замена t = lg x</div>
+                    <div class="tab" data-tab="gen2" onclick="switchTab(event)">Тип 2: знак логарифма</div>
+                </div>
+                <div id="gen1" class="card" style="margin-top:14px">
+                    <div class="toolbar">
+                        <div class="row">
+                            <button onclick="generatePolyTask()">Сгенерировать задачу</button>
+                            <button class="secondary" onclick="showPolyAnswer()">Показать ответ</button>
+                        </div>
+                        <div id="polyTask" class="formula">Нажмите «Сгенерировать задачу».</div>
+                        <div id="polyAnswer" class="formula hidden"></div>
+                    </div>
+                </div>
+                <div id="gen2" class="card hidden" style="margin-top:14px">
+                    <div class="toolbar">
+                        <div class="row">
+                            <button onclick="generateLogTask()">Сгенерировать задачу</button>
+                            <button class="secondary" onclick="showLogAnswer()">Показать ответ</button>
+                        </div>
+                        <div id="logTask" class="formula">Нажмите «Сгенерировать задачу».</div>
+                        <div id="logAnswer" class="formula hidden"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <aside class="right">
+            <div class="sticky">
+                <section class="panel section">
+                    <h3>Интерактивная модель</h3>
+                    <div class="toolbar">
+                        <div class="row">
+                            <button onclick="setModel(1)">Модель 1</button>
+                            <button class="secondary" onclick="setModel(2)">Модель 2</button>
+                        </div>
+                        <div class="row">
+                            <button class="secondary" onclick="zoomOut()">−</button>
+                            <input id="zoomRange" class="range" type="range" min="0.7" max="1.8" step="0.01" value="1" oninput="setZoom(this.value)">
+                            <button class="secondary" onclick="zoomIn()">+</button>
+                            <button class="secondary" onclick="resetZoom()">Сброс</button>
+                        </div>
+                        <div class="row">
+                            <button class="secondary" onclick="toggleLabels()">Показать/скрыть подписи</button>
+                            <button class="secondary" onclick="toggleHints()">Подсказки</button>
+                        </div>
+                    </div>
+                    <div class="axisWrap">
+                        <div id="svgHost"></div>
+                    </div>
+                    <div class="legend" style="margin-top:12px">
+                        <span><i class="lineSample"></i> выделенный промежуток входит в ответ</span>
+                        <span><i class="dot" style="background:var(--accent)"></i> закрашенная точка входит</span>
+                        <span><i class="dot" style="background:white;border:2px solid var(--accent)"></i> пустая точка не входит</span>
+                    </div>
+                </section>
+
+                <section class="panel section">
+                    <h3>Карточка состояния</h3>
+                    <div id="stateBox">
+                        <div class="kv"><div>Текущая модель</div><div class="value" id="stateModel">Задача 1</div></div>
+                        <div class="kv"><div>Ключевые точки</div><div class="value" id="statePoints">0, 1, 2</div></div>
+                        <div class="kv"><div>Ответ</div><div class="value" id="stateAnswer">(0,1] ∪ {10} ∪ [100,+∞)</div></div>
+                        <div class="kv"><div>Ключевая идея</div><div class="value" id="stateIdea">замена t = lg x</div></div>
+                    </div>
+                </section>
+
+                <section class="panel footerCard">
+                    <h3>Памятка</h3>
+                    <div class="mini">Сначала проверяем, где выражение существует. Потом — где оно положительно, отрицательно или равно нулю. Для логарифма почти всё решает сравнение <b>аргумента с 1</b> и контроль основания.</div>
+                </section>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<script>
+    let currentModel = 1;
+    let zoom = 1;
+    let showLabels = true;
+    let showHintTexts = true;
+    let polyCurrent = null;
+    let logCurrent = null;
+
+    const svgHost = document.getElementById('svgHost');
+    const stateModel = document.getElementById('stateModel');
+    const statePoints = document.getElementById('statePoints');
+    const stateAnswer = document.getElementById('stateAnswer');
+    const stateIdea = document.getElementById('stateIdea');
+
+    function lineSVG({points, includedSegments, filledPoints, openPoints, labels, hintTexts}){
+        const w = 760 * zoom, h = 210 * zoom, y = 110 * zoom;
+        const mapX = v => 70*zoom + v*(620*zoom);
+        const circles = [];
+        const texts = [];
+        const ticks = [];
+        const segs = [];
+        const arrows = [];
+
+        points.forEach(p => {
+            const x = mapX(p.pos);
+            ticks.push(`<line x1="${x}" y1="${y-10*zoom}" x2="${x}" y2="${y+10*zoom}" stroke="#dce7ff" stroke-width="1.2"/>`);
+            if(showLabels){
+                texts.push(`<text x="${x}" y="${y+34*zoom}" text-anchor="middle" fill="#cfd9f8" font-size="${15*zoom}" font-family="Inter, Arial">${p.label}</text>`);
+            }
+        });
+
+        includedSegments.forEach(s => {
+            segs.push(`<line x1="${mapX(s.from)}" y1="${y}" x2="${mapX(s.to)}" y2="${y}" stroke="#6ee7d8" stroke-width="${6*zoom}" stroke-linecap="round"/>`);
+            if(s.leftArrow){
+                arrows.push(`<polygon points="${mapX(s.from)-16*zoom},${y} ${mapX(s.from)},${y-9*zoom} ${mapX(s.from)},${y+9*zoom}" fill="#6ee7d8"/>`);
+            }
+            if(s.rightArrow){
+                arrows.push(`<polygon points="${mapX(s.to)+16*zoom},${y} ${mapX(s.to)},${y-9*zoom} ${mapX(s.to)},${y+9*zoom}" fill="#6ee7d8"/>`);
+            }
+        });
+
+        filledPoints.forEach(p => {
+            circles.push(`<circle cx="${mapX(p.pos)}" cy="${y}" r="${6*zoom}" fill="#6ee7d8" stroke="#6ee7d8" stroke-width="2"/>`);
+        });
+        openPoints.forEach(p => {
+            circles.push(`<circle cx="${mapX(p.pos)}" cy="${y}" r="${6*zoom}" fill="#ffffff" stroke="#6ee7d8" stroke-width="2.2"/>`);
+        });
+
+        if(showHintTexts && hintTexts){
+            hintTexts.forEach(t => {
+                texts.push(`<text x="${mapX(t.pos)}" y="${y-22*zoom}" text-anchor="middle" fill="#aeb9d9" font-size="${14*zoom}" font-family="Inter, Arial">${t.text}</text>`);
+            });
+        }
+
+        return `
+      <svg viewBox="0 0 ${w} ${h}" aria-label="числовая прямая">
+        <rect x="0" y="0" width="${w}" height="${h}" rx="18" fill="#0a1023"/>
+        <line x1="${40*zoom}" y1="${y}" x2="${720*zoom}" y2="${y}" stroke="#dce7ff" stroke-width="1.5"/>
+        <polygon points="${724*zoom},${y} ${712*zoom},${y-7*zoom} ${712*zoom},${y+7*zoom}" fill="#dce7ff"/>
+        <polygon points="${36*zoom},${y} ${48*zoom},${y-7*zoom} ${48*zoom},${y+7*zoom}" fill="#dce7ff"/>
+        ${segs.join('')}
+        ${arrows.join('')}
+        ${ticks.join('')}
+        ${circles.join('')}
+        ${texts.join('')}
+      </svg>`;
+    }
+
+    function renderModel(){
+        if(currentModel === 1){
+            svgHost.innerHTML = lineSVG({
+                points:[
+                    {pos:0.12,label:'−∞'},
+                    {pos:0.28,label:'0'},
+                    {pos:0.48,label:'1'},
+                    {pos:0.68,label:'2'},
+                    {pos:0.92,label:'+∞'}
+                ],
+                includedSegments:[
+                    {from:0.05,to:0.28,leftArrow:true,rightArrow:false},
+                    {from:0.68,to:0.90,leftArrow:false,rightArrow:true}
+                ],
+                filledPoints:[{pos:0.28},{pos:0.48},{pos:0.68}],
+                openPoints:[],
+                hintTexts:[
+                    {pos:0.16,text:'t ≤ 0'},
+                    {pos:0.48,text:'t = 1'},
+                    {pos:0.80,text:'t ≥ 2'}
+                ]
+            });
+            stateModel.textContent = 'Задача 1';
+            statePoints.textContent = 't = 0, 1, 2';
+            stateAnswer.textContent = '(0,1] ∪ {10} ∪ [100,+∞)';
+            stateIdea.textContent = 'замена t = lg x';
+        } else {
+            svgHost.innerHTML = lineSVG({
+                points:[
+                    {pos:0.12,label:'5/2'},
+                    {pos:0.38,label:'13/5'},
+                    {pos:0.62,label:'3'},
+                    {pos:0.92,label:'+∞'}
+                ],
+                includedSegments:[
+                    {from:0.12,to:0.38,leftArrow:false,rightArrow:false},
+                    {from:0.62,to:0.90,leftArrow:false,rightArrow:true}
+                ],
+                filledPoints:[{pos:0.38}],
+                openPoints:[{pos:0.12},{pos:0.62}],
+                hintTexts:[
+                    {pos:0.25,text:'(−)·(−)'},
+                    {pos:0.50,text:'(+)·(−)'},
+                    {pos:0.78,text:'(+)·(+)'}
+                ]
+            });
+            stateModel.textContent = 'Задача 2';
+            statePoints.textContent = 'x = 5/2, 13/5, 3';
+            stateAnswer.textContent = '(5/2,13/5] ∪ (3,+∞)';
+            stateIdea.textContent = 'знак логарифма по основанию';
+        }
+    }
+
+    function setModel(n){ currentModel = n; renderModel(); }
+    function setZoom(v){ zoom = parseFloat(v); renderModel(); }
+    function zoomIn(){ zoom = Math.min(1.8, +(zoom + 0.1).toFixed(2)); document.getElementById('zoomRange').value = zoom; renderModel(); }
+    function zoomOut(){ zoom = Math.max(0.7, +(zoom - 0.1).toFixed(2)); document.getElementById('zoomRange').value = zoom; renderModel(); }
+    function resetZoom(){ zoom = 1; document.getElementById('zoomRange').value = 1; renderModel(); }
+    function toggleLabels(){ showLabels = !showLabels; renderModel(); }
+    function toggleHints(){ showHintTexts = !showHintTexts; renderModel(); }
+
+    function playSteps(id){
+        const items = [...document.querySelectorAll(`#${id} .step`)];
+        items.forEach(el => el.classList.remove('active'));
+        let i = 0;
+        const tick = () => {
+            if(i>0) items[i-1].classList.remove('active');
+            if(i < items.length){
+                items[i].classList.add('active');
+                items[i].scrollIntoView({behavior:'smooth', block:'center'});
+                i++;
+                setTimeout(tick, 1200);
+            }
+        };
+        tick();
+    }
+    function showAll(id){ document.querySelectorAll(`#${id} .step`).forEach(el => el.classList.add('active')); }
+
+    function quiz(btn, ok){
+        const box = btn.parentElement.querySelector('.result');
+        box.textContent = ok ? 'Верно.' : 'Нет. Проверь определение ещё раз.';
+        box.style.color = ok ? 'var(--good)' : 'var(--bad)';
+    }
+
+    function switchTab(e){
+        const tab = e.target.dataset.tab;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        document.getElementById('gen1').classList.toggle('hidden', tab !== 'gen1');
+        document.getElementById('gen2').classList.toggle('hidden', tab !== 'gen2');
+    }
+
+    function choice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    function intervalToXText(roots){
+        const [a,b,c] = roots;
+        return `x ∈ [10^${a}, 10^${b}] ∪ [10^${c}, +∞)`;
+    }
+
+    function generatePolyTask(){
+        const sets = [
+            {roots:[-1,0,2], text:'lg⁴x − lg³x − 4lg²x + 4lgx ≥ 0', ans:'Пусть t = lg x. Тогда t(t + 1)(t − 2)² ≥ 0, откуда t ∈ [−1, 0] ∪ {2}. Значит x ∈ [1/10, 1] ∪ {100}.'},
+            {roots:[0,1,3], text:'lg⁴x − 5lg³x + 7lg²x − 3lgx ≤ 0', ans:'Пусть t = lg x. Тогда t(t − 1)(t − 1)(t − 3) ≤ 0, то есть t(t − 1)²(t − 3) ≤ 0. Отсюда t ∈ [0, 3]. Следовательно x ∈ [1, 1000].'},
+            {roots:[-2,1,2], text:'lg⁴x − lg³x − 4lg²x + 4lgx ≤ 0', ans:'Пусть t = lg x. Тогда t(t − 1)(t + 2)(t − 2) ≤ 0. Решение по t: [−2,0] ∪ [1,2]. Тогда x ∈ [1/100, 1] ∪ [10, 100].'}
+        ];
+        polyCurrent = choice(sets);
+        document.getElementById('polyTask').innerHTML = polyCurrent.text;
+        const box = document.getElementById('polyAnswer');
+        box.classList.add('hidden');
+        box.innerHTML = polyCurrent.ans;
+    }
+    function showPolyAnswer(){
+        const box = document.getElementById('polyAnswer');
+        if(!polyCurrent) generatePolyTask();
+        box.classList.remove('hidden');
+    }
+
+    function generateLogTask(){
+        const sets = [
+            {text:'(3x − 5) · log<sub>2x−3</sub>(x² − 4x + 5) ≥ 0', ans:'ОДЗ: x > 3/2, x ≠ 2. Аргумент равен (x − 2)² + 1 > 1 на ОДЗ. Логарифм отрицателен при 3/2 < x < 2 и положителен при x > 2. Первый множитель обращается в нуль при x = 5/3. Ответ: x ∈ (3/2, 5/3] ∪ (2, +∞).'},
+            {text:'(6x − 19) · log<sub>2x−5</sub>(x² − 8x + 17) ≤ 0', ans:'ОДЗ: x > 5/2, x ≠ 3. Аргумент равен (x − 4)² + 1 > 1. Логарифм отрицателен на (5/2,3) и положителен на (3,+∞). Первый множитель равен нулю при x = 19/6 > 3. Ответ: x ∈ (3, 19/6].'},
+            {text:'(5x − 16) · log<sub>2x−5</sub>(x² − 6x + 10) ≥ 0', ans:'ОДЗ: x > 5/2, x ≠ 3. Аргумент (x − 3)² + 1 > 1 на ОДЗ. Логарифм отрицателен при 5/2 < x < 3 и положителен при x > 3. Нуль первого множителя: x = 16/5 > 3. Тогда на (5/2,3) произведение отрицательно, на (3,16/5] неположительно? Нет, здесь знак ≥ 0, значит берём x ≥ 16/5 и все x > 3 с положительным произведением после корня. Ответ: x ∈ [16/5, +∞).'}
+        ];
+        logCurrent = choice(sets);
+        document.getElementById('logTask').innerHTML = logCurrent.text;
+        const box = document.getElementById('logAnswer');
+        box.classList.add('hidden');
+        box.innerHTML = logCurrent.ans;
+    }
+    function showLogAnswer(){
+        const box = document.getElementById('logAnswer');
+        if(!logCurrent) generateLogTask();
+        box.classList.remove('hidden');
+    }
+
+    renderModel();
+    showAll('steps1');
+    showAll('steps2');
+</script>
+</body>
+</html>
