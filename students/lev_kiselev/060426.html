@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — вложенные корни</title>
+    <style>
+        :root{
+            --bg:#081014;
+            --bg2:#0d171d;
+            --panel:#101c24;
+            --panel2:#0f2028;
+            --card:#14242d;
+            --text:#e9f6f7;
+            --muted:#9bb8bc;
+            --line:#28444b;
+            --accent:#36d1c4;
+            --accent2:#73f1ff;
+            --accent3:#1da7a0;
+            --warn:#ffd166;
+            --danger:#ff7b8b;
+            --good:#98f5c3;
+            --shadow:0 12px 34px rgba(0,0,0,.28);
+            --radius:22px;
+            --stepA:#17333f;
+            --stepB:#123844;
+            --hl:#193f4d;
+            --print-bg:#ffffff;
+            --print-text:#111111;
+            --print-muted:#444444;
+            --print-line:#bbbbbb;
+            --zoom:1;
+        }
+
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background:
+            radial-gradient(circle at top right, rgba(54,209,196,.08), transparent 24%),
+            radial-gradient(circle at left center, rgba(115,241,255,.06), transparent 28%),
+            linear-gradient(180deg, var(--bg), var(--bg2));
+            color:var(--text);
+            line-height:1.55;
+        }
+
+        .page{
+            max-width:1500px;
+            margin:0 auto;
+            padding:20px 18px 48px;
+        }
+
+        .hero{
+            border:1px solid var(--line);
+            background:linear-gradient(180deg, rgba(22,36,45,.94), rgba(11,22,29,.94));
+            border-radius:28px;
+            padding:26px;
+            box-shadow:var(--shadow);
+            margin-bottom:18px;
+            position:relative;
+            overflow:hidden;
+        }
+        .hero::after{
+            content:"";
+            position:absolute;
+            inset:auto -40px -70px auto;
+            width:260px;
+            height:260px;
+            border-radius:50%;
+            background:radial-gradient(circle, rgba(54,209,196,.18), transparent 68%);
+            pointer-events:none;
+        }
+        .kicker{
+            color:var(--accent2);
+            font-size:13px;
+            letter-spacing:.12em;
+            text-transform:uppercase;
+            margin-bottom:10px;
+        }
+        h1{
+            margin:0 0 12px;
+            font-size:clamp(30px, 4vw, 52px);
+            line-height:1.08;
+        }
+        .hero p{
+            margin:0;
+            max-width:980px;
+            color:var(--muted);
+            font-size:18px;
+        }
+
+        .toolbar{
+            display:grid;
+            grid-template-columns:repeat(12,1fr);
+            gap:12px;
+            margin:18px 0 20px;
+        }
+        .control{
+            grid-column:span 3;
+            min-width:0;
+            background:linear-gradient(180deg, rgba(16,28,36,.96), rgba(13,24,31,.96));
+            border:1px solid var(--line);
+            border-radius:18px;
+            padding:12px 14px;
+            box-shadow:var(--shadow);
+            position:relative;
+        }
+        .control.wide{grid-column:span 6}
+        .control label{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            font-size:13px;
+            color:var(--muted);
+            margin-bottom:8px;
+        }
+        select, button, input[type="range"]{
+            width:100%;
+            border:none;
+            outline:none;
+            border-radius:14px;
+            font:inherit;
+        }
+        select{
+            background:#0b151a;
+            color:var(--text);
+            padding:12px 13px;
+            border:1px solid #22363c;
+        }
+        .btnrow{display:flex; gap:10px; flex-wrap:wrap}
+        button{
+            cursor:pointer;
+            background:linear-gradient(180deg, var(--accent), var(--accent3));
+            color:#062127;
+            padding:12px 14px;
+            font-weight:700;
+            transition:transform .16s ease, box-shadow .16s ease, filter .16s ease;
+            box-shadow:0 8px 24px rgba(54,209,196,.18);
+        }
+        button:hover{transform:translateY(-1px); filter:brightness(1.04)}
+        button.secondary{
+            background:#0d171d;
+            color:var(--text);
+            border:1px solid var(--line);
+            box-shadow:none;
+        }
+        button.ghost{
+            background:transparent;
+            color:var(--accent2);
+            border:1px solid rgba(115,241,255,.3);
+            box-shadow:none;
+        }
+
+        .main{
+            display:grid;
+            grid-template-columns:minmax(0, 1.15fr) minmax(360px, .85fr);
+            gap:18px;
+            align-items:start;
+        }
+
+        .left-col, .right-col{min-width:0}
+
+        .stack{display:grid; gap:16px}
+
+        .card{
+            background:linear-gradient(180deg, rgba(19,35,43,.96), rgba(12,22,28,.96));
+            border:1px solid var(--line);
+            border-radius:24px;
+            box-shadow:var(--shadow);
+            overflow:hidden;
+        }
+        .card-head{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:16px;
+            padding:16px 18px;
+            border-bottom:1px solid rgba(40,68,75,.7);
+            background:linear-gradient(180deg, rgba(23,42,51,.88), rgba(19,35,43,.5));
+        }
+        .card-head h2, .card-head h3{
+            margin:0;
+            font-size:20px;
+        }
+        .card-body{padding:18px}
+
+        .meta-grid{
+            display:grid;
+            grid-template-columns:repeat(2, minmax(0,1fr));
+            gap:12px;
+        }
+        .meta-item{
+            background:rgba(11,21,26,.62);
+            border:1px solid rgba(40,68,75,.75);
+            border-radius:18px;
+            padding:14px;
+        }
+        .meta-item .k{font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted)}
+        .meta-item .v{font-size:18px; margin-top:6px; font-weight:700}
+
+        .idea-list, .mistakes-list, .quiz-list, .legend-list, .selfcheck-list{
+            margin:0;
+            padding-left:22px;
+        }
+        .idea-list li, .mistakes-list li, .quiz-list li, .legend-list li, .selfcheck-list li{margin:8px 0}
+
+        .solution-steps{display:grid; gap:12px}
+        .step{
+            border:1px solid rgba(59,101,111,.7);
+            background:linear-gradient(180deg, rgba(23,51,63,.82), rgba(18,34,41,.78));
+            border-radius:20px;
+            padding:16px 16px 14px;
+            position:relative;
+            transition:transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+        }
+        .step.hidden-step{display:none}
+        .step.active-link,
+        .step:hover,
+        .step:focus-within{
+            transform:translateY(-1px);
+            border-color:var(--accent2);
+            background:linear-gradient(180deg, rgba(25,63,77,.92), rgba(18,43,53,.9));
+            box-shadow:0 0 0 1px rgba(115,241,255,.24), 0 10px 22px rgba(0,0,0,.25);
+        }
+        .step-badge{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            min-width:36px;
+            height:36px;
+            padding:0 10px;
+            border-radius:999px;
+            background:linear-gradient(180deg, rgba(54,209,196,.22), rgba(29,167,160,.2));
+            color:var(--accent2);
+            font-weight:800;
+            margin-bottom:10px;
+            border:1px solid rgba(115,241,255,.22);
+        }
+        .step h4{margin:0 0 8px; font-size:20px}
+        .step p{margin:8px 0; color:#d9eef0}
+        .math-line{
+            margin:12px 0;
+            padding:12px 14px;
+            background:rgba(7,15,19,.48);
+            border:1px solid rgba(53,82,90,.8);
+            border-radius:14px;
+            font-size:clamp(18px, 2vw, 24px);
+            overflow-x:auto;
+            white-space:nowrap;
+        }
+        .subtle{color:var(--muted)}
+        .result{
+            display:inline-block;
+            background:rgba(152,245,195,.12);
+            color:var(--good);
+            border:1px solid rgba(152,245,195,.35);
+            padding:6px 10px;
+            border-radius:12px;
+            font-weight:700;
+        }
+        .emph{color:var(--accent2); font-weight:700}
+
+        .detail-short .detail-standard,
+        .detail-short .detail-full,
+        .detail-standard .detail-full{display:none}
+
+        .sticky-wrap{
+            position:sticky;
+            top:14px;
+            display:grid;
+            gap:16px;
+            align-content:start;
+        }
+
+        .viewer{
+            padding:16px;
+        }
+        .stage-shell{
+            border:1px solid rgba(60,95,105,.8);
+            border-radius:20px;
+            padding:10px;
+            background:linear-gradient(180deg, rgba(8,16,20,.72), rgba(13,24,31,.72));
+        }
+        .stage{
+            position:relative;
+            min-height:520px;
+            border-radius:18px;
+            overflow:hidden;
+            background:
+            linear-gradient(180deg, rgba(14,25,31,.88), rgba(8,16,20,.96));
+        }
+        .viz-header{
+            display:flex;
+            justify-content:space-between;
+            gap:10px;
+            align-items:center;
+            margin-bottom:12px;
+            flex-wrap:wrap;
+        }
+        .legend{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:10px;
+        }
+        .legend-item{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            padding:10px 12px;
+            border-radius:14px;
+            background:rgba(7,15,19,.44);
+            border:1px solid rgba(47,78,86,.8);
+            font-size:14px;
+        }
+        .swatch{width:16px;height:16px;border-radius:999px;flex:0 0 16px}
+        .s1{background:#7df2ff}.s2{background:#ffd166}.s3{background:#98f5c3}.s4{background:#ff9eb0}
+
+        .zoombar{
+            display:grid;
+            grid-template-columns:auto 1fr auto auto auto;
+            gap:10px;
+            align-items:center;
+            margin:14px 0 6px;
+        }
+        .zoomval{
+            min-width:66px;
+            text-align:center;
+            font-weight:700;
+            color:var(--accent2);
+        }
+        input[type="range"]{
+            background:transparent;
+            accent-color:var(--accent);
+        }
+
+        .toggles{
+            display:grid;
+            grid-template-columns:repeat(2, minmax(0,1fr));
+            gap:10px;
+            margin-top:12px;
+        }
+        .toggle{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            padding:10px 12px;
+            border-radius:14px;
+            background:rgba(7,15,19,.44);
+            border:1px solid rgba(47,78,86,.8);
+            user-select:none;
+        }
+        .toggle input{accent-color:var(--accent)}
+
+        svg{display:block; width:100%; height:auto}
+        .svg-wrap{
+            width:100%; height:100%;
+            display:grid; place-items:center;
+            overflow:hidden;
+            position:relative;
+        }
+        .svg-inner{
+            width:100%;
+            height:100%;
+            transform:scale(var(--zoom));
+            transform-origin:center center;
+            transition:transform .18s ease;
+        }
+        .plot-grid line{stroke:#1c3138; stroke-width:1}
+        .axis{stroke:#35545f; stroke-width:2}
+        .axis-label{fill:#8db9c0; font-size:14px}
+        .curve{fill:none; stroke:#79ecff; stroke-width:3.5}
+        .curve2{fill:none; stroke:#ffd166; stroke-width:3.5}
+        .curve3{fill:none; stroke:#98f5c3; stroke-width:3.5}
+        .marker{fill:#fff; stroke:#7df2ff; stroke-width:2}
+        .label{fill:#e9f6f7; font-size:15px; font-weight:700}
+        .thin{stroke:#7fb8bf; stroke-width:1.4; opacity:.8}
+        .box-hl{fill:rgba(54,209,196,.08); stroke:rgba(115,241,255,.45); stroke-dasharray:6 6}
+        .active-obj{filter:drop-shadow(0 0 8px rgba(115,241,255,.8))}
+        .hidden-vis{display:none}
+        .pulse{animation:borderGlow 2.1s infinite}
+
+        .case-panel{
+            display:grid;
+            gap:12px;
+        }
+        .case-line{
+            padding:12px 14px;
+            border-radius:14px;
+            background:rgba(7,15,19,.42);
+            border:1px solid rgba(47,78,86,.8);
+        }
+
+        .quiz-item{
+            padding:14px;
+            border:1px solid rgba(48,79,86,.8);
+            border-radius:16px;
+            background:rgba(7,15,19,.36);
+            margin:10px 0;
+        }
+        .quiz-answers{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+        .quiz-answers button{width:auto; min-width:110px}
+        .quiz-feedback{margin-top:10px; font-weight:700}
+
+        .generated{
+            display:grid;
+            gap:12px;
+        }
+        .generated-task, .answer-box{
+            padding:14px;
+            border-radius:16px;
+            border:1px solid rgba(47,78,86,.8);
+            background:rgba(7,15,19,.42);
+        }
+
+        .system-wrap{
+            display:grid;
+            grid-template-columns:auto 1fr;
+            gap:10px;
+            align-items:start;
+            margin:10px 0;
+        }
+        .system-brace{
+            font-size:40px;
+            line-height:1;
+            transform:translateY(2px) scaleY(1.12);
+            color:var(--accent2);
+            opacity:.9;
+        }
+
+        .hint-trigger{
+            width:22px;
+            height:22px;
+            border-radius:50%;
+            display:inline-grid;
+            place-items:center;
+            background:linear-gradient(180deg, rgba(115,241,255,.24), rgba(54,209,196,.14));
+            color:var(--accent2);
+            border:1px solid rgba(115,241,255,.46);
+            font-size:13px;
+            font-weight:800;
+            cursor:pointer;
+            position:relative;
+            animation:hintPulse 2s infinite;
+            box-shadow:0 0 0 0 rgba(115,241,255,.35);
+        }
+        .hint-trigger:focus-visible{outline:2px solid var(--accent2); outline-offset:2px}
+
+        .tooltip{
+            position:absolute;
+            z-index:60;
+            min-width:260px;
+            max-width:330px;
+            background:linear-gradient(180deg, rgba(10,18,23,.98), rgba(14,25,31,.98));
+            border:1px solid transparent;
+            border-radius:18px;
+            padding:12px 14px 14px;
+            box-shadow:0 18px 36px rgba(0,0,0,.42), 0 0 0 1px rgba(115,241,255,.18) inset;
+            color:var(--text);
+            opacity:0;
+            pointer-events:none;
+            transform:translateY(6px) scale(.98);
+            transition:opacity .18s ease, transform .18s ease;
+            background-clip:padding-box;
+        }
+        .tooltip::before{
+            content:"";
+            position:absolute;
+            inset:0;
+            border-radius:18px;
+            padding:1px;
+            background:linear-gradient(135deg, rgba(115,241,255,.75), rgba(29,167,160,.3), rgba(115,241,255,.6));
+            -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite:xor;
+            mask-composite:exclude;
+            pointer-events:none;
+        }
+        .tooltip.show{
+            opacity:1;
+            pointer-events:auto;
+            transform:translateY(0) scale(1);
+            animation:hintBounce .25s ease;
+        }
+        .tooltip h5{margin:0 0 8px; font-size:15px; color:var(--accent2)}
+        .tooltip p{margin:7px 0; color:#d7f0f2; font-size:14px}
+        .tooltip .tiny{font-size:12px; color:var(--muted)}
+        .tooltip .pop-actions{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+        .tooltip .pop-actions button{width:auto; padding:8px 10px; border-radius:10px; font-size:13px}
+        .tooltip .close-tip{
+            position:absolute; right:8px; top:7px; width:28px; height:28px;
+            background:transparent; color:var(--muted); border:1px solid rgba(115,241,255,.18); box-shadow:none;
+            padding:0;
+        }
+        .tip-top{bottom:calc(100% + 10px); left:0}
+        .tip-right{left:calc(100% + 10px); top:50%; transform:translateY(-50%) scale(.98)}
+        .tip-left{right:calc(100% + 10px); top:50%; transform:translateY(-50%) scale(.98)}
+        .tip-bottom{top:calc(100% + 10px); left:0}
+        .tooltip.tip-top.show{transform:translateY(0) scale(1)}
+        .tooltip.tip-bottom.show{transform:translateY(0) scale(1)}
+        .tooltip.tip-right.show,.tooltip.tip-left.show{transform:translateY(-50%) scale(1)}
+
+        .auto-hint-target{animation:borderGlow 2s ease 2}
+
+        .foot-note{
+            color:var(--muted);
+            font-size:13px;
+        }
+
+        @keyframes hintPulse{
+            0%{box-shadow:0 0 0 0 rgba(115,241,255,.30), 0 0 16px rgba(54,209,196,.12)}
+            70%{box-shadow:0 0 0 10px rgba(115,241,255,0), 0 0 26px rgba(54,209,196,.22)}
+            100%{box-shadow:0 0 0 0 rgba(115,241,255,0), 0 0 16px rgba(54,209,196,.12)}
+        }
+        @keyframes borderGlow{
+            0%,100%{box-shadow:0 0 0 0 rgba(115,241,255,.0), 0 0 0 1px rgba(115,241,255,.0) inset}
+            50%{box-shadow:0 0 0 0 rgba(115,241,255,.16), 0 0 0 1px rgba(115,241,255,.45) inset}
+        }
+        @keyframes hintBounce{
+            0%{transform:translateY(8px) scale(.96)}
+            60%{transform:translateY(-2px) scale(1.01)}
+            100%{transform:translateY(0) scale(1)}
+        }
+
+        @media (max-width:1200px){
+            .control{grid-column:span 4}
+            .control.wide{grid-column:span 8}
+            .main{grid-template-columns:1fr}
+            .sticky-wrap{position:static}
+            .stage{min-height:480px}
+        }
+        @media (max-width:860px){
+            .toolbar{grid-template-columns:repeat(6,1fr)}
+            .control,.control.wide{grid-column:span 6}
+            .meta-grid,.legend,.toggles{grid-template-columns:1fr}
+            .zoombar{grid-template-columns:1fr 1fr; gap:8px}
+            .zoombar .zoomrange{grid-column:1 / -1}
+            .stage{min-height:420px}
+            .tooltip{max-width:270px; min-width:220px}
+        }
+
+        @media print{
+            :root{--zoom:1 !important}
+            body{background:var(--print-bg); color:var(--print-text)}
+            .page{max-width:none; padding:0}
+            .hero,.card,.control{background:#fff; color:#111; box-shadow:none; border-color:var(--print-line)}
+            .hero p,.subtle,.foot-note,.meta-item .k{color:var(--print-muted)}
+            .toolbar,.quiz-item button,.hint-trigger,.tooltip,.zoombar,.toggles,.btnrow .ghost,.btnrow .secondary.hide-print{display:none !important}
+            .main{grid-template-columns:1fr 0.82fr; gap:18px}
+            .sticky-wrap{position:static}
+            .stage-shell,.step,.meta-item,.legend-item,.generated-task,.answer-box,.case-line,.quiz-item{background:#fff; color:#111; border-color:var(--print-line); box-shadow:none}
+            .math-line{background:#fff; color:#111; border-color:var(--print-line)}
+            .result{color:#146b48; border-color:#8bc7a7; background:#f5fff9}
+            .label,.axis-label{fill:#111}
+            .axis{stroke:#333}
+            .plot-grid line{stroke:#ddd}
+            .curve{stroke:#007b8a}
+            .curve2{stroke:#8f6500}
+            .curve3{stroke:#1a7a53}
+        }
+    </style>
+</head>
+<body>
+<div class="page" id="pageRoot">
+    <section class="hero">
+        <div class="kicker">Объяснение с нуля • базовый уровень • только школьные методы</div>
+        <h1>Теория и задачи по теме вложенных корней</h1>
+        <p>
+            Разбираем выражения вида √(a ± b√c): как заметить квадрат суммы или разности, почему появляется модуль,
+            как без ошибок определить знак и как проверять ответ. Справа — живая модель, связанная с каждым шагом решения.
+        </p>
+    </section>
+
+    <section class="toolbar">
+        <div class="control auto-hint-target" id="taskTypeControl">
+            <label for="taskTypeSelect">Тип разбора
+                <span class="hint-trigger" tabindex="0" data-tip="tipTaskType" aria-label="Подсказка о типе разбора">?</span>
+            </label>
+            <select id="taskTypeSelect" aria-label="Тип задачи">
+                <option value="classic">Классический вид: число и корень отдельно</option>
+                <option value="factor">Разложение через √m и √n</option>
+                <option value="modulus">Отдельно про раскрытие модуля</option>
+            </select>
+            <div class="tooltip tip-bottom" id="tipTaskType" role="tooltip" aria-hidden="true">
+                <button class="close-tip" aria-label="Закрыть подсказку">×</button>
+                <h5>Как выбирать тип</h5>
+                <p>Первый режим — когда внутри видно что-то вроде 7 − 4√3. Второй — когда удобно заметить 2√(m·n). Третий — для отдельной тренировки знака у |x − y|.</p>
+                <p>
+                    <math display="block">
+                        <mrow><msqrt><mrow><mi>a</mi><mo>±</mo><mi>b</mi><msqrt><mi>c</mi></msqrt></mrow></msqrt><mo>→</mo><msqrt><msup><mrow><mo>(</mo><mi>x</mi><mo>±</mo><mi>y</mi><mo>)</mo></mrow><mn>2</mn></msup></msqrt><mo>→</mo><mo>|</mo><mi>x</mi><mo>±</mo><mi>y</mi><mo>|</mo></mrow>
+                    </math>
+                </p>
+                <div class="pop-actions">
+                    <button data-action="set-type" data-value="classic">Классический</button>
+                    <button data-action="set-type" data-value="factor">Через √m и √n</button>
+                    <button class="secondary" data-action="show-example">Показать пример</button>
+                </div>
+                <p class="tiny">Совет: сначала ищите форму x² ± 2xy + y², а уже потом раскрывайте модуль.</p>
+            </div>
+        </div>
+
+        <div class="control">
+            <label for="detailLevel">Подробность объяснения</label>
+            <select id="detailLevel" aria-label="Подробность объяснения">
+                <option value="short">Кратко</option>
+                <option value="standard" selected>Стандартно</option>
+                <option value="full">Очень подробно</option>
+            </select>
+        </div>
+
+        <div class="control">
+            <label for="stepMode">Режим решения</label>
+            <select id="stepMode" aria-label="Режим решения">
+                <option value="step" selected>Пошаговое раскрытие</option>
+                <option value="all">Показать всё сразу</option>
+            </select>
+        </div>
+
+        <div class="control">
+            <label for="exampleSelect">Основной пример</label>
+            <select id="exampleSelect" aria-label="Выбор примера"></select>
+        </div>
+
+        <div class="control wide auto-hint-target" id="genControl">
+            <label>Генерация похожей задачи
+                <span class="hint-trigger" tabindex="0" data-tip="tipGenerate" aria-label="Подсказка о генерации">!</span>
+            </label>
+            <div class="btnrow">
+                <button id="generateBtn">Сгенерировать сейчас</button>
+                <button class="secondary" id="applyGeneratedBtn">Применить к модели</button>
+                <button class="ghost hide-print" id="revealAllBtn">Открыть все шаги</button>
+                <button class="ghost hide-print" id="nextStepBtn">Следующий шаг</button>
+            </div>
+            <div class="tooltip tip-top" id="tipGenerate" role="tooltip" aria-hidden="true">
+                <button class="close-tip" aria-label="Закрыть подсказку">×</button>
+                <h5>Что делает генератор</h5>
+                <p>Генератор создаёт новую задачу того же метода: подбирает корректные числа так, чтобы выражение точно сворачивалось в квадрат суммы или разности.</p>
+                <p>
+                    <math display="block">
+                        <mrow><mi>x</mi><mo>²</mo><mo>+</mo><mi>y</mi><mo>²</mo><mo>±</mo><mn>2</mn><mi>x</mi><mi>y</mi><mo>=</mo><msup><mrow><mo>(</mo><mi>x</mi><mo>±</mo><mi>y</mi><mo>)</mo></mrow><mn>2</mn></msup></mrow>
+                    </math>
+                </p>
+                <div class="pop-actions">
+                    <button data-action="generate-now">Сгенерировать сейчас</button>
+                    <button data-action="apply-generated">Применить к модели</button>
+                    <button class="secondary" data-action="set-type" data-value="factor">Другой тип</button>
+                </div>
+                <p class="tiny">Мы специально избегаем некорректных и вырожденных случаев.</p>
+            </div>
+        </div>
+    </section>
+
+    <main class="main">
+        <section class="left-col">
+            <div class="stack">
+                <article class="card">
+                    <div class="card-head">
+                        <h2>Что дано и что ищем</h2>
+                        <span class="result" id="themeBadge">Тема: √(a ± b√c)</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="meta-grid">
+                            <div class="meta-item">
+                                <div class="k">Дано</div>
+                                <div class="v" id="givenExpr">√(7 − 4√3)</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="k">Найти</div>
+                                <div class="v">Упростить выражение школьным методом</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="k">Фокус разбора</div>
+                                <div class="v">Графическая интерпретация и логика шага</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="k">Проверка</div>
+                                <div class="v">Почему ответ подходит и других нет</div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-head">
+                        <h2>Идея решения</h2>
+                    </div>
+                    <div class="card-body">
+                        <ol class="idea-list" id="ideaList"></ol>
+                    </div>
+                </article>
+
+                <article class="card" id="solutionCard">
+                    <div class="card-head">
+                        <h2>Пошаговое решение</h2>
+                        <span class="subtle" id="stepCounter">Шаг 1 из 7</span>
+                    </div>
+                    <div class="card-body detail-standard" id="solutionBody">
+                        <div class="solution-steps" id="solutionSteps"></div>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-head">
+                        <h2>Типичные ошибки</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mistakes-list" id="mistakesList"></ul>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-head">
+                        <h2>Мини-квиз</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="quizBox"></div>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-head">
+                        <h2>Самопроверка</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="selfcheck-list" id="selfCheckList"></ul>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <aside class="right-col">
+            <div class="sticky-wrap">
+                <article class="card viewer">
+                    <div class="viz-header">
+                        <div>
+                            <h3 style="margin:0 0 6px">Интерактивная модель</h3>
+                            <div class="subtle" id="vizSubtitle">Слева и справа показаны части будущего квадрата.</div>
+                        </div>
+                        <div class="hint-trigger pulse" tabindex="0" data-tip="tipZoom" aria-label="Подсказка о зуме">i</div>
+                    </div>
+
+                    <div class="tooltip tip-left" id="tipZoom" role="tooltip" aria-hidden="true">
+                        <button class="close-tip" aria-label="Закрыть подсказку">×</button>
+                        <h5>Как работать с рисунком</h5>
+                        <p>Меняйте масштаб ползунком, кнопками или колесом мыши прямо на чертеже. Переключатели ниже включают сетку, подписи и подсветку связей со шагами решения.</p>
+                        <div class="pop-actions">
+                            <button data-action="zoom-in">Увеличить</button>
+                            <button data-action="zoom-reset">Сбросить</button>
+                            <button class="secondary" data-action="toggle-links">Связь шаг ↔ рисунок</button>
+                        </div>
+                    </div>
+
+                    <div class="stage-shell">
+                        <div class="stage" id="stageArea">
+                            <div class="svg-wrap" id="svgWrap">
+                                <div class="svg-inner" id="svgInner"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="zoombar">
+                        <button class="secondary" id="zoomOutBtn">−</button>
+                        <input class="zoomrange" id="zoomRange" type="range" min="0.7" max="1.8" step="0.01" value="1" />
+                        <div class="zoomval" id="zoomVal">100%</div>
+                        <button class="secondary" id="zoomInBtn">+</button>
+                        <button class="secondary" id="zoomResetBtn">Сброс</button>
+                    </div>
+
+                    <div class="toggles">
+                        <label class="toggle"><input type="checkbox" id="toggleGrid" checked /> Показать сетку</label>
+                        <label class="toggle"><input type="checkbox" id="toggleLabels" checked /> Показать подписи</label>
+                        <label class="toggle"><input type="checkbox" id="toggleLinks" checked /> Подсветка шагов и объектов</label>
+                        <label class="toggle"><input type="checkbox" id="toggleLegend" checked /> Показать легенду</label>
+                    </div>
+
+                    <div class="legend" id="legendBox" style="margin-top:12px"></div>
+                </article>
+
+                <article class="card">
+                    <div class="card-head"><h3>Короткий разбор случаев</h3></div>
+                    <div class="card-body case-panel" id="casePanel"></div>
+                </article>
+
+                <article class="card">
+                    <div class="card-head"><h3>Похожая задача</h3></div>
+                    <div class="card-body generated">
+                        <div class="generated-task" id="generatedTask">Нажмите «Сгенерировать сейчас», и здесь появится новая задача.</div>
+                        <div class="answer-box" id="generatedAnswer">Ответ и идея решения появятся здесь.</div>
+                        <div class="foot-note">Сгенерированная задача сохраняет тот же метод решения и подходит для первичного закрепления.</div>
+                    </div>
+                </article>
+            </div>
+        </aside>
+    </main>
+</div>
+
+<script>
+    const examples = {
+        classic:[
+            {
+                id:'e1',
+                title:'√(7 − 4√3)',
+                type:'classic',
+                expression:'√(7 − 4√3)',
+                a:7,b:4,c:3,sign:-1,
+                x:2,yType:'root', yVal:3,
+                canonical:'2 − √3',
+                answer:'2 − √3',
+                signText:'2 > √3, значит 2 − √3 > 0',
+                summary:'Классический пример: число 7 распадается на 4 + 3, а средний член имеет вид 2·2·√3.',
+                idea:[
+                    'Замечаем форму квадрата разности: x² − 2xy + y².',
+                    'Проверяем, что 7 = 2² + (√3)².',
+                    'Заменяем подкоренное выражение на (2 − √3)².',
+                    'После извлечения корня обязательно получаем модуль: |2 − √3|.',
+                    'Сравниваем 2 и √3, после чего раскрываем модуль.'
+                ],
+                mistakes:[
+                    'Сразу писать √((2 − √3)²) = 2 − √3 без модуля.',
+                    'Не проверить, что 2² + 3 действительно даёт 7.',
+                    'Перепутать знак в формуле квадрата разности.',
+                    'Сравнить 2 и √3 только приблизительно, не обосновав знак.'
+                ]
+            },
+            {
+                id:'e2',
+                title:'√(9 − 4√5)',
+                type:'classic',
+                expression:'√(9 − 4√5)',
+                a:9,b:4,c:5,sign:-1,
+                x:2,yType:'root', yVal:5,
+                canonical:'2 − √5',
+                answer:'√5 − 2',
+                signText:'2 < √5, значит 2 − √5 < 0',
+                summary:'Здесь квадрат тоже находится быстро, но при раскрытии модуля знак меняется.',
+                idea:[
+                    'Представляем 9 как 4 + 5, то есть как 2² + (√5)².',
+                    'Средний член 4√5 = 2·2·√5.',
+                    'Получаем под корнем квадрат разности (2 − √5)².',
+                    'Извлекаем корень и получаем |2 − √5|.',
+                    'Так как √5 больше 2, модуль раскрывается с минусом.'
+                ],
+                mistakes:[
+                    'Забыть, что окончательный ответ должен быть неотрицательным.',
+                    'Написать ответ 2 − √5, хотя это отрицательное число.',
+                    'Не увидеть, что 9 = 4 + 5.',
+                    'Потерять минус перед средним членом.'
+                ]
+            },
+            {
+                id:'e3',
+                title:'√(3 + 2√2)',
+                type:'classic',
+                expression:'√(3 + 2√2)',
+                a:3,b:2,c:2,sign:1,
+                x:1,yType:'root', yVal:2,
+                canonical:'1 + √2',
+                answer:'1 + √2',
+                signText:'1 + √2 > 0, модуль просто исчезает',
+                summary:'Очень удобный базовый пример на квадрат суммы.',
+                idea:[
+                    'Смотрим на формулу x² + 2xy + y².',
+                    'Проверяем, что 3 = 1² + (√2)².',
+                    'Заменяем подкоренное выражение на (1 + √2)².',
+                    'Извлекаем корень: |1 + √2|.',
+                    'Так как сумма положительна, модуль раскрывается с плюсом.'
+                ],
+                mistakes:[
+                    'Неправильно выделить x и y.',
+                    'Запутаться между квадратом суммы и разности.',
+                    'Пропустить модуль после извлечения корня.',
+                    'Не заметить, что 1 + √2 положительно всегда.'
+                ]
+            }
+        ],
+        factor:[
+            {
+                id:'f1',
+                title:'√(5 − 2√6)',
+                type:'factor',
+                expression:'√(5 − 2√6)',
+                a:5,b:2,c:6,sign:-1,
+                m:2,n:3,
+                xType:'root',xVal:3,yType:'root',yVal:2,
+                canonical:'√3 − √2',
+                answer:'√3 − √2',
+                signText:'√3 > √2, значит √3 − √2 > 0',
+                summary:'Здесь удобнее разложить 6 на 2·3 и заметить сумму 2 + 3 = 5.',
+                idea:[
+                    'Разлагаем 6 как 2·3, чтобы получить √6 = √2·√3.',
+                    'Замечаем, что 5 = 2 + 3 = (√2)² + (√3)².',
+                    'Подкоренное выражение превращается в (√3 − √2)².',
+                    'После извлечения корня получаем |√3 − √2|.',
+                    'Так как √3 больше √2, модуль раскрывается с плюсом.'
+                ],
+                mistakes:[
+                    'Пытаться насильно подобрать обычное число и один корень, когда удобнее взять два корня.',
+                    'Записать (√2 − √3)², а потом потерять знак.',
+                    'Не проверить знак выражения под модулем.',
+                    'Спутать 2 + 3 и 2·3.'
+                ]
+            },
+            {
+                id:'f2',
+                title:'√(8 + 2√15)',
+                type:'factor',
+                expression:'√(8 + 2√15)',
+                a:8,b:2,c:15,sign:1,
+                m:3,n:5,
+                xType:'root',xVal:3,yType:'root',yVal:5,
+                canonical:'√3 + √5',
+                answer:'√3 + √5',
+                signText:'√3 + √5 > 0',
+                summary:'Внутренний корень 15 удобно разложить на 3·5, потому что 3 + 5 = 8.',
+                idea:[
+                    'Разлагаем 15 на 3·5.',
+                    'Представляем 8 как (√3)² + (√5)².',
+                    'Получаем квадрат суммы (√3 + √5)².',
+                    'Извлекаем корень и получаем модуль от суммы.',
+                    'Сумма двух положительных корней положительна.'
+                ],
+                mistakes:[
+                    'Не заметить удачную пару 3 и 5.',
+                    'Поставить минус вместо плюса в квадрате суммы.',
+                    'Забыть, что корень из квадрата даёт модуль.',
+                    'Сомневаться в знаке суммы положительных чисел.'
+                ]
+            },
+            {
+                id:'f3',
+                title:'√(10 + 2√21)',
+                type:'factor',
+                expression:'√(10 + 2√21)',
+                a:10,b:2,c:21,sign:1,
+                m:3,n:7,
+                xType:'root',xVal:3,yType:'root',yVal:7,
+                canonical:'√3 + √7',
+                answer:'√3 + √7',
+                signText:'√3 + √7 > 0',
+                summary:'Тот же метод, только числа чуть крупнее: 21 = 3·7 и 10 = 3 + 7.',
+                idea:[
+                    'Раскладываем 21 как 3·7.',
+                    'Проверяем, что 10 = 3 + 7.',
+                    'Переписываем выражение как (√3 + √7)².',
+                    'Извлекаем корень: |√3 + √7|.',
+                    'Сумма положительна, поэтому получаем √3 + √7.'
+                ],
+                mistakes:[
+                    'Неправильно разложить 21.',
+                    'Потерять связь между 3·7 и 3 + 7.',
+                    'Считать, что корень автоматически уничтожает квадрат без модуля.',
+                    'Записать только один корень в ответе.'
+                ]
+            }
+        ],
+        modulus:[
+            {
+                id:'m1',
+                title:'|1 − √5|',
+                type:'modulus',
+                expression:'|1 − √5|',
+                modA:1, modRoot:5, order:'a-root',
+                answer:'√5 − 1',
+                signText:'1 < √5, значит 1 − √5 < 0',
+                summary:'Отдельная тренировка самого важного места — правильного раскрытия модуля.',
+                idea:[
+                    'Сначала не раскрываем модуль наугад, а определяем знак подмодульного выражения.',
+                    'Сравниваем 1 и √5 через квадраты: 1 и 5.',
+                    'Так как 1 меньше √5, выражение 1 − √5 отрицательно.',
+                    'Значит, модуль раскрывается с минусом перед скобкой.',
+                    'Получаем ответ √5 − 1.'
+                ],
+                mistakes:[
+                    'Открыть модуль как есть, не определяя знак.',
+                    'Сравнивать 1 и √5 без объяснения.',
+                    'Забыть скобки при раскрытии с минусом.',
+                    'Не проверить, что результат модуля неотрицателен.'
+                ]
+            },
+            {
+                id:'m2',
+                title:'|3 − √8|',
+                type:'modulus',
+                expression:'|3 − √8|',
+                modA:3, modRoot:8, order:'a-root',
+                answer:'3 − √8',
+                signText:'3² = 9 > 8, значит 3 > √8',
+                summary:'Пример на сравнение числа и корня без приближений.',
+                idea:[
+                    'Сравниваем 3 и √8 строго через возведение в квадрат.',
+                    'Так как 9 > 8, число 3 больше √8.',
+                    'Значит, выражение 3 − √8 положительно.',
+                    'Модуль раскрывается с плюсом.',
+                    'Ответ остаётся таким же.'
+                ],
+                mistakes:[
+                    'Считать, что √8 почти равно 3 и поэтому знак неясен.',
+                    'Не помнить, что сравнение удобно делать через квадраты.',
+                    'Перепутать случай положительного и отрицательного подмодульного.',
+                    'Написать √8 − 3 без причины.'
+                ]
+            }
+        ]
+    };
+
+    const taskTypeSelect = document.getElementById('taskTypeSelect');
+    const exampleSelect = document.getElementById('exampleSelect');
+    const detailLevel = document.getElementById('detailLevel');
+    const stepMode = document.getElementById('stepMode');
+    const givenExpr = document.getElementById('givenExpr');
+    const ideaList = document.getElementById('ideaList');
+    const mistakesList = document.getElementById('mistakesList');
+    const solutionSteps = document.getElementById('solutionSteps');
+    const stepCounter = document.getElementById('stepCounter');
+    const svgInner = document.getElementById('svgInner');
+    const legendBox = document.getElementById('legendBox');
+    const casePanel = document.getElementById('casePanel');
+    const vizSubtitle = document.getElementById('vizSubtitle');
+    const themeBadge = document.getElementById('themeBadge');
+    const quizBox = document.getElementById('quizBox');
+    const selfCheckList = document.getElementById('selfCheckList');
+    const generatedTask = document.getElementById('generatedTask');
+    const generatedAnswer = document.getElementById('generatedAnswer');
+    const solutionBody = document.getElementById('solutionBody');
+
+    let currentType = 'classic';
+    let currentExample = null;
+    let currentDetail = 'standard';
+    let currentStepMode = 'step';
+    let visibleSteps = 1;
+    let generated = null;
+    let linksEnabled = true;
+
+    function setBodyDetailClass(){
+        solutionBody.classList.remove('detail-short','detail-standard','detail-full');
+        solutionBody.classList.add('detail-' + currentDetail);
+    }
+
+    function populateExamples(type){
+        exampleSelect.innerHTML = '';
+        examples[type].forEach((ex, i)=>{
+            const opt = document.createElement('option');
+            opt.value = ex.id;
+            opt.textContent = ex.title;
+            if(i===0) opt.selected = true;
+            exampleSelect.appendChild(opt);
+        });
+    }
+
+    function getCurrentExample(){
+        return examples[currentType].find(x=>x.id===exampleSelect.value) || examples[currentType][0];
+    }
+
+    function renderIdea(list){
+        ideaList.innerHTML = list.map(item=>`<li>${item}</li>`).join('');
+    }
+
+    function renderMistakes(list){
+        mistakesList.innerHTML = list.map(item=>`<li>${item}</li>`).join('');
+    }
+
+    function renderSelfcheck(ex){
+        const base = [
+            'Удалось ли Вам представить подкоренное выражение как квадрат суммы или разности?',
+            'Проверили ли Вы совпадение среднего члена с формой ±2xy?',
+            'После извлечения корня написали ли Вы модуль?',
+            'Проверили ли Вы знак подмодульного выражения отдельно?',
+            'Итоговый ответ неотрицателен и действительно удовлетворяет условию?'
+        ];
+        if(ex.type==='modulus'){
+            base.splice(0,2,
+                'Сначала ли Вы определили знак подмодульного выражения?',
+                'Сравнение числа и корня выполнено строго, а не на глаз?'
+            );
+        }
+        selfCheckList.innerHTML = base.map(x=>`<li>${x}</li>`).join('');
+    }
+
+    function mathLine(text){ return `<div class="math-line">${text}</div>`; }
+
+    function buildSteps(ex){
+        if(ex.type === 'modulus') return buildModulusSteps(ex);
+        const steps = [];
+        const signChar = ex.sign === 1 ? '+' : '−';
+        const yText = ex.yType==='root' ? `√${ex.yVal}` : `${ex.yVal}`;
+        const sqText = ex.yType==='root' ? `(√${ex.yVal})²` : `${ex.yVal}²`;
+        const sqValue = ex.yType==='root' ? `${ex.yVal}` : `${ex.yVal * ex.yVal}`;
+        const xSq = ex.x * ex.x;
+
+        steps.push({
+            title:'Что дано',
+            link:'obj-main',
+            short:`Нужно упростить выражение ${ex.expression}.`,
+            standard:`Нужно упростить выражение ${ex.expression}. Мы хотим убрать внешний корень, заменив подкоренное выражение квадратом суммы или разности.`,
+            full:`Дано выражение ${ex.expression}. Главная цель — переписать выражение под внешним корнем в виде квадрата: (x ${signChar} y)². Тогда внешний корень будет извлекаться по правилу √(u²) = |u|.`
+        });
+
+        steps.push({
+            title:'Что означает условие',
+            link:'obj-parts',
+            short:`Под корнем стоит сумма квадратов и средний член вида ±2xy.`,
+            standard:`Смотрим на подкоренное выражение как на шаблон x² ${signChar} 2xy + y². Для этого нужно выделить две части: число без корня и часть с корнем.`,
+            full:`Мы сравниваем выражение с формулой квадрата суммы или разности:
+        x² ± 2xy + y². Число ${ex.a} должно получиться как сумма двух квадратов, а выражение ${ex.b}√${ex.c} должно совпасть со средним членом 2xy.`
+        });
+
+        if(ex.type==='classic'){
+            steps.push({
+                title:'Подбор x и y',
+                link:'obj-sum',
+                short:`Берём x = ${ex.x}, y = √${ex.yVal}.`,
+                standard:`Берём x = ${ex.x}, y = √${ex.yVal}, потому что ${ex.b}√${ex.c} = 2·${ex.x}·√${ex.yVal}. Проверяем сумму квадратов: ${ex.a} = ${ex.x}² + (√${ex.yVal})².`,
+                full:`Подбираем x = ${ex.x} и y = √${ex.yVal}. Тогда средний член имеет нужный вид:
+          ${ex.b}√${ex.c} = 2·${ex.x}·√${ex.yVal}. Теперь проверяем число без корня:
+          ${ex.a} = ${xSq} + ${ex.yVal} = ${ex.x}² + (√${ex.yVal})².`
+            });
+        } else {
+            steps.push({
+                title:'Разложение внутреннего корня',
+                link:'obj-factor',
+                short:`Представляем √${ex.c} как √${ex.m}·√${ex.n}.`,
+                standard:`Разлагаем ${ex.c} на произведение ${ex.m}·${ex.n}, чтобы получить √${ex.c} = √${ex.m}·√${ex.n}. Тогда средний член станет 2√${ex.m}·√${ex.n}.`,
+                full:`Для выражений такого типа удобнее не брать обычное число и один корень, а сразу выделять два корня. Разлагаем ${ex.c} = ${ex.m}·${ex.n}. Тогда √${ex.c} = √${ex.m}·√${ex.n}, а средний член принимает форму 2xy при x = √${ex.m} и y = √${ex.n}.`
+            });
+            steps.push({
+                title:'Проверка суммы квадратов',
+                link:'obj-sum',
+                short:`Проверяем: ${ex.a} = ${ex.m} + ${ex.n}.`,
+                standard:`Теперь смотрим на число без корня: ${ex.a} = ${ex.m} + ${ex.n} = (√${ex.m})² + (√${ex.n})². Значит, всё действительно сворачивается в квадрат суммы или разности.`,
+                full:`Число без корня обязано совпасть с суммой квадратов найденных частей:
+          ${ex.a} = ${ex.m} + ${ex.n} = (√${ex.m})² + (√${ex.n})². Это и подтверждает, что выбранная пара корней подходит точно, а не случайно.`
+            });
+        }
+
+        const canonical = ex.canonical.replaceAll('-', '−');
+        steps.push({
+            title:'Сворачиваем в квадрат',
+            link:'obj-square',
+            short:`Получаем (${canonical})².`,
+            standard:`После проверки можем переписать подкоренное выражение как (${canonical})².`,
+            full:`Теперь используем формулу квадрата суммы или разности в обратную сторону и получаем:
+        подкоренное выражение = (${canonical})². Это ключевой переход всей задачи.`
+        });
+
+        steps.push({
+            title:'Извлекаем корень',
+            link:'obj-mod',
+            short:`√((${canonical})²) = |${canonical}|.`,
+            standard:`Извлекаем внешний корень:
+        √((${canonical})²) = |${canonical}|. Здесь очень важно не потерять модуль.`,
+            full:`При извлечении квадратного корня из квадрата нельзя просто убрать квадрат. Верное правило такое:
+        √(u²) = |u|. Поэтому из выражения √((${canonical})²) получается именно |${canonical}|.`
+        });
+
+        steps.push({
+            title:'Определяем знак и раскрываем модуль',
+            link:'obj-sign',
+            short:`${ex.signText}.`,
+            standard:`Определяем знак подмодульного выражения. ${ex.signText}. Следовательно, модуль раскрывается и получаем ответ ${ex.answer}.`,
+            full:`Проверяем знак подмодульного выражения отдельно. ${ex.signText}. Поэтому:
+        |${canonical}| = ${ex.answer}. Именно этот шаг объясняет, почему в похожих задачах ответы могут отличаться знаком.`
+        });
+
+        steps.push({
+            title:'Финальная проверка и вывод',
+            link:'obj-check',
+            short:`Ответ: ${ex.answer}. Он неотрицателен и подходит по условию.`,
+            standard:`Проверка: итоговый ответ ${ex.answer} неотрицателен, а это обязательно для значения квадратного корня. Значит, ответ найден верно.`,
+            full:`Финальная проверка: значение квадратного корня по определению неотрицательно. Наш ответ ${ex.answer} этому условию удовлетворяет. Другого ответа быть не может, потому что квадратный корень означает именно главное неотрицательное значение.`
+        });
+        return steps;
+    }
+
+    function buildModulusSteps(ex){
+        const steps = [
+            {
+                title:'Что дано', link:'obj-main',
+                short:`Нужно раскрыть модуль ${ex.expression}.`,
+                standard:`Нужно раскрыть модуль ${ex.expression}. Для этого нельзя угадывать знак: сначала надо понять, положительно или отрицательно выражение внутри модуля.`,
+                full:`Дано выражение ${ex.expression}. По правилу модуль раскрывается по-разному для положительных и отрицательных чисел, поэтому сначала определяем знак подмодульного выражения.`
+            },
+            {
+                title:'Что означает условие', link:'obj-parts',
+                short:`Надо сравнить число и корень.`,
+                standard:`Подмодульное выражение имеет вид «число минус корень». Значит, задача сводится к сравнению обычного числа и корня.`,
+                full:`Чтобы раскрыть модуль, нужно узнать знак выражения ${ex.modA} − √${ex.modRoot}. Для этого удобно сравнить ${ex.modA} и √${ex.modRoot} строго, без приблизительных вычислений.`
+            },
+            {
+                title:'Алгебраическая интерпретация', link:'obj-sign',
+                short:`Сравниваем через квадраты.`,
+                standard:`Так как обе сравниваемые величины неотрицательны, можно сравнить их квадраты: ${ex.modA}² и ${ex.modRoot}.`,
+                full:`Обе величины ${ex.modA} и √${ex.modRoot} неотрицательны. Поэтому их можно сравнивать через квадраты: знак между числами сохраняется, а вычисления становятся проще.`
+            },
+            {
+                title:'Ключевая идея', link:'obj-square',
+                short:`Сначала знак, потом раскрытие модуля.`,
+                standard:`Главная идея: модуль раскрывается не по привычке, а только после строгой проверки знака.`,
+                full:`Многие ошибки в этой теме появляются из-за попытки сразу убрать вертикальные черты. Правильный порядок такой: сначала знак подмодульного выражения, потом выбор формулы для раскрытия модуля.`
+            },
+            {
+                title:'Пошаговое доведение до ответа', link:'obj-mod',
+                short:`${ex.signText}.`,
+                standard:`Считаем: ${ex.signText}. Значит, ${ex.order==='a-root' ? `${ex.modA} − √${ex.modRoot}` : `√${ex.modRoot} − ${ex.modA}`} ${ex.answer.includes('−') && ex.answer.startsWith('√') ? 'отрицательно' : 'положительно'}. Поэтому модуль раскрывается и получаем ${ex.answer}.`,
+                full:`Сравнение даёт: ${ex.signText}. Следовательно, знак подмодульного выражения определён. Теперь раскрываем модуль по правилу
+          |u| = u при u ≥ 0 и |u| = −u при u < 0. В результате получаем ${ex.answer}.`
+            },
+            {
+                title:'Финальная проверка ответа по условию', link:'obj-check',
+                short:`Ответ неотрицателен, значит всё согласовано с определением модуля.`,
+                standard:`Проверяем: значение модуля всегда неотрицательно. Наш ответ ${ex.answer} действительно неотрицателен, значит раскрытие сделано правильно.`,
+                full:`Финальная проверка очень важна: модуль любого числа неотрицателен. Ответ ${ex.answer} этому свойству удовлетворяет. Другого ответа быть не может, потому что правило раскрытия модуля однозначно определяется знаком подмодульного выражения.`
+            },
+            {
+                title:'Краткий вывод', link:'obj-check',
+                short:`Ответ: ${ex.answer}.`,
+                standard:`Итак, ${ex.expression} = ${ex.answer}.`,
+                full:`Итак, после строгого сравнения и аккуратного раскрытия модуля получаем окончательный ответ: ${ex.expression} = ${ex.answer}.`
+            }
+        ];
+        return steps;
+    }
+
+    function renderSteps(ex){
+        const steps = buildSteps(ex);
+        solutionSteps.innerHTML = steps.map((step, idx)=>{
+            const hidden = currentStepMode === 'step' && idx >= visibleSteps ? 'hidden-step' : '';
+            return `<section class="step ${hidden}" tabindex="0" data-step-index="${idx}" data-link="${step.link}">
+          <div class="step-badge">${idx+1}</div>
+          <h4>${step.title}</h4>
+          <p class="detail-short">${step.short}</p>
+          <p class="detail-standard">${step.standard}</p>
+          <p class="detail-full">${step.full}</p>
+        </section>`;
+        }).join('');
+        stepCounter.textContent = `Шаг ${Math.min(visibleSteps, steps.length)} из ${steps.length}`;
+        attachStepHover();
+    }
+
+    function renderLegend(ex){
+        const items = ex.type === 'modulus'
+        ? [
+            ['s1','Число без корня'],
+            ['s2','Корень, с которым сравниваем'],
+            ['s3','Знак выражения'],
+            ['s4','Финальный ответ']
+        ]
+        : [
+            ['s1','Первая часть квадрата'],
+            ['s2','Вторая часть квадрата'],
+            ['s3','Подмодульное выражение'],
+            ['s4','Проверка ответа']
+        ];
+        legendBox.innerHTML = items.map(([cls, txt])=>`<div class="legend-item"><span class="swatch ${cls}"></span><span>${txt}</span></div>`).join('');
+        legendBox.style.display = document.getElementById('toggleLegend').checked ? 'grid' : 'none';
+    }
+
+    function escapeHtml(s){ return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+    function renderSVG(ex){
+        if(ex.type === 'modulus') renderModulusSVG(ex); else renderNestedSVG(ex);
+    }
+
+    function renderNestedSVG(ex){
+        const signChar = ex.sign === 1 ? '+' : '−';
+        const isFactor = ex.type === 'factor';
+        let leftLabel, rightLabel, leftSq, rightSq, yText;
+        if(isFactor){
+            leftLabel = `√${ex.m}`;
+            rightLabel = `√${ex.n}`;
+            leftSq = ex.m;
+            rightSq = ex.n;
+            yText = `√${ex.n}`;
+        } else {
+            leftLabel = `${ex.x}`;
+            rightLabel = `√${ex.yVal}`;
+            leftSq = ex.x * ex.x;
+            rightSq = ex.yVal;
+            yText = `√${ex.yVal}`;
+        }
+        const total = ex.a;
+        const width = 640;
+        const height = 520;
+        const pxUnit = 42;
+        const ox = 90;
+        const oy = 420;
+        const xMax = 10;
+        const yMax = 8;
+        let grid = '';
+        for(let i=0;i<=xMax;i++) grid += `<line x1="${ox + i*pxUnit}" y1="${oy - yMax*pxUnit}" x2="${ox + i*pxUnit}" y2="${oy}" />`;
+        for(let j=0;j<=yMax;j++) grid += `<line x1="${ox}" y1="${oy - j*pxUnit}" x2="${ox + xMax*pxUnit}" y2="${oy - j*pxUnit}" />`;
+
+        const curvePath = ex.sign===1
+        ? `M ${ox+40} ${oy-40} C ${ox+150} ${oy-180}, ${ox+250} ${oy-240}, ${ox+380} ${oy-260} S ${ox+520} ${oy-300}, ${ox+560} ${oy-340}`
+        : `M ${ox+40} ${oy-50} C ${ox+150} ${oy-220}, ${ox+250} ${oy-280}, ${ox+320} ${oy-220} S ${ox+470} ${oy-90}, ${ox+560} ${oy-170}`;
+
+        const html = `
+      <svg viewBox="0 0 ${width} ${height}" aria-label="Комбинированная модель вложенного корня">
+        <g class="plot-grid ${document.getElementById('toggleGrid').checked ? '' : 'hidden-vis'}">${grid}</g>
+        <line class="axis" x1="${ox}" y1="${oy}" x2="${ox + xMax*pxUnit}" y2="${oy}" />
+        <line class="axis" x1="${ox}" y1="${oy}" x2="${ox}" y2="${oy - yMax*pxUnit}" />
+        <text class="axis-label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="${ox + xMax*pxUnit - 12}" y="${oy + 28}">ось идеи</text>
+        <text class="axis-label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="${ox - 54}" y="${oy - yMax*pxUnit + 10}">сумма квадратов</text>
+
+        <rect id="obj-main" class="box-hl" x="32" y="24" width="576" height="74" rx="18"/>
+        <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="56" y="68">${escapeHtml(ex.expression)} = √( ... )</text>
+
+        <g id="obj-parts">
+          <rect x="76" y="334" width="${leftSq * 28}" height="${leftSq * 16}" fill="rgba(125,242,255,.22)" stroke="#7df2ff" stroke-width="2" rx="8"></rect>
+          <rect x="${80 + leftSq * 28}" y="334" width="${rightSq * 28}" height="${rightSq * 16}" fill="rgba(255,209,102,.22)" stroke="#ffd166" stroke-width="2" rx="8"></rect>
+          <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="84" y="326">${leftLabel}² = ${leftSq}</text>
+          <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="${84 + leftSq * 28}" y="326">${rightLabel}² = ${rightSq}</text>
+        </g>
+
+        <g id="obj-sum">
+          <path class="curve" d="${curvePath}" />
+          <circle class="marker" cx="${ox+340}" cy="${oy-230}" r="8"></circle>
+          <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="${ox+255}" y="${oy-250}">${leftSq} + ${rightSq} = ${total}</text>
+        </g>
+
+        <g id="obj-factor" class="${isFactor ? '' : 'hidden-vis'}">
+          <path class="curve2" d="M 120 126 C 188 116, 242 106, 304 116 S 424 146, 504 130" />
+          <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="126" y="114">√${ex.c} = √${ex.m} · √${ex.n}</text>
+        </g>
+
+        <g id="obj-square">
+          <rect x="118" y="150" width="390" height="68" rx="18" fill="rgba(152,245,195,.12)" stroke="#98f5c3" stroke-width="2"/>
+          <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="142" y="191">под корнем: (${escapeHtml(ex.canonical)})²</text>
+        </g>
+
+        <g id="obj-mod">
+          <path class="curve3" d="M 150 240 C 210 276, 280 294, 350 290 S 470 266, 520 236" />
+          <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="162" y="282">√(( ${escapeHtml(ex.canonical)} )²) = |${escapeHtml(ex.canonical)}|</text>
+        </g>
+
+        <g id="obj-sign">
+          <rect x="104" y="374" width="430" height="74" rx="18" fill="rgba(255,158,176,.10)" stroke="#ff9eb0" stroke-width="2"></rect>
+          <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="120" y="406">Проверка знака: ${escapeHtml(ex.signText)}</text>
+          <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="120" y="434">Ответ: ${escapeHtml(ex.answer)}</text>
+        </g>
+
+        <g id="obj-check">
+          <path class="thin" d="M 82 462 L 560 462" />
+          <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="92" y="487">Проверка: значение внешнего корня должно быть неотрицательным.</text>
+        </g>
+      </svg>`;
+        svgInner.innerHTML = html;
+    }
+
+    function renderModulusSVG(ex){
+        const width = 640;
+        const height = 480;
+        const ox = 100;
+        const oy = 250;
+        const unit = 90;
+        const rootVal = Math.sqrt(ex.modRoot);
+        const posA = ox + ex.modA * unit;
+        const posR = ox + rootVal * unit;
+        let grid='';
+        for(let i=0;i<=5;i++) grid += `<line x1="${ox + i*unit}" y1="120" x2="${ox + i*unit}" y2="360" />`;
+
+        const signPositive = ex.answer === `${ex.modA} − √${ex.modRoot}` || ex.answer === `3 − √8`;
+
+        svgInner.innerHTML = `
+      <svg viewBox="0 0 ${width} ${height}" aria-label="Числовая ось для раскрытия модуля">
+        <g class="plot-grid ${document.getElementById('toggleGrid').checked ? '' : 'hidden-vis'}">${grid}</g>
+        <g id="obj-main">
+          <rect class="box-hl" x="44" y="24" width="550" height="70" rx="18"></rect>
+          <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="60" y="65">${escapeHtml(ex.expression)}</text>
+        </g>
+
+        <g id="obj-parts">
+          <line class="axis" x1="${ox}" y1="${oy}" x2="${ox + 5*unit}" y2="${oy}" />
+          ${[0,1,2,3,4,5].map(v=>`<g><line class="axis" x1="${ox + v*unit}" y1="${oy-10}" x2="${ox + v*unit}" y2="${oy+10}" />
+          <text class="axis-label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="${ox + v*unit - 5}" y="${oy+32}">${v}</text></g>`).join('')}
+          <circle id="obj-sum" class="marker" cx="${posA}" cy="${oy}" r="8"></circle>
+          <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="${posA - 8}" y="${oy - 18}">${ex.modA}</text>
+          <circle id="obj-square" class="marker" cx="${posR}" cy="${oy}" r="8" style="stroke:#ffd166"></circle>
+          <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="${posR - 16}" y="${oy - 18}">√${ex.modRoot}</text>
+        </g>
+
+        <g id="obj-sign">
+          <path class="curve ${signPositive ? '' : 'curve2'}" d="M ${Math.min(posA,posR)} ${oy-48} C ${(posA+posR)/2} ${oy-100}, ${(posA+posR)/2} ${oy-100}, ${Math.max(posA,posR)} ${oy-48}" />
+          <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="110" y="145">${escapeHtml(ex.signText)}</text>
+        </g>
+
+        <g id="obj-mod">
+          <rect x="118" y="300" width="400" height="70" rx="18" fill="rgba(152,245,195,.12)" stroke="#98f5c3" stroke-width="2"></rect>
+          <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="135" y="342">После раскрытия модуля: ${escapeHtml(ex.answer)}</text>
+        </g>
+
+        <g id="obj-check">
+          <text class="label ${document.getElementById('toggleLabels').checked ? '' : 'hidden-vis'}" x="118" y="402">Проверка: результат модуля неотрицателен.</text>
+        </g>
+      </svg>`;
+    }
+
+    function renderCases(ex){
+        if(ex.type === 'modulus'){
+            casePanel.innerHTML = `
+          <div class="case-line"><strong>Случай 1.</strong> Если подмодульное выражение ≥ 0, то |u| = u.</div>
+          <div class="case-line"><strong>Случай 2.</strong> Если подмодульное выражение &lt; 0, то |u| = −u.</div>
+          <div class="case-line"><strong>В этой задаче.</strong> ${ex.signText}, поэтому получаем <span class="emph">${ex.answer}</span>.</div>`;
+            vizSubtitle.textContent = 'Числовая ось показывает, кто правее: число или корень.';
+            themeBadge.textContent = 'Тема: раскрытие модуля';
+        } else {
+            casePanel.innerHTML = `
+          <div class="case-line"><strong>Шаблон 1.</strong> a ± 2x√d = x² ± 2x√d + d, если a = x² + d.</div>
+          <div class="case-line"><strong>Шаблон 2.</strong> a ± 2√(mn) = (√m ± √n)², если a = m + n.</div>
+          <div class="case-line"><strong>В этой задаче.</strong> ${ex.summary}</div>`;
+            vizSubtitle.textContent = 'Модель показывает, как число без корня распадается на сумму квадратов.';
+            themeBadge.textContent = 'Тема: √(a ± b√c)';
+        }
+    }
+
+    function attachStepHover(){
+        document.querySelectorAll('.step').forEach(step=>{
+            step.addEventListener('mouseenter', ()=>highlightLink(step.dataset.link));
+            step.addEventListener('mouseleave', clearHighlights);
+            step.addEventListener('focus', ()=>highlightLink(step.dataset.link));
+            step.addEventListener('blur', clearHighlights);
+        });
+        if(linksEnabled){
+            document.querySelectorAll('#svgInner [id]').forEach(el=>{
+                el.addEventListener('mouseenter', ()=>highlightStepFromObj(el.id));
+                el.addEventListener('mouseleave', clearHighlights);
+            });
+        }
+    }
+
+    function highlightLink(id){
+        if(!linksEnabled) return;
+        clearHighlights();
+        const obj = document.getElementById(id);
+        if(obj) obj.classList.add('active-obj');
+        document.querySelectorAll(`.step[data-link="${id}"]`).forEach(x=>x.classList.add('active-link'));
+    }
+    function highlightStepFromObj(id){
+        if(!linksEnabled) return;
+        clearHighlights();
+        const obj = document.getElementById(id);
+        if(obj) obj.classList.add('active-obj');
+        document.querySelectorAll(`.step[data-link="${id}"]`).forEach(x=>x.classList.add('active-link'));
+    }
+    function clearHighlights(){
+        document.querySelectorAll('.active-obj').forEach(x=>x.classList.remove('active-obj'));
+        document.querySelectorAll('.active-link').forEach(x=>x.classList.remove('active-link'));
+    }
+
+    function buildQuiz(ex){
+        const quizData = ex.type==='modulus'
+        ? [
+            {
+                q:'Какой первый шаг нужен при раскрытии модуля?',
+                options:['Сразу убрать модуль','Определить знак подмодульного выражения','Сразу возвести всё в квадрат'],
+                correct:1,
+                explain:'Верно: сначала нужно узнать знак выражения внутри модуля.'
+            },
+            {
+                q:`Что верно для ${ex.expression}?`,
+                options:[`${ex.answer}`, `−(${ex.answer})`, 'Нельзя определить'],
+                correct:0,
+                explain:'После сравнения числа и корня модуль раскрывается однозначно.'
+            }
+        ]
+        : [
+            {
+                q:'Что обязательно появляется после перехода от √((x ± y)²)?',
+                options:['Ничего не появляется','Модуль |x ± y|','Всегда число со знаком плюс'],
+                correct:1,
+                explain:'Корень из квадрата даёт модуль, а не само выражение.'
+            },
+            {
+                q:`Какой ответ у ${ex.expression}?`,
+                options:[ex.answer, ex.canonical, 'Нельзя упростить'],
+                correct:0,
+                explain:'Нужно ещё раскрыть модуль, поэтому окончательный ответ может отличаться от выражения внутри квадрата.'
+            }
+        ];
+
+        quizBox.innerHTML = quizData.map((item, idx)=>`
+        <div class="quiz-item">
+          <div><strong>${idx+1}. ${item.q}</strong></div>
+          <div class="quiz-answers">
+            ${item.options.map((opt, oi)=>`<button class="secondary" data-quiz="${idx}" data-opt="${oi}">${opt}</button>`).join('')}
+          </div>
+          <div class="quiz-feedback" id="quizFeedback${idx}"></div>
+        </div>`).join('');
+
+        quizData.forEach((item, idx)=>{
+            quizBox.querySelectorAll(`[data-quiz="${idx}"]`).forEach(btn=>{
+                btn.addEventListener('click', ()=>{
+                    const ok = Number(btn.dataset.opt) === item.correct;
+                    const box = document.getElementById(`quizFeedback${idx}`);
+                    box.textContent = (ok ? 'Верно. ' : 'Пока нет. ') + item.explain;
+                    box.style.color = ok ? 'var(--good)' : 'var(--warn)';
+                });
+            });
+        });
+    }
+
+    function showShortChangeHint(text){
+        const target = document.getElementById('taskTypeControl');
+        let bubble = document.createElement('div');
+        bubble.className = 'tooltip tip-bottom show';
+        bubble.style.position = 'absolute';
+        bubble.style.left = '14px';
+        bubble.style.top = 'calc(100% + 8px)';
+        bubble.style.maxWidth = '300px';
+        bubble.innerHTML = `<h5>Режим обновлён</h5><p>${text}</p>`;
+        target.appendChild(bubble);
+        setTimeout(()=>bubble.remove(), 2200);
+    }
+
+    function randomChoice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    function generateTask(){
+        const type = currentType;
+        if(type === 'modulus'){
+            const a = randomChoice([1,2,3,4]);
+            const root = randomChoice([2,3,5,7,8,10,12,15]);
+            const expr = `|${a} − √${root}|`;
+            const ans = a*a > root ? `${a} − √${root}` : `√${root} − ${a}`;
+            generated = { type:'modulus', expression:expr, answer:ans, modA:a, modRoot:root, order:'a-root', signText:`${a}² = ${a*a} ${a*a > root ? '>' : '<'} ${root}, значит ${a} ${a*a > root ? '>' : '<'} √${root}` };
+        } else if(type === 'classic'){
+            const choices = [
+                {x:3,d:2,sign:-1},
+                {x:4,d:3,sign:-1},
+                {x:3,d:5,sign:1},
+                {x:5,d:7,sign:1},
+                {x:2,d:7,sign:1}
+            ];
+            const t = randomChoice(choices);
+            const a = t.x*t.x + t.d;
+            const b = 2*t.x;
+            generated = {
+                type:'classic', expression:`√(${a} ${t.sign===1?'+':'−'} ${b}√${t.d})`, a,b,c:t.d,sign:t.sign,
+                x:t.x,yType:'root',yVal:t.d,
+                canonical:`${t.x} ${t.sign===1?'+':'−'} √${t.d}`,
+                answer:(t.sign===1 || t.x*t.x > t.d) ? `${t.x} ${t.sign===1?'+':'−'} √${t.d}` : `√${t.d} − ${t.x}`,
+                signText:t.sign===1 ? `${t.x} + √${t.d} > 0` : `${t.x*t.x > t.d ? `${t.x} > √${t.d}` : `${t.x} < √${t.d}`}`
+            };
+        } else {
+            const choices = [
+                {m:2,n:7,sign:-1},
+                {m:3,n:8,sign:1},
+                {m:2,n:5,sign:1},
+                {m:5,n:6,sign:-1},
+                {m:7,n:10,sign:1}
+            ];
+            const t = randomChoice(choices);
+            const a = t.m + t.n;
+            const c = t.m * t.n;
+            generated = {
+                type:'factor', expression:`√(${a} ${t.sign===1?'+':'−'} 2√${c})`, a,b:2,c,sign:t.sign,m:t.m,n:t.n,
+                xType:'root',xVal:t.m,yType:'root',yVal:t.n,
+                canonical:`√${t.m} ${t.sign===1?'+':'−'} √${t.n}`,
+                answer:(t.sign===1 || t.n < t.m) ? `√${t.m} ${t.sign===1?'+':'−'} √${t.n}` : `√${t.n} − √${t.m}`,
+                signText:t.sign===1 ? `√${t.m} + √${t.n} > 0` : `${t.m > t.n ? `√${t.m} > √${t.n}` : `√${t.m} < √${t.n}`}`
+            };
+        }
+        generatedTask.innerHTML = `<strong>Новая задача:</strong> ${generated.expression}`;
+        const idea = generated.type==='modulus'
+        ? 'Идея: сначала строго сравнить число и корень, потом раскрыть модуль.'
+        : generated.type==='classic'
+        ? 'Идея: представить число без корня как сумму двух квадратов и узнать квадрат суммы или разности.'
+        : 'Идея: разложить внутренний корень на произведение и получить два корня, сумма квадратов которых даёт первое число.';
+        generatedAnswer.innerHTML = `<strong>Ответ:</strong> ${generated.answer}<br><span class="subtle">${idea}</span>`;
+    }
+
+    function applyGenerated(){
+        if(!generated) return;
+        const clone = JSON.parse(JSON.stringify(generated));
+        if(clone.type==='classic'){
+            clone.id='generated'; clone.title=clone.expression; clone.summary='Сгенерированная задача того же классического типа.';
+            clone.idea=['Ищем форму x² ± 2xy + y².','Проверяем сумму квадратов.','Переходим к модулю.','Определяем знак.','Получаем ответ.'];
+            clone.mistakes=['Потерять модуль.','Перепутать знак.','Не проверить сумму квадратов.','Не определить знак подмодульного выражения.'];
+        } else if(clone.type==='factor'){
+            clone.id='generated'; clone.title=clone.expression; clone.summary='Сгенерированная задача типа √m и √n.';
+            clone.idea=['Разлагаем внутренний корень на произведение.','Сопоставляем с суммой m + n.','Получаем квадрат суммы или разности.','Пишем модуль.','Проверяем знак.'];
+            clone.mistakes=['Не разложить произведение.','Спутать сумму и произведение.','Потерять модуль.','Неправильно раскрыть модуль.'];
+        } else {
+            clone.id='generated'; clone.title=clone.expression; clone.summary='Сгенерированная задача на раскрытие модуля.';
+            clone.idea=['Сначала определяем знак.','Сравниваем строго.','Только потом раскрываем модуль.'];
+            clone.mistakes=['Раскрывать модуль без знака.','Не использовать сравнение через квадраты.','Потерять скобки при минусе.'];
+        }
+        currentExample = clone;
+        visibleSteps = 1;
+        renderAll(clone, true);
+        showShortChangeHint('Сгенерированная задача применена к основной модели.');
+    }
+
+    function renderAll(ex, keepSelect=false){
+        currentExample = ex;
+        setBodyDetailClass();
+        givenExpr.textContent = ex.expression;
+        renderIdea(ex.idea);
+        renderMistakes(ex.mistakes);
+        renderSelfcheck(ex);
+        renderSteps(ex);
+        renderLegend(ex);
+        renderSVG(ex);
+        renderCases(ex);
+        buildQuiz(ex);
+        if(!keepSelect && exampleSelect.value !== ex.id && Array.from(exampleSelect.options).some(o=>o.value===ex.id)) exampleSelect.value = ex.id;
+    }
+
+    function refreshExampleFromSelectors(){
+        currentType = taskTypeSelect.value;
+        populateExamples(currentType);
+        currentExample = getCurrentExample();
+        visibleSteps = 1;
+        renderAll(currentExample);
+    }
+
+    function updateCurrent(){
+        currentExample = getCurrentExample();
+        visibleSteps = 1;
+        renderAll(currentExample);
+    }
+
+    taskTypeSelect.addEventListener('change', ()=>{
+        currentType = taskTypeSelect.value;
+        populateExamples(currentType);
+        currentExample = getCurrentExample();
+        visibleSteps = 1;
+        renderAll(currentExample);
+        showShortChangeHint('Изменился тип разбора: обновились и модель, и шаги решения.');
+    });
+
+    exampleSelect.addEventListener('change', ()=>{
+        updateCurrent();
+        showShortChangeHint('Выбран новый пример для подробного разбора.');
+    });
+
+    detailLevel.addEventListener('change', ()=>{
+        currentDetail = detailLevel.value;
+        setBodyDetailClass();
+    });
+
+    stepMode.addEventListener('change', ()=>{
+        currentStepMode = stepMode.value;
+        visibleSteps = currentStepMode === 'all' ? buildSteps(currentExample).length : 1;
+        renderSteps(currentExample);
+    });
+
+    document.getElementById('nextStepBtn').addEventListener('click', ()=>{
+        const total = buildSteps(currentExample).length;
+        currentStepMode = 'step';
+        stepMode.value = 'step';
+        if(visibleSteps < total) visibleSteps++;
+        renderSteps(currentExample);
+    });
+
+    document.getElementById('revealAllBtn').addEventListener('click', ()=>{
+        currentStepMode = 'all';
+        stepMode.value = 'all';
+        visibleSteps = buildSteps(currentExample).length;
+        renderSteps(currentExample);
+    });
+
+    document.getElementById('generateBtn').addEventListener('click', ()=>{ generateTask(); showShortChangeHint('Новая похожая задача готова.'); });
+    document.getElementById('applyGeneratedBtn').addEventListener('click', applyGenerated);
+
+    const zoomRange = document.getElementById('zoomRange');
+    const zoomVal = document.getElementById('zoomVal');
+    function setZoom(v){
+        const clamped = Math.max(.7, Math.min(1.8, Number(v)));
+        document.documentElement.style.setProperty('--zoom', clamped);
+        zoomRange.value = clamped;
+        zoomVal.textContent = Math.round(clamped*100) + '%';
+    }
+    zoomRange.addEventListener('input', e=>setZoom(e.target.value));
+    document.getElementById('zoomInBtn').addEventListener('click', ()=>setZoom(Number(zoomRange.value)+.1));
+    document.getElementById('zoomOutBtn').addEventListener('click', ()=>setZoom(Number(zoomRange.value)-.1));
+    document.getElementById('zoomResetBtn').addEventListener('click', ()=>setZoom(1));
+
+    document.getElementById('svgWrap').addEventListener('wheel', (e)=>{
+        e.preventDefault();
+        const delta = e.deltaY < 0 ? .06 : -.06;
+        setZoom(Number(zoomRange.value) + delta);
+    }, {passive:false});
+
+    document.getElementById('toggleGrid').addEventListener('change', ()=>renderSVG(currentExample));
+    document.getElementById('toggleLabels').addEventListener('change', ()=>renderSVG(currentExample));
+    document.getElementById('toggleLegend').addEventListener('change', ()=>renderLegend(currentExample));
+    document.getElementById('toggleLinks').addEventListener('change', (e)=>{ linksEnabled = e.target.checked; clearHighlights(); });
+
+    function closeAllTips(){
+        document.querySelectorAll('.tooltip.show').forEach(t=>{
+            t.classList.remove('show');
+            t.setAttribute('aria-hidden','true');
+        });
+    }
+    let tipTimer = null;
+    function scheduleTipAutohide(){
+        clearTimeout(tipTimer);
+        tipTimer = setTimeout(closeAllTips, 15000);
+    }
+    document.querySelectorAll('.hint-trigger').forEach(trigger=>{
+        const tip = document.getElementById(trigger.dataset.tip);
+        const open = ()=>{ closeAllTips(); tip.classList.add('show'); tip.setAttribute('aria-hidden','false'); scheduleTipAutohide(); };
+        const close = ()=>{ tip.classList.remove('show'); tip.setAttribute('aria-hidden','true'); };
+        trigger.addEventListener('mouseenter', open);
+        trigger.addEventListener('focus', open);
+        trigger.addEventListener('click', (e)=>{ e.stopPropagation(); tip.classList.contains('show') ? close() : open(); });
+        tip.querySelector('.close-tip')?.addEventListener('click', close);
+    });
+    document.addEventListener('click', (e)=>{ if(!e.target.closest('.tooltip') && !e.target.closest('.hint-trigger')) closeAllTips(); });
+    document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeAllTips(); });
+
+    document.querySelectorAll('[data-action]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+            const a = btn.dataset.action;
+            if(a==='set-type'){
+                taskTypeSelect.value = btn.dataset.value;
+                taskTypeSelect.dispatchEvent(new Event('change'));
+            }
+            if(a==='show-example'){
+                exampleSelect.selectedIndex = 0;
+                exampleSelect.dispatchEvent(new Event('change'));
+            }
+            if(a==='generate-now') document.getElementById('generateBtn').click();
+            if(a==='apply-generated') document.getElementById('applyGeneratedBtn').click();
+            if(a==='zoom-in') document.getElementById('zoomInBtn').click();
+            if(a==='zoom-reset') document.getElementById('zoomResetBtn').click();
+            if(a==='toggle-links'){
+                const box = document.getElementById('toggleLinks');
+                box.checked = !box.checked;
+                box.dispatchEvent(new Event('change'));
+            }
+        });
+    });
+
+    function firstSessionHint(){
+        if(sessionStorage.getItem('nested-root-hint-shown')) return;
+        setTimeout(()=>{
+            const trigger = document.querySelector('#taskTypeControl .hint-trigger');
+            if(trigger){
+                trigger.classList.add('auto-hint-target');
+                trigger.dispatchEvent(new Event('mouseenter'));
+                sessionStorage.setItem('nested-root-hint-shown','1');
+                setTimeout(()=>trigger.classList.remove('auto-hint-target'), 4000);
+            }
+        }, 3000);
+    }
+
+    populateExamples(currentType);
+    currentExample = getCurrentExample();
+    renderAll(currentExample);
+    setZoom(1);
+    generateTask();
+    firstSessionHint();
+</script>
+</body>
+</html>
