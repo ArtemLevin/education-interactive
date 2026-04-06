@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — график параболы</title>
+    <style>
+        :root{
+            --bg:#071019;
+            --bg2:#0d1722;
+            --panel:#101b29;
+            --panel2:#132235;
+            --ink:#e9f1f8;
+            --muted:#9fb2c6;
+            --line:#203246;
+            --accent:#62d6ff;
+            --accent2:#4ee0c1;
+            --accent3:#ffd166;
+            --danger:#ff7a90;
+            --ok:#85f0a7;
+            --shadow:0 16px 40px rgba(0,0,0,.28);
+            --radius:22px;
+            --stepGap:16px;
+            --stickyTop:18px;
+            --graphScale:1;
+            --focus:#9fe7ff;
+            --printInk:#111;
+            --printBg:#fff;
+        }
+
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background:
+            radial-gradient(circle at top left, rgba(98,214,255,.11), transparent 22%),
+            radial-gradient(circle at top right, rgba(78,224,193,.08), transparent 20%),
+            linear-gradient(180deg,var(--bg),#09131d 55%, #071019);
+            color:var(--ink);
+            line-height:1.55;
+        }
+
+        .page-shell{
+            max-width:1500px;
+            margin:0 auto;
+            padding:20px 18px 60px;
+        }
+
+        .topbar{
+            display:flex;
+            gap:14px;
+            align-items:center;
+            justify-content:space-between;
+            padding:14px 16px;
+            margin-bottom:18px;
+            background:linear-gradient(180deg, rgba(18,30,45,.86), rgba(12,22,34,.86));
+            border:1px solid rgba(120,160,190,.16);
+            border-radius:20px;
+            box-shadow:var(--shadow);
+            position:sticky;
+            top:10px;
+            z-index:40;
+            backdrop-filter: blur(10px);
+        }
+
+        .brand h1{
+            margin:0;
+            font-size:clamp(1.15rem,2.2vw,1.8rem);
+            letter-spacing:.01em;
+        }
+        .brand p{
+            margin:.2rem 0 0;
+            color:var(--muted);
+            font-size:.95rem;
+        }
+
+        .top-actions{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            align-items:center;
+            justify-content:flex-end;
+        }
+
+        button, select, input[type="range"]{
+            font:inherit;
+        }
+
+        .btn, .chip, .toggle, .small-btn{
+            border:1px solid rgba(130,180,210,.18);
+            background:linear-gradient(180deg, #142437, #0f1c2b);
+            color:var(--ink);
+            border-radius:14px;
+            transition:.22s ease;
+        }
+
+        .btn, .small-btn{
+            cursor:pointer;
+            box-shadow:0 6px 18px rgba(0,0,0,.18);
+        }
+
+        .btn{
+            padding:11px 15px;
+            font-weight:650;
+        }
+
+        .small-btn{
+            padding:8px 11px;
+            font-size:.95rem;
+        }
+
+        .btn:hover, .small-btn:hover, .chip:hover, .toggle:hover, select:hover{
+            border-color:rgba(98,214,255,.45);
+            transform:translateY(-1px);
+        }
+
+        .btn.primary{
+            background:linear-gradient(135deg, rgba(98,214,255,.18), rgba(78,224,193,.14), rgba(98,214,255,.10));
+            border-color:rgba(98,214,255,.42);
+        }
+
+        .control-select{
+            padding:10px 38px 10px 12px;
+            border-radius:14px;
+            color:var(--ink);
+            background:
+            linear-gradient(180deg, #142437, #0f1c2b);
+            border:1px solid rgba(130,180,210,.18);
+            min-width:200px;
+            appearance:none;
+            background-image:
+            linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+            linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+            background-position:
+            calc(100% - 18px) calc(50% - 3px),
+            calc(100% - 12px) calc(50% - 3px);
+            background-size:6px 6px, 6px 6px;
+            background-repeat:no-repeat;
+        }
+
+        .workspace{
+            display:grid;
+            grid-template-columns:minmax(0,1.1fr) minmax(360px,.9fr);
+            gap:22px;
+            align-items:start;
+        }
+
+        .left-col, .right-col{
+            min-width:0;
+        }
+
+        .panel{
+            background:linear-gradient(180deg, rgba(18,30,45,.9), rgba(12,21,33,.95));
+            border:1px solid rgba(130,180,210,.16);
+            border-radius:var(--radius);
+            box-shadow:var(--shadow);
+        }
+
+        .hero{
+            padding:24px;
+            margin-bottom:20px;
+            position:relative;
+            overflow:hidden;
+        }
+
+        .hero::after{
+            content:"";
+            position:absolute;
+            inset:auto -8% -40% auto;
+            width:320px;
+            height:320px;
+            background:radial-gradient(circle, rgba(98,214,255,.14), transparent 65%);
+            pointer-events:none;
+        }
+
+        .hero h2{
+            margin:.1rem 0 .4rem;
+            font-size:clamp(1.3rem,2.6vw,2rem);
+        }
+
+        .meta-grid{
+            display:grid;
+            grid-template-columns:repeat(3,minmax(0,1fr));
+            gap:10px;
+            margin-top:18px;
+        }
+
+        .meta-card{
+            background:rgba(255,255,255,.025);
+            border:1px solid rgba(140,180,210,.12);
+            border-radius:18px;
+            padding:12px 14px;
+        }
+
+        .meta-card span{display:block;color:var(--muted);font-size:.9rem}
+        .meta-card strong{display:block;margin-top:4px}
+
+        .tabs{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-bottom:16px;
+        }
+
+        .chip{
+            padding:9px 13px;
+            cursor:pointer;
+        }
+        .chip.active{
+            border-color:rgba(98,214,255,.46);
+            background:linear-gradient(180deg, rgba(98,214,255,.16), rgba(78,224,193,.12));
+            box-shadow:0 0 0 1px rgba(98,214,255,.22) inset;
+        }
+
+        .content-card{
+            padding:22px;
+            margin-bottom:18px;
+        }
+
+        .section-title{
+            margin:0 0 14px;
+            font-size:1.15rem;
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+
+        .section-title::before{
+            content:"";
+            width:4px;
+            align-self:stretch;
+            border-radius:999px;
+            background:linear-gradient(180deg, var(--accent), var(--accent2));
+            box-shadow:0 0 14px rgba(98,214,255,.45);
+        }
+
+        .idea-list, .mistakes-list, .quiz-list, .check-list{
+            display:grid;
+            gap:10px;
+            padding:0;
+            margin:0;
+            list-style:none;
+        }
+
+        .idea-list li, .mistakes-list li, .quiz-item, .check-item{
+            border:1px solid rgba(130,180,210,.15);
+            background:rgba(255,255,255,.024);
+            border-radius:16px;
+            padding:12px 14px;
+        }
+
+        .stepper-controls{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-bottom:16px;
+            align-items:center;
+        }
+
+        .toggle{
+            padding:9px 12px;
+            cursor:pointer;
+            user-select:none;
+        }
+        .toggle.active{
+            border-color:rgba(98,214,255,.46);
+            box-shadow:0 0 0 1px rgba(98,214,255,.2) inset;
+            background:linear-gradient(180deg, rgba(98,214,255,.16), rgba(98,214,255,.08));
+        }
+
+        .step-list{
+            display:grid;
+            gap:var(--stepGap);
+        }
+
+        .step{
+            border:1px solid rgba(130,180,210,.16);
+            border-radius:20px;
+            padding:16px 16px 16px 18px;
+            background:linear-gradient(180deg, rgba(255,255,255,.028), rgba(255,255,255,.015));
+            position:relative;
+            transition:.25s ease;
+        }
+
+        .step::before{
+            content:"";
+            position:absolute;
+            left:0;
+            top:14px;
+            bottom:14px;
+            width:4px;
+            border-radius:999px;
+            background:linear-gradient(180deg,var(--accent),var(--accent2));
+            opacity:.9;
+        }
+
+        .step h4{
+            margin:0 0 8px;
+            font-size:1.03rem;
+            display:flex;
+            align-items:center;
+            gap:10px;
+            flex-wrap:wrap;
+        }
+
+        .step-badge{
+            padding:4px 9px;
+            border-radius:999px;
+            font-size:.82rem;
+            background:rgba(98,214,255,.12);
+            color:#bfeeff;
+            border:1px solid rgba(98,214,255,.22);
+        }
+
+        .math, .formula-block{
+            font-family:"Segoe UI", Arial, sans-serif;
+            letter-spacing:.01em;
+        }
+
+        .formula-block{
+            display:block;
+            margin:10px 0;
+            padding:10px 12px;
+            border-radius:14px;
+            background:rgba(98,214,255,.07);
+            border:1px solid rgba(98,214,255,.18);
+            overflow:auto;
+        }
+
+        .highlight-link{
+            display:inline-flex;
+            gap:8px;
+            align-items:center;
+            padding:4px 8px;
+            border-radius:999px;
+            background:rgba(255,255,255,.04);
+            border:1px dashed rgba(98,214,255,.26);
+            color:#d7f6ff;
+            cursor:pointer;
+            transition:.2s ease;
+            white-space:nowrap;
+        }
+
+        .highlight-link:hover, .step.active, .legend-item.active, .graph-hotspot.active{
+            box-shadow:0 0 0 1px rgba(98,214,255,.28) inset, 0 0 24px rgba(98,214,255,.08);
+            border-color:rgba(98,214,255,.38);
+        }
+
+        .inline-grid{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:12px;
+        }
+
+        .right-col .sticky-wrap{
+            position:sticky;
+            top:var(--stickyTop);
+            display:grid;
+            gap:18px;
+        }
+
+        .graph-panel{
+            padding:16px;
+            overflow:hidden;
+        }
+
+        .graph-stage{
+            border-radius:20px;
+            border:1px solid rgba(130,180,210,.16);
+            background:
+            radial-gradient(circle at 50% 0%, rgba(98,214,255,.06), transparent 35%),
+            linear-gradient(180deg, rgba(6,16,25,.92), rgba(10,18,28,.98));
+            min-height:540px;
+            display:flex;
+            flex-direction:column;
+            gap:12px;
+            padding:14px;
+        }
+
+        .graph-tools{
+            display:grid;
+            grid-template-columns:1fr auto;
+            gap:12px;
+            align-items:center;
+        }
+
+        .tool-row{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+            align-items:center;
+        }
+
+        .checkbox-row{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+        }
+
+        .check-pill{
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            padding:8px 10px;
+            border-radius:999px;
+            border:1px solid rgba(130,180,210,.16);
+            background:rgba(255,255,255,.03);
+            cursor:pointer;
+            user-select:none;
+        }
+
+        .check-pill input{accent-color:var(--accent)}
+
+        .graph-wrap{
+            position:relative;
+            flex:1;
+            min-height:390px;
+            border-radius:18px;
+            overflow:hidden;
+            border:1px solid rgba(130,180,210,.12);
+            background:linear-gradient(180deg, #09131d, #08111a);
+        }
+
+        svg#graphSvg{
+            width:100%;
+            height:100%;
+            display:block;
+            touch-action:none;
+            cursor:grab;
+            background:
+            linear-gradient(180deg, rgba(255,255,255,.01), rgba(255,255,255,0));
+        }
+        svg#graphSvg.dragging{cursor:grabbing}
+
+        .legend{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:10px;
+        }
+
+        .legend-item{
+            display:flex;
+            gap:10px;
+            align-items:flex-start;
+            padding:10px 12px;
+            border-radius:16px;
+            background:rgba(255,255,255,.028);
+            border:1px solid rgba(130,180,210,.14);
+            cursor:pointer;
+            transition:.2s ease;
+        }
+
+        .legend-swatch{
+            width:14px;
+            height:14px;
+            border-radius:999px;
+            margin-top:4px;
+            box-shadow:0 0 12px rgba(255,255,255,.08);
+            flex:0 0 auto;
+        }
+
+        .hint-trigger{
+            position:relative;
+            width:24px;
+            height:24px;
+            display:inline-grid;
+            place-items:center;
+            border-radius:999px;
+            font-size:.82rem;
+            font-weight:800;
+            color:#04131a;
+            background:linear-gradient(135deg,var(--accent),var(--accent2));
+            cursor:pointer;
+            user-select:none;
+            animation:hintPulse 2.6s infinite;
+            box-shadow:0 0 0 0 rgba(98,214,255,.35);
+            outline:none;
+        }
+
+        @keyframes hintPulse{
+            0%{box-shadow:0 0 0 0 rgba(98,214,255,.42), 0 0 10px rgba(98,214,255,.24)}
+            70%{box-shadow:0 0 0 12px rgba(98,214,255,0), 0 0 22px rgba(98,214,255,.08)}
+            100%{box-shadow:0 0 0 0 rgba(98,214,255,0), 0 0 10px rgba(98,214,255,.16)}
+        }
+
+        @keyframes hintBounce{
+            0%,100%{transform:translateY(0) scale(1)}
+            30%{transform:translateY(-3px) scale(1.05)}
+            60%{transform:translateY(1px) scale(.98)}
+        }
+
+        @keyframes borderGlow{
+            0%,100%{box-shadow:0 0 0 0 rgba(98,214,255,.0), 0 0 0 1px rgba(98,214,255,.24) inset}
+            50%{box-shadow:0 0 0 8px rgba(98,214,255,.0), 0 0 22px rgba(98,214,255,.16), 0 0 0 1px rgba(98,214,255,.42) inset}
+        }
+
+        .glow-frame{
+            animation:borderGlow 2.2s ease-in-out 2;
+        }
+
+        .tooltip{
+            position:fixed;
+            min-width:250px;
+            max-width:min(360px, 92vw);
+            z-index:80;
+            padding:14px 14px 12px;
+            border-radius:18px;
+            background:linear-gradient(180deg, rgba(10,20,30,.98), rgba(8,18,28,.98));
+            color:var(--ink);
+            border:1px solid transparent;
+            background-clip:padding-box;
+            box-shadow:0 24px 50px rgba(0,0,0,.36);
+            opacity:0;
+            pointer-events:none;
+            transform:translateY(8px) scale(.98);
+            transition:opacity .22s ease, transform .22s ease;
+        }
+
+        .tooltip::before{
+            content:"";
+            position:absolute;
+            inset:0;
+            border-radius:18px;
+            padding:1px;
+            background:linear-gradient(135deg, rgba(98,214,255,.8), rgba(78,224,193,.7));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite:xor;
+            mask-composite:exclude;
+            pointer-events:none;
+        }
+
+        .tooltip.visible{
+            opacity:1;
+            pointer-events:auto;
+            transform:translateY(0) scale(1);
+        }
+
+        .tooltip-header{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+            margin-bottom:8px;
+        }
+
+        .tooltip h5{margin:0;font-size:1rem}
+        .tooltip .close-tip{
+            background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:0 4px;
+        }
+
+        .tooltip-actions{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+            margin-top:12px;
+        }
+
+        .tooltip-arrow{
+            position:absolute;
+            width:14px;height:14px;
+            background:linear-gradient(135deg, rgba(98,214,255,.75), rgba(78,224,193,.7));
+            transform:rotate(45deg);
+            z-index:-1;
+        }
+
+        .tip-math{
+            display:block;
+            margin:8px 0;
+            padding:8px 10px;
+            border-radius:12px;
+            background:rgba(98,214,255,.07);
+            border:1px solid rgba(98,214,255,.14);
+            overflow:auto;
+        }
+
+        .generator-card .task-box,
+        .generator-card .answer-box,
+        .generator-card .mini-idea{
+            border-radius:16px;
+            border:1px solid rgba(130,180,210,.14);
+            background:rgba(255,255,255,.028);
+            padding:14px;
+            margin-top:12px;
+        }
+
+        .quiz-grid{
+            display:grid;
+            gap:12px;
+        }
+
+        .quiz-item.correct{border-color:rgba(133,240,167,.44); box-shadow:0 0 0 1px rgba(133,240,167,.16) inset}
+        .quiz-item.wrong{border-color:rgba(255,122,144,.44); box-shadow:0 0 0 1px rgba(255,122,144,.12) inset}
+
+        .option-row{display:grid; gap:8px; margin-top:10px}
+        .option-btn{
+            width:100%; text-align:left; padding:10px 12px; border-radius:14px; cursor:pointer;
+            border:1px solid rgba(130,180,210,.16); background:rgba(255,255,255,.03); color:var(--ink);
+            transition:.2s ease;
+        }
+        .option-btn:hover{border-color:rgba(98,214,255,.4)}
+        .option-btn.selected{border-color:rgba(98,214,255,.5); background:rgba(98,214,255,.08)}
+
+        .selfcheck-grid{
+            display:grid;
+            gap:10px;
+        }
+
+        .badge-line{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+            margin-top:10px;
+        }
+
+        .pill{
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            padding:7px 10px;
+            border-radius:999px;
+            background:rgba(255,255,255,.04);
+            border:1px solid rgba(130,180,210,.14);
+            color:var(--muted);
+            font-size:.92rem;
+        }
+
+        .focus-target[data-focus], .graph-hotspot[data-target]{transition:.2s ease}
+        .focus-target.is-linked{
+            outline:1px solid rgba(98,214,255,.46);
+            box-shadow:0 0 0 4px rgba(98,214,255,.08), 0 0 24px rgba(98,214,255,.12);
+            background:rgba(98,214,255,.05);
+        }
+
+        .step.hidden-by-mode{display:none}
+
+        .foot-note{font-size:.95rem;color:var(--muted)}
+
+        .compact-system{
+            display:inline-grid;
+            grid-template-columns:auto 1fr;
+            gap:10px;
+            align-items:start;
+            padding:6px 10px;
+            border-radius:12px;
+            background:rgba(255,255,255,.03);
+            border:1px solid rgba(130,180,210,.14);
+            margin:8px 0;
+        }
+        .compact-system .brace{
+            font-size:1.55rem;
+            line-height:1;
+            transform:translateY(-1px);
+            color:#c6eefe;
+        }
+        .compact-system .lines{line-height:1.4}
+
+        .topic-panel{display:none}
+        .topic-panel.active{display:block}
+
+        @media (max-width: 1120px){
+            .workspace{grid-template-columns:1fr}
+            .right-col .sticky-wrap{position:relative; top:0}
+            .graph-stage{min-height:unset}
+            .legend{grid-template-columns:1fr}
+        }
+
+        @media (max-width: 760px){
+            .page-shell{padding:14px 12px 44px}
+            .topbar{padding:12px; position:relative; top:0}
+            .top-actions{justify-content:flex-start}
+            .graph-tools{grid-template-columns:1fr}
+            .meta-grid, .inline-grid{grid-template-columns:1fr}
+            .content-card, .hero, .graph-panel{padding:16px}
+            .graph-wrap{min-height:320px}
+            .tooltip{max-width:92vw; min-width:unset}
+        }
+
+        @media print{
+            :root{--bg:#fff;--ink:#111;--muted:#444;--panel:#fff;--panel2:#fff;--line:#bbb}
+            body{background:#fff;color:#111}
+            .topbar,.hint-trigger,.tooltip,.graph-tools .tool-row .small-btn,.generator-actions,.quiz-actions,.selfcheck-actions,.top-actions{display:none !important}
+            .workspace{grid-template-columns:1fr}
+            .right-col .sticky-wrap{position:relative;top:0}
+            .panel{box-shadow:none;border:1px solid #cfcfcf;background:#fff}
+            .graph-wrap{min-height:420px;background:#fff}
+            .hero::after{display:none}
+            a{color:#111;text-decoration:none}
+        }
+    </style>
+</head>
+<body>
+<div class="page-shell">
+    <div class="topbar">
+        <div class="brand">
+            <h1>График параболы: от y = x² к y = a·x²</h1>
+            <p>Объяснение с нуля • базовый уровень • максимум наглядности • только школьные методы</p>
+        </div>
+        <div class="top-actions">
+            <label>
+                <span class="visually-hidden" style="position:absolute;left:-9999px">Выбор темы</span>
+                <select id="topicSelect" class="control-select" aria-label="Выбор темы">
+                    <option value="main">Основной разбор</option>
+                    <option value="theory">Теория по мотивам пособия</option>
+                </select>
+            </label>
+            <button id="printBtn" class="btn">Печать</button>
+        </div>
+    </div>
+
+    <div class="workspace">
+        <div class="left-col">
+            <section class="panel hero">
+                <div class="badge-line">
+                    <span class="pill">Цель: объяснение с нуля</span>
+                    <span class="pill">Фокус: графическая интерпретация</span>
+                    <span class="pill">Визуализация: комбинированная модель</span>
+                </div>
+                <h2>Как по графику y = x² быстро строить графики y = a·x²</h2>
+                <p>
+                    Эта страница развивает идею из пособия: мы берём базовую параболу <span class="math">y = x²</span>
+                    и учимся по ней строить новые графики. Главная мысль очень простая: <strong>абсциссы остаются прежними, а ординаты умножаются на коэффициент a</strong>.
+                </p>
+                <div class="meta-grid">
+                    <div class="meta-card"><span>Что изучаем</span><strong>влияние коэффициента a</strong></div>
+                    <div class="meta-card"><span>Что тренируем</span><strong>сравнение формы парабол</strong></div>
+                    <div class="meta-card"><span>Что важно не перепутать</span><strong>x не меняются, меняются только y</strong></div>
+                </div>
+            </section>
+
+            <div class="tabs" id="tabBar" aria-label="Переключение содержимого">
+                <button class="chip active" data-tab="main">Разбор задачи</button>
+                <button class="chip" data-tab="theory">Короткая теория</button>
+                <button class="chip" data-tab="training">Похожая задача</button>
+                <button class="chip" data-tab="quiz">Мини-квиз</button>
+                <button class="chip" data-tab="selfcheck">Самопроверка</button>
+            </div>
+
+            <section class="topic-panel active" data-topic-panel="main">
+                <article class="panel content-card">
+                    <h3 class="section-title">Идея решения</h3>
+                    <ul class="idea-list">
+                        <li>Сначала строим известную параболу <strong>y = x²</strong> по нескольким удобным точкам.</li>
+                        <li>Потом для новой функции <strong>y = a·x²</strong> оставляем те же x, а каждое значение y умножаем на число a.</li>
+                        <li>Если <strong>a &lt; 0</strong>, ветви идут вниз. Если <strong>|a| &gt; 1</strong>, парабола уже. Если <strong>0 &lt; |a| &lt; 1</strong>, она шире.</li>
+                        <li>Поэтому обе части задачи решаются одним и тем же методом: по опорным точкам базовой параболы.</li>
+                    </ul>
+                </article>
+
+                <article class="panel content-card">
+                    <div class="stepper-controls">
+                        <strong>Подробность:</strong>
+                        <button class="toggle" data-detail="short">Кратко</button>
+                        <button class="toggle active" data-detail="standard">Стандартно</button>
+                        <button class="toggle" data-detail="full">Очень подробно</button>
+                        <span style="width:18px"></span>
+                        <strong>Режим показа:</strong>
+                        <button id="stepModeBtn" class="toggle active">Пошаговое раскрытие</button>
+                        <button id="showAllBtn" class="toggle">Показать всё</button>
+                    </div>
+
+                    <h3 class="section-title">Полный разбор основной задачи</h3>
+                    <div class="step-list" id="stepList">
+                        <section class="step focus-target" data-step="1" data-focus="base">
+                            <h4><span class="step-badge">1</span> Что дано</h4>
+                            <p>Нужно построить график функции <span class="math">y = x²</span> и по нему получить графики функций:</p>
+                            <div class="formula-block">а) y = −3x² &nbsp;&nbsp;&nbsp; б) y = 1/5·x²</div>
+                            <p class="detail-standard detail-full">Значит, сначала у нас будет исходная парабола, а затем два её преобразования.</p>
+                            <p class="detail-full">Обе новые функции имеют тот же вид <span class="math">y = a·x²</span>, поэтому вершина останется в начале координат, а графики будут симметричны относительно оси Oy.</p>
+                        </section>
+
+                        <section class="step focus-target" data-step="2" data-focus="meaning">
+                            <h4><span class="step-badge">2</span> Что означает каждое условие</h4>
+                            <p>В записи <span class="math">y = a·x²</span> число <span class="math">a</span> влияет только на значения <span class="math">y</span>.</p>
+                            <div class="inline-grid">
+                                <div class="formula-block">Если a = −3, то каждую ординату умножаем на −3.</div>
+                                <div class="formula-block">Если a = 1/5, то каждую ординату умножаем на 1/5.</div>
+                            </div>
+                            <p class="detail-standard detail-full">Знак коэффициента отвечает за направление ветвей, а модуль коэффициента отвечает за «сжатие» или «растяжение» по вертикали.</p>
+                            <p class="detail-full">По сути мы не переходим к новой формуле с нуля, а перерабатываем уже готовый график: каждую точку (x; y) заменяем точкой (x; a·y).</p>
+                        </section>
+
+                        <section class="step focus-target" data-step="3" data-focus="points">
+                            <h4><span class="step-badge">3</span> Графическая интерпретация</h4>
+                            <p>Возьмём удобные точки базовой параболы:</p>
+                            <div class="formula-block">(−2; 4), (−1; 1), (0; 0), (1; 1), (2; 4)</div>
+                            <p class="detail-standard detail-full">Эти точки легко вычислить, потому что нужно просто возвести x в квадрат.</p>
+                            <p class="detail-full">Чем дальше точка от нуля по оси x, тем быстрее растёт значение x². Поэтому точки при x = ±2 уже дают ординату 4 и хорошо показывают форму параболы.</p>
+                        </section>
+
+                        <section class="step focus-target" data-step="4" data-focus="neg3">
+                            <h4><span class="step-badge">4</span> Ключевая идея для графика y = −3x²</h4>
+                            <p>Меняем только ординаты: умножаем их на −3.</p>
+                            <div class="formula-block">4 → −12, 1 → −3, 0 → 0</div>
+                            <p class="detail-standard detail-full">Получаем точки: (−2; −12), (−1; −3), (0; 0), (1; −3), (2; −12).</p>
+                            <p class="detail-full">Минус отражает параболу относительно оси Ox, а число 3 делает её уже: точки уходят дальше от оси Ox по вертикали.</p>
+                        </section>
+
+                        <section class="step focus-target" data-step="5" data-focus="onefifth">
+                            <h4><span class="step-badge">5</span> Ключевая идея для графика y = 1/5·x²</h4>
+                            <p>Снова меняем только ординаты: теперь умножаем их на 1/5.</p>
+                            <div class="formula-block">4 → 4/5, 1 → 1/5, 0 → 0</div>
+                            <p class="detail-standard detail-full">Получаем точки: (−2; 4/5), (−1; 1/5), (0; 0), (1; 1/5), (2; 4/5).</p>
+                            <p class="detail-full">Так как модуль коэффициента меньше 1, точки приближаются к оси Ox. Поэтому парабола выглядит шире базовой.</p>
+                        </section>
+
+                        <section class="step focus-target" data-step="6" data-focus="check">
+                            <h4><span class="step-badge">6</span> Пошаговое доведение до ответа</h4>
+                            <p>Теперь соединяем полученные точки плавными линиями, сохраняя симметрию относительно оси Oy.</p>
+                            <ul>
+                                <li><span class="highlight-link" data-target="base">y = x²</span> — базовая парабола, ветви вверх.</li>
+                                <li><span class="highlight-link" data-target="neg3">y = −3x²</span> — ветви вниз, парабола уже.</li>
+                                <li><span class="highlight-link" data-target="onefifth">y = 1/5·x²</span> — ветви вверх, парабола шире.</li>
+                            </ul>
+                            <p class="detail-full">Очень важно соединять точки именно плавной кривой, а не ломаной. Парабола не имеет углов.</p>
+                        </section>
+
+                        <section class="step focus-target" data-step="7" data-focus="verify">
+                            <h4><span class="step-badge">7</span> Финальная проверка</h4>
+                            <p>Проверим ключевые признаки:</p>
+                            <ul>
+                                <li>у всех трёх графиков вершина в точке (0; 0);</li>
+                                <li>у графика y = −3x² ветви вниз, потому что коэффициент отрицательный;</li>
+                                <li>у графика y = 1/5·x² ветви вверх, потому что коэффициент положительный;</li>
+                                <li>график y = −3x² уже, а y = 1/5·x² шире по сравнению с y = x².</li>
+                            </ul>
+                            <p class="detail-full">Других вариантов быть не может, потому что вид параболы полностью определяется знаком и модулем коэффициента a.</p>
+                        </section>
+
+                        <section class="step focus-target" data-step="8" data-focus="answer">
+                            <h4><span class="step-badge">8</span> Краткий вывод</h4>
+                            <p>Чтобы построить график <span class="math">y = a·x²</span> по графику <span class="math">y = x²</span>, нужно:</p>
+                            <div class="formula-block">оставить x прежними и умножить все y на a.</div>
+                            <p><strong>Ответ:</strong> график <span class="math">y = −3x²</span> — парабола вниз и уже базовой; график <span class="math">y = 1/5·x²</span> — парабола вверх и шире базовой.</p>
+                        </section>
+                    </div>
+                </article>
+
+                <article class="panel content-card">
+                    <h3 class="section-title">Типичные ошибки</h3>
+                    <ul class="mistakes-list">
+                        <li><strong>Ошибка 1.</strong> Умножать не только y, но и x. Это неверно: при переходе от y = x² к y = a·x² меняются только ординаты.</li>
+                        <li><strong>Ошибка 2.</strong> Считать, что коэффициент −3 только делает график уже, но не меняет направление ветвей. Минус обязательно переворачивает параболу вниз.</li>
+                        <li><strong>Ошибка 3.</strong> Думать, что коэффициент 1/5 делает график уже. Наоборот: при 0 &lt; |a| &lt; 1 парабола становится шире.</li>
+                        <li><strong>Ошибка 4.</strong> Соединять точки ломаной. График квадратичной функции должен быть плавной кривой.</li>
+                    </ul>
+                </article>
+            </section>
+
+            <section class="topic-panel" data-topic-panel="theory">
+                <article class="panel content-card">
+                    <h3 class="section-title">Теория по мотивам пособия</h3>
+                    <div class="step-list">
+                        <section class="step">
+                            <h4><span class="step-badge">Теория 1</span> Базовая парабола</h4>
+                            <p>График функции <span class="math">y = x²</span> — это парабола с вершиной в точке (0; 0). Она симметрична относительно оси Oy.</p>
+                        </section>
+                        <section class="step">
+                            <h4><span class="step-badge">Теория 2</span> Влияние коэффициента</h4>
+                            <p>В функции <span class="math">y = a·x²</span> число a меняет только ординаты. Если точка (x; y) лежит на графике y = x², то точка (x; a·y) лежит на графике y = a·x².</p>
+                        </section>
+                        <section class="step">
+                            <h4><span class="step-badge">Теория 3</span> Направление ветвей</h4>
+                            <p>Если <span class="math">a &gt; 0</span>, ветви направлены вверх. Если <span class="math">a &lt; 0</span>, ветви направлены вниз.</p>
+                        </section>
+                        <section class="step">
+                            <h4><span class="step-badge">Теория 4</span> Ширина параболы</h4>
+                            <p>Если <span class="math">|a| &gt; 1</span>, парабола уже. Если <span class="math">0 &lt; |a| &lt; 1</span>, парабола шире. Сравнение всегда ведём с графиком y = x².</p>
+                        </section>
+                        <section class="step">
+                            <h4><span class="step-badge">Теория 5</span> Удобный алгоритм</h4>
+                            <ol>
+                                <li>Строим y = x².</li>
+                                <li>Берём удобные точки.</li>
+                                <li>Умножаем ординаты на a.</li>
+                                <li>Плавно соединяем новые точки.</li>
+                            </ol>
+                        </section>
+                    </div>
+                </article>
+            </section>
+
+            <section class="topic-panel" data-topic-panel="training">
+                <article class="panel content-card generator-card">
+                    <h3 class="section-title">Генератор похожей задачи</h3>
+                    <p>Генератор создаёт одну безопасную задачу того же типа. Метод решения сохраняется: сначала строим y = x², затем умножаем ординаты на коэффициент a.</p>
+                    <div class="stepper-controls generator-actions">
+                        <button id="generateBtn" class="btn primary">Сгенерировать похожую задачу</button>
+                        <button id="applyGeneratedBtn" class="btn">Применить к модели</button>
+                        <span class="hint-trigger" tabindex="0" data-tip="generator" aria-label="Подсказка для генератора">!</span>
+                    </div>
+                    <div class="task-box" id="generatedTask">Нажмите кнопку, чтобы получить новую задачу.</div>
+                    <div class="answer-box" id="generatedAnswer">Ответ появится здесь.</div>
+                    <div class="mini-idea" id="generatedIdea">Короткая идея решения появится здесь.</div>
+                </article>
+            </section>
+
+            <section class="topic-panel" data-topic-panel="quiz">
+                <article class="panel content-card">
+                    <h3 class="section-title">Мини-квиз</h3>
+                    <div class="quiz-grid" id="quizContainer"></div>
+                    <div class="stepper-controls quiz-actions" style="margin-top:14px">
+                        <button id="checkQuizBtn" class="btn primary">Проверить квиз</button>
+                        <button id="resetQuizBtn" class="btn">Сбросить</button>
+                    </div>
+                </article>
+            </section>
+
+            <section class="topic-panel" data-topic-panel="selfcheck">
+                <article class="panel content-card">
+                    <h3 class="section-title">Самопроверка</h3>
+                    <div class="selfcheck-grid">
+                        <label class="check-item"><input type="checkbox" data-selfcheck /> Я понимаю, почему знак коэффициента меняет направление ветвей.</label>
+                        <label class="check-item"><input type="checkbox" data-selfcheck /> Я умею по точкам базовой параболы получить точки новой параболы.</label>
+                        <label class="check-item"><input type="checkbox" data-selfcheck /> Я не путаю, когда парабола становится уже, а когда — шире.</label>
+                        <label class="check-item"><input type="checkbox" data-selfcheck /> Я могу объяснить, почему вершина остаётся в точке (0; 0).</label>
+                    </div>
+                    <div class="stepper-controls selfcheck-actions" style="margin-top:14px">
+                        <button id="selfcheckBtn" class="btn primary">Оценить готовность</button>
+                        <button id="selfcheckResetBtn" class="btn">Сбросить</button>
+                    </div>
+                    <div class="answer-box" id="selfcheckResult">Отметьте пункты и нажмите кнопку.</div>
+                </article>
+            </section>
+        </div>
+
+        <aside class="right-col">
+            <div class="sticky-wrap">
+                <section class="panel graph-panel">
+                    <div class="graph-stage">
+                        <div class="graph-tools">
+                            <div class="tool-row">
+                                <strong>Интерактивная модель</strong>
+                                <span class="hint-trigger" tabindex="0" data-tip="selector" aria-label="Подсказка к выбору графика">?</span>
+                            </div>
+                            <div class="tool-row">
+                                <label>
+                                    <select id="curveMode" class="control-select" aria-label="Выбор отображаемой задачи">
+                                        <option value="all">Показать все три графика</option>
+                                        <option value="neg3">Показать y = −3x²</option>
+                                        <option value="onefifth">Показать y = 1/5·x²</option>
+                                        <option value="generated">Показать сгенерированную задачу</option>
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="graph-tools">
+                            <div class="checkbox-row">
+                                <label class="check-pill"><input type="checkbox" id="toggleBase" checked /> Базовая парабола</label>
+                                <label class="check-pill"><input type="checkbox" id="togglePoints" checked /> Опорные точки</label>
+                                <label class="check-pill"><input type="checkbox" id="toggleLabels" checked /> Подписи</label>
+                                <label class="check-pill"><input type="checkbox" id="toggleGuide" checked /> Вспомогательные линии</label>
+                            </div>
+                            <div class="tool-row">
+                                <span class="hint-trigger" tabindex="0" data-tip="zoom" aria-label="Подсказка к зуму">i</span>
+                            </div>
+                        </div>
+
+                        <div class="graph-tools">
+                            <div class="tool-row" style="flex-wrap:nowrap; min-width:0">
+                                <button class="small-btn" id="zoomOutBtn">−</button>
+                                <input id="zoomRange" type="range" min="0.7" max="1.8" step="0.01" value="1" aria-label="Масштаб графика" style="width:min(260px, 42vw)" />
+                                <button class="small-btn" id="zoomInBtn">+</button>
+                                <button class="small-btn" id="zoomResetBtn">Сброс</button>
+                            </div>
+                            <div class="tool-row"><span id="zoomValue">100%</span></div>
+                        </div>
+
+                        <div class="graph-wrap">
+                            <svg id="graphSvg" viewBox="0 0 760 520" aria-label="График парабол" role="img"></svg>
+                        </div>
+
+                        <div class="legend" id="legendBox">
+                            <div class="legend-item graph-hotspot" data-target="base">
+                                <span class="legend-swatch" style="background:#62d6ff"></span>
+                                <div><strong>y = x²</strong><br><span class="foot-note">Базовая парабола</span></div>
+                            </div>
+                            <div class="legend-item graph-hotspot" data-target="neg3">
+                                <span class="legend-swatch" style="background:#ffb86b"></span>
+                                <div><strong>y = −3x²</strong><br><span class="foot-note">Вниз и уже</span></div>
+                            </div>
+                            <div class="legend-item graph-hotspot" data-target="onefifth">
+                                <span class="legend-swatch" style="background:#7dffbd"></span>
+                                <div><strong>y = 1/5·x²</strong><br><span class="foot-note">Вверх и шире</span></div>
+                            </div>
+                            <div class="legend-item graph-hotspot" data-target="generated">
+                                <span class="legend-swatch" style="background:#d5b3ff"></span>
+                                <div><strong>Сгенерированная задача</strong><br><span class="foot-note">Коэффициент появится после генерации</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<div id="tooltip" class="tooltip" role="tooltip" aria-hidden="true">
+    <div class="tooltip-arrow"></div>
+    <div class="tooltip-header">
+        <h5 id="tooltipTitle">Подсказка</h5>
+        <button class="close-tip" id="tooltipClose" aria-label="Закрыть подсказку">×</button>
+    </div>
+    <div id="tooltipBody"></div>
+    <div class="tooltip-actions" id="tooltipActions"></div>
+</div>
+
+<script>
+    // Простые данные страницы
+    const state = {
+        detail: 'standard',
+        stepMode: true,
+        revealedSteps: 2,
+        currentTab: 'main',
+        curveMode: 'all',
+        graphScale: 1,
+        generated: null,
+        graphOffset: {x: 0, y: 0}
+    };
+
+    const basePoints = [-2,-1,0,1,2].map(x => ({x, y:x*x}));
+
+    const palette = {
+        base:'#62d6ff',
+        neg3:'#ffb86b',
+        onefifth:'#7dffbd',
+        generated:'#d5b3ff',
+        axis:'#9fb2c6',
+        grid:'rgba(159,178,198,.16)',
+        guide:'rgba(255,255,255,.14)',
+        text:'#dbeaf8'
+    };
+
+    const tipContent = {
+        selector: {
+            title: 'Как работает выбор графика',
+            body: `
+          <p>Этот селектор меняет, какой график вы сравниваете с базовой параболой.</p>
+          <div class="tip-math">
+            <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+              <mrow><mi>y</mi><mo>=</mo><mi>a</mi><msup><mi>x</mi><mn>2</mn></msup></mrow>
+            </math>
+          </div>
+          <p>Смотрите, как одно и то же правило меняет форму при разных значениях <strong>a</strong>.</p>
+        `,
+            actions:[
+                {label:'Показать все графики', action:() => setCurveMode('all')},
+                {label:'Перейти к задаче', action:() => activateTab('main')}
+            ]
+        },
+        generator: {
+            title: 'Что делает генератор',
+            body: `
+          <p>Генератор создаёт одну корректную задачу того же типа: меняется только коэффициент <strong>a</strong>.</p>
+          <div class="tip-math">
+            <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+              <mrow><mi>y</mi><mo>=</mo><mi>a</mi><msup><mi>x</mi><mn>2</mn></msup></mrow>
+            </math>
+          </div>
+          <p>Мы не используем вырожденные случаи: коэффициент не равен нулю и не создаёт двусмысленностей.</p>
+        `,
+            actions:[
+                {label:'Сгенерировать сейчас', action:() => generateTask()},
+                {label:'Показать пример', action:() => showPresetGenerated()}
+            ]
+        },
+        zoom: {
+            title: 'Как пользоваться зумом',
+            body: `
+          <p>Можно менять масштаб ползунком, кнопками и колесом мыши прямо на чертеже.</p>
+          <p>Увеличение помогает сравнивать точки, а сброс возвращает стандартный вид.</p>
+        `,
+            actions:[
+                {label:'Увеличить', action:() => setScale(state.graphScale + 0.1)},
+                {label:'Сбросить масштаб', action:() => resetView()}
+            ]
+        }
+    };
+
+    const quizData = [
+        {
+            q:'Что происходит с ветвями параболы y = −2x²?',
+            options:['Остаются вверх','Направляются вниз','Исчезают'],
+            answer:1,
+            explain:'Отрицательный коэффициент перед x² направляет ветви вниз.'
+        },
+        {
+            q:'Какая парабола шире: y = x² или y = 1/4·x²?',
+            options:['y = x²','y = 1/4·x²','Они одинаковы'],
+            answer:1,
+            explain:'При 0 < |a| < 1 ординаты уменьшаются, поэтому график становится шире.'
+        },
+        {
+            q:'Какая координата не меняется при переходе от y = x² к y = a·x²?',
+            options:['x','y','Обе меняются одинаково'],
+            answer:0,
+            explain:'Мы оставляем x прежним, а меняем только значение y.'
+        }
+    ];
+
+    const els = {
+        topicSelect: document.getElementById('topicSelect'),
+        tabBar: document.getElementById('tabBar'),
+        tabs: [...document.querySelectorAll('.chip')],
+        panels: [...document.querySelectorAll('.topic-panel')],
+        stepList: document.getElementById('stepList'),
+        steps: [...document.querySelectorAll('.step[data-step]')],
+        detailBtns: [...document.querySelectorAll('[data-detail]')],
+        stepModeBtn: document.getElementById('stepModeBtn'),
+        showAllBtn: document.getElementById('showAllBtn'),
+        curveMode: document.getElementById('curveMode'),
+        toggleBase: document.getElementById('toggleBase'),
+        togglePoints: document.getElementById('togglePoints'),
+        toggleLabels: document.getElementById('toggleLabels'),
+        toggleGuide: document.getElementById('toggleGuide'),
+        graphSvg: document.getElementById('graphSvg'),
+        legendBox: document.getElementById('legendBox'),
+        zoomRange: document.getElementById('zoomRange'),
+        zoomValue: document.getElementById('zoomValue'),
+        zoomInBtn: document.getElementById('zoomInBtn'),
+        zoomOutBtn: document.getElementById('zoomOutBtn'),
+        zoomResetBtn: document.getElementById('zoomResetBtn'),
+        printBtn: document.getElementById('printBtn'),
+        generateBtn: document.getElementById('generateBtn'),
+        applyGeneratedBtn: document.getElementById('applyGeneratedBtn'),
+        generatedTask: document.getElementById('generatedTask'),
+        generatedAnswer: document.getElementById('generatedAnswer'),
+        generatedIdea: document.getElementById('generatedIdea'),
+        quizContainer: document.getElementById('quizContainer'),
+        checkQuizBtn: document.getElementById('checkQuizBtn'),
+        resetQuizBtn: document.getElementById('resetQuizBtn'),
+        selfcheckBtn: document.getElementById('selfcheckBtn'),
+        selfcheckResetBtn: document.getElementById('selfcheckResetBtn'),
+        selfcheckResult: document.getElementById('selfcheckResult'),
+        selfchecks: [...document.querySelectorAll('[data-selfcheck]')],
+        tooltip: document.getElementById('tooltip'),
+        tooltipTitle: document.getElementById('tooltipTitle'),
+        tooltipBody: document.getElementById('tooltipBody'),
+        tooltipActions: document.getElementById('tooltipActions'),
+        tooltipClose: document.getElementById('tooltipClose'),
+        hintTriggers: [...document.querySelectorAll('.hint-trigger')],
+        focusTargets: [...document.querySelectorAll('[data-focus], [data-target]')],
+        topbar: document.querySelector('.topbar')
+    };
+
+    function activateTab(tab){
+        state.currentTab = tab;
+        els.tabs.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+        els.panels.forEach(panel => panel.classList.toggle('active', panel.dataset.topicPanel === tab));
+        if(tab === 'training' && !state.generated) showPresetGenerated();
+    }
+
+    function setDetail(detail){
+        state.detail = detail;
+        els.detailBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.detail === detail));
+        document.querySelectorAll('.detail-short,.detail-standard,.detail-full').forEach(node => {
+            const show = node.classList.contains('detail-' + detail) || detail === 'full' && node.classList.contains('detail-standard') === false && node.classList.contains('detail-short') === false;
+            node.style.display = 'none';
+        });
+        document.querySelectorAll('.detail-short').forEach(node => node.style.display = detail === 'short' ? 'block' : 'none');
+        document.querySelectorAll('.detail-standard').forEach(node => node.style.display = detail === 'standard' ? 'block' : 'none');
+        document.querySelectorAll('.detail-full').forEach(node => node.style.display = detail === 'full' ? 'block' : 'none');
+        flashHintChange('Уровень подробности изменён: ' + (detail === 'short' ? 'кратко' : detail === 'standard' ? 'стандартно' : 'очень подробно'));
+    }
+
+    function updateStepVisibility(){
+        els.steps.forEach((step, idx) => {
+            const visible = !state.stepMode || idx < state.revealedSteps;
+            step.classList.toggle('hidden-by-mode', !visible);
+        });
+    }
+
+    function revealNextStep(){
+        if(state.stepMode && state.revealedSteps < els.steps.length){
+            state.revealedSteps += 1;
+            updateStepVisibility();
+        }
+    }
+
+    function setCurveMode(mode){
+        state.curveMode = mode;
+        els.curveMode.value = mode;
+        drawGraph();
+        flashHintChange('Режим графика: ' + els.curveMode.options[els.curveMode.selectedIndex].text);
+    }
+
+    function setScale(value){
+        state.graphScale = Math.max(.7, Math.min(1.8, Number(value)));
+        els.zoomRange.value = state.graphScale.toFixed(2);
+        els.zoomValue.textContent = Math.round(state.graphScale * 100) + '%';
+        drawGraph();
+    }
+
+    function resetView(){
+        state.graphOffset = {x:0,y:0};
+        setScale(1);
+    }
+
+    function graphTransform(x, y){
+        const centerX = 380 + state.graphOffset.x;
+        const centerY = 250 + state.graphOffset.y;
+        const unit = 70 * state.graphScale;
+        return {X: centerX + x * unit, Y: centerY - y * unit};
+    }
+
+    function makePathForFunction(fn, xmin, xmax, step = 0.025){
+        let d = '';
+        let started = false;
+        for(let x = xmin; x <= xmax; x += step){
+            const y = fn(x);
+            if(!Number.isFinite(y)) continue;
+            const p = graphTransform(x,y);
+            if(!started){ d += `M ${p.X.toFixed(2)} ${p.Y.toFixed(2)} `; started = true; }
+            else d += `L ${p.X.toFixed(2)} ${p.Y.toFixed(2)} `;
+        }
+        return d;
+    }
+
+    function pointSet(a){
+        return basePoints.map(p => ({x:p.x, y:p.y * a}));
+    }
+
+    function line(x1,y1,x2,y2, extra=''){
+        return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${extra} />`;
+    }
+
+    function text(x,y,str,extra=''){
+        return `<text x="${x}" y="${y}" ${extra}>${str}</text>`;
+    }
+
+    function circle(x,y,r,extra=''){
+        return `<circle cx="${x}" cy="${y}" r="${r}" ${extra} />`;
+    }
+
+    function drawGraph(){
+        const svg = els.graphSvg;
+        const width = 760, height = 520;
+        let html = '';
+
+        // Сетка
+        for(let gx=-5; gx<=5; gx++){
+            const p1 = graphTransform(gx, -4.2), p2 = graphTransform(gx, 4.2);
+            html += line(p1.X,p1.Y,p2.X,p2.Y,`stroke="${palette.grid}" stroke-width="1"`);
+        }
+        for(let gy=-4; gy<=4; gy++){
+            const p1 = graphTransform(-5.2, gy), p2 = graphTransform(5.2, gy);
+            html += line(p1.X,p1.Y,p2.X,p2.Y,`stroke="${palette.grid}" stroke-width="1"`);
+        }
+
+        // Оси
+        const x1 = graphTransform(-5.3,0), x2 = graphTransform(5.3,0), y1 = graphTransform(0,-4.2), y2 = graphTransform(0,4.2);
+        html += line(x1.X,x1.Y,x2.X,x2.Y,`stroke="${palette.axis}" stroke-width="2.2"`);
+        html += line(y1.X,y1.Y,y2.X,y2.Y,`stroke="${palette.axis}" stroke-width="2.2"`);
+        html += text(x2.X-18,x2.Y-10,'x',`fill="${palette.text}" font-size="18" font-weight="700"`);
+        html += text(y2.X+10,y2.Y+18,'y',`fill="${palette.text}" font-size="18" font-weight="700"`);
+
+        // Подписи делений
+        for(let gx=-4; gx<=4; gx++){
+            if(gx===0) continue;
+            const p = graphTransform(gx,0);
+            html += text(p.X-6,p.Y+22,String(gx),`fill="${palette.text}" font-size="13" opacity=".8"`);
+        }
+        for(let gy=-3; gy<=4; gy++){
+            if(gy===0) continue;
+            const p = graphTransform(0,gy);
+            html += text(p.X+8,p.Y+5,String(gy),`fill="${palette.text}" font-size="13" opacity=".8"`);
+        }
+
+        const curves = [];
+        const showBase = els.toggleBase.checked;
+        const showPoints = els.togglePoints.checked;
+        const showLabels = els.toggleLabels.checked;
+        const showGuide = els.toggleGuide.checked;
+
+        const mode = state.curveMode;
+        const allow = key => mode === 'all' || mode === key || (key==='base' && showBase);
+
+        if(showBase && (mode === 'all' || mode === 'neg3' || mode === 'onefifth' || mode === 'generated')){
+            curves.push({
+                key:'base',
+                color:palette.base,
+                fn:x=>x*x,
+                points:basePoints,
+                label:'y = x²'
+            });
+        }
+        if(mode === 'all' || mode === 'neg3'){
+            curves.push({
+                key:'neg3',
+                color:palette.neg3,
+                fn:x=>-3*x*x,
+                points:pointSet(-3),
+                label:'y = −3x²'
+            });
+        }
+        if(mode === 'all' || mode === 'onefifth'){
+            curves.push({
+                key:'onefifth',
+                color:palette.onefifth,
+                fn:x=>x*x/5,
+                points:pointSet(1/5),
+                label:'y = 1/5·x²'
+            });
+        }
+        if((mode === 'all' || mode === 'generated') && state.generated){
+            curves.push({
+                key:'generated',
+                color:palette.generated,
+                fn:x=>state.generated.a*x*x,
+                points:pointSet(state.generated.a),
+                label:state.generated.label
+            });
+        }
+
+        curves.forEach(curve => {
+            const xmin = curve.key==='neg3' ? -2.1 : -2.8;
+            const xmax = curve.key==='neg3' ? 2.1 : 2.8;
+            const d = makePathForFunction(curve.fn, xmin, xmax, 0.025);
+            html += `<path d="${d}" fill="none" stroke="${curve.color}" stroke-width="3.2" stroke-linecap="round" opacity=".95" />`;
+
+            if(showPoints){
+                curve.points.forEach((pt, idx) => {
+                    const p = graphTransform(pt.x, pt.y);
+                    html += circle(p.X,p.Y,4.6,`fill="${curve.color}" stroke="#071019" stroke-width="1.3"`);
+                    if(showGuide && pt.x !== 0){
+                        const px = graphTransform(pt.x,0);
+                        html += line(px.X,px.Y,p.X,p.Y,`stroke="${palette.guide}" stroke-width="1.2" stroke-dasharray="5 5"`);
+                    }
+                    if(showLabels && idx < 5){
+                        html += text(p.X+8,p.Y-8,`(${prettyNum(pt.x)}; ${prettyNum(pt.y)})`,`fill="${curve.color}" font-size="12.5" font-weight="600" opacity=".9"`);
+                    }
+                });
+            }
+        });
+
+        // Активная подпись графика
+        const labelLines = [];
+        curves.forEach((curve, i) => labelLines.push({curve, y: 34 + i*24}));
+        labelLines.forEach(item => {
+            html += `<rect x="18" y="${item.y-14}" width="160" height="20" rx="10" fill="rgba(8,18,28,.72)" stroke="rgba(130,180,210,.14)" />`;
+            html += line(30,item.y-4,54,item.y-4,`stroke="${item.curve.color}" stroke-width="3"`);
+            html += text(62,item.y, item.curve.label, `fill="${item.curve.color}" font-size="13" font-weight="700"`);
+        });
+
+        svg.innerHTML = html;
+    }
+
+    function prettyNum(v){
+        if(Math.abs(v - Math.round(v)) < 1e-9) return String(Math.round(v));
+        if(Math.abs(v - 0.2) < 1e-9) return '1/5';
+        if(Math.abs(v - 0.8) < 1e-9) return '4/5';
+        if(Math.abs(v - 0.5) < 1e-9) return '1/2';
+        if(Math.abs(v + 0.5) < 1e-9) return '−1/2';
+        if(Math.abs(v - 0.25) < 1e-9) return '1/4';
+        if(Math.abs(v - 0.75) < 1e-9) return '3/4';
+        return v.toFixed(2).replace('.',',');
+    }
+
+    function generateTask(){
+        const pool = [
+            {a:-2, label:'y = −2x²', idea:'Ординаты умножаем на −2: ветви вниз, график уже базового.'},
+            {a:3/4, label:'y = 3/4·x²', idea:'Ординаты умножаем на 3/4: ветви вверх, график становится шире базового.'},
+            {a:-1/2, label:'y = −1/2·x²', idea:'Ординаты умножаем на −1/2: ветви вниз, но точки ближе к оси Ox, значит парабола шире.'},
+            {a:2, label:'y = 2x²', idea:'Ординаты удваиваются: ветви вверх, парабола уже.'},
+            {a:1/3, label:'y = 1/3·x²', idea:'Ординаты уменьшаются втрое: ветви вверх, парабола шире.'}
+        ];
+        const item = pool[Math.floor(Math.random()*pool.length)];
+        state.generated = item;
+        els.generatedTask.innerHTML = `Постройте график функции <strong>y = x²</strong>. Используя этот график, постройте график функции <strong>${item.label}</strong>.`;
+        const pts = pointSet(item.a).map(p => `(${prettyNum(p.x)}; ${prettyNum(p.y)})`).join(', ');
+        const shape = item.a < 0 ? 'ветви вниз' : 'ветви вверх';
+        const width = Math.abs(item.a) > 1 ? 'парабола уже базовой' : 'парабола шире базовой';
+        els.generatedAnswer.innerHTML = `Ответ: ${item.label} — ${shape}, ${width}. Удобные точки: ${pts}.`;
+        els.generatedIdea.innerHTML = `Идея: ${item.idea}`;
+        drawGraph();
+        flashHintChange('Сгенерирована новая задача: ' + item.label);
+    }
+
+    function showPresetGenerated(){
+        state.generated = {a:-2, label:'y = −2x²', idea:'Сохраняем x и умножаем все y на −2.'};
+        els.generatedTask.innerHTML = `Постройте график функции <strong>y = x²</strong>. Используя этот график, постройте график функции <strong>y = −2x²</strong>.`;
+        els.generatedAnswer.innerHTML = 'Ответ: y = −2x² — ветви вниз, парабола уже базовой. Точки: (−2; −8), (−1; −2), (0; 0), (1; −2), (2; −8).';
+        els.generatedIdea.innerHTML = 'Идея: те же x, а ординаты умножаем на −2. Минус направляет ветви вниз.';
+        drawGraph();
+    }
+
+    function renderQuiz(){
+        els.quizContainer.innerHTML = quizData.map((item, idx) => `
+        <div class="quiz-item" data-quiz-index="${idx}">
+          <strong>${idx+1}. ${item.q}</strong>
+          <div class="option-row">
+            ${item.options.map((opt, j) => `<button class="option-btn" data-q="${idx}" data-option="${j}">${opt}</button>`).join('')}
+          </div>
+          <div class="foot-note" style="margin-top:8px" data-explain></div>
+        </div>
+      `).join('');
+    }
+
+    function checkQuiz(){
+        const blocks = [...document.querySelectorAll('.quiz-item')];
+        blocks.forEach((block, idx) => {
+            const chosen = block.querySelector('.option-btn.selected');
+            const explain = block.querySelector('[data-explain]');
+            block.classList.remove('correct','wrong');
+            if(!chosen){
+                explain.textContent = 'Ответ не выбран.';
+                return;
+            }
+            const selected = Number(chosen.dataset.option);
+            if(selected === quizData[idx].answer){
+                block.classList.add('correct');
+                explain.textContent = 'Верно. ' + quizData[idx].explain;
+            } else {
+                block.classList.add('wrong');
+                explain.textContent = 'Пока неверно. ' + quizData[idx].explain;
+            }
+        });
+    }
+
+    function resetQuiz(){
+        renderQuiz();
+    }
+
+    function evaluateSelfcheck(){
+        const count = els.selfchecks.filter(x => x.checked).length;
+        if(count === 4){
+            els.selfcheckResult.textContent = 'Готовность высокая: тема понята уверенно. Можно переходить к новым коэффициентам и строить графики самостоятельно.';
+        } else if(count >= 2){
+            els.selfcheckResult.textContent = 'База уже есть, но стоит ещё раз сравнить знак коэффициента и ширину параболы на интерактивной модели.';
+        } else {
+            els.selfcheckResult.textContent = 'Пока рано завершать тему. Лучше ещё раз пройти шаги решения и вручную восстановить точки для y = −3x² и y = 1/5·x².';
+        }
+    }
+
+    function resetSelfcheck(){
+        els.selfchecks.forEach(x => x.checked = false);
+        els.selfcheckResult.textContent = 'Отметьте пункты и нажмите кнопку.';
+    }
+
+    let tooltipTimer = null;
+    let currentTrigger = null;
+
+    function showTooltip(trigger, key){
+        const data = tipContent[key];
+        if(!data) return;
+        currentTrigger = trigger;
+        els.tooltipTitle.textContent = data.title;
+        els.tooltipBody.innerHTML = data.body;
+        els.tooltipActions.innerHTML = '';
+        data.actions.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'small-btn';
+            btn.textContent = item.label;
+            btn.addEventListener('click', item.action);
+            els.tooltipActions.appendChild(btn);
+        });
+        const rect = trigger.getBoundingClientRect();
+        els.tooltip.classList.add('visible');
+        els.tooltip.setAttribute('aria-hidden','false');
+        els.tooltip.dataset.key = key;
+        positionTooltip(rect);
+        trigger.style.animation = 'hintBounce .55s ease';
+        setTimeout(()=> trigger.style.animation = '', 700);
+        clearTimeout(tooltipTimer);
+        tooltipTimer = setTimeout(hideTooltip, 15000);
+    }
+
+    function positionTooltip(rect){
+        const tooltip = els.tooltip;
+        const margin = 12;
+        const top = Math.min(window.innerHeight - tooltip.offsetHeight - margin, rect.bottom + 12);
+        let left = rect.left;
+        if(left + tooltip.offsetWidth > window.innerWidth - margin){
+            left = window.innerWidth - tooltip.offsetWidth - margin;
+        }
+        if(left < margin) left = margin;
+        tooltip.style.top = top + 'px';
+        tooltip.style.left = left + 'px';
+        const arrow = tooltip.querySelector('.tooltip-arrow');
+        arrow.style.top = '-6px';
+        arrow.style.left = Math.max(18, rect.left - left + rect.width/2 - 6) + 'px';
+    }
+
+    function hideTooltip(){
+        els.tooltip.classList.remove('visible');
+        els.tooltip.setAttribute('aria-hidden','true');
+        clearTimeout(tooltipTimer);
+    }
+
+    function flashHintChange(text){
+        const ghost = document.createElement('div');
+        ghost.className = 'tooltip visible';
+        ghost.style.right = '14px';
+        ghost.style.left = 'auto';
+        ghost.style.top = '82px';
+        ghost.style.maxWidth = '320px';
+        ghost.innerHTML = `<div class="tooltip-header"><h5>Изменение</h5></div><div>${text}</div>`;
+        document.body.appendChild(ghost);
+        setTimeout(()=> ghost.style.opacity = '0', 1800);
+        setTimeout(()=> ghost.remove(), 2200);
+    }
+
+    function linkHighlights(){
+        document.querySelectorAll('[data-target]').forEach(node => {
+            node.addEventListener('mouseenter', () => activateFocus(node.dataset.target));
+            node.addEventListener('mouseleave', clearFocus);
+            node.addEventListener('focus', () => activateFocus(node.dataset.target));
+            node.addEventListener('blur', clearFocus);
+        });
+        document.querySelectorAll('[data-focus]').forEach(node => {
+            node.addEventListener('mouseenter', () => activateFocus(node.dataset.focus));
+            node.addEventListener('mouseleave', clearFocus);
+        });
+    }
+
+    function activateFocus(key){
+        document.querySelectorAll(`[data-target="${key}"], [data-focus="${key}"]`).forEach(node => node.classList.add('is-linked','active'));
+        if(key === 'base') setCurveMode('all');
+    }
+
+    function clearFocus(){
+        document.querySelectorAll('.is-linked, .active').forEach(node => {
+            if(node.classList.contains('chip')) return;
+            node.classList.remove('is-linked','active');
+        });
+    }
+
+    // Пошаговое раскрытие по клику на шаг
+    function setupSteps(){
+        els.steps.forEach((step, idx) => {
+            step.addEventListener('click', () => {
+                if(state.stepMode && idx === state.revealedSteps - 1){
+                    revealNextStep();
+                }
+            });
+        });
+        updateStepVisibility();
+    }
+
+    // Перетаскивание и колесо мыши на графике
+    function setupGraphInteractions(){
+        const svg = els.graphSvg;
+        let dragging = false;
+        let last = {x:0,y:0};
+
+        svg.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 0.08 : -0.08;
+            setScale(state.graphScale + delta);
+        }, {passive:false});
+
+        svg.addEventListener('pointerdown', (e) => {
+            dragging = true;
+            svg.classList.add('dragging');
+            last = {x:e.clientX, y:e.clientY};
+        });
+        window.addEventListener('pointermove', (e) => {
+            if(!dragging) return;
+            state.graphOffset.x += e.clientX - last.x;
+            state.graphOffset.y += e.clientY - last.y;
+            last = {x:e.clientX, y:e.clientY};
+            drawGraph();
+        });
+        window.addEventListener('pointerup', () => {
+            dragging = false;
+            svg.classList.remove('dragging');
+        });
+    }
+
+    function bindEvents(){
+        els.tabs.forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.tab)));
+        els.topicSelect.addEventListener('change', () => {
+            activateTab(els.topicSelect.value === 'theory' ? 'theory' : 'main');
+            if(els.topicSelect.value === 'theory') document.querySelector('[data-tab="theory"]').click();
+            else document.querySelector('[data-tab="main"]').click();
+        });
+        els.detailBtns.forEach(btn => btn.addEventListener('click', () => setDetail(btn.dataset.detail)));
+        els.stepModeBtn.addEventListener('click', () => {
+            state.stepMode = true;
+            state.revealedSteps = Math.max(2, Math.min(state.revealedSteps, els.steps.length));
+            els.stepModeBtn.classList.add('active');
+            els.showAllBtn.classList.remove('active');
+            updateStepVisibility();
+        });
+        els.showAllBtn.addEventListener('click', () => {
+            state.stepMode = false;
+            els.showAllBtn.classList.add('active');
+            els.stepModeBtn.classList.remove('active');
+            updateStepVisibility();
+        });
+        els.curveMode.addEventListener('change', e => setCurveMode(e.target.value));
+        [els.toggleBase, els.togglePoints, els.toggleLabels, els.toggleGuide].forEach(el => el.addEventListener('change', drawGraph));
+        els.zoomRange.addEventListener('input', e => setScale(e.target.value));
+        els.zoomInBtn.addEventListener('click', () => setScale(state.graphScale + .1));
+        els.zoomOutBtn.addEventListener('click', () => setScale(state.graphScale - .1));
+        els.zoomResetBtn.addEventListener('click', resetView);
+        els.printBtn.addEventListener('click', () => window.print());
+        els.generateBtn.addEventListener('click', generateTask);
+        els.applyGeneratedBtn.addEventListener('click', () => {
+            if(!state.generated) generateTask();
+            setCurveMode('generated');
+            activateTab('training');
+        });
+        els.checkQuizBtn.addEventListener('click', checkQuiz);
+        els.resetQuizBtn.addEventListener('click', resetQuiz);
+        els.selfcheckBtn.addEventListener('click', evaluateSelfcheck);
+        els.selfcheckResetBtn.addEventListener('click', resetSelfcheck);
+        els.quizContainer.addEventListener('click', e => {
+            const btn = e.target.closest('.option-btn');
+            if(!btn) return;
+            const parent = btn.closest('.quiz-item');
+            parent.querySelectorAll('.option-btn').forEach(x => x.classList.remove('selected'));
+            btn.classList.add('selected');
+        });
+
+        els.hintTriggers.forEach(trigger => {
+            const key = trigger.dataset.tip;
+            trigger.addEventListener('mouseenter', () => showTooltip(trigger, key));
+            trigger.addEventListener('focus', () => showTooltip(trigger, key));
+            trigger.addEventListener('click', () => showTooltip(trigger, key));
+        });
+        els.tooltipClose.addEventListener('click', hideTooltip);
+        document.addEventListener('keydown', e => {
+            if(e.key === 'Escape') hideTooltip();
+        });
+        document.addEventListener('click', e => {
+            if(!els.tooltip.contains(e.target) && !e.target.closest('.hint-trigger')) hideTooltip();
+        });
+        window.addEventListener('resize', () => {
+            if(currentTrigger && els.tooltip.classList.contains('visible')) {
+                positionTooltip(currentTrigger.getBoundingClientRect());
+            }
+            drawGraph();
+        });
+    }
+
+    function setupAutoHint(){
+        if(sessionStorage.getItem('firstHintShown')) return;
+        setTimeout(() => {
+            const trigger = document.querySelector('[data-tip="selector"]');
+            if(trigger){
+                showTooltip(trigger, 'selector');
+                sessionStorage.setItem('firstHintShown', '1');
+            }
+        }, 3000);
+    }
+
+    function init(){
+        renderQuiz();
+        setDetail('standard');
+        setupSteps();
+        setupGraphInteractions();
+        bindEvents();
+        linkHighlights();
+        showPresetGenerated();
+        drawGraph();
+        setupAutoHint();
+    }
+
+    init();
+</script>
+</body>
+</html>

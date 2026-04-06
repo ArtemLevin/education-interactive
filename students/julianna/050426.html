@@ -19,13 +19,14 @@
             --accent2:#7cf8eb;
             --accent3:#19b4a6;
             --warn:#ffd166;
-            --danger:#ff8383;
+            --danger:#ff8a8a;
             --ok:#87f7b0;
             --first:#1d6a88;
             --second:#1ba091;
             --third:#a27d32;
             --bisector:#c97a4a;
             --median:#8a6fbf;
+            --menel:#d995ff;
             --shadow:0 20px 56px rgba(0,0,0,.34);
             --radius:22px;
             --radius-sm:14px;
@@ -35,6 +36,7 @@
             --printText:#111;
             --printBg:#fff;
             --stickyTop:16px;
+            --stepperH:68px;
         }
 
         *{box-sizing:border-box}
@@ -54,9 +56,9 @@
 
         .topbar{
             display:grid;
-            grid-template-columns:minmax(0,1.28fr) minmax(360px,.92fr);
+            grid-template-columns:minmax(0,1.25fr) minmax(360px,.95fr);
             gap:18px;
-            align-items:stretch;
+            align-items:start;
             margin-bottom:20px;
         }
 
@@ -128,7 +130,7 @@
             background:#0c1b20;
             transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease, opacity .18s ease;
         }
-        select:focus,button:focus,textarea:focus{
+        select:focus-visible,button:focus-visible,textarea:focus-visible,.step:focus-visible,.viz-hotspot:focus-visible{
             box-shadow:0 0 0 3px rgba(39,211,195,.18);
             border-color:rgba(124,248,235,.5);
         }
@@ -157,7 +159,10 @@
             position:sticky;top:var(--stickyTop);
             padding:18px;
             overflow:visible;
-            contain:layout paint;
+            contain:layout style;
+        max-height:calc(100dvh - 2*var(--stickyTop));
+        overflow:auto;
+        scrollbar-width:thin;
         }
 
         .tabs,.stepper,.chip-row-compact{display:flex;gap:10px;flex-wrap:wrap}
@@ -169,10 +174,16 @@
             background:rgba(255,255,255,.03);
             color:var(--muted);
             border:1px solid rgba(124,248,235,.14);
+            flex:0 0 auto;
         }
         .tab.active,.step-btn.active{background:rgba(39,211,195,.14);color:var(--text);border-color:rgba(124,248,235,.36)}
 
-        .section{padding:18px 18px 8px;margin-bottom:16px;background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.012))}
+        .section{
+            padding:18px 18px 8px;
+            margin-bottom:16px;
+            background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.012));
+            min-height:64px;
+        }
         .section h2,.section h3{margin:0 0 12px;line-height:1.14;letter-spacing:-.02em}
         .section h2{font-size:24px}
         .section h3{font-size:20px;color:var(--accent2)}
@@ -187,7 +198,9 @@
             color:var(--accent2);font-size:13px;font-weight:800;
         }
 
-        .idea-list,.mistake-list,.legend-list,.check-list{display:grid;gap:10px;padding:0;margin:0 0 12px;list-style:none}
+        .idea-list,.mistake-list,.legend-list,.check-list{
+            display:grid;gap:10px;padding:0;margin:0 0 12px;list-style:none
+        }
         .idea-list li,.mistake-list li,.legend-list li,.check-list li{
             padding:12px 14px;border-radius:16px;
             background:rgba(255,255,255,.025);
@@ -197,37 +210,57 @@
         .subgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 
         .stepper{
-            position:sticky;top:0;z-index:5;
-            padding:6px 0 10px;
-            background:linear-gradient(180deg, rgba(16,36,42,.98), rgba(16,36,42,.84) 78%, transparent);
+            position:sticky;
+            top:0;
+            z-index:5;
+            padding:8px 0 12px;
+            min-height:var(--stepperH);
+            background:linear-gradient(180deg, rgba(16,36,42,.98), rgba(16,36,42,.88) 76%, transparent);
             backdrop-filter:blur(4px);
-            margin-bottom:6px;
+            margin-bottom:8px;
+            contain:layout style;
         }
-        .steps-wrap{display:grid;gap:12px}
+
+        .steps-wrap{display:grid;gap:12px;min-height:920px}
         .step{
             border-radius:18px;padding:16px;
             background:linear-gradient(180deg,#15363d,#0f282e);
             border:1px solid rgba(124,248,235,.10);
-            min-height:120px;
-            opacity:.58;
+            min-height:128px;
+            opacity:.62;
             transform:translateY(6px);
             transition:opacity .28s ease, transform .28s ease, box-shadow .28s ease, border-color .28s ease, background .28s ease;
-            scroll-margin-top:90px;
+            scroll-margin-top:96px;
+            outline:none;
         }
         .step.visible{opacity:1;transform:none}
-        .step.current{background:linear-gradient(180deg,#18414a,#12333a);border-color:rgba(124,248,235,.40);box-shadow:0 0 0 2px rgba(39,211,195,.12)}
+        .step.current{
+            background:linear-gradient(180deg,#18414a,#12333a);
+            border-color:rgba(124,248,235,.40);
+            box-shadow:0 0 0 2px rgba(39,211,195,.12)
+        }
         .step h4{margin:0 0 10px;font-size:18px}
         .formula{
             margin:10px 0 0;
             padding:10px 12px;border-radius:14px;
-            background:#0a171a;border:1px solid rgba(124,248,235,.10);
-            overflow:auto;white-space:nowrap;font-family:"Segoe UI",Arial,sans-serif;font-size:15px
+            background:#0a171a;
+            border:1px solid rgba(124,248,235,.10);
+            overflow:auto;
+            white-space:nowrap;
+            font-family:"Segoe UI",Arial,sans-serif;
+            font-size:15px
         }
         .step.glow,.viz-hotspot.glow{animation:borderGlow 1.25s ease infinite alternate}
 
-        .sticky-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+        .sticky-header{
+            display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px
+        }
         .sticky-header h3,.sticky-header h4{margin:0}
-        .viz-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:10px;align-items:center;margin-bottom:12px}
+        .viz-toolbar{
+            display:grid;
+            grid-template-columns:minmax(0,1fr) auto auto auto;
+            gap:10px;align-items:center;margin-bottom:12px
+        }
         .zoom-group{display:flex;gap:8px;flex-wrap:nowrap}
         .toggle-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0 14px}
         .toggle{
@@ -238,27 +271,30 @@
 
         .viz-panel{background:#08161a;border-radius:22px;border:1px solid rgba(124,248,235,.14);padding:10px;overflow:hidden}
         .viz-stage{
-            width:100%;aspect-ratio:1.03/1;
+            width:100%;
+            aspect-ratio:1.03/1;
             overflow:hidden;border-radius:18px;position:relative;
             background:
             radial-gradient(circle at 50% 0%, rgba(124,248,235,.05), transparent 35%),
             linear-gradient(180deg,#09161a,#0b1a1f);
+            touch-action:none;
         }
         svg{width:100%;height:100%;display:block}
 
         .legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
         .legend-item{
-            display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.03);font-size:14px;color:var(--muted)
+            display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;
+            background:rgba(255,255,255,.03);font-size:14px;color:var(--muted)
         }
         .swatch{width:14px;height:14px;border-radius:4px;flex:0 0 14px}
 
         .value-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
-        .value-card{padding:12px;border-radius:16px;background:rgba(255,255,255,.03)}
+        .value-card{padding:12px;border-radius:16px;background:rgba(255,255,255,.03);min-height:82px}
         .value-card b{display:block;margin-bottom:6px;color:var(--accent2);font-size:13px}
         .value-card span{display:block;font-size:19px;font-weight:800}
 
         .generator{padding:14px;margin-top:8px;background:rgba(255,255,255,.03)}
-        .gen-box{padding:14px;margin-top:10px;background:#08161a;border-radius:16px;min-height:140px}
+        .gen-box{padding:14px;margin-top:10px;background:#08161a;border-radius:16px;min-height:180px}
         .gen-answer{color:var(--ok);font-weight:800}
 
         .quiz-wrap{display:grid;gap:14px}
@@ -277,7 +313,10 @@
             display:inline-grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;
             padding:10px 12px;border-radius:14px;background:#0a171a;border:1px solid rgba(124,248,235,.10)
         }
-        .brace{font-size:28px;line-height:1;transform:scaleY(1.18);transform-origin:top left;color:var(--accent2);padding-top:5px}
+        .brace{
+            font-size:28px;line-height:1;transform:scaleY(1.16);
+            transform-origin:top left;color:var(--accent2);padding-top:5px
+        }
         .sys-lines{display:grid;gap:2px}
 
         .floating-toast{
@@ -306,7 +345,9 @@
             opacity:0;pointer-events:none;transform:translateY(8px) scale(.98);
             transition:opacity .22s ease, transform .22s ease;
             box-shadow:var(--shadow);
-            background-image:linear-gradient(#11242a,#0b171b), linear-gradient(135deg, rgba(39,211,195,.90), rgba(124,248,235,.30));
+            background-image:
+            linear-gradient(#11242a,#0b171b),
+            linear-gradient(135deg, rgba(39,211,195,.90), rgba(124,248,235,.30));
             background-origin:border-box;background-clip:padding-box,border-box;
         }
         .hint-pop.visible{opacity:1;pointer-events:auto;transform:none}
@@ -323,18 +364,30 @@
         .hint-close:hover{transform:none;box-shadow:none}
         .hint-pop p{margin:0 0 8px;color:#d7eceb;font-size:14px}
         .hint-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-        .hint-arrow{position:absolute;width:14px;height:14px;background:#0f2025;border-left:1px solid rgba(124,248,235,.18);border-top:1px solid rgba(124,248,235,.18)}
+        .hint-arrow{
+            position:absolute;width:14px;height:14px;background:#0f2025;
+            border-left:1px solid rgba(124,248,235,.18);border-top:1px solid rgba(124,248,235,.18)
+        }
         .hint-pop[data-pos="right"] .hint-arrow{left:-7px;top:18px;transform:rotate(-45deg)}
         .hint-pop[data-pos="left"] .hint-arrow{right:-7px;top:18px;transform:rotate(135deg)}
         .hint-pop[data-pos="top"] .hint-arrow{left:50%;bottom:-7px;margin-left:-7px;transform:rotate(225deg)}
         .hint-pop[data-pos="bottom"] .hint-arrow{left:50%;top:-7px;margin-left:-7px;transform:rotate(45deg)}
 
-        .mathml-box{background:#091519;border-radius:14px;padding:8px 10px;border:1px solid rgba(124,248,235,.10);overflow:auto}
-        math{color:#eafffe}
+        .formula-box{
+            background:#091519;border-radius:14px;padding:8px 10px;
+            border:1px solid rgba(124,248,235,.10);overflow:auto;color:#eafffe
+        }
 
-        .print-card{padding:18px}
+        .scene{transition:opacity .25s ease}
+        .scene[aria-hidden="true"]{opacity:0;pointer-events:none}
+        .scene[aria-hidden="false"]{opacity:1}
+        .hide-scene{display:none}
+
         .hidden{display:none !important}
-        .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+        .sr-only{
+            position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+            clip:rect(0,0,0,0);white-space:nowrap;border:0
+        }
 
         @keyframes hintPulse{
             0%{box-shadow:0 0 0 0 rgba(39,211,195,.42), 0 0 0 0 rgba(124,248,235,.16)}
@@ -353,7 +406,9 @@
 
         @media (max-width: 1220px){
             .topbar,.main{grid-template-columns:1fr}
-            .sticky-shell{position:relative;top:auto;contain:none}
+            .sticky-shell{
+                position:relative;top:auto;contain:none;max-height:none;overflow:visible
+            }
         }
         @media (max-width: 920px){
             .hero-grid,.control-grid,.subgrid,.legend,.value-board{grid-template-columns:1fr}
@@ -362,6 +417,7 @@
             .app{padding:14px}
             .hero,.main-left,.sticky-shell{padding:16px}
             .hint-pop{min-width:220px;max-width:min(88vw,320px)}
+            .steps-wrap{min-height:auto}
         }
         @media (max-width: 560px){
             h1{font-size:24px}
@@ -383,13 +439,19 @@
             }
             .topbar,.main{display:block}
             .main-right{margin-top:14px}
-            .sticky-shell{position:relative;top:auto}
-            .control-card,.hint-wrap,.floating-toast,.stepper,.viz-toolbar button,#tabSelect,#detailSelect,#revealSelect,#generatorType{display:none !important}
+            .sticky-shell{position:relative;top:auto;max-height:none;overflow:visible}
+            .control-card,.hint-wrap,.floating-toast,.stepper,.viz-toolbar button,#tabSelect,#detailSelect,#revealSelect,#generatorType,.toggle-grid{
+                display:none !important
+            }
             .tabs{display:none}
             .tab-panel{display:block !important}
-            .step{opacity:1 !important;transform:none !important;box-shadow:none;border-color:#d0d0d0;background:#fff}
+            .step{
+                opacity:1 !important;transform:none !important;box-shadow:none;border-color:#d0d0d0;background:#fff
+            }
             .viz-panel,.generator,.section,.quiz-card,.print-card{break-inside:avoid-page}
             svg text{fill:#111 !important}
+            .scene[aria-hidden="true"]{display:none !important}
+            .formula-box,.formula,.compact-formula{background:#fff;border:1px solid #d8d8d8;color:#111}
         }
     </style>
 </head>
@@ -405,9 +467,9 @@
             </p>
             <div class="hero-grid">
                 <div class="mini-stat"><b>Тема</b><span>медианы, биссектрисы, параллельные прямые, секущие</span></div>
-                <div class="mini-stat"><b>Метод</b><span>схема → подобие/свойство → пропорция → ответ</span></div>
-                <div class="mini-stat"><b>Фокус</b><span>графическая интерпретация и пошаговая логика</span></div>
-                <div class="mini-stat"><b>Режим</b><span>пошаговое раскрытие + генератор похожих задач</span></div>
+                <div class="mini-stat"><b>Метод</b><span>схема → свойство → пропорция → проверка</span></div>
+                <div class="mini-stat"><b>Фокус</b><span>строгая логика + функциональная связка текста и рисунка</span></div>
+                <div class="mini-stat"><b>Режим</b><span>пошаговое раскрытие + генератор безопасных задач</span></div>
             </div>
         </section>
 
@@ -415,15 +477,13 @@
             <div class="sticky-header">
                 <h3>Панель разбора</h3>
                 <div class="hint-wrap">
-                    <button class="hint-trigger" data-hint="hintMode" aria-label="Подсказка по режимам" aria-expanded="false">i</button>
+                    <button class="hint-trigger" data-hint="hintMode" aria-label="Подсказка по режимам" aria-expanded="false" aria-controls="hintMode">i</button>
                     <div class="hint-pop" id="hintMode" data-pos="left" role="tooltip" aria-hidden="true" aria-label="Подсказка по режимам страницы">
                         <div class="hint-arrow"></div>
                         <div class="hint-inner">
                             <div class="hint-head"><b>Как использовать режимы</b><button class="hint-close" aria-label="Закрыть подсказку">×</button></div>
-                            <p>Переключайте тему, глубину объяснения и способ показа шагов. Правая модель всегда синхронизируется с текущим содержанием.</p>
-                            <div class="mathml-box">
-                                <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mfrac><mrow><mi>A</mi><mi>D</mi></mrow><mrow><mi>D</mi><mi>B</mi></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>A</mi><mi>C</mi></mrow><mrow><mi>C</mi><mi>B</mi></mrow></mfrac></mrow></math>
-                            </div>
+                            <p>Переключайте тему, глубину объяснения и способ показа шагов. Правая модель синхронизируется и для базового примера, и для каждой новой сгенерированной задачи.</p>
+                            <div class="formula-box">Например: MK : MA = MF : MC, а затем из долей получаем MF : FC.</div>
                             <div class="hint-actions">
                                 <button class="btn-small btn-accent" data-action="switch-tab" data-tab="practice">Открыть практику</button>
                                 <button class="btn-small btn-ghost" data-action="set-detail" data-detail="very">Сделать подробнее</button>
@@ -432,24 +492,25 @@
                     </div>
                 </div>
             </div>
+
             <div class="control-grid">
                 <label class="ctrl">
-            <span class="ctrl-row">Тема
-              <span class="hint-wrap">
-                <button class="hint-trigger" data-hint="hintTopic" aria-label="Подсказка по выбору темы" aria-expanded="false">?</button>
-                <span class="hint-pop" id="hintTopic" data-pos="right" role="tooltip" aria-hidden="true" aria-label="Подсказка по выбору темы">
-                  <span class="hint-arrow"></span>
-                  <span class="hint-inner">
-                    <span class="hint-head"><b>Чем отличаются темы</b><button class="hint-close" aria-label="Закрыть подсказку">×</button></span>
-                    <p><b>Теория</b> — опорные определения и стратегия. <b>Разбор</b> — полный образец решения. <b>Практика</b> — генерация и мини-квиз.</p>
-                    <div class="hint-actions">
-                      <button class="btn-small btn-accent" data-action="switch-tab" data-tab="example">Показать разбор</button>
-                      <button class="btn-small btn-ghost" data-action="switch-tab" data-tab="theory">Открыть теорию</button>
-                    </div>
-                  </span>
+          <span class="ctrl-row">Тема
+            <span class="hint-wrap">
+              <button class="hint-trigger" data-hint="hintTopic" aria-label="Подсказка по выбору темы" aria-expanded="false" aria-controls="hintTopic">?</button>
+              <span class="hint-pop" id="hintTopic" data-pos="right" role="tooltip" aria-hidden="true" aria-label="Подсказка по выбору темы">
+                <span class="hint-arrow"></span>
+                <span class="hint-inner">
+                  <span class="hint-head"><b>Чем отличаются разделы</b><button class="hint-close" aria-label="Закрыть подсказку">×</button></span>
+                  <p><b>Теория</b> — опорные правила. <b>Разбор</b> — строгий образец по 7 этапам. <b>Практика</b> — генерация, мини-квиз и самопроверка.</p>
+                  <div class="hint-actions">
+                    <button class="btn-small btn-accent" data-action="switch-tab" data-tab="example">Показать разбор</button>
+                    <button class="btn-small btn-ghost" data-action="switch-tab" data-tab="theory">Открыть теорию</button>
+                  </div>
                 </span>
               </span>
             </span>
+          </span>
                     <select id="tabSelect" aria-label="Выбор темы страницы">
                         <option value="theory">Теория</option>
                         <option value="example" selected>Разбор базовой задачи</option>
@@ -475,21 +536,21 @@
                 </label>
 
                 <label class="ctrl">
-            <span class="ctrl-row">Тип похожей задачи
-              <span class="hint-wrap">
-                <button class="hint-trigger" data-hint="hintGenType" aria-label="Подсказка по типу генерации" aria-expanded="false">!</button>
-                <span class="hint-pop" id="hintGenType" data-pos="right" role="tooltip" aria-hidden="true" aria-label="Подсказка по типу генерации">
-                  <span class="hint-arrow"></span>
-                  <span class="hint-inner">
-                    <span class="hint-head"><b>Как работает тип генерации</b><button class="hint-close" aria-label="Закрыть подсказку">×</button></span>
-                    <p>Можно тренировать задачи с медианой+параллельной, с биссектрисой или с теоремой Менелая. Метод решения остаётся тем же.</p>
-                    <div class="hint-actions">
-                      <button class="btn-small btn-accent" data-action="generate-now">Сгенерировать сейчас</button>
-                    </div>
-                  </span>
+          <span class="ctrl-row">Тип похожей задачи
+            <span class="hint-wrap">
+              <button class="hint-trigger" data-hint="hintGenType" aria-label="Подсказка по типу генерации" aria-expanded="false" aria-controls="hintGenType">!</button>
+              <span class="hint-pop" id="hintGenType" data-pos="right" role="tooltip" aria-hidden="true" aria-label="Подсказка по типу генерации">
+                <span class="hint-arrow"></span>
+                <span class="hint-inner">
+                  <span class="hint-head"><b>Как работает генерация</b><button class="hint-close" aria-label="Закрыть подсказку">×</button></span>
+                  <p>Выбираются безопасные параметры без вырожденных конфигураций. Для каждого типа автоматически строятся условие, ответ, краткая идея и новая модель справа.</p>
+                  <div class="hint-actions">
+                    <button class="btn-small btn-accent" data-action="generate-now">Сгенерировать сейчас</button>
+                  </div>
                 </span>
               </span>
             </span>
+          </span>
                     <select id="generatorType" aria-label="Выбор типа похожей задачи">
                         <option value="median">Медиана + параллельная</option>
                         <option value="bisector">Биссектриса</option>
@@ -497,9 +558,10 @@
                     </select>
                 </label>
             </div>
+
             <div class="chip-row">
-                <span class="chip">Только школьные методы</span>
-                <span class="chip">Без LaTeX в интерфейсе</span>
+                <span class="chip">Один автономный файл</span>
+                <span class="chip">Без CDN, MathJax и raw LaTeX</span>
                 <span class="chip">Печать и усиленная мобильная адаптация</span>
             </div>
         </aside>
@@ -519,10 +581,10 @@
                     <h2>Ядро темы в одном взгляде</h2>
                     <ul class="idea-list">
                         <li><b>1.</b> Видеть в чертеже сигналы метода: параллельные прямые, медиану, биссектрису, секущую.</li>
-                        <li><b>2.</b> Понимать, какие треугольники сравнивать при подобии.</li>
-                        <li><b>3.</b> Уметь получать отношения отрезков через подобие, свойство биссектрисы и Менелая.</li>
-                        <li><b>4.</b> Удобно задавать отношения через параметры <i>x</i>, <i>t</i>, <i>k</i> и не смешивать коэффициенты.</li>
-                        <li><b>5.</b> Проверять ответ: подстановка, сумма частей, единственность решения.</li>
+                        <li><b>2.</b> Понимать, какие треугольники или отрезки сравниваются и почему.</li>
+                        <li><b>3.</b> Получать отношения отрезков через подобие, свойство биссектрисы или Менелая.</li>
+                        <li><b>4.</b> Проверять, что порядок отношения не перепутан: 1:3 и 3:1 — разные ответы.</li>
+                        <li><b>5.</b> Делать явную проверку: подстановка, сумма частей, отсутствие альтернативного ответа.</li>
                     </ul>
                 </div>
 
@@ -532,15 +594,15 @@
                         <div>
                             <p><b>Медиана</b> — отрезок от вершины к середине противоположной стороны.</p>
                             <p><b>Биссектриса</b> — отрезок, делящий угол пополам.</p>
-                            <p><b>Подобие</b> — два угла равны ⇒ треугольники подобны ⇒ стороны пропорциональны.</p>
+                            <p><b>Подобие</b> — два угла равны, значит стороны соответствуют и пропорциональны.</p>
                         </div>
                         <div>
                             <div class="compact-formula" aria-label="Ключевые формулы">
                                 <div class="brace">{</div>
                                 <div class="sys-lines">
-                                    <div>Биссектриса: <i>AD/DB = AC/CB</i></div>
-                                    <div>Параллельные: <i>MK/KA = MF/FC</i></div>
-                                    <div>Менелай: <i>(AK/KB)·(BF/FC)·(CN/NA) = 1</i></div>
+                                    <div>Биссектриса: AD / DB = AC / CB</div>
+                                    <div>Параллельные: MK / MA = MF / MC</div>
+                                    <div>Менелай: (AK / KB) · (BF / FC) · (CN / NA) = 1</div>
                                 </div>
                             </div>
                         </div>
@@ -550,41 +612,44 @@
                 <div class="section">
                     <h3>Главная стратегия решения</h3>
                     <ol class="check-list">
-                        <li>Выделите главный отрезок, про который спрашивают.</li>
-                        <li>Найдите треугольник, где этот отрезок — сторона или часть стороны.</li>
-                        <li>Проверьте: есть ли параллельные прямые, биссектриса, медиана?</li>
-                        <li>Составьте пропорцию по соответствующему свойству.</li>
-                        <li>Только после этого переходите к вычислениям.</li>
+                        <li>Выделите отрезок или отношение, которое нужно найти.</li>
+                        <li>Определите, где в чертеже спрятан метод: подобие, биссектриса или Менелай.</li>
+                        <li>Запишите отношение строго для соответствующих элементов.</li>
+                        <li>Только потом переходите к вычислениям и сокращению отношений.</li>
+                        <li>После ответа проверьте, почему он подходит и почему не появляется второй вариант.</li>
                     </ol>
                 </div>
 
                 <div class="section">
                     <h3>Типичные ошибки</h3>
                     <ul class="mistake-list">
-                        <li><b>Перепутано направление отношения:</b> из <i>AK:KM = 1:3</i> делают <i>MK:KA = 1:3</i> вместо <i>3:1</i>.</li>
-                        <li><b>Пропорция между несоответствующими сторонами</b> подобных треугольников.</li>
+                        <li><b>Перепутано направление отношения:</b> из AK:KM = 1:3 делают MK:KA = 1:3 вместо 3:1.</li>
+                        <li><b>Пропорция составлена не для соответствующих сторон.</b></li>
                         <li><b>Забыто, что медиана делит сторону пополам.</b></li>
-                        <li><b>Свойство биссектрисы применено к неправильной стороне.</b></li>
-                        <li><b>В теореме Менелая неверно выбран порядок обхода.</b></li>
+                        <li><b>Свойство биссектрисы применено к неправильной паре сторон.</b></li>
+                        <li><b>В Менелае выбран неверный обход или перепутаны внешние и внутренние части.</b></li>
                     </ul>
                 </div>
             </section>
 
             <section class="tab-panel" id="panel-example" role="tabpanel" aria-label="Разбор задачи">
                 <div class="section">
-                    <div class="badge">Разбор по мотивам пособия</div>
+                    <div class="badge">Разбор по 7 этапам</div>
                     <h2>Базовая модель: медиана + параллельная прямая</h2>
-                    <p class="muted">В △<i>ABC</i> точка <i>M</i> — середина <i>BC</i>. На медиане <i>AM</i> взята точка <i>K</i>, причём <i>AK:KM = 1:2</i>. Через <i>K</i> проведена <i>KF ∥ AC</i>, <i>F ∈ BC</i>. Найти <i>MF:FC</i>.</p>
+                    <p class="muted" id="baseTaskText">
+                        В △ABC точка M — середина BC. На медиане AM взята точка K, причём AK:KM = 1:2.
+                        Через K проведена прямая KF, параллельная AC, F ∈ BC. Найти MF:FC.
+                    </p>
                 </div>
 
                 <div class="section">
                     <h3>Идея решения</h3>
                     <ul class="idea-list">
-                        <li>Заметить, что <i>KF ∥ AC</i> ⇒ △<i>MKF</i> ~ △<i>MAC</i> по двум углам.</li>
-                        <li>Из подобия получить пропорцию <i>MK/KA = MF/FC</i>.</li>
-                        <li>Подставить известное отношение <i>AK:KM = 1:2</i> ⇒ <i>MK:KA = 2:1</i>.</li>
-                        <li>Получить искомое отношение напрямую.</li>
-                        <li>Проверить: сумма частей на <i>BC</i> согласуется с тем, что <i>M</i> — середина.</li>
+                        <li>Замечаем, что KF ∥ AC, значит △MKF и △MAC подобны по двум углам.</li>
+                        <li>Из подобия получаем отношение долей: MK : MA = MF : MC.</li>
+                        <li>По условию AK:KM = 1:2, значит AM состоит из 3 одинаковых долей, а MK : MA = 2 : 3.</li>
+                        <li>Следовательно, MF : MC = 2 : 3. Тогда FC — это оставшаяся часть MC, то есть 1 доля.</li>
+                        <li>Значит MF : FC = 2 : 1. Проверка затем подтверждает, что другого ответа нет.</li>
                     </ul>
                 </div>
 
@@ -596,10 +661,10 @@
                 <div class="section">
                     <h3>Типичные ошибки именно в этой задаче</h3>
                     <ul class="mistake-list">
-                        <li>Записать пропорцию как <i>AK/KM = MF/FC</i> вместо <i>MK/KA = MF/FC</i>.</li>
-                        <li>Не учесть, что <i>M</i> — середина, и ошибиться при проверке.</li>
-                        <li>Перепутать порядок вершин при записи подобия.</li>
-                        <li>Не проверить, что найденное отношение действительно даёт целочисленные части.</li>
+                        <li>Сразу написать MK / KA = MF / FC без промежуточного обоснования через доли MA и MC.</li>
+                        <li>Не заметить, что AM = AK + KM, то есть при AK:KM = 1:2 получаем MK:MA = 2:3, а не 2:1.</li>
+                        <li>Перепутать, что FC — часть MC, а не самостоятельный коэффициент подобия.</li>
+                        <li>Сделать проверку только частично и не объяснить, почему иных значений быть не может.</li>
                     </ul>
                 </div>
             </section>
@@ -608,20 +673,18 @@
                 <div class="section">
                     <div class="badge">Тренировка и самопроверка</div>
                     <h2>Практика по тому же методу</h2>
-                    <p>Ниже — автоматически сгенерированная похожая задача. Она всегда использует тот же школьный путь: схема → подобие/свойство → пропорция → ответ → проверка.</p>
+                    <p>Ниже — автоматически сгенерированная похожая задача. Для неё сразу строятся корректная идея, ответ и модель справа без вырожденных случаев.</p>
                     <div class="generator">
                         <div class="sticky-header">
                             <h4>Генератор похожей задачи</h4>
                             <div class="hint-wrap">
-                                <button class="hint-trigger" data-hint="hintGenerator" aria-label="Подсказка по генератору" aria-expanded="false">!</button>
+                                <button class="hint-trigger" data-hint="hintGenerator" aria-label="Подсказка по генератору" aria-expanded="false" aria-controls="hintGenerator">!</button>
                                 <div class="hint-pop" id="hintGenerator" data-pos="left" role="tooltip" aria-hidden="true" aria-label="Подсказка по генератору">
                                     <div class="hint-arrow"></div>
                                     <div class="hint-inner">
                                         <div class="hint-head"><b>Что делает генератор</b><button class="hint-close" aria-label="Закрыть подсказку">×</button></div>
-                                        <p>Он подбирает корректные параметры без вырожденных случаев, сразу вычисляет ответ и автоматически обновляет модель справа.</p>
-                                        <div class="mathml-box">
-                                            <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mtext>схема</mtext><mo>→</mo><mtext>пропорция</mtext><mo>→</mo><mtext>ответ</mtext><mo>→</mo><mtext>проверка</mtext></mrow></math>
-                                        </div>
+                                        <p>Он выбирает параметры так, чтобы отношения были корректны, чертёж не вырождался, а модель справа сразу отражала новую конфигурацию.</p>
+                                        <div class="formula-box">Всегда строится: условие → идея → ответ → проверка модели.</div>
                                         <div class="hint-actions">
                                             <button class="btn-small btn-accent" data-action="generate-now">Сгенерировать сейчас</button>
                                             <button class="btn-small btn-ghost" data-action="switch-tab" data-tab="example">Сначала увидеть образец</button>
@@ -647,11 +710,11 @@
                     <h3>Самопроверка</h3>
                     <div class="selfcheck">
                         <ul class="check-list">
-                            <li>Я чётко вижу, какой отрезок требуется найти.</li>
-                            <li>Я умею распознавать подобие по двум углам.</li>
-                            <li>Я правильно записываю пропорцию для соответствующих сторон.</li>
-                            <li>Я не путаю направление отношения (<i>1:3</i> vs <i>3:1</i>).</li>
-                            <li>Я проверяю ответ подстановкой и суммой частей.</li>
+                            <li>Я вижу, какой именно отрезок или отношение требуется найти.</li>
+                            <li>Я понимаю, какие элементы соответствуют друг другу в подобии.</li>
+                            <li>Я различаю отношение части к целому и отношение части к другой части.</li>
+                            <li>Я не путаю направление отношения и умею переворачивать дробь осознанно.</li>
+                            <li>Я делаю явную проверку и объясняю, почему нет другого ответа.</li>
                         </ul>
                         <textarea aria-label="Поле для самопроверки" placeholder="Коротко запишите, где у Вас сейчас самое слабое место: распознавание подобия, запись пропорции, работа с отношениями, проверка ответа."></textarea>
                     </div>
@@ -662,10 +725,10 @@
                 <h3>Короткая памятка</h3>
                 <ol class="check-list">
                     <li>Ищите сигналы: параллельные ⇒ подобие, биссектриса ⇒ свойство, секущая ⇒ Менелай.</li>
-                    <li>Записывайте подобие в правильном порядке вершин.</li>
-                    <li>Пропорция: соответствующие стороны подобных треугольников.</li>
-                    <li>Отношения задавайте через один параметр в каждой части чертежа.</li>
-                    <li>Проверяйте: подстановка, сумма частей, единственность.</li>
+                    <li>Записывайте соответствие вершин и только потом пишите пропорцию.</li>
+                    <li>Не смешивайте отношения «часть : часть» и «часть : целое».</li>
+                    <li>Проверяйте сумму частей, подстановку и единственность ответа.</li>
+                    <li>Связывайте каждый шаг текста с конкретным элементом схемы.</li>
                 </ol>
             </section>
         </main>
@@ -675,15 +738,13 @@
                 <div class="sticky-header">
                     <h3>Интерактивная модель</h3>
                     <div class="hint-wrap">
-                        <button class="hint-trigger" data-hint="hintZoom" aria-label="Подсказка по масштабу и видимости" aria-expanded="false">?</button>
+                        <button class="hint-trigger" data-hint="hintZoom" aria-label="Подсказка по масштабу и видимости" aria-expanded="false" aria-controls="hintZoom">?</button>
                         <div class="hint-pop" id="hintZoom" data-pos="left" role="tooltip" aria-hidden="true" aria-label="Подсказка по масштабу и видимости">
                             <div class="hint-arrow"></div>
                             <div class="hint-inner">
                                 <div class="hint-head"><b>Зум и видимость</b><button class="hint-close" aria-label="Закрыть подсказку">×</button></div>
-                                <p>Масштаб меняет схему без потери пропорций. Можно увеличивать ползунком, кнопками или колесом мыши прямо на рисунке. Отдельно включаются подписи, отношения, уравнения.</p>
-                                <div class="mathml-box">
-                                    <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mtext>масштаб</mtext><mo>↑</mo><mtext>детали виднее</mtext></mrow></math>
-                                </div>
+                                <p>Масштаб работает ползунком, кнопками и колесом мыши прямо на рисунке. При наведении шага решения подсвечивается нужный элемент схемы, и наоборот.</p>
+                                <div class="formula-box">Наведение не декоративное: оно показывает, какой именно объект участвует в текущем рассуждении.</div>
                                 <div class="hint-actions">
                                     <button class="btn-small btn-accent" data-action="zoom-reset">Сбросить зум</button>
                                     <button class="btn-small btn-ghost" data-action="toggle-labels">Скрыть или показать подписи</button>
@@ -707,8 +768,8 @@
                 <div class="toggle-grid">
                     <label class="toggle"><input type="checkbox" id="toggleLabels" checked /> Подписи точек</label>
                     <label class="toggle"><input type="checkbox" id="toggleRatios" checked /> Показать отношения</label>
-                    <label class="toggle"><input type="checkbox" id="toggleParallel" checked /> Параллельность</label>
-                    <label class="toggle"><input type="checkbox" id="toggleEquation" checked /> Показать пропорцию</label>
+                    <label class="toggle"><input type="checkbox" id="toggleParallel" checked /> Показать спец. отметки</label>
+                    <label class="toggle"><input type="checkbox" id="toggleEquation" checked /> Показать ключевое соотношение</label>
                 </div>
 
                 <div class="viz-panel">
@@ -731,6 +792,14 @@
                                     <stop offset="0%" stop-color="#6d5320"/>
                                     <stop offset="100%" stop-color="#a27d32"/>
                                 </linearGradient>
+                                <linearGradient id="gradBis" x1="0" x2="1">
+                                    <stop offset="0%" stop-color="#8b5737"/>
+                                    <stop offset="100%" stop-color="#d59067"/>
+                                </linearGradient>
+                                <linearGradient id="gradMen" x1="0" x2="1">
+                                    <stop offset="0%" stop-color="#8a49bf"/>
+                                    <stop offset="100%" stop-color="#d9a3ff"/>
+                                </linearGradient>
                                 <filter id="softGlow">
                                     <feGaussianBlur stdDeviation="6" result="blur" />
                                     <feMerge>
@@ -738,92 +807,179 @@
                                         <feMergeNode in="SourceGraphic" />
                                     </feMerge>
                                 </filter>
-                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                    <polygon points="0 0, 10 3.5, 0 7" fill="#7cf8eb" />
-                                </marker>
                             </defs>
+
                             <g id="zoomGroup">
-                                <text x="30" y="48" fill="#dff7f4" font-size="28" font-weight="800">Модель задачи</text>
-                                <text x="30" y="80" fill="#98bfbd" font-size="18">Одинаковые цвета в схеме и в тексте обозначают одни и те же элементы.</text>
+                                <text x="30" y="48" fill="#dff7f4" font-size="28" font-weight="800" id="svgTitle">Модель задачи</text>
+                                <text x="30" y="80" fill="#98bfbd" font-size="18" id="svgSubtitle">Одинаковые акценты в схеме и тексте обозначают одни и те же элементы.</text>
 
-                                <!-- Triangle ABC -->
-                                <g id="triangle" transform="translate(80,150)">
-                                    <polygon id="triABC" points="0,400 760,400 280,80" fill="none" stroke="#7cf8eb" stroke-width="2.5" opacity=".9"/>
-                                    <text id="labelA" x="280" y="65" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="middle">A</text>
-                                    <text id="labelB" x="-15" y="415" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="end">B</text>
-                                    <text id="labelC" x="775" y="415" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="start">C</text>
-                                </g>
-
-                                <!-- Median AM -->
-                                <g id="median" class="viz-hotspot" data-step="step1" data-group="median">
-                                    <line x1="360" y1="230" x2="460" y2="550" stroke="url(#gradAccent)" stroke-width="3" stroke-dasharray="8 4" opacity=".85"/>
-                                    <circle cx="460" cy="550" r="5" fill="#7cf8eb"/>
-                                    <text id="labelM" x="475" y="565" fill="#abc9c7" font-size="16">M</text>
-                                    <text id="medianLabel" x="410" y="380" fill="#7cf8eb" font-size="15" font-style="italic">медиана</text>
-                                </g>
-
-                                <!-- Point K on AM -->
-                                <g id="pointK" class="viz-hotspot" data-step="step2" data-group="pointK">
-                                    <circle cx="390" cy="330" r="6" fill="#27d3c3" stroke="#052123" stroke-width="2"/>
-                                    <text id="labelK" x="405" y="325" fill="#ecfbfa" font-size="18" font-weight="700">K</text>
-                                </g>
-
-                                <!-- Parallel line KF -->
-                                <g id="parallel" class="viz-hotspot" data-step="step3" data-group="parallel">
-                                    <line x1="390" y1="330" x2="620" y2="550" stroke="url(#gradSecond)" stroke-width="3.5" opacity=".95"/>
-                                    <circle cx="620" cy="550" r="5" fill="#1ba091"/>
-                                    <text id="labelF" x="635" y="565" fill="#ecfbfa" font-size="18">F</text>
-                                    <!-- Parallel markers -->
-                                    <g id="parallelMarkers" transform="translate(480,420)">
-                                        <line x1="0" y1="0" x2="0" y2="18" stroke="#7cf8eb" stroke-width="2"/>
-                                        <line x1="8" y1="0" x2="8" y2="18" stroke="#7cf8eb" stroke-width="2"/>
+                                <!-- Median scene -->
+                                <g id="sceneMedian" class="scene" aria-hidden="false">
+                                    <g id="medianTriangle" class="viz-hotspot" tabindex="0" data-group="triangle" data-scene="median" transform="translate(80,150)">
+                                        <polygon points="0,400 760,400 280,80" fill="none" stroke="#7cf8eb" stroke-width="2.5" opacity=".9"/>
+                                        <text class="point-label" data-label="A" x="280" y="65" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="middle">A</text>
+                                        <text class="point-label" data-label="B" x="-15" y="415" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="end">B</text>
+                                        <text class="point-label" data-label="C" x="775" y="415" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="start">C</text>
                                     </g>
-                                    <text id="parallelLabel" x="510" y="450" fill="#7cf8eb" font-size="14" font-style="italic">KF ∥ AC</text>
+
+                                    <g id="medianLineGroup" class="viz-hotspot" tabindex="0" data-group="median" data-scene="median">
+                                        <line x1="360" y1="230" x2="460" y2="550" stroke="url(#gradAccent)" stroke-width="3" stroke-dasharray="8 4" opacity=".85"/>
+                                        <circle cx="460" cy="550" r="5" fill="#7cf8eb"/>
+                                        <text class="point-label" data-label="M" x="475" y="565" fill="#abc9c7" font-size="16">M</text>
+                                        <text x="410" y="380" fill="#7cf8eb" font-size="15" font-style="italic">медиана</text>
+                                    </g>
+
+                                    <g id="medianPointK" class="viz-hotspot" tabindex="0" data-group="pointK" data-scene="median">
+                                        <circle cx="390" cy="330" r="6" fill="#27d3c3" stroke="#052123" stroke-width="2"/>
+                                        <text class="point-label" data-label="K" x="405" y="325" fill="#ecfbfa" font-size="18" font-weight="700">K</text>
+                                    </g>
+
+                                    <g id="medianParallel" class="viz-hotspot" tabindex="0" data-group="parallel" data-scene="median">
+                                        <line x1="390" y1="330" x2="620" y2="550" stroke="url(#gradSecond)" stroke-width="3.5" opacity=".95"/>
+                                        <circle cx="620" cy="550" r="5" fill="#1ba091"/>
+                                        <text class="point-label" data-label="F" x="635" y="565" fill="#ecfbfa" font-size="18">F</text>
+                                        <g id="medianParallelMarkers" transform="translate(480,420)">
+                                            <line x1="0" y1="0" x2="0" y2="18" stroke="#7cf8eb" stroke-width="2"/>
+                                            <line x1="8" y1="0" x2="8" y2="18" stroke="#7cf8eb" stroke-width="2"/>
+                                        </g>
+                                        <g id="medianAcMarkers" transform="translate(565,255) rotate(-34)">
+                                            <line x1="0" y1="0" x2="0" y2="18" stroke="#7cf8eb" stroke-width="2"/>
+                                            <line x1="8" y1="0" x2="8" y2="18" stroke="#7cf8eb" stroke-width="2"/>
+                                        </g>
+                                        <text id="medianParallelLabel" x="510" y="450" fill="#7cf8eb" font-size="14" font-style="italic">KF ∥ AC</text>
+                                    </g>
+
+                                    <g id="medianRatioAM" class="viz-hotspot" tabindex="0" data-group="ratioAM" data-scene="median">
+                                        <text x="340" y="280" fill="#1d6a88" font-size="16" font-weight="700">AK</text>
+                                        <text x="420" y="430" fill="#1ba091" font-size="16" font-weight="700">KM</text>
+                                        <text id="medianAkKmText" x="380" y="360" fill="#7cf8eb" font-size="15">1 : 2</text>
+                                        <text id="medianMkMaText" x="322" y="404" fill="#d8f9f4" font-size="14">MK:MA = 2:3</text>
+                                    </g>
+
+                                    <g id="medianRatioBC" class="viz-hotspot" tabindex="0" data-group="ratioBC" data-scene="median">
+                                        <text x="520" y="580" fill="#1ba091" font-size="16" font-weight="700">MF</text>
+                                        <text x="680" y="580" fill="#a27d32" font-size="16" font-weight="700">FC</text>
+                                        <text id="medianAnswerRatio" x="590" y="610" fill="#7cf8eb" font-size="18" font-weight="800">MF:FC = 2:1</text>
+                                    </g>
+
+                                    <g id="medianEquationBox" class="viz-hotspot" tabindex="0" data-group="equation" data-scene="median" transform="translate(80,620)">
+                                        <rect x="0" y="0" width="760" height="90" rx="18" fill="#091519" stroke="rgba(124,248,235,.18)"/>
+                                        <text id="medianPropLine" x="380" y="42" fill="#eefefd" font-size="22" font-weight="800" text-anchor="middle">MK / MA = MF / MC</text>
+                                        <text id="medianPropSub" x="380" y="72" fill="#97bdbc" font-size="17" text-anchor="middle">2 / 3 = MF / MC ⇒ MF:FC = 2:1</text>
+                                    </g>
+
+                                    <g id="medianCheckBlock" class="viz-hotspot" tabindex="0" data-group="check" data-scene="median" transform="translate(80,740)">
+                                        <text x="0" y="0" fill="#d7f2ef" font-size="20" font-weight="700">Проверка</text>
+                                        <rect x="0" y="20" width="760" height="70" rx="16" fill="#091519" stroke="rgba(124,248,235,.18)"/>
+                                        <text id="medianCheckText1" x="20" y="47" fill="#dff6f4" font-size="16">Пусть MF = 2t, а FC = t. Тогда MC = 3t.</text>
+                                        <text id="medianCheckText2" x="20" y="69" fill="#9ac0bf" font-size="15">Из подобия получаем MF:MC = 2:3. Значит ответ согласован, а пропорция линейна — другого отношения нет.</text>
+                                    </g>
                                 </g>
 
-                                <!-- Ratios on AM -->
-                                <g id="ratioAM" class="viz-hotspot" data-step="step4" data-group="ratioAM">
-                                    <text id="ratioAK" x="340" y="280" fill="#1d6a88" font-size="16" font-weight="700">AK</text>
-                                    <text id="ratioKM" x="420" y="430" fill="#1ba091" font-size="16" font-weight="700">KM</text>
-                                    <text id="ratioValue" x="380" y="360" fill="#7cf8eb" font-size="15">1 : 2</text>
+                                <!-- Bisector scene -->
+                                <g id="sceneBisector" class="scene hide-scene" aria-hidden="true">
+                                    <g id="bisectorTriangle" class="viz-hotspot" tabindex="0" data-group="triangle" data-scene="bisector" transform="translate(100,160)">
+                                        <polygon points="0,420 700,420 260,80" fill="none" stroke="#7cf8eb" stroke-width="2.5" opacity=".92"/>
+                                        <text class="point-label" x="260" y="62" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="middle">C</text>
+                                        <text class="point-label" x="-14" y="438" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="end">A</text>
+                                        <text class="point-label" x="716" y="438" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="start">B</text>
+                                    </g>
+
+                                    <g id="bisectorMain" class="viz-hotspot" tabindex="0" data-group="bisector" data-scene="bisector">
+                                        <line x1="360" y1="240" x2="430" y2="580" stroke="url(#gradBis)" stroke-width="4"/>
+                                        <circle cx="430" cy="580" r="5" fill="#d59067"/>
+                                        <text class="point-label" x="445" y="598" fill="#ecfbfa" font-size="18" font-weight="700">D</text>
+                                        <text x="305" y="388" fill="#ffd7bf" font-size="15" font-style="italic">биссектриса CD</text>
+                                    </g>
+
+                                    <g id="bisectorAngles" class="viz-hotspot" tabindex="0" data-group="angles" data-scene="bisector">
+                                        <path d="M343 260 A40 40 0 0 1 370 288" fill="none" stroke="#ffd7bf" stroke-width="2"/>
+                                        <path d="M377 287 A40 40 0 0 1 399 259" fill="none" stroke="#ffd7bf" stroke-width="2"/>
+                                        <text x="330" y="256" fill="#ffd7bf" font-size="14">α</text>
+                                        <text x="405" y="256" fill="#ffd7bf" font-size="14">α</text>
+                                    </g>
+
+                                    <g id="bisectorRatio" class="viz-hotspot" tabindex="0" data-group="ratioAM" data-scene="bisector">
+                                        <text id="bisectorAcText" x="190" y="430" fill="#1d6a88" font-size="16" font-weight="700">AC = 6</text>
+                                        <text id="bisectorBcText" x="560" y="430" fill="#1ba091" font-size="16" font-weight="700">BC = 9</text>
+                                        <text id="bisectorAnswerRatio" x="440" y="620" fill="#7cf8eb" font-size="18" font-weight="800">AD:DB = 2:3</text>
+                                    </g>
+
+                                    <g id="bisectorEquationBox" class="viz-hotspot" tabindex="0" data-group="equation" data-scene="bisector" transform="translate(80,650)">
+                                        <rect x="0" y="0" width="760" height="85" rx="18" fill="#091519" stroke="rgba(124,248,235,.18)"/>
+                                        <text id="bisectorPropLine" x="380" y="38" fill="#eefefd" font-size="22" font-weight="800" text-anchor="middle">AD / DB = AC / CB</text>
+                                        <text id="bisectorPropSub" x="380" y="68" fill="#97bdbc" font-size="17" text-anchor="middle">6 / 9 = 2 / 3 ⇒ AD:DB = 2:3</text>
+                                    </g>
+
+                                    <g id="bisectorCheckBlock" class="viz-hotspot" tabindex="0" data-group="check" data-scene="bisector" transform="translate(80,760)">
+                                        <text x="0" y="0" fill="#d7f2ef" font-size="20" font-weight="700">Проверка</text>
+                                        <rect x="0" y="20" width="760" height="60" rx="16" fill="#091519" stroke="rgba(124,248,235,.18)"/>
+                                        <text id="bisectorCheckText" x="20" y="56" fill="#dff6f4" font-size="16">После сокращения отношение сторон единственно, значит и деление AB биссектрисой определяется однозначно.</text>
+                                    </g>
                                 </g>
 
-                                <!-- Ratios on BC -->
-                                <g id="ratioBC" class="viz-hotspot" data-step="step5" data-group="ratioBC">
-                                    <text id="ratioMF" x="520" y="580" fill="#1ba091" font-size="16" font-weight="700">MF</text>
-                                    <text id="ratioFC" x="680" y="580" fill="#a27d32" font-size="16" font-weight="700">FC</text>
-                                    <text id="answerRatio" x="590" y="610" fill="#7cf8eb" font-size="18" font-weight="800">MF:FC = 2:1</text>
-                                </g>
+                                <!-- Menelaus scene -->
+                                <g id="sceneMenelaus" class="scene hide-scene" aria-hidden="true">
+                                    <g id="menTriangle" class="viz-hotspot" tabindex="0" data-group="triangle" data-scene="menelaus" transform="translate(95,150)">
+                                        <polygon points="0,420 700,420 240,70" fill="none" stroke="#7cf8eb" stroke-width="2.5" opacity=".92"/>
+                                        <line x1="700" y1="420" x2="845" y2="420" stroke="#4ebcb1" stroke-width="2.2" stroke-dasharray="10 7" opacity=".8"/>
+                                        <text class="point-label" x="240" y="52" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="middle">A</text>
+                                        <text class="point-label" x="-14" y="438" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="end">B</text>
+                                        <text class="point-label" x="716" y="438" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="start">C</text>
+                                        <text class="point-label" x="852" y="438" fill="#ecfbfa" font-size="20" font-weight="700" text-anchor="start">N</text>
+                                    </g>
 
-                                <!-- Proportion box -->
-                                <g id="propBox" class="viz-hotspot" data-step="step5" data-group="equation" transform="translate(80,620)">
-                                    <rect x="0" y="0" width="760" height="90" rx="18" fill="#091519" stroke="rgba(124,248,235,.18)"/>
-                                    <text id="propLine" x="380" y="55" fill="#eefefd" font-size="24" font-weight="800" text-anchor="middle">MK / KA = MF / FC</text>
-                                    <text id="propSub" x="380" y="82" fill="#97bdbc" font-size="17" text-anchor="middle">2 / 1 = MF / FC ⇒ MF:FC = 2:1</text>
-                                </g>
+                                    <g id="menPointK" class="viz-hotspot" tabindex="0" data-group="pointK" data-scene="menelaus">
+                                        <circle cx="280" cy="315" r="6" fill="#d995ff" stroke="#052123" stroke-width="2"/>
+                                        <text class="point-label" x="295" y="308" fill="#ecfbfa" font-size="18" font-weight="700">K</text>
+                                    </g>
 
-                                <!-- Check block -->
-                                <g id="checkBlock" class="viz-hotspot" data-step="step6" data-group="check" transform="translate(80,740)">
-                                    <text x="0" y="0" fill="#d7f2ef" font-size="20" font-weight="700">Проверка</text>
-                                    <rect x="0" y="20" width="760" height="70" rx="16" fill="#091519" stroke="rgba(124,248,235,.18)"/>
-                                    <text id="checkText" x="20" y="45" fill="#dff6f4" font-size="16">Если MF = 2t, FC = t, то MC = 3t.</text>
-                                    <text id="checkText2" x="20" y="68" fill="#9ac0bf" font-size="15">M — середина ⇒ BM = MC = 3t ⇒ BF = 5t, FC = t ⇒ BF:FC = 5:1 (для расширенной задачи).</text>
+                                    <g id="menTransversal" class="viz-hotspot" tabindex="0" data-group="parallel" data-scene="menelaus">
+                                        <line x1="280" y1="315" x2="795" y2="570" stroke="url(#gradMen)" stroke-width="4"/>
+                                        <circle cx="590" cy="468" r="5" fill="#d995ff"/>
+                                        <text class="point-label" x="606" y="486" fill="#ecfbfa" font-size="18" font-weight="700">F</text>
+                                        <text x="505" y="370" fill="#f0d7ff" font-size="15" font-style="italic">секущая KN</text>
+                                    </g>
+
+                                    <g id="menRatios" class="viz-hotspot" tabindex="0" data-group="ratioAM" data-scene="menelaus">
+                                        <text id="menAkKbText" x="175" y="252" fill="#1d6a88" font-size="16" font-weight="700">AK:KB = 1:1</text>
+                                        <text id="menCnNaText" x="735" y="520" fill="#1ba091" font-size="16" font-weight="700">CN:NA = 1:2</text>
+                                        <text id="menAnswerRatio" x="560" y="520" fill="#7cf8eb" font-size="18" font-weight="800">BF:FC = 2:1</text>
+                                    </g>
+
+                                    <g id="menEquationBox" class="viz-hotspot" tabindex="0" data-group="equation" data-scene="menelaus" transform="translate(80,620)">
+                                        <rect x="0" y="0" width="760" height="90" rx="18" fill="#091519" stroke="rgba(124,248,235,.18)"/>
+                                        <text id="menPropLine" x="380" y="40" fill="#eefefd" font-size="20" font-weight="800" text-anchor="middle">(AK / KB) · (BF / FC) · (CN / NA) = 1</text>
+                                        <text id="menPropSub" x="380" y="72" fill="#97bdbc" font-size="17" text-anchor="middle">(1/1) · (BF/FC) · (1/2) = 1 ⇒ BF:FC = 2:1</text>
+                                    </g>
+
+                                    <g id="menCheckBlock" class="viz-hotspot" tabindex="0" data-group="check" data-scene="menelaus" transform="translate(80,742)">
+                                        <text x="0" y="0" fill="#d7f2ef" font-size="20" font-weight="700">Проверка</text>
+                                        <rect x="0" y="20" width="760" height="68" rx="16" fill="#091519" stroke="rgba(124,248,235,.18)"/>
+                                        <text id="menCheckText1" x="20" y="46" fill="#dff6f4" font-size="16">Подставляем найденное BF / FC в произведение Менелая и получаем 1.</text>
+                                        <text id="menCheckText2" x="20" y="68" fill="#9ac0bf" font-size="15">Так как все остальные отношения уже заданы, искомое отношение определяется единственным образом.</text>
+                                    </g>
+
+                                    <g id="menHiddenGuide" class="viz-hotspot" tabindex="0" data-group="check" data-scene="menelaus">
+                                        <line x1="335" y1="260" x2="675" y2="420" stroke="#9d8cb2" stroke-width="1.8" stroke-dasharray="9 7" opacity=".55"/>
+                                        <text x="420" y="248" fill="#baa8cf" font-size="14">вспомогательная скрытая линия</text>
+                                    </g>
                                 </g>
                             </g>
                         </svg>
                     </div>
 
                     <div class="legend" aria-label="Легенда обозначений">
-                        <div class="legend-item"><span class="swatch" style="background:var(--median)"></span> медиана</div>
-                        <div class="legend-item"><span class="swatch" style="background:var(--second)"></span> параллельный отрезок</div>
+                        <div class="legend-item"><span class="swatch" style="background:var(--median)"></span> медиана / внутренняя линия</div>
+                        <div class="legend-item"><span class="swatch" style="background:var(--second)"></span> параллельный или выделенный отрезок</div>
                         <div class="legend-item"><span class="swatch" style="background:var(--third)"></span> искомое отношение</div>
-                        <div class="legend-item"><span class="swatch" style="background:var(--accent2)"></span> связь с шагами решения</div>
+                        <div class="legend-item"><span class="swatch" style="background:var(--accent2)"></span> активная связка шага и схемы</div>
                     </div>
 
                     <div class="value-board">
-                        <div class="value-card"><b>AK:KM</b><span id="valueRatio1">1:2</span></div>
-                        <div class="value-card"><b>MK:KA</b><span id="valueRatio2">2:1</span></div>
-                        <div class="value-card"><b>MF:FC</b><span id="valueAnswer">2:1</span></div>
+                        <div class="value-card"><b id="boardLabel1">Дано</b><span id="valueRatio1">1:2</span></div>
+                        <div class="value-card"><b id="boardLabel2">Ключевой переход</b><span id="valueRatio2">2:3</span></div>
+                        <div class="value-card"><b id="boardLabel3">Ответ</b><span id="valueAnswer">2:1</span></div>
                         <div class="value-card"><b>Тип задачи</b><span id="valueType">Медиана + ∥</span></div>
                     </div>
                 </div>
@@ -847,11 +1003,12 @@
         currentStep: 0,
         example: {
             type: 'median',
-            akKm: [1, 2],
-            mkKa: [2, 1],
-            mfFc: [2, 1],
-            description: 'Медиана + параллельная',
-            prop: 'MK/KA = MF/FC'
+            akKm: [1,2],
+            mkMa: [2,3],
+            mfMc: [2,3],
+            mfFc: [2,1],
+            description: 'Медиана + ∥',
+            prop: 'MK / MA = MF / MC'
         },
         generated: null,
         applied: 'example',
@@ -860,59 +1017,139 @@
 
     const detailText = {
         short: {
-            given: 'Дано: △ABC, M — середина BC, K ∈ AM, AK:KM = 1:2, KF ∥ AC.',
-            meaning: 'KF ∥ AC ⇒ △MKF ~ △MAC по двум углам (накрест лежащие).',
-            interp: 'На схеме видно: параллельные прямые дают равные углы ⇒ подобие.',
-            idea: 'Из подобия: MK/KA = MF/FC. Подставляем MK:KA = 2:1.',
-            solve: '2/1 = MF/FC ⇒ MF:FC = 2:1.',
-            check: 'Проверка: если MF = 2t, FC = t, то MC = 3t. M — середина ⇒ согласуется.',
-            conclusion: 'Ответ: MF:FC = 2:1.'
+            median: {
+                given: 'Дано: △ABC, M — середина BC, K ∈ AM, AK:KM = 1:2, KF ∥ AC.',
+                meaning: 'KF ∥ AC ⇒ △MKF ~ △MAC по двум углам.',
+                interp: 'Параллельная внутренняя прямая создаёт маленький треугольник, подобный большому.',
+                idea: 'Из AK:KM = 1:2 получаем AM из 3 долей, поэтому MK:MA = 2:3.',
+                solve: 'Из подобия: MK:MA = MF:MC = 2:3. Тогда MC делится как 2 и 1, значит MF:FC = 2:1.',
+                check: 'Если MF = 2t и FC = t, то MC = 3t. Это совпадает с отношением 2:3.',
+                conclusion: 'Ответ: MF:FC = 2:1.'
+            },
+            bisector: {
+                given: 'Дано: в △ABC биссектриса CD пересекает AB в точке D.',
+                meaning: 'Биссектриса делит угол при C на две равные части.',
+                interp: 'Точка D на стороне AB делит её в отношении прилежащих сторон.',
+                idea: 'Используем свойство биссектрисы: AD:DB = AC:CB.',
+                solve: 'Подставляем числа и сокращаем отношение.',
+                check: 'После сокращения получается единственное отношение.',
+                conclusion: 'Ответ найден по свойству биссектрисы.'
+            },
+            menelaus: {
+                given: 'Дано: секущая KN пересекает стороны треугольника и их продолжение.',
+                meaning: 'Это классическая конфигурация для теоремы Менелая.',
+                interp: 'Нужно связать три отношения в одном произведении.',
+                idea: 'Используем: (AK/KB)·(BF/FC)·(CN/NA)=1.',
+                solve: 'Подставляем два известных отношения и находим третье.',
+                check: 'Обратная подстановка возвращает произведение 1.',
+                conclusion: 'Ответ найден единственным образом.'
+            }
         },
         standard: {
-            given: 'В треугольнике ABC точка M — середина стороны BC. На медиане AM взята точка K, причём AK:KM = 1:2. Через точку K проведена прямая KF, параллельная AC, точка F лежит на BC.',
-            meaning: 'Параллельность KF ∥ AC даёт равные накрест лежащие углы: ∠MKF = ∠MAC и ∠MFK = ∠MCA. Следовательно, △MKF подобен △MAC по двум углам.',
-            interp: 'На интерактивной схеме параллельные прямые выделены, равные углы можно увидеть визуально. Подобие означает пропорциональность соответствующих сторон.',
-            idea: 'Ключевой ход: записать пропорцию для соответствующих сторон подобных треугольников. Важно правильно сопоставить вершины: M↔M, K↔A, F↔C.',
-            solve: 'Из подобия: MK/MA = MF/MC = KF/AC. Но нам нужно отношение на BC, поэтому берём MK/KA = MF/FC (после преобразования). Так как AK:KM = 1:2, то MK:KA = 2:1. Следовательно, MF:FC = 2:1.',
-            check: 'Проверим: пусть FC = t, тогда MF = 2t, MC = 3t. Так как M — середина, то BM = 3t, и вся сторона BC = 6t. Все части целочисленные, условие выполнено. Других решений нет — пропорция линейная.',
-            conclusion: 'Искомое отношение: MF:FC = 2:1. Метод сработал: параллельность → подобие → пропорция → ответ.'
+            median: {
+                given: 'В треугольнике ABC точка M — середина стороны BC. На медиане AM выбрана точка K так, что AK:KM = 1:2. Через K проведена прямая KF, параллельная AC, причём F лежит на BC.',
+                meaning: 'Из параллельности KF ∥ AC получаем пары равных углов: ∠MKF = ∠MAC и ∠MFK = ∠MCA. Следовательно, △MKF и △MAC подобны по двум углам.',
+                interp: 'На схеме маленький треугольник MKF расположен внутри большого MAC и имеет те же углы. Поэтому соответствующие стороны этих треугольников относятся одинаково.',
+                idea: 'Нужно не перепутать отношения: сначала из условия AK:KM = 1:2 находим отношение части медианы к целой медиане. Так как AM = AK + KM, то AM состоит из 3 равных долей, а значит MK:MA = 2:3.',
+                solve: 'Из подобия получаем MK:MA = MF:MC. Уже найдено, что MK:MA = 2:3, значит MF:MC = 2:3. Следовательно, если MC состоит из 3 долей, то MF — это 2 доли, а FC = MC − MF — 1 доля. Поэтому MF:FC = 2:1.',
+                check: 'Пусть MF = 2t и FC = t. Тогда MC = 3t, то есть MF:MC = 2:3, как и требует подобие. Пропорция линейна и все остальные величины фиксированы, поэтому другого отношения MF:FC возникнуть не может.',
+                conclusion: 'Итак, искомое отношение равно 2:1. Правильный путь: параллельность → подобие → часть к целому → часть к остатку.'
+            },
+            bisector: {
+                given: 'В треугольнике ABC биссектриса CD угла при вершине C пересекает сторону AB в точке D. Заданы длины AC и CB, требуется найти отношение AD:DB.',
+                meaning: 'Поскольку CD — биссектриса, она делит угол ACB на две равные части. Для такой конфигурации действует специальное свойство биссектрисы.',
+                interp: 'Точка D делит сторону AB не случайно, а строго пропорционально двум сторонам, прилежащим к делимому углу: AC и CB.',
+                idea: 'Ключевой ход очень короткий: сразу применить свойство биссектрисы и затем сократить отношение, если это возможно.',
+                solve: 'Используем формулу AD:DB = AC:CB. Подставляем заданные числа, получаем числовое отношение, а затем сокращаем его до простейшего вида. Именно это и есть искомое деление стороны AB.',
+                check: 'Свойство биссектрисы однозначно связывает деление стороны AB с длинами AC и CB. После сокращения остаётся единственное отношение, поэтому иных ответов нет.',
+                conclusion: 'Ответ находится напрямую по формуле биссектрисы: AD:DB = AC:CB.'
+            },
+            menelaus: {
+                given: 'В треугольнике ABC точка K делит сторону AB, точка F лежит на BC, а точка N взята на продолжении AC. Прямая KN проходит через F. Требуется найти отношение BF:FC.',
+                meaning: 'Если одна прямая пересекает три стороны треугольника или их продолжения, возникает конфигурация для теоремы Менелая.',
+                interp: 'Теорема Менелая связывает три отношения на сторонах в одно произведение. Два отношения известны по условию, третье — искомое.',
+                idea: 'Нужно аккуратно сохранить порядок отрезков и подставить известные данные в формулу (AK/KB) · (BF/FC) · (CN/NA) = 1.',
+                solve: 'Подставляем известные отношения AK:KB и CN:NA в произведение Менелая. После этого остаётся единственная неизвестная дробь BF/FC. Выражаем её и переводим в отношение BF:FC.',
+                check: 'После нахождения BF/FC делаем обратную подстановку в произведение. Оно должно снова дать 1. Так как остальные множители уже фиксированы, полученное отношение единственно.',
+                conclusion: 'Искомое отношение BF:FC находится прямо из теоремы Менелая после подстановки данных.'
+            }
         },
         very: {
-            given: 'Рассматриваем задачу: в △ABC точка M — середина стороны BC, значит BM = MC. На медиане AM выбрана точка K так, что AK:KM = 1:2. Через K проведена прямая, параллельная стороне AC; она пересекает BC в точке F. Требуется найти отношение отрезков MF и FC.',
-            meaning: 'Параллельность двух прямых (KF и AC) при пересечении секущими (AM и BC) даёт пары равных углов: накрест лежащие ∠MKF и ∠MAC, а также ∠MFK и ∠MCA. Это классический признак подобия треугольников по двум углам: если два угла одного треугольника равны двум углам другого, то треугольники подобны.',
-            interp: 'Графическая модель наглядно показывает: при проведении параллельной прямой внутри треугольника образуется меньший треугольник, подобный исходному. Соответственные вершины: M общая, K соответствует A, F соответствует C. Это важно для правильной записи пропорции.',
-            idea: 'Стратегия: 1) установить подобие △MKF ~ △MAC; 2) выписать отношение соответствующих сторон; 3) выразить искомое отношение через известное; 4) подставить числовые значения. Ключ — не перепутать порядок вершин при записи подобия.',
-            solve: 'Из подобия △MKF ~ △MAC следует: MK/MA = MF/MC = KF/AC. Нам нужно отношение на стороне BC, поэтому преобразуем: из пропорции для отрезков на медиане и основании получаем MK/KA = MF/FC (это стандартное следствие для такой конфигурации). По условию AK:KM = 1:2, значит MK:KA = 2:1. Подставляем: 2/1 = MF/FC. Следовательно, MF:FC = 2:1.',
-            check: 'Детальная проверка: пусть единичный отрезок на ответе — t. Тогда FC = t, MF = 2t, значит вся часть от M до C равна MC = MF + FC = 3t. Поскольку M — середина BC, то и левая часть тоже 3t: BM = 3t. Тогда вся сторона BC = 6t, и все отношения целочисленные. Уравнение пропорции линейное, поэтому решение единственно. Подстановка в исходное условие подтверждает: при таком делении параллельность сохраняется.',
-            conclusion: 'Ответ: отношение отрезков на стороне равно 2:1. Алгоритм универсален: распознать параллельность → доказать подобие → записать пропорцию → подставить данные → проверить. Этот путь работает для всех задач данного типа.'
+            median: {
+                given: 'Рассматриваем задачу: в △ABC точка M — середина стороны BC, следовательно BM = MC. Отрезок AM является медианой. На AM взята точка K так, что AK:KM = 1:2. Через K проведена прямая KF, параллельная стороне AC, и она пересекает сторону BC в точке F. Требуется найти отношение MF:FC.',
+                meaning: 'Параллельность KF и AC даёт две пары равных углов: ∠MKF равен ∠MAC, а ∠MFK равен ∠MCA. Значит, треугольники MKF и MAC подобны по признаку двух углов. Это ключевой геометрический факт, который запускает всё решение.',
+                interp: 'Подобие здесь связывает маленький внутренний треугольник MKF с большим треугольником MAC. Поэтому коэффициент уменьшения одинаков для всех соответствующих сторон. Очень важно увидеть соответствие вершин: M ↔ M, K ↔ A, F ↔ C.',
+                idea: 'Главная тонкость не в самом подобии, а в правильной работе с долями. По условию AK:KM = 1:2. Это отношение двух частей медианы AM. Значит AM состоит из 1 + 2 = 3 равных долей, где MK занимает 2 доли. Следовательно, MK:MA = 2:3. Именно это отношение нужно подставлять в результат подобия.',
+                solve: 'Из подобия △MKF ~ △MAC получаем равенство отношений соответствующих сторон: MK:MA = MF:MC. Мы уже выяснили, что MK:MA = 2:3, значит MF:MC = 2:3. Теперь рассматриваем сторону MC как 3 одинаковые доли: две из них приходятся на MF, а оставшаяся одна доля — на FC, потому что FC = MC − MF. Поэтому MF:FC = 2:1.',
+                check: 'Проведём явную проверку. Пусть MF = 2t, FC = t. Тогда MC = MF + FC = 3t. Отсюда действительно получается MF:MC = 2:3, а это совпадает с отношением MK:MA, полученным из подобия. Почему нет других ответов? Потому что коэффициент подобия уже однозначно определён отношением MK:MA = 2:3. Тогда доля MF внутри MC тоже фиксирована, и остаток FC определяется единственным образом.',
+                conclusion: 'Итак, MF:FC = 2:1. Важный методический вывод: при работе с подобием нужно чётко различать отношение части к целому и отношение части к другой части.'
+            },
+            bisector: {
+                given: 'Имеем треугольник ABC. Из вершины C проведена биссектриса CD, которая пересекает сторону AB в точке D. Заданы длины двух сторон, прилежащих к углу C: AC и CB. Нужно найти, как биссектриса делит сторону AB, то есть отношение AD:DB.',
+                meaning: 'Так как CD является биссектрисой, то угол ACB делится на две равные части. Для такой конфигурации в школьной геометрии действует фундаментальное свойство: биссектриса внутреннего угла делит противоположную сторону пропорционально прилежащим сторонам треугольника.',
+                interp: 'Графически это значит, что точка D на стороне AB расположена не произвольно. Чем длиннее одна из сторон AC или CB, тем больший кусок на AB соответствует ей в отношении деления.',
+                idea: 'Здесь не нужно строить длинную цепочку преобразований. Главный шаг — сразу опознать признак «биссектриса делит сторону» и применить формулу AD:DB = AC:CB. После этого остаётся только аккуратно подставить значения и при необходимости сократить дробь.',
+                solve: 'Записываем свойство биссектрисы: AD / DB = AC / CB. Подставляем известные длины AC и CB из условия. Получаем числовое отношение отрезков AD и DB. Если числа имеют общий делитель, сокращаем отношение до простейшего вида — именно эта запись и является окончательным ответом.',
+                check: 'Почему ответ единственный? Потому что при фиксированных AC и CB биссектриса обязана делить сторону AB в строго определённом отношении. Проверка выполняется прямой подстановкой в формулу AD / DB = AC / CB. После сокращения мы видим то же отношение, следовательно деление найдено корректно.',
+                conclusion: 'Для задач такого типа алгоритм предельно стабилен: увидеть биссектрису, написать AD:DB = AC:CB, подставить числа, сократить отношение.'
+            },
+            menelaus: {
+                given: 'Рассматривается треугольник ABC. Точка K делит сторону AB, точка F лежит на стороне BC, а точка N расположена на продолжении AC. Прямая KN проходит через F. Известны отношения AK:KB и CN:NA. Нужно найти отношение BF:FC.',
+                meaning: 'Когда одна прямая пересекает стороны треугольника и, возможно, их продолжения, возникает классическая конфигурация для теоремы Менелая. Она связывает три отношения на трёх сторонах в одном произведении.',
+                interp: 'На схеме секущая KN пересекает сторону AB в точке K, сторону BC в точке F и продолжение AC в точке N. Поэтому произведение трёх отношений становится равным 1. Это и есть основной вычислительный каркас задачи.',
+                idea: 'Важно не потерять порядок отрезков. Формула применяется в виде (AK/KB) · (BF/FC) · (CN/NA) = 1. Два множителя известны. Значит неизвестное BF/FC выражается простым алгебраическим действием.',
+                solve: 'Подставляем в формулу Менелая известные данные AK:KB и CN:NA. После подстановки остаётся единственная неизвестная дробь BF / FC. Переносим известные множители в другую часть равенства, находим BF / FC и затем записываем это как отношение BF:FC в удобном виде.',
+                check: 'Проверка предельно прозрачна: возвращаем найденное BF / FC обратно в произведение Менелая. Если итог снова равен 1, вычисление верно. Почему других вариантов нет? Потому что два остальных множителя уже зафиксированы условием, а значит третий множитель определяется однозначно.',
+                conclusion: 'В задачах этого типа нужно хладнокровно распознать секущую и сразу переходить к произведению Менелая. Дальше остаётся только аккуратная подстановка.'
+            }
         }
     };
 
-    const stepsMeta = [
-        { id:'step1', title:'1) Что дано', field:'given', hotspot:'median', focus:'median' },
-        { id:'step2', title:'2) Что означает условие', field:'meaning', hotspot:'parallel', focus:'parallel' },
-        { id:'step3', title:'3) Графическая интерпретация', field:'interp', hotspot:'triangle', focus:'triangle' },
-        { id:'step4', title:'4) Ключевая идея', field:'idea', hotspot:'ratioAM', focus:'ratioAM' },
-        { id:'step5', title:'5) Пошаговое решение', field:'solve', hotspot:'propBox', focus:'equation' },
-        { id:'step6', title:'6) Проверка ответа', field:'check', hotspot:'checkBlock', focus:'check' },
-        { id:'step7', title:'7) Вывод', field:'conclusion', hotspot:'checkBlock', focus:'check' }
-    ];
+    const stepsMetaByType = {
+        median: [
+            { id:'step1', title:'1) Что дано', field:'given', hotspot:'triangle', focus:'triangle' },
+            { id:'step2', title:'2) Смысл условий', field:'meaning', hotspot:'parallel', focus:'parallel' },
+            { id:'step3', title:'3) Интерпретация', field:'interp', hotspot:'triangle', focus:'triangle' },
+            { id:'step4', title:'4) Идея', field:'idea', hotspot:'ratioAM', focus:'ratioAM' },
+            { id:'step5', title:'5) Решение', field:'solve', hotspot:'equation', focus:'equation' },
+            { id:'step6', title:'6) Проверка', field:'check', hotspot:'check', focus:'check' },
+            { id:'step7', title:'7) Вывод', field:'conclusion', hotspot:'check', focus:'check' }
+        ],
+        bisector: [
+            { id:'step1', title:'1) Что дано', field:'given', hotspot:'triangle', focus:'triangle' },
+            { id:'step2', title:'2) Смысл условий', field:'meaning', hotspot:'bisector', focus:'bisector' },
+            { id:'step3', title:'3) Интерпретация', field:'interp', hotspot:'angles', focus:'angles' },
+            { id:'step4', title:'4) Идея', field:'idea', hotspot:'ratioAM', focus:'ratioAM' },
+            { id:'step5', title:'5) Решение', field:'solve', hotspot:'equation', focus:'equation' },
+            { id:'step6', title:'6) Проверка', field:'check', hotspot:'check', focus:'check' },
+            { id:'step7', title:'7) Вывод', field:'conclusion', hotspot:'check', focus:'check' }
+        ],
+        menelaus: [
+            { id:'step1', title:'1) Что дано', field:'given', hotspot:'triangle', focus:'triangle' },
+            { id:'step2', title:'2) Смысл условий', field:'meaning', hotspot:'parallel', focus:'parallel' },
+            { id:'step3', title:'3) Интерпретация', field:'interp', hotspot:'pointK', focus:'pointK' },
+            { id:'step4', title:'4) Идея', field:'idea', hotspot:'ratioAM', focus:'ratioAM' },
+            { id:'step5', title:'5) Решение', field:'solve', hotspot:'equation', focus:'equation' },
+            { id:'step6', title:'6) Проверка', field:'check', hotspot:'check', focus:'check' },
+            { id:'step7', title:'7) Вывод', field:'conclusion', hotspot:'check', focus:'check' }
+        ]
+    };
 
     const quizData = [
         {
-            q: 'Если KF ∥ AC в △ABC, какие треугольники подобны?',
+            q: 'Если KF ∥ AC, какие треугольники в базовой задаче подобны?',
             options: ['△AKF ~ △ABC', '△MKF ~ △MAC', '△KFC ~ △ABC'], correct:1,
-            expl:'Параллельные прямые дают равные накрест лежащие углы ⇒ △MKF ~ △MAC.'
+            expl:'Параллельность даёт равные углы, поэтому △MKF ~ △MAC.'
         },
         {
-            q: 'Если AK:KM = 1:3, чему равно MK:KA?',
-            options: ['1:3', '3:1', '1:4'], correct:1,
-            expl:'Надо перевернуть отношение: из 1:3 получаем 3:1.'
+            q: 'Если AK:KM = 1:2, чему равно MK:MA?',
+            options: ['2:1', '2:3', '1:3'], correct:1,
+            expl:'AM состоит из 3 долей, а MK занимает 2 из них, значит MK:MA = 2:3.'
         },
         {
-            q: 'Как записать пропорцию для задачи с медианой и параллельной?',
-            options: ['AK/KM = FC/MF', 'MK/KA = MF/FC', 'AM/MK = AC/KF'], correct:1,
-            expl:'Соответствующие стороны подобных треугольников: MK↔KA, MF↔FC.'
+            q: 'Какое ключевое равенство используется в базовой задаче после доказательства подобия?',
+            options: ['MK/KA = MF/FC', 'MK/MA = MF/MC', 'AK/AM = FC/MC'], correct:1,
+            expl:'Сначала нужно связать часть с целым: MK:MA = MF:MC.'
         }
     ];
 
@@ -920,6 +1157,16 @@
     const els = (sel, root=document) => [...root.querySelectorAll(sel)];
 
     function formatRatio(a,b){ return `${a}:${b}`; }
+
+    function gcd(a,b){
+        while(b){ [a,b] = [b, a % b]; }
+        return Math.abs(a);
+    }
+
+    function simplifyRatio(a,b){
+        const g = gcd(a,b);
+        return [a/g, b/g];
+    }
 
     function showToast(text){
         const t = el('#toast');
@@ -933,39 +1180,73 @@
         return state.applied === 'generated' && state.generated ? state.generated : state.example;
     }
 
+    function currentType(){
+        return activeData().type;
+    }
+
+    function currentStepMeta(){
+        const arr = stepsMetaByType[currentType()];
+        return arr[state.currentStep] || arr[0];
+    }
+
+    function getFormulaByType(type, idx, data){
+        if(type === 'median'){
+            if(idx === 3) return `AK : KM = ${formatRatio(data.akKm[0], data.akKm[1])} ⇒ MK : MA = ${formatRatio(data.mkMa[0], data.mkMa[1])}`;
+            if(idx === 4) return `MK / MA = MF / MC = ${data.mkMa[0]} / ${data.mkMa[1]} ⇒ MF : FC = ${formatRatio(data.mfFc[0], data.mfFc[1])}`;
+            if(idx === 5) return `Проверка: MF = ${data.mfFc[0]}t, FC = ${data.mfFc[1]}t ⇒ MC = ${(data.mfFc[0]+data.mfFc[1])}t`;
+            return '';
+        }
+        if(type === 'bisector'){
+            if(idx === 3) return `Свойство биссектрисы: AD / DB = AC / CB`;
+            if(idx === 4) return `${data.ac} / ${data.bc} = ${data.ratio[0]} / ${data.ratio[1]} ⇒ AD : DB = ${formatRatio(data.ratio[0], data.ratio[1])}`;
+            if(idx === 5) return `Проверка: ${data.ratio[0]} / ${data.ratio[1]} = ${data.ac} / ${data.bc} после сокращения`;
+            return '';
+        }
+        if(type === 'menelaus'){
+            if(idx === 3) return `(AK / KB) · (BF / FC) · (CN / NA) = 1`;
+            if(idx === 4) return `(${data.ak_kb[0]}/${data.ak_kb[1]}) · (BF/FC) · (${data.cn_na[0]}/${data.cn_na[1]}) = 1 ⇒ BF : FC = ${formatRatio(data.bf_fc[0], data.bf_fc[1])}`;
+            if(idx === 5) return `Проверка: (${data.ak_kb[0]}/${data.ak_kb[1]}) · (${data.bf_fc[0]}/${data.bf_fc[1]}) · (${data.cn_na[0]}/${data.cn_na[1]}) = 1`;
+            return '';
+        }
+        return '';
+    }
+
     function renderSteps(){
         const wrap = el('#stepsWrap');
         const stepper = el('#stepper');
-        const texts = detailText[state.detail];
+        const type = currentType();
+        const texts = detailText[state.detail][type];
+        const metaList = stepsMetaByType[type];
+
         wrap.innerHTML = '';
         stepper.innerHTML = '';
 
-        stepsMeta.forEach((meta, idx) => {
+        metaList.forEach((meta, idx) => {
             const btn = document.createElement('button');
             btn.className = 'step-btn' + (idx === state.currentStep ? ' active' : '');
             btn.textContent = idx + 1;
             btn.title = meta.title;
             btn.setAttribute('aria-label', meta.title);
+            btn.dataset.focus = meta.focus;
             btn.addEventListener('click', () => {
                 state.currentStep = idx;
                 updateStepVisibility(true);
             });
+            btn.addEventListener('mouseenter', () => syncHighlightByGroup(meta.focus, meta.id));
+            btn.addEventListener('mouseleave', clearHighlights);
             stepper.appendChild(btn);
 
             const s = document.createElement('article');
             s.className = 'step';
             s.id = meta.id;
-            s.dataset.hotspot = meta.hotspot;
             s.dataset.focus = meta.focus;
+            s.tabIndex = 0;
 
-            let extra = '';
-            if (meta.id === 'step4') extra = '<div class="formula">△MKF ~ △MAC ⇒ MK/KA = MF/FC</div>';
-            if (meta.id === 'step5') extra = '<div class="formula">AK:KM = 1:2 ⇒ MK:KA = 2:1 ⇒ MF:FC = 2:1</div>';
-            if (meta.id === 'step6') extra = '<div class="formula">Проверка: MF=2t, FC=t ⇒ MC=3t, BM=3t ✓</div>';
+            const formula = getFormulaByType(type, idx, activeData());
+            s.innerHTML = `<h4>${meta.title}</h4><p>${texts[meta.field]}</p>${formula ? `<div class="formula">${formula}</div>` : ''}`;
 
-            s.innerHTML = `<h4>${meta.title}</h4><p>${texts[meta.field]}</p>${extra}`;
-            s.addEventListener('mouseenter', () => syncHighlight(meta));
-            s.addEventListener('focusin', () => syncHighlight(meta));
+            s.addEventListener('mouseenter', () => syncHighlightByGroup(meta.focus, meta.id));
+            s.addEventListener('focusin', () => syncHighlightByGroup(meta.focus, meta.id));
             s.addEventListener('mouseleave', clearHighlights);
             wrap.appendChild(s);
         });
@@ -980,10 +1261,13 @@
             const visible = state.reveal === 'all' || idx <= state.currentStep;
             s.classList.toggle('visible', visible);
             s.classList.toggle('current', idx === state.currentStep);
+            s.setAttribute('aria-hidden', visible ? 'false' : 'true');
         });
         btns.forEach((b, idx) => b.classList.toggle('active', idx === state.currentStep));
-        const meta = stepsMeta[state.currentStep];
-        syncHighlight(meta);
+
+        const meta = currentStepMeta();
+        syncHighlightByGroup(meta.focus, meta.id);
+
         if (scrollIntoView && state.reveal === 'step') {
             const current = el('#' + meta.id);
             if (current) current.scrollIntoView({block:'nearest', behavior:'smooth'});
@@ -993,14 +1277,22 @@
     function clearHighlights(){
         els('.viz-hotspot').forEach(x => x.classList.remove('glow'));
         els('.step').forEach(x => x.classList.remove('glow'));
+        els('.step-btn').forEach(x => x.classList.remove('glow'));
     }
 
-    function syncHighlight(meta){
+    function sceneSelector(type){
+        if(type === 'median') return '#sceneMedian';
+        if(type === 'bisector') return '#sceneBisector';
+        return '#sceneMenelaus';
+    }
+
+    function syncHighlightByGroup(group, stepId = null){
         clearHighlights();
-        const hot = el('#' + meta.hotspot);
-        if (hot) hot.classList.add('glow');
-        const step = el('#' + meta.id);
+        const scene = el(sceneSelector(currentType()));
+        els(`.viz-hotspot[data-group="${group}"]`, scene).forEach(node => node.classList.add('glow'));
+        const step = stepId ? el('#' + stepId) : el(`.step[data-focus="${group}"]`);
         if (step) step.classList.add('glow');
+        els(`.step-btn[data-focus="${group}"]`).forEach(btn => btn.classList.add('glow'));
     }
 
     function renderQuiz(){
@@ -1031,39 +1323,138 @@
         });
     }
 
+    function setScene(type){
+        const scenes = {
+            median: el('#sceneMedian'),
+            bisector: el('#sceneBisector'),
+            menelaus: el('#sceneMenelaus')
+        };
+        Object.entries(scenes).forEach(([key, node]) => {
+            const active = key === type;
+            node.classList.toggle('hide-scene', !active);
+            node.setAttribute('aria-hidden', active ? 'false' : 'true');
+        });
+    }
+
+    function updateMedianScene(d){
+        el('#svgTitle').textContent = 'Модель задачи';
+        el('#svgSubtitle').textContent = 'Параллельная прямая создаёт подобные треугольники.';
+        el('#medianAkKmText').textContent = `${d.akKm[0]} : ${d.akKm[1]}`;
+        el('#medianMkMaText').textContent = `MK:MA = ${formatRatio(d.mkMa[0], d.mkMa[1])}`;
+        el('#medianAnswerRatio').textContent = `MF:FC = ${formatRatio(d.mfFc[0], d.mfFc[1])}`;
+        el('#medianPropLine').textContent = d.prop;
+        el('#medianPropSub').textContent = `${d.mkMa[0]} / ${d.mkMa[1]} = MF / MC ⇒ MF:FC = ${formatRatio(d.mfFc[0], d.mfFc[1])}`;
+        el('#medianCheckText1').textContent = `Пусть MF = ${d.mfFc[0]}t, а FC = ${d.mfFc[1]}t. Тогда MC = ${d.mfFc[0] + d.mfFc[1]}t.`;
+        el('#medianCheckText2').textContent = `Получаем MF:MC = ${d.mfMc[0]}:${d.mfMc[1]}, что совпадает с MK:MA. Ответ единственный.`;
+    }
+
+    function updateBisectorScene(d){
+        el('#svgTitle').textContent = 'Модель задачи';
+        el('#svgSubtitle').textContent = 'Биссектриса делит противоположную сторону пропорционально прилежащим сторонам.';
+        el('#bisectorAcText').textContent = `AC = ${d.ac}`;
+        el('#bisectorBcText').textContent = `CB = ${d.bc}`;
+        el('#bisectorAnswerRatio').textContent = `AD:DB = ${formatRatio(d.ratio[0], d.ratio[1])}`;
+        el('#bisectorPropLine').textContent = d.prop;
+        el('#bisectorPropSub').textContent = `${d.ac} / ${d.bc} = ${d.ratio[0]} / ${d.ratio[1]} ⇒ AD:DB = ${formatRatio(d.ratio[0], d.ratio[1])}`;
+        el('#bisectorCheckText').textContent = `После сокращения отношения ${d.ac}:${d.bc} получаем ${formatRatio(d.ratio[0], d.ratio[1])}. Другого деления сторона AB не допускает.`;
+    }
+
+    function updateMenelausScene(d){
+        el('#svgTitle').textContent = 'Модель задачи';
+        el('#svgSubtitle').textContent = 'Секущая линия создаёт конфигурацию для теоремы Менелая.';
+        el('#menAkKbText').textContent = `AK:KB = ${formatRatio(d.ak_kb[0], d.ak_kb[1])}`;
+        el('#menCnNaText').textContent = `CN:NA = ${formatRatio(d.cn_na[0], d.cn_na[1])}`;
+        el('#menAnswerRatio').textContent = `BF:FC = ${formatRatio(d.bf_fc[0], d.bf_fc[1])}`;
+        el('#menPropLine').textContent = d.prop;
+        el('#menPropSub').textContent = `(${d.ak_kb[0]}/${d.ak_kb[1]}) · (BF/FC) · (${d.cn_na[0]}/${d.cn_na[1]}) = 1 ⇒ BF:FC = ${formatRatio(d.bf_fc[0], d.bf_fc[1])}`;
+        el('#menCheckText1').textContent = `Подстановка ${formatRatio(d.bf_fc[0], d.bf_fc[1])} в произведение Менелая снова даёт 1.`;
+        el('#menCheckText2').textContent = `Так как остальные отношения фиксированы, искомое BF:FC однозначно определено.`;
+    }
+
+    function updateLabelVisibility(){
+        els('.point-label').forEach(lbl => {
+            lbl.style.visibility = state.showLabels ? 'visible' : 'hidden';
+        });
+    }
+
+    function updateRatioVisibility(){
+        const map = {
+            median: ['#medianAkKmText','#medianMkMaText','#medianAnswerRatio'],
+            bisector: ['#bisectorAcText','#bisectorBcText','#bisectorAnswerRatio'],
+            menelaus: ['#menAkKbText','#menCnNaText','#menAnswerRatio']
+        };
+        Object.values(map).flat().forEach(sel => {
+            const node = el(sel);
+            if(node) node.style.visibility = state.showRatios ? 'visible' : 'hidden';
+        });
+    }
+
+    function updateSpecialMarkers(){
+        // median
+        ['#medianParallelMarkers','#medianAcMarkers','#medianParallelLabel'].forEach(sel => {
+            const node = el(sel);
+            if(node) node.style.visibility = state.showParallel ? 'visible' : 'hidden';
+        });
+        // bisector
+        ['#bisectorAngles'].forEach(sel => {
+            const node = el(sel);
+            if(node) node.style.visibility = state.showParallel ? 'visible' : 'hidden';
+        });
+        // menelaus
+        ['#menHiddenGuide'].forEach(sel => {
+            const node = el(sel);
+            if(node) node.style.visibility = state.showParallel ? 'visible' : 'hidden';
+        });
+    }
+
+    function updateEquationVisibility(){
+        ['#medianEquationBox','#bisectorEquationBox','#menEquationBox'].forEach(sel => {
+            const node = el(sel);
+            if(node) node.style.visibility = state.showEquation ? 'visible' : 'hidden';
+        });
+    }
+
+    function updateBoard(d){
+        if(d.type === 'median'){
+            el('#boardLabel1').textContent = 'AK:KM';
+            el('#boardLabel2').textContent = 'MK:MA';
+            el('#boardLabel3').textContent = 'MF:FC';
+            el('#valueRatio1').textContent = formatRatio(d.akKm[0], d.akKm[1]);
+            el('#valueRatio2').textContent = formatRatio(d.mkMa[0], d.mkMa[1]);
+            el('#valueAnswer').textContent = formatRatio(d.mfFc[0], d.mfFc[1]);
+        } else if(d.type === 'bisector'){
+            el('#boardLabel1').textContent = 'AC:CB';
+            el('#boardLabel2').textContent = 'Сокращение';
+            el('#boardLabel3').textContent = 'AD:DB';
+            el('#valueRatio1').textContent = formatRatio(d.ac, d.bc);
+            el('#valueRatio2').textContent = formatRatio(d.ratio[0], d.ratio[1]);
+            el('#valueAnswer').textContent = formatRatio(d.ratio[0], d.ratio[1]);
+        } else {
+            el('#boardLabel1').textContent = 'AK:KB';
+            el('#boardLabel2').textContent = 'CN:NA';
+            el('#boardLabel3').textContent = 'BF:FC';
+            el('#valueRatio1').textContent = formatRatio(d.ak_kb[0], d.ak_kb[1]);
+            el('#valueRatio2').textContent = formatRatio(d.cn_na[0], d.cn_na[1]);
+            el('#valueAnswer').textContent = formatRatio(d.bf_fc[0], d.bf_fc[1]);
+        }
+        el('#valueType').textContent = d.description;
+    }
+
     function updateViz(){
         const d = activeData();
         const scale = state.zoom / 100;
         el('#zoomGroup').setAttribute('transform', `scale(${scale})`);
+        setScene(d.type);
 
-        // Update labels visibility
-        ['labelA','labelB','labelC','labelM','labelK','labelF'].forEach(id => {
-            const lbl = el('#'+id);
-            if(lbl) lbl.style.visibility = state.showLabels ? 'visible' : 'hidden';
-        });
+        if (d.type === 'median') updateMedianScene(d);
+        if (d.type === 'bisector') updateBisectorScene(d);
+        if (d.type === 'menelaus') updateMenelausScene(d);
 
-        // Update ratios visibility
-        ['ratioAK','ratioKM','ratioValue','ratioMF','ratioFC','answerRatio'].forEach(id => {
-            const lbl = el('#'+id);
-            if(lbl) lbl.style.visibility = state.showRatios ? 'visible' : 'hidden';
-        });
-
-        // Update parallel markers
-        el('#parallelMarkers').style.visibility = state.showParallel ? 'visible' : 'hidden';
-        el('#parallelLabel').style.visibility = state.showParallel ? 'visible' : 'hidden';
-
-        // Update equation box
-        el('#propBox').style.visibility = state.showEquation ? 'visible' : 'hidden';
-
-        // Update text content
-        el('#ratioValue').textContent = `${d.akKm[0]} : ${d.akKm[1]}`;
-        el('#valueRatio1').textContent = formatRatio(d.akKm[0], d.akKm[1]);
-        el('#valueRatio2').textContent = formatRatio(d.mkKa[0], d.mkKa[1]);
-        el('#valueAnswer').textContent = formatRatio(d.mfFc[0], d.mfFc[1]);
-        el('#answerRatio').textContent = `MF:FC = ${d.mfFc[0]}:${d.mfFc[1]}`;
-        el('#propLine').textContent = d.prop;
-        el('#propSub').textContent = `${d.mkKa[0]} / ${d.mkKa[1]} = MF / FC ⇒ MF:FC = ${d.mfFc[0]}:${d.mfFc[1]}`;
-        el('#valueType').textContent = d.description;
+        updateLabelVisibility();
+        updateRatioVisibility();
+        updateSpecialMarkers();
+        updateEquationVisibility();
+        updateBoard(d);
     }
 
     function switchTab(tab){
@@ -1085,7 +1476,11 @@
         state.detail = detail;
         el('#detailSelect').value = detail;
         renderSteps();
-        showToast(detail === 'very' ? 'Включён очень подробный режим.' : detail === 'short' ? 'Включён краткий режим.' : 'Включён стандартный режим.');
+        showToast(
+            detail === 'very' ? 'Включён очень подробный режим.' :
+            detail === 'short' ? 'Включён краткий режим.' :
+            'Включён стандартный режим.'
+        );
     }
 
     function updateControls(){
@@ -1097,51 +1492,63 @@
         updateViz();
     }
 
-    function randomInt(a, b){ return a + Math.floor(Math.random() * (b - a + 1)); }
+    function randomInt(a,b){ return a + Math.floor(Math.random() * (b - a + 1)); }
 
     function generateTask(type){
         let data;
+
         if (type === 'median') {
-            const ratios = [[1,2],[1,3],[2,3],[2,5],[3,4]];
-            const [a,b] = ratios[randomInt(0, ratios.length-1)];
+            const ratios = [[1,2],[1,3],[2,3],[2,5],[3,4],[3,5]];
+            const [a,b] = ratios[randomInt(0, ratios.length - 1)];
+            const mkMa = [b, a + b];
+            const mfMc = [...mkMa];
+            const mfFc = [b, a];
             data = {
                 type: 'median',
                 akKm: [a,b],
-                mkKa: [b,a],
-                mfFc: [b,a],
+                mkMa,
+                mfMc,
+                mfFc,
                 description: 'Медиана + ∥',
-                prop: 'MK/KA = MF/FC'
+                prop: 'MK / MA = MF / MC'
             };
         } else if (type === 'bisector') {
-            const sides = [[6,9],[8,12],[5,10],[7,14],[9,15]];
-            const [ac,bc] = sides[randomInt(0, sides.length-1)];
-            const sum = ac + bc;
+            const pairs = [[6,9],[8,12],[10,15],[12,18],[14,21],[9,15]];
+            const [ac,bc] = pairs[randomInt(0, pairs.length - 1)];
+            const ratio = simplifyRatio(ac, bc);
             data = {
                 type: 'bisector',
-                ac: ac, bc: bc,
-                ad: ac, db: bc,
-                ratio: `${ac}:${bc}`,
+                ac, bc,
+                ratio,
                 description: 'Биссектриса',
-                prop: `AD/DB = AC/CB = ${ac}/${bc}`
+                prop: 'AD / DB = AC / CB'
             };
-        } else { // menelaus
+        } else {
             const configs = [
-                {ak_kb:[1,1], cn_na:[1,2], bf_fc:[2,1]},
-                {ak_kb:[2,1], cn_na:[1,3], bf_fc:[3,2]},
-                {ak_kb:[1,2], cn_na:[2,1], bf_fc:[1,2]}
+                {ak_kb:[1,1], cn_na:[1,2]},
+                {ak_kb:[2,1], cn_na:[1,3]},
+                {ak_kb:[1,2], cn_na:[2,1]},
+                {ak_kb:[3,2], cn_na:[2,3]},
+                {ak_kb:[2,3], cn_na:[3,2]}
             ];
-            const cfg = configs[randomInt(0, configs.length-1)];
+            const cfg = configs[randomInt(0, configs.length - 1)];
+            const num = cfg.ak_kb[1] * cfg.cn_na[1];
+            const den = cfg.ak_kb[0] * cfg.cn_na[0];
+            const bf_fc = simplifyRatio(num, den);
             data = {
                 type: 'menelaus',
-                ...cfg,
-                description: 'Менелай',
-                prop: `(AK/KB)·(BF/FC)·(CN/NA) = 1`
+                ak_kb: cfg.ak_kb,
+                cn_na: cfg.cn_na,
+                bf_fc,
+                description: 'Теорема Менелая',
+                prop: '(AK / KB) · (BF / FC) · (CN / NA) = 1'
             };
         }
 
         state.generated = data;
         state.applied = 'generated';
         renderGeneratedTask();
+        renderSteps();
         updateViz();
         switchTab('practice');
         showToast('Сгенерирована корректная задача и сразу применена к модели.');
@@ -1151,27 +1558,31 @@
         const d = state.generated;
         if (!d) return;
         let html = '';
+
         if (d.type === 'median') {
             html = `
-          <div><b>Задача.</b> В △<i>ABC</i> точка <i>M</i> — середина <i>BC</i>. На медиане <i>AM</i> взята точка <i>K</i>, причём <i>AK:KM = ${d.akKm[0]}:${d.akKm[1]}</i>. Через <i>K</i> проведена <i>KF ∥ AC</i>, <i>F ∈ BC</i>. Найти <i>MF:FC</i>.</div>
-          <div style="margin-top:10px"><b>Идея.</b> Параллельность ⇒ △<i>MKF</i> ~ △<i>MAC</i> ⇒ пропорция <i>MK/KA = MF/FC</i>.</div>
-          <div style="margin-top:10px"><b>Решение.</b> <i>MK:KA = ${d.mkKa[0]}:${d.mkKa[1]}</i> ⇒ <i>MF:FC = ${d.mfFc[0]}:${d.mfFc[1]}</i>.</div>
-          <div style="margin-top:10px" class="gen-answer">Ответ: ${formatRatio(d.mfFc[0], d.mfFc[1])}</div>
-        `;
+        <div><b>Задача.</b> В △<i>ABC</i> точка <i>M</i> — середина <i>BC</i>. На медиане <i>AM</i> выбрана точка <i>K</i>, причём <i>AK:KM = ${d.akKm[0]}:${d.akKm[1]}</i>. Через <i>K</i> проведена <i>KF ∥ AC</i>, <i>F ∈ BC</i>. Найти <i>MF:FC</i>.</div>
+        <div style="margin-top:10px"><b>Краткая идея.</b> Из параллельности следует подобие △<i>MKF</i> и △<i>MAC</i>. Затем из <i>AK:KM</i> находим <i>MK:MA</i>, а уже потом — <i>MF:MC</i> и <i>MF:FC</i>.</div>
+        <div style="margin-top:10px"><b>Решение.</b> <i>AK:KM = ${d.akKm[0]}:${d.akKm[1]}</i> ⇒ <i>MK:MA = ${d.mkMa[0]}:${d.mkMa[1]}</i>. Из подобия: <i>MF:MC = ${d.mfMc[0]}:${d.mfMc[1]}</i>, значит <i>MF:FC = ${d.mfFc[0]}:${d.mfFc[1]}</i>.</div>
+        <div style="margin-top:10px"><b>Проверка.</b> Если <i>MF = ${d.mfFc[0]}t</i> и <i>FC = ${d.mfFc[1]}t</i>, то <i>MC = ${d.mfFc[0] + d.mfFc[1]}t</i>, следовательно <i>MF:MC = ${d.mfMc[0]}:${d.mfMc[1]}</i> — всё согласовано.</div>
+        <div style="margin-top:10px" class="gen-answer">Ответ: ${formatRatio(d.mfFc[0], d.mfFc[1])}</div>
+      `;
         } else if (d.type === 'bisector') {
             html = `
-          <div><b>Задача.</b> В △<i>ABC</i> биссектриса <i>CD</i> угла <i>∠ACB</i> делит сторону <i>AB</i>. Известно: <i>AC = ${d.ac}</i>, <i>BC = ${d.bc}</i>. Найти <i>AD:DB</i>.</div>
-          <div style="margin-top:10px"><b>Идея.</b> Свойство биссектрисы: отношение отрезков на стороне равно отношению прилежащих сторон.</div>
-          <div style="margin-top:10px"><b>Решение.</b> <i>AD/DB = AC/CB = ${d.ac}/${d.bc}</i>.</div>
-          <div style="margin-top:10px" class="gen-answer">Ответ: ${d.ratio}</div>
-        `;
-        } else { // menelaus
+        <div><b>Задача.</b> В △<i>ABC</i> биссектриса <i>CD</i> угла <i>∠ACB</i> пересекает сторону <i>AB</i> в точке <i>D</i>. Известно: <i>AC = ${d.ac}</i>, <i>CB = ${d.bc}</i>. Найти <i>AD:DB</i>.</div>
+        <div style="margin-top:10px"><b>Краткая идея.</b> Сразу применяем свойство биссектрисы: деление противоположной стороны пропорционально прилежащим сторонам.</div>
+        <div style="margin-top:10px"><b>Решение.</b> <i>AD:DB = AC:CB = ${d.ac}:${d.bc}</i>. После сокращения получаем <i>${d.ratio[0]}:${d.ratio[1]}</i>.</div>
+        <div style="margin-top:10px"><b>Проверка.</b> Подстановка обратно в формулу биссектрисы даёт то же отношение; при фиксированных сторонах другого деления быть не может.</div>
+        <div style="margin-top:10px" class="gen-answer">Ответ: ${formatRatio(d.ratio[0], d.ratio[1])}</div>
+      `;
+        } else {
             html = `
-          <div><b>Задача.</b> В △<i>ABC</i> на продолжении <i>AC</i> за <i>C</i> взята точка <i>N</i>, причём <i>CN:NA = ${d.cn_na[0]}:${d.cn_na[1]}</i>. Точка <i>K</i> делит <i>AB</i> в отношении <i>AK:KB = ${d.ak_kb[0]}:${d.ak_kb[1]}</i>. Прямая <i>KN</i> пересекает <i>BC</i> в точке <i>F</i>. Найти <i>BF:FC</i>.</div>
-          <div style="margin-top:10px"><b>Идея.</b> Теорема Менелая для секущей <i>KN</i>.</div>
-          <div style="margin-top:10px"><b>Решение.</b> <i>(${d.ak_kb[0]}/${d.ak_kb[1]})·(BF/FC)·(${d.cn_na[0]}/${d.cn_na[1]}) = 1</i> ⇒ <i>BF/FC = ${d.bf_fc[0]}/${d.bf_fc[1]}</i>.</div>
-          <div style="margin-top:10px" class="gen-answer">Ответ: ${formatRatio(d.bf_fc[0], d.bf_fc[1])}</div>
-        `;
+        <div><b>Задача.</b> В △<i>ABC</i> точка <i>K</i> делит <i>AB</i> в отношении <i>AK:KB = ${d.ak_kb[0]}:${d.ak_kb[1]}</i>, а точка <i>N</i> взята на продолжении <i>AC</i> так, что <i>CN:NA = ${d.cn_na[0]}:${d.cn_na[1]}</i>. Прямая <i>KN</i> пересекает <i>BC</i> в точке <i>F</i>. Найти <i>BF:FC</i>.</div>
+        <div style="margin-top:10px"><b>Краткая идея.</b> Используем теорему Менелая для секущей <i>KN</i>: три отношения на сторонах дают произведение 1.</div>
+        <div style="margin-top:10px"><b>Решение.</b> <i>(${d.ak_kb[0]}/${d.ak_kb[1]})·(BF/FC)·(${d.cn_na[0]}/${d.cn_na[1]}) = 1</i>. Отсюда <i>BF:FC = ${d.bf_fc[0]}:${d.bf_fc[1]}</i>.</div>
+        <div style="margin-top:10px"><b>Проверка.</b> Обратная подстановка возвращает произведение 1, значит отношение найдено верно и однозначно.</div>
+        <div style="margin-top:10px" class="gen-answer">Ответ: ${formatRatio(d.bf_fc[0], d.bf_fc[1])}</div>
+      `;
         }
         el('#generatedTaskBox').innerHTML = html;
     }
@@ -1179,19 +1590,29 @@
     function applyGenerated(){
         if (!state.generated) { showToast('Сначала сгенерируйте задачу.'); return; }
         state.applied = 'generated';
+        state.currentStep = 0;
+        renderSteps();
         updateViz();
         showToast('Модель справа настроена на последнюю генерацию.');
     }
 
     function applyExample(){
         state.applied = 'example';
+        state.currentStep = 0;
+        renderSteps();
         updateViz();
         showToast('Возвращён базовый пример.');
     }
 
     function closeAllHints(){
-        els('.hint-pop').forEach(p => { p.classList.remove('visible'); p.setAttribute('aria-hidden', 'true'); });
-        els('.hint-trigger').forEach(t => { t.setAttribute('aria-expanded', 'false'); t.dataset.open = 'false'; });
+        els('.hint-pop').forEach(p => {
+            p.classList.remove('visible');
+            p.setAttribute('aria-hidden', 'true');
+        });
+        els('.hint-trigger').forEach(t => {
+            t.setAttribute('aria-expanded', 'false');
+            t.dataset.open = 'false';
+        });
     }
 
     function openHint(trigger){
@@ -1216,17 +1637,34 @@
                 open ? closeAllHints() : openHint(tr);
             });
         });
+
         els('.hint-close').forEach(btn => btn.addEventListener('click', closeAllHints));
+
         els('[data-action]').forEach(btn => btn.addEventListener('click', () => {
             const action = btn.dataset.action;
             if (action === 'switch-tab') switchTab(btn.dataset.tab);
             if (action === 'set-detail') setDetail(btn.dataset.detail);
             if (action === 'generate-now') generateTask(el('#generatorType').value);
-            if (action === 'zoom-reset') { state.zoom = 100; el('#zoomRange').value = 100; updateViz(); }
-            if (action === 'toggle-labels') { const c = el('#toggleLabels'); c.checked = !c.checked; updateControls(); }
+            if (action === 'zoom-reset') {
+                state.zoom = 100;
+                el('#zoomRange').value = 100;
+                updateViz();
+            }
+            if (action === 'toggle-labels') {
+                const c = el('#toggleLabels');
+                c.checked = !c.checked;
+                updateControls();
+            }
         }));
-        document.addEventListener('click', (e) => { if (!e.target.closest('.hint-wrap')) closeAllHints(); });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAllHints(); });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.hint-wrap')) closeAllHints();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeAllHints();
+        });
+
         if (!sessionStorage.getItem('firstHintShown')) {
             setTimeout(() => {
                 const first = els('.hint-trigger')[0];
@@ -1240,24 +1678,61 @@
         }
     }
 
+    function bindSceneHotspots(){
+        els('.viz-hotspot').forEach(v => {
+            v.addEventListener('mouseenter', () => {
+                if(v.closest('.scene')?.getAttribute('aria-hidden') === 'true') return;
+                syncHighlightByGroup(v.dataset.group);
+            });
+            v.addEventListener('focus', () => {
+                if(v.closest('.scene')?.getAttribute('aria-hidden') === 'true') return;
+                syncHighlightByGroup(v.dataset.group);
+            });
+            v.addEventListener('mouseleave', clearHighlights);
+        });
+    }
+
     function bindEvents(){
         els('.tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
         el('#tabSelect').addEventListener('change', e => switchTab(e.target.value));
+
         el('#detailSelect').addEventListener('change', e => setDetail(e.target.value));
+
         el('#revealSelect').addEventListener('change', e => {
             state.reveal = e.target.value;
             updateStepVisibility(false);
             showToast(state.reveal === 'all' ? 'Все шаги раскрыты.' : 'Включён пошаговый режим.');
         });
+
         el('#generatorType').addEventListener('change', () => showToast('Тип похожей задачи изменён.'));
         el('#generateBtn').addEventListener('click', () => generateTask(el('#generatorType').value));
         el('#applyGeneratedBtn').addEventListener('click', applyGenerated);
-        ['toggleLabels','toggleRatios','toggleParallel','toggleEquation','zoomRange'].forEach(id => el('#'+id).addEventListener('input', updateControls));
-        el('#zoomIn').addEventListener('click', () => { state.zoom = Math.min(170, state.zoom + 10); el('#zoomRange').value = state.zoom; updateViz(); });
-        el('#zoomOut').addEventListener('click', () => { state.zoom = Math.max(70, state.zoom - 10); el('#zoomRange').value = state.zoom; updateViz(); });
-        el('#zoomReset').addEventListener('click', () => { state.zoom = 100; el('#zoomRange').value = 100; updateViz(); });
+
+        ['toggleLabels','toggleRatios','toggleParallel','toggleEquation','zoomRange'].forEach(id => {
+            el('#'+id).addEventListener('input', updateControls);
+        });
+
+        el('#zoomIn').addEventListener('click', () => {
+            state.zoom = Math.min(170, state.zoom + 10);
+            el('#zoomRange').value = state.zoom;
+            updateViz();
+        });
+
+        el('#zoomOut').addEventListener('click', () => {
+            state.zoom = Math.max(70, state.zoom - 10);
+            el('#zoomRange').value = state.zoom;
+            updateViz();
+        });
+
+        el('#zoomReset').addEventListener('click', () => {
+            state.zoom = 100;
+            el('#zoomRange').value = 100;
+            updateViz();
+        });
+
         el('#fitExample').addEventListener('click', applyExample);
         el('#fitGenerated').addEventListener('click', applyGenerated);
+
         const stage = el('#vizStage');
         stage.addEventListener('wheel', (e) => {
             e.preventDefault();
@@ -1266,10 +1741,8 @@
             el('#zoomRange').value = state.zoom;
             updateViz();
         }, {passive:false});
-        els('.viz-hotspot').forEach(v => {
-            v.addEventListener('mouseenter', () => { clearHighlights(); v.classList.add('glow'); const stepId = v.dataset.step; const step = el('#' + stepId); if (step) step.classList.add('glow'); });
-            v.addEventListener('mouseleave', clearHighlights);
-        });
+
+        bindSceneHotspots();
     }
 
     function init(){
