@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — ревью и исправленная версия</title>
+    <style>
+        :root{
+            --bg:#071018;
+            --bg-soft:#0b1721;
+            --panel:#0f1f2d;
+            --panel-2:#14283a;
+            --panel-3:#0d1c29;
+            --text:#e8f1f8;
+            --muted:#a9bfd0;
+            --accent:#59d0c2;
+            --accent-2:#86e0d6;
+            --accent-3:#3fb4a7;
+            --warn:#ffd166;
+            --good:#7ee081;
+            --bad:#ff8f8f;
+            --line:#244459;
+            --line-2:#31556d;
+            --shadow:0 20px 50px rgba(0,0,0,.34);
+            --radius:24px;
+            --sticky-top:18px;
+            --step-glow:0 0 0 1px rgba(89,208,194,.35), 0 0 0 8px rgba(89,208,194,.07);
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:linear-gradient(180deg,var(--bg),#09141d 30%,#09131b 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+        body{line-height:1.58}
+        .wrap{max-width:1500px;margin:0 auto;padding:22px}
+        .hero{
+            background:linear-gradient(135deg,rgba(89,208,194,.12),rgba(134,224,214,.04) 35%,rgba(255,255,255,.02));
+            border:1px solid rgba(134,224,214,.16);
+            border-radius:30px;
+            padding:28px 28px 22px;
+            box-shadow:var(--shadow);
+            position:relative;
+            overflow:hidden;
+            min-height:260px;
+        }
+        .hero::before{
+            content:"";position:absolute;inset:auto auto -120px -80px;width:340px;height:340px;border-radius:50%;
+            background:radial-gradient(circle, rgba(89,208,194,.18), rgba(89,208,194,0) 68%);pointer-events:none;filter:blur(10px)
+        }
+        .hero::after{
+            content:"";position:absolute;inset:-120px -120px auto auto;width:340px;height:340px;border-radius:50%;
+            background:radial-gradient(circle, rgba(255,209,102,.08), rgba(255,209,102,0) 70%);pointer-events:none;filter:blur(10px)
+        }
+        .eyebrow{display:inline-block;padding:6px 10px;border:1px solid rgba(134,224,214,.25);border-radius:999px;color:var(--accent-2);font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+        h1{font-size:clamp(30px,4.2vw,54px);line-height:1.05;margin:14px 0 10px;max-width:1000px}
+        .sub{max-width:1000px;color:var(--muted);font-size:18px}
+        .hero-grid{display:grid;grid-template-columns:1.25fr .95fr;gap:18px;margin-top:18px}
+        .hero-card{background:rgba(10,21,31,.62);border:1px solid rgba(134,224,214,.14);border-radius:24px;padding:18px;min-height:120px}
+        .mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+        .stat{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:14px}
+        .stat .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+        .stat .v{font-size:22px;font-weight:700;margin-top:6px}
+        .pillrow{display:flex;flex-wrap:wrap;gap:10px}
+        .pill{padding:8px 12px;border-radius:999px;background:rgba(89,208,194,.08);border:1px solid rgba(89,208,194,.18);color:var(--accent-2);font-size:14px}
+
+        .toolbar-top{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px;margin-top:18px}
+        .control{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;min-height:92px}
+        .control label{display:block;color:var(--muted);font-size:13px;margin-bottom:8px}
+        input[type="range"], select, button{width:100%}
+        input[type="range"]{accent-color:var(--accent)}
+        select, button{background:var(--panel-2);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px}
+        button{cursor:pointer;transition:.18s transform,.18s border-color,.18s background}
+        button:hover{transform:translateY(-1px);border-color:var(--accent)}
+        .btn-inline{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:auto;min-width:44px}
+
+        .main{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(430px,.92fr);gap:20px;margin-top:20px;align-items:start}
+        .left-col{min-width:0}
+        .sticky-wrap{position:sticky;top:var(--sticky-top);align-self:start}
+        .card{background:linear-gradient(180deg,rgba(16,30,43,.96),rgba(12,23,34,.96));border:1px solid rgba(134,224,214,.12);border-radius:26px;padding:20px;box-shadow:var(--shadow)}
+        .section-title{display:flex;align-items:center;gap:12px;font-size:24px;margin:0 0 12px}
+        .section-title .dot{width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 7px rgba(89,208,194,.12)}
+        .lead{color:var(--muted)}
+        .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+        .note{background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.18);color:#ffe8a7;border-radius:18px;padding:14px}
+        .idea{background:rgba(89,208,194,.08);border:1px solid rgba(89,208,194,.2);border-radius:18px;padding:14px}
+        .mistakes{background:rgba(255,143,143,.07);border:1px solid rgba(255,143,143,.18);border-radius:18px;padding:14px}
+        .summary{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:14px}
+
+        .stepper{display:grid;gap:12px;margin-top:12px}
+        .step{border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.02);overflow:hidden;transition:.2s border-color,.2s transform,.2s background,.2s box-shadow;position:relative}
+        .step.active{border-color:var(--accent);background:rgba(89,208,194,.06);transform:translateY(-1px);box-shadow:var(--step-glow)}
+        .step.related{border-color:rgba(255,209,102,.45);box-shadow:0 0 0 1px rgba(255,209,102,.22), 0 0 0 8px rgba(255,209,102,.06)}
+        .step-h{padding:14px 16px;display:flex;justify-content:space-between;gap:12px;align-items:center;cursor:pointer}
+        .step-h strong{font-size:17px}
+        .step-b{padding:0 16px 16px;display:none;color:#dce8f2}
+        .step.open .step-b{display:block}
+
+        .formula{font-size:20px;line-height:1.7;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.06);padding:10px 14px;border-radius:16px;overflow:auto}
+        .formula math{color:var(--text)}
+        .formula-inline math{vertical-align:middle}
+
+        .model-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}
+        .canvas-wrap{background:radial-gradient(circle at 50% 10%, rgba(89,208,194,.08), rgba(0,0,0,0) 40%), linear-gradient(180deg,#0a1520,#081119);border:1px solid var(--line);border-radius:24px;padding:12px;position:relative;overflow:hidden;min-height:470px}
+        canvas{width:100%;height:auto;display:block;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.01),rgba(255,255,255,.00))}
+
+        .canvas-tag{position:absolute;padding:8px 10px;border-radius:12px;background:rgba(8,18,28,.88);border:1px solid rgba(89,208,194,.18);font-size:13px;color:var(--muted);backdrop-filter:blur(6px);pointer-events:none}
+        .canvas-tag strong{color:var(--text)}
+
+        .legend{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+        .lg{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:10px;transition:.2s border-color,.2s transform,.2s box-shadow}
+        .lg.hl{border-color:rgba(255,209,102,.45);transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,209,102,.2), 0 0 0 8px rgba(255,209,102,.06)}
+        .sw{width:16px;height:16px;border-radius:4px}
+        .values{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+        .val{border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:12px;background:rgba(255,255,255,.02)}
+        .val .k{font-size:13px;color:var(--muted)}
+        .val .v{font-size:20px;font-weight:700;margin-top:6px}
+        .val .v math{font-size:1em}
+        .toolbar{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-top:12px}
+        .toolbar button{padding:10px}
+
+        .hint-anchor{position:absolute;width:18px;height:18px;border-radius:50%;background:rgba(89,208,194,.9);border:2px solid rgba(255,255,255,.95);box-shadow:0 0 0 0 rgba(89,208,194,.55);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#07202a;font-weight:800;font-size:12px;animation:hintPulse 2.2s infinite}
+        .hint-anchor:hover{transform:scale(1.06)}
+        @keyframes hintPulse{
+            0%{box-shadow:0 0 0 0 rgba(89,208,194,.48)}
+            70%{box-shadow:0 0 0 14px rgba(89,208,194,0)}
+            100%{box-shadow:0 0 0 0 rgba(89,208,194,0)}
+        }
+        .hint-pop{position:absolute;max-width:270px;background:linear-gradient(180deg,rgba(13,28,41,.97),rgba(11,22,34,.97));border:1px solid rgba(89,208,194,.24);color:var(--text);border-radius:18px;padding:12px 14px 14px;box-shadow:var(--shadow);display:none;z-index:8;animation:hintBounce .28s ease, borderGlow 2.2s linear infinite}
+        .hint-pop.open{display:block}
+        .hint-pop::after{content:"";position:absolute;width:14px;height:14px;background:inherit;border-right:1px solid rgba(89,208,194,.24);border-bottom:1px solid rgba(89,208,194,.24);transform:rotate(45deg);left:18px;bottom:-8px}
+        .hint-pop .close{position:absolute;right:8px;top:8px;width:26px;height:26px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer}
+        .hint-pop .title{font-weight:700;margin-bottom:6px;padding-right:28px}
+        @keyframes hintBounce{0%{transform:translateY(8px);opacity:0}100%{transform:translateY(0);opacity:1}}
+        @keyframes borderGlow{0%,100%{box-shadow:0 0 0 1px rgba(89,208,194,.14), 0 12px 30px rgba(0,0,0,.26)}50%{box-shadow:0 0 0 1px rgba(89,208,194,.32), 0 16px 36px rgba(0,0,0,.34)}}
+
+        .quiz{display:grid;gap:12px}
+        .q{border:1px solid var(--line);border-radius:18px;padding:14px;background:rgba(255,255,255,.02)}
+        .answers{display:grid;gap:8px;margin-top:10px}
+        .answers button{text-align:left}
+        .feedback{margin-top:8px;font-weight:600}
+        .good{color:var(--good)}
+        .bad{color:var(--bad)}
+
+        .generator{display:grid;gap:14px}
+        .task{font-size:18px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:16px;min-height:92px}
+        .small{font-size:13px;color:var(--muted)}
+        .footer-space{height:30px}
+        .sync{outline:2px solid rgba(89,208,194,0);transition:.2s outline-color,.2s transform}
+        .sync:hover{outline-color:rgba(89,208,194,.18);transform:translateY(-1px)}
+        .print-only{display:none}
+        .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+        @media (max-width:1260px){
+            .main{grid-template-columns:1fr}
+            .sticky-wrap{position:relative;top:auto}
+            .toolbar-top{grid-template-columns:repeat(3,1fr)}
+            .hero-grid{grid-template-columns:1fr}
+            .canvas-wrap{min-height:420px}
+        }
+        @media (max-width:760px){
+            .wrap{padding:14px}
+            .toolbar-top{grid-template-columns:1fr 1fr}
+            .grid2,.grid3,.legend,.values,.toolbar,.mini-stats{grid-template-columns:1fr}
+            .section-title{font-size:21px}
+            .sub{font-size:16px}
+            .hero{padding:20px}
+            .canvas-wrap{padding:8px;min-height:320px}
+            .toolbar{grid-template-columns:repeat(3,1fr)}
+        }
+        @media print{
+            :root{--bg:#fff;--panel:#fff;--panel-2:#fff;--text:#111;--muted:#444;--line:#bbb;--line-2:#999;--accent:#0a7d73;--accent-2:#0a7d73}
+            html,body{background:#fff;color:#111}
+            .wrap{max-width:none;padding:0}
+            .hero,.card{box-shadow:none;border:1px solid #bbb;background:#fff;color:#111}
+            .toolbar-top,.toolbar,.hint-anchor,.hint-pop,.generator,.quiz,.sticky-wrap .lead+.pill{display:none!important}
+            .main{display:block}
+            .sticky-wrap{position:relative}
+            canvas{max-height:420px}
+            .print-only{display:block}
+            .step-b{display:block!important}
+            .step{break-inside:avoid}
+            a{color:#111;text-decoration:none}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <span class="eyebrow">Наглядная математика • стереометрия • ЕГЭ</span>
+        <h1>Расстояние от точки до плоскости через объём пирамиды</h1>
+        <p class="sub"></p>
+        <div class="hero-grid">
+            <div class="hero-card">
+                <div class="mini-stats">
+                    <div class="stat"><div class="k">Главная идея</div><div class="v">Объём</div></div>
+                    <div class="stat"><div class="k">Объект</div><div class="v">Пирамида</div></div>
+                    <div class="stat"><div class="k">Ответ</div><div class="v"><math display="inline"><mfrac><msqrt><mn>3</mn></msqrt><mn>3</mn></mfrac></math></div></div>
+                </div>
+                <div class="pillrow" style="margin-top:14px">
+                    <div class="pill">куб 1×1×1</div>
+                    <div class="pill">основание A₁C₁D</div>
+                    <div class="pill">вершина B</div>
+                    <div class="pill">2 проверки</div>
+                </div>
+            </div>
+            <div class="hero-card">
+                <strong style="font-size:18px">Опорная задача</strong>
+                <p class="lead" style="margin-top:8px">В единичном кубе ABCD A₁B₁C₁D₁ найти расстояние от точки B до плоскости A₁C₁D.</p>
+                <div class="idea">
+                    <strong>Идея решения.</strong> Вводим пирамиду BA₁C₁D. Искомое расстояние — её высота к основанию A₁C₁D. Значит вместо прямого поиска перпендикуляра можно посчитать объём и выразить высоту из формулы <span class="formula-inline"><math display="inline"><mrow><mi>V</mi><mo>=</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><msub><mi>S</mi><mtext>осн</mtext></msub><mi>h</mi></mrow></math></span>.</div>
+            </div>
+        </div>
+        <div class="toolbar-top">
+            <div class="control">
+                <label for="detailMode">Подробность</label>
+                <select id="detailMode">
+                    <option value="short">Кратко</option>
+                    <option value="standard" selected>Стандарт</option>
+                    <option value="full">Подробно</option>
+                </select>
+            </div>
+            <div class="control">
+                <label for="stepRange">Шаг решения</label>
+                <input id="stepRange" type="range" min="1" max="7" value="1" />
+            </div>
+            <div class="control">
+                <label for="zoomRange">Масштаб</label>
+                <input id="zoomRange" type="range" min="70" max="180" value="108" />
+            </div>
+            <div class="control">
+                <label for="rotateRange">Поворот модели</label>
+                <input id="rotateRange" type="range" min="-70" max="70" value="-32" />
+            </div>
+            <div class="control">
+                <label for="showLabels">Подписи</label>
+                <select id="showLabels"><option value="on" selected>Показать</option><option value="off">Скрыть</option></select>
+            </div>
+            <div class="control">
+                <label for="modeSelect">Режим</label>
+                <select id="modeSelect"><option value="main" selected>Главная задача</option><option value="check">Координатная проверка</option><option value="gen">Сгенерированная задача</option></select>
+            </div>
+            <div class="control">
+                <label>&nbsp;</label>
+                <button id="resetView">Сбросить всё</button>
+            </div>
+        </div>
+    </section>
+
+    <div class="main">
+        <div class="left-col">
+            <section class="card sync" id="section-given">
+                <h2 class="section-title"><span class="dot"></span>1. Дано</h2>
+                <div class="grid2">
+                    <div class="note"><strong>Куб единичный.</strong><br>Все рёбра равны 1.</div>
+                    <div class="idea"><strong>Нужно найти.</strong><br>Расстояние от точки B до плоскости A₁C₁D.</div>
+                </div>
+                <p class="lead" data-detail="standard full">Это задача не на длину ребра и не на диагональ. Здесь ищется именно расстояние от точки до плоскости, то есть длина перпендикуляра.</p>
+            </section>
+
+            <section class="card sync" id="section-meaning" style="margin-top:18px">
+                <h2 class="section-title"><span class="dot"></span>2. Смысл условий</h2>
+                <div class="grid2">
+                    <div>
+                        <p>Плоскость <strong>A₁C₁D</strong> задаётся тремя вершинами куба и образует внутри куба наклонный треугольник.</p>
+                        <p data-detail="full">Точка <strong>B</strong> в эту плоскость не входит, значит можно построить пирамиду с вершиной B и основанием A₁C₁D.</p>
+                    </div>
+                    <div class="formula"><math display="block"><mrow><mtext>Расстояние от точки до плоскости </mtext><mo>=</mo><mtext> длина перпендикуляра к этой плоскости.</mtext></mrow></math></div>
+                </div>
+            </section>
+
+            <section class="card sync" id="section-interpretation" style="margin-top:18px">
+                <h2 class="section-title"><span class="dot"></span>3. Интерпретация</h2>
+                <div class="summary">
+                    Переведём условие на язык пространственных тел: нужна <strong>высота пирамиды BA₁C₁D</strong>, опущенная из вершины B на основание A₁C₁D.
+                </div>
+                <div class="grid2" style="margin-top:14px">
+                    <div class="formula"><math display="block"><mrow><mi>d</mi><mo>(</mo><mi>B</mi><mo>,</mo><msub><mi>A</mi><mn>1</mn></msub><msub><mi>C</mi><mn>1</mn></msub><mi>D</mi><mo>)</mo><mo>=</mo><msub><mi>h</mi><mi>B</mi></msub></mrow></math></div>
+                    <div class="note">Это ключевой переход: пространственную задачу о расстоянии мы заменяем задачей о высоте пирамиды.</div>
+                </div>
+            </section>
+
+            <section class="card sync" id="section-idea" style="margin-top:18px">
+                <h2 class="section-title"><span class="dot"></span>4. Идея решения</h2>
+                <div class="idea">
+                    Считаем объём одной и той же пирамиды через её основание и высоту. Тогда неизвестная высота автоматически выражается из формулы.
+                    <div class="formula"><math display="block"><mrow><mi>V</mi><mo>=</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo>·</mo><msub><mi>S</mi><mtext>осн</mtext></msub><mo>·</mo><mi>h</mi></mrow></math></div>
+                </div>
+                <div class="grid2" style="margin-top:14px">
+                    <div class="note"><strong>Почему метод силён?</strong><br>Потому что прямой перпендикуляр к плоскости часто неудобно строить, а объём и площадь основания можно найти намного легче.</div>
+                    <div class="mistakes"><strong>Где ловушка?</strong><br>Легко ошибиться в объёме пирамиды, если не проверить разбиение куба или координаты.</div>
+                </div>
+            </section>
+
+            <section class="card sync" id="section-solution" style="margin-top:18px">
+                <h2 class="section-title"><span class="dot"></span>5. Решение</h2>
+                <div class="stepper" id="stepper">
+                    <div class="step open active" data-step="1" data-link="pyramid">
+                        <div class="step-h"><strong>Шаг 1. Выбираем пирамиду BA₁C₁D</strong><span>▾</span></div>
+                        <div class="step-b">
+                            Основание — треугольник <strong>A₁C₁D</strong>, вершина — точка <strong>B</strong>. Значит искомое расстояние — высота этой пирамиды.
+                            <div class="formula"><math display="block"><mrow><mi>d</mi><mo>=</mo><msub><mi>h</mi><mi>B</mi></msub></mrow></math></div>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="2" data-link="triangle">
+                        <div class="step-h"><strong>Шаг 2. Выясняем вид основания A₁C₁D</strong><span>▾</span></div>
+                        <div class="step-b">
+                            Все три стороны этого треугольника равны <math display="inline"><msqrt><mn>2</mn></msqrt></math>, потому что это диагонали квадратных граней куба. Значит треугольник равносторонний.
+                            <div class="formula"><math display="block"><mrow><msub><mi>S</mi><mrow><msub><mi>A</mi><mn>1</mn></msub><msub><mi>C</mi><mn>1</mn></msub><mi>D</mi></mrow></msub><mo>=</mo><mfrac><msqrt><mn>3</mn></msqrt><mn>4</mn></mfrac><mo>·</mo><msup><mrow><mo>(</mo><msqrt><mn>2</mn></msqrt><mo>)</mo></mrow><mn>2</mn></msup><mo>=</mo><mfrac><msqrt><mn>3</mn></msqrt><mn>2</mn></mfrac></mrow></math></div>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="3" data-link="coords">
+                        <div class="step-h"><strong>Шаг 3. Находим объём пирамиды</strong><span>▾</span></div>
+                        <div class="step-b">
+                            Берём координаты вершин: <math display="inline"><mrow><mi>B</mi><mo>(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>)</mo></mrow></math>, <math display="inline"><mrow><mi>D</mi><mo>(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>)</mo></mrow></math>, <math display="inline"><mrow><msub><mi>A</mi><mn>1</mn></msub><mo>(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>)</mo></mrow></math>, <math display="inline"><mrow><msub><mi>C</mi><mn>1</mn></msub><mo>(</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo>)</mo></mrow></math>.
+                            <div class="formula"><math display="block"><mrow><mi>V</mi><mo>=</mo><mfrac><mn>1</mn><mn>6</mn></mfrac><mo>·</mo><mo>|</mo><mi>det</mi><mo>(</mo><mover><mi>DA</mi><mo stretchy="false">→</mo></mover><msub><mi></mi><mn>1</mn></msub><mo>,</mo><mover><mi>DC</mi><mo stretchy="false">→</mo></mover><msub><mi></mi><mn>1</mn></msub><mo>,</mo><mover><mi>DB</mi><mo stretchy="false">→</mo></mover><mo>)</mo><mo>|</mo><mo>=</mo><mfrac><mn>1</mn><mn>6</mn></mfrac></mrow></math></div>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="4" data-link="formula">
+                        <div class="step-h"><strong>Шаг 4. Подставляем площадь и объём в формулу</strong><span>▾</span></div>
+                        <div class="step-b">
+                            <div class="formula"><math display="block"><mrow><mfrac><mn>1</mn><mn>6</mn></mfrac><mo>=</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo>·</mo><mfrac><msqrt><mn>3</mn></msqrt><mn>2</mn></mfrac><mo>·</mo><mi>h</mi></mrow></math></div>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="5" data-link="height">
+                        <div class="step-h"><strong>Шаг 5. Выражаем высоту</strong><span>▾</span></div>
+                        <div class="step-b">
+                            <div class="formula"><math display="block"><mrow><mfrac><mn>1</mn><mn>6</mn></mfrac><mo>=</mo><mfrac><msqrt><mn>3</mn></msqrt><mn>6</mn></mfrac><mi>h</mi></mrow></math></div>
+                            <div class="formula"><math display="block"><mrow><mi>h</mi><mo>=</mo><mfrac><mn>1</mn><msqrt><mn>3</mn></msqrt></mfrac><mo>=</mo><mfrac><msqrt><mn>3</mn></msqrt><mn>3</mn></mfrac></mrow></math></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card sync" id="section-check" style="margin-top:18px">
+                <h2 class="section-title"><span class="dot"></span>6. Проверка</h2>
+                <div class="grid2">
+                    <div>
+                        <div class="summary">
+                            <strong>Проверка через уравнение плоскости.</strong><br>
+                            Для плоскости A₁C₁D получаем уравнение
+                            <div class="formula"><math display="block"><mrow><mi>x</mi><mo>-</mo><mi>y</mi><mo>+</mo><mi>z</mi><mo>-</mo><mn>1</mn><mo>=</mo><mn>0</mn></mrow></math></div>
+                            Тогда
+                            <div class="formula"><math display="block"><mrow><mi>d</mi><mo>=</mo><mfrac><mrow><mo>|</mo><mn>1</mn><mo>-</mo><mn>0</mn><mo>+</mo><mn>0</mn><mo>-</mo><mn>1</mn><mo>|</mo></mrow><msqrt><mrow><mn>1</mn><mo>+</mo><mn>1</mn><mo>+</mo><mn>1</mn></mrow></msqrt></mfrac><mo>=</mo><mfrac><mn>1</mn><msqrt><mn>3</mn></msqrt></mfrac></mrow></math></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="idea">
+                            <strong>Почему ответ подходит?</strong>
+                            <ul>
+                                <li>он положительный;</li>
+                                <li>он меньше ребра куба 1;</li>
+                                <li>он совпадает сразу у двух методов: объёмному и координатному.</li>
+                            </ul>
+                        </div>
+                        <div class="mistakes" style="margin-top:14px">
+                            <strong>Почему других ответов нет?</strong><br>
+                            Формула расстояния до плоскости даёт единственное положительное значение. Альтернативные числа вроде <math display="inline"><mfrac><mrow><mn>2</mn><msqrt><mn>3</mn></msqrt></mrow><mn>3</mn></mfrac></math> появляются только из неверного объёма.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card sync" id="section-conclusion" style="margin-top:18px">
+                <h2 class="section-title"><span class="dot"></span>7. Вывод</h2>
+                <div class="idea">
+                    В задачах на расстояние от точки до плоскости полезно сначала спросить себя: <strong>можно ли увидеть подходящую пирамиду?</strong> Если да, то метод объёмов часто оказывается самым коротким и надёжным.
+                    <div class="formula"><math display="block"><mrow><mi>d</mi><mo>(</mo><mi>B</mi><mo>,</mo><msub><mi>A</mi><mn>1</mn></msub><msub><mi>C</mi><mn>1</mn></msub><mi>D</mi><mo>)</mo><mo>=</mo><mfrac><msqrt><mn>3</mn></msqrt><mn>3</mn></mfrac></mrow></math></div>
+                </div>
+            </section>
+
+            <section class="card sync" id="section-errors" style="margin-top:18px">
+                <h2 class="section-title"><span class="dot"></span>Типичные ошибки</h2>
+                <div class="grid2">
+                    <div class="mistakes"><strong>1.</strong> Принять искомое расстояние за ребро или диагональ, не доказав перпендикулярность.</div>
+                    <div class="mistakes"><strong>2.</strong> Не заметить, что треугольник A₁C₁D равносторонний.</div>
+                    <div class="mistakes"><strong>3.</strong> Ошибиться в объёме пирамиды и получить завышенный ответ.</div>
+                    <div class="mistakes"><strong>4.</strong> Забыть деление на <math display="inline"><mn>3</mn></math> в формуле объёма пирамиды.</div>
+                    <div class="mistakes"><strong>5.</strong> Не сделать независимую проверку, хотя здесь она короткая.</div>
+                </div>
+            </section>
+
+            <section class="card sync" id="section-quiz" style="margin-top:18px">
+                <h2 class="section-title"><span class="dot"></span>Мини-квиз / самопроверка</h2>
+                <div class="quiz">
+                    <div class="q">
+                        <strong>Вопрос 1.</strong> Какой объект делает объёмный метод естественным в этой задаче?
+                        <div class="answers">
+                            <button data-correct="0">Прямоугольный треугольник внутри грани</button>
+                            <button data-correct="1">Пирамида BA₁C₁D</button>
+                            <button data-correct="0">Параллелепипед BCDD₁</button>
+                        </div>
+                        <div class="feedback"></div>
+                    </div>
+                    <div class="q">
+                        <strong>Вопрос 2.</strong> Площадь основания A₁C₁D равна:
+                        <div class="answers">
+                            <button data-correct="0"><math display="inline"><mn>1</mn></math></button>
+                            <button data-correct="1"><math display="inline"><mfrac><msqrt><mn>3</mn></msqrt><mn>2</mn></mfrac></math></button>
+                            <button data-correct="0"><math display="inline"><msqrt><mn>3</mn></msqrt></math></button>
+                        </div>
+                        <div class="feedback"></div>
+                    </div>
+                    <div class="q">
+                        <strong>Вопрос 3.</strong> Верный итоговый ответ:
+                        <div class="answers">
+                            <button data-correct="0"><math display="inline"><mfrac><mrow><mn>2</mn><msqrt><mn>3</mn></msqrt></mrow><mn>3</mn></mfrac></math></button>
+                            <button data-correct="1"><math display="inline"><mfrac><msqrt><mn>3</mn></msqrt><mn>3</mn></mfrac></math></button>
+                            <button data-correct="0"><math display="inline"><mfrac><mn>1</mn><mn>2</mn></mfrac></math></button>
+                        </div>
+                        <div class="feedback"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card sync" id="section-generator" style="margin-top:18px">
+                <h2 class="section-title"><span class="dot"></span>Генератор похожих задач</h2>
+                <div class="generator">
+                    <div class="task" id="genTask">Нажмите кнопку, чтобы получить похожую безопасную задачу без вырожденных конфигураций.</div>
+                    <div class="grid2">
+                        <button id="newTask">Сгенерировать задачу</button>
+                        <button id="showAnswer">Показать ответ и идею</button>
+                    </div>
+                    <div class="note" id="genAnswer" style="display:none"></div>
+                    <div class="small">При генерации модель автоматически подстраивается под новую тройку вершин плоскости и новую внешнюю вершину.</div>
+                </div>
+            </section>
+        </div>
+
+        <div class="sticky-wrap">
+            <section class="card">
+                <div class="model-head">
+                    <div>
+                        <h2 class="section-title" style="margin-bottom:6px"><span class="dot"></span>Интерактивная модель</h2>
+                        <div class="lead">Человекочитаемая изометрия, вращение, динамический пунктир скрытых линий и функциональная подсветка элементов.</div>
+                    </div>
+                    <div class="pill print-hide">колёсико — масштаб</div>
+                </div>
+                <div class="canvas-wrap" id="canvasWrap">
+                    <canvas id="scene" width="760" height="640" aria-label="Интерактивная модель куба и пирамиды"></canvas>
+                    <div class="canvas-tag" id="tagMode" style="left:14px;bottom:14px"><strong>Режим:</strong> главная задача</div>
+                    <button class="hint-anchor" id="hintA" style="left:62%;top:16%" aria-label="Подсказка про основание" aria-describedby="hintPopA">i</button>
+                    <button class="hint-anchor" id="hintB" style="left:72%;top:50%" aria-label="Подсказка про высоту" aria-describedby="hintPopB">i</button>
+                    <button class="hint-anchor" id="hintC" style="left:18%;top:68%" aria-label="Подсказка про скрытые линии" aria-describedby="hintPopC">i</button>
+
+                    <div class="hint-pop" id="hintPopA" role="tooltip" aria-hidden="true" style="left:54%;top:22%">
+                        <button class="close" aria-label="Закрыть подсказку">×</button>
+                        <div class="title">Почему основание удобно?</div>
+                        Треугольник A₁C₁D сразу даёт понятную площадь, потому что он равносторонний со стороной <math display="inline"><msqrt><mn>2</mn></msqrt></math>.
+                    </div>
+                    <div class="hint-pop" id="hintPopB" role="tooltip" aria-hidden="true" style="left:60%;top:56%">
+                        <button class="close" aria-label="Закрыть подсказку">×</button>
+                        <div class="title">Где здесь расстояние?</div>
+                        Жёлтый отрезок — это высота пирамиды из точки B к плоскости основания. Именно он и есть искомое расстояние.
+                    </div>
+                    <div class="hint-pop" id="hintPopC" role="tooltip" aria-hidden="true" style="left:14%;top:74%">
+                        <button class="close" aria-label="Закрыть подсказку">×</button>
+                        <div class="title">Скрытые линии живые</div>
+                        При вращении модели видимые рёбра становятся сплошными, а скрытые — пунктирными. Это помогает читать объёмную картинку как реальное тело.
+                    </div>
+                </div>
+
+                <div class="toolbar">
+                    <button id="prevStep">← Шаг назад</button>
+                    <button id="nextStep">Шаг вперёд →</button>
+                    <button id="zoomOut">−</button>
+                    <button id="zoomIn">+</button>
+                    <button id="togglePlane">Плоскость</button>
+                    <button id="toggleHeight">Высота</button>
+                    <button id="toggleCoords">Координаты</button>
+                </div>
+
+                <div class="legend">
+                    <div class="lg" data-link="triangle"><span class="sw" style="background:#59d0c2"></span><span>основание A₁C₁D</span></div>
+                    <div class="lg" data-link="height"><span class="sw" style="background:#ffd166"></span><span>высота = расстояние</span></div>
+                    <div class="lg" data-link="coords"><span class="sw" style="background:#c9d6df"></span><span>координатная проверка</span></div>
+                    <div class="lg" data-link="pyramid"><span class="sw" style="background:#ff8f8f"></span><span>пирамида BA₁C₁D</span></div>
+                </div>
+
+                <div class="values">
+                    <div class="val"><div class="k">Площадь основания</div><div class="v" id="baseAreaVal"><math display="inline"><mfrac><msqrt><mn>3</mn></msqrt><mn>2</mn></mfrac></math></div></div>
+                    <div class="val"><div class="k">Объём пирамиды</div><div class="v" id="volumeVal"><math display="inline"><mfrac><mn>1</mn><mn>6</mn></mfrac></math></div></div>
+                    <div class="val"><div class="k">Расстояние</div><div class="v" id="distVal"><math display="inline"><mfrac><msqrt><mn>3</mn></msqrt><mn>3</mn></mfrac></math></div></div>
+                    <div class="val"><div class="k">Уравнение плоскости</div><div class="v" id="planeEqVal" style="font-size:16px"><math display="inline"><mrow><mi>x</mi><mo>-</mo><mi>y</mi><mo>+</mo><mi>z</mi><mo>-</mo><mn>1</mn><mo>=</mo><mn>0</mn></mrow></math></div></div>
+                </div>
+                <div class="print-only" style="margin-top:16px">Печатная версия показывает все шаги решения в раскрытом виде и итоговую модель без интерактивных элементов.</div>
+            </section>
+        </div>
+    </div>
+    <div class="footer-space"></div>
+</div>
+
+<script>
+    const canvas = document.getElementById('scene');
+    const ctx = canvas.getContext('2d');
+    const canvasWrap = document.getElementById('canvasWrap');
+
+    const basePts = {
+        A:[0,0,0], B:[1,0,0], C:[1,1,0], D:[0,1,0],
+        A1:[0,0,1], B1:[1,0,1], C1:[1,1,1], D1:[0,1,1]
+    };
+
+    const safeTasks = [
+        { apex:'B', plane:['A1','C1','D'], label:'главная задача', answer:'√3 / 3', volume:'1 / 6', planeEq:'x - y + z - 1 = 0', idea:'Строим пирамиду BA₁C₁D и выражаем высоту через объём.' },
+        { apex:'A', plane:['B1','C1','D'], label:'симметричная задача', answer:'√3 / 3', volume:'1 / 6', planeEq:'x + y + z - 2 = 0', idea:'Полная симметрия куба сохраняет тот же тип вычисления.' },
+        { apex:'C', plane:['A1','B1','D'], label:'симметричная задача', answer:'√3 / 3', volume:'1 / 6', planeEq:'x + y - z - 1 = 0', idea:'Снова берём пирамиду с равносторонним основанием и вершиной вне плоскости.' },
+        { apex:'D1', plane:['A','B','C1'], label:'альтернативная конфигурация', answer:'√3 / 3', volume:'1 / 6', planeEq:'x - y + z - 0 = 0', idea:'Координатная проверка даёт ту же структуру расстояния.' }
+    ];
+
+    const state = {
+        zoom:1.08,
+        step:1,
+        openSteps:new Set([1]),
+        showPlane:true,
+        showHeight:true,
+        showCoords:false,
+        labels:true,
+        mode:'main',
+        detail:'standard',
+        rotZ:-32*Math.PI/180,
+        tilt:28*Math.PI/180,
+        currentTask:safeTasks[0],
+        hoverLink:null,
+        dragging:false,
+        lastX:0
+    };
+
+    function getPts(){ return basePts; }
+    function currentPlaneNames(){ return state.currentTask.plane; }
+    function currentApex(){ return state.currentTask.apex; }
+
+    function vec(a,b){return [b[0]-a[0],b[1]-a[1],b[2]-a[2]]}
+    function cross(u,v){return [u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]]}
+    function dot(u,v){return u[0]*v[0]+u[1]*v[1]+u[2]*v[2]}
+    function norm(v){return Math.hypot(v[0],v[1],v[2])}
+    function mul(v,k){return [v[0]*k,v[1]*k,v[2]*k]}
+    function add(a,b){return [a[0]+b[0],a[1]+b[1],a[2]+b[2]]}
+    function sub(a,b){return [a[0]-b[0],a[1]-b[1],a[2]-b[2]]}
+    function centroid(points){ return points.reduce((acc,p)=>add(acc,p),[0,0,0]).map(v=>v/points.length); }
+
+    function planeFrom3(P,Q,R){
+        const n = cross(vec(P,Q), vec(P,R));
+        const d = -dot(n,P);
+        return {a:n[0], b:n[1], c:n[2], d};
+    }
+    function projPointToPlane(X, pl){
+        const n=[pl.a,pl.b,pl.c];
+        const t=(dot(n,X)+pl.d)/dot(n,n);
+        return sub(X,mul(n,t));
+    }
+
+    function currentGeometry(){
+        const pts = getPts();
+        const [p1,p2,p3] = currentPlaneNames().map(n=>pts[n]);
+        const apex = pts[currentApex()];
+        const plane = planeFrom3(p1,p2,p3);
+        const foot = projPointToPlane(apex, plane);
+        return {pts, p1, p2, p3, apex, plane, foot};
+    }
+
+    function project(p){
+        const cx=.5, cy=.5, cz=.5;
+        let x=p[0]-cx, y=p[1]-cy, z=p[2]-cz;
+        const czr=Math.cos(state.rotZ), szr=Math.sin(state.rotZ);
+        const xr=x*czr-y*szr;
+        const yr=x*szr+y*czr;
+        const ct=Math.cos(state.tilt), st=Math.sin(state.tilt);
+        const Y=-(z*ct)+yr*st;
+        const depth=yr*ct+z*st+xr*0.02;
+        const X=xr;
+        return {X,Y,depth};
+    }
+    function toScreen(p){
+        const q=project(p);
+        const s=255*state.zoom;
+        return [canvas.width/2 + q.X*s, canvas.height/2 + q.Y*s, q.depth];
+    }
+    function avgDepth(arr){
+        const pts=getPts();
+        return arr.map(n=>Array.isArray(n)?toScreen(n)[2]:toScreen(pts[n])[2]).reduce((a,b)=>a+b,0)/arr.length;
+    }
+
+    function drawLine(P,Q,opt={}){
+        const [x1,y1]=toScreen(P), [x2,y2]=toScreen(Q);
+        ctx.save();
+        ctx.strokeStyle=opt.color||'#fff';
+        ctx.lineWidth=opt.w||2;
+        ctx.setLineDash(opt.dash||[]);
+        ctx.globalAlpha=opt.alpha ?? 1;
+        ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+        ctx.restore();
+    }
+    function drawPoly(points,opt={}){
+        const pts = Array.isArray(points[0]) ? points : points.map(n=>getPts()[n]);
+        const scr = pts.map(toScreen);
+        ctx.save();
+        ctx.fillStyle=opt.fill||'rgba(89,208,194,.16)';
+        ctx.strokeStyle=opt.stroke||'#59d0c2';
+        ctx.lineWidth=opt.w||2;
+        ctx.globalAlpha=opt.alpha ?? 1;
+        ctx.beginPath(); ctx.moveTo(scr[0][0],scr[0][1]);
+        for(let i=1;i<scr.length;i++) ctx.lineTo(scr[i][0],scr[i][1]);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.restore();
+    }
+    function drawPoint(P,name,opt={}){
+        const [x,y]=toScreen(P);
+        ctx.save();
+        ctx.fillStyle=opt.color||'#fff';
+        ctx.beginPath(); ctx.arc(x,y,opt.r||5,0,Math.PI*2); ctx.fill();
+        if(state.labels && opt.label !== false){
+            ctx.fillStyle='#e8f1f8'; ctx.font='15px Inter, sans-serif'; ctx.fillText(name,x+8,y-8);
+        }
+        ctx.restore();
+    }
+    function drawTextAt(P,text,color='#a9bfd0',dy=0){
+        const [x,y]=toScreen(P);
+        ctx.save(); ctx.fillStyle=color; ctx.font='14px Inter, sans-serif'; ctx.fillText(text,x+10,y+dy); ctx.restore();
+    }
+    function roundRect(ctx,x,y,w,h,r){
+        ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+    }
+
+    function edgeVisibleBias(edgeName){
+        const angle = state.rotZ * 180/Math.PI;
+        if(edgeName==='depth') return Math.cos((angle+18)*Math.PI/180) > 0;
+        if(edgeName==='vertical') return true;
+        return Math.sin((angle+32)*Math.PI/180) > -0.2;
+    }
+
+    function drawCube(){
+        const pts = getPts();
+        const faces = [
+            ['A','B','C','D'], ['A1','B1','C1','D1'], ['A','B','B1','A1'],
+            ['B','C','C1','B1'], ['C','D','D1','C1'], ['D','A','A1','D1']
+        ];
+        faces.map(f=>({f,d:avgDepth(f)})).sort((a,b)=>a.d-b.d).forEach(({f},i)=>{
+            drawPoly(f,{fill:i<2?'rgba(255,255,255,.026)':'rgba(255,255,255,.015)',stroke:'rgba(255,255,255,.07)',w:1.2});
+        });
+        const edges = [
+            {e:['A','B'],k:'front'}, {e:['B','C'],k:'depth'}, {e:['C','D'],k:'front'}, {e:['D','A'],k:'depth'},
+            {e:['A1','B1'],k:'front'}, {e:['B1','C1'],k:'depth'}, {e:['C1','D1'],k:'front'}, {e:['D1','A1'],k:'depth'},
+            {e:['A','A1'],k:'vertical'}, {e:['B','B1'],k:'vertical'}, {e:['C','C1'],k:'vertical'}, {e:['D','D1'],k:'vertical'}
+        ];
+        edges.sort((m,n)=>avgDepth(m.e)-avgDepth(n.e)).forEach(({e,k})=>{
+            const front = edgeVisibleBias(k) || avgDepth(e)>0.12;
+            drawLine(pts[e[0]], pts[e[1]], {color: front ? 'rgba(255,255,255,.92)' : 'rgba(255,255,255,.28)', w: front ? 2.4 : 1.5, dash: front ? [] : [7,7]});
+        });
+        Object.entries(pts).sort((a,b)=>toScreen(a[1])[2]-toScreen(b[1])[2]).forEach(([n,p])=>drawPoint(p,n,{color:'#f8fbff'}));
+    }
+
+    function drawCurrentPlane(linkHighlight=false){
+        const {pts} = currentGeometry();
+        const names = currentPlaneNames();
+        drawPoly(names,{fill:linkHighlight?'rgba(255,209,102,.24)':'rgba(89,208,194,.18)', stroke:linkHighlight?'#ffd166':'#59d0c2', w: linkHighlight ? 3.4 : 2.4});
+    }
+
+    function drawPyramid(linkHighlight=false){
+        const {pts} = currentGeometry();
+        const apexName = currentApex();
+        const col = linkHighlight ? '#ffd166' : '#ff8f8f';
+        currentPlaneNames().forEach(n=>drawLine(pts[apexName], pts[n], {color:col, w:linkHighlight?3.2:2.6}));
+    }
+
+    function drawHeight(linkHighlight=false){
+        const {pts, apex, foot} = currentGeometry();
+        drawLine(apex, foot, {color:linkHighlight?'#fff3b0':'#ffd166', w:linkHighlight?4:3});
+        drawPoint(foot, 'H', {color:'#ffd166', r:5});
+        const mid=[(apex[0]+foot[0])/2,(apex[1]+foot[1])/2,(apex[2]+foot[2])/2];
+        drawTextAt(mid,'d', '#ffe8a7', -6);
+        const n1 = currentPlaneNames()[0], n2 = currentPlaneNames()[1];
+        const H = foot; const A = pts[n1]; const D = pts[n2];
+        const u=vec(H,A), v=vec(H,D); const u1=mul(u,0.1/norm(u)), v1=mul(v,0.1/norm(v));
+        const p1=add(H,u1), p2=add(p1,v1), p3=add(H,v1);
+        const s1=toScreen(p1), s2=toScreen(p2), s3=toScreen(p3);
+        ctx.save(); ctx.strokeStyle='#ffd166'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(s1[0],s1[1]); ctx.lineTo(s2[0],s2[1]); ctx.lineTo(s3[0],s3[1]); ctx.stroke(); ctx.restore();
+    }
+
+    function drawCoords(){
+        const {pts} = currentGeometry();
+        ['A','B','C','D','A1','B1','C1','D1'].forEach(name=>{
+            const p=pts[name]; if(['A','C','B1','D1'].includes(name)) return;
+        });
+        const names = [currentApex(), ...currentPlaneNames()];
+        names.forEach(n=>{
+            const p=pts[n]; drawTextAt(p, `${n}(${p[0]},${p[1]},${p[2]})`, '#ffe8a7', 18);
+        });
+    }
+
+    function setValueCards(){
+        document.getElementById('baseAreaVal').innerHTML = '<math display="inline"><mfrac><msqrt><mn>3</mn></msqrt><mn>2</mn></mfrac></math>';
+        document.getElementById('volumeVal').innerHTML = state.currentTask.volume === '1 / 6' ? '<math display="inline"><mfrac><mn>1</mn><mn>6</mn></mfrac></math>' : state.currentTask.volume;
+        document.getElementById('distVal').innerHTML = '<math display="inline"><mfrac><msqrt><mn>3</mn></msqrt><mn>3</mn></mfrac></math>';
+        document.getElementById('planeEqVal').innerHTML = `<span>${state.currentTask.planeEq}</span>`;
+        document.getElementById('tagMode').innerHTML = `<strong>Режим:</strong> ${state.currentTask.label}`;
+    }
+
+    function render(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        const grad = ctx.createLinearGradient(0,0,0,canvas.height); grad.addColorStop(0,'#0b1823'); grad.addColorStop(1,'#09131b');
+        ctx.fillStyle = grad; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.save(); ctx.fillStyle='rgba(0,0,0,.20)'; ctx.beginPath(); ctx.ellipse(canvas.width/2, canvas.height*0.84, 190*state.zoom, 44*state.zoom, 0, 0, Math.PI*2); ctx.fill(); ctx.restore();
+        drawCube();
+        if(state.showPlane || state.step>=2) drawCurrentPlane(state.hoverLink==='triangle');
+        drawPyramid(state.hoverLink==='pyramid');
+        if(state.showHeight && state.step>=4) drawHeight(state.hoverLink==='height');
+
+        if(state.step>=2){
+            const pts=getPts(); const names=currentPlaneNames();
+            drawLine(pts[names[0]],pts[names[1]],{color:'rgba(255,255,255,.35)',w:1.8,dash:[7,7]});
+            drawLine(pts[names[1]],pts[names[2]],{color:'rgba(255,255,255,.28)',w:1.6,dash:[6,6]});
+            drawLine(pts[names[2]],pts[names[0]],{color:'rgba(255,255,255,.28)',w:1.6,dash:[6,6]});
+            const mids=[[names[0],names[1]],[names[1],names[2]],[names[2],names[0]]];
+            mids.forEach(([a,b])=>{ const p1=pts[a], p2=pts[b]; drawTextAt([(p1[0]+p2[0])/2,(p1[1]+p2[1])/2,(p1[2]+p2[2])/2],'√2','#cbe7e2'); });
+        }
+        if(state.showCoords || state.mode==='check' || state.step>=6 || state.hoverLink==='coords') drawCoords();
+        drawOverlay();
+        setValueCards();
+    }
+
+    function drawOverlay(){
+        ctx.save();
+        ctx.fillStyle='rgba(11,22,33,.82)'; ctx.strokeStyle='rgba(89,208,194,.18)'; ctx.lineWidth=1;
+        roundRect(ctx,18,16,330,104,16); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#e8f1f8'; ctx.font='16px Inter, sans-serif'; ctx.fillText('Текущий шаг: ' + state.step + ' из 7', 32, 42);
+        ctx.fillStyle='#a9bfd0'; ctx.font='14px Inter, sans-serif';
+        ['S₍осн₎ = √3 / 2','V = 1 / 6','d = √3 / 3','вращение = ' + Math.round(state.rotZ*180/Math.PI) + '°'].forEach((t,i)=>ctx.fillText(t,32,68+i*16));
+        ctx.restore();
+    }
+
+    function updateStepUI(){
+        document.querySelectorAll('.step').forEach(stepEl=>{
+            const s=+stepEl.dataset.step;
+            stepEl.classList.toggle('active', s===state.step);
+            stepEl.classList.toggle('open', state.openSteps.has(s));
+        });
+        document.getElementById('stepRange').value = state.step;
+        updateCrossHighlight();
+        render();
+    }
+
+    function updateCrossHighlight(){
+        document.querySelectorAll('.step').forEach(el=>el.classList.toggle('related', el.dataset.link===state.hoverLink));
+        document.querySelectorAll('.lg').forEach(el=>el.classList.toggle('hl', el.dataset.link===state.hoverLink));
+    }
+
+    function setDetailMode(mode){
+        state.detail = mode;
+        document.querySelectorAll('[data-detail]').forEach(el=>{
+            const rules = el.dataset.detail.split(' ');
+            if(mode==='short') el.style.display = rules.includes('short') ? '' : 'none';
+            if(mode==='standard') el.style.display = rules.includes('standard') || rules.includes('full') ? '' : 'none';
+            if(mode==='full') el.style.display = '';
+        });
+    }
+
+    document.querySelectorAll('.step').forEach(el=>{
+        const head = el.querySelector('.step-h');
+        head.addEventListener('click', ()=>{
+            const s=+el.dataset.step;
+            state.step=s;
+            if(state.openSteps.has(s)) state.openSteps.delete(s); else state.openSteps.add(s);
+            if(state.openSteps.size===0) state.openSteps.add(s);
+            updateStepUI();
+        });
+        el.addEventListener('mouseenter', ()=>{ state.hoverLink=el.dataset.link; updateCrossHighlight(); render(); });
+        el.addEventListener('mouseleave', ()=>{ state.hoverLink=null; updateCrossHighlight(); render(); });
+    });
+    document.querySelectorAll('.lg').forEach(el=>{
+        el.addEventListener('mouseenter', ()=>{ state.hoverLink=el.dataset.link; updateCrossHighlight(); render(); });
+        el.addEventListener('mouseleave', ()=>{ state.hoverLink=null; updateCrossHighlight(); render(); });
+    });
+
+    document.getElementById('stepRange').addEventListener('input', e=>{ state.step=+e.target.value; state.openSteps.add(state.step); updateStepUI(); });
+    document.getElementById('zoomRange').addEventListener('input', e=>{ state.zoom=+e.target.value/100; render(); });
+    document.getElementById('rotateRange').addEventListener('input', e=>{ state.rotZ=+e.target.value*Math.PI/180; render(); });
+    document.getElementById('showLabels').addEventListener('change', e=>{ state.labels=e.target.value==='on'; render(); });
+    document.getElementById('detailMode').addEventListener('change', e=>setDetailMode(e.target.value));
+    document.getElementById('modeSelect').addEventListener('change', e=>{
+        state.mode=e.target.value;
+        if(state.mode==='main') state.currentTask=safeTasks[0];
+        if(state.mode==='check') state.currentTask=safeTasks[0];
+        if(state.mode==='gen') state.currentTask = safeTasks[(Math.floor(Math.random()* (safeTasks.length-1))+1)];
+        updateGeneratorMirror();
+        render();
+    });
+    document.getElementById('resetView').addEventListener('click', ()=>{
+        state.zoom=1.08; state.step=1; state.openSteps=new Set([1]); state.showPlane=true; state.showHeight=true; state.showCoords=false; state.labels=true; state.mode='main'; state.currentTask=safeTasks[0]; state.rotZ=-32*Math.PI/180; state.hoverLink=null;
+        document.getElementById('zoomRange').value=108; document.getElementById('rotateRange').value=-32; document.getElementById('showLabels').value='on'; document.getElementById('modeSelect').value='main'; document.getElementById('detailMode').value='standard';
+        setDetailMode('standard'); updateGeneratorMirror(); updateStepUI();
+    });
+    document.getElementById('prevStep').addEventListener('click', ()=>{ state.step=Math.max(1,state.step-1); state.openSteps.add(state.step); updateStepUI(); });
+    document.getElementById('nextStep').addEventListener('click', ()=>{ state.step=Math.min(7,state.step+1); state.openSteps.add(state.step); updateStepUI(); });
+    document.getElementById('zoomOut').addEventListener('click', ()=>{ state.zoom=Math.max(.7, state.zoom-.08); document.getElementById('zoomRange').value=Math.round(state.zoom*100); render(); });
+    document.getElementById('zoomIn').addEventListener('click', ()=>{ state.zoom=Math.min(1.8, state.zoom+.08); document.getElementById('zoomRange').value=Math.round(state.zoom*100); render(); });
+    document.getElementById('togglePlane').addEventListener('click', ()=>{ state.showPlane=!state.showPlane; render(); });
+    document.getElementById('toggleHeight').addEventListener('click', ()=>{ state.showHeight=!state.showHeight; render(); });
+    document.getElementById('toggleCoords').addEventListener('click', ()=>{ state.showCoords=!state.showCoords; render(); });
+
+    canvas.addEventListener('wheel', e=>{
+        e.preventDefault();
+        state.zoom += e.deltaY < 0 ? 0.05 : -0.05;
+        state.zoom=Math.max(0.7, Math.min(1.8, state.zoom));
+        document.getElementById('zoomRange').value=Math.round(state.zoom*100);
+        render();
+    }, {passive:false});
+
+    canvas.addEventListener('pointerdown', e=>{ state.dragging=true; state.lastX=e.clientX; canvas.setPointerCapture(e.pointerId); });
+    canvas.addEventListener('pointermove', e=>{
+        if(!state.dragging) return;
+        const dx = e.clientX - state.lastX; state.lastX = e.clientX;
+        state.rotZ += dx * 0.008;
+        state.rotZ = Math.max(-1.22, Math.min(1.22, state.rotZ));
+        document.getElementById('rotateRange').value = Math.round(state.rotZ*180/Math.PI);
+        render();
+    });
+    function stopDrag(){ state.dragging=false; }
+    canvas.addEventListener('pointerup', stopDrag); canvas.addEventListener('pointercancel', stopDrag); canvas.addEventListener('pointerleave', stopDrag);
+
+    document.querySelectorAll('.answers button').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+            const box=btn.closest('.q'); const fb=box.querySelector('.feedback'); const ok=btn.dataset.correct==='1';
+            fb.textContent=ok?'Верно.':'Пока нет. Перепроверьте геометрический смысл или вычисления.';
+            fb.className='feedback ' + (ok ? 'good' : 'bad');
+        });
+    });
+
+    let currentGenerated = null;
+    const genTask = document.getElementById('genTask');
+    const genAnswer = document.getElementById('genAnswer');
+    function applyTask(task){ state.currentTask=task; updateGeneratorMirror(); render(); }
+    function updateGeneratorMirror(){ document.getElementById('tagMode').innerHTML = `<strong>Режим:</strong> ${state.currentTask.label}`; }
+    document.getElementById('newTask').addEventListener('click', ()=>{
+        const pool = safeTasks.slice(1);
+        currentGenerated = pool[Math.floor(Math.random()*pool.length)];
+        genTask.textContent = `В единичном кубе ABCD A₁B₁C₁D₁ найдите расстояние от точки ${currentGenerated.apex} до плоскости ${currentGenerated.plane.join('')}.`;
+        genAnswer.style.display='none'; genAnswer.innerHTML='';
+        applyTask(currentGenerated); document.getElementById('modeSelect').value='gen'; state.mode='gen';
+    });
+    document.getElementById('showAnswer').addEventListener('click', ()=>{
+        if(!currentGenerated){ currentGenerated=safeTasks[1]; genTask.textContent = `В единичном кубе ABCD A₁B₁C₁D₁ найдите расстояние от точки ${currentGenerated.apex} до плоскости ${currentGenerated.plane.join('')}.`; }
+        genAnswer.style.display='block';
+        genAnswer.innerHTML = `<strong>Ответ:</strong> <math display="inline"><mfrac><msqrt><mn>3</mn></msqrt><mn>3</mn></mfrac></math><br><strong>Краткая идея:</strong> ${currentGenerated.idea}`;
+        applyTask(currentGenerated); document.getElementById('modeSelect').value='gen'; state.mode='gen';
+    });
+
+    const observer = new IntersectionObserver(entries=>{
+        entries.forEach(entry=>{
+            if(entry.isIntersecting){
+                const map = {
+                    'section-given':1,
+                    'section-meaning':2,
+                    'section-interpretation':3,
+                    'section-idea':4,
+                    'section-solution':5,
+                    'section-check':6,
+                    'section-conclusion':7
+                };
+                if(map[entry.target.id]){
+                    state.step=map[entry.target.id];
+                    state.openSteps.add(Math.min(5, state.step));
+                    document.getElementById('stepRange').value=state.step;
+                    render();
+                }
+            }
+        });
+    }, {threshold:.4});
+    document.querySelectorAll('.sync').forEach(el=>observer.observe(el));
+
+    function closeAllHints(){ document.querySelectorAll('.hint-pop').forEach(pop=>{ pop.classList.remove('open'); pop.setAttribute('aria-hidden','true'); }); }
+    function openHint(id){ closeAllHints(); const pop=document.getElementById(id); if(!pop) return; pop.classList.add('open'); pop.setAttribute('aria-hidden','false'); setTimeout(()=>{ if(pop.classList.contains('open')) { pop.classList.remove('open'); pop.setAttribute('aria-hidden','true'); } },15000); }
+    [['hintA','hintPopA'],['hintB','hintPopB'],['hintC','hintPopC']].forEach(([a,p])=>{
+        document.getElementById(a).addEventListener('click', (e)=>{ e.stopPropagation(); openHint(p); });
+    });
+    document.querySelectorAll('.hint-pop .close').forEach(btn=>btn.addEventListener('click', e=>{ e.stopPropagation(); closeAllHints(); }));
+    document.addEventListener('click', e=>{ if(!e.target.closest('.hint-pop') && !e.target.closest('.hint-anchor')) closeAllHints(); });
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeAllHints(); });
+    if(!sessionStorage.getItem('mathHintsShown')){
+        setTimeout(()=>openHint('hintA'), 3000);
+        setTimeout(()=>openHint('hintB'), 6500);
+        setTimeout(()=>openHint('hintC'), 10000);
+        sessionStorage.setItem('mathHintsShown','1');
+    }
+
+    setDetailMode('standard');
+    setValueCards();
+    updateGeneratorMirror();
+    updateStepUI();
+</script>
+</body>
+</html>

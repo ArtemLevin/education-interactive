@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Наглядная математика — ОГЭ, 8 класс</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #1c2333;
+            --bg-card: #1a1f2e;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent: #58a6ff;
+            --accent-dim: #1f6feb;
+            --accent-glow: rgba(88, 166, 255, 0.3);
+            --cyan: #39d2c0;
+            --cyan-dim: #0a8a7a;
+            --orange: #f0883e;
+            --red: #f85149;
+            --green: #3fb950;
+            --purple: #bc8cff;
+            --border: #30363d;
+            --border-light: #3d444d;
+            --step-bg: #0d1f3c;
+            --step-border: #1f6feb;
+            --hint-glow: rgba(57, 210, 192, 0.4);
+            --popover-border: linear-gradient(135deg, #39d2c0, #58a6ff);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 15px;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        .top-bar {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .top-bar-title { font-size: 14px; font-weight: 600; color: var(--accent); }
+        .top-bar-sub { font-size: 12px; color: var(--text-secondary); }
+
+        .topic-switcher {
+            display: flex;
+            gap: 2px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 3px;
+            overflow-x: auto;
+            max-width: 600px;
+        }
+
+        .topic-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .topic-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+        .topic-btn.active { background: var(--accent-dim); color: white; font-weight: 600; }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 0;
+            max-width: 1300px;
+            margin: 0 auto;
+            min-height: calc(100vh - 50px);
+        }
+
+        .left-panel {
+            padding: 24px 24px;
+            overflow-y: auto;
+            border-right: 1px solid var(--border);
+            max-height: calc(100vh - 50px);
+        }
+
+        .right-panel {
+            padding: 16px;
+            position: sticky;
+            top: 50px;
+            height: calc(100vh - 50px);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+        }
+
+        .viz-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .viz-canvas-wrap {
+            width: 100%;
+            aspect-ratio: 1 / 0.9;
+            position: relative;
+            overflow: hidden;
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+        }
+
+        .viz-canvas-wrap canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .viz-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .viz-btn {
+            padding: 4px 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.15s;
+        }
+
+        .viz-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .viz-btn.active { background: var(--accent-dim); border-color: var(--accent); color: white; }
+
+        .zoom-controls { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+        .zoom-slider { width: 60px; accent-color: var(--accent); cursor: pointer; }
+
+        .section-header {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent);
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .task-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary); }
+
+        .task-statement {
+            background: var(--bg-card);
+            border-left: 3px solid var(--accent);
+            padding: 12px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .idea-block {
+            background: linear-gradient(135deg, rgba(57,210,192,0.08), rgba(88,166,255,0.08));
+            border: 1px solid var(--cyan-dim);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+        }
+
+        .idea-block h3 { font-size: 13px; color: var(--cyan); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+
+        .idea-block ul { list-style: none; padding: 0; }
+
+        .idea-block li { padding: 3px 0 3px 18px; position: relative; color: var(--text-secondary); font-size: 13px; }
+        .idea-block li::before { content: '→'; position: absolute; left: 0; color: var(--cyan); }
+
+        .step {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .step.expanded { border-color: var(--step-border); box-shadow: 0 0 12px var(--accent-glow); }
+        .step.highlight { border-color: var(--cyan); box-shadow: 0 0 15px var(--hint-glow); }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            user-select: none;
+            gap: 10px;
+            transition: background 0.15s;
+        }
+
+        .step-header:hover { background: rgba(255,255,255,0.03); }
+
+        .step-num {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: var(--accent-dim); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; flex-shrink: 0;
+        }
+
+        .step-title { font-size: 13px; font-weight: 600; flex: 1; }
+        .step-toggle { font-size: 14px; color: var(--text-muted); transition: transform 0.3s; flex-shrink: 0; }
+        .step.expanded .step-toggle { transform: rotate(90deg); }
+
+        .step-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .step.expanded .step-content { max-height: 3000px; }
+
+        .step-body { padding: 0 14px 14px 48px; font-size: 13px; color: var(--text-secondary); line-height: 1.8; }
+        .step-body p { margin-bottom: 6px; }
+
+        .math-block {
+            display: block;
+            text-align: center;
+            padding: 8px;
+            margin: 8px 0;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent);
+            overflow-x: auto;
+        }
+
+        .math-block.math-hl { border-left-color: var(--green); background: rgba(63,185,80,0.06); }
+
+        .math-green { color: var(--green); font-weight: 600; }
+        .math-orange { color: var(--orange); font-weight: 600; }
+        .math-red { color: var(--red); font-weight: 600; }
+
+        .answer-box {
+            background: linear-gradient(135deg, rgba(63,185,80,0.1), rgba(57,210,192,0.1));
+            border: 1px solid var(--green);
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-top: 14px;
+            text-align: center;
+        }
+
+        .answer-box .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--green); margin-bottom: 4px; }
+        .answer-box .value { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+
+        .mistakes-block {
+            background: rgba(248,81,73,0.06);
+            border: 1px solid rgba(248,81,73,0.3);
+            border-radius: 10px;
+            padding: 14px;
+            margin-top: 16px;
+        }
+
+        .mistakes-block h3 { color: var(--red); font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+
+        .mistake-item { padding: 6px 0; border-bottom: 1px solid rgba(248,81,73,0.15); font-size: 12px; color: var(--text-secondary); }
+        .mistake-item:last-child { border-bottom: none; }
+        .mistake-wrong { color: var(--red); text-decoration: line-through; }
+        .mistake-right { color: var(--green); }
+
+        .controls-bar { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+
+        .ctrl-group {
+            display: flex; align-items: center; gap: 3px;
+            background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 3px;
+        }
+
+        .ctrl-btn {
+            padding: 4px 10px; border: none; background: transparent;
+            color: var(--text-secondary); font-size: 11px; cursor: pointer;
+            border-radius: 5px; transition: all 0.15s; white-space: nowrap;
+        }
+
+        .ctrl-btn:hover { color: var(--text-primary); }
+        .ctrl-btn.active { background: var(--accent-dim); color: white; }
+
+        .ctrl-label { font-size: 10px; color: var(--text-muted); margin-right: 3px; text-transform: uppercase; letter-spacing: 0.3px; }
+
+        .generator-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; flex-shrink: 0; }
+
+        .gen-btn {
+            width: 100%; padding: 8px; border: 1px solid var(--cyan-dim);
+            background: linear-gradient(135deg, rgba(57,210,192,0.1), rgba(88,166,255,0.1));
+            color: var(--cyan); border-radius: 8px; cursor: pointer;
+            font-size: 13px; font-weight: 600; transition: all 0.2s; margin-top: 6px;
+        }
+
+        .gen-btn:hover {
+            background: linear-gradient(135deg, rgba(57,210,192,0.2), rgba(88,166,255,0.2));
+            box-shadow: 0 0 15px var(--hint-glow);
+        }
+
+        .gen-task { margin-top: 8px; padding: 8px; background: var(--bg-tertiary); border-radius: 6px; font-size: 12px; display: none; }
+        .gen-task.visible { display: block; }
+
+        .gen-answer { margin-top: 4px; font-size: 11px; color: var(--green); display: none; }
+        .gen-answer.visible { display: block; }
+
+        .quiz-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; flex-shrink: 0; }
+        .quiz-q { font-size: 12px; margin-bottom: 6px; color: var(--text-primary); }
+        .quiz-options { display: flex; flex-direction: column; gap: 3px; }
+
+        .quiz-opt {
+            padding: 6px 10px; border: 1px solid var(--border);
+            background: var(--bg-tertiary); border-radius: 6px;
+            cursor: pointer; font-size: 12px; color: var(--text-secondary); transition: all 0.15s;
+        }
+
+        .quiz-opt:hover { border-color: var(--accent); }
+        .quiz-opt.correct { border-color: var(--green); background: rgba(63,185,80,0.1); color: var(--green); }
+        .quiz-opt.wrong { border-color: var(--red); background: rgba(248,81,73,0.1); color: var(--red); }
+        .quiz-feedback { margin-top: 6px; font-size: 11px; min-height: 16px; }
+
+        .hint-trigger {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 16px; height: 16px; border-radius: 50%;
+            background: var(--cyan-dim); color: white;
+            font-size: 10px; font-weight: 700; cursor: help;
+            position: relative; margin-left: 4px; vertical-align: middle;
+            animation: hintPulse 2s infinite; flex-shrink: 0;
+        }
+
+        .hint-trigger:hover { animation: hintBounce 0.4s; }
+
+        @keyframes hintPulse {
+            0%, 100% { box-shadow: 0 0 4px var(--hint-glow); }
+            50% { box-shadow: 0 0 12px var(--hint-glow), 0 0 20px rgba(57,210,192,0.15); }
+        }
+
+        @keyframes hintBounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .popover {
+            position: fixed;
+            background: var(--bg-tertiary);
+            border: 2px solid transparent;
+            border-image: var(--popover-border) 1;
+            border-radius: 10px;
+            padding: 12px 14px;
+            max-width: 260px;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.25s, transform 0.25s;
+            pointer-events: none;
+            font-size: 12px;
+        }
+
+        .popover.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .popover-close { position: absolute; top: 4px; right: 6px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; line-height: 1; }
+        .popover-title { font-weight: 600; color: var(--cyan); margin-bottom: 4px; font-size: 12px; }
+        .popover-body { color: var(--text-secondary); line-height: 1.5; }
+        .popover-action { margin-top: 6px; padding: 4px 8px; border: 1px solid var(--cyan-dim); background: transparent; color: var(--cyan); border-radius: 5px; cursor: pointer; font-size: 11px; }
+
+        .vis-toggles { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+
+        .vis-toggle {
+            display: flex; align-items: center; gap: 4px;
+            padding: 2px 6px; border: 1px solid var(--border); border-radius: 5px;
+            cursor: pointer; font-size: 10px; color: var(--text-secondary);
+            transition: all 0.15s; background: var(--bg-secondary);
+        }
+
+        .vis-toggle.active { border-color: var(--accent); color: var(--accent); }
+        .vis-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+        .legend { margin-top: 6px; padding: 6px 8px; background: var(--bg-secondary); border-radius: 6px; font-size: 10px; color: var(--text-muted); }
+        .legend-item { display: flex; align-items: center; gap: 5px; padding: 1px 0; }
+        .legend-color { width: 10px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+
+        .fade-in { animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 900px) {
+            .main-container { grid-template-columns: 1fr; }
+            .right-panel { position: relative; top: 0; height: auto; border-top: 1px solid var(--border); border-left: none; }
+            .left-panel { border-right: none; max-height: none; }
+            .topic-switcher { max-width: 100%; }
+        }
+
+        @media (max-width: 500px) {
+            .left-panel { padding: 14px 12px; }
+            .right-panel { padding: 12px; }
+            .step-body { padding-left: 14px; }
+            .task-title { font-size: 15px; }
+            .top-bar { padding: 6px 10px; }
+            .topic-btn { padding: 5px 8px; font-size: 11px; }
+        }
+
+        @media print {
+            body { background: white; color: black; }
+            .right-panel, .controls-bar, .generator-block, .quiz-block, .hint-trigger, .popover, .top-bar, .viz-controls { display: none !important; }
+            .main-container { grid-template-columns: 1fr; }
+            .left-panel { border-right: none; max-height: none; overflow: visible; }
+            .step { break-inside: avoid; }
+            .step-content { max-height: none !important; }
+            .answer-box { border-color: #333; }
+        }
+
+        math { font-size: 1.05em; }
+        math[display="block"] { display: block; text-align: center; margin: 8px 0; }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div>
+        <div class="top-bar-title">Наглядная математика — ОГЭ, 8 класс</div>
+        <div class="top-bar-sub">Автор: Лёвин Артём Александрович</div>
+    </div>
+    <div class="topic-switcher" id="topicSwitcher">
+        <button class="topic-btn active" data-topic="roots">Корни и сопряжённые</button>
+        <button class="topic-btn" data-topic="fractions">Алгебраические дроби</button>
+        <button class="topic-btn" data-topic="systems">Системы уравнений</button>
+        <button class="topic-btn" data-topic="probability">Вероятность</button>
+    </div>
+</div>
+
+<div class="main-container">
+    <div class="left-panel" id="leftPanel"></div>
+    <div class="right-panel" id="rightPanel"></div>
+</div>
+
+<div class="popover" id="popover" role="tooltip" aria-hidden="true">
+    <button class="popover-close" aria-label="Закрыть">&times;</button>
+    <div class="popover-title" id="popoverTitle"></div>
+    <div class="popover-body" id="popoverBody"></div>
+    <button class="popover-action" id="popoverAction" style="display:none;"></button>
+</div>
+
+<script>
+    // MathML helper: wrap string in <math> or produce inline mathml
+    function M(html) { return html; }
+
+    // Build MathML fragments as strings
+    function mfrac(num, den) {
+        return '<mfrac>' + num + den + '</mfrac>';
+    }
+
+    function msqrt(val) {
+        return '<msqrt>' + val + '</msqrt>';
+    }
+
+    function msup(base, exp) {
+        return '<msup>' + base + exp + '</msup>';
+    }
+
+    function msub(base, sub) {
+        return '<msub>' + base + sub + '</msub>';
+    }
+
+    function mn(val) { return '<mn>' + val + '</mn>'; }
+    function mi(val) { return '<mi>' + val + '</mi>'; }
+    function mo(val) { return '<mo>' + val + '</mo>'; }
+
+    function mrow(...parts) { return '<mrow>' + parts.join('') + '</mrow>'; }
+
+    // Build a system of equations with compact brace
+    function msystem(eq1, eq2) {
+        return '<mrow><mo stretchy="true" fence="true">{</mo><mtable columnalign="left">' +
+        '<mtr><mtd>' + eq1 + '</mtd></mtr>' +
+        '<mtr><mtd>' + eq2 + '</mtd></mtr>' +
+        '</mtable></mrow>';
+    }
+
+    function mblock(mathml, hl) {
+        return '<div class="math-block' + (hl ? ' math-hl' : '') + '"><math display="block">' + mathml + '</math></div>';
+    }
+
+    function minline(mathml) {
+        return '<math>' + mathml + '</math>';
+    }
+
+    // ==================== DATA ====================
+    const topicsData = {
+        roots: {
+            title: 'Преобразование выражений с корнями',
+            task: 'Найдите значение выражения: ' + minline(mfrac('52', mrow('4', mo('+'), msqrt('3'))) + mo('+') + mrow('4', msqrt('3'))),
+            idea: [
+                'Дробь содержит корень в знаменателе — нужно избавиться',
+                'Умножим числитель и знаменатель на сопряжённое выражение',
+                'В знаменателе получится разность квадратов',
+                'После упрощения сложим с оставшимся слагаемым'
+            ],
+            steps: [
+                {
+                    title: 'Что дано',
+                    body: '<p>Исходное выражение:</p>' +
+                    mblock(mfrac('52', mrow('4', mo('+'), msqrt('3'))) + mo('+') + mrow('4', msqrt('3'))) +
+                    '<p>В знаменателе первой дроби содержится ' + minline(msqrt('3')) + ' — иррациональное число.</p>'
+                },
+                {
+                    title: 'Смысл условия',
+                    body: '<p>Нужно найти точное значение выражения. Прямая подстановка приближённого значения ' + minline(msqrt('3') + mo('≈') + '1,732') + ' даст лишь приближённый ответ.</p>'
+                },
+                {
+                    title: 'Интерпретация',
+                    body: '<p>Проблема — корень в знаменателе. Стандартный приём: умножить дробь на сопряжённое выражение.</p>'
+                },
+                {
+                    title: 'Идея решения',
+                    body: '<p>Используем формулу разности квадратов. Умножаем на ' + minline(mrow(mn('4'), mo('−'), msqrt('3')) + mo('/') + mrow(mn('4'), mo('−'), msqrt('3'))) + '.</p>'
+                },
+                {
+                    title: 'Решение (шаг 1)',
+                    body: '<p>Умножаем числитель и знаменатель:</p>' +
+                    mblock(mfrac(mrow('52', mrow(mn('4'), mo('−'), msqrt('3'))), mrow(mrow('4', mo('+'), msqrt('3')), mo('·'), mrow('4', mo('−'), msqrt('3'))))) +
+                    '<p>Знаменатель по формуле разности квадратов:</p>' +
+                    mblock(mrow(mn('4'), msup('', mn('2')), mo('−'), mrow(msqrt('3'), msup('', mn('2'))), mo('='), mn('16'), mo('−'), mn('3'), mo('='), mn('13')))
+                },
+                {
+                    title: 'Решение (шаг 2)',
+                    body: '<p>Дробь упрощается:</p>' +
+                    mblock(mfrac(mrow('52', mrow(mn('4'), mo('−'), msqrt('3'))), '13') + mo('=') + mrow(mn('4'), mrow(mn('4'), mo('−'), msqrt('3'))) + mo('=') + mrow(mn('16'), mo('−'), mrow('4', msqrt('3'))))
+                },
+                {
+                    title: 'Проверка',
+                    body: '<p>Подставляем в исходное:</p>' +
+                    mblock(mrow(mn('16'), mo('−'), mrow('4', msqrt('3')), mo('+'), mrow('4', msqrt('3')), mo('='), mn('16')), true) +
+                    '<p>Корни сокращаются — ответ целый.</p>'
+                },
+                {
+                    title: 'Вывод',
+                    body: '<p>Значение выражения равно <span class="math-green">' + minline(mn('16')) + '</span>.</p>'
+                }
+            ],
+            answer: '16',
+            mistakes: [
+                { wrong: 'Забыть, что (√3)² = 3', right: 'Подкоренное выражение в квадрате даёт число под корнем' },
+                { wrong: 'Сложить 52 и 4 в числителе', right: 'Сначала нужно избавиться от корня в знаменателе' },
+                { wrong: 'Умножить только числитель на сопряжённое', right: 'Умножаем и числитель, и знаменатель — значение дроби не меняется' }
+            ],
+            gen: { label: 'Найти: k/(a+√b) + c√b', gen: genRootsTask },
+            quiz: [
+                { q: minline(mrow(mn('('), msqrt('5'), mo('+'), mn('2'), mn(')'), mo('·'), mn('('), msqrt('5'), mo('−'), mn('2'), mn(')'))), opts: [minline(mn('3')), minline(mn('1')), minline(mn('7')), minline(mn('−1'))], correct: 0 },
+                { q: 'Сопряжённое к ' + minline(mrow('7', mo('+'), msqrt('2'))) + ':', opts: [minline(mrow('7', mo('−'), msqrt('2'))), minline(mrow(mn('−7'), mo('+'), msqrt('2'))), minline(mrow(mn('−7'), mo('−'), msqrt('2'))), minline(mrow(msqrt('2'), mo('−'), '7'))], correct: 0 }
+            ],
+            vizElements: ['line', 'fraction', 'result']
+        },
+        fractions: {
+            title: 'Алгебраические дроби и ФСУ',
+            task: 'Найдите значение: ' + minline(mfrac(mrow('10', msup('b', mn('2'))), mrow(msup('a', mn('2')), mo('−'), mn('36'))) + mo(':') + mfrac(mrow('10', 'b'), mrow('a', mo('+'), mn('6')))) + ' при ' + minline(mrow('a', mo('='), mn('4,5'))) + ', ' + minline(mrow('b', mo('='), mn('6'))),
+            idea: [
+                'Деление дробей = умножение на обратную',
+                'Разложим знаменатель по формуле разности квадратов',
+                'Сократим общие множители',
+                'Подставим числа в упрощённое выражение'
+            ],
+            steps: [
+                {
+                    title: 'Что дано',
+                    body: '<p>Выражение:</p>' +
+                    mblock(mfrac(mrow('10', msup('b', mn('2'))), mrow(msup('a', mn('2')), mo('−'), mn('36'))) + mo(':') + mfrac(mrow('10', 'b'), mrow('a', mo('+'), mn('6')))) +
+                    '<p>Значения: ' + minline(mrow('a', mo('='), mn('4,5'))) + ', ' + minline(mrow('b', mo('='), mn('6'))) + '</p>'
+                },
+                {
+                    title: 'Смысл условия',
+                    body: '<p>Нужно упростить алгебраическую дробь, затем подставить числа. Прямая подстановка даст громоздкие вычисления.</p>'
+                },
+                {
+                    title: 'Интерпретация',
+                    body: '<p>Знаменатель ' + minline(mrow(msup('a', mn('2')), mo('−'), mn('36'))) + ' — разность квадратов. Деление заменяем умножением на перевёрнутую дробь.</p>'
+                },
+                {
+                    title: 'Идея решения',
+                    body: '<p>Разложить знаменатель, заменить деление умножением, сократить, подставить.</p>'
+                },
+                {
+                    title: 'Решение (шаг 1)',
+                    body: '<p>Разлагаем разность квадратов:</p>' +
+                    mblock(mrow(msup('a', mn('2')), mo('−'), mn('36'), mo('='), mrow(mrow('a', mo('−'), mn('6')), mo('·'), mrow('a', mo('+'), mn('6'))))) +
+                    '<p>Заменяем деление умножением:</p>' +
+                    mblock(mfrac(mrow('10', msup('b', mn('2'))), mrow(mrow('a', mo('−'), mn('6')), mo('·'), mrow('a', mo('+'), mn('6')))) + mo('·') + mfrac(mrow('a', mo('+'), mn('6')), mrow('10', 'b')))
+                },
+                {
+                    title: 'Решение (шаг 2)',
+                    body: '<p>Сокращаем 10, b, (a+6):</p>' +
+                    mblock(mfrac('b', mrow('a', mo('−'), mn('6'))), true)
+                },
+                {
+                    title: 'Проверка',
+                    body: '<p>Подставляем ' + minline(mrow('a', mo('='), mn('4,5'))) + ', ' + minline(mrow('b', mo('='), mn('6'))) + ':</p>' +
+                    mblock(mfrac(mn('6'), mrow(mn('4,5'), mo('−'), mn('6'))) + mo('=') + mfrac(mn('6'), mrow(mn('−1,5'))) + mo('=') + mn('−4'), true) +
+                    '<p>ОДЗ: ' + minline(mrow('a', mo('≠'), mn('6'))) + ', ' + minline(mrow('a', mo('≠'), mn('−6'))) + ' — выполнено.</p>'
+                },
+                {
+                    title: 'Вывод',
+                    body: '<p>Значение выражения равно <span class="math-green">' + minline(mn('−4')) + '</span>.</p>'
+                }
+            ],
+            answer: '−4',
+            mistakes: [
+                { wrong: 'Подставить числа до упрощения', right: 'Сначала упростить символьно, потом подставить' },
+                { wrong: 'a²−36 = (a−6)²', right: 'Разность квадратов: (a−6)(a+6)' },
+                { wrong: 'Не проверить ОДЗ', right: 'a²−36 ≠ 0 ⇒ a ≠ ±6' }
+            ],
+            gen: { label: 'Упростить дробь и подставить', gen: genFractionTask },
+            quiz: [
+                { q: minline(mrow(msup('x', mn('2')), mo('−'), mn('25'))), opts: [minline(msup(mrow('x', mo('−'), mn('5')), mn('2'))), minline(mrow(mrow('x', mo('−'), mn('5')), mo('·'), mrow('x', mo('+'), mn('5')))), minline(msup(mrow('x', mo('+'), mn('5')), mn('2'))), minline(mrow(mrow('x', mo('−'), mn('25')), mo('·'), mrow('x', mo('+'), mn('1'))))], correct: 1 },
+                { q: minline(mfrac('a', 'b') + mo(':') + mfrac('c', 'd')), opts: [minline(mfrac(mrow('a', 'c'), mrow('b', 'd'))), minline(mfrac(mrow('a', 'd'), mrow('b', 'c'))), minline(mfrac(mrow('b', 'd'), mrow('a', 'c'))), minline(mfrac(mrow('b', 'c'), mrow('a', 'd')))], correct: 1 }
+            ],
+            vizElements: ['fractions', 'simplified', 'result']
+        },
+        systems: {
+            title: 'Системы уравнений и числа',
+            task: 'Сумма двух чисел равна 10, произведение равно −75. Найдите числа.',
+            idea: [
+                'Составим систему из суммы и произведения',
+                'Выразим одну переменную через другую',
+                'Получим квадратное уравнение',
+                'Решим через дискриминант'
+            ],
+            steps: [
+                {
+                    title: 'Что дано',
+                    body: '<p>Пусть числа — ' + minline('a') + ' и ' + minline('b') + ':</p>' +
+                    mblock(msystem(mrow('a', mo('+'), 'b', mo('='), mn('10')), mrow('a', mo('·'), 'b', mo('='), mn('−75'))))
+                },
+                {
+                    title: 'Смысл условия',
+                    body: '<p>Нужно найти два числа по их сумме и произведению. Это классическая задача, решаемая через систему или теорему Виета.</p>'
+                },
+                {
+                    title: 'Интерпретация',
+                    body: '<p>Числа — корни квадратного уравнения ' + minline(mrow(msup('x', mn('2')), mo('−'), mrow(mn('10'), 'x'), mo('−'), mn('75'), mo('='), mn('0'))) + '.</p>'
+                },
+                {
+                    title: 'Идея решения',
+                    body: '<p>Выразить a через b, подставить в произведение, решить квадратное уравнение.</p>'
+                },
+                {
+                    title: 'Решение (шаг 1)',
+                    body: '<p>Из первого уравнения: ' + minline(mrow('a', mo('='), mrow(mn('10'), mo('−'), 'b'))) + '</p>' +
+                    '<p>Подставляем во второе:</p>' +
+                    mblock(mrow(mn('('), mrow(mn('10'), mo('−'), 'b'), mn(')'), mo('·'), 'b', mo('='), mn('−75')))
+                },
+                {
+                    title: 'Решение (шаг 2)',
+                    body: '<p>Раскрываем скобки и переносим всё влево:</p>' +
+                    mblock(mrow(msup('b', mn('2')), mo('−'), mrow(mn('10'), 'b'), mo('−'), mn('75'), mo('='), mn('0'))) +
+                    '<p>Дискриминант:</p>' +
+                    mblock(mrow('D', mo('='), msup(mn('10'), mn('2')), mo('−'), mrow(mn('4'), mo('·'), mn('1'), mo('·'), mn('('), mn('−75'), mn(')')), mo('='), mn('400'), mo('='), msup(mn('20'), mn('2')))) +
+                    '<p>Корни:</p>' +
+                    mblock(mrow(msub('b', mn('1')), mo('='), mfrac(mrow(mn('10'), mo('+'), mn('20')), mn('2')), mo('='), mn('15'), mspace({width: '1em'}), msup(mo(','), ''), mspace({width: '1em'}), msub('b', mn('2')), mo('='), mfrac(mrow(mn('10'), mo('−'), mn('20')), mn('2')), mo('='), mn('−5')))
+                },
+                {
+                    title: 'Проверка',
+                    body: '<p>При b = 15: a = 10 − 15 = −5</p>' +
+                    '<p>Сумма: ' + minline(mrow(mn('−5'), mo('+'), mn('15'), mo('='), mn('10'))) + ' ✓</p>' +
+                    '<p>Произведение: ' + minline(mrow(mn('−5'), mo('·'), mn('15'), mo('='), mn('−75'))) + ' ✓</p>'
+                },
+                {
+                    title: 'Вывод',
+                    body: '<p>Числа: <span class="math-green">' + minline(mrow(mn('−5'), mo(','), mn('15'))) + '</span>.</p>'
+                }
+            ],
+            answer: '−5 и 15',
+            mistakes: [
+                { wrong: 'b² + 10b + 75 = 0', right: 'При переносе −75 получаем +75, но −b² даёт b²' },
+                { wrong: 'Оба корня положительные', right: 'Произведение отрицательное — числа разных знаков' },
+                { wrong: 'Не проверить ответ', right: 'Всегда подставляйте найденные числа в исходные условия' }
+            ],
+            gen: { label: 'Сумма и произведение двух чисел', gen: genSystemTask },
+            quiz: [
+                { q: 'Сумма 8, произведение 12. Числа:', opts: ['3 и 5', '2 и 6', '4 и 4', '1 и 12'], correct: 1 },
+                { q: minline('D(' + msup('x', mn('2')) + mo('−') + mrow('6x') + mo('+') + mn('9') + ')'), opts: [minline(mn('0')), minline(mn('36')), minline(mn('−36')), minline(mn('12'))], correct: 0 }
+            ],
+            vizElements: ['line', 'hyperbola', 'points']
+        },
+        probability: {
+            title: 'Основы теории вероятностей',
+            task: 'Из 150 горшков 6 имеют дефекты. Найдите вероятность, что выбранный горшок без дефекта.',
+            idea: [
+                'P = число благоприятных / общее число исходов',
+                'Без дефекта: 150 − 6 = 144',
+                'P = 144/150 = 0,96'
+            ],
+            steps: [
+                {
+                    title: 'Что дано',
+                    body: '<p>Всего: 150. С дефектом: 6. Без дефекта: 144.</p>'
+                },
+                {
+                    title: 'Смысл условия',
+                    body: '<p>Случайный выбор одного горшка. Все исходы равновозможны.</p>'
+                },
+                {
+                    title: 'Интерпретация',
+                    body: '<p>Благоприятные исходы — горшки без дефекта. Их 144.</p>'
+                },
+                {
+                    title: 'Идея решения',
+                    body: '<p>Подставить в формулу классической вероятности.</p>'
+                },
+                {
+                    title: 'Решение',
+                    body: '<p>Классическая формула:</p>' +
+                    mblock(mrow('P', mo('='), mfrac('m', 'n'))) +
+                    '<p>Подставляем:</p>' +
+                    mblock(mrow('P', mo('='), mfrac('144', '150'), mo('='), mn('0,96')), true)
+                },
+                {
+                    title: 'Проверка',
+                    body: '<p>Вероятность дефекта: ' + minline(mfrac('6', '150') + mo('=') + '0,04') + '</p>' +
+                    '<p>Сумма: ' + minline(mrow('0,96', mo('+'), '0,04', mo('='), mn('1'))) + ' ✓</p>'
+                },
+                {
+                    title: 'Вывод',
+                    body: '<p>Вероятность: <span class="math-green">' + minline(mn('0,96')) + '</span>.</p>'
+                }
+            ],
+            answer: '0,96',
+            mistakes: [
+                { wrong: 'Взять 6/150 = 0,04', right: 'Это вероятность дефекта, а не его отсутствия' },
+                { wrong: 'Не сокращать дробь', right: '144/150 = 24/25 = 0,96' },
+                { wrong: 'Вероятность > 1', right: 'Вероятность всегда от 0 до 1' }
+            ],
+            gen: { label: 'Вероятность (дефекты/без)', gen: genProbTask },
+            quiz: [
+                { q: minline(mrow('P(A)', mo('='), '0,7')), opts: [minline('0,7'), minline('0,3'), minline('1,7'), minline('0')], correct: 1 },
+                { q: '3 белых, 7 чёрных. P(белый) = ?', opts: [minline('0,7'), minline('0,3'), minline('0,5'), minline('3')], correct: 1 }
+            ],
+            vizElements: ['pie', 'legend']
+        }
+    };
+
+    let currentTopic = 'roots';
+    let stepMode = 'standard';
+    let stepReveal = 0;
+    let allRevealed = false;
+    let currentGenTask = null;
+    let genCount = 0;
+    let visState = {};
+
+    function render() {
+        const data = topicsData[currentTopic];
+        visState = {};
+        (data.vizElements || []).forEach(e => visState[e] = true);
+        renderLeft(data);
+        renderRight(data);
+        setupHints();
+    }
+
+    function renderLeft(data) {
+        const panel = document.getElementById('leftPanel');
+        let html = '';
+
+        html += '<div class="controls-bar">' +
+        '<div class="ctrl-group">' +
+        '<span class="ctrl-label">Подробность:</span>' +
+        '<button class="ctrl-btn ' + (stepMode === 'brief' ? 'active' : '') + '" onclick="setMode(\'brief\')">Кратко</button>' +
+        '<button class="ctrl-btn ' + (stepMode === 'standard' ? 'active' : '') + '" onclick="setMode(\'standard\')">Стандартно</button>' +
+        '<button class="ctrl-btn ' + (stepMode === 'detailed' ? 'active' : '') + '" onclick="setMode(\'detailed\')">Подробно</button>' +
+        '</div>' +
+        '<div class="ctrl-group">' +
+        '<span class="ctrl-label">По шагам:</span>' +
+        '<button class="ctrl-btn" onclick="revealStep()">Следующий ▶</button>' +
+        '<button class="ctrl-btn" onclick="revealAll()">Все</button>' +
+        '</div>' +
+        '</div>';
+
+        html += '<div class="task-title">' + data.title + '</div>';
+        html += '<div class="task-statement">' + data.task + '</div>';
+
+        html += '<div class="idea-block">' +
+        '<h3>💡 Идея решения <span class="hint-trigger" data-hint="idea" tabindex="0" role="button" aria-label="Подсказка: идея решения">?</span></h3>' +
+        '<ul>' + data.idea.map(i => '<li>' + i + '</li>').join('') + '</ul>' +
+        '</div>';
+
+        data.steps.forEach(function(step, idx) {
+            const expanded = allRevealed || idx < stepReveal;
+            html += '<div class="step ' + (expanded ? 'expanded' : '') + '" data-step="' + idx + '" id="step-' + idx + '" onmouseenter="highlightViz(' + idx + ')" onmouseleave="unhighlightViz()">' +
+            '<div class="step-header" onclick="toggleStep(' + idx + ')">' +
+            '<div class="step-num">' + (idx + 1) + '</div>' +
+            '<div class="step-title">' + step.title + '</div>' +
+            '<div class="step-toggle">▶</div>' +
+            '</div>' +
+            '<div class="step-content">' +
+            '<div class="step-body">' + step.body + '</div>' +
+            '</div>' +
+            '</div>';
+        });
+
+        html += '<div class="answer-box fade-in">' +
+        '<div class="label">Ответ</div>' +
+        '<div class="value">' + data.answer + '</div>' +
+        '</div>';
+
+        html += '<div class="mistakes-block">' +
+        '<h3>⚠️ Типичные ошибки</h3>' +
+        data.mistakes.map(function(m) {
+            return '<div class="mistake-item"><span class="mistake-wrong">✗ ' + m.wrong + '</span><br><span class="mistake-right">✓ ' + m.right + '</span></div>';
+        }).join('') +
+        '</div>';
+
+        panel.innerHTML = html;
+    }
+
+    function renderRight(data) {
+        const panel = document.getElementById('rightPanel');
+        let html = '';
+
+        html += '<div class="viz-container">' +
+        '<div class="section-header">Визуализация <span class="hint-trigger" data-hint="viz" tabindex="0" role="button" aria-label="Подсказка: визуализация">?</span></div>' +
+        '<div class="viz-canvas-wrap"><canvas id="vizCanvas"></canvas></div>' +
+        '<div class="viz-controls">' +
+        '<button class="viz-btn active" onclick="setVizMode(\'standard\')" id="vizModeBtn">Стандарт</button>' +
+        '<button class="viz-btn" onclick="setVizMode(\'animated\')" id="vizAnimBtn">Анимация</button>' +
+        '<div class="zoom-controls">' +
+        '<button class="viz-btn" onclick="zoomIn()">+</button>' +
+        '<button class="viz-btn" onclick="zoomOut()">−</button>' +
+        '<button class="viz-btn" onclick="zoomReset()">⟲</button>' +
+        '<input type="range" class="zoom-slider" min="50" max="200" value="100" id="zoomSlider" oninput="setZoom(this.value)">' +
+        '</div>' +
+        '</div>' +
+        '<div class="vis-toggles" id="visToggles"></div>' +
+        '<div class="legend" id="vizLegend"></div>' +
+        '</div>';
+
+        html += '<div class="generator-block">' +
+        '<div class="section-header">Генератор задач <span class="hint-trigger" data-hint="gen" tabindex="0" role="button" aria-label="Подсказка: генератор задач">?</span></div>' +
+        '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">' + data.gen.label + '</div>' +
+        '<button class="gen-btn" onclick="generateTask()">🎲 Сгенерировать задачу</button>' +
+        '<div class="gen-task" id="genTask"></div>' +
+        '<div class="gen-answer" id="genAnswer"></div>' +
+        '</div>';
+
+        if (data.quiz) {
+            html += '<div class="quiz-block">' +
+            '<div class="section-header">Мини-квиз</div>' +
+            '<div id="quizContainer"></div>' +
+            '</div>';
+        }
+
+        panel.innerHTML = html;
+
+        setTimeout(function() { initViz(data); }, 50);
+        if (data.quiz) initQuiz(data.quiz);
+        renderVisToggles(data);
+    }
+
+    function renderVisToggles(data) {
+        var container = document.getElementById('visToggles');
+        if (!container || !data.vizElements) return;
+        var colors = { line: '#58a6ff', fraction: '#f0883e', result: '#3fb950', fractions: '#58a6ff', simplified: '#39d2c0', hyperbola: '#f0883e', points: '#3fb950', pie: '#3fb950', legend: '#f85149' };
+        container.innerHTML = data.vizElements.map(function(e) {
+            return '<div class="vis-toggle ' + (visState[e] ? 'active' : '') + '" onclick="toggleVis(\'' + e + '\', this)">' +
+            '<div class="vis-dot" style="background:' + (colors[e] || '#8b949e') + '"></div>' +
+            e +
+            '</div>';
+        }).join('');
+    }
+
+    function toggleVis(el, btn) {
+        visState[el] = !visState[el];
+        btn.classList.toggle('active', visState[el]);
+        redrawViz();
+    }
+
+    function initViz(data) {
+        var canvas = document.getElementById('vizCanvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width * 2;
+        canvas.height = rect.height * 2;
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = rect.height + 'px';
+        ctx.scale(2, 2);
+        drawViz(ctx, rect.width, rect.height, data);
+    }
+
+    var vizZoom = 100;
+    var vizMode = 'standard';
+    var vizAnimFrame = 0;
+    var vizAnimRunning = false;
+
+    function drawViz(ctx, w, h, data) {
+        ctx.clearRect(0, 0, w, h);
+        var scale = vizZoom / 100;
+        ctx.save();
+        ctx.translate(w / 2 * (1 - scale), h / 2 * (1 - scale));
+        ctx.scale(scale, scale);
+
+        if (currentTopic === 'roots') drawRootsViz(ctx, w, h);
+        else if (currentTopic === 'fractions') drawFractionsViz(ctx, w, h);
+        else if (currentTopic === 'systems') drawSystemsViz(ctx, w, h);
+        else if (currentTopic === 'probability') drawProbViz(ctx, w, h);
+
+        ctx.restore();
+    }
+
+    function drawRootsViz(ctx, w, h) {
+        if (!visState.line && !visState.fraction && !visState.result) return;
+        ctx.fillStyle = '#1a1f2e';
+        ctx.fillRect(0, 0, w, h);
+
+        var y1 = h * 0.3;
+        var zeroX = 40;
+        var scl = 60;
+
+        if (visState.line) {
+            ctx.strokeStyle = '#30363d';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(20, y1);
+            ctx.lineTo(w - 20, y1);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#58a6ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(zeroX, y1 - 6);
+            ctx.lineTo(zeroX, y1 + 6);
+            ctx.stroke();
+            ctx.fillStyle = '#8b949e';
+            ctx.font = '11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('0', zeroX, y1 + 18);
+
+            var sqrt3X = zeroX + Math.sqrt(3) * scl;
+            ctx.strokeStyle = '#f0883e';
+            ctx.beginPath();
+            ctx.moveTo(sqrt3X, y1 - 6);
+            ctx.lineTo(sqrt3X, y1 + 6);
+            ctx.stroke();
+            ctx.fillStyle = '#f0883e';
+            ctx.fillText('√3', sqrt3X, y1 + 18);
+
+            var fourX = zeroX + 4 * scl;
+            ctx.strokeStyle = '#39d2c0';
+            ctx.beginPath();
+            ctx.moveTo(fourX, y1 - 6);
+            ctx.lineTo(fourX, y1 + 6);
+            ctx.stroke();
+            ctx.fillStyle = '#39d2c0';
+            ctx.fillText('4', fourX, y1 + 18);
+        }
+
+        if (visState.fraction) {
+            var bx = w / 2, by = h * 0.55;
+            ctx.strokeStyle = '#30363d';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(bx - 100, by - 30, 200, 60);
+            ctx.fillStyle = '#58a6ff';
+            ctx.font = 'bold 13px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('52', bx, by - 8);
+            ctx.strokeStyle = '#58a6ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(bx - 80, by + 2);
+            ctx.lineTo(bx + 80, by + 2);
+            ctx.stroke();
+            ctx.fillStyle = '#f0883e';
+            ctx.font = '13px sans-serif';
+            ctx.fillText('4 + √3', bx, by + 22);
+        }
+
+        if (visState.result) {
+            var rx = w / 2, ry = h * 0.75;
+            ctx.fillStyle = '#3fb950';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('16 − 4√3 + 4√3 = 16', rx, ry);
+        }
+    }
+
+    function drawFractionsViz(ctx, w, h) {
+        if (!visState.fractions && !visState.simplified && !visState.result) return;
+        ctx.fillStyle = '#1a1f2e';
+        ctx.fillRect(0, 0, w, h);
+        var cx = w / 2, cy = h / 2 - 10;
+
+        function drawFrac(x, y, num, den, nc, dc) {
+            if (!visState.fractions) return;
+            ctx.fillStyle = nc;
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(num, x, y - 4);
+            ctx.strokeStyle = nc;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x - 30, y + 4);
+            ctx.lineTo(x + 30, y + 4);
+            ctx.stroke();
+            ctx.fillStyle = dc;
+            ctx.font = '12px sans-serif';
+            ctx.fillText(den, x, y + 20);
+        }
+
+        if (visState.fractions) {
+            drawFrac(cx - 90, cy, '10b²', 'a²−36', '#58a6ff', '#f0883e');
+            ctx.fillStyle = '#8b949e';
+            ctx.font = 'bold 18px sans-serif';
+            ctx.fillText('÷', cx, cy + 6);
+            drawFrac(cx + 90, cy, '10b', 'a+6', '#39d2c0', '#bc8cff');
+        }
+
+        if (visState.simplified) {
+            ctx.fillStyle = '#39d2c0';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('↓', cx, cy + 40);
+            ctx.fillText('b / (a−6)', cx, cy + 60);
+        }
+
+        if (visState.result) {
+            ctx.fillStyle = '#3fb950';
+            ctx.font = 'bold 13px sans-serif';
+            ctx.fillText('= 6 / (4,5−6) = −4', cx, cy + 85);
+        }
+    }
+
+    function drawSystemsViz(ctx, w, h) {
+        if (!visState.line && !visState.hyperbola && !visState.points) return;
+        ctx.fillStyle = '#1a1f2e';
+        ctx.fillRect(0, 0, w, h);
+        var ox = w / 2, oy = h / 2 + 20;
+        var scl = 20;
+
+        ctx.strokeStyle = '#30363d';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(15, oy);
+        ctx.lineTo(w - 15, oy);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(ox, 15);
+        ctx.lineTo(ox, h - 15);
+        ctx.stroke();
+
+        ctx.fillStyle = '#8b949e';
+        ctx.font = '11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('b', w - 10, oy - 5);
+        ctx.fillText('a', ox + 12, 12);
+
+        if (visState.line) {
+            ctx.strokeStyle = '#58a6ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(ox, oy - 10 * scl);
+            ctx.lineTo(ox + 10 * scl, oy);
+            ctx.stroke();
+            ctx.fillStyle = '#58a6ff';
+            ctx.font = '10px sans-serif';
+            ctx.fillText('a+b=10', ox + 5 * scl, oy - 5 * scl - 4);
+        }
+
+        if (visState.hyperbola) {
+            ctx.strokeStyle = '#f0883e';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            var started = false;
+            for (var aVal = -12; aVal <= 16; aVal += 0.5) {
+                if (aVal === 0) { started = false; continue; }
+                var bVal = -75 / aVal;
+                var px = ox + aVal * scl;
+                var py = oy - bVal * scl;
+                if (px < 10 || px > w - 10 || py < 10 || py > h - 10) { started = false; continue; }
+                if (!started) { ctx.moveTo(px, py); started = true; }
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+        }
+
+        if (visState.points) {
+            var pts = [[-5, 15], [15, -5]];
+            pts.forEach(function(pt) {
+                var aVal = pt[0], bVal = pt[1];
+                var px = ox + aVal * scl;
+                var py = oy - bVal * scl;
+                ctx.fillStyle = '#3fb950';
+                ctx.beginPath();
+                ctx.arc(px, py, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#3fb950';
+                ctx.font = '10px sans-serif';
+                ctx.fillText('(' + aVal + ', ' + bVal + ')', px, py - 8);
+                ctx.setLineDash([2, 2]);
+                ctx.strokeStyle = '#30363d';
+                ctx.lineWidth = 0.5;
+                ctx.beginPath();
+                ctx.moveTo(px, py);
+                ctx.lineTo(px, oy);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(px, py);
+                ctx.lineTo(ox, py);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            });
+        }
+    }
+
+    function drawProbViz(ctx, w, h) {
+        if (!visState.pie && !visState.legend) return;
+        ctx.fillStyle = '#1a1f2e';
+        ctx.fillRect(0, 0, w, h);
+        var cx = w / 2, cy = h / 2 - 5;
+        var r = 70;
+
+        if (visState.pie) {
+            var good = 144, total = 150;
+            var goodAngle = (good / total) * 2 * Math.PI;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + goodAngle);
+            ctx.closePath();
+            ctx.fillStyle = '#3fb950';
+            ctx.fill();
+            ctx.strokeStyle = '#30363d';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.arc(cx, cy, r, -Math.PI / 2 + goodAngle, -Math.PI / 2 + 2 * Math.PI);
+            ctx.closePath();
+            ctx.fillStyle = '#f85149';
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#3fb950';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('96%', cx, cy + r / 2);
+            ctx.fillStyle = '#f85149';
+            ctx.fillText('4%', cx + r * 0.7, cy + 5);
+        }
+
+        if (visState.legend) {
+            ctx.font = '11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#3fb950';
+            ctx.fillText('● Без дефекта: 144', cx, cy + r + 20);
+            ctx.fillStyle = '#f85149';
+            ctx.fillText('● С дефектом: 6', cx, cy + r + 35);
+            ctx.fillStyle = '#8b949e';
+            ctx.fillText('P = 144/150 = 0,96', cx, cy + r + 52);
+        }
+    }
+
+    function setMode(mode) {
+        stepMode = mode;
+        var btns = document.querySelectorAll('.ctrl-group:first-child .ctrl-btn');
+        btns.forEach(function(b) {
+            b.classList.toggle('active', b.textContent.toLowerCase().indexOf(mode === 'brief' ? 'кратко' : mode === 'standard' ? 'стандартно' : 'подробно') >= 0);
+        });
+        render();
+    }
+
+    function toggleStep(idx) {
+        var step = document.getElementById('step-' + idx);
+        if (step) {
+            step.classList.toggle('expanded');
+            if (step.classList.contains('expanded') && idx >= stepReveal) {
+                stepReveal = idx + 1;
+            }
+        }
+    }
+
+    function revealStep() {
+        if (stepReveal < topicsData[currentTopic].steps.length) {
+            stepReveal++;
+            var step = document.getElementById('step-' + (stepReveal - 1));
+            if (step) {
+                step.classList.add('expanded');
+                highlightViz(stepReveal - 1);
+            }
+        }
+    }
+
+    function revealAll() {
+        allRevealed = true;
+        document.querySelectorAll('.step').forEach(function(s) { s.classList.add('expanded'); });
+        stepReveal = topicsData[currentTopic].steps.length;
+    }
+
+    function highlightViz(idx) {
+        document.querySelectorAll('.step').forEach(function(s, i) {
+            s.classList.toggle('highlight', i === idx);
+        });
+        var canvas = document.getElementById('vizCanvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var rect = canvas.parentElement.getBoundingClientRect();
+        ctx.setTransform(2, 0, 0, 2, 0, 0);
+        drawViz(ctx, rect.width, rect.height, topicsData[currentTopic]);
+    }
+
+    function unhighlightViz() {
+        document.querySelectorAll('.step').forEach(function(s) { s.classList.remove('highlight'); });
+        redrawViz();
+    }
+
+    function zoomIn() { vizZoom = Math.min(200, vizZoom + 20); document.getElementById('zoomSlider').value = vizZoom; redrawViz(); }
+    function zoomOut() { vizZoom = Math.max(50, vizZoom - 20); document.getElementById('zoomSlider').value = vizZoom; redrawViz(); }
+    function zoomReset() { vizZoom = 100; document.getElementById('zoomSlider').value = 100; redrawViz(); }
+    function setZoom(v) { vizZoom = parseInt(v); redrawViz(); }
+
+    function redrawViz() {
+        var data = topicsData[currentTopic];
+        var canvas = document.getElementById('vizCanvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width * 2;
+        canvas.height = rect.height * 2;
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = rect.height + 'px';
+        ctx.scale(2, 2);
+        drawViz(ctx, rect.width, rect.height, data);
+    }
+
+    function setVizMode(mode) {
+        vizMode = mode;
+        document.getElementById('vizModeBtn').classList.toggle('active', mode === 'standard');
+        document.getElementById('vizAnimBtn').classList.toggle('active', mode === 'animated');
+        if (mode === 'animated') {
+            vizAnimRunning = true;
+            animateViz();
+        } else {
+            vizAnimRunning = false;
+            redrawViz();
+        }
+    }
+
+    function animateViz() {
+        if (!vizAnimRunning) return;
+        vizAnimFrame++;
+        redrawViz();
+        if (vizAnimFrame < 300) requestAnimationFrame(animateViz);
+    }
+
+    function genRootsTask() {
+        var pairs = [{a:5,b:2,c:3},{a:3,b:5,c:2},{a:7,b:3,c:5},{a:5,b:7,c:3},{a:4,b:7,c:5},{a:6,b:5,c:4}];
+        var p = pairs[Math.floor(Math.random() * pairs.length)];
+        var k = p.c * (p.a * p.a - p.b);
+        var ans = p.c * p.a;
+        return {
+            statement: minline(mfrac(String(k), mrow(String(p.a), mo('+'), msqrt(String(p.b)))) + mo('+') + mrow(String(p.c), msqrt(String(p.b)))),
+            answer: ans,
+            idea: 'Умножим на сопряжённое ' + String(p.a) + '−√' + String(p.b)
+        };
+    }
+
+    function genFractionTask() {
+        var configs = [{a2:49,a:7,b:2,aVal:2,bVal:5},{a2:25,a:5,b:3,aVal:1,bVal:6},{a2:36,a:6,b:4,aVal:3,bVal:8}];
+        var p = configs[Math.floor(Math.random() * configs.length)];
+        var k = 14;
+        var ans = p.bVal / (p.aVal - p.a);
+        return {
+            statement: minline(mfrac(mrow(String(k), msup('b', mn('2'))), mrow(msup('x', mn('2')), mo('−'), mn(String(p.a2)))) + mo(':') + mfrac(mrow(String(k), 'b'), mrow('x', mo('+'), mn(String(p.a))))),
+            answer: ans % 1 === 0 ? ans : ans.toFixed(2),
+            idea: 'Разложим x²−' + String(p.a2) + ', сократим'
+        };
+    }
+
+    function genSystemTask() {
+        var configs = [{s:12,p:-28},{s:8,p:-20},{s:6,p:-16},{s:10,p:-24}];
+        var p = configs[Math.floor(Math.random() * configs.length)];
+        var D = p.s * p.s - 4 * p.p;
+        var r = Math.sqrt(D);
+        var x1 = (p.s - r) / 2;
+        var x2 = (p.s + r) / 2;
+        return {
+            statement: 'Сумма чисел ' + p.s + ', произведение ' + p.p + '. Найдите числа.',
+            answer: String(x1) + ' и ' + String(x2),
+            idea: 'Составим систему, выразим одну переменную'
+        };
+    }
+
+    function genProbTask() {
+        var configs = [{t:200,b:12},{t:100,b:5},{t:250,b:15},{t:180,b:9}];
+        var p = configs[Math.floor(Math.random() * configs.length)];
+        var prob = ((p.t - p.b) / p.t).toFixed(2);
+        return {
+            statement: 'Из ' + p.t + ' изделий ' + p.b + ' имеют брак. Найдите P(без брака).',
+            answer: prob,
+            idea: 'P = (всего − брак) / всего'
+        };
+    }
+
+    function generateTask() {
+        var data = topicsData[currentTopic];
+        var gen = data.gen.gen();
+        currentGenTask = gen;
+        genCount++;
+
+        var el = document.getElementById('genTask');
+        var ansEl = document.getElementById('genAnswer');
+        el.innerHTML = '<div style="font-weight:600;margin-bottom:4px;">Задача #' + genCount + ':</div>' +
+        '<div style="font-size:12px;">' + gen.statement + '</div>' +
+        '<button class="viz-btn" onclick="document.getElementById(\'genAnswer\').classList.add(\'visible\');document.getElementById(\'genIdea\').style.display=\'block\';" style="margin-top:6px;">Показать ответ</button>' +
+        '<div id="genIdea" style="display:none;margin-top:4px;font-size:11px;color:var(--text-muted);">' +
+        '<div style="color:var(--cyan);font-weight:600;">Идея:</div> ' + gen.idea +
+        '</div>';
+        el.classList.add('visible');
+        ansEl.innerHTML = '<div style="color:var(--green);font-weight:600;">Ответ: ' + gen.answer + '</div>';
+        ansEl.classList.remove('visible');
+    }
+
+    function initQuiz(questions) {
+        var container = document.getElementById('quizContainer');
+        if (!container) return;
+        var html = '';
+        questions.forEach(function(q, qi) {
+            html += '<div style="margin-bottom:10px;">' +
+            '<div class="quiz-q">' + q.q + '</div>' +
+            '<div class="quiz-options" id="quiz-' + qi + '">' +
+            q.opts.map(function(o, oi) {
+                return '<div class="quiz-opt" onclick="checkQuiz(' + qi + ',' + oi + ',' + q.correct + ')">' + o + '</div>';
+            }).join('') +
+            '</div>' +
+            '<div class="quiz-feedback" id="quiz-fb-' + qi + '"></div>' +
+            '</div>';
+        });
+        container.innerHTML = html;
+    }
+
+    function checkQuiz(qi, oi, correct) {
+        var opts = document.querySelectorAll('#quiz-' + qi + ' .quiz-opt');
+        opts.forEach(function(o, i) {
+            o.style.pointerEvents = 'none';
+            if (i === correct) o.classList.add('correct');
+            if (i === oi && i !== correct) o.classList.add('wrong');
+        });
+        var fb = document.getElementById('quiz-fb-' + qi);
+        fb.textContent = oi === correct ? '✓ Верно!' : '✗ Неверно. Правильный ответ выделен.';
+        fb.style.color = oi === correct ? 'var(--green)' : 'var(--red)';
+    }
+
+    function setupHints() {
+        var triggers = document.querySelectorAll('.hint-trigger');
+        var popover = document.getElementById('popover');
+        var hideTimeout = null;
+
+        var hintData = {
+            idea: { title: 'Идея решения', body: 'Краткая стратегия без вычислений. Прочитайте перед разбором, чтобы понять план.', pos: 'bottom' },
+            viz: { title: 'Интерактивная модель', body: 'Визуализация решения. Используйте ползунок масштаба и кнопки управления.', pos: 'bottom' },
+            gen: { title: 'Генератор задач', body: 'Создаёт новые задания по той же теме. Ответ скрыт — нажмите кнопку для проверки.', pos: 'top', action: 'Сгенерировать сейчас', actionFn: function() { generateTask(); } }
+        };
+
+        triggers.forEach(function(trigger) {
+            var key = trigger.dataset.hint;
+            var data = hintData[key];
+            if (!data) return;
+
+            trigger.addEventListener('mouseenter', function() { showPopover(trigger, data); });
+            trigger.addEventListener('focus', function() { showPopover(trigger, data); });
+            trigger.addEventListener('mouseleave', function() { hideTimeout = setTimeout(hidePopover, 15000); });
+            trigger.addEventListener('blur', function() { hideTimeout = setTimeout(hidePopover, 15000); });
+        });
+
+        function showPopover(trigger, data) {
+            clearTimeout(hideTimeout);
+            var title = document.getElementById('popoverTitle');
+            var body = document.getElementById('popoverBody');
+            var action = document.getElementById('popoverAction');
+
+            title.textContent = data.title;
+            body.innerHTML = data.body;
+
+            if (data.action) {
+                action.style.display = 'block';
+                action.textContent = data.action;
+                action.onclick = function() { if (data.actionFn) data.actionFn(); hidePopover(); };
+            } else {
+                action.style.display = 'none';
+            }
+
+            var rect = trigger.getBoundingClientRect();
+            var pw = 260;
+            var left = rect.left + rect.width / 2 - pw / 2;
+            var top = data.pos === 'top' ? rect.top - 110 : rect.bottom + 10;
+
+            if (left < 10) left = 10;
+            if (left + pw > window.innerWidth - 10) left = window.innerWidth - pw - 10;
+            if (top < 10) top = rect.bottom + 10;
+
+            popover.style.left = left + 'px';
+            popover.style.top = top + 'px';
+            popover.dataset.pos = data.pos;
+
+            popover.classList.add('visible');
+            popover.setAttribute('aria-hidden', 'false');
+        }
+
+        function hidePopover() {
+            popover.classList.remove('visible');
+            popover.setAttribute('aria-hidden', 'true');
+        }
+
+        document.querySelector('.popover-close').addEventListener('click', hidePopover);
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.popover') && !e.target.closest('.hint-trigger')) hidePopover();
+        });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') hidePopover(); });
+
+        if (!sessionStorage.getItem('hintShown')) {
+            setTimeout(function() {
+                var firstTrigger = document.querySelector('.hint-trigger');
+                if (firstTrigger) {
+                    var key = firstTrigger.dataset.hint;
+                    var data = hintData[key];
+                    if (data) { showPopover(firstTrigger, data); setTimeout(hidePopover, 10000); }
+                }
+                sessionStorage.setItem('hintShown', '1');
+            }, 3000);
+        }
+    }
+
+    document.getElementById('topicSwitcher').addEventListener('click', function(e) {
+        if (e.target.classList.contains('topic-btn')) {
+            document.querySelectorAll('.topic-btn').forEach(function(b) { b.classList.remove('active'); });
+            e.target.classList.add('active');
+            currentTopic = e.target.dataset.topic;
+            stepReveal = 0;
+            allRevealed = false;
+            currentGenTask = null;
+            render();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        render();
+        var canvasWrap = document.querySelector('.viz-canvas-wrap');
+        if (canvasWrap) {
+            canvasWrap.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                if (e.deltaY < 0) zoomIn(); else zoomOut();
+            }, { passive: false });
+        }
+    });
+
+    window.addEventListener('resize', function() {
+        var data = topicsData[currentTopic];
+        var canvas = document.getElementById('vizCanvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width * 2;
+        canvas.height = rect.height * 2;
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = rect.height + 'px';
+        ctx.scale(2, 2);
+        drawViz(ctx, rect.width, rect.height, data);
+    });
+</script>
+</body>
+</html>
