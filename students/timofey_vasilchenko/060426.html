@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Планиметрия: Интерактивный разбор | Лёвин А.А.</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --bg2: #161b22;
+            --bg3: #1c2333;
+            --text: #e6edf3;
+            --text2: #8b949e;
+            --accent: #008080;
+            --accent2: #00b3b3;
+            --accent-glow: rgba(0,128,128,0.4);
+            --danger: #e06c75;
+            --success: #50b86c;
+            --warn: #e5c07b;
+            --border: #30363d;
+            --radius: 8px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+        /* ===== НАВИГАЦИЯ ===== */
+        .top-nav {
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-brand {
+            font-weight: 700;
+            color: var(--accent2);
+            font-size: 16px;
+            margin-right: 16px;
+        }
+        .nav-tab {
+            padding: 6px 14px;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text2);
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .nav-tab:hover { color: var(--text); background: var(--bg3); }
+        .nav-tab.active { color: var(--accent2); border-color: var(--accent); background: rgba(0,128,128,0.1); }
+        .nav-controls { margin-left: auto; display: flex; gap: 6px; }
+        .nav-btn {
+            padding: 5px 10px;
+            border-radius: 5px;
+            background: var(--bg3);
+            color: var(--text2);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { color: var(--text); border-color: var(--accent); }
+
+        /* ===== ОСНОВНАЯ РАЗМЕТКА ===== */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+            align-items: start;
+        }
+        @media (max-width: 960px) {
+            .main-layout { grid-template-columns: 1fr; }
+            .sticky-panel { position: relative !important; }
+        }
+        .solution-col { min-width: 0; }
+        .sticky-panel {
+            position: sticky;
+            top: 70px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+        }
+
+        /* ===== ТИПОГРАФИКА ===== */
+        h1 { font-size: 24px; color: var(--accent2); margin-bottom: 16px; }
+        h2 { font-size: 20px; color: var(--accent2); margin: 28px 0 12px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+        h3 { font-size: 16px; color: var(--text); margin: 16px 0 8px; }
+        p { margin-bottom: 10px; color: var(--text); }
+        .math { font-style: italic; color: var(--accent2); }
+        .step-block {
+            background: var(--bg3);
+            border-left: 3px solid var(--accent);
+            padding: 12px 16px;
+            margin: 12px 0;
+            border-radius: 0 var(--radius) var(--radius) 0;
+        }
+        .step-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .idea-box {
+            background: linear-gradient(135deg, rgba(0,128,128,0.12), rgba(0,128,128,0.04));
+            border: 1px solid rgba(0,128,128,0.3);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin: 16px 0;
+        }
+        .idea-box h3 { color: var(--accent2); margin: 0 0 8px; }
+        .idea-box ul { margin: 0; padding-left: 20px; }
+        .idea-box li { margin-bottom: 4px; color: var(--text); }
+        .error-box {
+            background: rgba(224,108,117,0.08);
+            border: 1px solid rgba(224,108,117,0.3);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin: 16px 0;
+        }
+        .error-box h3 { color: var(--danger); margin: 0 0 8px; }
+        .error-box li { margin-bottom: 6px; color: var(--text); }
+        .check-box {
+            background: rgba(80,184,108,0.08);
+            border: 1px solid rgba(80,184,108,0.3);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin: 16px 0;
+        }
+        .check-box h3 { color: var(--success); margin: 0 0 8px; }
+
+        /* ===== CANVAS ===== */
+        #canvas-wrap {
+            position: relative;
+            background: #0a0e14;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        canvas#mainCanvas {
+            display: block;
+            width: 100%;
+            cursor: grab;
+        }
+        canvas#mainCanvas:active { cursor: grabbing; }
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: var(--bg);
+            border-radius: 0 0 var(--radius) var(--radius);
+        }
+        .zoom-btn {
+            width: 32px; height: 32px;
+            border-radius: 6px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .zoom-btn:hover { border-color: var(--accent); color: var(--accent2); }
+        .zoom-slider {
+            flex: 1;
+            accent-color: var(--accent);
+            height: 6px;
+        }
+        .zoom-val { font-size: 12px; color: var(--text2); min-width: 36px; text-align: center; }
+
+        /* ===== ПЕРЕКЛЮЧАТЕЛИ ===== */
+        .toggle-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 10px 0;
+        }
+        .toggle-btn {
+            padding: 5px 10px;
+            border-radius: 5px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .toggle-btn:hover { border-color: var(--accent); }
+        .toggle-btn.on { background: rgba(0,128,128,0.15); border-color: var(--accent); color: var(--accent2); }
+        .detail-select {
+            padding: 4px 8px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .step-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .step-btn:hover { background: var(--accent2); }
+        .step-btn:disabled { opacity: 0.4; cursor: default; }
+
+        /* ===== ГЕНЕРАТОР ===== */
+        .gen-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px;
+            margin-top: 12px;
+        }
+        .gen-box h4 { color: var(--accent2); margin-bottom: 8px; font-size: 14px; }
+        .gen-task {
+            background: var(--bg3);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .gen-answer {
+            display: none;
+            margin-top: 6px;
+            padding: 6px 10px;
+            background: rgba(80,184,108,0.1);
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--success);
+        }
+        .gen-answer.show { display: block; }
+        .show-ans-btn {
+            padding: 4px 10px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .show-ans-btn:hover { border-color: var(--accent); color: var(--accent2); }
+
+        /* ===== КВИЗ ===== */
+        .quiz-box {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px;
+            margin-top: 12px;
+        }
+        .quiz-box h4 { color: var(--warn); margin-bottom: 8px; font-size: 14px; }
+        .quiz-opt {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 6px 10px;
+            margin: 4px 0;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--accent); }
+        .quiz-opt.correct { border-color: var(--success); background: rgba(80,184,108,0.1); color: var(--success); }
+        .quiz-opt.wrong { border-color: var(--danger); background: rgba(224,108,117,0.1); color: var(--danger); }
+
+        /* ===== ПОДСКАЗКИ ===== */
+        .hint-trigger {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            background: rgba(0,128,128,0.2);
+            color: var(--accent2);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: 4px;
+            animation: hintPulse 2s infinite;
+            vertical-align: middle;
+            position: relative;
+        }
+        @keyframes hintPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0,128,128,0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(0,128,128,0); }
+        }
+        .popover {
+            display: none;
+            position: fixed;
+            background: var(--bg2);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 12px 14px;
+            max-width: 320px;
+            z-index: 999;
+            font-size: 13px;
+            line-height: 1.5;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            animation: popIn 0.2s ease;
+        }
+        .popover::after {
+            content: '';
+            position: absolute;
+            width: 10px; height: 10px;
+            background: var(--bg2);
+            border-right: 1px solid var(--accent);
+            border-bottom: 1px solid var(--accent);
+            transform: rotate(45deg);
+        }
+        .popover.arrow-bottom::after { top: -6px; left: 20px; }
+        .popover.arrow-top::after { bottom: -6px; left: 20px; transform: rotate(-135deg); }
+        .popover.show { display: block; }
+        .popover-close {
+            position: absolute; top: 4px; right: 6px;
+            background: none; border: none; color: var(--text2);
+            cursor: pointer; font-size: 16px;
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== ПЕЧАТЬ ===== */
+        @media print {
+            body { background: #fff; color: #000; }
+            .top-nav, .sticky-panel, .nav-controls, .zoom-controls, .gen-box, .quiz-box, .hint-trigger { display: none !important; }
+            .main-layout { display: block; }
+            .step-block, .idea-box, .error-box, .check-box { break-inside: avoid; background: #f5f5f5; border-color: #ccc; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- НАВИГАЦИЯ -->
+<nav class="top-nav">
+    <span class="nav-brand">Планиметрия</span>
+    <button class="nav-tab active" data-topic="0">Трапеция</button>
+    <button class="nav-tab" data-topic="1">Прямоугольный треугольник</button>
+    <button class="nav-tab" data-topic="2">Описанный четырёхугольник</button>
+    <div class="nav-controls">
+        <button class="nav-btn" onclick="toggleStepMode()" title="Пошаговый режим">⏱ Пошагово</button>
+        <button class="nav-btn" onclick="window.print()" title="Печать">🖨 Печать</button>
+    </div>
+</nav>
+
+<!-- ОСНОВНОЙ КОНТЕНТ -->
+<div class="main-layout">
+    <!-- ЛЕВАЯ КОЛОНКА: РЕШЕНИЕ -->
+    <div class="solution-col" id="solutionCol">
+        <!-- Заполняется через JS -->
+    </div>
+
+    <!-- ПРАВАЯ КОЛОНКА: ВИЗУАЛИЗАЦИЯ -->
+    <div class="sticky-panel" id="stickyPanel">
+        <div id="canvas-wrap">
+            <canvas id="mainCanvas" width="340" height="300"></canvas>
+        </div>
+        <div class="zoom-controls">
+            <button class="zoom-btn" onclick="zoomIn()">+</button>
+            <input type="range" class="zoom-slider" id="zoomSlider" min="0.5" max="3" step="0.1" value="1" oninput="setZoom(this.value)">
+            <button class="zoom-btn" onclick="zoomOut()">−</button>
+            <span class="zoom-val" id="zoomVal">100%</span>
+            <button class="zoom-btn" onclick="resetZoom()" title="Сброс">↺</button>
+        </div>
+        <div class="toggle-row" id="toggleRow">
+            <!-- Заполняется через JS -->
+        </div>
+        <div class="gen-box" id="genBox">
+            <h4>🎲 Генератор задач <span class="hint-trigger" data-hint="gen">?</span></h4>
+            <div id="genTaskArea"></div>
+            <button class="step-btn" style="width:100%;margin-top:6px" onclick="generateTask()">Сгенерировать задачу</button>
+        </div>
+        <div class="quiz-box" id="quizBox">
+            <h4>📝 Мини-квиз</h4>
+            <div id="quizArea"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ПОПОСВЕРЫ -->
+<div class="popover" id="popover" role="tooltip" aria-hidden="true"></div>
+
+<script>
+    // ===== ДАННЫЕ ТЕМ =====
+    const TOPICS = [
+        {
+            id: 'trapezoid',
+            title: 'Средняя линия трапеции и диагонали',
+            given: {
+                text: 'Средняя линия трапеции <span class="math">MN = 24</span> см. Диагональ делит её на отрезки, отношение которых равно <span class="math">7:5</span>.',
+                find: 'Найти меньшее основание трапеции.'
+            },
+            meaning: 'Средняя линия трапеции делится диагональю на два отрезка. Каждый из них — средняя линия соответствующего треугольника, образованного диагональю и основаниями.',
+            interpretation: 'Пусть <span class="math">MK = 7x</span>, <span class="math">KN = 5x</span>. Тогда <span class="math">MN = 12x = 24</span>. Меньшее основание <span class="math">BC = 2·KN = 10x</span>.',
+            idea: ['Ввести коэффициент <span class="math">x</span> для отношения отрезков.', 'Выразить полную среднюю линию через <span class="math">x</span> и найти его.', 'Меньшее основание равно удвоенному меньшему отрезку на средней линии.'],
+            steps: [
+                { label: 'Шаг 1. Обозначения', text: 'Пусть отрезки средней линии равны <span class="math">MK = 7x</span> и <span class="math">KN = 5x</span>. Здесь <span class="math">MK</span> — средняя линия <span class="math">△ABD</span>, а <span class="math">KN</span> — средняя линия <span class="math">△BCD</span>.' },
+                { label: 'Шаг 2. Уравнение', text: 'Сумма отрезков равна известной средней линии: <span class="math">7x + 5x = 24</span>.' },
+                { label: 'Шаг 3. Находим x', text: '<span class="math">12x = 24</span>, значит <span class="math">x = 2</span>.' },
+                { label: 'Шаг 4. Меньшее основание', text: 'Меньшее основание <span class="math">BC = 2·KN = 2·5x = 10x = 20</span> см.' },
+                { label: 'Шаг 5. Проверка', text: 'Большее основание <span class="math">AD = 2·MK = 14x = 28</span>. Средняя линия: <span class="math">(28 + 20)/2 = 24</span>. Верно.' }
+            ],
+            conclusion: 'Меньшее основание трапеции равно <span class="math">20</span> см.',
+            errors: [
+                'Путаница, какой отрезок к какому основанию относится. Помните: отрезок, прилежащий к стороне <span class="math">BC</span>, равен <span class="math">BC/2</span>.',
+                'Использование формулы полусуммы оснований без нахождения <span class="math">x</span> — сначала нужно выразить отрезки.',
+                'Ошибка в пропорции: если отношение <span class="math">7:5</span>, то сумма частей <span class="math">12</span>, а не <span class="math">35</span>.'
+            ],
+            check: {
+                text: 'Проверим: <span class="math">AD = 28</span>, <span class="math">BC = 20</span>. Средняя линия <span class="math">(28+20)/2 = 24</span>. Отношение <span class="math">14:10 = 7:5</span>. Всё сходится.',
+                result: 'Ответ верен.'
+            },
+            canvas: { type: 'trapezoid', highlights: { 'step-0': 'MK', 'step-1': 'MN', 'step-2': 'KN', 'step-3': 'BC', 'step-4': 'AD' } },
+            toggles: [
+                { id: 'showMid', label: 'Средняя линия', on: true },
+                { id: 'showDiag', label: 'Диагональ', on: true },
+                { id: 'showLabels', label: 'Метки', on: true }
+            ],
+            generator: {
+                types: ['standard', 'ratio_reverse', 'full_base'],
+                generate: function(type) {
+                    if (type === 'standard') {
+                        let a = randInt(15, 40), r1 = randInt(3,7), r2 = randInt(2,6);
+                        let x = a / (r1+r2), bc = 2 * Math.min(r1,r2) * x, ad = 2 * Math.max(r1,r2) * x;
+                        return { q: `Средняя линия трапеции равна ${a} см. Диагональ делит её в отношении ${r1}:${r2}. Найдите меньшее основание.`, a: fmt(bc), idea: 'Найдите x из суммы, умножьте на 2·min(r1,r2).' };
+                    }
+                    if (type === 'ratio_reverse') {
+                        let bc = randInt(8, 20), ad = bc + randInt(6, 20);
+                        let mn = (bc + ad)/2, k1 = bc/2, k2 = mn - k1;
+                        return { q: `Средняя линия трапеции равна ${mn} см. Меньший отрезок, на который диагональ делит среднюю линию, равен ${k1} см. Найдите большее основание.`, a: fmt(ad), idea: 'Больший отрезок = MN - меньший. Основание = 2·больший отрезок.' };
+                    }
+                    {
+                        let x = randInt(2, 8), r = randInt(2, 5);
+                        let mn = x * (r+1), bc = 2*x, ad = 2*r*x;
+                        return { q: `Диагональ делит среднюю линию трапеции на отрезки в отношении ${r}:1. Средняя линия равна ${mn} см. Найдите оба основания.`, a: `${fmt(bc)} см и ${fmt(ad)} см`, idea: 'Сумма частей = r+1. x = MN/(r+1). Основания = 2x и 2rx.' };
+                    }
+                }
+            },
+            quiz: {
+                q: 'Средняя линия трапеции равна 30 см. Диагональ делит её в отношении 3:2. Чему равно меньшее основание?',
+                opts: ['12 см', '18 см', '20 см', '24 см'],
+                correct: 0
+            }
+        },
+        {
+            id: 'triangle',
+            title: 'Прямоугольный треугольник: высота и биссектриса',
+            given: {
+                text: 'В прямоугольном треугольнике <span class="math">ABC</span> (<span class="math">∠C = 90°</span>) проведена высота <span class="math">CH</span>. Известно, что <span class="math">∠B = 55°</span>.',
+                find: 'Найти угол <span class="math">∠ACH</span>.'
+            },
+            meaning: 'Высота, опущенная на гипотенузу, делит прямоугольный треугольник на два подобных исходному. Углы при этом перераспределяются особым образом.',
+            interpretation: 'В <span class="math">△ACH</span> угол <span class="math">∠AHC = 90°</span>. Угол <span class="math">∠A = 90° - 55° = 35°</span>. Тогда <span class="math">∠ACH = 90° - 35° = 55°</span>. Замечаем: <span class="math">∠ACH = ∠B</span>.',
+            idea: ['Найти острый угол <span class="math">∠A = 90° - ∠B</span>.', 'В <span class="math">△ACH</span> угол <span class="math">∠ACH = 90° - ∠A</span>.', 'Упрощаем: <span class="math">∠ACH = ∠B</span> — это общий факт для высоты прямоугольного треугольника.'],
+            steps: [
+                { label: 'Шаг 1. Находим ∠A', text: 'В <span class="math">△ABC</span>: <span class="math">∠A + ∠B = 90°</span>, значит <span class="math">∠A = 90° - 55° = 35°</span>.' },
+                { label: 'Шаг 2. Рассматриваем △ACH', text: 'Это прямоугольный треугольник (<span class="math">∠H = 90°</span>). В нём <span class="math">∠A = 35°</span>.' },
+                { label: 'Шаг 3. Находим ∠ACH', text: '<span class="math">∠ACH = 90° - ∠A = 90° - 35° = 55°</span>.' },
+                { label: 'Шаг 4. Общий факт', text: 'Получилось, что <span class="math">∠ACH = ∠B</span>. Это верно всегда: высота «меняет местами» острые углы.' },
+                { label: 'Шаг 5. Проверка', text: 'Сумма углов <span class="math">△ACH: 35° + 55° + 90° = 180°</span>. Верно.' }
+            ],
+            conclusion: '<span class="math">∠ACH = 55°</span>.',
+            errors: [
+                'Попытка найти угол <span class="math">∠BCH</span> вместо <span class="math">∠ACH</span>. <span class="math">∠BCH = ∠A = 35°</span>, а не <span class="math">55°</span>.',
+                'Забывают, что <span class="math">CH</span> — высота, и считают <span class="math">∠ACH = 45°</span> (путают с биссектрисой).',
+                'Ошибка в вычитании: <span class="math">90 - 55 = 45</span> — неверно, правильно <span class="math">35</span>.'
+            ],
+            check: {
+                text: 'Проверим сумму углов <span class="math">△ACH</span>: <span class="math">35° + 55° + 90° = 180°</span>. Также <span class="math">∠BCH = 35°</span>, и <span class="math">∠C = 55° + 35° = 90°</span>. Всё верно.',
+                result: 'Ответ верен.'
+            },
+            canvas: { type: 'triangle', highlights: { 'step-0': 'angleA', 'step-1': 'triangleACH', 'step-2': 'angleACH', 'step-3': 'relation', 'step-4': 'check' } },
+            toggles: [
+                { id: 'showHeight', label: 'Высота CH', on: true },
+                { id: 'showAngles', label: 'Углы', on: true },
+                { id: 'showRight', label: 'Прямые углы', on: true }
+            ],
+            generator: {
+                types: ['angle_B', 'angle_ACH', 'angle_bisector'],
+                generate: function(type) {
+                    if (type === 'angle_B') {
+                        let B = randInt(20, 70);
+                        return { q: `В прямоугольном треугольнике ABC (∠C=90°) проведена высота CH. Угол B = ${B}°. Найдите угол ACH.`, a: `${B}°`, idea: 'Угол между высотой и катетом равен противолежащему острому углу: ∠ACH = ∠B.' };
+                    }
+                    if (type === 'angle_ACH') {
+                        let A = randInt(20, 70), B = 90 - A;
+                        return { q: `В прямоугольном треугольнике ABC (∠C=90°) проведена высота CH. Угол ACH = ${B}°. Найдите угол B.`, a: `${B}°`, idea: '∠B = ∠ACH.' };
+                    }
+                    {
+                        let B = randInt(20, 70), diff = Math.abs(45 - B);
+                        return { q: `В прямоугольном треугольнике ABC (∠C=90°) угол B = ${B}°. Найдите угол между высотой CH и биссектрисой CL прямого угла.`, a: `${diff}°`, idea: 'Угол между высотой и биссектрисой = |45° - ∠B|.' };
+                    }
+                }
+            },
+            quiz: {
+                q: 'В прямоугольном треугольнике ∠B = 38°. Чему равен угол между высотой и биссектрисой из вершины C?',
+                opts: ['7°', '14°', '19°', '38°'],
+                correct: 0
+            }
+        },
+        {
+            id: 'quad',
+            title: 'Описанный четырёхугольник',
+            given: {
+                text: 'В четырёхугольник <span class="math">ABCD</span> вписана окружность. Известно: <span class="math">AB = 12</span>, <span class="math">BC = 9</span>, <span class="math">CD = 15</span>.',
+                find: 'Найти сторону <span class="math">AD</span>.'
+            },
+            meaning: 'Если в четырёхугольник можно вписать окружность, то суммы противоположных сторон равны. Это ключевое свойство.',
+            interpretation: 'По свойству: <span class="math">AB + CD = BC + AD</span>. Подставляем: <span class="math">12 + 15 = 9 + AD</span>. Отсюда <span class="math">AD = 27 - 9 = 18</span>.',
+            idea: ['Вспомнить свойство описанного четырёхугольника: <span class="math">a + c = b + d</span>.', 'Составить уравнение с одной неизвестной.', 'Решить его в одно действие.'],
+            steps: [
+                { label: 'Шаг 1. Свойство', text: 'Для четырёхугольника с вписанной окружностью: <span class="math">AB + CD = BC + AD</span>.' },
+                { label: 'Шаг 2. Подстановка', text: '<span class="math">12 + 15 = 9 + AD</span>.' },
+                { label: 'Шаг 3. Вычисление', text: '<span class="math">27 = 9 + AD</span>, значит <span class="math">AD = 18</span>.' },
+                { label: 'Шаг 4. Проверка', text: 'Проверим: <span class="math">AB + CD = 12 + 15 = 27</span>, <span class="math">BC + AD = 9 + 18 = 27</span>. Равенство выполняется.' },
+                { label: 'Шаг 5. Вывод', text: 'Сторона <span class="math">AD = 18</span>.' }
+            ],
+            conclusion: '<span class="math">AD = 18</span>.',
+            errors: [
+                'Путают суммы: складывают соседние стороны вместо противоположных. Правило: сумма одной пары противоположных = сумме другой пары.',
+                'Делят периметр на 4 вместо использования свойства сумм.',
+                'Арифметическая ошибка: <span class="math">12 + 15 = 26</span> — неверно, правильно <span class="math">27</span>.'
+            ],
+            check: {
+                text: 'Проверка: <span class="math">AB + CD = 12 + 15 = 27</span>, <span class="math">BC + AD = 9 + 18 = 27</span>. Равенство <span class="math">AB + CD = BC + AD</span> выполнено.',
+                result: 'Ответ верен.'
+            },
+            canvas: { type: 'quad', highlights: { 'step-0': 'sides', 'step-1': 'equation', 'step-2': 'AD', 'step-3': 'check', 'step-4': 'result' } },
+            toggles: [
+                { id: 'showCircle', label: 'Окружность', on: true },
+                { id: 'showSides', label: 'Стороны', on: true },
+                { id: 'showLabels', label: 'Метки', on: true }
+            ],
+            generator: {
+                types: ['find_side', 'find_perimeter', 'ratio'],
+                generate: function(type) {
+                    if (type === 'find_side') {
+                        let a = randInt(8, 20), b = randInt(6, 15), c = randInt(10, 25);
+                        let d = a + c - b;
+                        return { q: `В четырёхугольник ABCD вписана окружность. AB = ${a}, BC = ${b}, CD = ${c}. Найдите AD.`, a: `${d}`, idea: 'AD = AB + CD - BC.' };
+                    }
+                    if (type === 'find_perimeter') {
+                        let a = randInt(8, 18), b = randInt(6, 14), c = randInt(10, 22);
+                        let d = a + c - b, P = a+b+c+d;
+                        return { q: `В четырёхугольник вписана окружность. Три стороны: ${a}, ${b}, ${c} (противоположная b). Найдите периметр.`, a: `${P}`, idea: 'Найдите четвёртую сторону, затем P = 2·(a+c).' };
+                    }
+                    {
+                        let a = randInt(5, 12), k = randInt(2, 4);
+                        let c = a * k;
+                        let b = randInt(6, 15), d = a + c - b;
+                        return { q: `В описанный четырёхугольник вписана окружность. AB = ${a}, CD = ${c} (отношение 1:${k}), BC = ${b}. Найдите AD.`, a: `${d}`, idea: 'AD = AB + CD - BC. Периметр = 2·(AB + CD).' };
+                    }
+                }
+            },
+            quiz: {
+                q: 'Периметр описанного четырёхугольника равен 60. Одна сторона равна 14. Чему равна противоположная сторона?',
+                opts: ['16', '14', '12', '18'],
+                correct: 0
+            }
+        }
+    ];
+
+    // ===== ГЛОБАЛЬНОЕ СОСТОЯНИЕ =====
+    let currentTopic = 0;
+    let stepMode = false;
+    let currentStep = 0;
+    let detailLevel = 'standard'; // кратко | стандартно | очень подробно
+    let zoom = 1;
+    let panX = 0, panY = 0;
+    let isDragging = false, dragStart = {x:0, y:0};
+    let canvasStates = {}; // состояния видимости элементов
+    let popoverTimer = null;
+
+    // ===== УТИЛИТЫ =====
+    function randInt(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+    function fmt(v) { return Number.isInteger(v) ? v.toString() : v.toFixed(1); }
+
+    // ===== НАВИГАЦИЯ =====
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentTopic = parseInt(tab.dataset.topic);
+            currentStep = 0;
+            renderSolution();
+            renderToggles();
+            drawCanvas();
+            renderQuiz();
+            generateTask();
+        });
+    });
+
+    // ===== РЕНДЕР РЕШЕНИЯ =====
+    function renderSolution() {
+        const T = TOPICS[currentTopic];
+        const col = document.getElementById('solutionCol');
+        let html = `<h1>${T.title}</h1>`;
+
+        // Дано / Найти
+        html += `<div class="step-block"><div class="step-label">Дано</div><p>${T.given.text}</p><p><strong>Найти:</strong> ${T.given.find}</p></div>`;
+
+        // Что означает условие
+        html += `<div class="step-block"><div class="step-label">Что означает условие</div><p>${T.meaning}</p></div>`;
+
+        // Интерпретация
+        html += `<div class="step-block"><div class="step-label">Интерпретация</div><p>${T.interpretation}</p></div>`;
+
+        // Идея решения
+        html += `<div class="idea-box"><h3>💡 Идея решения</h3><ul>${T.idea.map(i => `<li>${i}</li>`).join('')}</ul></div>`;
+
+        // Пошаговое решение
+        html += `<h2>Пошаговое решение</h2>`;
+        T.steps.forEach((s, i) => {
+            const show = !stepMode || i <= currentStep;
+            const active = stepMode && i === currentStep;
+            const detailText = getDetailText(s.text, i);
+            html += `<div class="step-block" id="step-${i}" data-step="${i}" style="${!show ? 'display:none' : ''} ${active ? 'border-left-color: var(--accent2);' : ''}" onmouseenter="highlightCanvasStep(${i})" onmouseleave="unhighlightCanvas()">
+      <div class="step-label">${s.label} <span class="hint-trigger" data-hint="step${i}">?</span></div>
+      <p>${detailText}</p>
+    </div>`;
+        });
+
+        if (stepMode && currentStep < T.steps.length - 1) {
+            html += `<button class="step-btn" onclick="nextStep()" style="margin-top:12px">Следующий шаг →</button>`;
+        }
+
+        // Проверка
+        html += `<div class="check-box"><h3>✅ Проверка</h3><p>${T.check.text}</p><p><strong>${T.check.result}</strong></p></div>`;
+
+        // Типичные ошибки
+        html += `<div class="error-box"><h3>⚠️ Типичные ошибки</h3><ul>${T.errors.map(e => `<li>${e}</li>`).join('')}</ul></div>`;
+
+        // Вывод
+        html += `<div class="step-block" style="border-left-color: var(--success); background: rgba(80,184,108,0.06);"><div class="step-label" style="color:var(--success)">Вывод</div><p style="font-size:17px">${T.conclusion}</p></div>`;
+
+        // Переключатель подробности
+        html += `<div style="margin-top:16px;display:flex;align-items:center;gap:8px"><span style="font-size:13px;color:var(--text2)">Подробность:</span>
+    <select class="detail-select" onchange="changeDetail(this.value)">
+      <option value="brief" ${detailLevel==='brief'?'selected':''}>Кратко</option>
+      <option value="standard" ${detailLevel==='standard'?'selected':''}>Стандартно</option>
+      <option value="detailed" ${detailLevel==='detailed'?'selected':''}>Очень подробно</option>
+    </select></div>`;
+
+        col.innerHTML = html;
+        attachHintListeners();
+    }
+
+    function getDetailText(text, stepIndex) {
+        if (detailLevel === 'brief') {
+            // Убираем пояснения, оставляем суть
+            return text.replace(/ Здесь.*/g, '.');
+        }
+        if (detailLevel === 'detailed') {
+            // Добавляем больше пояснений
+            const extras = [
+                ' Это ключевой момент: мы используем свойство подобия треугольников.',
+                ' Обратите внимание на алгебраическое преобразование.',
+                ' Данный шаг использует свойство средней линии треугольника.',
+                ' Здесь мы подставляем найденное значение.',
+                ' Проверка подтверждает корректность всех вычислений.'
+            ];
+            return text + extras[stepIndex] || text;
+        }
+        return text;
+    }
+
+    function changeDetail(val) {
+        detailLevel = val;
+        renderSolution();
+        drawCanvas();
+    }
+
+    // ===== ПОШАГОВЫЙ РЕЖИМ =====
+    function toggleStepMode() {
+        stepMode = !stepMode;
+        currentStep = 0;
+        renderSolution();
+    }
+    function nextStep() {
+        const T = TOPICS[currentTopic];
+        if (currentStep < T.steps.length - 1) {
+            currentStep++;
+            renderSolution();
+            drawCanvas();
+        }
+    }
+
+    // ===== CANVAS =====
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function setZoom(v) {
+        zoom = parseFloat(v);
+        document.getElementById('zoomSlider').value = zoom;
+        document.getElementById('zoomVal').textContent = Math.round(zoom*100) + '%';
+        drawCanvas();
+    }
+    function zoomIn() { setZoom(Math.min(3, zoom + 0.1)); }
+    function zoomOut() { setZoom(Math.max(0.5, zoom - 0.1)); }
+    function resetZoom() { setZoom(1); panX = 0; panY = 0; }
+
+    canvas.addEventListener('wheel', e => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.05 : 0.05;
+        setZoom(Math.max(0.5, Math.min(3, zoom + delta)));
+    }, { passive: false });
+
+    canvas.addEventListener('mousedown', e => { isDragging = true; dragStart = {x: e.clientX, y: e.clientY}; });
+    canvas.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        panX += e.clientX - dragStart.x;
+        panY += e.clientY - dragStart.y;
+        dragStart = {x: e.clientX, y: e.clientY};
+        drawCanvas();
+    });
+    canvas.addEventListener('mouseup', () => isDragging = false);
+    canvas.addEventListener('mouseleave', () => isDragging = false);
+
+    function highlightCanvasStep(i) {
+        canvasStates.highlightStep = i;
+        drawCanvas();
+    }
+    function unhighlightCanvas() {
+        canvasStates.highlightStep = null;
+        drawCanvas();
+    }
+
+    function drawCanvas() {
+        const T = TOPICS[currentTopic];
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        ctx.save();
+        ctx.translate(w/2 + panX, h/2 + panY);
+        ctx.scale(zoom, zoom);
+        ctx.translate(-w/2, -h/2);
+
+        const show = id => {
+            if (!canvasStates[id]) return true;
+            return canvasStates[id];
+        };
+
+        if (T.canvas.type === 'trapezoid') drawTrapezoid(show);
+        else if (T.canvas.type === 'triangle') drawTriangle(show);
+        else if (T.canvas.type === 'quad') drawQuad(show);
+
+        ctx.restore();
+    }
+
+    function drawTrapezoid(show) {
+        const w = 280, h = 200;
+        const ox = (canvas.width - w)/2/zoom, oy = (canvas.height - h)/2/zoom;
+        ctx.translate(ox, oy);
+
+        const A = [40, h], D = [w-40, h], B = [80, 50], C = [w-80, 50];
+        const M = [(A[0]+B[0])/2, (A[1]+B[1])/2];
+        const N = [(C[0]+D[0])/2, (C[1]+D[1])/2];
+
+        // Трапеция
+        ctx.strokeStyle = '#e6edf3';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(...A); ctx.lineTo(...B); ctx.lineTo(...C); ctx.lineTo(...D); ctx.closePath();
+        ctx.stroke();
+
+        // Диагональ
+        if (show('showDiag')) {
+            ctx.strokeStyle = 'rgba(229,192,123,0.6)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([5,4]);
+            ctx.beginPath(); ctx.moveTo(...B); ctx.lineTo(...D); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Средняя линия
+        if (show('showMid')) {
+            ctx.strokeStyle = '#00b3b3';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.moveTo(...M); ctx.lineTo(...N); ctx.stroke();
+            const K = [(B[0]+D[0])/2, (B[1]+D[1])/2]; // точка пересечения
+            ctx.fillStyle = '#00b3b3';
+            ctx.font = '11px sans-serif';
+            ctx.fillText('M', M[0]-12, M[1]-6);
+            ctx.fillText('N', N[0]+4, N[1]-6);
+            ctx.fillText('K', K[0]+4, K[1]-6);
+        }
+
+        // Метки оснований
+        if (show('showLabels')) {
+            ctx.fillStyle = '#8b949e';
+            ctx.font = '12px sans-serif';
+            ctx.fillText('A', A[0]-10, A[1]+14);
+            ctx.fillText('D', D[0]+4, D[1]+14);
+            ctx.fillText('B', B[0]-8, B[1]-4);
+            ctx.fillText('C', C[0]+4, C[1]-4);
+            ctx.fillStyle = '#008080';
+            ctx.font = '11px sans-serif';
+            ctx.fillText('BC', (B[0]+C[0])/2-6, B[1]-10);
+            ctx.fillText('AD', (A[0]+D[0])/2-8, h-4);
+        }
+
+        // Подсветка шага
+        const hl = canvasStates.highlightStep;
+        if (hl === 3) { // BC
+            ctx.strokeStyle = '#e06c75';
+            ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(...B); ctx.lineTo(...C); ctx.stroke();
+        }
+        if (hl === 4) { // AD
+            ctx.strokeStyle = '#50b86c';
+            ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(...A); ctx.lineTo(...D); ctx.stroke();
+        }
+    }
+
+    function drawTriangle(show) {
+        const w = 260, h = 200;
+        const ox = (canvas.width - w)/2/zoom, oy = (canvas.height - h)/2/zoom;
+        ctx.translate(ox, oy);
+
+        const C = [40, h-20], A = [40, 30], B = [w-30, h-20];
+        const H = [40, h-20]; // CH - высота из C на AB... нет, высота из прямого угла на гипотенузу
+
+        // Пересчитаем: C(40, 180), A(40, 30), B(230, 180). Прямой угол в C.
+        // Гипотенуза AB. Высота из C на AB.
+        // H - проекция C на AB.
+        const ABx = B[0]-A[0], ABy = B[1]-A[1];
+        const t = ((C[0]-A[0])*ABx + (C[1]-A[1])*ABy) / (ABx*ABx + ABy*ABy);
+        const H = [A[0] + t*ABx, A[1] + t*ABy];
+
+        // Треугольник
+        ctx.strokeStyle = '#e6edf3';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(...C); ctx.lineTo(...A); ctx.lineTo(...B); ctx.closePath(); ctx.stroke();
+
+        // Высота
+        if (show('showHeight')) {
+            ctx.strokeStyle = '#e5c07b';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4,3]);
+            ctx.beginPath(); ctx.moveTo(...C); ctx.lineTo(...H); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Прямые углы
+        if (show('showRight')) {
+            ctx.strokeStyle = '#8b949e';
+            ctx.lineWidth = 1;
+            drawRightAngle(C, [C[0]+15,C[1]], [C[0],C[1]-15], 10);
+            drawRightAngle(H, [H[0]+8,H[1]+5], [H[0]-4,H[1]-8], 7);
+        }
+
+        // Углы
+        if (show('showAngles')) {
+            ctx.fillStyle = '#00b3b3';
+            ctx.font = '12px sans-serif';
+            ctx.fillText('∠B=55°', B[0]-30, B[1]-10);
+            ctx.fillText('∠A=35°', A[0]+10, A[1]+16);
+            ctx.fillText('∠ACH=55°', (C[0]+H[0])/2+6, (C[1]+H[1])/2-4);
+        }
+
+        // Метки
+        ctx.fillStyle = '#8b949e';
+        ctx.font = '12px sans-serif';
+        ctx.fillText('C', C[0]-14, C[1]+14);
+        ctx.fillText('A', A[0]-12, A[1]-6);
+        ctx.fillText('B', B[0]+4, B[1]+14);
+        ctx.fillText('H', H[0]+4, H[1]+4);
+
+        // Подсветка
+        const hl = canvasStates.highlightStep;
+        if (hl === 2) { // angle ACH
+            ctx.strokeStyle = '#e06c75';
+            ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(...C); ctx.lineTo(...H); ctx.stroke();
+        }
+    }
+
+    function drawRightAngle(v, p1, p2, s) {
+        ctx.beginPath();
+        ctx.moveTo(p1[0] + (v[0]-p1[0])/Math.hypot(v[0]-p1[0],v[1]-p1[1])*s, p1[1] + (v[1]-p1[1])/Math.hypot(v[0]-p1[0],v[1]-p1[1])*s);
+        ctx.lineTo(p1[0] + (v[0]-p1[0])/Math.hypot(v[0]-p1[0],v[1]-p1[1])*s + (p2[0]-v[0])/Math.hypot(p2[0]-v[0],p2[1]-v[1])*s,
+            p1[1] + (v[1]-p1[1])/Math.hypot(v[0]-p1[0],v[1]-p1[1])*s + (p2[1]-v[1])/Math.hypot(p2[0]-v[0],p2[1]-v[1])*s);
+        ctx.lineTo(p2[0] + (v[0]-p2[0])/Math.hypot(v[0]-p2[0],v[1]-p2[1])*s, p2[1] + (v[1]-p2[1])/Math.hypot(v[0]-p2[0],v[1]-p2[1])*s);
+        ctx.stroke();
+    }
+
+    function drawQuad(show) {
+        const w = 280, h = 220;
+        const ox = (canvas.width - w)/2/zoom, oy = (canvas.height - h)/2/zoom;
+        ctx.translate(ox, oy);
+
+        const A = [50, h-20], B = [30, 60], C = [w-50, 50], D = [w-30, h-20];
+
+        // Окружность
+        if (show('showCircle')) {
+            const cx = (A[0]+B[0]+C[0]+D[0])/4 + 10;
+            const cy = (A[1]+B[1]+C[1]+D[1])/4 - 10;
+            ctx.strokeStyle = 'rgba(0,128,128,0.4)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([3,3]);
+            ctx.beginPath(); ctx.arc(cx, cy, 55, 0, Math.PI*2); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(0,128,128,0.15)';
+            ctx.beginPath(); ctx.arc(cx, cy, 55, 0, Math.PI*2); ctx.fill();
+        }
+
+        // Стороны
+        ctx.strokeStyle = '#e6edf3';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(...A); ctx.lineTo(...B); ctx.lineTo(...C); ctx.lineTo(...D); ctx.closePath(); ctx.stroke();
+
+        // Метки сторон
+        if (show('showSides')) {
+            ctx.fillStyle = '#e5c07b';
+            ctx.font = '11px sans-serif';
+            ctx.fillText('12', (A[0]+B[0])/2-16, (A[1]+B[1])/2);
+            ctx.fillText('9', (B[0]+C[0])/2-4, (B[1]+C[0])/2-6);
+            ctx.fillText('15', (C[0]+D[0])/2+4, (C[1]+D[1])/2);
+            ctx.fillText('18', (A[0]+D[0])/2-6, (A[1]+D[1])/2+14);
+        }
+
+        // Вершины
+        ctx.fillStyle = '#8b949e';
+        ctx.font = '12px sans-serif';
+        ctx.fillText('A', A[0]-12, A[1]+14);
+        ctx.fillText('B', B[0]-12, B[1]-6);
+        ctx.fillText('C', C[0]+4, C[1]-6);
+        ctx.fillText('D', D[0]+4, D[1]+14);
+    }
+
+    // ===== ПЕРЕКЛЮЧАТЕЛИ =====
+    function renderToggles() {
+        const T = TOPICS[currentTopic];
+        const row = document.getElementById('toggleRow');
+        row.innerHTML = '';
+        T.toggles.forEach(t => {
+            canvasStates[t.id] = t.on;
+            const btn = document.createElement('button');
+            btn.className = 'toggle-btn' + (t.on ? ' on' : '');
+            btn.textContent = t.label;
+            btn.onclick = () => {
+                canvasStates[t.id] = !canvasStates[t.id];
+                btn.classList.toggle('on');
+                drawCanvas();
+            };
+            row.appendChild(btn);
+        });
+    }
+
+    // ===== ГЕНЕРАТОР =====
+    let genCount = 0;
+    function generateTask() {
+        const T = TOPICS[currentTopic];
+        const area = document.getElementById('genTaskArea');
+        const types = T.generator.types;
+        const type = types[Math.floor(Math.random() * types.length)];
+        const task = T.generator.generate(type);
+        genCount++;
+
+        area.innerHTML = `<div class="gen-task">
+    <div><strong>Задача ${genCount}:</strong> ${task.q}</div>
+    <div class="gen-answer" id="genAns${genCount}"><strong>Ответ:</strong> ${task.a}<br><em>Идея: ${task.idea}</em></div>
+    <button class="show-ans-btn" onclick="this.previousElementSibling.classList.add('show');this.style.display='none'">Показать ответ</button>
+  </div>`;
+    }
+
+    // ===== КВИЗ =====
+    function renderQuiz() {
+        const T = TOPICS[currentTopic];
+        const area = document.getElementById('quizArea');
+        area.innerHTML = `<p style="font-size:13px;margin-bottom:8px">${T.quiz.q}</p>`;
+        T.quiz.opts.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'quiz-opt';
+            btn.textContent = opt;
+            btn.onclick = () => {
+                document.querySelectorAll('.quiz-opt').forEach(b => { b.classList.remove('correct','wrong'); b.disabled = true; });
+                btn.classList.add(i === T.quiz.correct ? 'correct' : 'wrong');
+                if (i !== T.quiz.correct) {
+                    document.querySelectorAll('.quiz-opt')[T.quiz.correct].classList.add('correct');
+                }
+            };
+            area.appendChild(btn);
+        });
+    }
+
+    // ===== ПОДСКАЗКИ =====
+    function attachHintListeners() {
+        document.querySelectorAll('.hint-trigger').forEach(trigger => {
+            trigger.addEventListener('mouseenter', showHint);
+            trigger.addEventListener('focus', showHint);
+            trigger.addEventListener('click', toggleHint);
+        });
+    }
+
+    const HINT_DATA = {
+        gen: { text: 'При нажатии генерируется новая задача с случайными числами, но тем же методом решения. Ответ скрыт — нажмите «Показать ответ» для самопроверки.', actions: [{label: 'Сгенерировать сейчас', fn: 'generateTask()'}] },
+        step0: { text: 'На этом шаге мы вводим обозначения и определяем, какие отрезки и к чему относятся.', actions: [] },
+        step1: { text: 'Составляем уравнение на основе известного свойства. Все величины выражаются через одну переменную.', actions: [] },
+        step2: { text: 'Решаем простое линейное уравнение. Проверяем арифметику.', actions: [] }
+    };
+
+    let activePopover = null;
+    let popoverAutoHide = null;
+
+    function showHint(e) {
+        const key = e.currentTarget.dataset.hint;
+        const data = HINT_DATA[key];
+        if (!data) return;
+
+        const pop = document.getElementById('popover');
+        pop.innerHTML = `<button class="popover-close" onclick="closePopover()">×</button><div>${data.text}</div>` +
+        data.actions.map(a => `<button class="step-btn" style="margin-top:8px;font-size:11px;padding:3px 8px" onclick="${a.fn};closePopover()">${a.label}</button>`).join('');
+
+        const rect = e.currentTarget.getBoundingClientRect();
+        pop.style.left = (rect.left - 100) + 'px';
+        pop.style.top = (rect.bottom + 8) + 'px';
+        pop.className = 'popover arrow-top show';
+        pop.setAttribute('aria-hidden', 'false');
+        activePopover = pop;
+
+        clearTimeout(popoverAutoHide);
+        popoverAutoHide = setTimeout(closePopover, 15000);
+    }
+
+    function toggleHint(e) {
+        if (activePopover) closePopover();
+        else showHint(e);
+    }
+
+    function closePopover() {
+        const pop = document.getElementById('popover');
+        pop.className = 'popover';
+        pop.setAttribute('aria-hidden', 'true');
+        activePopover = null;
+        clearTimeout(popoverAutoHide);
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopover(); });
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.hint-trigger') && !e.target.closest('.popover')) closePopover();
+    });
+
+    // ===== ИНИЦИАЛИЗАЦИЯ =====
+    function init() {
+        renderSolution();
+        renderToggles();
+        drawCanvas();
+        renderQuiz();
+        generateTask();
+
+        // Первая подсказка через 3 сек
+        setTimeout(() => {
+            if (!sessionStorage.getItem('hintShown')) {
+                const trigger = document.querySelector('.hint-trigger');
+                if (trigger) {
+                    trigger.style.animation = 'hintBounce 0.6s ease';
+                    showHint({ currentTarget: trigger });
+                    sessionStorage.setItem('hintShown', '1');
+                }
+            }
+        }, 3000);
+    }
+
+    init();
+</script>
+</body>
+</html>

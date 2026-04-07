@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — скалярное произведение векторов</title>
+    <style>
+        :root{
+            --bg:#0b1020;
+            --bg2:#121933;
+            --panel:#151d3a;
+            --panel2:#1b2447;
+            --text:#eef3ff;
+            --muted:#aeb9d9;
+            --soft:#8fa2d6;
+            --accent:#6ea8ff;
+            --accent2:#8ef0d1;
+            --warn:#ffd36e;
+            --danger:#ff8e8e;
+            --line:rgba(255,255,255,.12);
+            --shadow:0 20px 60px rgba(0,0,0,.35);
+            --radius:24px;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:radial-gradient(circle at top,#18224a 0%,#0b1020 45%,#070b16 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;scroll-behavior:smooth}
+        .page{max-width:1500px;margin:0 auto;padding:28px}
+        .hero{background:linear-gradient(135deg,rgba(110,168,255,.12),rgba(142,240,209,.08));border:1px solid var(--line);border-radius:32px;padding:28px 28px 22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+        .hero:before{content:"";position:absolute;inset:auto -80px -80px auto;width:240px;height:240px;background:radial-gradient(circle,var(--accent) 0%,transparent 68%);opacity:.15;filter:blur(10px)}
+        .eyebrow{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--soft);font-size:13px}
+        h1{margin:14px 0 10px;font-size:clamp(30px,4vw,54px);line-height:1.04}
+        .lead{max-width:980px;color:var(--muted);font-size:18px;line-height:1.7}
+        .controls{margin-top:18px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+        .control{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:18px;padding:14px}
+        .control label{display:block;font-size:13px;color:var(--soft);margin-bottom:8px}
+        .control input[type="range"],.control select{width:100%}
+        .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+        button{background:linear-gradient(135deg,var(--accent),#578cff);color:white;border:none;padding:11px 16px;border-radius:14px;font-weight:700;cursor:pointer;box-shadow:0 8px 20px rgba(87,140,255,.26)}
+        button.secondary{background:rgba(255,255,255,.06);border:1px solid var(--line);box-shadow:none}
+        .layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(420px,.92fr);gap:22px;margin-top:22px;align-items:start}
+        .left,.right{display:flex;flex-direction:column;gap:18px}
+        .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+        .card h2,.card h3{margin:0 0 12px}
+        .sub{color:var(--muted);line-height:1.7}
+        .sticky{position:sticky;top:18px}
+        .formula{font-size:clamp(20px,2.4vw,30px);padding:16px 18px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--line);overflow:auto}
+        .smallformula{font-size:18px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid var(--line)}
+        .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+        .pill{display:inline-block;padding:5px 9px;border-radius:999px;background:rgba(142,240,209,.12);border:1px solid rgba(142,240,209,.25);font-size:12px;color:var(--accent2)}
+        .step{border-left:3px solid rgba(110,168,255,.7);padding:8px 0 8px 14px;margin:8px 0}
+        .step.active{background:rgba(110,168,255,.08);border-radius:0 14px 14px 0;padding-right:10px}
+        .legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+        .legend .item{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+        .dot{width:12px;height:12px;border-radius:999px}
+        .values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+        .value{padding:12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+        .value .k{font-size:12px;color:var(--soft)}
+        .value .v{font-size:22px;font-weight:800;margin-top:4px}
+        .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+        .tab{padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line);cursor:pointer;color:var(--muted);font-size:14px}
+        .tab.active{background:rgba(110,168,255,.16);color:white;border-color:rgba(110,168,255,.45)}
+        .hidden{display:none}
+        .hint{margin-top:10px;padding:12px 14px;border-radius:14px;background:rgba(255,211,110,.09);border:1px solid rgba(255,211,110,.25);color:#ffe7ad}
+        .mistake{margin-top:10px;padding:12px 14px;border-radius:14px;background:rgba(255,142,142,.08);border:1px solid rgba(255,142,142,.22);color:#ffd0d0}
+        .quiz{display:grid;gap:12px}
+        .option{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);cursor:pointer}
+        .option.good{border-color:rgba(142,240,209,.55);background:rgba(142,240,209,.08)}
+        .option.bad{border-color:rgba(255,142,142,.55);background:rgba(255,142,142,.08)}
+        .printnote{font-size:13px;color:var(--soft)}
+        svg{width:100%;height:auto;display:block;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015));border-radius:18px;border:1px solid var(--line)}
+        .footer-space{height:20px}
+        @media (max-width:1100px){
+            .layout{grid-template-columns:1fr}
+            .sticky{position:relative;top:auto}
+            .controls{grid-template-columns:1fr 1fr}
+            .grid3{grid-template-columns:1fr}
+        }
+        @media (max-width:760px){
+            .page{padding:16px}
+            .controls,.grid2,.values,.legend{grid-template-columns:1fr}
+            h1{font-size:34px}
+            .formula{font-size:21px}
+        }
+        @media print{
+            body{background:white;color:black}
+            .hero,.card{box-shadow:none;background:white;color:black;border:1px solid #bbb}
+            .eyebrow,.pill,.hint,.mistake{background:white;color:black}
+            button{display:none}
+            .layout{grid-template-columns:1fr}
+            .sticky{position:relative}
+            svg{border:1px solid #999}
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <section class="hero">
+        <div class="eyebrow">Наглядная математика • вуз • ключевой фрагмент пособия</div>
+        <h1>Скалярное произведение: смысл, формулы, длина, угол и перпендикулярность</h1>
+        <p class="lead">
+            Это самая важная часть темы: понять, <b>что именно означает формула</b>
+            <b>a · b = |a||b| cos φ</b>, как она связана с <b>проекцией</b>, и как из неё быстро получать
+            длину суммы, длину разности, угол между векторами и признак перпендикулярности.
+        </p>
+        <div class="controls">
+            <div class="control">
+                <label for="alen">Длина вектора a</label>
+                <input id="alen" type="range" min="2" max="8" step="0.1" value="5" />
+            </div>
+            <div class="control">
+                <label for="blen">Длина вектора b</label>
+                <input id="blen" type="range" min="2" max="8" step="0.1" value="4" />
+            </div>
+            <div class="control">
+                <label for="phi">Угол φ между векторами</label>
+                <input id="phi" type="range" min="0" max="180" step="1" value="60" />
+            </div>
+            <div class="control">
+                <label for="detail">Подробность</label>
+                <select id="detail">
+                    <option value="short">кратко</option>
+                    <option value="medium" selected>средне</option>
+                    <option value="full">подробно</option>
+                </select>
+            </div>
+        </div>
+        <div class="btnrow">
+            <button id="toggleProjection">Показать / скрыть проекцию</button>
+            <button class="secondary" id="resetView">Сбросить масштаб</button>
+            <button class="secondary" id="preset1">Пример: 60°</button>
+            <button class="secondary" id="preset2">Пример: 120°</button>
+            <button class="secondary" id="generateTask">Сгенерировать похожую задачу</button>
+        </div>
+    </section>
+
+    <div class="layout">
+        <div class="left">
+            <section class="card">
+                <h2>Идея решения</h2>
+                <div class="step active" data-step="1">
+                    <b>Шаг 1.</b> Скалярное произведение — это число, которое измеряет, насколько один вектор направлен вдоль другого.
+                </div>
+                <div class="step" data-step="2">
+                    <b>Шаг 2.</b> Формула <b>a · b = |a||b| cos φ</b> показывает: важны только длины и угол между векторами.
+                </div>
+                <div class="step" data-step="3">
+                    <b>Шаг 3.</b> Величина <b>|a| cos φ</b> — это проекция вектора <b>a</b> на направление <b>b</b>.
+                </div>
+                <div class="step" data-step="4">
+                    <b>Шаг 4.</b> Поэтому <b>a · b = |b| · pr<sub>b</sub>a</b>. Аналогично можно проектировать <b>b</b> на <b>a</b>.
+                </div>
+                <div class="step" data-step="5">
+                    <b>Шаг 5.</b> Для длин суммы и разности нужно сначала возвести длину в квадрат и раскрыть скобки через скалярное произведение.
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Теория</h2>
+                <div class="tabs">
+                    <div class="tab active" data-tab="def">определение</div>
+                    <div class="tab" data-tab="proj">проекция</div>
+                    <div class="tab" data-tab="coord">координаты</div>
+                    <div class="tab" data-tab="props">свойства</div>
+                </div>
+
+                <div class="tabpane" id="tab-def">
+                    <div class="formula">a · b = |a| · |b| · cos φ</div>
+                    <p class="sub">Если угол острый, косинус положительный, и скалярное произведение положительно. Если угол прямой, косинус равен нулю. Если угол тупой, косинус отрицательный.</p>
+                </div>
+
+                <div class="tabpane hidden" id="tab-proj">
+                    <div class="formula">a · b = |b| · pr<sub>b</sub>a = |a| · pr<sub>a</sub>b</div>
+                    <p class="sub">Геометрически мы берём «часть» одного вектора вдоль направления другого. Это самый наглядный смысл скалярного произведения.</p>
+                </div>
+
+                <div class="tabpane hidden" id="tab-coord">
+                    <div class="formula">(x<sub>1</sub>, y<sub>1</sub>, z<sub>1</sub>) · (x<sub>2</sub>, y<sub>2</sub>, z<sub>2</sub>) = x<sub>1</sub>x<sub>2</sub> + y<sub>1</sub>y<sub>2</sub> + z<sub>1</sub>z<sub>2</sub></div>
+                    <p class="sub">Когда векторы заданы координатами, это самая удобная форма для вычислений, признака перпендикулярности и поиска угла.</p>
+                </div>
+
+                <div class="tabpane hidden" id="tab-props">
+                    <div class="grid2">
+                        <div class="smallformula">a · b = b · a</div>
+                        <div class="smallformula">(λa) · b = λ(a · b)</div>
+                        <div class="smallformula">a · (b + c) = a · b + a · c</div>
+                        <div class="smallformula">a · a = |a|²</div>
+                    </div>
+                    <div class="mistake"><b>Ловушка.</b> Скалярное произведение — это число, а не вектор.</div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Пошаговый разбор главного примера</h2>
+                <div class="pill">из пособия</div>
+                <p class="sub">Пусть <b>c = 3a − 4b</b>, <b>|a| = 2</b>, <b>|b| = 3</b>, угол между <b>a</b> и <b>b</b> равен <b>60°</b>. Найти <b>|c|</b>.</p>
+                <div id="exampleShort" class="detail-block hidden">
+                    <div class="smallformula">|c|² = (3a − 4b) · (3a − 4b) = 9|a|² − 24(a · b) + 16|b|²</div>
+                    <div class="smallformula">a · b = |a||b| cos 60° = 2 · 3 · 1/2 = 3</div>
+                    <div class="smallformula">|c|² = 9·4 − 24·3 + 16·9 = 108, значит |c| = 6√3</div>
+                </div>
+                <div id="exampleMedium" class="detail-block">
+                    <div class="step active"><b>1.</b> Ищем не сразу |c|, а сначала квадрат длины: <b>|c|² = c · c</b>.</div>
+                    <div class="step"><b>2.</b> Подставляем <b>c = 3a − 4b</b>:
+                        <div class="smallformula">|c|² = (3a − 4b) · (3a − 4b)</div>
+                    </div>
+                    <div class="step"><b>3.</b> Раскрываем скобки:
+                        <div class="smallformula">|c|² = 9(a · a) − 24(a · b) + 16(b · b)</div>
+                    </div>
+                    <div class="step"><b>4.</b> Используем <b>a · a = |a|²</b>, <b>b · b = |b|²</b> и формулу через угол:
+                        <div class="smallformula">a · b = |a||b| cos 60° = 2 · 3 · 1/2 = 3</div>
+                    </div>
+                    <div class="step"><b>5.</b> Подставляем числа:
+                        <div class="smallformula">|c|² = 9·4 − 24·3 + 16·9 = 108</div>
+                    </div>
+                    <div class="step"><b>6.</b> Берём корень:
+                        <div class="smallformula">|c| = √108 = 6√3</div>
+                    </div>
+                </div>
+                <div id="exampleFull" class="detail-block hidden">
+                    <div class="step active"><b>1.</b> В задачах на длину выражения вида <b>3a − 4b</b> самый удобный приём — перейти к квадрату длины. Это избавляет от корня на первом шаге и позволяет раскрыть скобки по правилам скалярного произведения.</div>
+                    <div class="step"><b>2.</b> Записываем:
+                        <div class="smallformula">|c|² = c · c = (3a − 4b) · (3a − 4b)</div>
+                    </div>
+                    <div class="step"><b>3.</b> Распределяем скалярное произведение по сумме и выносим коэффициенты:
+                        <div class="smallformula">|c|² = 9(a · a) − 12(a · b) − 12(b · a) + 16(b · b)</div>
+                    </div>
+                    <div class="step"><b>4.</b> Так как <b>a · b = b · a</b>, средние слагаемые объединяются:
+                        <div class="smallformula">|c|² = 9|a|² − 24(a · b) + 16|b|²</div>
+                    </div>
+                    <div class="step"><b>5.</b> Находим смешанное произведение через угол:
+                        <div class="smallformula">a · b = |a||b| cos 60° = 2 · 3 · 1/2 = 3</div>
+                    </div>
+                    <div class="step"><b>6.</b> Подставляем длины:
+                        <div class="smallformula">|c|² = 9·2² − 24·3 + 16·3² = 36 − 72 + 144 = 108</div>
+                    </div>
+                    <div class="step"><b>7.</b> Окончательно:
+                        <div class="smallformula">|c| = √108 = 6√3</div>
+                    </div>
+                    <div class="hint"><b>Почему это важно?</b> Тот же шаблон работает для задач на <b>|a+b|</b>, <b>|a-b|</b>, угол между векторами и условие перпендикулярности.</div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Типичные ошибки</h2>
+                <div class="grid2">
+                    <div class="mistake"><b>Ошибка 1.</b> Забыть, что <b>cos 120° = -1/2</b>, а не <b>1/2</b>.</div>
+                    <div class="mistake"><b>Ошибка 2.</b> Путать <b>a · a</b> с <b>|a|</b>. Верно: <b>a · a = |a|²</b>.</div>
+                    <div class="mistake"><b>Ошибка 3.</b> Искать длину сразу, не переходя к квадрату длины.</div>
+                    <div class="mistake"><b>Ошибка 4.</b> Писать, что нулевое скалярное произведение всегда означает перпендикулярность, забывая оговорить случай ненулевых векторов.</div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Мини-квиз</h2>
+                <div class="quiz" id="quizBox">
+                    <div class="sub">Если угол между ненулевыми векторами равен 90°, чему равно их скалярное произведение?</div>
+                    <div class="option" data-correct="false">Равно произведению их длин</div>
+                    <div class="option" data-correct="true">Равно нулю</div>
+                    <div class="option" data-correct="false">Равно единице</div>
+                </div>
+            </section>
+        </div>
+
+        <div class="right">
+            <div class="sticky">
+                <section class="card">
+                    <h2>Интерактивная модель</h2>
+                    <p class="sub">Слева на рисунке вектор <b>b</b> лежит на горизонтальной оси, а вектор <b>a</b> построен под углом <b>φ</b>. Пунктир показывает проекцию <b>a</b> на <b>b</b>.</p>
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+                        <span class="pill">масштаб рисунка</span>
+                        <input id="zoom" type="range" min="0.7" max="1.8" step="0.01" value="1" style="flex:1;min-width:180px">
+                        <span id="zoomLabel">100%</span>
+                    </div>
+                    <svg id="scene" viewBox="0 0 560 480" aria-label="Схема скалярного произведения">
+                        <defs>
+                            <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                                <path d="M0,0 L10,5 L0,10 z" fill="#6ea8ff"></path>
+                            </marker>
+                            <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                                <path d="M0,0 L10,5 L0,10 z" fill="#8ef0d1"></path>
+                            </marker>
+                            <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                                <path d="M0,0 L10,5 L0,10 z" fill="#ffd36e"></path>
+                            </marker>
+                        </defs>
+                        <g id="zoomGroup">
+                            <g opacity="0.18">
+                                <path d="M70 400 H510" stroke="white" stroke-width="1" />
+                                <path d="M90 80 V430" stroke="white" stroke-width="1" />
+                            </g>
+                            <g id="axes"></g>
+                            <g id="phiArc"></g>
+                            <line id="vecB" x1="110" y1="360" x2="420" y2="360" stroke="#6ea8ff" stroke-width="4" marker-end="url(#arrowBlue)" />
+                            <line id="vecA" x1="110" y1="360" x2="280" y2="220" stroke="#8ef0d1" stroke-width="4" marker-end="url(#arrowGreen)" />
+                            <line id="projLine" x1="280" y1="220" x2="280" y2="360" stroke="#ffd36e" stroke-width="3" stroke-dasharray="8 7" />
+                            <line id="projVec" x1="110" y1="360" x2="280" y2="360" stroke="#ffd36e" stroke-width="4" marker-end="url(#arrowOrange)" />
+                            <text id="labelA" x="292" y="214" fill="#dff8f0" font-size="22" font-weight="700">a</text>
+                            <text id="labelB" x="432" y="354" fill="#dfe8ff" font-size="22" font-weight="700">b</text>
+                            <text id="labelP" x="192" y="348" fill="#ffe29a" font-size="18">pr₍b₎a</text>
+                            <text id="labelPhi" x="164" y="332" fill="#ffffff" font-size="18">φ</text>
+                            <circle cx="110" cy="360" r="4.5" fill="#fff" opacity="0.9"></circle>
+                        </g>
+                    </svg>
+                    <div class="legend">
+                        <div class="item"><span class="dot" style="background:#8ef0d1"></span> вектор a</div>
+                        <div class="item"><span class="dot" style="background:#6ea8ff"></span> вектор b</div>
+                        <div class="item"><span class="dot" style="background:#ffd36e"></span> проекция a на b</div>
+                        <div class="item"><span class="dot" style="background:#ffffff"></span> угол φ</div>
+                    </div>
+                    <div class="values">
+                        <div class="value"><div class="k">|a|</div><div class="v" id="valA">5</div></div>
+                        <div class="value"><div class="k">|b|</div><div class="v" id="valB">4</div></div>
+                        <div class="value"><div class="k">φ</div><div class="v" id="valPhi">60°</div></div>
+                        <div class="value"><div class="k">cos φ</div><div class="v" id="valCos">0.5</div></div>
+                        <div class="value"><div class="k">pr₍b₎a = |a| cos φ</div><div class="v" id="valProj">2.5</div></div>
+                        <div class="value"><div class="k">a · b</div><div class="v" id="valDot">10</div></div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h3>Связка между текстом и рисунком</h3>
+                    <div class="smallformula">a · b = |b| · pr₍b₎a</div>
+                    <p class="sub">На рисунке оранжевый отрезок — это проекция <b>a</b> на направление <b>b</b>. Когда угол увеличивается, проекция уменьшается. При <b>90°</b> она равна нулю, и скалярное произведение тоже равно нулю.</p>
+                </section>
+
+                <section class="card">
+                    <h3>Генератор похожей задачи</h3>
+                    <p class="sub" id="genTaskText">Нажмите кнопку выше, чтобы получить новую корректную задачу по той же логике.</p>
+                    <div class="smallformula" id="genTaskAnswer">Ответ появится здесь после нажатия.</div>
+                </section>
+
+                <section class="card">
+                    <h3>Памятка для печати</h3>
+                    <div class="grid3">
+                        <div class="smallformula">|a ± b|² = |a|² ± 2(a · b) + |b|²</div>
+                        <div class="smallformula">a ⟂ b ⇔ a · b = 0</div>
+                        <div class="smallformula">cos φ = (a · b) / (|a||b|)</div>
+                    </div>
+                    <p class="printnote">Этого набора формул достаточно для большинства первых задач на скалярное произведение.</p>
+                </section>
+            </div>
+        </div>
+    </div>
+    <div class="footer-space"></div>
+</div>
+
+<script>
+    const alen = document.getElementById('alen');
+    const blen = document.getElementById('blen');
+    const phi = document.getElementById('phi');
+    const detail = document.getElementById('detail');
+    const zoom = document.getElementById('zoom');
+
+    const valA = document.getElementById('valA');
+    const valB = document.getElementById('valB');
+    const valPhi = document.getElementById('valPhi');
+    const valCos = document.getElementById('valCos');
+    const valProj = document.getElementById('valProj');
+    const valDot = document.getElementById('valDot');
+    const zoomLabel = document.getElementById('zoomLabel');
+
+    const vecA = document.getElementById('vecA');
+    const vecB = document.getElementById('vecB');
+    const projLine = document.getElementById('projLine');
+    const projVec = document.getElementById('projVec');
+    const labelA = document.getElementById('labelA');
+    const labelB = document.getElementById('labelB');
+    const labelP = document.getElementById('labelP');
+    const labelPhi = document.getElementById('labelPhi');
+    const phiArc = document.getElementById('phiArc');
+    const zoomGroup = document.getElementById('zoomGroup');
+
+    let showProjection = true;
+
+    function round2(x){ return Math.round(x * 100) / 100; }
+
+    function updateScene(){
+        const a = parseFloat(alen.value);
+        const b = parseFloat(blen.value);
+        const deg = parseFloat(phi.value);
+        const rad = deg * Math.PI / 180;
+
+        const originX = 110;
+        const originY = 360;
+        const scale = 42;
+
+        const bx = originX + b * scale;
+        const by = originY;
+        const ax = originX + a * scale * Math.cos(rad);
+        const ay = originY - a * scale * Math.sin(rad);
+        const px = originX + a * scale * Math.cos(rad);
+        const py = originY;
+
+        vecB.setAttribute('x1', originX); vecB.setAttribute('y1', originY);
+        vecB.setAttribute('x2', bx); vecB.setAttribute('y2', by);
+
+        vecA.setAttribute('x1', originX); vecA.setAttribute('y1', originY);
+        vecA.setAttribute('x2', ax); vecA.setAttribute('y2', ay);
+
+        projLine.setAttribute('x1', ax); projLine.setAttribute('y1', ay);
+        projLine.setAttribute('x2', px); projLine.setAttribute('y2', py);
+        projVec.setAttribute('x1', originX); projVec.setAttribute('y1', originY);
+        projVec.setAttribute('x2', px); projVec.setAttribute('y2', py);
+
+        projLine.style.display = showProjection ? 'block' : 'none';
+        projVec.style.display = showProjection ? 'block' : 'none';
+        labelP.style.display = showProjection ? 'block' : 'none';
+
+        labelA.setAttribute('x', ax + 10);
+        labelA.setAttribute('y', ay - 6);
+        labelB.setAttribute('x', bx + 10);
+        labelB.setAttribute('y', by - 6);
+        labelP.setAttribute('x', (originX + px) / 2 - 18);
+        labelP.setAttribute('y', originY - 10);
+
+        const arcR = 56;
+        const endX = originX + arcR * Math.cos(rad);
+        const endY = originY - arcR * Math.sin(rad);
+        const largeArc = deg > 180 ? 1 : 0;
+        phiArc.innerHTML = `<path d="M ${originX + arcR} ${originY} A ${arcR} ${arcR} 0 ${largeArc} 0 ${endX} ${endY}" stroke="white" stroke-width="2" fill="none" opacity="0.9"></path>`;
+        labelPhi.setAttribute('x', originX + (arcR + 16) * Math.cos(rad/2));
+        labelPhi.setAttribute('y', originY - (arcR + 4) * Math.sin(rad/2));
+
+        const cos = Math.cos(rad);
+        const proj = a * cos;
+        const dot = a * b * cos;
+
+        valA.textContent = round2(a);
+        valB.textContent = round2(b);
+        valPhi.textContent = `${deg}°`;
+        valCos.textContent = round2(cos);
+        valProj.textContent = round2(proj);
+        valDot.textContent = round2(dot);
+    }
+
+    function updateZoom(){
+        const z = parseFloat(zoom.value);
+        zoomGroup.setAttribute('transform', `translate(${280*(1-z)} ${240*(1-z)}) scale(${z})`);
+        zoomLabel.textContent = `${Math.round(z*100)}%`;
+    }
+
+    function updateDetail(){
+        const mode = detail.value;
+        document.querySelectorAll('.detail-block').forEach(el => el.classList.add('hidden'));
+        if(mode === 'short') document.getElementById('exampleShort').classList.remove('hidden');
+        if(mode === 'medium') document.getElementById('exampleMedium').classList.remove('hidden');
+        if(mode === 'full') document.getElementById('exampleFull').classList.remove('hidden');
+    }
+
+    [alen, blen, phi].forEach(el => el.addEventListener('input', updateScene));
+    zoom.addEventListener('input', updateZoom);
+    detail.addEventListener('change', updateDetail);
+
+    document.getElementById('toggleProjection').addEventListener('click', () => {
+        showProjection = !showProjection;
+        updateScene();
+    });
+
+    document.getElementById('resetView').addEventListener('click', () => {
+        zoom.value = 1;
+        updateZoom();
+    });
+
+    document.getElementById('preset1').addEventListener('click', () => {
+        alen.value = 5; blen.value = 4; phi.value = 60; updateScene();
+    });
+
+    document.getElementById('preset2').addEventListener('click', () => {
+        alen.value = 5; blen.value = 3; phi.value = 120; updateScene();
+    });
+
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tabpane').forEach(p => p.classList.add('hidden'));
+            tab.classList.add('active');
+            document.getElementById('tab-' + tab.dataset.tab).classList.remove('hidden');
+        });
+    });
+
+    document.querySelectorAll('.option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            const wrap = document.getElementById('quizBox');
+            wrap.querySelectorAll('.option').forEach(o => o.classList.remove('good','bad'));
+            if(opt.dataset.correct === 'true'){
+                opt.classList.add('good');
+            } else {
+                opt.classList.add('bad');
+                const correct = wrap.querySelector('[data-correct="true"]');
+                correct.classList.add('good');
+            }
+        });
+    });
+
+    function sqrtToText(n){
+        const r = Math.round(Math.sqrt(n));
+        if(r*r === n) return String(r);
+        let best = null;
+        for(let a=1;a*a<=n;a++){
+            if(n%(a*a)===0){
+                const inside = n/(a*a);
+                if(inside!==1) best = `${a===1?'':a}√${inside}`;
+            }
+        }
+        return best || `√${n}`;
+    }
+
+    document.getElementById('generateTask').addEventListener('click', () => {
+        const bank = [
+            {A:4,B:2,phi:60,sign:'+', type:'length', ans:'2√7'},
+            {A:5,B:3,phi:120,sign:'-', type:'length', ans:'7'},
+            {A:2,B:3,sum2:19,type:'angle', ans:'60°'},
+            {coordsA:[2,-1,2],coordsB:[1,2,-2],type:'proj', ans:'-4/3'}
+        ];
+        const t = bank[Math.floor(Math.random()*bank.length)];
+        const text = document.getElementById('genTaskText');
+        const ans = document.getElementById('genTaskAnswer');
+        if(t.type === 'length'){
+            text.innerHTML = `Задача. Даны векторы a и b, причём |a| = <b>${t.A}</b>, |b| = <b>${t.B}</b>, угол между ними равен <b>${t.phi}°</b>. Найдите <b>|a ${t.sign} b|</b>.`;
+            ans.innerHTML = `Ответ: <b>${t.ans}</b>. Используйте формулу |a ${t.sign} b|² = |a|² ${t.sign==='+'?'+':'-'} 2(a·b) + |b|².`;
+        } else if(t.type === 'angle'){
+            text.innerHTML = `Задача. Известно, что |a| = <b>${t.A}</b>, |b| = <b>${t.B}</b>, а |a + b| = <b>√${t.sum2}</b></b>. Найдите угол между векторами.`;
+            ans.innerHTML = `Ответ: <b>${t.ans}</b>. Сначала раскройте |a + b|².`;
+        } else {
+            text.innerHTML = `Задача. Даны векторы a = <b>(${t.coordsA.join(', ')})</b> и b = <b>(${t.coordsB.join(', ')})</b>. Найдите проекцию a на b.`;
+            ans.innerHTML = `Ответ: <b>${t.ans}</b>. Используйте pr₍b₎a = (a·b)/|b|.`;
+        }
+    });
+
+    updateScene();
+    updateZoom();
+    updateDetail();
+</script>
+</body>
+</html>
