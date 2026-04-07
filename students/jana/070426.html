@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — равнобедренная трапеция с перпендикулярными диагоналями</title>
+    <style>
+        :root{
+            --bg:#071018;
+            --bg2:#0b1622;
+            --panel:#0f1d2b;
+            --panel2:#122436;
+            --text:#eaf2ff;
+            --muted:#a9bdd7;
+            --soft:#7f95af;
+            --accent:#6ee7d8;
+            --accent2:#8fb7ff;
+            --warn:#ffd580;
+            --good:#8df0a8;
+            --danger:#ff9b9b;
+            --line:#27445f;
+            --shadow:0 16px 40px rgba(0,0,0,.35);
+            --radius:24px;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:radial-gradient(circle at top, #0d1d2d 0%, var(--bg) 45%, #04080d 100%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;line-height:1.55}
+        body{min-height:100vh}
+        .wrap{max-width:1500px;margin:0 auto;padding:24px}
+        .hero{
+            background:linear-gradient(135deg, rgba(110,231,216,.12), rgba(143,183,255,.10));
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:32px;
+            padding:28px;
+            box-shadow:var(--shadow);
+            position:relative;
+            overflow:hidden;
+        }
+        .hero::before{
+            content:"";
+            position:absolute;inset:auto -120px -120px auto;
+            width:300px;height:300px;border-radius:50%;
+            background:radial-gradient(circle, rgba(110,231,216,.20), transparent 70%);
+            filter:blur(8px);
+        }
+        .eyebrow{color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:12px}
+        h1{margin:8px 0 10px;font-size:clamp(30px,4vw,54px);line-height:1.08}
+        .hero p{max-width:980px;color:var(--muted);font-size:18px;margin:0}
+        .toolbar{margin-top:20px;display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:12px}
+        .control{
+            background:rgba(8,16,26,.55);
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:18px;padding:12px;
+            display:flex;flex-direction:column;gap:8px;
+        }
+        .control label{font-size:13px;color:var(--muted);font-weight:600}
+        .control input[type="range"], .control select, .control button{width:100%}
+        .control button,.pill,.stepBtn,.genBtn,.quizBtn{
+            appearance:none;border:none;border-radius:14px;padding:10px 12px;
+            background:linear-gradient(135deg, rgba(110,231,216,.18), rgba(143,183,255,.16));
+            color:var(--text);font-weight:700;cursor:pointer;transition:.18s transform,.18s opacity,.18s background;
+        }
+        .control button:hover,.pill:hover,.stepBtn:hover,.genBtn:hover,.quizBtn:hover{transform:translateY(-1px)}
+        .layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(430px,.92fr);gap:22px;margin-top:22px;align-items:start}
+        .left{display:flex;flex-direction:column;gap:18px}
+        .right{position:sticky;top:16px;display:flex;flex-direction:column;gap:16px}
+        .card{
+            background:linear-gradient(180deg, rgba(18,36,54,.95), rgba(11,22,34,.96));
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:var(--radius);
+            padding:22px;
+            box-shadow:var(--shadow);
+        }
+        .card h2,.card h3{margin:0 0 12px}
+        .sub{color:var(--muted)}
+        .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .chips{display:flex;flex-wrap:wrap;gap:10px}
+        .chip{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--muted);font-size:14px}
+        .idea{border-left:4px solid var(--accent);padding-left:14px}
+        .stepper{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+        .step{padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);cursor:pointer;min-width:160px}
+        .step.active{background:linear-gradient(135deg, rgba(110,231,216,.18), rgba(143,183,255,.16));border-color:rgba(110,231,216,.45)}
+        .step small{display:block;color:var(--soft)}
+        .expl{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+        .note{background:rgba(255,255,255,.04);padding:14px;border-radius:18px;border:1px solid rgba(255,255,255,.06)}
+        .formula{font-size:clamp(20px,2.2vw,30px);font-weight:800;color:var(--accent);margin:10px 0}
+        .miniFormula{font-size:18px;font-weight:700;color:var(--accent2)}
+        ul.clean{margin:10px 0 0 18px;padding:0}
+        ul.clean li{margin:7px 0}
+        .viewer{padding:14px;border-radius:24px;background:linear-gradient(180deg, rgba(7,16,24,.9), rgba(10,18,29,.95));border:1px solid rgba(255,255,255,.08)}
+        .svgWrap{height:min(74vh,820px);overflow:auto;border-radius:18px;background:#08121c;border:1px solid rgba(255,255,255,.06);position:relative}
+        svg{display:block;width:100%;height:auto;transform-origin:center center;cursor:grab}
+        svg.dragging{cursor:grabbing}
+        .legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+        .legendItem{padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);font-size:14px;color:var(--muted)}
+        .legendLine{display:inline-block;width:18px;height:3px;border-radius:999px;margin-right:8px;vertical-align:middle}
+        .vals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+        .val{padding:12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+        .val .k{color:var(--soft);font-size:12px;text-transform:uppercase;letter-spacing:.07em}
+        .val .v{font-size:22px;font-weight:800;margin-top:6px}
+        .sectionTitle{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+        .toggleRow{display:flex;flex-wrap:wrap;gap:8px}
+        .pill.active{outline:2px solid rgba(110,231,216,.55)}
+        .warn{color:var(--warn)} .good{color:var(--good)} .danger{color:var(--danger)}
+        .quizOptions{display:grid;gap:10px;margin-top:12px}
+        .quizOption{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);cursor:pointer}
+        .quizOption.correct{border-color:rgba(141,240,168,.65);background:rgba(141,240,168,.10)}
+        .quizOption.wrong{border-color:rgba(255,155,155,.65);background:rgba(255,155,155,.10)}
+        .taskBox{padding:14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);margin-top:12px}
+        .printMemo{font-size:14px;color:var(--muted)}
+        .footerSpace{height:40px}
+        .mono{font-variant-numeric:tabular-nums}
+        .hidden{display:none}
+        @media (max-width:1200px){
+            .layout{grid-template-columns:1fr}
+            .right{position:static}
+            .toolbar{grid-template-columns:repeat(3,minmax(120px,1fr))}
+            .expl{grid-template-columns:1fr}
+        }
+        @media (max-width:720px){
+            .wrap{padding:12px}
+            .toolbar{grid-template-columns:repeat(2,minmax(120px,1fr))}
+            .grid2,.legend,.vals{grid-template-columns:1fr}
+            .card{padding:16px}
+            .step{min-width:unset;width:100%}
+        }
+        @media print{
+            body{background:#fff;color:#000}
+            .toolbar,.quizBtn,.genBtn,.stepBtn,.toggleRow,.viewer .sectionTitle .chips{display:none!important}
+            .layout{grid-template-columns:1fr}
+            .right{position:static}
+            .card,.viewer,.svgWrap{box-shadow:none;border:1px solid #bbb;background:#fff}
+            .hero{background:#fff;border:1px solid #bbb;box-shadow:none}
+            .sub,.chip,.legendItem,.printMemo{color:#333}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div class="eyebrow">Наглядная математика</div>
+        <h1>Равнобедренная трапеция с перпендикулярными диагоналями</h1>
+        <p>
+            Самая важная идея из занятия: если в <b>равнобедренной трапеции</b> диагонали <b>перпендикулярны</b>, то её
+            <b>высота равна средней линии</b>. Ниже — интерактивная модель, пошаговое доказательство, типичные ошибки,
+            мини-квиз и генератор похожих задач.
+        </p>
+        <div class="toolbar">
+            <div class="control">
+                <label for="hRange">Высота h</label>
+                <input id="hRange" type="range" min="3" max="12" step="0.1" value="6" />
+                <div class="sub mono" id="hOut">6.0</div>
+            </div>
+            <div class="control">
+                <label for="mRange">Средняя линия m</label>
+                <input id="mRange" type="range" min="3" max="12" step="0.1" value="6" />
+                <div class="sub mono" id="mOut">6.0</div>
+            </div>
+            <div class="control">
+                <label for="detailSelect">Подробность</label>
+                <select id="detailSelect">
+                    <option value="short">Коротко</option>
+                    <option value="full" selected>Подробно</option>
+                    <option value="exam">ЕГЭ-стиль</option>
+                </select>
+            </div>
+            <div class="control">
+                <label>Управление шагами</label>
+                <button id="prevStep">◀ Назад</button>
+                <button id="nextStep">Вперёд ▶</button>
+            </div>
+            <div class="control">
+                <label>Зум чертежа</label>
+                <button id="zoomIn">＋ Увеличить</button>
+                <button id="zoomOut">－ Уменьшить</button>
+                <button id="zoomReset">Сброс</button>
+            </div>
+            <div class="control">
+                <label>Режимы схемы</label>
+                <button id="fitPerp">Сделать d ⟂ d</button>
+                <button id="shuffle">Случайная модель</button>
+                <button id="showAnswer">Показать ключевой вывод</button>
+            </div>
+        </div>
+    </section>
+
+    <div class="layout">
+        <main class="left">
+            <section class="card">
+                <div class="sectionTitle">
+                    <h2>Что дано и что нужно понять</h2>
+                    <div class="chips">
+                        <span class="chip">AB = CD</span>
+                        <span class="chip">AD ∥ BC</span>
+                        <span class="chip">AC ⟂ BD</span>
+                    </div>
+                </div>
+                <div class="grid2">
+                    <div class="note">
+                        <h3>Что дано</h3>
+                        <ul class="clean">
+                            <li>
+                                <b>ABCD</b> — равнобедренная трапеция.
+                            </li>
+                            <li>Основания: <b>AD</b> и <b>BC</b>.</li>
+                            <li>Боковые стороны равны: <b>AB = CD</b>.</li>
+                            <li>Диагонали <b>AC</b> и <b>BD</b> взаимно перпендикулярны.</li>
+                        </ul>
+                    </div>
+                    <div class="note">
+                        <h3>Что надо получить</h3>
+                        <div class="formula">h = m</div>
+                        <div class="sub">То есть высота трапеции равна её средней линии.</div>
+                        <div class="miniFormula">m = (AD + BC) / 2</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="sectionTitle">
+                    <h2>Идея решения</h2>
+                    <div class="toggleRow">
+                        <button class="pill active" data-mode="idea">Идея</button>
+                        <button class="pill" data-mode="proof">Доказательство</button>
+                        <button class="pill" data-mode="mistakes">Ошибки</button>
+                    </div>
+                </div>
+                <div id="panel-idea" class="modePanel">
+                    <div class="idea">
+                        <p><b>Ключевой манёвр:</b> через точку <b>C</b> проводим прямую <b>CF ∥ BD</b>. Тогда появляется треугольник <b>ACF</b>, в котором легко увидеть сразу две сильные вещи:</p>
+                        <ul class="clean">
+                            <li>
+                                <b>∠ACF = 90°</b>, потому что <b>AC ⟂ BD</b>, а <b>CF ∥ BD</b>.
+                            </li>
+                            <li>
+                                <b>AC = CF</b>, потому что в равнобедренной трапеции <b>AC = BD</b>, а по построению <b>CF = BD</b>.
+                            </li>
+                        </ul>
+                        <p>Значит, <b>ΔACF</b> — прямоугольный равнобедренный. Дальше его высота из вершины <b>C</b> к гипотенузе <b>AF</b> одновременно является медианой, а значит равна <b>AF/2</b>.</p>
+                    </div>
+                </div>
+                <div id="panel-proof" class="modePanel hidden">
+                    <div class="stepper" id="stepper"></div>
+                    <div class="expl">
+                        <div class="note">
+                            <h3 id="stepTitle">Шаг 1</h3>
+                            <div id="stepText"></div>
+                        </div>
+                        <div class="note">
+                            <h3>Промежуточный вывод</h3>
+                            <div id="stepResult" class="miniFormula"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="panel-mistakes" class="modePanel hidden">
+                    <ul class="clean">
+                        <li><span class="danger">Ошибка 1.</span> Путают <b>сумму оснований</b> и <b>среднюю линию</b>. Средняя линия — это не <b>AD + BC</b>, а <b>(AD + BC)/2</b>.</li>
+                        <li><span class="danger">Ошибка 2.</span> Говорят, что диагонали любой трапеции равны. Это верно только для <b>равнобедренной</b> трапеции.</li>
+                        <li><span class="danger">Ошибка 3.</span> Не делают дополнительное построение <b>CF ∥ BD</b>, а без него идея часто не раскрывается.</li>
+                        <li><span class="danger">Ошибка 4.</span> Помнят, что треугольник прямоугольный, но забывают, что он ещё и <b>равнобедренный</b>.</li>
+                        <li><span class="danger">Ошибка 5.</span> В прямоугольном треугольнике путают свойства: <b>медиана к гипотенузе равна половине гипотенузы</b>.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Схема решения</h2>
+                <div class="grid2">
+                    <div class="note">
+                        <h3>Что дано</h3>
+                        <p>Равнобедренная трапеция, диагонали перпендикулярны.</p>
+                        <h3>Смысл условий</h3>
+                        <p>Равнобедренность даёт равенство диагоналей, а перпендикулярность превращает построенный треугольник в прямоугольный.</p>
+                        <h3>Ключевая идея</h3>
+                        <p>Перейти от трапеции к удобному треугольнику <b>ACF</b>.</p>
+                    </div>
+                    <div class="note">
+                        <h3>Алгоритм</h3>
+                        <ol>
+                            <li>Провести <b>CF ∥ BD</b>.</li>
+                            <li>Доказать, что <b>ΔACF</b> прямоугольный равнобедренный.</li>
+                            <li>Использовать свойство медианы к гипотенузе.</li>
+                            <li>Понять, что <b>AF = AD + BC</b>.</li>
+                            <li>Получить <b>h = AF/2 = (AD + BC)/2 = m</b>.</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="sectionTitle">
+                    <h2>Применение к типовой задаче</h2>
+                    <button class="genBtn" id="solveTypeBtn">Показать разбор типовой задачи</button>
+                </div>
+                <div id="typeSolution" class="hidden">
+                    <div class="taskBox">
+                        <b>Задача.</b> В равнобедренной трапеции диагонали перпендикулярны. Высота равна <b>48</b>. Найдите среднюю линию.
+                    </div>
+                    <div class="note" style="margin-top:12px">
+                        <p>По доказанному свойству для такой трапеции:</p>
+                        <div class="formula">m = h</div>
+                        <p>Значит, если <b>h = 48</b>, то</p>
+                        <div class="formula">m = 48</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="sectionTitle">
+                    <h2>Генератор похожих задач</h2>
+                    <div class="toggleRow">
+                        <button class="genBtn" data-gen="height">Дана высота → найти среднюю линию</button>
+                        <button class="genBtn" data-gen="diag">Дана диагональ → найти высоту</button>
+                        <button class="genBtn" data-gen="sum">Дана высота → найти сумму оснований</button>
+                    </div>
+                </div>
+                <div class="taskBox" id="genTask">Нажмите кнопку, и появится новая задача.</div>
+                <div class="note" style="margin-top:12px">
+                    <h3>Ответ и проверка</h3>
+                    <div id="genAnswer" class="sub">Пока скрыто.</div>
+                    <button class="genBtn" id="revealGen" style="margin-top:12px">Показать ответ</button>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="sectionTitle">
+                    <h2>Мини-квиз</h2>
+                    <button class="quizBtn" id="newQuiz">Новый вопрос</button>
+                </div>
+                <div id="quizQuestion" class="taskBox"></div>
+                <div class="quizOptions" id="quizOptions"></div>
+                <div id="quizFeedback" class="sub" style="margin-top:10px"></div>
+            </section>
+
+            <section class="card">
+                <h2>Памятка для печати</h2>
+                <div class="printMemo">
+                    <b>Запомнить:</b> если трапеция равнобедренная и её диагонали перпендикулярны, то <b>высота = средняя линия</b>.<br>
+                    <b>Формула:</b> <span class="mono">h = m = (AD + BC)/2</span>.<br>
+                    <b>Главное построение:</b> через точку <b>C</b> провести <b>CF ∥ BD</b>.<br>
+                    <b>Главный переход:</b> от трапеции к треугольнику <b>ACF</b>.
+                </div>
+            </section>
+        </main>
+
+        <aside class="right">
+            <section class="viewer card">
+                <div class="sectionTitle">
+                    <h2>Интерактивная модель</h2>
+                    <div class="chips">
+                        <span class="chip" id="statusTag">Ключевой вывод скрыт</span>
+                    </div>
+                </div>
+                <div class="svgWrap" id="svgWrap">
+                    <svg id="geo" viewBox="0 0 900 760" xmlns="http://www.w3.org/2000/svg" aria-label="Чертёж трапеции">
+                        <defs>
+                            <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                                <path d="M0,0 L10,5 L0,10 z" fill="#8fb7ff"></path>
+                            </marker>
+                            <filter id="glow">
+                                <feGaussianBlur stdDeviation="3" result="blur"/>
+                                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                            </filter>
+                        </defs>
+                        <rect x="0" y="0" width="900" height="760" fill="#08121c"></rect>
+                        <g id="scene"></g>
+                    </svg>
+                </div>
+                <div class="legend">
+                    <div class="legendItem"><span class="legendLine" style="background:#6ee7d8"></span>основания и боковые стороны трапеции</div>
+                    <div class="legendItem"><span class="legendLine" style="background:#8fb7ff"></span>диагонали и дополнительное построение</div>
+                    <div class="legendItem"><span class="legendLine" style="background:#ffd580"></span>высота трапеции</div>
+                    <div class="legendItem"><span class="legendLine" style="background:#8df0a8"></span>средняя линия</div>
+                </div>
+                <div class="vals">
+                    <div class="val"><div class="k">Высота h</div><div class="v mono" id="valH">6.0</div></div>
+                    <div class="val"><div class="k">Средняя линия m</div><div class="v mono" id="valM">6.0</div></div>
+                    <div class="val"><div class="k">Сумма оснований</div><div class="v mono" id="valSum">12.0</div></div>
+                </div>
+            </section>
+        </aside>
+    </div>
+    <div class="footerSpace"></div>
+</div>
+
+<script>
+    const state = {
+        h: 6,
+        m: 6,
+        zoom: 1,
+        step: 0,
+        detail: 'full',
+        reveal: false,
+        gen: null,
+        dragging:false,
+        dragStart:null,
+        viewOffset:{x:0,y:0},
+        quiz:null
+    };
+
+    const steps = [
+        {
+            title:'Шаг 1. Дополнительное построение',
+            result:'Проводим CF ∥ BD.',
+            short:'Через точку C проводим прямую, параллельную диагонали BD. Получаем новую точку F на продолжении основания AD и рассматриваем треугольник ACF.',
+            full:'Через точку C проводим прямую CF, параллельную диагонали BD. Это ключевой ход: вместо неудобной трапеции мы получаем треугольник ACF, в котором можно использовать свойства прямоугольного и равнобедренного треугольника.',
+            exam:'Проведём через точку C прямую CF ∥ BD, F ∈ AD(продолж.). Рассмотрим треугольник ACF.'
+        },
+        {
+            title:'Шаг 2. Почему угол ACF прямой',
+            result:'∠ACF = 90°.',
+            short:'Так как AC ⟂ BD, а CF ∥ BD, угол между AC и CF равен 90°.',
+            full:'По условию диагонали AC и BD перпендикулярны. Но CF параллельна BD. Значит угол между AC и CF равен углу между AC и BD, то есть 90°. Следовательно, треугольник ACF прямоугольный.',
+            exam:'Так как AC ⟂ BD и CF ∥ BD, то ∠ACF = 90°.'
+        },
+        {
+            title:'Шаг 3. Почему AC = CF',
+            result:'ΔACF — равнобедренный.',
+            short:'В равнобедренной трапеции диагонали равны: AC = BD. По построению CF = BD. Значит AC = CF.',
+            full:'В равнобедренной трапеции диагонали равны: AC = BD. Кроме того, по построению CF ∥ BD, а в полученном параллелограмме BCFD имеем CF = BD. Следовательно, AC = CF. Значит, треугольник ACF не только прямоугольный, но и равнобедренный.',
+            exam:'Так как трапеция равнобедренная, AC = BD. По построению CF = BD. Следовательно, AC = CF.'
+        },
+        {
+            title:'Шаг 4. Что даёт высота CH в ΔACF',
+            result:'CH = AF / 2.',
+            short:'В прямоугольном равнобедренном треугольнике высота из вершины прямого угла к гипотенузе является медианой, а медиана к гипотенузе равна половине гипотенузы.',
+            full:'Опустим из точки C высоту CH на прямую AF. В равнобедренном треугольнике эта высота одновременно медиана. А в прямоугольном треугольнике медиана к гипотенузе равна половине гипотенузы. Поэтому CH = AF/2.',
+            exam:'В ΔACF высота CH к гипотенузе AF является медианой. Медиана к гипотенузе прямоугольного треугольника равна половине гипотенузы, значит CH = AF/2.'
+        },
+        {
+            title:'Шаг 5. Как выразить AF',
+            result:'AF = AD + BC.',
+            short:'Точка F лежит на продолжении AD. При этом DF = BC, потому что BCFD — параллелограмм. Значит AF = AD + DF = AD + BC.',
+            full:'Так как CF ∥ BD и BC ∥ DF, четырёхугольник BCFD — параллелограмм. Следовательно, DF = BC. Тогда AF = AD + DF = AD + BC.',
+            exam:'Поскольку BCFD — параллелограмм, DF = BC. Тогда AF = AD + DF = AD + BC.'
+        },
+        {
+            title:'Шаг 6. Итог',
+            result:'h = (AD + BC)/2 = m.',
+            short:'Получаем h = CH = AF/2 = (AD + BC)/2. Но (AD + BC)/2 — это средняя линия.',
+            full:'Итак, CH = AF/2, а AF = AD + BC. Поэтому h = CH = (AD + BC)/2. Но по определению средняя линия трапеции равна (AD + BC)/2. Следовательно, h = m.',
+            exam:'Следовательно, h = CH = AF/2 = (AD + BC)/2 = m.'
+        }
+    ];
+
+    const qs = s => document.querySelector(s);
+    const qsa = s => [...document.querySelectorAll(s)];
+
+    const hRange = qs('#hRange');
+    const mRange = qs('#mRange');
+    const hOut = qs('#hOut');
+    const mOut = qs('#mOut');
+    const valH = qs('#valH');
+    const valM = qs('#valM');
+    const valSum = qs('#valSum');
+    const detailSelect = qs('#detailSelect');
+    const scene = qs('#scene');
+    const statusTag = qs('#statusTag');
+
+    function fmt(x){ return Number(x).toFixed(1).replace('.', ','); }
+
+    function syncRanges(source){
+        if(source==='h'){ state.m = +state.h; mRange.value = state.m; }
+        if(source==='m'){ state.h = +state.m; hRange.value = state.h; }
+        hOut.textContent = fmt(state.h);
+        mOut.textContent = fmt(state.m);
+        valH.textContent = fmt(state.h);
+        valM.textContent = fmt(state.m);
+        valSum.textContent = fmt(2*state.m);
+    }
+
+    function modelGeometry(){
+        const scale = 32;
+        const h = state.h * scale;
+        const m = state.m * scale;
+        const baseSum = 2*m;
+        const bottom = Math.max(baseSum + 80, 200);
+        const top = Math.max(90, bottom - 2*h);
+        const cx = 450;
+        const yBottom = 610;
+        const yTop = yBottom - h;
+        const A = {x:cx-bottom/2,y:yBottom};
+        const D = {x:cx+bottom/2,y:yBottom};
+        const B = {x:cx-top/2,y:yTop};
+        const C = {x:cx+top/2,y:yTop};
+        const F = {x:A.x + bottom + top, y:yBottom};
+        const H = {x:C.x, y:yBottom};
+        const M1 = {x:(A.x+B.x)/2,y:(A.y+B.y)/2};
+        const M2 = {x:(C.x+D.x)/2,y:(C.y+D.y)/2};
+        const mid = {x:(M1.x+M2.x)/2,y:(M1.y+M2.y)/2};
+        return {A,B,C,D,F,H,M1,M2,mid, bottom, top, h, m};
+    }
+
+    function line(a,b,color,width=4,dash=''){
+        return `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${color}" stroke-width="${width}" ${dash?`stroke-dasharray="${dash}"`:''} stroke-linecap="round"/>`;
+    }
+    function circle(p,r,color){ return `<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${color}"/>`; }
+    function text(p,t,color='#eaf2ff',size=20,weight=700,dx=0,dy=0){ return `<text x="${p.x+dx}" y="${p.y+dy}" fill="${color}" font-size="${size}" font-weight="${weight}">${t}</text>`; }
+
+    function rightAngle(p1,p2,p3,size=18,color='#ffd580'){
+        const v1 = norm({x:p1.x-p2.x,y:p1.y-p2.y});
+        const v2 = norm({x:p3.x-p2.x,y:p3.y-p2.y});
+        const a={x:p2.x+v1.x*size,y:p2.y+v1.y*size};
+        const b={x:a.x+v2.x*size,y:a.y+v2.y*size};
+        const c={x:p2.x+v2.x*size,y:p2.y+v2.y*size};
+        return `<path d="M ${a.x} ${a.y} L ${b.x} ${b.y} L ${c.x} ${c.y}" fill="none" stroke="${color}" stroke-width="3"/>`;
+    }
+    function norm(v){ const d=Math.hypot(v.x,v.y)||1; return {x:v.x/d,y:v.y/d}; }
+
+    function render(){
+        const g = modelGeometry();
+        const {A,B,C,D,F,H,M1,M2,mid} = g;
+        const opacity = (i)=> state.step>=i ? 1 : .18;
+        const showF = state.step>=0;
+        const showDiag = state.step>=1;
+        const showEqual = state.step>=2;
+        const showH = state.step>=3;
+        const showAF = state.step>=4;
+        const reveal = state.reveal || state.step>=5;
+
+        scene.setAttribute('transform', `translate(${state.viewOffset.x},${state.viewOffset.y}) scale(${state.zoom})`);
+        scene.innerHTML = `
+        <g filter="url(#glow)">
+          ${line(A,B,'#6ee7d8',5)}
+          ${line(B,C,'#6ee7d8',5)}
+          ${line(C,D,'#6ee7d8',5)}
+          ${line(D,A,'#6ee7d8',5)}
+        </g>
+        ${showDiag ? line(A,C,`rgba(143,183,255,${opacity(1)})`,4,'10 8') : ''}
+        ${showDiag ? line(B,D,`rgba(143,183,255,${opacity(1)})`,4,'10 8') : ''}
+        ${showF ? line(C,F,`rgba(143,183,255,${opacity(0)})`,4,'9 7') : ''}
+        ${showH ? line(C,H,`rgba(255,213,128,${opacity(3)})`,4,'8 7') : ''}
+        ${line(M1,M2,'rgba(141,240,168,.95)',5)}
+
+        ${circle(A,5,'#eaf2ff')} ${circle(B,5,'#eaf2ff')} ${circle(C,5,'#eaf2ff')} ${circle(D,5,'#eaf2ff')}
+        ${showF ? circle(F,5,'#eaf2ff') : ''}
+        ${showH ? circle(H,5,'#ffd580') : ''}
+        ${circle(M1,4,'#8df0a8')} ${circle(M2,4,'#8df0a8')}
+
+        ${text(A,'A','#eaf2ff',22,800,-18,28)}
+        ${text(B,'B','#eaf2ff',22,800,-20,-12)}
+        ${text(C,'C','#eaf2ff',22,800,10,-12)}
+        ${text(D,'D','#eaf2ff',22,800,10,28)}
+        ${showF ? text(F,'F','#eaf2ff',22,800,10,28) : ''}
+        ${showH ? text(H,'H','#ffd580',20,800,10,28) : ''}
+        ${text({x:(M1.x+M2.x)/2,y:(M1.y+M2.y)/2},'m','#8df0a8',20,800,0,-10)}
+
+        ${showDiag ? rightAngle(A,C,F,18,`rgba(255,213,128,${opacity(1)})`) : ''}
+        ${showH ? rightAngle(C,H,A,18,`rgba(255,213,128,${opacity(3)})`) : ''}
+
+        <text x="${(A.x+D.x)/2-40}" y="${A.y+46}" fill="#ffd580" font-size="20" font-weight="700">h = ${fmt(state.h)}</text>
+        <text x="${(M1.x+M2.x)/2-40}" y="${(M1.y+M2.y)/2-18}" fill="#8df0a8" font-size="20" font-weight="700">m = ${fmt(state.m)}</text>
+
+        ${showEqual ? `<text x="${(A.x+C.x)/2-10}" y="${(A.y+C.y)/2-10}" fill="#8fb7ff" font-size="18" font-weight="700">AC</text>` : ''}
+        ${showEqual ? `<text x="${(C.x+F.x)/2-10}" y="${(C.y+F.y)/2-10}" fill="#8fb7ff" font-size="18" font-weight="700">CF</text>` : ''}
+        ${showAF ? `<text x="${(A.x+F.x)/2-20}" y="${A.y-16}" fill="#8fb7ff" font-size="20" font-weight="800">AF = AD + BC</text>` : ''}
+
+        ${reveal ? `<g>
+          <rect x="70" y="55" rx="24" ry="24" width="760" height="90" fill="rgba(110,231,216,.12)" stroke="rgba(110,231,216,.45)" />
+          <text x="450" y="110" fill="#6ee7d8" font-size="34" font-weight="900" text-anchor="middle">h = (AD + BC) / 2 = m</text>
+        </g>` : ''}
+      `;
+        statusTag.textContent = reveal ? 'Ключевой вывод открыт' : 'Ключевой вывод скрыт';
+        updateProofPanel();
+    }
+
+    function makeStepper(){
+        const root = qs('#stepper');
+        root.innerHTML = steps.map((s,i)=>`
+        <div class="step ${i===state.step?'active':''}" data-step="${i}">
+          <b>${i+1}. ${s.title.replace(/^Шаг \d+\.\s*/,'')}</b>
+          <small>${s.result}</small>
+        </div>
+      `).join('');
+        qsa('.step').forEach(el=>el.onclick=()=>{state.step=+el.dataset.step; render(); makeStepper();});
+    }
+
+    function updateProofPanel(){
+        const s = steps[state.step];
+        qs('#stepTitle').textContent = s.title;
+        qs('#stepText').innerHTML = `<p>${s[state.detail]}</p>`;
+        qs('#stepResult').textContent = s.result;
+    }
+
+    function setMode(mode){
+        qsa('.pill[data-mode]').forEach(b=>b.classList.toggle('active', b.dataset.mode===mode));
+        ['idea','proof','mistakes'].forEach(m=>qs('#panel-'+m).classList.toggle('hidden', m!==mode));
+    }
+
+    qsa('.pill[data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+
+    hRange.oninput = ()=>{ state.h = +hRange.value; syncRanges('h'); render(); };
+    mRange.oninput = ()=>{ state.m = +mRange.value; syncRanges('m'); render(); };
+    detailSelect.onchange = ()=>{ state.detail = detailSelect.value; render(); };
+    qs('#prevStep').onclick = ()=>{ state.step = Math.max(0, state.step-1); makeStepper(); render(); };
+    qs('#nextStep').onclick = ()=>{ state.step = Math.min(steps.length-1, state.step+1); makeStepper(); render(); };
+    qs('#zoomIn').onclick = ()=>{ state.zoom = Math.min(2.4, +(state.zoom+0.1).toFixed(2)); render(); };
+    qs('#zoomOut').onclick = ()=>{ state.zoom = Math.max(0.6, +(state.zoom-0.1).toFixed(2)); render(); };
+    qs('#zoomReset').onclick = ()=>{ state.zoom = 1; state.viewOffset={x:0,y:0}; render(); };
+    qs('#showAnswer').onclick = ()=>{ state.reveal = !state.reveal; render(); };
+    qs('#fitPerp').onclick = ()=>{ state.m = state.h; hRange.value = state.h; mRange.value = state.m; syncRanges('h'); render(); };
+    qs('#shuffle').onclick = ()=>{
+        const value = +(3 + Math.random()*8.5).toFixed(1);
+        state.h = value;
+        state.m = value;
+        hRange.value = value;
+        mRange.value = value;
+        syncRanges('h');
+        state.step = Math.floor(Math.random()*steps.length);
+        makeStepper();
+        render();
+    };
+
+    const svg = qs('#geo');
+    const svgWrap = qs('#svgWrap');
+    svg.addEventListener('wheel', e=>{
+        e.preventDefault();
+        state.zoom += e.deltaY < 0 ? 0.06 : -0.06;
+        state.zoom = Math.max(0.6, Math.min(2.4, state.zoom));
+        render();
+    }, {passive:false});
+    svg.addEventListener('mousedown', e=>{
+        state.dragging=true; svg.classList.add('dragging');
+        state.dragStart={x:e.clientX,y:e.clientY, ox:state.viewOffset.x, oy:state.viewOffset.y};
+    });
+    window.addEventListener('mousemove', e=>{
+        if(!state.dragging) return;
+        state.viewOffset.x = state.dragStart.ox + (e.clientX-state.dragStart.x);
+        state.viewOffset.y = state.dragStart.oy + (e.clientY-state.dragStart.y);
+        render();
+    });
+    window.addEventListener('mouseup', ()=>{ state.dragging=false; svg.classList.remove('dragging'); });
+
+    qs('#solveTypeBtn').onclick = ()=>qs('#typeSolution').classList.toggle('hidden');
+
+    const genTask = qs('#genTask');
+    const genAnswer = qs('#genAnswer');
+    let currentGenerated = null;
+
+    function newGenerated(kind){
+        if(kind==='height'){
+            const h = [6,8,10,12,15,18,24,30][Math.floor(Math.random()*8)];
+            currentGenerated = {
+                task:`В равнобедренной трапеции диагонали перпендикулярны. Высота равна <b>${h}</b>. Найдите среднюю линию.`,
+                answer:`Так как для такой трапеции <b>m = h</b>, получаем <b>m = ${h}</b>.`
+            };
+        }
+        if(kind==='diag'){
+            const d = [4,6,8,10,12,14][Math.floor(Math.random()*6)];
+            currentGenerated = {
+                task:`В равнобедренной трапеции диагонали перпендикулярны, диагональ равна <b>${d}</b>. Найдите высоту.`,
+                answer:`После построения получаем прямоугольный равнобедренный треугольник с катетами ${d} и ${d}. Его гипотенуза равна <b>${d}√2</b>, а высота трапеции равна половине гипотенузы: <b>h = ${d}√2 / 2</b>.`
+            };
+        }
+        if(kind==='sum'){
+            const h = [5,7,9,11,13,16][Math.floor(Math.random()*6)];
+            currentGenerated = {
+                task:`В равнобедренной трапеции диагонали перпендикулярны, высота равна <b>${h}</b>. Найдите сумму оснований.`,
+                answer:`Так как <b>h = (AD + BC)/2</b>, имеем <b>AD + BC = 2h = ${2*h}</b>.`
+            };
+        }
+        genTask.innerHTML = currentGenerated.task;
+        genAnswer.innerHTML = 'Пока скрыто.';
+    }
+    qsa('.genBtn[data-gen]').forEach(b=>b.onclick=()=>newGenerated(b.dataset.gen));
+    qs('#revealGen').onclick = ()=>{
+        genAnswer.innerHTML = currentGenerated ? currentGenerated.answer : 'Сначала сгенерируйте задачу.';
+    };
+
+    const quizBank = [
+        {
+            q:'В равнобедренной трапеции диагонали перпендикулярны. Что верно?',
+            options:['Высота равна боковой стороне','Высота равна средней линии','Средняя линия равна диагонали','Основания равны'],
+            correct:1,
+            explain:'Главный вывод темы: <b>h = m</b>.'
+        },
+        {
+            q:'После построения CF ∥ BD какой треугольник рассматривают?',
+            options:['ΔBCD','ΔACF','ΔABF','ΔCDF'],
+            correct:1,
+            explain:'Именно переход к <b>ΔACF</b> делает задачу удобной.'
+        },
+        {
+            q:'Почему в полученном треугольнике ACF угол при C прямой?',
+            options:['Потому что трапеция равнобедренная','Потому что AC ⟂ BD и CF ∥ BD','Потому что AC = CF','Потому что AF — основание'],
+            correct:1,
+            explain:'Параллельность сохраняет угол с диагональю BD.'
+        },
+        {
+            q:'Если h = 9, то чему равна сумма оснований?',
+            options:['9','18','4,5','27'],
+            correct:1,
+            explain:'Из формулы <b>h = (AD + BC)/2</b> получаем <b>AD + BC = 18</b>.'
+        }
+    ];
+
+    function newQuiz(){
+        state.quiz = JSON.parse(JSON.stringify(quizBank[Math.floor(Math.random()*quizBank.length)]));
+        qs('#quizQuestion').innerHTML = state.quiz.q;
+        qs('#quizFeedback').innerHTML = '';
+        qs('#quizOptions').innerHTML = state.quiz.options.map((opt,i)=>`<div class="quizOption" data-i="${i}">${opt}</div>`).join('');
+        qsa('.quizOption').forEach(el=>el.onclick=()=>{
+            const i=+el.dataset.i;
+            qsa('.quizOption').forEach((o,j)=>{
+                o.classList.remove('correct','wrong');
+                if(j===state.quiz.correct) o.classList.add('correct');
+            });
+            if(i!==state.quiz.correct) el.classList.add('wrong');
+            qs('#quizFeedback').innerHTML = (i===state.quiz.correct?'<span class="good">Верно.</span> ':'<span class="danger">Не совсем.</span> ') + state.quiz.explain;
+        });
+    }
+
+    qs('#newQuiz').onclick = newQuiz;
+
+    syncRanges('h');
+    makeStepper();
+    render();
+    newQuiz();
+    newGenerated('height');
+</script>
+</body>
+</html>
