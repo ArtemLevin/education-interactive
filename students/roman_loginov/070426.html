@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — параметр в плоскости x-a</title>
+    <style>
+        :root{
+            --bg:#0b1020;
+            --bg2:#111831;
+            --panel:#121a2f;
+            --panel2:#0f1528;
+            --text:#e9eefc;
+            --muted:#aab6d3;
+            --accent:#5eead4;
+            --accent2:#60a5fa;
+            --accent3:#c084fc;
+            --good:#34d399;
+            --warn:#fbbf24;
+            --bad:#fb7185;
+            --line:#2a3558;
+            --card:#141d34;
+            --shadow:0 18px 40px rgba(0,0,0,.35);
+            --radius:20px;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:radial-gradient(circle at top, #16203e 0%, #0b1020 42%, #070b16 100%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
+        body{line-height:1.55}
+        .wrap{max-width:1500px;margin:0 auto;padding:24px}
+        .hero{
+            background:linear-gradient(135deg, rgba(96,165,250,.10), rgba(94,234,212,.08), rgba(192,132,252,.08));
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:28px;
+            padding:28px;
+            box-shadow:var(--shadow);
+            position:relative;
+            overflow:hidden;
+        }
+        .hero:before{
+            content:"";
+            position:absolute; inset:auto -80px -100px auto;
+            width:280px;height:280px;border-radius:50%;
+            background:radial-gradient(circle, rgba(94,234,212,.18), transparent 70%);
+            pointer-events:none;
+        }
+        h1,h2,h3{margin:0 0 12px}
+        h1{font-size:clamp(28px,4vw,48px);line-height:1.1}
+        h2{font-size:clamp(22px,2.4vw,30px);color:#f3f6ff}
+        h3{font-size:20px;color:#f5f7ff}
+        .subtitle{max-width:1050px;color:var(--muted);font-size:18px}
+        .chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+        .chip{
+            padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.06);
+            border:1px solid rgba(255,255,255,.08); color:#dce8ff; font-size:14px
+        }
+        .layout{
+            display:grid;grid-template-columns:minmax(0,1.1fr) minmax(380px,.9fr); gap:24px; margin-top:24px;
+            align-items:start;
+        }
+        .left{display:flex;flex-direction:column;gap:18px}
+        .sticky{position:sticky;top:16px;display:flex;flex-direction:column;gap:16px}
+        .card{
+            background:linear-gradient(180deg, rgba(20,29,52,.95), rgba(12,18,34,.95));
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:var(--radius);
+            padding:20px;
+            box-shadow:var(--shadow);
+        }
+        .small{font-size:14px;color:var(--muted)}
+        .lead{font-size:17px;color:#dce7ff}
+        .formula{
+            font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;
+            background:rgba(255,255,255,.04);
+            border:1px solid rgba(255,255,255,.07);
+            border-radius:16px;
+            padding:14px 16px;
+            margin:10px 0;
+            overflow:auto;
+            font-size:22px;
+        }
+        .steps{display:grid;gap:14px}
+        .step{
+            border-left:3px solid var(--accent2);
+            padding:12px 14px 12px 16px;
+            background:rgba(255,255,255,.03);
+            border-radius:0 14px 14px 0;
+        }
+        .step b{color:white}
+        .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+        .idea{
+            background:linear-gradient(135deg, rgba(94,234,212,.10), rgba(96,165,250,.08));
+            border:1px solid rgba(94,234,212,.18); border-radius:18px; padding:16px;
+        }
+        .mistakes li,.check li,.facts li{margin:8px 0}
+        ul{padding-left:22px}
+        .controls{display:grid;gap:12px}
+        label{font-size:14px;color:var(--muted)}
+        input[type=range]{width:100%}
+        .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+        .btn{
+            border:none; cursor:pointer; color:#08111d;
+            background:linear-gradient(135deg,var(--accent),#90f7ec);
+            padding:10px 14px; border-radius:12px; font-weight:700;
+            box-shadow:0 8px 24px rgba(94,234,212,.25)
+        }
+        .btn.secondary{
+            color:#eaf2ff; background:rgba(255,255,255,.08); box-shadow:none; border:1px solid rgba(255,255,255,.10)
+        }
+        .canvasWrap{
+            background:linear-gradient(180deg,#0a1020,#0d1327);
+            border-radius:18px; padding:12px; border:1px solid rgba(255,255,255,.08)
+        }
+        canvas{width:100%; display:block; border-radius:14px; background:#09101d}
+        .legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+        .leg{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
+        .sw{width:18px;height:18px;border-radius:6px;border:1px solid rgba(255,255,255,.1)}
+        .metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+        .metric{
+            background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+            border-radius:16px;padding:12px
+        }
+        .metric .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+        .metric .v{font-size:20px;font-weight:800;margin-top:6px}
+        .lineBox{
+            margin-top:12px;
+            background:rgba(255,255,255,.035);
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:16px;padding:12px
+        }
+        .numberline{width:100%;height:90px;display:block}
+        .callout{
+            padding:14px 16px;border-radius:18px;
+            background:linear-gradient(135deg, rgba(52,211,153,.12), rgba(96,165,250,.08));
+            border:1px solid rgba(52,211,153,.22);
+        }
+        .warning{
+            background:linear-gradient(135deg, rgba(251,191,36,.11), rgba(251,113,133,.08));
+            border:1px solid rgba(251,191,36,.20);
+            padding:14px 16px;border-radius:18px;
+        }
+        .toggleBar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+        .toggle{
+            padding:9px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.08);
+            background:rgba(255,255,255,.05);color:#dbe7ff;cursor:pointer
+        }
+        .toggle.active{background:rgba(96,165,250,.18);border-color:rgba(96,165,250,.38)}
+        .tab{display:none}
+        .tab.active{display:block}
+        .footerNote{color:var(--muted);font-size:13px}
+        .genTask{
+            background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+            border-radius:18px;padding:14px
+        }
+        .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+        @media (max-width: 1050px){
+            .layout{grid-template-columns:1fr}
+            .sticky{position:static}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div class="chip">Наглядная математика</div>
+        <h1>Параметр как вторая координата: решаем неравенство в плоскости <span style="color:var(--accent)">x–a</span></h1>
+        <p class="subtitle">
+            Разбираем вторую задачу из занятия: строим граничные линии, отмечаем допустимые области, включаем
+            «лазерную указку» <span class="mono">a = const</span> и смотрим, когда множество решений по <span class="mono">x</span>
+            является именно лучом, а не «лучом плюс кусок».
+        </p>
+        <div class="chips">
+            <div class="chip">Тема: задачи с параметром</div>
+            <div class="chip">Фокус: рациональное неравенство</div>
+            <div class="chip">Ключевая идея: сечение горизонтальной прямой</div>
+            <div class="chip">Ответ: только <b>a = 1</b></div>
+        </div>
+    </section>
+
+    <div class="layout">
+        <main class="left">
+            <section class="card">
+                <h2>Задача</h2>
+                <div class="formula">
+                    Найдите все положительные значения параметра <b>a</b>, при каждом из которых множество решений неравенства
+                    <br><br>
+                    <span class="mono" style="font-size:24px">
+          (x − 2) / (a x² − (a² + 1)x + a) ≥ 0
+          </span>
+                    <br><br>
+                    является некоторым лучом.
+                </div>
+                <div class="idea">
+                    <b>Коротко:</b> в координатах <b>(x,a)</b> мы не ищем сразу все решения аналитически.
+                    Мы строим границы, определяем подходящие области, а потом для каждого фиксированного <b>a</b>
+                    читаем по горизонтальному сечению, какой набор <b>x</b> получается.
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Что дано и что нужно найти</h2>
+                <div class="grid2">
+                    <div>
+                        <h3>Что дано</h3>
+                        <ul class="facts">
+                            <li>рациональное неравенство;</li>
+                            <li>числитель: <span class="mono">x − 2</span>;</li>
+                            <li>знаменатель: <span class="mono">a x² − (a² + 1)x + a</span>;</li>
+                            <li>рассматриваются только <span class="mono">a &gt; 0</span>.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Что нужно понять</h3>
+                        <ul class="facts">
+                            <li>какие области плоскости дают знак <span class="mono">≥ 0</span>;</li>
+                            <li>как выглядит множество решений по <span class="mono">x</span> при фиксированном <span class="mono">a</span>;</li>
+                            <li>при каком <span class="mono">a</span> получается именно <b>луч</b>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Идея решения</h2>
+                <div class="steps">
+                    <div class="step"><b>Шаг 1.</b> Строим граничную линию числителя: <span class="mono">x − 2 = 0</span>, то есть <span class="mono">x = 2</span>. Это вертикальная прямая в плоскости <span class="mono">(x,a)</span>.</div>
+                    <div class="step"><b>Шаг 2.</b> Строим граничные линии знаменателя: <span class="mono">a x² − (a² + 1)x + a = 0</span>.</div>
+                    <div class="step"><b>Шаг 3.</b> Разбиваем плоскость на области и подстановкой определяем, где исходная дробь неотрицательна.</div>
+                    <div class="step"><b>Шаг 4.</b> Для каждого фиксированного <span class="mono">a</span> проводим горизонтальную прямую и читаем по ней множество решений по <span class="mono">x</span>.</div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Пошаговое решение</h2>
+
+                <h3>1. Граница числителя</h3>
+                <div class="formula"><span class="mono">x − 2 = 0 ⟹ x = 2</span></div>
+                <p class="lead">Это вертикальная прямая. Она важна потому, что в точке <span class="mono">x = 2</span> числитель равен нулю.</p>
+
+                <h3>2. Граница знаменателя</h3>
+                <div class="formula">
+                    <span class="mono">a x² − (a² + 1)x + a = 0</span>
+                </div>
+                <p class="lead">Рассматриваем это как квадратное уравнение относительно <span class="mono">x</span>.</p>
+
+                <div class="formula">
+                    <span class="mono">D = (a² + 1)² − 4a² = a⁴ − 2a² + 1 = (a² − 1)²</span>
+                </div>
+
+                <div class="formula">
+          <span class="mono">
+            x₁ = ((a² + 1) + (a² − 1)) / (2a) = a,
+            &nbsp;&nbsp;
+            x₂ = ((a² + 1) − (a² − 1)) / (2a) = 1/a
+          </span>
+                </div>
+
+                <div class="callout">
+                    <b>Ключевой вывод:</b> граничные линии знаменателя — это
+                    <span class="mono">a = x</span> и <span class="mono">a = 1/x</span>.
+                </div>
+
+                <h3>3. Очень важная деталь: особый случай <span class="mono">a = 1</span></h3>
+                <p class="lead">
+                    При <span class="mono">a = 1</span> две линии знаменателя совпадают, потому что
+                    <span class="mono">a = x</span> и <span class="mono">a = 1/x</span> пересекаются в точке <span class="mono">(1,1)</span>,
+                    а сам знаменатель превращается в квадрат:
+                </p>
+                <div class="formula">
+                    <span class="mono">x² − 2x + 1 = (x − 1)²</span>
+                </div>
+
+                <h3>4. Аналитическая форма для знаков</h3>
+                <div class="formula">
+                    <span class="mono">a x² − (a² + 1)x + a = a(x − a)(x − 1/a)</span>, &nbsp;при <span class="mono">a &gt; 0</span>
+                </div>
+                <p class="lead">
+                    Так как <span class="mono">a &gt; 0</span>, знак знаменателя определяется только произведением
+                    <span class="mono">(x − a)(x − 1/a)</span>.
+                </p>
+
+                <div class="steps">
+                    <div class="step"><b>Снаружи</b> от корней <span class="mono">a</span> и <span class="mono">1/a</span> знаменатель положителен.</div>
+                    <div class="step"><b>Между</b> ними знаменатель отрицателен.</div>
+                    <div class="step">Числитель <span class="mono">x − 2</span> отрицателен слева от 2 и положителен справа от 2.</div>
+                </div>
+
+                <h3>5. Почему почти всегда получается не луч</h3>
+                <p class="lead">
+                    Если горизонтальная прямая <span class="mono">a = const</span> пересекает области так, что появляются
+                    <b>две отдельные части</b> решений по <span class="mono">x</span>, то это уже не луч.
+                    Именно это и происходит почти при всех положительных <span class="mono">a</span>.
+                </p>
+
+                <div class="warning">
+                    <b>Тонкое место.</b> Если в множестве решений есть «отрезок или интервал слева» и отдельно «луч справа»,
+                    то условие задачи не выполнено. Нужен ровно один луч.
+                </div>
+
+                <h3>6. Проверяем особый кандидат <span class="mono">a = 1</span></h3>
+                <div class="formula">
+          <span class="mono">
+            (x − 2) / (x − 1)² ≥ 0
+          </span>
+                </div>
+                <p class="lead">
+                    Знаменатель положителен при всех <span class="mono">x ≠ 1</span>, поэтому знак дроби совпадает со знаком
+                    <span class="mono">x − 2</span>. Получаем:
+                </p>
+                <div class="formula"><span class="mono">x ≥ 2</span></div>
+                <p class="lead">То есть множество решений — это луч <span class="mono">[2; +∞)</span>.</p>
+
+                <div class="callout">
+                    <b>Ответ:</b> единственное положительное значение параметра,
+                    при котором множество решений является лучом, — это
+                    <span class="mono" style="font-size:24px">a = 1</span>.
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Отдельный блок: как мыслить через «лазерную указку»</h2>
+                <div class="steps">
+                    <div class="step">Вы фиксируете <span class="mono">a</span>, то есть проводите горизонтальную прямую.</div>
+                    <div class="step">Всё, что лежит на этой прямой внутри подходящей области, даёт решения по <span class="mono">x</span>.</div>
+                    <div class="step">Если на линии получился только правый кусок вида <span class="mono">[c; +∞)</span> или <span class="mono">(c; +∞)</span>, это луч.</div>
+                    <div class="step">Если появился ещё один кусок отдельно — задача уже не подходит.</div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Типичные ошибки</h2>
+                <ul class="mistakes">
+                    <li>Не проверить, что <span class="mono">a = 1</span> — особый случай, когда корни знаменателя совпали.</li>
+                    <li>Сократить на <span class="mono">x − 2</span> в случае, когда он входит в знаменатель, и забыть про выколотую точку.</li>
+                    <li>Считать, что «луч плюс отдельный интервал» — это всё ещё луч.</li>
+                    <li>Подставлять точки не в исходное неравенство, а только в знаменатель.</li>
+                    <li>Смотреть только на график, но не проверять ОДЗ: точки знаменателя никогда не входят в решение.</li>
+                </ul>
+            </section>
+
+            <section class="card">
+                <h2>Самопроверка</h2>
+                <ul class="check">
+                    <li>Я умею построить в плоскости <span class="mono">x–a</span> линии <span class="mono">x = 2</span>, <span class="mono">a = x</span>, <span class="mono">a = 1/x</span>.</li>
+                    <li>Я понимаю, почему знак читается по областям.</li>
+                    <li>Я понимаю, почему при большинстве <span class="mono">a &gt; 0</span> получается не один луч, а несколько кусков.</li>
+                    <li>Я отдельно проверяю случай <span class="mono">a = 1</span>.</li>
+                    <li>Я могу объяснить, почему правильный ответ именно <span class="mono">1</span>.</li>
+                </ul>
+            </section>
+        </main>
+
+        <aside class="sticky">
+            <section class="card">
+                <div class="toggleBar">
+                    <button class="toggle active" data-tab="graphTab">График</button>
+                    <button class="toggle" data-tab="sliceTab">Сечение</button>
+                    <button class="toggle" data-tab="genTab">Генератор</button>
+                </div>
+
+                <div id="graphTab" class="tab active">
+                    <h2>Интерактивная модель</h2>
+                    <p class="small">
+                        Закрашена область, где исходное неравенство выполняется при <b>a &gt; 0</b>.
+                        Пунктиром показаны линии знаменателя, жёлтая вертикаль — <span class="mono">x = 2</span>,
+                        голубая горизонталь — выбранное значение параметра.
+                    </p>
+
+                    <div class="controls">
+                        <div>
+                            <label for="aSlider">Параметр a = <span id="aLabel">1.00</span></label>
+                            <input id="aSlider" type="range" min="0.25" max="3.50" step="0.01" value="1.00" />
+                        </div>
+                        <div class="row">
+                            <button class="btn" data-seta="1">Показать ключевой случай a = 1</button>
+                            <button class="btn secondary" data-seta="0.5">a = 0.5</button>
+                            <button class="btn secondary" data-seta="2">a = 2</button>
+                        </div>
+                        <div class="row">
+                            <button class="btn secondary" id="zoomIn">Увеличить</button>
+                            <button class="btn secondary" id="zoomOut">Уменьшить</button>
+                            <button class="btn secondary" id="zoomReset">Сброс масштаба</button>
+                        </div>
+                    </div>
+
+                    <div class="canvasWrap">
+                        <canvas id="graph" width="760" height="560"></canvas>
+                    </div>
+
+                    <div class="legend">
+                        <div class="leg"><span class="sw" style="background:rgba(52,211,153,.28)"></span> подходящая область</div>
+                        <div class="leg"><span class="sw" style="background:rgba(251,191,36,.85)"></span> линия x = 2</div>
+                        <div class="leg"><span class="sw" style="background:rgba(96,165,250,.95)"></span> выбранное a = const</div>
+                        <div class="leg"><span class="sw" style="background:rgba(192,132,252,.85)"></span> a = x и a = 1/x</div>
+                    </div>
+                </div>
+
+                <div id="sliceTab" class="tab">
+                    <h2>Что даёт текущее сечение</h2>
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="k">a</div>
+                            <div class="v" id="metricA">1.00</div>
+                        </div>
+                        <div class="metric">
+                            <div class="k">решения</div>
+                            <div class="v" id="metricType">луч</div>
+                        </div>
+                        <div class="metric">
+                            <div class="k">вид</div>
+                            <div class="v" id="metricSet" style="font-size:16px">[2; +∞)</div>
+                        </div>
+                    </div>
+
+                    <div class="lineBox">
+                        <svg id="numberline" class="numberline" viewBox="0 0 760 90"></svg>
+                    </div>
+
+                    <div class="lineBox">
+                        <h3 style="margin-top:0">Комментарий</h3>
+                        <div id="sliceComment" class="small" style="font-size:15px;color:#dbe7ff"></div>
+                    </div>
+                </div>
+
+                <div id="genTab" class="tab">
+                    <h2>Генератор похожих задач</h2>
+                    <p class="small">Здесь автоматически создаются задачи той же логики: линейный числитель и знаменатель, распадающийся на две граничные линии в плоскости <span class="mono">x–a</span>.</p>
+
+                    <div class="genTask" id="taskBox"></div>
+                    <div class="row" style="margin-top:12px">
+                        <button class="btn" id="newTask">Новая задача</button>
+                        <button class="btn secondary" id="showHint">Показать идею</button>
+                        <button class="btn secondary" id="showAnswer">Показать ответ</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Итог в одну строку</h2>
+                <div class="callout">
+                    В этой задаче единственный случай, когда горизонтальное сечение даёт <b>ровно один луч</b>, —
+                    это <span class="mono" style="font-size:22px">a = 1</span>.
+                </div>
+                <p class="footerNote">
+                    Подсказка для памяти: «совпали две граничные линии знаменателя → исчез лишний кусок → остался чистый луч».
+                </p>
+            </section>
+        </aside>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('graph');
+    const ctx = canvas.getContext('2d');
+    const aSlider = document.getElementById('aSlider');
+    const aLabel = document.getElementById('aLabel');
+    const metricA = document.getElementById('metricA');
+    const metricType = document.getElementById('metricType');
+    const metricSet = document.getElementById('metricSet');
+    const sliceComment = document.getElementById('sliceComment');
+    const svg = document.getElementById('numberline');
+
+    let view = {xmin:0, xmax:4.5, ymin:0, ymax:3.6};
+
+    function signVal(x, a){
+        const den = a*x*x - (a*a + 1)*x + a;
+        const num = x - 2;
+        if (Math.abs(den) < 1e-8) return null;
+        const val = num / den;
+        return val >= 0;
+    }
+    function denZero(x,a){
+        return Math.abs(a*x*x - (a*a + 1)*x + a) < 0.015;
+    }
+    function xToPx(x){
+        return (x - view.xmin) / (view.xmax - view.xmin) * canvas.width;
+    }
+    function aToPy(a){
+        return canvas.height - (a - view.ymin) / (view.ymax - view.ymin) * canvas.height;
+    }
+    function pxToX(px){
+        return view.xmin + px / canvas.width * (view.xmax - view.xmin);
+    }
+    function pyToA(py){
+        return view.ymin + (canvas.height - py) / canvas.height * (view.ymax - view.ymin);
+    }
+
+    function drawGrid(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+
+        // region fill
+        const step = 4;
+        for(let py=0; py<canvas.height; py+=step){
+            for(let px=0; px<canvas.width; px+=step){
+                const x = pxToX(px + step/2);
+                const a = pyToA(py + step/2);
+                if(a <= 0) continue;
+                const ok = signVal(x,a);
+                if(ok === true){
+                    ctx.fillStyle = 'rgba(52,211,153,0.18)';
+                    ctx.fillRect(px,py,step,step);
+                }
+            }
+        }
+
+        // grid
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.lineWidth = 1;
+        for(let x=Math.ceil(view.xmin); x<=view.xmax; x+=1){
+            const px = xToPx(x);
+            ctx.beginPath();
+            ctx.moveTo(px,0); ctx.lineTo(px,canvas.height); ctx.stroke();
+        }
+        for(let a=Math.ceil(view.ymin); a<=view.ymax; a+=1){
+            const py = aToPy(a);
+            ctx.beginPath();
+            ctx.moveTo(0,py); ctx.lineTo(canvas.width,py); ctx.stroke();
+        }
+
+        // axes
+        ctx.strokeStyle = 'rgba(240,245,255,0.55)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(xToPx(0),0); ctx.lineTo(xToPx(0),canvas.height); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0,aToPy(0)); ctx.lineTo(canvas.width,aToPy(0)); ctx.stroke();
+
+        ctx.fillStyle = '#dbe7ff';
+        ctx.font = '14px Inter, sans-serif';
+        ctx.fillText('x', canvas.width - 18, aToPy(0) - 8);
+        ctx.fillText('a', xToPx(0) + 10, 16);
+
+        // ticks
+        ctx.fillStyle = 'rgba(220,231,255,0.75)';
+        for(let x=1; x<=Math.floor(view.xmax); x++){
+            const px = xToPx(x);
+            ctx.fillText(String(x), px-4, aToPy(0)-8);
+        }
+        for(let a=1; a<=Math.floor(view.ymax); a++){
+            const py = aToPy(a);
+            ctx.fillText(String(a), xToPx(0)+8, py+4);
+        }
+
+        // x=2
+        ctx.strokeStyle = 'rgba(251,191,36,0.95)';
+        ctx.setLineDash([8,6]);
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(xToPx(2),0); ctx.lineTo(xToPx(2),canvas.height); ctx.stroke();
+
+        // a=x
+        ctx.strokeStyle = 'rgba(192,132,252,0.95)';
+        ctx.beginPath();
+        let started = false;
+        for(let x=view.xmin; x<=Math.min(view.xmax, view.ymax); x+=0.01){
+            const px = xToPx(x), py = aToPy(x);
+            if(!started){ctx.moveTo(px,py); started = true;}
+            else ctx.lineTo(px,py);
+        }
+        ctx.stroke();
+
+        // a=1/x
+        ctx.beginPath();
+        started = false;
+        for(let x=Math.max(0.05,view.xmin); x<=view.xmax; x+=0.01){
+            const a = 1/x;
+            if(a < view.ymin || a > view.ymax) { started = false; continue; }
+            const px = xToPx(x), py = aToPy(a);
+            if(!started){ctx.moveTo(px,py); started = true;}
+            else ctx.lineTo(px,py);
+        }
+        ctx.stroke();
+
+        ctx.setLineDash([]);
+
+        // selected a
+        const a = parseFloat(aSlider.value);
+        ctx.strokeStyle = 'rgba(96,165,250,1)';
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.moveTo(0, aToPy(a)); ctx.lineTo(canvas.width, aToPy(a)); ctx.stroke();
+
+        // marks on x=a and x=1/a
+        const roots = [a, 1/a];
+        ctx.fillStyle = '#60a5fa';
+        roots.forEach(x=>{
+            if(x>=view.xmin && x<=view.xmax){
+                ctx.beginPath();
+                ctx.arc(xToPx(x), aToPy(a), 5, 0, Math.PI*2);
+                ctx.fill();
+            }
+        });
+
+        // label
+        ctx.fillStyle = '#dce7ff';
+        ctx.font = 'bold 15px Inter, sans-serif';
+        ctx.fillText(`a = ${a.toFixed(2)}`, 12, aToPy(a)-10);
+
+        // special point (1,1)
+        if(1>=view.xmin && 1<=view.xmax && 1>=view.ymin && 1<=view.ymax){
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(xToPx(1), aToPy(1), 4, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillText('(1,1)', xToPx(1)+8, aToPy(1)-8);
+        }
+    }
+
+    function classifyIntervals(a){
+        const eps = 1e-7;
+        // roots of denominator
+        let points = [2];
+        if (Math.abs(a-1) < 1e-8){
+            points.push(1);
+        } else {
+            points.push(a, 1/a);
+        }
+        points = [...new Set(points.map(v=>+v.toFixed(10)))].sort((m,n)=>m-n);
+
+        const testIntervals = [];
+        let prev = -Infinity;
+        for(const p of points){
+            testIntervals.push([prev,p]);
+            prev = p;
+        }
+        testIntervals.push([prev,Infinity]);
+
+        const sols = [];
+        function sampleOf(I){
+            const [L,R] = I;
+            if(!isFinite(L)) return R - 1;
+            if(!isFinite(R)) return L + 1;
+            return (L + R)/2;
+        }
+
+        for(const I of testIntervals){
+            const x = sampleOf(I);
+            const den = a*x*x - (a*a + 1)*x + a;
+            if(Math.abs(den) < eps) continue;
+            const ok = (x - 2) / den >= 0;
+            if(ok) sols.push(I);
+        }
+
+        // include x = 2 if defined
+        const denAt2 = a*4 - (a*a+1)*2 + a;
+        const include2 = Math.abs(denAt2) > 1e-8;
+
+        // convert to human view
+        const pieces = sols.map(([L,R]) => ({L,R, leftOpen:true, rightOpen:true}));
+        if(include2){
+            // merge x=2 into neighboring interval or make singleton
+            let inserted = false;
+            for(const p of pieces){
+                if((!isFinite(p.L) || 2 > p.L) && (!isFinite(p.R) || 2 < p.R)){
+                    inserted = true;
+                }
+                if(Math.abs(p.R - 2) < 1e-8){ p.rightOpen = false; inserted = true; }
+                if(Math.abs(p.L - 2) < 1e-8){ p.leftOpen = false; inserted = true; }
+            }
+            if(!inserted) pieces.push({L:2,R:2,leftOpen:false,rightOpen:false});
+        }
+
+        pieces.sort((u,v)=>(u.L===-Infinity?-1e9:u.L)-(v.L===-Infinity?-1e9:v.L));
+
+        // merge touching intervals
+        const merged = [];
+        for(const p of pieces){
+            if(!merged.length){ merged.push({...p}); continue; }
+            const q = merged[merged.length-1];
+            const touch = Math.abs(q.R - p.L) < 1e-8;
+            const overlap = (!isFinite(q.R) || !isFinite(p.L) || q.R > p.L);
+            if(touch || overlap){
+                q.R = p.R;
+                q.rightOpen = p.rightOpen;
+            }else{
+                merged.push({...p});
+            }
+        }
+        return merged;
+    }
+
+    function intervalToStr(p){
+        const left = p.leftOpen ? '(' : '[';
+        const right = p.rightOpen ? ')' : ']';
+        const L = p.L === -Infinity ? '−∞' : trimNum(p.L);
+        const R = p.R === Infinity ? '+∞' : trimNum(p.R);
+        if(Math.abs(p.L - p.R) < 1e-8) return `{${trimNum(p.L)}}`;
+        return `${left}${L}; ${R}${right}`;
+    }
+    function trimNum(v){
+        if(Math.abs(v - Math.round(v)) < 1e-8) return String(Math.round(v));
+        return v.toFixed(2).replace(/\.00$/,'');
+    }
+    function setTypeText(pieces){
+        if(pieces.length===1){
+            const p = pieces[0];
+            const rayRight = p.R === Infinity;
+            const rayLeft = p.L === -Infinity;
+            if(rayRight || rayLeft) return 'луч';
+            if(Math.abs(p.L-p.R) < 1e-8) return 'точка';
+            return 'интервал';
+        }
+        return 'несколько кусков';
+    }
+
+    function updateNumberLine(){
+        const a = parseFloat(aSlider.value);
+        const pieces = classifyIntervals(a);
+
+        metricA.textContent = a.toFixed(2);
+        metricType.textContent = setTypeText(pieces);
+        metricSet.textContent = pieces.map(intervalToStr).join(' ∪ ');
+
+        if(Math.abs(a-1) < 1e-6){
+            sliceComment.innerHTML = 'Это главный случай задачи. Знаменатель равен <span class="mono">(x − 1)²</span>, он положителен при <span class="mono">x ≠ 1</span>, поэтому остаётся только условие <span class="mono">x ≥ 2</span>. Получается чистый луч <span class="mono">[2; +∞)</span>.';
+        } else if (pieces.length===1 && pieces[0].R===Infinity){
+            sliceComment.textContent = 'Формально здесь справа есть луч, но внимательно проверьте, не появлялся ли ещё один кусок до упрощения или в выколотой точке. Для данной задачи при a ≠ 1 чистый луч не получается.';
+        } else {
+            sliceComment.innerHTML = 'При этом значении <span class="mono">a</span> горизонтальное сечение даёт не один непрерывный луч, а несколько частей. Значит, условие задачи не выполнено.';
+        }
+
+        const W = 760, H = 90;
+        svg.innerHTML = '';
+        const xMin = -0.2, xMax = 5.6;
+        const map = x => 60 + (x - xMin)/(xMax - xMin) * (W-100);
+        const y = 45;
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('x1',50); line.setAttribute('x2',W-30); line.setAttribute('y1',y); line.setAttribute('y2',y);
+        line.setAttribute('stroke','rgba(240,245,255,.9)'); line.setAttribute('stroke-width','2');
+        svg.appendChild(line);
+
+        for(let x=0; x<=5; x++){
+            const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+            l.setAttribute('x1',map(x)); l.setAttribute('x2',map(x)); l.setAttribute('y1',y-8); l.setAttribute('y2',y+8);
+            l.setAttribute('stroke','rgba(240,245,255,.9)');
+            svg.appendChild(l);
+
+            const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+            t.setAttribute('x',map(x)-4); t.setAttribute('y',74);
+            t.setAttribute('fill','#dbe7ff'); t.setAttribute('font-size','13');
+            t.textContent = x;
+            svg.appendChild(t);
+        }
+
+        // mark special points
+        [a,1/a,2].forEach((val, idx) => {
+            if(val < xMin || val > xMax) return;
+            const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+            l.setAttribute('x1',map(val)); l.setAttribute('x2',map(val)); l.setAttribute('y1',16); l.setAttribute('y2',74);
+            l.setAttribute('stroke', idx===2 ? '#fbbf24' : '#60a5fa');
+            l.setAttribute('stroke-width','1.6');
+            l.setAttribute('stroke-dasharray','5 4');
+            svg.appendChild(l);
+        });
+
+        pieces.forEach(p=>{
+            const seg = document.createElementNS('http://www.w3.org/2000/svg','line');
+            const x1 = p.L===-Infinity ? 52 : map(p.L);
+            const x2 = p.R===Infinity ? W-34 : map(p.R);
+            seg.setAttribute('x1',x1); seg.setAttribute('x2',x2); seg.setAttribute('y1',y); seg.setAttribute('y2',y);
+            seg.setAttribute('stroke','#34d399'); seg.setAttribute('stroke-width','8'); seg.setAttribute('stroke-linecap','round');
+            svg.appendChild(seg);
+
+            function point(x, filled){
+                const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+                c.setAttribute('cx',map(x)); c.setAttribute('cy',y); c.setAttribute('r',6.5);
+                c.setAttribute('fill',filled ? '#34d399' : '#09101d');
+                c.setAttribute('stroke','#34d399');
+                c.setAttribute('stroke-width','2');
+                svg.appendChild(c);
+            }
+            if(isFinite(p.L)) point(p.L, !p.leftOpen);
+            if(isFinite(p.R)) point(p.R, !p.rightOpen);
+            if(p.R===Infinity){
+                const arr = document.createElementNS('http://www.w3.org/2000/svg','path');
+                arr.setAttribute('d', `M ${W-40} ${y-8} L ${W-22} ${y} L ${W-40} ${y+8}`);
+                arr.setAttribute('fill','none'); arr.setAttribute('stroke','#34d399'); arr.setAttribute('stroke-width','4');
+                arr.setAttribute('stroke-linecap','round'); arr.setAttribute('stroke-linejoin','round');
+                svg.appendChild(arr);
+            }
+        });
+    }
+
+    function updateAll(){
+        const a = parseFloat(aSlider.value);
+        aLabel.textContent = a.toFixed(2);
+        drawGrid();
+        updateNumberLine();
+    }
+
+    aSlider.addEventListener('input', updateAll);
+    document.querySelectorAll('[data-seta]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+            aSlider.value = parseFloat(btn.dataset.seta).toFixed(2);
+            updateAll();
+        });
+    });
+
+    // tabs
+    document.querySelectorAll('.toggle').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+            document.querySelectorAll('.toggle').forEach(b=>b.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab=>tab.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    // zoom
+    function applyZoom(f){
+        const cx = (view.xmin + view.xmax)/2;
+        const cy = (view.ymin + view.ymax)/2;
+        const wx = (view.xmax - view.xmin)*f;
+        const wy = (view.ymax - view.ymin)*f;
+        view.xmin = Math.max(0, cx - wx/2);
+        view.xmax = Math.min(7, cx + wx/2);
+        view.ymin = Math.max(0, cy - wy/2);
+        view.ymax = Math.min(6, cy + wy/2);
+        if(view.xmax - view.xmin < 1.5 || view.ymax - view.ymin < 1.4) return;
+        updateAll();
+    }
+    document.getElementById('zoomIn').onclick = ()=>applyZoom(0.82);
+    document.getElementById('zoomOut').onclick = ()=>applyZoom(1.22);
+    document.getElementById('zoomReset').onclick = ()=>{ view={xmin:0,xmax:4.5,ymin:0,ymax:3.6}; updateAll(); };
+
+    canvas.addEventListener('wheel', e=>{
+        e.preventDefault();
+        applyZoom(e.deltaY < 0 ? 0.88 : 1.14);
+    }, {passive:false});
+
+    // generator
+    const taskBox = document.getElementById('taskBox');
+    const generated = {hint:'', answer:''};
+    const presets = [
+        {c:3, p:1, q:3, ans:'a = 1', extra:'(x − 3) / (a x² − (a² + 1)x + a) ≥ 0'},
+        {c:1, p:2, q:2, ans:'a = 1', extra:'(x − 1) / (a x² − (a² + 1)x + a) ≥ 0'},
+        {c:4, p:1, q:4, ans:'a = 1', extra:'(x − 4) / (a x² − (a² + 1)x + a) ≥ 0'}
+    ];
+    function newTask(){
+        const t = presets[Math.floor(Math.random()*presets.length)];
+        generated.hint = 'Постройте три границы: x = ' + t.c + ', a = x и a = 1/x. Затем проверьте, когда горизонтальное сечение даёт один луч. Особое внимание — случаю a = 1.';
+        generated.answer = 'Ответ: ' + t.ans + '. При a = 1 знаменатель превращается в (x − 1)², а знак дроби определяется числителем.';
+        taskBox.innerHTML = `
+    <b>Новая задача.</b><br><br>
+    Найдите все положительные значения параметра <span class="mono">a</span>, при которых множество решений неравенства
+    <div class="formula" style="margin-top:10px"><span class="mono">${t.extra}</span></div>
+    является лучом.
+    <div id="hintOut" class="small" style="margin-top:10px;color:#dbe7ff"></div>
+    <div id="ansOut" class="small" style="margin-top:10px;color:#fff"></div>
+  `;
+    }
+    document.getElementById('newTask').onclick = newTask;
+    document.getElementById('showHint').onclick = ()=>{
+        const el = document.getElementById('hintOut');
+        if(el) el.innerHTML = '<b>Идея:</b> ' + generated.hint;
+    };
+    document.getElementById('showAnswer').onclick = ()=>{
+        const el = document.getElementById('ansOut');
+        if(el) el.innerHTML = '<b>Ответ:</b> ' + generated.answer;
+    };
+
+    newTask();
+    updateAll();
+</script>
+</body>
+</html>
