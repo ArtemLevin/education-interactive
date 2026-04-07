@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — дифференцированная схема кредита</title>
+    <style>
+        :root{
+            --bg:#071018;
+            --bg2:#0d1722;
+            --panel:#101c29;
+            --panel2:#142334;
+            --text:#ecf3f9;
+            --muted:#9bb0c3;
+            --accent:#56c3ff;
+            --accent2:#7ef0d1;
+            --warn:#ffd166;
+            --danger:#ff7b7b;
+            --line:#294259;
+            --good:#77e19d;
+            --shadow:0 10px 30px rgba(0,0,0,.28);
+            --radius:22px;
+            --stepActive:0;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:linear-gradient(180deg,var(--bg),#09121a 30%, #0a141e 100%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;scroll-behavior:smooth}
+        body{line-height:1.55}
+        .wrap{max-width:1480px;margin:0 auto;padding:24px}
+        .hero{
+            position:relative;overflow:hidden;border:1px solid rgba(126,240,209,.16);
+            background:radial-gradient(circle at 20% 20%, rgba(86,195,255,.14), transparent 35%),
+            radial-gradient(circle at 85% 25%, rgba(126,240,209,.11), transparent 30%),
+            linear-gradient(135deg, rgba(16,28,41,.96), rgba(9,18,28,.98));
+            border-radius:30px;padding:34px 34px 28px;box-shadow:var(--shadow)
+        }
+        .hero h1{margin:0 0 10px;font-size:clamp(30px,4vw,54px);line-height:1.05}
+        .hero p{margin:0;color:#cfe0ee;max-width:950px;font-size:18px}
+        .badgeRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+        .badge{padding:8px 12px;border:1px solid rgba(86,195,255,.25);background:rgba(255,255,255,.03);border-radius:999px;color:#d9ebfa;font-size:14px}
+
+        .controlBar{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:14px;margin:20px 0 26px}
+        .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid rgba(86,195,255,.12);border-radius:24px;box-shadow:var(--shadow)}
+        .control{padding:16px}
+        .control label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
+        .control input[type="range"], .control select{width:100%}
+        .control .value{font-weight:700;color:var(--accent2);font-size:20px}
+        .control button{
+            width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(126,240,209,.28);
+            background:linear-gradient(180deg,#173046,#102332);color:var(--text);cursor:pointer;font-weight:700
+        }
+        .control button:hover{filter:brightness(1.08)}
+
+        .layout{display:grid;grid-template-columns:minmax(380px,1.02fr) minmax(360px,.98fr);gap:24px;align-items:start}
+        .leftCol{display:grid;gap:18px}
+        .rightCol{position:sticky;top:18px;display:grid;gap:16px}
+
+        .section{padding:22px 22px 18px}
+        .section h2{margin:0 0 12px;font-size:26px}
+        .section h3{margin:18px 0 10px;font-size:20px;color:#e8f7ff}
+        .section p,.section li{color:#d8e5ef}
+        .muted{color:var(--muted)}
+        .formula{font-family:"Cambria Math","Times New Roman",serif;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);padding:12px 14px;border-radius:16px;margin:12px 0;font-size:22px;overflow:auto}
+        .formula small{font-size:75%;color:var(--muted)}
+        .idea{padding:18px 18px;border-radius:18px;background:linear-gradient(180deg, rgba(126,240,209,.08), rgba(86,195,255,.06));border:1px solid rgba(126,240,209,.18)}
+        .stepList{display:grid;gap:12px}
+        .step{
+            position:relative;padding:16px 16px 16px 52px;border-radius:18px;border:1px solid rgba(255,255,255,.08);
+            background:rgba(255,255,255,.025);transition:.22s transform,.22s border-color,.22s background
+        }
+        .step.active{border-color:rgba(126,240,209,.55);background:rgba(126,240,209,.08);transform:translateY(-1px)}
+        .step .n{
+            position:absolute;left:14px;top:14px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+            background:linear-gradient(180deg,#20374b,#142534);font-size:13px;font-weight:800;color:#bce8ff;border:1px solid rgba(86,195,255,.3)
+        }
+        .miniGrid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:14px}
+        .kv{padding:14px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07)}
+        .kv .k{font-size:13px;color:var(--muted)}
+        .kv .v{font-size:22px;font-weight:800;margin-top:4px}
+
+        .viz{padding:18px}
+        .vizHead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}
+        .vizHead h2{margin:0;font-size:24px}
+        .legend{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 14px}
+        .legend span{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.03);font-size:13px;color:#d8eaf8;border:1px solid rgba(255,255,255,.08)}
+        .dot{width:10px;height:10px;border-radius:50%}
+        .canvasWrap{position:relative;border-radius:22px;overflow:hidden;border:1px solid rgba(86,195,255,.12);background:linear-gradient(180deg,#0a1520,#0f1d2a)}
+        canvas{display:block;width:100%;height:520px;cursor:zoom-in}
+        .subtools{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+        .subtools button,.toggle{
+            padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--text);cursor:pointer
+        }
+        .toggle input{margin-right:8px}
+        .syncInfo{font-size:13px;color:var(--muted)}
+
+        .tableWrap{overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:18px}
+        table{width:100%;border-collapse:collapse;min-width:860px}
+        th,td{padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08);text-align:center;vertical-align:middle}
+        th{position:sticky;top:0;background:#102233;color:#def3ff;font-size:14px}
+        tr:hover td{background:rgba(126,240,209,.05)}
+        .rowFocus td{background:rgba(86,195,255,.09)!important}
+
+        .hintBox{position:fixed;right:22px;bottom:22px;max-width:350px;padding:16px 16px 14px;border-radius:18px;background:linear-gradient(180deg,#163247,#10212f);border:1px solid rgba(86,195,255,.28);box-shadow:var(--shadow);z-index:40;display:none;animation:hintBounce .5s ease}
+        .hintBox.show{display:block}
+        .hintBox h4{margin:0 0 6px;font-size:16px}
+        .hintClose{position:absolute;right:10px;top:10px;background:transparent;border:none;color:#dceef9;font-size:18px;cursor:pointer}
+        @keyframes hintBounce{0%{transform:translateY(18px);opacity:0}100%{transform:translateY(0);opacity:1}}
+        .hintPulse{animation:hintPulse 1.5s infinite}
+        @keyframes hintPulse{0%,100%{box-shadow:0 0 0 0 rgba(86,195,255,.22)}50%{box-shadow:0 0 0 12px rgba(86,195,255,0)}}
+
+        .quiz{display:grid;gap:12px}
+        .quizCard{padding:16px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
+        .quizCard button{margin-top:10px}
+        .answer{margin-top:10px;color:var(--good);font-weight:700;display:none}
+        .error{color:var(--danger);font-weight:700}
+
+        .generator{display:grid;gap:14px}
+        .generated{padding:16px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
+
+        .mistakes ul{margin:8px 0 0 18px}
+        .footerNote{font-size:13px;color:var(--muted)}
+
+        .overlay{position:fixed;inset:0;background:rgba(2,7,12,.78);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+        .overlay.show{display:flex}
+        .modal{width:min(1200px,96vw);height:min(86vh,900px);background:linear-gradient(180deg,#09131c,#0f1e2b);border:1px solid rgba(126,240,209,.18);border-radius:28px;box-shadow:var(--shadow);display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}
+        .modalHeader,.modalFooter{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+        .modalFooter{border-top:1px solid rgba(255,255,255,.08);border-bottom:none;color:var(--muted)}
+        .modalHeader{display:flex;justify-content:space-between;align-items:center}
+        .modalHeader button{padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;cursor:pointer}
+        #modalCanvas{width:100%;height:100%;cursor:zoom-in}
+        .modalBody{padding:14px}
+
+        @media (max-width:1080px){
+            .layout{grid-template-columns:1fr}
+            .rightCol{position:relative;top:auto}
+            .controlBar{grid-template-columns:repeat(2,minmax(140px,1fr))}
+            canvas{height:420px}
+        }
+        @media (max-width:720px){
+            .wrap{padding:14px}
+            .hero{padding:24px 18px}
+            .section,.viz,.control{padding:16px}
+            .controlBar{grid-template-columns:1fr}
+            .miniGrid{grid-template-columns:1fr}
+            canvas{height:320px}
+        }
+        @media print{
+            .controlBar,.subtools,.hintBox,.overlay{display:none!important}
+            .layout{grid-template-columns:1fr}
+            .rightCol{position:relative}
+            body{background:#fff;color:#111}
+            .card,.hero{box-shadow:none;border:1px solid #ccc;background:#fff;color:#111}
+            .formula,.kv,.step,.quizCard,.generated{background:#fff;color:#111}
+            .muted,.footerNote{color:#444}
+            th{background:#eee;color:#111}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero card">
+        <h1>Наглядная математика: дифференцированная схема кредита</h1>
+        <p>
+            Самая важная часть темы — понять, <b>почему платежи убывают</b>, <b>что именно остается постоянным</b>,
+            и как из таблицы рождаются ключевые формулы: платеж в <i>k</i>-м периоде, остаток долга, общая сумма выплат и переплата.
+        </p>
+        <div class="badgeRow">
+            <span class="badge">ЕГЭ, экономические задачи</span>
+            <span class="badge">Тело кредита гасится равными долями</span>
+            <span class="badge">Платежи не равны</span>
+            <span class="badge">Арифметическая прогрессия внутри формулы</span>
+        </div>
+    </section>
+
+    <section class="controlBar">
+        <div class="card control">
+            <label for="sumRange">Сумма кредита S</label>
+            <input id="sumRange" type="range" min="120" max="960" step="40" value="160">
+            <div class="value"><span id="sumValue">160</span> тыс.</div>
+        </div>
+        <div class="card control">
+            <label for="nRange">Число периодов n</label>
+            <input id="nRange" type="range" min="2" max="12" step="1" value="4">
+            <div class="value"><span id="nValue">4</span></div>
+        </div>
+        <div class="card control">
+            <label for="pRange">Ставка p за период</label>
+            <input id="pRange" type="range" min="1" max="25" step="1" value="20">
+            <div class="value"><span id="pValue">20</span>%</div>
+        </div>
+        <div class="card control">
+            <label for="focusRange">Шаг объяснения / период k</label>
+            <input id="focusRange" type="range" min="1" max="4" step="1" value="1">
+            <div class="value">k = <span id="focusValue">1</span></div>
+        </div>
+        <div class="card control">
+            <label for="detailSelect">Подробность</label>
+            <select id="detailSelect">
+                <option value="basic">Базовая</option>
+                <option value="full" selected>Подробная</option>
+                <option value="exam">Экзамен</option>
+            </select>
+        </div>
+        <div class="card control">
+            <label>&nbsp;</label>
+            <button id="resetBtn">Сбросить настройки</button>
+        </div>
+    </section>
+
+    <div class="layout">
+        <div class="leftCol">
+            <section class="card section">
+                <h2>Что дано</h2>
+                <div class="miniGrid">
+                    <div class="kv"><div class="k">Сумма кредита</div><div class="v" id="kvS">160 тыс.</div></div>
+                    <div class="kv"><div class="k">Число периодов</div><div class="v" id="kvN">4</div></div>
+                    <div class="kv"><div class="k">Ставка за период</div><div class="v" id="kvP">20%</div></div>
+                    <div class="kv"><div class="k">Погашение тела за период</div><div class="v" id="kvPart">40 тыс.</div></div>
+                </div>
+            </section>
+
+            <section class="card section">
+                <h2>Смысл условий</h2>
+                <div class="idea">
+                    <b>Главная идея дифференцированной схемы:</b> одинаковыми являются не платежи, а части,
+                    на которые уменьшается <b>основной долг</b>. Поэтому каждый период мы платим:
+                    <div class="formula">платеж = проценты на текущий остаток + одинаковая часть тела кредита</div>
+                    >
+                    По мере уменьшения остатка проценты становятся меньше, поэтому и весь платеж убывает.
+                </div>
+            </section>
+
+            <section class="card section">
+                <h2>Интерпретация</h2>
+                <p>Если кредит равен <span id="interpS">160</span> тыс. и взят на <span id="interpN">4</span> периода, то каждый раз тело кредита уменьшается на одну и ту же величину:</p>
+                <div class="formula" id="formulaPart">S / n = 160 / 4 = 40</div>
+                <p>Это число не меняется от периода к периоду. Меняются только проценты, потому что база их начисления убывает.</p>
+            </section>
+
+            <section class="card section">
+                <h2>Идея решения</h2>
+                <ol class="stepList" id="stepsBox">
+                    <li class="step active" data-step="1"><span class="n">1</span><b>Сначала находим постоянную часть погашения:</b> <span class="stepPart"></span>.</li>
+                    <li class="step" data-step="2"><span class="n">2</span><b>На начало k-го периода</b> вычисляем текущий остаток долга.</li>
+                    <li class="step" data-step="3"><span class="n">3</span><b>На этот остаток начисляем проценты</b> по ставке <span class="stepP"></span>.</li>
+                    <li class="step" data-step="4"><span class="n">4</span><b>Складываем проценты и постоянную часть</b> — получаем платеж.</li>
+                    <li class="step" data-step="5"><span class="n">5</span><b>Суммируя все платежи</b>, приходим к общей сумме выплат и переплате.</li>
+                </ol>
+            </section>
+
+            <section class="card section">
+                <h2>Пошаговое решение</h2>
+                <div id="detailBasic">
+                    <h3>1) Постоянная часть тела кредита</h3>
+                    <div class="formula" id="f1"></div>
+                    <h3>2) Остаток на начало k-го периода</h3>
+                    <div class="formula" id="f2"></div>
+                    <h3>3) Проценты в k-м периоде</h3>
+                    <div class="formula" id="f3"></div>
+                    <h3>4) Платеж в k-м периоде</h3>
+                    <div class="formula" id="f4"></div>
+                    <h3>5) Остаток после k-го платежа</h3>
+                    <div class="formula" id="f5"></div>
+                </div>
+                <div id="detailAdvanced"></div>
+            </section>
+
+            <section class="card section">
+                <h2>Проверка</h2>
+                <div class="miniGrid">
+                    <div class="kv"><div class="k">Первый платеж</div><div class="v" id="firstPay"></div></div>
+                    <div class="kv"><div class="k">Последний платеж</div><div class="v" id="lastPay"></div></div>
+                    <div class="kv"><div class="k">Общая сумма выплат</div><div class="v" id="totalPay"></div></div>
+                    <div class="kv"><div class="k">Переплата</div><div class="v" id="overpay"></div></div>
+                </div>
+                <p class="muted" id="sanityText"></p>
+            </section>
+
+            <section class="card section">
+                <h2>Вывод</h2>
+                <div class="formula" id="finalFormula1"></div>
+                <div class="formula" id="finalFormula2"></div>
+                <p>Самое главное: <b>в дифференцированной схеме постоянна доля погашения тела кредита</b>, а платежи уменьшаются,
+                    потому что проценты каждый раз считаются от меньшего остатка.</p>
+            </section>
+
+            <section class="card section mistakes">
+                <h2>Типичные ошибки</h2>
+                <ul>
+                    <li>Начисляют проценты на исходную сумму <b>S</b> каждый раз, а не на текущий остаток.</li>
+                    <li>Делят на <b>n</b> текущий долг вместо исходной суммы кредита.</li>
+                    <li>Путают остаток <b>до</b> платежа и <b>после</b> платежа.</li>
+                    <li>Считают, что при дифференцированной схеме все платежи одинаковые.</li>
+                    <li>Неверно переводят проценты: <b>20% = 0,2</b>, а не 20.</li>
+                </ul>
+            </section>
+
+            <section class="card section">
+                <h2>Мини-квиз</h2>
+                <div class="quiz">
+                    <div class="quizCard">
+                        <div><b>1.</b> Что остается одинаковым в дифференцированной схеме?</div>
+                        <button onclick="showAnswer('a1')">Показать ответ</button>
+                        <div class="answer" id="a1">Одинаковой остается часть, на которую уменьшается тело кредита: S / n.</div>
+                    </div>
+                    <div class="quizCard">
+                        <div><b>2.</b> Почему платежи уменьшаются от периода к периоду?</div>
+                        <button onclick="showAnswer('a2')">Показать ответ</button>
+                        <div class="answer" id="a2">Потому что уменьшается остаток долга, а значит, и проценты на него.</div>
+                    </div>
+                    <div class="quizCard">
+                        <div><b>3.</b> Что больше: первый или последний платеж?</div>
+                        <button onclick="showAnswer('a3')">Показать ответ</button>
+                        <div class="answer" id="a3">Первый платеж больше, потому что в начале остаток долга максимален.</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card section">
+                <h2>Генератор похожих задач</h2>
+                <div class="generator">
+                    <button class="subtools" style="all:unset"><button id="genBtn">Сгенерировать новую задачу</button></button>
+                    <div class="generated" id="generatedTask"></div>
+                </div>
+            </section>
+        </div>
+
+        <div class="rightCol">
+            <section class="card viz">
+                <div class="vizHead">
+                    <h2>Интерактивная модель</h2>
+                    <div class="syncInfo">Клик по графику — увеличение. Состояние синхронизировано с модальным окном.</div>
+                </div>
+                <div class="legend">
+                    <span><i class="dot" style="background:var(--accent)"></i>остаток до платежа</span>
+                    <span><i class="dot" style="background:var(--warn)"></i>проценты</span>
+                    <span><i class="dot" style="background:var(--accent2)"></i>часть тела кредита</span>
+                    <span><i class="dot" style="background:#d28dff"></i>общий платеж</span>
+                </div>
+                <div class="canvasWrap hintPulse" id="canvasWrap">
+                    <canvas id="mainCanvas" width="960" height="520" aria-label="График платежей и остатков"></canvas>
+                </div>
+                <div class="subtools">
+                    <button id="zoomOut">−</button>
+                    <button id="zoomIn">+</button>
+                    <button id="zoomReset">Сброс зума</button>
+                    <label class="toggle"><input type="checkbox" id="showRest" checked>Остаток</label>
+                    <label class="toggle"><input type="checkbox" id="showInterest" checked>Проценты</label>
+                    <label class="toggle"><input type="checkbox" id="showBody" checked>Тело кредита</label>
+                    <label class="toggle"><input type="checkbox" id="showPayment" checked>Платеж</label>
+                </div>
+            </section>
+
+            <section class="card viz">
+                <h2 style="margin-top:0">Таблица по периодам</h2>
+                <div class="tableWrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>k</th>
+                            <th>Долг на начало</th>
+                            <th>Проценты</th>
+                            <th>Погашение тела</th>
+                            <th>Платеж</th>
+                            <th>Остаток после платежа</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tbody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <p class="footerNote">Эта страница концентрируется на самом важном фрагменте рассказа: таблице, общих формулах, визуальной логике уменьшения платежей и связи между текстом и моделью.</p>
+</div>
+
+<div class="overlay" id="overlay" aria-hidden="true">
+    <div class="modal">
+        <div class="modalHeader">
+            <b>Увеличенная интерактивная модель</b>
+            <button id="closeOverlay">✕ Закрыть</button>
+        </div>
+        <div class="modalBody">
+            <canvas id="modalCanvas" width="1200" height="760"></canvas>
+        </div>
+        <div class="modalFooter">Изменение параметров слева мгновенно применяется и здесь, и в основном окне.</div>
+    </div>
+</div>
+
+<div class="hintBox" id="hint1" role="tooltip" aria-live="polite">
+    <button class="hintClose" onclick="hideHint('hint1')">×</button>
+    <h4>Подсказка 1</h4>
+    <div>Наведите внимание на столбец «погашение тела»: он постоянный. Именно это и отличает схему от аннуитетной.</div>
+</div>
+<div class="hintBox" id="hint2" role="tooltip" aria-live="polite" style="bottom:140px;right:26px">
+    <button class="hintClose" onclick="hideHint('hint2')">×</button>
+    <h4>Подсказка 2</h4>
+    <div>Выберите период <b>k</b> и сравните «остаток на начало» и «проценты». Проценты всегда считаются именно от этого остатка.</div>
+</div>
+<div class="hintBox" id="hint3" role="tooltip" aria-live="polite" style="bottom:258px;right:30px">
+    <button class="hintClose" onclick="hideHint('hint3')">×</button>
+    <h4>Подсказка 3</h4>
+    <div>Сумма платежей приводит к арифметической прогрессии: n + (n − 1) + ... + 1. Отсюда и появляется множитель (n + 1) / 2.</div>
+</div>
+
+<script>
+    const state = {
+        S: 160,
+        n: 4,
+        pPercent: 20,
+        focus: 1,
+        detail: 'full',
+        zoom: 1,
+        showRest: true,
+        showInterest: true,
+        showBody: true,
+        showPayment: true,
+    };
+
+    const $ = id => document.getElementById(id);
+    const els = {
+        sumRange:$('sumRange'), nRange:$('nRange'), pRange:$('pRange'), focusRange:$('focusRange'), detailSelect:$('detailSelect'),
+        sumValue:$('sumValue'), nValue:$('nValue'), pValue:$('pValue'), focusValue:$('focusValue'), tbody:$('tbody'),
+        mainCanvas:$('mainCanvas'), modalCanvas:$('modalCanvas'), overlay:$('overlay')
+    };
+
+    function fmt(x){
+        const v = Math.round(x*100)/100;
+        if (Math.abs(v - Math.round(v)) < 1e-9) return String(Math.round(v));
+        return v.toFixed(2).replace('.', ',');
+    }
+    function money(x){ return fmt(x) + ' тыс.' }
+    function getP(){ return state.pPercent/100; }
+    function principalPart(){ return state.S/state.n; }
+    function row(k){
+        const p = getP();
+        const start = state.S*(state.n-k+1)/state.n;
+        const interest = start*p;
+        const body = principalPart();
+        const payment = interest + body;
+        const end = state.S*(state.n-k)/state.n;
+        return {k,start,interest,body,payment,end};
+    }
+    function rows(){ return Array.from({length:state.n}, (_,i)=>row(i+1)); }
+    function totalPayment(){ return rows().reduce((s,r)=>s+r.payment,0); }
+    function overpay(){ return totalPayment()-state.S; }
+
+    function updateRanges(){
+        els.sumRange.value = state.S;
+        els.nRange.value = state.n;
+        els.pRange.value = state.pPercent;
+        els.focusRange.max = state.n;
+        if (state.focus > state.n) state.focus = state.n;
+        els.focusRange.value = state.focus;
+        els.detailSelect.value = state.detail;
+        els.sumValue.textContent = state.S;
+        els.nValue.textContent = state.n;
+        els.pValue.textContent = state.pPercent;
+        els.focusValue.textContent = state.focus;
+    }
+
+    function updateText(){
+        $('kvS').textContent = money(state.S);
+        $('kvN').textContent = state.n;
+        $('kvP').textContent = state.pPercent + '%';
+        $('kvPart').textContent = money(principalPart());
+        $('interpS').textContent = state.S;
+        $('interpN').textContent = state.n;
+        $('formulaPart').textContent = `S / n = ${fmt(state.S)} / ${state.n} = ${fmt(principalPart())}`;
+        document.querySelectorAll('.stepPart').forEach(e=>e.textContent = `${fmt(state.S)} / ${state.n} = ${fmt(principalPart())}`);
+        document.querySelectorAll('.stepP').forEach(e=>e.textContent = `${state.pPercent}%`);
+
+        const k = state.focus;
+        const r = row(k);
+        $('f1').textContent = `Постоянная часть = S / n = ${fmt(state.S)} / ${state.n} = ${fmt(principalPart())}`;
+        $('f2').textContent = `Остаток на начало ${k}-го периода = S·(n - k + 1)/n = ${fmt(state.S)}·(${state.n} - ${k} + 1)/${state.n} = ${fmt(r.start)}`;
+        $('f3').textContent = `Проценты = p·остаток = ${fmt(getP())}·${fmt(r.start)} = ${fmt(r.interest)}`;
+        $('f4').textContent = `Платеж = проценты + S/n = ${fmt(r.interest)} + ${fmt(principalPart())} = ${fmt(r.payment)}`;
+        $('f5').textContent = `Остаток после ${k}-го платежа = S·(n - k)/n = ${fmt(state.S)}·(${state.n} - ${k})/${state.n} = ${fmt(r.end)}`;
+
+        const detail = state.detail;
+        const p = getP();
+        let advanced = '';
+        if (detail === 'full') {
+            advanced = `
+          <h3>Общая сумма выплат</h3>
+          <div class="formula">Σ = S + S·p·(n + 1) / 2 = ${fmt(state.S)} + ${fmt(state.S)}·${fmt(p)}·(${state.n}+1)/2 = ${fmt(totalPayment())}</div>
+          <h3>Переплата</h3>
+          <div class="formula">Переплата = Σ − S = ${fmt(totalPayment())} − ${fmt(state.S)} = ${fmt(overpay())}</div>
+          <h3>Почему появляется (n + 1) / 2?</h3>
+          <div class="formula">n + (n−1) + ... + 1 = n(n + 1) / 2</div>
+          <p>Сумма процентов раскладывается через арифметическую прогрессию, поэтому формула становится компактной.</p>
+        `;
+        } else if (detail === 'exam') {
+            advanced = `
+          <h3>Экзаменационный минимум</h3>
+          <div class="formula">A_k = S/n + p·S(n-k+1)/n</div>
+          <div class="formula">Σ = S + Sp(n+1)/2</div>
+          <div class="formula">Переплата = Sp(n+1)/2</div>
+          <p>На экзамене обычно либо нужен конкретный платеж/остаток, либо общая сумма выплат, либо переплата.</p>
+        `;
+        } else {
+            advanced = `
+          <h3>Коротко</h3>
+          <p>Запомните две опоры: <b>S/n</b> — постоянная часть тела кредита, а проценты всегда считаются от текущего остатка.</p>
+        `;
+        }
+        $('detailAdvanced').innerHTML = advanced;
+
+        const arr = rows();
+        $('firstPay').textContent = money(arr[0].payment);
+        $('lastPay').textContent = money(arr[arr.length-1].payment);
+        $('totalPay').textContent = money(totalPayment());
+        $('overpay').textContent = money(overpay());
+        $('sanityText').textContent = `Проверка на здравый смысл: первый платеж (${money(arr[0].payment)}) больше последнего (${money(arr[arr.length-1].payment)}), потому что в начале остаток долга максимален.`;
+        $('finalFormula1').textContent = `A_k = S/n + p·S(n-k+1)/n`;
+        $('finalFormula2').textContent = `Σ = S + Sp(n+1)/2,   переплата = Sp(n+1)/2`;
+
+        document.querySelectorAll('.step').forEach(step => {
+            const num = Number(step.dataset.step);
+            step.classList.toggle('active', num <= Math.min(state.focus+1,5));
+        });
+    }
+
+    function updateTable(){
+        const data = rows();
+        els.tbody.innerHTML = data.map(r => `
+        <tr class="${r.k===state.focus?'rowFocus':''}" data-k="${r.k}">
+          <td>${r.k}</td>
+          <td>${fmt(r.start)}</td>
+          <td>${fmt(r.interest)}</td>
+          <td>${fmt(r.body)}</td>
+          <td>${fmt(r.payment)}</td>
+          <td>${fmt(r.end)}</td>
+        </tr>
+      `).join('');
+        [...els.tbody.querySelectorAll('tr')].forEach(tr=>{
+            tr.addEventListener('mouseenter', ()=>{ state.focus = Number(tr.dataset.k); sync(); });
+        });
+    }
+
+    function drawChart(canvas){
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0,0,w,h);
+        const data = rows();
+        const padL = 70, padR = 28, padT = 28, padB = 62;
+        const innerW = w-padL-padR, innerH = h-padT-padB;
+        const maxY = Math.max(...data.flatMap(r=>[r.start,r.interest,r.body,r.payment])) * 1.12 / state.zoom;
+
+        // background grid
+        ctx.fillStyle = '#0d1823'; ctx.fillRect(0,0,w,h);
+        for(let i=0;i<=5;i++){
+            const y = padT + innerH*i/5;
+            ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
+            const val = maxY*(1-i/5);
+            ctx.fillStyle = '#8da5b8'; ctx.font = '12px Inter, Arial'; ctx.fillText(fmt(val), 10, y+4);
+        }
+        const count = data.length;
+        const groupW = innerW / count;
+        const barW = Math.min(28, groupW/5);
+        const offsets = [-1.8,-0.6,0.6,1.8];
+        const series = [
+            {key:'start', color:getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(), show:state.showRest},
+            {key:'interest', color:getComputedStyle(document.documentElement).getPropertyValue('--warn').trim(), show:state.showInterest},
+            {key:'body', color:getComputedStyle(document.documentElement).getPropertyValue('--accent2').trim(), show:state.showBody},
+            {key:'payment', color:'#d28dff', show:state.showPayment}
+        ];
+
+        data.forEach((r, idx)=>{
+            const xCenter = padL + groupW*(idx+0.5);
+            ctx.fillStyle = idx+1===state.focus ? 'rgba(126,240,209,.10)' : 'transparent';
+            if (idx+1===state.focus) ctx.fillRect(xCenter-groupW/2+4,padT,groupW-8,innerH);
+            series.forEach((s,si)=>{
+                if(!s.show) return;
+                const val = r[s.key];
+                const bh = innerH * (val/maxY);
+                const x = xCenter + offsets[si]*barW - barW/2;
+                const y = padT + innerH - bh;
+                roundRect(ctx,x,y,barW,bh,8);
+                ctx.fillStyle = s.color;
+                ctx.fill();
+                if(idx+1===state.focus){
+                    ctx.fillStyle = '#eef7ff'; ctx.font = '12px Inter, Arial';
+                    ctx.fillText(fmt(val), x-2, Math.max(14,y-8));
+                }
+            });
+            ctx.fillStyle = '#d7e8f6'; ctx.font = '13px Inter, Arial';
+            ctx.fillText('k='+r.k, xCenter-14, h-24);
+        });
+
+        ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,h-padB); ctx.lineTo(w-padR,h-padB); ctx.stroke();
+        ctx.fillStyle = '#dceefa'; ctx.font = '600 14px Inter, Arial';
+        ctx.fillText('Величина', 12, 18);
+        ctx.fillText('Период', w-82, h-18);
+    }
+
+    function roundRect(ctx,x,y,w,h,r){
+        const rr = Math.min(r, w/2, h/2);
+        ctx.beginPath();
+        ctx.moveTo(x+rr,y);
+        ctx.arcTo(x+w,y,x+w,y+h,rr);
+        ctx.arcTo(x+w,y+h,x,y+h,rr);
+        ctx.arcTo(x,y+h,x,y,rr);
+        ctx.arcTo(x,y,x+w,y,rr);
+        ctx.closePath();
+    }
+
+    function sync(){
+        updateRanges();
+        updateText();
+        updateTable();
+        drawChart(els.mainCanvas);
+        drawChart(els.modalCanvas);
+    }
+
+    function showAnswer(id){ $(id).style.display = 'block'; }
+    window.showAnswer = showAnswer;
+
+    function hideHint(id){ $(id).classList.remove('show'); sessionStorage.setItem(id,'hidden'); }
+    window.hideHint = hideHint;
+
+    function scheduleHints(){
+        if(!sessionStorage.getItem('hint1')) setTimeout(()=>$('hint1').classList.add('show'),3000);
+        if(!sessionStorage.getItem('hint2')) setTimeout(()=>$('hint2').classList.add('show'),7000);
+        if(!sessionStorage.getItem('hint3')) setTimeout(()=>$('hint3').classList.add('show'),11000);
+        setTimeout(()=>['hint1','hint2','hint3'].forEach(id=>$(id).classList.remove('show')),15000);
+    }
+
+    function randomInt(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
+    function generateTask(){
+        const S = randomInt(120,900);
+        const n = randomInt(3,10);
+        const p = randomInt(2,18);
+        const mode = randomInt(1,3);
+        let text='', answer='';
+        if(mode===1){
+            const k = randomInt(1,n);
+            const pay = (S/n) + (p/100)*S*(n-k+1)/n;
+            text = `Кредит ${S} тыс. руб. взят на ${n} периодов под ${p}% за период по дифференцированной схеме. Найдите платеж в ${k}-м периоде.`;
+            answer = `Ответ: ${fmt(pay)} тыс. руб. Идея: A_k = S/n + p·S(n-k+1)/n.`;
+        } else if(mode===2){
+            const total = S + S*(p/100)*(n+1)/2;
+            text = `Кредит ${S} тыс. руб. взят на ${n} периодов под ${p}% за период. Найдите общую сумму выплат.`;
+            answer = `Ответ: ${fmt(total)} тыс. руб. Идея: Σ = S + Sp(n+1)/2.`;
+        } else {
+            const k = randomInt(1,n-1);
+            const rest = S*(n-k)/n;
+            text = `Кредит ${S} тыс. руб. взят на ${n} периодов под ${p}% за период. Найдите остаток долга после ${k}-го платежа.`;
+            answer = `Ответ: ${fmt(rest)} тыс. руб. Идея: остаток после k-го платежа равен S(n-k)/n.`;
+        }
+        $('generatedTask').innerHTML = `<b>Новая задача.</b><br>${text}<br><br><span style="color:var(--accent2)">${answer}</span>`;
+    }
+
+    function reset(){
+        state.S = 160; state.n = 4; state.pPercent = 20; state.focus = 1; state.detail = 'full'; state.zoom = 1;
+        state.showRest = true; state.showInterest = true; state.showBody = true; state.showPayment = true;
+        $('showRest').checked = true; $('showInterest').checked = true; $('showBody').checked = true; $('showPayment').checked = true;
+        sync();
+    }
+
+    els.sumRange.addEventListener('input', e=>{ state.S=Number(e.target.value); sync(); });
+    els.nRange.addEventListener('input', e=>{ state.n=Number(e.target.value); if(state.focus>state.n) state.focus=state.n; sync(); });
+    els.pRange.addEventListener('input', e=>{ state.pPercent=Number(e.target.value); sync(); });
+    els.focusRange.addEventListener('input', e=>{ state.focus=Number(e.target.value); sync(); });
+    els.detailSelect.addEventListener('change', e=>{ state.detail=e.target.value; sync(); });
+    $('resetBtn').addEventListener('click', reset);
+    $('genBtn').addEventListener('click', generateTask);
+
+    $('showRest').addEventListener('change', e=>{ state.showRest=e.target.checked; sync(); });
+    $('showInterest').addEventListener('change', e=>{ state.showInterest=e.target.checked; sync(); });
+    $('showBody').addEventListener('change', e=>{ state.showBody=e.target.checked; sync(); });
+    $('showPayment').addEventListener('change', e=>{ state.showPayment=e.target.checked; sync(); });
+
+    $('zoomIn').addEventListener('click', ()=>{ state.zoom=Math.min(2.4, state.zoom*1.18); sync(); });
+    $('zoomOut').addEventListener('click', ()=>{ state.zoom=Math.max(.7, state.zoom/1.18); sync(); });
+    $('zoomReset').addEventListener('click', ()=>{ state.zoom=1; sync(); });
+
+    function wheelZoom(e){
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? 1.12 : 1/1.12;
+        state.zoom = Math.min(2.5, Math.max(.65, state.zoom*factor));
+        sync();
+    }
+    els.mainCanvas.addEventListener('wheel', wheelZoom, {passive:false});
+    els.modalCanvas.addEventListener('wheel', wheelZoom, {passive:false});
+
+    function openOverlay(){ els.overlay.classList.add('show'); els.overlay.setAttribute('aria-hidden','false'); drawChart(els.modalCanvas); }
+    function closeOverlay(){ els.overlay.classList.remove('show'); els.overlay.setAttribute('aria-hidden','true'); }
+    $('canvasWrap').addEventListener('click', openOverlay);
+    $('closeOverlay').addEventListener('click', closeOverlay);
+    els.overlay.addEventListener('click', (e)=>{ if(e.target===els.overlay) closeOverlay(); });
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeOverlay(); });
+
+    sync();
+    generateTask();
+    scheduleHints();
+</script>
+</body>
+</html>
