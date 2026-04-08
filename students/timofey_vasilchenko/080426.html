@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — Площади, высоты и метод равенства площадей</title>
+    <style>
+        :root{
+            --bg:#0b1020;
+            --bg2:#111831;
+            --panel:#151d39;
+            --panel2:#1b2548;
+            --card:#0f1730;
+            --text:#eef3ff;
+            --muted:#aeb9d6;
+            --soft:#7f8db7;
+            --accent:#7cc7ff;
+            --accent2:#8dffcf;
+            --accent3:#ffd67a;
+            --danger:#ff8e9b;
+            --line:rgba(255,255,255,.11);
+            --glow:0 10px 30px rgba(0,0,0,.35);
+            --radius:22px;
+            --radius-sm:14px;
+            --stickyTop:20px;
+            --shadow:0 18px 50px rgba(0,0,0,.35);
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:radial-gradient(circle at top, #16224b 0%, var(--bg) 42%, #090d1a 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;scroll-behavior:smooth}
+        body{min-height:100vh}
+        a{color:var(--accent)}
+        .wrap{max-width:1500px;margin:0 auto;padding:22px}
+        .hero{
+            position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;padding:28px;background:
+        linear-gradient(135deg, rgba(124,199,255,.13), rgba(141,255,207,.08) 35%, rgba(255,214,122,.08)),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+            box-shadow:var(--shadow);
+        }
+        .hero::before,.hero::after{content:"";position:absolute;border-radius:50%;filter:blur(30px);opacity:.26;pointer-events:none}
+        .hero::before{width:220px;height:220px;background:#53a9ff;right:-30px;top:-30px}
+        .hero::after{width:190px;height:190px;background:#6bffd2;left:-40px;bottom:-60px}
+        .eyebrow{display:inline-flex;gap:10px;align-items:center;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04);font-size:13px;color:var(--muted);backdrop-filter:blur(8px)}
+        h1{font-size:clamp(30px,5vw,58px);line-height:1.02;margin:16px 0 14px;letter-spacing:-.03em;max-width:900px}
+        .hero p{max-width:930px;font-size:18px;line-height:1.6;color:#dbe5ff;margin:0 0 20px}
+        .hero-grid{display:grid;grid-template-columns:1.25fr .95fr;gap:18px;align-items:end}
+        .mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+        .stat{background:rgba(7,11,22,.34);border:1px solid var(--line);border-radius:18px;padding:14px 16px;min-height:94px}
+        .stat .k{color:var(--accent2);font-weight:800;font-size:24px}
+        .stat .t{color:var(--muted);font-size:13px;line-height:1.45}
+        .hero-right{display:grid;gap:12px}
+        .formula-cloud{padding:16px;border:1px solid var(--line);border-radius:22px;background:rgba(10,16,34,.45)}
+        .formula-cloud .formula{display:inline-block;margin:7px 9px 0 0;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;font-weight:700;color:#f2f6ff}
+        .controls{margin-top:18px;display:grid;grid-template-columns:1.25fr .75fr;gap:18px}
+        .panel{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.025));border:1px solid var(--line);border-radius:26px;padding:18px;box-shadow:var(--glow)}
+        .panel h2,.panel h3{margin:0 0 12px}
+        .control-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+        .field{display:grid;gap:8px}
+        .field label{font-size:13px;color:var(--muted);font-weight:700;letter-spacing:.02em}
+        .field input[type="range"], .field input[type="number"], select{
+            width:100%;background:#0c1330;color:var(--text);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:15px;
+        }
+        .field input[type="checkbox"]{transform:scale(1.15)}
+        .switches{display:flex;flex-wrap:wrap;gap:10px}
+        .chip{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04);cursor:pointer;user-select:none;font-size:14px;color:#dfe8ff}
+        .chip.active{outline:2px solid rgba(124,199,255,.4);background:rgba(124,199,255,.12)}
+        .layout{display:grid;grid-template-columns:minmax(540px,1.02fr) minmax(420px,.98fr);gap:22px;margin-top:22px;align-items:start}
+        .left-col{display:grid;gap:18px}
+        .sticky{position:sticky;top:var(--stickyTop);display:grid;gap:16px}
+        .card{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--glow)}
+        .section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+        .section-title h2,.section-title h3{margin:0}
+        .muted{color:var(--muted)}
+        .small{font-size:13px}
+        .steps{display:grid;gap:12px}
+        .step{position:relative;border:1px solid var(--line);background:rgba(10,16,34,.35);border-radius:20px;padding:14px 15px 14px 52px;transition:.25s transform,.25s border-color,.25s background,.25s box-shadow}
+        .step:hover{transform:translateY(-2px);border-color:rgba(124,199,255,.45);box-shadow:0 10px 25px rgba(19,28,58,.45)}
+        .step.active{background:rgba(124,199,255,.11);border-color:rgba(124,199,255,.55);box-shadow:0 10px 28px rgba(19,28,58,.5)}
+        .step .num{position:absolute;left:14px;top:14px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#a0ecff);color:#09223c;font-weight:900;font-size:13px}
+        .step h4{margin:0 0 8px;font-size:18px}
+        .step p{margin:6px 0;color:#e6eeff;line-height:1.6}
+        .formula-box{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#0b1125;border:1px solid rgba(255,255,255,.08);color:#eaf6ff;padding:10px 12px;border-radius:14px;margin:8px 0 0;overflow:auto}
+        .idea, .errors, .summary-box, .quiz, .generator, .legend, .values, .print-note{border:1px solid var(--line);border-radius:20px;padding:16px;background:rgba(10,16,34,.34)}
+        .idea{background:linear-gradient(180deg, rgba(141,255,207,.10), rgba(141,255,207,.03))}
+        .errors{background:linear-gradient(180deg, rgba(255,142,155,.11), rgba(255,142,155,.03))}
+        .summary-box{background:linear-gradient(180deg, rgba(124,199,255,.1), rgba(124,199,255,.03))}
+        .legend ul, .errors ul, .print-note ul{margin:8px 0 0 18px;padding:0}
+        .legend li, .errors li, .print-note li{margin:8px 0;color:#e4ecff;line-height:1.5}
+        .canvas-shell{padding:12px;border-radius:22px;background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));border:1px solid var(--line)}
+        canvas{width:100%;height:auto;display:block;background:radial-gradient(circle at top, #18244d 0, #0c1227 62%, #0b1021 100%);border-radius:18px;cursor:zoom-in}
+        .canvas-controls{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;margin-top:10px}
+        .btn, button{
+            appearance:none;border:none;cursor:pointer;border-radius:14px;padding:11px 14px;font-size:14px;font-weight:800;color:#06111f;
+            background:linear-gradient(135deg,var(--accent),#a9e6ff);box-shadow:0 10px 22px rgba(65,150,255,.2);transition:transform .18s ease,filter .18s ease;
+        }
+        .btn:hover, button:hover{transform:translateY(-1px);filter:brightness(1.03)}
+        .btn.secondary, button.secondary{background:linear-gradient(135deg,#d4ddff,#aebfff);color:#15254a}
+        .btn.ghost, button.ghost{background:rgba(255,255,255,.05);color:#e9efff;border:1px solid var(--line);box-shadow:none}
+        .zoom-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+        .zoom-row input[type="range"]{flex:1;min-width:140px}
+        .tabs{display:flex;gap:10px;flex-wrap:wrap}
+        .tab{padding:10px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);cursor:pointer;font-weight:700;color:#dbe6ff}
+        .tab.active{background:rgba(124,199,255,.14);border-color:rgba(124,199,255,.55)}
+        .value-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+        .value{padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+        .value .label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+        .value .val{font-size:20px;font-weight:900;color:#fff}
+        .highlightable{transition:.2s background,.2s border-color,.2s box-shadow}
+        .highlightable.on{background:rgba(124,199,255,.12)!important;border-color:rgba(124,199,255,.6)!important;box-shadow:0 8px 24px rgba(41,117,206,.2)}
+        .checklist{display:grid;gap:10px}
+        .check-item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+        .check-item input{margin-top:4px}
+        .gen-result{margin-top:12px;padding:12px 14px;border-radius:16px;background:#0b1228;border:1px solid rgba(255,255,255,.08);white-space:pre-wrap;line-height:1.6}
+        .quiz-answers{display:grid;gap:10px;margin-top:12px}
+        .quiz-answers button{justify-self:start}
+        .footer-space{height:30px}
+
+        .tooltip{
+            position:fixed;z-index:30;max-width:300px;padding:14px 16px;border-radius:18px;
+            background:linear-gradient(180deg, rgba(16,24,50,.96), rgba(13,19,39,.96));
+            border:1px solid rgba(124,199,255,.33);box-shadow:0 20px 45px rgba(0,0,0,.45);display:none;
+            animation:hintBounce .45s ease;
+        }
+        .tooltip.show{display:block}
+        .tooltip::after{
+            content:"";position:absolute;width:14px;height:14px;background:inherit;border-left:1px solid rgba(124,199,255,.33);border-top:1px solid rgba(124,199,255,.33);transform:rotate(45deg);
+            left:24px;bottom:-8px;
+        }
+        .tooltip h4{margin:0 0 6px;font-size:15px;color:#fff}
+        .tooltip p{margin:0;color:#dce7ff;line-height:1.45;font-size:14px}
+        .close-tip{position:absolute;right:10px;top:8px;background:none;border:none;color:#d8e4ff;font-size:16px;padding:0;box-shadow:none}
+        .hintPulse{animation:hintPulse 1.8s ease-in-out infinite}
+        @keyframes hintPulse{0%,100%{box-shadow:0 0 0 0 rgba(124,199,255,.25)}50%{box-shadow:0 0 0 10px rgba(124,199,255,0)}}
+        @keyframes hintBounce{0%{transform:translateY(12px);opacity:0}100%{transform:translateY(0);opacity:1}}
+        @keyframes borderGlow{0%,100%{border-color:rgba(124,199,255,.25)}50%{border-color:rgba(124,199,255,.7)}}
+        .borderGlow{animation:borderGlow 1.9s infinite}
+
+        .overlay{position:fixed;inset:0;background:rgba(3,7,15,.82);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:40;padding:18px}
+        .overlay.show{display:flex}
+        .overlay-inner{width:min(1200px,96vw);background:linear-gradient(180deg,#111a37,#0b1124);border:1px solid rgba(255,255,255,.12);border-radius:26px;padding:16px;box-shadow:0 30px 70px rgba(0,0,0,.5);position:relative}
+        .overlay-close{position:absolute;right:12px;top:12px;width:40px;height:40px;border-radius:50%;padding:0;font-size:22px}
+        .overlay canvas{cursor:zoom-in}
+
+        .formula-list{display:grid;gap:10px}
+        .formula-item{padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+        .formula-item .title{font-size:13px;color:var(--muted);margin-bottom:6px}
+        .formula-item code{font-size:16px;color:#f8fbff;font-weight:700}
+
+        @media (max-width: 1180px){
+            .controls,.layout,.hero-grid{grid-template-columns:1fr}
+            .sticky{position:relative;top:0}
+        }
+        @media (max-width: 760px){
+            .wrap{padding:12px}
+            .control-grid,.value-grid,.mini-stats{grid-template-columns:1fr}
+            .canvas-controls{grid-template-columns:1fr 1fr 1fr}
+            .canvas-controls .zoom-row{grid-column:1/-1}
+            .step{padding-left:46px}
+            h1{font-size:34px}
+            .hero p{font-size:16px}
+        }
+        @media print{
+            :root{--bg:#fff;--panel:#fff;--text:#111;--muted:#444;--line:rgba(0,0,0,.12)}
+            body{background:#fff;color:#111}
+            .wrap{max-width:none;padding:0}
+            .hero,.panel,.card,.canvas-shell,.idea,.errors,.summary-box,.legend,.values,.quiz,.generator,.print-note{box-shadow:none;background:#fff;color:#111;border:1px solid #bbb}
+            .sticky,.overlay,.tooltip,.canvas-controls,.controls,.tabs,.quiz button,.generator button{display:none!important}
+            .layout{grid-template-columns:1fr}
+            canvas{border:1px solid #bbb;background:#fff}
+            .step,.formula-item,.value{background:#fff;color:#111;border:1px solid #bbb}
+            .formula-box{background:#fff;color:#111;border:1px solid #bbb}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div class="eyebrow">Наглядная математика · площади фигур · высоты · радиусы · метод равенства площадей</div>
+        <div class="hero-grid">
+            <div>
+                <h1>Площади, высоты и радиусы в треугольнике и параллелограмме</h1>
+                <p>
+                    Это наглядный конспект по занятию: здесь собраны ключевые формулы площади, главный метод поиска высот и радиусов,
+                    интерактивные чертежи, разбор типовых задач, мини-квиз и генератор похожих упражнений.
+                </p>
+                <div class="mini-stats">
+                    <div class="stat"><div class="k">7</div><div class="t">этапов разбора: что дано → смысл → интерпретация → идея → решение → проверка → вывод</div></div>
+                    <div class="stat"><div class="k">5+</div><div class="t">формул площади, которые нужно уверенно узнавать и выбирать по условию</div></div>
+                    <div class="stat"><div class="k">1</div><div class="t">главная стратегия: одну и ту же площадь считаем двумя способами</div></div>
+                </div>
+            </div>
+            <div class="hero-right">
+                <div class="formula-cloud">
+                    <div class="muted small">Самые важные формулы темы</div>
+                    <span class="formula">S = a·h</span>
+                    <span class="formula">S = 1/2·a·hₐ</span>
+                    <span class="formula">S = 1/2·ab·sinγ</span>
+                    <span class="formula">S = √(p(p-a)(p-b)(p-c))</span>
+                    <span class="formula">S = p·r</span>
+                    <span class="formula">S = abc / 4R</span>
+                </div>
+                <div class="formula-cloud">
+                    <div class="muted small">Главный сигнал к методу</div>
+                    <div style="font-size:18px;line-height:1.6;font-weight:700">
+                        Если нужно найти <span style="color:var(--accent2)">высоту</span>,
+                        <span style="color:var(--accent3)">радиус вписанной</span> или
+                        <span style="color:var(--accent)">описанной окружности</span>,
+                        сначала попробуй <b>приравнять две формулы площади</b>.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="controls">
+        <div class="panel borderGlow hintPulse" id="controlPanel">
+            <div class="section-title">
+                <h2>Панель управления моделью</h2>
+                <div class="small muted">Меняйте фигуру, числа и уровень подробности</div>
+            </div>
+            <div class="tabs" id="sceneTabs">
+                <button class="tab active" data-scene="triangle">Треугольник</button>
+                <button class="tab" data-scene="parallelogram">Параллелограмм</button>
+                <button class="tab" data-scene="equilateral">Равносторонний</button>
+            </div>
+            <div class="control-grid" id="triangleControls">
+                <div class="field"><label for="abRange">AB</label><input id="abRange" type="range" min="3" max="20" step="1" value="8"></div>
+                <div class="field"><label for="acRange">AC</label><input id="acRange" type="range" min="3" max="20" step="1" value="11"></div>
+                <div class="field"><label for="angleRange">∠A (в градусах)</label><input id="angleRange" type="range" min="20" max="140" step="1" value="46"></div>
+                <div class="field"><label for="detailSelect">Режим объяснения</label>
+                    <select id="detailSelect">
+                        <option value="brief">Коротко</option>
+                        <option value="normal" selected>Нормально</option>
+                        <option value="deep">Подробно</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-grid" id="paraControls" style="display:none">
+                <div class="field"><label for="baseRange">Большая сторона</label><input id="baseRange" type="range" min="6" max="30" step="1" value="16"></div>
+                <div class="field"><label for="sideRange">Меньшая сторона</label><input id="sideRange" type="range" min="4" max="25" step="1" value="10"></div>
+                <div class="field"><label for="heightRange">Высота к большей стороне</label><input id="heightRange" type="range" min="2" max="18" step="1" value="6"></div>
+                <div class="field"><label for="detailSelect2">Режим объяснения</label>
+                    <select id="detailSelect2">
+                        <option value="brief">Коротко</option>
+                        <option value="normal" selected>Нормально</option>
+                        <option value="deep">Подробно</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-grid" id="eqControls" style="display:none">
+                <div class="field"><label for="eqRange">Сторона a</label><input id="eqRange" type="range" min="3" max="24" step="1" value="12"></div>
+                <div class="field"><label for="detailSelect3">Режим объяснения</label>
+                    <select id="detailSelect3">
+                        <option value="brief">Коротко</option>
+                        <option value="normal" selected>Нормально</option>
+                        <option value="deep">Подробно</option>
+                    </select>
+                </div>
+            </div>
+            <div class="switches" style="margin-top:14px">
+                <label class="chip active" id="chipHeight"><input type="checkbox" id="showHeight" checked> показать высоту</label>
+                <label class="chip active" id="chipArea"><input type="checkbox" id="showArea" checked> показать площадь</label>
+                <label class="chip active" id="chipHints"><input type="checkbox" id="showHints" checked> включить подсказки</label>
+                <label class="chip" id="chipLabels"><input type="checkbox" id="showLabels" checked> подписи и легенду</label>
+            </div>
+        </div>
+        <div class="panel">
+            <div class="section-title"><h3>Схема решения</h3><div class="small muted">Универсальный маршрут</div></div>
+            <div class="checklist">
+                <label class="check-item"><input type="checkbox"> Что дано? Какая фигура и какие элементы известны?</label>
+                <label class="check-item"><input type="checkbox"> Что требуется найти: площадь, высоту, r или R?</label>
+                <label class="check-item"><input type="checkbox"> Какая формула площади подходит прямо сейчас?</label>
+                <label class="check-item"><input type="checkbox"> Можно ли посчитать одну и ту же площадь двумя способами?</label>
+                <label class="check-item"><input type="checkbox"> Нужна ли теорема косинусов, чтобы сначала найти сторону?</label>
+                <label class="check-item"><input type="checkbox"> Проверен ли смысл ответа: высота положительна, радиус разумный, единицы согласованы?</label>
+            </div>
+        </div>
+    </section>
+
+    <section class="layout">
+        <div class="left-col">
+            <div class="card idea highlightable" data-link="idea">
+                <div class="section-title"><h2>Идея решения</h2><div class="muted small">Самый важный смысл темы</div></div>
+                <div id="ideaText"></div>
+            </div>
+
+            <div class="card">
+                <div class="section-title"><h2>Пошаговый разбор</h2><div class="muted small">Текст синхронизирован с рисунком справа</div></div>
+                <div class="steps" id="stepsContainer"></div>
+            </div>
+
+            <div class="card">
+                <div class="section-title"><h2>Формулы и ориентиры</h2><div class="muted small">Нужно узнавать по условию</div></div>
+                <div class="formula-list" id="formulaList"></div>
+            </div>
+
+            <div class="card errors highlightable" data-link="errors">
+                <div class="section-title"><h2>Типичные ошибки</h2><div class="muted small">На них чаще всего теряются баллы</div></div>
+                <ul id="errorsList"></ul>
+            </div>
+
+            <div class="card quiz">
+                <div class="section-title"><h2>Мини-квиз</h2><div class="muted small">Проверьте, уловили ли вы идею</div></div>
+                <div id="quizQuestion" style="font-size:18px;font-weight:700;line-height:1.55"></div>
+                <div class="quiz-answers" id="quizAnswers"></div>
+                <div id="quizResult" class="gen-result" style="display:none"></div>
+            </div>
+
+            <div class="card generator">
+                <div class="section-title"><h2>Генератор похожих задач</h2><div class="muted small">Без вырожденных случаев, с ответом и идеей</div></div>
+                <div class="switches">
+                    <button id="genEasy">Сгенерировать простую</button>
+                    <button id="genMedium" class="secondary">Сгенерировать среднюю</button>
+                    <button id="genHard" class="ghost">Сгенерировать сложнее</button>
+                    <button id="applyGenerated" class="ghost">Применить к модели</button>
+                </div>
+                <div id="generatedTask" class="gen-result">Нажмите кнопку, чтобы получить новую задачу по той же логике.</div>
+            </div>
+
+            <div class="card print-note">
+                <div class="section-title"><h2>Памятка для печати</h2><div class="muted small">Сверка перед самостоятельным решением</div></div>
+                <ul>
+                    <li>Для параллелограмма: S = a·h, без одной второй.</li>
+                    <li>Для треугольника: S = 1/2·a·hₐ.</li>
+                    <li>Если даны три стороны — часто удобна формула Герона.</li>
+                    <li>Если даны две стороны и угол между ними — формула 1/2·ab·sinγ.</li>
+                    <li>Если ищут высоту, r или R — первым делом пробуйте метод равенства площадей.</li>
+                    <li>К большей стороне соответствует меньшая высота.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="sticky">
+            <div class="card">
+                <div class="section-title"><h2>Интерактивная визуализация</h2><div class="muted small">Клик по чертежу открывает увеличенный режим</div></div>
+                <div class="canvas-shell">
+                    <canvas id="mainCanvas" width="820" height="620" aria-label="Геометрическая модель"></canvas>
+                    <div class="canvas-controls">
+                        <div class="zoom-row">
+                            <button id="zoomOut" class="ghost">−</button>
+                            <input id="zoomRange" type="range" min="60" max="180" step="1" value="100">
+                            <button id="zoomIn" class="ghost">+</button>
+                            <button id="zoomReset" class="ghost">Сброс</button>
+                        </div>
+                        <button id="prevStep" class="secondary">← шаг</button>
+                        <button id="nextStep">шаг →</button>
+                        <button id="openOverlay" class="ghost">Открыть крупно</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card legend highlightable" data-link="legend">
+                <div class="section-title"><h3>Легенда</h3><div class="muted small">Что означает подсветка</div></div>
+                <ul id="legendList"></ul>
+            </div>
+
+            <div class="card values highlightable" data-link="values">
+                <div class="section-title"><h3>Текущие значения</h3><div class="muted small">Обновляются вместе с моделью</div></div>
+                <div class="value-grid" id="valueGrid"></div>
+            </div>
+
+            <div class="card summary-box highlightable" data-link="check">
+                <div class="section-title"><h3>Проверка ответа</h3><div class="muted small">Смысловая самопроверка</div></div>
+                <div id="checkText" style="line-height:1.65"></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="footer-space"></div>
+</div>
+
+<div class="tooltip" id="tooltip" role="tooltip" aria-hidden="true">
+    <button class="close-tip" id="closeTip" aria-label="Закрыть подсказку">×</button>
+    <h4 id="tooltipTitle">Подсказка</h4>
+    <p id="tooltipBody"></p>
+</div>
+
+<div class="overlay" id="overlay" aria-hidden="true">
+    <div class="overlay-inner">
+        <button class="overlay-close" id="overlayClose" aria-label="Закрыть увеличенный чертёж">×</button>
+        <div class="section-title"><h2>Увеличенный чертёж</h2><div class="muted small">Состояние полностью синхронизировано с основной моделью</div></div>
+        <div class="canvas-shell">
+            <canvas id="overlayCanvas" width="1200" height="820"></canvas>
+            <div class="canvas-controls">
+                <div class="zoom-row">
+                    <button id="overlayZoomOut" class="ghost">−</button>
+                    <input id="overlayZoomRange" type="range" min="60" max="180" step="1" value="100">
+                    <button id="overlayZoomIn" class="ghost">+</button>
+                    <button id="overlayZoomReset" class="ghost">Сброс</button>
+                </div>
+                <button id="overlayPrev" class="secondary">← шаг</button>
+                <button id="overlayNext">шаг →</button>
+                <button id="overlayPrint" class="ghost">Печать</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const state = {
+        hoveredPart: null,
+        scene: 'triangle',
+        triangle: { ab: 8, ac: 11, angleA: 46 },
+        parallelogram: { base: 16, side: 10, heightToBase: 6 },
+        equilateral: { a: 12 },
+        zoom: 1,
+        currentStep: 0,
+        showHeight: true,
+        showArea: true,
+        showHints: true,
+        showLabels: true,
+        detail: 'normal',
+        generated: null,
+        quizIndex: 0
+    };
+
+    const mainCanvas = document.getElementById('mainCanvas');
+    const overlayCanvas = document.getElementById('overlayCanvas');
+    const mctx = mainCanvas.getContext('2d');
+    const octx = overlayCanvas.getContext('2d');
+
+    const stepsContainer = document.getElementById('stepsContainer');
+    const formulaList = document.getElementById('formulaList');
+    const errorsList = document.getElementById('errorsList');
+    const legendList = document.getElementById('legendList');
+    const valueGrid = document.getElementById('valueGrid');
+    const ideaText = document.getElementById('ideaText');
+    const checkText = document.getElementById('checkText');
+    const tooltip = document.getElementById('tooltip');
+    const tooltipTitle = document.getElementById('tooltipTitle');
+    const tooltipBody = document.getElementById('tooltipBody');
+
+    const deg = d => d * Math.PI / 180;
+    const round = (x, n=2) => Number(x.toFixed(n));
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+    function areaTriangle(ab, ac, angleA){ return 0.5 * ab * ac * Math.sin(deg(angleA)); }
+    function sideByCos(ab, ac, angleA){ return Math.sqrt(ab*ab + ac*ac - 2*ab*ac*Math.cos(deg(angleA))); }
+    function heron(a,b,c){ const p=(a+b+c)/2; return Math.sqrt(Math.max(0,p*(p-a)*(p-b)*(p-c))); }
+
+    function getModel(){
+        if(state.scene==='triangle'){
+            const {ab,ac,angleA}=state.triangle;
+            const bc=sideByCos(ab,ac,angleA);
+            const S=areaTriangle(ab,ac,angleA);
+            const hToBC=2*S/bc;
+            const p=(ab+ac+bc)/2;
+            const r=S/p;
+            const R=ab*ac*bc/(4*S);
+            return { type:'triangle', ab, ac, angleA, bc, S, hToBC, p, r, R };
+        }
+        if(state.scene==='parallelogram'){
+            const {base,side,heightToBase}=state.parallelogram;
+            const S=base*heightToBase;
+            const hToSide=S/side;
+            return { type:'parallelogram', base, side, heightToBase, S, hToSide };
+        }
+        const {a}=state.equilateral;
+        const S=Math.sqrt(3)*a*a/4;
+        const r=a*Math.sqrt(3)/6;
+        const R=a*Math.sqrt(3)/3;
+        const h=a*Math.sqrt(3)/2;
+        return { type:'equilateral', a, S, r, R, h };
+    }
+
+    function getContent(){
+        const m = getModel();
+        if(m.type==='triangle') return triangleContent(m);
+        if(m.type==='parallelogram') return parallelogramContent(m);
+        return equilateralContent(m);
+    }
+
+    function triangleContent(m){
+        const deep = state.detail === 'deep';
+        return {
+            idea: `
+          <p><b>Главная идея:</b> одну и ту же площадь треугольника удобно считать разными способами. Если надо найти высоту к стороне <b>BC</b>,
+          сначала можно найти площадь по двум сторонам и углу между ними, а потом записать ту же площадь как <b>1/2 · BC · h</b>.</p>
+          <div class="formula-box">S = 1/2·AB·AC·sin∠A = 1/2·BC·h<sub>BC</sub></div>
+          <p>${deep ? 'Если третья сторона пока неизвестна, её сначала находим по теореме косинусов. Это типичный тандем: теорема косинусов + равенство площадей.' : 'Если BC неизвестна, сначала ищем её по теореме косинусов.'}</p>
+        `,
+            steps: [
+                {
+                    title:'Что дано',
+                    body:`Известны две стороны <b>AB = ${m.ab}</b>, <b>AC = ${m.ac}</b> и угол между ними <b>∠A = ${m.angleA}°</b>. Нужно работать с площадью и высотой к стороне <b>BC</b>.`,
+                    formula:`AB=${m.ab}, AC=${m.ac}, ∠A=${m.angleA}°`
+                },
+                {
+                    title:'Смысл условия',
+                    body:`Две стороны и угол между ними сразу подсказывают формулу площади <b>S = 1/2·AB·AC·sin∠A</b>. Но для высоты к <b>BC</b> нам нужна и сама сторона <b>BC</b>.`,
+                    formula:`S = 1/2·AB·AC·sin∠A`
+                },
+                {
+                    title:'Интерпретация',
+                    body:`Сторону <b>BC</b> находим по теореме косинусов, потому что она лежит напротив известного угла <b>∠A</b>.`,
+                    formula:`BC² = AB² + AC² − 2·AB·AC·cos∠A`
+                },
+                {
+                    title:'Ключевая идея',
+                    body:`Когда есть площадь и сторона <b>BC</b>, высота находится из равенства площадей. Это и есть главный метод темы.`,
+                    formula:`1/2·AB·AC·sin∠A = 1/2·BC·h_BC`
+                },
+                {
+                    title:'Пошаговое решение',
+                    body:`Сначала находим <b>BC ≈ ${round(m.bc)}</b>. Затем площадь <b>S ≈ ${round(m.S)}</b>. После этого высота к стороне <b>BC</b> равна <b>h ≈ ${round(m.hToBC)}</b>.`,
+                    formula:`h_BC = 2S / BC ≈ ${round(2*m.S)}/${round(m.bc)} ≈ ${round(m.hToBC)}`
+                },
+                {
+                    title:'Проверка',
+                    body:`Высота меньше длин сторон, положительна и выглядит реалистично для такого треугольника. Также площадь, найденная двумя способами, совпадает с точностью округления.`,
+                    formula:`S ≈ ${round(m.S)} и 1/2·BC·h ≈ ${round(0.5*m.bc*m.hToBC)}`
+                },
+                {
+                    title:'Вывод',
+                    body:`Если известны две стороны и угол между ними, часто делаем так: <b>площадь по синусу</b> + <b>третья сторона по косинусам</b> + <b>высота через равенство площадей</b>.`,
+                    formula:`косинусы → площадь → высота`
+                }
+            ],
+            formulas:[
+                ['Площадь через две стороны и угол между ними', 'S = 1/2·AB·AC·sin∠A'],
+                ['Теорема косинусов', 'BC² = AB² + AC² − 2·AB·AC·cos∠A'],
+                ['Высота к стороне BC', 'h_BC = 2S / BC'],
+                ['Через радиус вписанной', 'S = p·r'],
+                ['Через радиус описанной', 'S = AB·AC·BC / 4R']
+            ],
+            errors:[
+                'Берут синус не угла между сторонами, а любого попавшегося угла.',
+                'Путают формулы: для треугольника обязательно есть множитель 1/2.',
+                'Пытаются искать высоту к BC, не найдя сначала саму сторону BC.',
+                'Подставляют градусы в рассуждение неверно: sin 30° = 1/2, а не √3/2.',
+                'После формулы косинусов забывают извлечь корень и получают вместо стороны её квадрат.'
+            ],
+            legend:[
+                'Голубым цветом выделены стороны, которые участвуют в текущей формуле.',
+                'Зелёная штриховая линия — высота.',
+                'Золотая заливка показывает площадь.',
+                'Подсветка шага слева соответствует выделенным элементам на рисунке.'
+            ],
+            values:[
+                ['AB', m.ab], ['AC', m.ac], ['∠A', `${m.angleA}°`], ['BC', round(m.bc)], ['S', round(m.S)], ['h к BC', round(m.hToBC)], ['r', round(m.r)], ['R', round(m.R)]
+            ],
+            check:`
+          <p>Проверка идёт по формуле <b>h = 2S / BC</b>. При текущих параметрах:</p>
+          <div class="formula-box">h ≈ 2·${round(m.S)} / ${round(m.bc)} ≈ ${round(m.hToBC)}</div>
+          <p>Ответ логичен: высота положительная, а площадь по формуле <b>1/2·BC·h</b> совпадает с площадью по формуле <b>1/2·AB·AC·sin∠A</b>.</p>
+        `
+        };
+    }
+
+    function parallelogramContent(m){
+        const smaller = m.base > m.side ? 'к большей стороне' : 'к меньшей стороне';
+        return {
+            idea:`
+          <p><b>Главная идея:</b> у параллелограмма площадь равна произведению стороны на проведённую к ней высоту.</p>
+          <div class="formula-box">S = a·h_a = b·h_b</div>
+          <p>Отсюда важный смысл: <b>чем больше сторона, тем меньше высота к ней</b>. Поэтому если просят меньшую высоту, нужно смотреть именно на большую сторону.</p>
+        `,
+            steps:[
+                { title:'Что дано', body:`Известны стороны параллелограмма: <b>${m.base}</b> и <b>${m.side}</b>. Высота к большей стороне равна <b>${m.heightToBase}</b>.`, formula:`a=${m.base}, b=${m.side}, h_a=${m.heightToBase}` },
+                { title:'Смысл условия', body:`Параллелограмм позволяет выразить площадь сразу через сторону и высоту. Это самый прямой путь.`, formula:`S = a·h_a` },
+                { title:'Интерпретация', body:`Сначала считаем площадь: <b>S = ${m.base}·${m.heightToBase} = ${round(m.S)}</b>. Потом используем ту же площадь для второй стороны.`, formula:`S = ${round(m.S)}` },
+                { title:'Ключевая идея', body:`Одна и та же площадь равна и <b>a·h_a</b>, и <b>b·h_b</b>. Поэтому вторую высоту легко выразить.`, formula:`a·h_a = b·h_b` },
+                { title:'Пошаговое решение', body:`Высота к стороне <b>${m.side}</b> равна <b>${round(m.hToSide)}</b>. ${smaller==='к большей стороне' ? 'Именно высота к большей стороне получается меньше.' : 'Сравнение высот видно прямо из формулы.'}`, formula:`h_b = S / b = ${round(m.S)} / ${m.side} = ${round(m.hToSide)}` },
+                { title:'Проверка', body:`Перемножим вторую сторону на найденную высоту: получаем ту же площадь. Это подтверждает вычисления.`, formula:`${m.side}·${round(m.hToSide)} = ${round(m.side*m.hToSide)}` },
+                { title:'Вывод', body:`В задачах на параллелограмм почти всегда первым делом используем <b>S = a·h</b> и идею о том, какая высота больше, а какая меньше.`, formula:`к большей стороне → меньшая высота` }
+            ],
+            formulas:[
+                ['Площадь параллелограмма', 'S = a·h_a'],
+                ['Вторая высота', 'h_b = S / b'],
+                ['Связь двух высот', 'a·h_a = b·h_b']
+            ],
+            errors:[
+                'Пишут для параллелограмма формулу с одной второй — это ошибка.',
+                'Ищут меньшую высоту к меньшей стороне, хотя всё наоборот.',
+                'Не проверяют ответ обратной подстановкой в формулу площади.',
+                'Путают сторону и высоту: они не обязаны быть соседними по рисунку визуально.'
+            ],
+            legend:[
+                'Синяя горизонтальная сторона — выбранное основание.',
+                'Зелёная вертикальная линия — высота к основанию.',
+                'Золотая полупрозрачная заливка — площадь параллелограмма.',
+                'При смене основания меняется и соответствующая высота.'
+            ],
+            values:[
+                ['Большая сторона', m.base], ['Меньшая сторона', m.side], ['Высота к большей', m.heightToBase], ['Площадь', round(m.S)], ['Высота к меньшей', round(m.hToSide)]
+            ],
+            check:`
+          <p>Проверяем площадь двумя способами:</p>
+          <div class="formula-box">S = ${m.base}·${m.heightToBase} = ${round(m.S)} = ${m.side}·${round(m.hToSide)}</div>
+          <p>Значит вычисления согласованы. Если нужно найти <b>меньшую высоту</b>, её ищем к <b>большей стороне</b>.</p>
+        `
+        };
+    }
+
+    function equilateralContent(m){
+        return {
+            idea:`
+          <p><b>Главная идея:</b> для равностороннего треугольника полезно знать несколько формул сразу «из коробки».
+          Но важно понимать и их вывод через равенство площадей.</p>
+          <div class="formula-box">S = (√3/4)·a², &nbsp; r = a√3/6, &nbsp; R = a√3/3</div>
+          <p>Эти формулы появляются именно из того, что площадь можно выразить через сторону, через полупериметр и вписанную окружность, а также через три стороны и описанную окружность.</p>
+        `,
+            steps:[
+                { title:'Что дано', body:`Треугольник равносторонний, значит все стороны равны <b>a = ${m.a}</b>, а все углы по <b>60°</b>.`, formula:`AB = BC = CA = ${m.a}, ∠A = ∠B = ∠C = 60°` },
+                { title:'Смысл условия', body:`Равенство сторон и углов делает формулы очень симметричными. Площадь удобно считать через синус 60°.`, formula:`S = 1/2·a·a·sin60°` },
+                { title:'Интерпретация', body:`Так получаем стандартную формулу площади равностороннего треугольника.`, formula:`S = (√3/4)·a² = ${round(m.S)}` },
+                { title:'Ключевая идея', body:`Дальше площадь можно приравнивать к <b>p·r</b> и к <b>abc/4R</b>. Это и даёт формулы для <b>r</b> и <b>R</b>.`, formula:`S = p·r = abc/4R` },
+                { title:'Пошаговое решение', body:`При стороне <b>${m.a}</b> получаем: площадь <b>${round(m.S)}</b>, радиус вписанной окружности <b>${round(m.r)}</b>, радиус описанной окружности <b>${round(m.R)}</b>, высота <b>${round(m.h)}</b>.`, formula:`r = a√3/6, R = a√3/3, h = a√3/2` },
+                { title:'Проверка', body:`В равностороннем треугольнике всегда <b>R = 2r</b>. Проверим: ${round(m.R)} ≈ 2·${round(m.r)} = ${round(2*m.r)}.`, formula:`R = 2r` },
+                { title:'Вывод', body:`Если задача про равносторонний треугольник, часто выгодно сразу вспоминать готовые формулы. Но лучше понимать, что они выведены через метод равенства площадей.`, formula:`готовая формула + понимание вывода` }
+            ],
+            formulas:[
+                ['Площадь равностороннего', 'S = (√3/4)·a²'],
+                ['Радиус вписанной', 'r = a√3 / 6'],
+                ['Радиус описанной', 'R = a√3 / 3'],
+                ['Высота', 'h = a√3 / 2'],
+                ['Связь радиусов', 'R = 2r']
+            ],
+            errors:[
+                'Путают формулы r и R: у описанной окружности радиус больше.',
+                'Забывают, что sin60° = √3/2.',
+                'Не замечают быструю проверку R = 2r.',
+                'Механически используют формулы, не понимая, что они получаются из равенства площадей.'
+            ],
+            legend:[
+                'Стороны равны и подписаны одинаково.',
+                'Зелёная высота одновременно является медианой и биссектрисой.',
+                'Центр вписанной и описанной окружностей лежит на одной вертикали.',
+                'Дополнительные окружности помогают увидеть формулы для r и R.'
+            ],
+            values:[
+                ['Сторона a', m.a], ['Площадь S', round(m.S)], ['Высота h', round(m.h)], ['r', round(m.r)], ['R', round(m.R)]
+            ],
+            check:`
+          <p>Проверка по двум связям:</p>
+          <div class="formula-box">S = (√3/4)·a² ≈ ${round(m.S)}; &nbsp; R = 2r ≈ ${round(m.R)} = 2·${round(m.r)}</div>
+          <p>Если обе связи выполняются, вычисления сделаны правильно.</p>
+        `
+        };
+    }
+
+    function renderText(){
+        const c = getContent();
+        ideaText.innerHTML = c.idea;
+        checkText.innerHTML = c.check;
+        formulaList.innerHTML = c.formulas.map(([t,f]) => `<div class="formula-item"><div class="title">${t}</div><code>${f}</code></div>`).join('');
+        errorsList.innerHTML = c.errors.map(x=>`<li>${x}</li>`).join('');
+        legendList.innerHTML = c.legend.map(x=>`<li>${x}</li>`).join('');
+        valueGrid.innerHTML = c.values.map(([l,v]) => `<div class="value"><span class="label">${l}</span><span class="val">${v}</span></div>`).join('');
+        stepsContainer.innerHTML = c.steps.map((s,i)=>`
+        <article class="step highlightable ${i===state.currentStep?'active':''}" data-step="${i}" data-link="step-${i}">
+          <div class="num">${i+1}</div>
+          <h4>${s.title}</h4>
+          <p>${s.body}</p>
+          <div class="formula-box">${s.formula}</div>
+        </article>
+      `).join('');
+        document.querySelectorAll('.step').forEach(el=>{
+            el.addEventListener('mouseenter',()=>{state.currentStep=+el.dataset.step; updateAll(false);});
+            el.addEventListener('click',()=>{state.currentStep=+el.dataset.step; updateAll(false);});
+        });
+    }
+
+    function drawLabel(ctx, x, y, text, color='#f6fbff'){
+        ctx.save();
+        ctx.font = 'bold 18px Inter, sans-serif';
+        const padX = 10, h = 30, w = ctx.measureText(text).width + padX*2;
+        ctx.fillStyle = 'rgba(8,12,26,.82)';
+        ctx.strokeStyle = 'rgba(255,255,255,.15)';
+        roundRect(ctx, x-w/2, y-h/2, w, h, 12, true, true);
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(text, x, y+1);
+        ctx.restore();
+    }
+
+    function roundRect(ctx, x, y, w, h, r, fill, stroke){
+        ctx.beginPath();
+        ctx.moveTo(x+r,y);
+        ctx.arcTo(x+w,y,x+w,y+h,r);
+        ctx.arcTo(x+w,y+h,x,y+h,r);
+        ctx.arcTo(x,y+h,x,y,r);
+        ctx.arcTo(x,y,x+w,y,r);
+        ctx.closePath();
+        if(fill) ctx.fill();
+        if(stroke) ctx.stroke();
+    }
+
+    function drawBackgroundGrid(ctx, canvas){
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255,255,255,.05)';
+        ctx.lineWidth = 1;
+        for(let x=0;x<canvas.width;x+=40){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
+        for(let y=0;y<canvas.height;y+=40){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+        ctx.restore();
+    }
+
+    function drawScene(ctx, canvas){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        drawBackgroundGrid(ctx, canvas);
+        ctx.save();
+        ctx.translate(canvas.width/2, canvas.height/2+24);
+        ctx.scale(state.zoom, state.zoom);
+        const model = getModel();
+        if(model.type==='triangle') drawTriangle(ctx, model, canvas);
+        if(model.type==='parallelogram') drawParallelogram(ctx, model, canvas);
+        if(model.type==='equilateral') drawEquilateral(ctx, model, canvas);
+        ctx.restore();
+    }
+
+    function setHoverPart(part){
+        state.hoveredPart = part;
+        const map = {
+            triangle_ab: 1,
+            triangle_ac: 1,
+            triangle_bc: 2,
+            triangle_height: 4,
+            triangle_area: 3,
+            para_base: 1,
+            para_side: 3,
+            para_height: 0,
+            para_area: 2,
+            eq_side: 1,
+            eq_height: 4,
+            eq_r: 4,
+            eq_R: 4,
+            eq_area: 2
+        };
+        if(map[part] !== undefined){
+            state.currentStep = map[part];
+        }
+        updateAll(false);
+    }
+
+    function distToSegment(px, py, ax, ay, bx, by){
+        const ABx = bx - ax, ABy = by - ay;
+        const t = Math.max(0, Math.min(1, ((px-ax)*ABx + (py-ay)*ABy) / (ABx*ABx + ABy*ABy || 1)));
+        const qx = ax + t*ABx, qy = ay + t*ABy;
+        return Math.hypot(px-qx, py-qy);
+    }
+
+    function pointInTriangle(p, a, b, c){
+        const area = (p1,p2,p3)=> (p1.x*(p2.y-p3.y)+p2.x*(p3.y-p1.y)+p3.x*(p1.y-p2.y));
+        const A = Math.abs(area(a,b,c));
+        const A1 = Math.abs(area(p,b,c));
+        const A2 = Math.abs(area(a,p,c));
+        const A3 = Math.abs(area(a,b,p));
+        return Math.abs(A - (A1+A2+A3)) < 1e-1;
+    }
+
+    function pointInQuad(p, pts){
+        return pointInTriangle(p, pts[0], pts[1], pts[2]) || pointInTriangle(p, pts[0], pts[2], pts[3]);
+    }
+
+    function getCanvasLocalPoint(evt, canvas){
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const x = (evt.clientX - rect.left) * scaleX;
+        const y = (evt.clientY - rect.top) * scaleY;
+        return {
+            x: (x - canvas.width/2) / state.zoom,
+            y: (y - (canvas.height/2+24)) / state.zoom
+        };
+    }
+
+    function detectHoverPart(pt){
+        const m = getModel();
+        if(m.type==='triangle'){
+            const s = 26;
+            const A={x:-200,y:140};
+            const B={x:A.x + m.ab*s, y:140};
+            const C={x:A.x + m.ac*s*Math.cos(deg(m.angleA)), y:140 - m.ac*s*Math.sin(deg(m.angleA))};
+            const footBC = projectPointOnLine(A, B, C);
+            if(pointInTriangle(pt,A,B,C)) return 'triangle_area';
+            if(distToSegment(pt.x,pt.y,A.x,A.y,B.x,B.y) < 10) return 'triangle_ab';
+            if(distToSegment(pt.x,pt.y,A.x,A.y,C.x,C.y) < 10) return 'triangle_ac';
+            if(distToSegment(pt.x,pt.y,B.x,B.y,C.x,C.y) < 10) return 'triangle_bc';
+            if(distToSegment(pt.x,pt.y,A.x,A.y,footBC.x,footBC.y) < 10) return 'triangle_height';
+        }
+        if(m.type==='parallelogram'){
+            const sx=26, sy=26;
+            const A={x:-220,y:120};
+            const B={x:A.x+m.base*sx,y:120};
+            const D={x:A.x+120,y:120-m.heightToBase*sy};
+            const C={x:B.x+120,y:120-m.heightToBase*sy};
+            const H={x:D.x,y:120};
+            if(pointInQuad(pt,[A,B,C,D])) return 'para_area';
+            if(distToSegment(pt.x,pt.y,A.x,A.y,B.x,B.y) < 10) return 'para_base';
+            if(distToSegment(pt.x,pt.y,A.x,A.y,D.x,D.y) < 10) return 'para_side';
+            if(distToSegment(pt.x,pt.y,D.x,D.y,H.x,H.y) < 10) return 'para_height';
+        }
+        if(m.type==='equilateral'){
+            const s=34;
+            const A={x:-m.a*s/2,y:170};
+            const B={x:m.a*s/2,y:170};
+            const C={x:0,y:170 - m.h*s};
+            const M={x:0,y:170};
+            const inCenter={x:0,y:170 - m.r*s};
+            const circumCenter={x:0,y:170 - m.R*s/2};
+            if(pointInTriangle(pt,A,B,C)) return 'eq_area';
+            if(distToSegment(pt.x,pt.y,A.x,A.y,B.x,B.y) < 10 || distToSegment(pt.x,pt.y,B.x,B.y,C.x,C.y) < 10 || distToSegment(pt.x,pt.y,C.x,C.y,A.x,A.y) < 10) return 'eq_side';
+            if(distToSegment(pt.x,pt.y,C.x,C.y,M.x,M.y) < 10) return 'eq_height';
+            if(Math.hypot(pt.x-inCenter.x, pt.y-inCenter.y) < Math.max(12, m.r*s+4) && Math.hypot(pt.x-inCenter.x, pt.y-inCenter.y) > Math.max(0, m.r*s-8)) return 'eq_r';
+            if(Math.hypot(pt.x-circumCenter.x, pt.y-circumCenter.y) < Math.max(12, m.R*s+4) && Math.hypot(pt.x-circumCenter.x, pt.y-circumCenter.y) > Math.max(0, m.R*s-8)) return 'eq_R';
+        }
+        return null;
+    }
+
+    function drawPoint(ctx, p, color='#fff', r=6){
+        ctx.save(); ctx.fillStyle=color; ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2); ctx.fill(); ctx.restore();
+    }
+    function line(ctx,a,b,color='#a6dfff',width=4,dash=[]){
+        ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=width; ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); ctx.restore();
+    }
+    function text(ctx, x,y, str, color='#fff', align='center'){
+        ctx.save(); ctx.fillStyle=color; ctx.font='bold 20px Inter, sans-serif'; ctx.textAlign=align; ctx.textBaseline='middle'; ctx.fillText(str,x,y); ctx.restore();
+    }
+
+    function drawTriangle(ctx, m){
+        const s = 26;
+        const A={x:-200,y:140};
+        const B={x:A.x + m.ab*s, y:140};
+        const C={x:A.x + m.ac*s*Math.cos(deg(m.angleA)), y:140 - m.ac*s*Math.sin(deg(m.angleA))};
+        const footBC = projectPointOnLine(A, B, C);
+        const active = state.currentStep;
+        const hov = state.hoveredPart;
+
+        if(state.showArea){
+            ctx.save();
+            ctx.fillStyle= hov==='triangle_area' ? 'rgba(255,214,122,.28)' : 'rgba(255,214,122,.18)';
+            ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.lineTo(C.x,C.y); ctx.closePath(); ctx.fill();
+            ctx.restore();
+        }
+
+        line(ctx,A,B, active===0||active===1||active===2 || hov==='triangle_ab' ? '#9ed8ff':'#7aa3ff', hov==='triangle_ab'?7:5);
+        line(ctx,A,C, active===0||active===1||active===2 || hov==='triangle_ac' ? '#9ed8ff':'#7aa3ff', hov==='triangle_ac'?7:5);
+        line(ctx,B,C, active>=2 || hov==='triangle_bc' ? '#9ed8ff':'#7aa3ff', hov==='triangle_bc'?7:5);
+
+        if(state.showHeight){
+            line(ctx,A,footBC, hov==='triangle_height' ? '#a4ffd8':'#7cffc5', hov==='triangle_height'?6:4,[10,8]);
+            rightAngle(ctx, footBC, B, A, C, '#7cffc5');
+            if(state.showLabels) drawLabel(ctx, (A.x+footBC.x)/2-10, (A.y+footBC.y)/2-18, 'h к BC', '#c9ffe6');
+        }
+
+        drawPoint(ctx,A,'#fff'); drawPoint(ctx,B,'#fff'); drawPoint(ctx,C,'#fff'); drawPoint(ctx,footBC,'#7cffc5',5);
+        if(state.showLabels){
+            drawLabel(ctx,A.x-18,A.y+28,'A');
+            drawLabel(ctx,B.x+18,B.y+28,'B');
+            drawLabel(ctx,C.x,C.y-26,'C');
+            drawLabel(ctx,(A.x+B.x)/2, A.y+28, `AB=${m.ab}`,'#d8ecff');
+            drawLabel(ctx,(A.x+C.x)/2-15,(A.y+C.y)/2-18,`AC=${m.ac}`,'#d8ecff');
+            drawLabel(ctx,(B.x+C.x)/2+18,(B.y+C.y)/2,`BC≈${round(m.bc)}`,'#d8ecff');
+            drawLabel(ctx,A.x+58,A.y-28,`${m.angleA}°`,'#ffeaa9');
+            drawLabel(ctx,(A.x+B.x+C.x)/3,(A.y+B.y+C.y)/3,'S',' #ffeaa9');
+        }
+        angleArc(ctx, A, B, C, 56, '#ffd67a');
+    }
+
+    function drawParallelogram(ctx, m){
+        const sx=26, sy=26;
+        const A={x:-220,y:120};
+        const B={x:A.x+m.base*sx,y:120};
+        const D={x:A.x+120,y:120-m.heightToBase*sy};
+        const C={x:B.x+120,y:120-m.heightToBase*sy};
+        const H={x:D.x,y:120};
+        const active = state.currentStep;
+        const hov = state.hoveredPart;
+        if(state.showArea){
+            ctx.save(); ctx.fillStyle= hov==='para_area' ? 'rgba(255,214,122,.28)' : 'rgba(255,214,122,.18)'; ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.lineTo(C.x,C.y); ctx.lineTo(D.x,D.y); ctx.closePath(); ctx.fill(); ctx.restore();
+        }
+        line(ctx,A,B, active<=3 || hov==='para_base' ? '#9ed8ff':'#7aa3ff', hov==='para_base'?7:5);
+        line(ctx,B,C,'#7aa3ff',5);
+        line(ctx,C,D,'#7aa3ff',5);
+        line(ctx,D,A, hov==='para_side' ? '#9ed8ff':'#7aa3ff', hov==='para_side'?7:5);
+        if(state.showHeight){
+            line(ctx,D,H, hov==='para_height' ? '#a4ffd8':'#7cffc5', hov==='para_height'?6:4,[10,8]);
+            rightAngleSimple(ctx, H.x, H.y, 16, '#7cffc5');
+        }
+        drawPoint(ctx,A); drawPoint(ctx,B); drawPoint(ctx,C); drawPoint(ctx,D); drawPoint(ctx,H,'#7cffc5',5);
+        if(state.showLabels){
+            drawLabel(ctx,A.x-18,A.y+28,'A'); drawLabel(ctx,B.x+18,B.y+28,'B'); drawLabel(ctx,C.x+18,C.y-26,'C'); drawLabel(ctx,D.x-18,D.y-26,'D');
+            drawLabel(ctx,(A.x+B.x)/2,A.y+26,`большая=${m.base}`,'#d8ecff');
+            drawLabel(ctx,(A.x+D.x)/2-24,(A.y+D.y)/2,`меньшая=${m.side}`,'#d8ecff');
+            drawLabel(ctx,D.x-34,(D.y+H.y)/2,`h=${m.heightToBase}`,'#c9ffe6');
+            drawLabel(ctx,(A.x+B.x+C.x+D.x)/4,(A.y+B.y+C.y+D.y)/4,'S','#ffeaa9');
+        }
+    }
+
+    function drawEquilateral(ctx, m){
+        const s=34;
+        const A={x:-m.a*s/2,y:170};
+        const B={x:m.a*s/2,y:170};
+        const C={x:0,y:170 - m.h*s};
+        const M={x:0,y:170};
+        const inCenter={x:0,y:170 - m.r*s};
+        const circumCenter={x:0,y:170 - m.R*s/2};
+        const active=state.currentStep;
+        const hov = state.hoveredPart;
+        if(state.showArea){ ctx.save(); ctx.fillStyle= hov==='eq_area' ? 'rgba(255,214,122,.28)' : 'rgba(255,214,122,.18)'; ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.lineTo(C.x,C.y); ctx.closePath(); ctx.fill(); ctx.restore(); }
+        line(ctx,A,B, active<3||hov==='eq_side'?'#9ed8ff':'#7aa3ff', hov==='eq_side'?7:5);
+        line(ctx,B,C, hov==='eq_side'?'#9ed8ff':'#7aa3ff', hov==='eq_side'?7:5); line(ctx,C,A, hov==='eq_side'?'#9ed8ff':'#7aa3ff', hov==='eq_side'?7:5);
+        if(state.showHeight){ line(ctx,C,M, hov==='eq_height' ? '#a4ffd8':'#7cffc5', hov==='eq_height'?6:4,[10,8]); rightAngleSimple(ctx, M.x, M.y, 16, '#7cffc5'); }
+        ctx.save(); ctx.strokeStyle= hov==='eq_r' ? 'rgba(141,255,207,.9)' : 'rgba(141,255,207,.55)'; ctx.lineWidth= hov==='eq_r'?5:3; ctx.beginPath(); ctx.arc(inCenter.x,inCenter.y,m.r*s,0,Math.PI*2); ctx.stroke(); ctx.restore();
+        ctx.save(); ctx.strokeStyle= hov==='eq_R' ? 'rgba(124,199,255,.9)' : 'rgba(124,199,255,.45)'; ctx.lineWidth= hov==='eq_R'?5:3; ctx.beginPath(); ctx.arc(circumCenter.x,circumCenter.y,m.R*s,0,Math.PI*2); ctx.stroke(); ctx.restore();
+        drawPoint(ctx,A); drawPoint(ctx,B); drawPoint(ctx,C); drawPoint(ctx,M,'#7cffc5',5); drawPoint(ctx,inCenter,'#8dffcf',6); drawPoint(ctx,circumCenter,'#7cc7ff',6);
+        if(state.showLabels){
+            drawLabel(ctx,A.x-18,A.y+28,'A'); drawLabel(ctx,B.x+18,B.y+28,'B'); drawLabel(ctx,C.x,C.y-28,'C');
+            drawLabel(ctx,0, A.y+28, `a=${m.a}`,'#d8ecff');
+            drawLabel(ctx,-28,(C.y+M.y)/2,`h≈${round(m.h)}`,'#c9ffe6');
+            drawLabel(ctx,44,inCenter.y,`r≈${round(m.r)}`,'#8dffcf');
+            drawLabel(ctx,68,circumCenter.y-20,`R≈${round(m.R)}`,'#7cc7ff');
+        }
+    }
+
+    function projectPointOnLine(P, A, B){
+        const ABx=B.x-A.x, ABy=B.y-A.y;
+        const t=((P.x-A.x)*ABx + (P.y-A.y)*ABy)/(ABx*ABx+ABy*ABy);
+        return {x:A.x+t*ABx,y:A.y+t*ABy};
+    }
+    function angleArc(ctx, A, B, C, r, color){
+        const a1=Math.atan2(B.y-A.y,B.x-A.x);
+        const a2=Math.atan2(C.y-A.y,C.x-A.x);
+        ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(A.x,A.y,r,Math.min(a1,a2),Math.max(a1,a2)); ctx.stroke(); ctx.restore();
+    }
+    function rightAngleSimple(ctx, x,y,size,color){
+        ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y-size); ctx.lineTo(x+size,y-size); ctx.lineTo(x+size,y); ctx.stroke(); ctx.restore();
+    }
+    function rightAngle(ctx, foot, B, A, C, color){
+        const u = normalize({x:B.x-foot.x,y:B.y-foot.y});
+        const v = normalize({x:A.x-foot.x,y:A.y-foot.y});
+        const s=16;
+        ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=3; ctx.beginPath();
+        ctx.moveTo(foot.x+u.x*s, foot.y+u.y*s);
+        ctx.lineTo(foot.x+(u.x+v.x)*s, foot.y+(u.y+v.y)*s);
+        ctx.lineTo(foot.x+v.x*s, foot.y+v.y*s);
+        ctx.stroke(); ctx.restore();
+    }
+    function normalize(v){ const l=Math.hypot(v.x,v.y)||1; return {x:v.x/l,y:v.y/l}; }
+
+    function updateAll(renderTips = true){
+        renderText();
+        drawScene(mctx, mainCanvas);
+        drawScene(octx, overlayCanvas);
+        syncControls();
+        updateChips();
+        if(renderTips) maybeShowTip();
+    }
+
+    function syncControls(){
+        document.querySelectorAll('.tab').forEach(btn=>btn.classList.toggle('active', btn.dataset.scene===state.scene));
+        document.getElementById('triangleControls').style.display = state.scene==='triangle' ? 'grid' : 'none';
+        document.getElementById('paraControls').style.display = state.scene==='parallelogram' ? 'grid' : 'none';
+        document.getElementById('eqControls').style.display = state.scene==='equilateral' ? 'grid' : 'none';
+        document.getElementById('zoomRange').value = Math.round(state.zoom*100);
+        document.getElementById('overlayZoomRange').value = Math.round(state.zoom*100);
+    }
+
+    function updateChips(){
+        [['chipHeight', state.showHeight], ['chipArea', state.showArea], ['chipHints', state.showHints], ['chipLabels', state.showLabels]].forEach(([id,val])=>{
+            document.getElementById(id).classList.toggle('active', !!val);
+        });
+        document.querySelectorAll('.step').forEach((el,i)=>el.classList.toggle('active', i===state.currentStep));
+    }
+
+    function bindControls(){
+        [mainCanvas, overlayCanvas].forEach(canvas => {
+            canvas.addEventListener('mousemove', evt => {
+                const part = detectHoverPart(getCanvasLocalPoint(evt, canvas));
+                if(part !== state.hoveredPart){ setHoverPart(part); }
+            });
+            canvas.addEventListener('mouseleave', () => {
+                if(state.hoveredPart !== null){ state.hoveredPart = null; updateAll(false); }
+            });
+        });
+        document.getElementById('abRange').addEventListener('input', e=>{ state.triangle.ab=+e.target.value; updateAll(false); });
+        document.getElementById('acRange').addEventListener('input', e=>{ state.triangle.ac=+e.target.value; updateAll(false); });
+        document.getElementById('angleRange').addEventListener('input', e=>{ state.triangle.angleA=+e.target.value; updateAll(false); });
+        document.getElementById('baseRange').addEventListener('input', e=>{ state.parallelogram.base=+e.target.value; if(state.parallelogram.side>=state.parallelogram.base) state.parallelogram.side=state.parallelogram.base-1; document.getElementById('sideRange').value=state.parallelogram.side; updateAll(false); });
+        document.getElementById('sideRange').addEventListener('input', e=>{ state.parallelogram.side=Math.min(+e.target.value, state.parallelogram.base-1); e.target.value = state.parallelogram.side; updateAll(false); });
+        document.getElementById('heightRange').addEventListener('input', e=>{ state.parallelogram.heightToBase=+e.target.value; updateAll(false); });
+        document.getElementById('eqRange').addEventListener('input', e=>{ state.equilateral.a=+e.target.value; updateAll(false); });
+
+        const applyDetail = () => {
+            state.detail = (document.getElementById('detailSelect').value || document.getElementById('detailSelect2').value || document.getElementById('detailSelect3').value);
+            updateAll(false);
+        };
+        ['detailSelect','detailSelect2','detailSelect3'].forEach(id=>document.getElementById(id).addEventListener('change', applyDetail));
+
+        document.querySelectorAll('[data-scene]').forEach(btn=>btn.addEventListener('click', ()=>{ state.scene=btn.dataset.scene; state.currentStep=0; updateAll(false); }));
+
+        document.getElementById('showHeight').addEventListener('change', e=>{ state.showHeight=e.target.checked; updateAll(false); });
+        document.getElementById('showArea').addEventListener('change', e=>{ state.showArea=e.target.checked; updateAll(false); });
+        document.getElementById('showHints').addEventListener('change', e=>{ state.showHints=e.target.checked; hideTip(); maybeShowTip(true); updateAll(false); });
+        document.getElementById('showLabels').addEventListener('change', e=>{ state.showLabels=e.target.checked; updateAll(false); });
+
+        document.getElementById('zoomRange').addEventListener('input', e=>{ state.zoom=+e.target.value/100; updateAll(false); });
+        document.getElementById('overlayZoomRange').addEventListener('input', e=>{ state.zoom=+e.target.value/100; updateAll(false); });
+        document.getElementById('zoomIn').addEventListener('click', ()=>{ state.zoom=clamp(state.zoom+0.1,0.6,1.8); updateAll(false); });
+        document.getElementById('zoomOut').addEventListener('click', ()=>{ state.zoom=clamp(state.zoom-0.1,0.6,1.8); updateAll(false); });
+        document.getElementById('zoomReset').addEventListener('click', ()=>{ state.zoom=1; updateAll(false); });
+        document.getElementById('overlayZoomIn').addEventListener('click', ()=>{ state.zoom=clamp(state.zoom+0.1,0.6,1.8); updateAll(false); });
+        document.getElementById('overlayZoomOut').addEventListener('click', ()=>{ state.zoom=clamp(state.zoom-0.1,0.6,1.8); updateAll(false); });
+        document.getElementById('overlayZoomReset').addEventListener('click', ()=>{ state.zoom=1; updateAll(false); });
+
+        document.getElementById('nextStep').addEventListener('click', nextStep);
+        document.getElementById('prevStep').addEventListener('click', prevStep);
+        document.getElementById('overlayNext').addEventListener('click', nextStep);
+        document.getElementById('overlayPrev').addEventListener('click', prevStep);
+
+        mainCanvas.addEventListener('click', openOverlay);
+        document.getElementById('openOverlay').addEventListener('click', openOverlay);
+        document.getElementById('overlayClose').addEventListener('click', closeOverlay);
+        document.getElementById('overlay').addEventListener('click', e=>{ if(e.target.id==='overlay') closeOverlay(); });
+        document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeOverlay(); hideTip(); } });
+        document.getElementById('overlayPrint').addEventListener('click', ()=>window.print());
+        document.getElementById('closeTip').addEventListener('click', hideTip);
+        addWheelZoom(mainCanvas);
+        addWheelZoom(overlayCanvas);
+
+        document.getElementById('genEasy').addEventListener('click', ()=>generateTask('easy'));
+        document.getElementById('genMedium').addEventListener('click', ()=>generateTask('medium'));
+        document.getElementById('genHard').addEventListener('click', ()=>generateTask('hard'));
+        document.getElementById('applyGenerated').addEventListener('click', applyGeneratedToModel);
+
+        document.querySelectorAll('.highlightable').forEach(el=>{
+            el.addEventListener('mouseenter', ()=> el.classList.add('on'));
+            el.addEventListener('mouseleave', ()=> el.classList.remove('on'));
+        });
+    }
+
+    function nextStep(){ const len=getContent().steps.length; state.currentStep=(state.currentStep+1)%len; updateAll(false); }
+    function prevStep(){ const len=getContent().steps.length; state.currentStep=(state.currentStep-1+len)%len; updateAll(false); }
+    function addWheelZoom(canvas){ canvas.addEventListener('wheel', e=>{ e.preventDefault(); state.zoom=clamp(state.zoom + (e.deltaY<0?0.06:-0.06),0.6,1.8); updateAll(false); }, {passive:false}); }
+
+    function openOverlay(){ const ov=document.getElementById('overlay'); ov.classList.add('show'); ov.setAttribute('aria-hidden','false'); }
+    function closeOverlay(){ const ov=document.getElementById('overlay'); ov.classList.remove('show'); ov.setAttribute('aria-hidden','true'); }
+
+    const tips = [
+        {
+            title:'Главный сигнал к методу',
+            body:'Если нужно найти высоту, r или R, сначала попробуйте выразить одну и ту же площадь двумя способами.',
+            target:'#controlPanel'
+        },
+        {
+            title:'Связка текст ↔ рисунок',
+            body:'Теперь можно наводить и на шаги слева, и прямо на элементы чертежа справа: активный шаг и подсветка синхронизируются в обе стороны.',
+            target:'.step.active'
+        },
+        {
+            title:'Финальная самопроверка',
+            body:'После вычислений всегда проверяйте: две формулы площади должны давать одно и то же значение, а ответ должен быть физически разумным.',
+            target:'.summary-box'
+        }
+    ];
+
+    function maybeShowTip(force=false){
+        if(!state.showHints) return;
+        const key = 'visual-math-tips-shown-v2';
+        if(sessionStorage.getItem(key) && !force) return;
+        setTimeout(()=>{
+            if(!state.showHints) return;
+            showTip(tips[0]);
+            setTimeout(()=>showTip(tips[1]), 4200);
+            setTimeout(()=>showTip(tips[2]), 8400);
+            sessionStorage.setItem(key,'1');
+            setTimeout(hideTip, 15000);
+        }, force ? 60 : 3000);
+    }
+    function showTip(t){
+        const target=document.querySelector(t.target); if(!target) return;
+        const rect=target.getBoundingClientRect();
+        tooltipTitle.textContent=t.title; tooltipBody.textContent=t.body;
+        tooltip.classList.add('show'); tooltip.setAttribute('aria-hidden','false');
+        const approxHeight = 110;
+        const top=window.scrollY + rect.top - approxHeight - 18;
+        const left=window.scrollX + Math.min(rect.left, window.innerWidth - 340);
+        tooltip.style.top = Math.max(10, top) + 'px';
+        tooltip.style.left = Math.max(10, left) + 'px';
+    }
+    function hideTip(){ tooltip.classList.remove('show'); tooltip.setAttribute('aria-hidden','true'); }
+
+    function buildQuiz(){
+        const quizBank = {
+            triangle: {
+                q:'В треугольнике известны две стороны и угол между ними. Что чаще всего делаем, если нужно найти высоту к третьей стороне?',
+                a:['Сразу делим большую сторону на меньшую','Ищем площадь по синусу, сторону по косинусам и потом высоту через 2S/a','Обязательно применяем только формулу Герона'],
+                correct:1,
+                exp:'Верно. Типичная связка: площадь по двум сторонам и углу, третья сторона по теореме косинусов, затем высота по формуле h = 2S/a.'
+            },
+            parallelogram: {
+                q:'Если в параллелограмме нужно найти меньшую высоту, к какой стороне её удобнее рассматривать?',
+                a:['К меньшей стороне','К большей стороне','Это вообще не связано'],
+                correct:1,
+                exp:'Да. Чем больше сторона, тем меньше высота, проведённая к ней.'
+            },
+            equilateral: {
+                q:'Какая связь верна в равностороннем треугольнике?',
+                a:['R = r','R = 2r','r = 2R'],
+                correct:1,
+                exp:'Верно. Для равностороннего треугольника радиус описанной окружности в два раза больше радиуса вписанной.'
+            }
+        };
+        const q = quizBank[state.scene];
+        document.getElementById('quizQuestion').textContent = q.q;
+        const holder = document.getElementById('quizAnswers');
+        const res = document.getElementById('quizResult'); res.style.display='none';
+        holder.innerHTML = q.a.map((ans,i)=>`<button class="${i===1?'secondary':'ghost'}" data-ans="${i}">${ans}</button>`).join('');
+        holder.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
+            const ok = +btn.dataset.ans === q.correct;
+            res.style.display='block';
+            res.innerHTML = `<b>${ok?'Верно.':'Пока нет.'}</b> ${q.exp}`;
+        }));
+    }
+
+    function generateTask(level){
+        let task=''; let answer=''; let idea=''; let payload=null;
+        if(state.scene==='parallelogram'){
+            const base = randInt(level==='easy'?10:16, level==='hard'?40:28);
+            const h = randInt(3, 12);
+            const side = randInt(4, base-1);
+            const S = base*h;
+            const other = round(S/side, 2);
+            task = `Параллелограмм имеет стороны ${base} и ${side}, а высота к стороне ${base} равна ${h}. Найдите высоту к стороне ${side}.`;
+            answer = `Ответ: h = S / ${side} = ${S}/${side} = ${other}.`;
+            idea = `Идея: сначала площадь S = ${base}·${h} = ${S}, потом используем ту же площадь для второй стороны.`;
+            payload={scene:'parallelogram', base, side, heightToBase:h};
+        } else if(state.scene==='equilateral'){
+            const a = randInt(level==='easy'?6:8, level==='hard'?24:16);
+            const choose = Math.random()<0.5;
+            if(choose){
+                const r = round(a*Math.sqrt(3)/6,2);
+                task = `В равностороннем треугольнике сторона равна ${a}. Найдите радиус вписанной окружности.`;
+                answer = `Ответ: r = a√3/6 = ${a}√3/6 ≈ ${r}.`;
+                idea = 'Идея: используем готовую формулу или выводим её через S = pr.';
+            } else {
+                const R = round(a*Math.sqrt(3)/3,2);
+                task = `В равностороннем треугольнике сторона равна ${a}. Найдите радиус описанной окружности.`;
+                answer = `Ответ: R = a√3/3 = ${a}√3/3 ≈ ${R}.`;
+                idea = 'Идея: используем формулу для равностороннего треугольника или вывод через S = abc/4R.';
+            }
+            payload={scene:'equilateral', a};
+        } else {
+            const ab = randInt(level==='easy'?4:6, level==='hard'?16:12);
+            const ac = randInt(level==='easy'?5:7, level==='hard'?18:14);
+            const angleA = randInt(level==='easy'?30:35, level==='hard'?110:80);
+            const bc = round(sideByCos(ab,ac,angleA),2);
+            const S = round(areaTriangle(ab,ac,angleA),2);
+            const h = round(2*S/bc,2);
+            task = `В треугольнике AB = ${ab}, AC = ${ac}, ∠A = ${angleA}°. Найдите высоту, проведённую к стороне BC.`;
+            answer = `Ответ: BC ≈ ${bc}, S ≈ ${S}, h = 2S/BC ≈ ${h}.`;
+            idea = 'Идея: BC по теореме косинусов, площадь по формуле 1/2·AB·AC·sinA, затем высота через равенство площадей.';
+            payload={scene:'triangle', ab, ac, angleA};
+        }
+        state.generated = payload;
+        document.getElementById('generatedTask').textContent = task + '\n\n' + answer + '\n' + idea;
+    }
+
+    function applyGeneratedToModel(){
+        if(!state.generated) return;
+        if(state.generated.scene==='triangle'){
+            state.scene='triangle';
+            state.triangle.ab=state.generated.ab; state.triangle.ac=state.generated.ac; state.triangle.angleA=state.generated.angleA;
+            document.getElementById('abRange').value=state.triangle.ab;
+            document.getElementById('acRange').value=state.triangle.ac;
+            document.getElementById('angleRange').value=state.triangle.angleA;
+        }
+        if(state.generated.scene==='parallelogram'){
+            state.scene='parallelogram';
+            Object.assign(state.parallelogram, state.generated);
+            document.getElementById('baseRange').value=state.parallelogram.base;
+            document.getElementById('sideRange').value=state.parallelogram.side;
+            document.getElementById('heightRange').value=state.parallelogram.heightToBase;
+        }
+        if(state.generated.scene==='equilateral'){
+            state.scene='equilateral';
+            state.equilateral.a=state.generated.a;
+            document.getElementById('eqRange').value=state.equilateral.a;
+        }
+        state.currentStep=0;
+        updateAll(false);
+    }
+
+    function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+
+    buildQuiz();
+    bindControls();
+    updateAll(true);
+
+    const observer = new MutationObserver(()=>buildQuiz());
+    observer.observe(document.getElementById('stepsContainer'), {childList:true, subtree:true});
+
+    document.querySelectorAll('[data-scene]').forEach(btn=>btn.addEventListener('click',()=>setTimeout(buildQuiz,40)));
+</script>
+</body>
+</html>
