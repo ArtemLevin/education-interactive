@@ -1026,8 +1026,8 @@
                             <div class="legend-chip"><span class="swatch sw-active"></span>Активный объект</div>
                         </div>
                         <div class="small-help">
-                            Drag: pan<br>
-                            Shift + drag: rotate<br>
+                            Drag: rotate<br>
+                            Shift + drag: pan<br>
                             Wheel: zoom к курсору<br>
                             Click: modal
                         </div>
@@ -1214,8 +1214,8 @@
             maxScale: 2.5
         },
         orientation: {
-            yaw: -0.65,
-            pitch: 0.55
+            yaw: 0,
+            pitch: 0
         },
         interaction: {
             main: {dragging:false,mode:'pan',moved:false,startX:0,startY:0,lastX:0,lastY:0,pointerId:null},
@@ -1588,8 +1588,8 @@
         state.viewport.scale = 1;
         state.viewport.panX = 0;
         state.viewport.panY = 0;
-        state.orientation.yaw = -0.65;
-        state.orientation.pitch = 0.55;
+        state.orientation.yaw = 0;
+        state.orientation.pitch = 0;
         dom.zoomRange.value = '1';
         renderAll();
     }
@@ -1600,11 +1600,13 @@
     }
 
     function setupCanvasInteractions(wrap, canvas, key){
+        wrap.addEventListener('contextmenu', (e)=>e.preventDefault());
+
         wrap.addEventListener('pointerdown', (e)=>{
             const it = state.interaction[key];
             it.dragging = true;
             it.moved = false;
-            it.mode = e.shiftKey ? 'rotate' : 'pan';
+            it.mode = e.shiftKey ? 'pan' : 'rotate';
             it.startX = e.clientX;
             it.startY = e.clientY;
             it.lastX = e.clientX;
@@ -1730,12 +1732,17 @@
         return Math.min(canvas.width, canvas.height) / 9;
     }
 
-    function projectPoint(pt, canvas){
+    const ISO_YAW = -Math.PI / 4;
+    const ISO_PITCH = Math.atan(1 / Math.sqrt(2));
+
+    function transformPoint(pt){
         const {x,y,z} = pt;
-        const cy = Math.cos(state.orientation.yaw);
-        const sy = Math.sin(state.orientation.yaw);
-        const cp = Math.cos(state.orientation.pitch);
-        const sp = Math.sin(state.orientation.pitch);
+        const yaw = ISO_YAW + state.orientation.yaw;
+        const pitch = ISO_PITCH + state.orientation.pitch;
+        const cy = Math.cos(yaw);
+        const sy = Math.sin(yaw);
+        const cp = Math.cos(pitch);
+        const sp = Math.sin(pitch);
 
         // yaw around Y
         const x1 = x * cy + z * sy;
@@ -1744,16 +1751,18 @@
         // pitch around X
         const y2 = y * cp - z1 * sp;
         const z2 = y * sp + z1 * cp;
+        return {x:x1, y:y2, z:z2};
+    }
 
+    function projectPoint(viewPt, canvas){
+        const {x,y,z} = viewPt;
         const s = baseScale(canvas) * state.viewport.scale;
         const cx = canvas.width / 2 + state.viewport.panX;
         const cy2 = canvas.height / 2 + state.viewport.panY;
-        const perspective = 1 / (1 + z2 * 0.18);
         return {
-            x: cx + x1 * s * perspective,
-            y: cy2 - y2 * s * perspective,
-            depth: z2,
-            persp: perspective
+            x: cx + x * s,
+            y: cy2 - y * s,
+            depth: z
         };
     }
 
@@ -1770,14 +1779,26 @@
 
         const faces = [
             {key:'frontFace', name:'Передняя грань', fill:themeVar('--face-front'), vertices:['A','B','B1','A1']},
-            {key:'sideFace',  name:'Боковая грань',    fill:themeVar('--face-side'),  vertices:['B','C','C1','B1']},
-            {key:'topFace',   name:'Верхняя грань',    fill:themeVar('--face-top'),   vertices:['A1','B1','C1','D1']}
+            {key:'backFace', name:'Задняя грань', fill:themeVar('--face-front'), vertices:['D','C','C1','D1']},
+            {key:'rightFace', name:'Правая грань', fill:themeVar('--face-side'), vertices:['B','C','C1','B1']},
+            {key:'sideFace', name:'Левая грань', fill:themeVar('--face-side'), vertices:['A','D','D1','A1']},
+            {key:'topFace', name:'Верхняя грань', fill:themeVar('--face-top'), vertices:['A1','B1','C1','D1']},
+            {key:'bottomFace', name:'Нижняя грань', fill:themeVar('--face-top'), vertices:['A','B','C','D']}
         ];
 
         const edges = [
-            ['A','B', false], ['B','C', false], ['C','D', false], ['D','A', false],
-            ['A1','B1', false], ['B1','C1', false], ['C1','D1', false], ['D1','A1', false],
-            ['A','A1', false], ['B','B1', false], ['C','C1', false], ['D','D1', false]
+            {a:'A', b:'B', faces:['frontFace','bottomFace']},
+            {a:'B', b:'C', faces:['rightFace','bottomFace']},
+            {a:'C', b:'D', faces:['backFace','bottomFace']},
+            {a:'D', b:'A', faces:['sideFace','bottomFace']},
+            {a:'A1', b:'B1', faces:['frontFace','topFace']},
+            {a:'B1', b:'C1', faces:['rightFace','topFace']},
+            {a:'C1', b:'D1', faces:['backFace','topFace']},
+            {a:'D1', b:'A1', faces:['sideFace','topFace']},
+            {a:'A', b:'A1', faces:['frontFace','sideFace']},
+            {a:'B', b:'B1', faces:['frontFace','rightFace']},
+            {a:'C', b:'C1', faces:['rightFace','backFace']},
+            {a:'D', b:'D1', faces:['sideFace','backFace']}
         ];
 
         return {pts, faces, edges};
@@ -1810,24 +1831,33 @@
 
         const geom = buildGeometry(model);
 
+        const viewPts = {};
+        Object.keys(geom.pts).forEach(k => viewPts[k] = transformPoint(geom.pts[k]));
+
         const projected = {};
-        Object.keys(geom.pts).forEach(k => projected[k] = projectPoint(geom.pts[k], canvas));
+        Object.keys(viewPts).forEach(k => projected[k] = projectPoint(viewPts[k], canvas));
 
         state.scene.clickableObjects = [];
-        const faceDrawOrder = geom.faces
+        const faceRenderData = geom.faces
             .map(face => {
-            const depth = face.vertices.reduce((s,v)=>s + projected[v].depth, 0) / face.vertices.length;
-            return {...face, avgDepth: depth};
+            const v = face.vertices;
+            const p1 = viewPts[v[0]], p2 = viewPts[v[1]], p3 = viewPts[v[2]];
+            const ux = p2.x - p1.x, uy = p2.y - p1.y;
+            const vx = p3.x - p1.x, vy = p3.y - p1.y;
+            const normalZ = ux * vy - uy * vx;
+            const depth = v.reduce((s, name)=>s + viewPts[name].z, 0) / v.length;
+            return {...face, avgDepth: depth, visible: normalZ < 0};
         })
             .sort((f1,f2)=>f1.avgDepth - f2.avgDepth);
+        const faceVisibility = Object.fromEntries(faceRenderData.map(face => [face.key, face.visible]));
 
         const activeTokens = getActiveTokens();
 
         if(state.scene.showFaces){
-            faceDrawOrder.forEach(face => drawFace(ctx, face, projected, activeTokens));
+            faceRenderData.forEach(face => drawFace(ctx, face, projected, activeTokens));
         }
 
-        drawEdges(ctx, geom.edges, projected, activeTokens);
+        drawEdges(ctx, geom.edges, projected, faceVisibility);
 
         if(state.scene.showDiagFace){
             drawLineObject(ctx, projected.A, projected.B1, 'faceDiagonal', activeTokens, {
@@ -1902,11 +1932,12 @@
         for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x, pts[i].y);
         ctx.closePath();
         ctx.fillStyle = face.fill;
-        ctx.globalAlpha = active ? 0.85 : 0.58;
+        ctx.globalAlpha = face.visible ? (active ? 0.88 : 0.65) : 0.22;
         ctx.fill();
         ctx.globalAlpha = 1;
-        ctx.strokeStyle = themeVar('--line');
-        ctx.lineWidth = active ? 4 : 2.5;
+        ctx.strokeStyle = face.visible ? themeVar('--line') : themeVar('--hidden');
+        ctx.lineWidth = active ? 4 : (face.visible ? 2.5 : 1.5);
+        if(!face.visible) ctx.setLineDash([8,6]);
         ctx.stroke();
         ctx.restore();
 
@@ -1915,16 +1946,15 @@
         state.scene.clickableObjects.push({key:face.key, x:cx, y:cy, r:34, label:face.name});
     }
 
-    function drawEdges(ctx, edges, projected, activeTokens){
+    function drawEdges(ctx, edges, projected, faceVisibility){
         const colors = {
             line: themeVar('--line'),
-            hidden: themeVar('--hidden'),
-            accent: themeVar('--accent')
+            hidden: themeVar('--hidden')
         };
-        edges.forEach(([a,b])=>{
+        edges.forEach(({a,b,faces})=>{
             const p1 = projected[a], p2 = projected[b];
-            const avgDepth = (p1.depth + p2.depth) / 2;
-            const isHidden = avgDepth > 0.55;
+            const visibleAdjacentFaces = faces.filter(faceKey => faceVisibility[faceKey]).length;
+            const isHidden = visibleAdjacentFaces === 0;
             if(isHidden && !state.scene.showHidden) return;
 
             ctx.save();
