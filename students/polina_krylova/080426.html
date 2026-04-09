@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Наглядная химия — ЕГЭ</title>
+  <style>
+    :root{
+      --bg:#0f1420;
+      --bg2:#171f2e;
+      --card:#1e2a3d;
+      --line:#2f4261;
+      --txt:#eaf1ff;
+      --muted:#a6b4d1;
+      --accent:#59d0c8;
+      --accent2:#7bb3ff;
+      --ok:#8be28b;
+      --warn:#ffd27a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      color:var(--txt);
+      background:linear-gradient(180deg,var(--bg),#0b111c);
+      line-height:1.45;
+    }
+    .wrap{max-width:1320px;margin:0 auto;padding:16px}
+    h1,h2,h3{margin:0 0 10px}
+    h1{font-size:1.7rem}
+    h2{font-size:1.25rem;color:var(--accent)}
+    h3{font-size:1.02rem;color:var(--accent2)}
+    .lead{color:var(--muted);margin-bottom:14px}
+    .grid{display:grid;grid-template-columns:1.2fr .9fr;gap:16px;align-items:start}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px;
+      box-shadow:0 8px 20px rgba(0,0,0,.2);
+    }
+    .controls{display:grid;grid-template-columns:repeat(2,minmax(180px,1fr));gap:10px;margin-bottom:12px}
+    .control{display:flex;flex-direction:column;gap:6px}
+    select,button,input[type="checkbox"]{
+      background:#101a2a;
+      color:var(--txt);
+      border:1px solid #365075;
+      border-radius:10px;
+      padding:8px 10px;
+      font-size:.96rem;
+    }
+    button{cursor:pointer}
+    button:hover{border-color:var(--accent)}
+    .btnrow{display:flex;flex-wrap:wrap;gap:8px}
+    .step{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px;
+      margin:8px 0;
+      background:#19263a;
+    }
+    .step.hidden{display:none}
+    .step .tag{
+      display:inline-block;
+      font-size:.78rem;
+      color:#08131f;
+      background:var(--accent);
+      padding:2px 8px;
+      border-radius:999px;
+      margin-bottom:6px;
+      font-weight:700;
+    }
+    .eq{
+      background:#111b2b;
+      border:1px dashed #3d5a86;
+      border-radius:10px;
+      padding:8px;
+      margin:6px 0;
+      font-family:"Consolas","Segoe UI",monospace;
+      font-size:1rem;
+      overflow:auto;
+      white-space:nowrap;
+    }
+    .idea li{margin:6px 0}
+    .sticky{position:sticky;top:12px}
+    .scheme{
+      display:grid;
+      gap:8px;
+      margin-top:10px;
+    }
+    .node{
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:8px;
+      text-align:center;
+      background:#132134;
+      transition:.2s;
+    }
+    .node.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(89,208,200,.2)}
+    .arrow{text-align:center;color:var(--accent2);font-weight:700}
+    .legend{font-size:.92rem;color:var(--muted)}
+    .hl{outline:2px solid rgba(123,179,255,.8)}
+    .quiz q{display:block;margin-bottom:8px}
+    .quiz-result{font-weight:700;margin-top:8px}
+    .ok{color:var(--ok)}
+    .bad{color:#ff9a9a}
+    .errors li{margin:6px 0}
+    .gen-item{border-top:1px solid #2d3f5d;padding-top:8px;margin-top:8px}
+    .foot{color:var(--muted);font-size:.92rem;margin-top:8px}
+
+    @media (max-width:1024px){
+      .grid{grid-template-columns:1fr}
+      .sticky{position:static}
+      .controls{grid-template-columns:1fr}
+    }
+
+    @media print{
+      body{background:#fff;color:#000}
+      .card{background:#fff;color:#000;border:1px solid #bbb;box-shadow:none}
+      .controls,.btnrow,.quiz button,.generator-controls button{display:none !important}
+      .grid{grid-template-columns:1fr}
+      .sticky{position:static}
+      .eq{background:#fff;border:1px solid #777}
+      h2,h3{color:#000}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Наглядная химия: теория и упражнения (ЕГЭ)</h1>
+    <p class="lead">Цель: подготовка к ЕГЭ • Уровень: уверенный • Фокус: логика распознавания вещества или реакции • Режим: пошаговое раскрытие.</p>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Пошаговый разбор</h2>
+
+        <div class="controls">
+          <label class="control">Подробность
+            <select id="detailMode">
+              <option value="short">Кратко</option>
+              <option value="standard" selected>Стандартно</option>
+              <option value="deep">Очень подробно</option>
+            </select>
+          </label>
+          <label class="control">Режим показа
+            <select id="viewMode">
+              <option value="step" selected>Пошаговое раскрытие</option>
+              <option value="all">Показать всё сразу</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="btnrow">
+          <button id="prevStep">◀ Предыдущий шаг</button>
+          <button id="nextStep">Следующий шаг ▶</button>
+          <button id="resetStep">Сброс</button>
+        </div>
+
+        <div class="card" style="margin-top:10px;background:#152337">
+          <h3>Идея решения</h3>
+          <ul class="idea" id="ideaList">
+            <li>Определяем класс вещества по функциональной группе или признаку.</li>
+            <li>Подбираем реактив, который даёт однозначный наблюдаемый эффект.</li>
+            <li>Проверяем, что уравнение химически правдоподобно и уравнено.</li>
+            <li>Отсекаем похожие, но неверные реактивы (например, «серебряное зеркало» не для большинства кислот).</li>
+          </ul>
+        </div>
+
+        <article id="steps">
+          <div class="step" data-node="n1"><span class="tag">1) Что дано</span>
+            <p>Нужно распознать вещества и типы реакций из тем пособия: карбоновые кислоты, альдегиды, одно- и многоатомные спирты, алкены/фенол; а также типовые неорганические обменные реакции и расчёты.</p>
+          </div>
+
+          <div class="step" data-node="n2"><span class="tag">2) Что требуется найти</span>
+            <p>Определить корректный реактив и предсказать признак реакции (газ, осадок, изменение цвета), затем подтвердить записью уравнения и короткой проверкой.</p>
+          </div>
+
+          <div class="step" data-node="n3"><span class="tag">3) Распознавание класса/типа</span>
+            <p><strong>Органика:</strong> ориентируемся на функциональные группы.<br>
+              <strong>Неорганика:</strong> проверяем критерий ионного обмена (осадок / газ / слабый электролит).<br>
+              <strong>Расчёты:</strong> применяем стехиометрию, n = V/22,4 при н.у., формулу выхода η.</p>
+          </div>
+
+          <div class="step" data-node="n4"><span class="tag">4) Что означает каждое условие</span>
+            <p>Если дан NaHCO₃, ожидаем реакцию с кислотой и выделение CO₂. Если «аммиачный раствор оксида серебра» — это тест на альдегид (исключение: HCOOH). Если Cu(OH)₂ при комнатной температуре — тест на многоатомный спирт.</p>
+            <div class="eq">CH₃COOH + NaHCO₃ → CH₃COONa + H₂O + CO₂↑</div>
+          </div>
+
+          <div class="step" data-node="n5"><span class="tag">5) Ключевая химическая идея</span>
+            <p>Используем <em>селективный признак</em>: реактив выбираем не «похожий», а тот, который даёт максимально однозначный результат для данного класса веществ.</p>
+          </div>
+
+          <div class="step" data-node="n6"><span class="tag">6) Пошаговое доведение до ответа</span>
+            <p><strong>Пример А (альдегид):</strong> реактив Толленса, признак — «серебряное зеркало».</p>
+            <div class="eq">R–CHO + 2[Ag(NH₃)₂]OH → R–COONH₄ + 2Ag↓ + 3NH₃ + H₂O</div>
+            <p><strong>Пример Б (этанол):</strong> мягкое окисление оксидом меди(II).</p>
+            <div class="eq">CH₃CH₂OH + CuO → CH₃CHO + Cu + H₂O (t°)</div>
+            <p><strong>Пример В (ОВР с HNO₃(конц.), t°):</strong></p>
+            <div class="eq">Fe + 6HNO₃ → Fe(NO₃)₃ + 3NO₂ + 3H₂O</div>
+            <p><strong>Пример Г (ионный переход):</strong></p>
+            <div class="eq">Молекулярное: CuSO₄ + Na₂CO₃ + H₂O → Cu(OH)₂↓ + CO₂↑ + Na₂SO₄</div>
+            <div class="eq">Полное ионное: Cu²⁺ + SO₄²⁻ + 2Na⁺ + CO₃²⁻ + H₂O → Cu(OH)₂↓ + CO₂↑ + 2Na⁺ + SO₄²⁻</div>
+            <div class="eq">Сокращённое ионное: Cu²⁺ + CO₃²⁻ + H₂O → Cu(OH)₂↓ + CO₂↑</div>
+          </div>
+
+          <div class="step" data-node="n7"><span class="tag">7) Финальная проверка по условию</span>
+            <ul>
+              <li>Проверены коэффициенты и сохранение атомов.</li>
+              <li>Для ионного уравнения сохранён заряд и сокращены только ионы-наблюдатели.</li>
+              <li>Для расчётов используется корректная размерность (л, моль, г, %).</li>
+              <li>Для выбора реактива объяснено, почему альтернативы не подходят.</li>
+            </ul>
+          </div>
+
+          <div class="step" data-node="n8"><span class="tag">8) Краткий вывод</span>
+            <p>Метод распознавания строится на связке «класс вещества → селективный реактив → наблюдаемый признак → проверка уравнения». Этот же шаблон переносится на похожие задачи ЕГЭ.</p>
+          </div>
+        </article>
+
+        <section class="card" style="margin-top:10px">
+          <h3>Типичные ошибки</h3>
+          <ul class="errors">
+            <li>Использовать реактив Толленса для всех карбоновых кислот (кроме HCOOH это неверно).</li>
+            <li>Считать, что между двумя солями/кислотами в растворе реакция всегда идёт, даже без осадка/газа/слабого электролита.</li>
+            <li>Пропускать коэффициент 6 в уравнении Fe + HNO₃(конц.) → ...</li>
+            <li>В расчётах выхода путать теоретическую и практическую массу.</li>
+            <li>Слишком рано округлять результаты и терять точность.</li>
+          </ul>
+        </section>
+
+        <section class="card quiz" style="margin-top:10px">
+          <h3>Мини-квиз</h3>
+          <q>Какой реактив выбирают для доказательства карбоновой кислоты в школьной задаче?</q>
+          <label><input type="radio" name="q1" value="a"> Аммиачный раствор оксида серебра</label><br>
+          <label><input type="radio" name="q1" value="b"> NaHCO₃</label><br>
+          <label><input type="radio" name="q1" value="c"> CuO без нагревания</label><br>
+          <button id="checkQuiz">Проверить</button>
+          <div id="quizResult" class="quiz-result"></div>
+        </section>
+
+        <section class="card" style="margin-top:10px">
+          <h3>Самопроверка перед ответом</h3>
+          <label><input type="checkbox" class="self"> Я указал класс вещества и тип реакции.</label><br>
+          <label><input type="checkbox" class="self"> Я записал уравнение с коэффициентами.</label><br>
+          <label><input type="checkbox" class="self"> Я назвал наблюдаемый признак реакции.</label><br>
+          <label><input type="checkbox" class="self"> Я проверил атомный/зарядовый баланс.</label><br>
+          <label><input type="checkbox" class="self"> Я кратко объяснил, почему альтернативы хуже.</label>
+          <div class="foot" id="selfStat">Отмечено: 0/5</div>
+        </section>
+      </section>
+
+      <aside class="card sticky" id="vizPanel">
+        <h2>Интерактивная модель</h2>
+        <div class="btnrow" style="margin-bottom:10px">
+          <button data-toggle="scheme" class="toggleBtn">Схема превращений</button>
+          <button data-toggle="redox" class="toggleBtn">ОВР-баланс</button>
+          <button data-toggle="ionic" class="toggleBtn">Ионный блок</button>
+        </div>
+
+        <div id="schemeBox" class="viz-box">
+          <h3>Схема превращений (органика)</h3>
+          <div class="scheme" id="scheme">
+            <div class="node" id="n1">CH₃CH₂OH<br><small>одноатомный спирт</small></div>
+            <div class="arrow">CuO, t° →</div>
+            <div class="node" id="n2">CH₃CHO<br><small>альдегид</small></div>
+            <div class="arrow">[O] →</div>
+            <div class="node" id="n3">CH₃COOH<br><small>карбоновая кислота</small></div>
+            <div class="arrow">+ NaHCO₃ →</div>
+            <div class="node" id="n4">CH₃COONa + CO₂↑ + H₂O</div>
+          </div>
+          <p class="legend">Легенда: бирюзовый контур = активный этап текущего шага решения.</p>
+        </div>
+
+        <div id="redoxBox" class="viz-box" style="display:none">
+          <h3>Электронный баланс (Fe + HNO₃)</h3>
+          <div class="eq">Fe⁰ − 3e⁻ → Fe³⁺  (восстановитель: Fe)</div>
+          <div class="eq">N⁺⁵ + e⁻ → N⁺⁴ (в NO₂)  (окислитель: HNO₃)</div>
+          <div class="eq">Итог: Fe + 6HNO₃ → Fe(NO₃)₃ + 3NO₂ + 3H₂O</div>
+        </div>
+
+        <div id="ionicBox" class="viz-box" style="display:none">
+          <h3>Молекулярное → полное ионное → сокращённое</h3>
+          <div class="eq">CuSO₄ + Na₂CO₃ + H₂O → Cu(OH)₂↓ + CO₂↑ + Na₂SO₄</div>
+          <div class="eq">Cu²⁺ + SO₄²⁻ + 2Na⁺ + CO₃²⁻ + H₂O → Cu(OH)₂↓ + CO₂↑ + 2Na⁺ + SO₄²⁻</div>
+          <div class="eq">Cu²⁺ + CO₃²⁻ + H₂O → Cu(OH)₂↓ + CO₂↑</div>
+        </div>
+
+        <section class="card" style="margin-top:10px;background:#152337">
+          <h3>Генератор похожих задач (3 задачи)</h3>
+          <div class="generator-controls btnrow">
+            <button id="gen3">Сгенерировать</button>
+            <button id="applyTask">Применить 1-ю к модели</button>
+          </div>
+          <div id="generated"></div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const steps = [...document.querySelectorAll('.step')];
+    const viewMode = document.getElementById('viewMode');
+    const detailMode = document.getElementById('detailMode');
+    const nextBtn = document.getElementById('nextStep');
+    const prevBtn = document.getElementById('prevStep');
+    const resetBtn = document.getElementById('resetStep');
+    const ideaList = document.getElementById('ideaList');
+    let current = 0;
+
+    function applyStepMode(){
+      const mode = viewMode.value;
+      steps.forEach((s,i)=>{
+        s.classList.toggle('hidden', mode==='step' && i>current);
+      });
+      highlightNode();
+    }
+
+    function highlightNode(){
+      document.querySelectorAll('.node').forEach(n=>n.classList.remove('active'));
+      const nodeId = steps[Math.min(current, steps.length-1)]?.dataset.node;
+      if(nodeId){
+        const n = document.getElementById(nodeId);
+        if(n) n.classList.add('active');
+      }
+    }
+
+    function setDetail(){
+      const mode = detailMode.value;
+      const deepNotes = {
+        short:[
+          'Сначала класс вещества, потом реактив.',
+          'Берём только селективные признаки.',
+          'Проверяем уравнение и вывод.'
+        ],
+        standard:[
+          'Определяем функциональную группу и тип реакции.',
+          'Подбираем реактив, который даёт однозначный признак.',
+          'Проверяем уравнивание и применимость школьного правила.',
+          'Сверяем, почему альтернативы менее корректны.'
+        ],
+        deep:[
+          'Устанавливаем класс вещества и конкурирующие варианты распознавания.',
+          'Выбираем реактив с максимальной селективностью и объясняем механизм признака на школьном уровне.',
+          'Записываем уравнение(я): молекулярное, а при необходимости полное и сокращённое ионное.',
+          'Проверяем атомный и зарядовый баланс, условия протекания и наблюдаемые эффекты.',
+          'Формулируем итог с ограничениями метода (где правило требует оговорки).'
+        ]
+      };
+      ideaList.innerHTML = deepNotes[mode].map(t=>`<li>${t}</li>`).join('');
+
+      steps.forEach((s, idx)=>{
+        let extra = s.querySelector('.extra');
+        if(!extra){
+          extra = document.createElement('div');
+          extra.className='extra';
+          s.appendChild(extra);
+        }
+        if(mode==='short'){
+          extra.textContent='';
+        }else if(mode==='standard'){
+          extra.innerHTML = idx===5 ? '<p><em>Подсказка:</em> проверяй признак реакции одновременно с записью уравнения.</p>' : '';
+        }else{
+          const tips = [
+            'Контекст ЕГЭ: обычно требуется не просто назвать реактив, а дать признак.',
+            'Цель ответа: вещество + реактив + наблюдение + уравнение (если просят).',
+            'Сначала решаем классификацию, потом детальную химию.',
+            'Важно различать «реагирует» и «реакция аналитически полезна».',
+            'Идея селективности снижает число случайных ошибок.',
+            'Для длинных задач полезно делать мини-план в 3–4 пункта.',
+            'Финальная проверка должна быть явной, а не подразумеваемой.',
+            'Краткий вывод фиксирует метод, чтобы переносить его на похожие задания.'
+          ];
+          extra.innerHTML = `<p style="color:#c6d8ff">${tips[idx]}</p>`;
+        }
+      });
+    }
+
+    nextBtn.addEventListener('click',()=>{ if(current<steps.length-1){current++; applyStepMode();}});
+    prevBtn.addEventListener('click',()=>{ if(current>0){current--; applyStepMode();}});
+    resetBtn.addEventListener('click',()=>{ current=0; applyStepMode(); });
+    viewMode.addEventListener('change',applyStepMode);
+    detailMode.addEventListener('change',setDetail);
+
+    // hover linkage step <-> scheme nodes
+    steps.forEach(s=>{
+      s.addEventListener('mouseenter',()=>{
+        const id = s.dataset.node;
+        if(!id) return;
+        document.getElementById(id)?.classList.add('hl');
+      });
+      s.addEventListener('mouseleave',()=>{
+        const id = s.dataset.node;
+        if(!id) return;
+        document.getElementById(id)?.classList.remove('hl');
+      });
+    });
+
+    document.querySelectorAll('.node').forEach(n=>{
+      n.addEventListener('mouseenter',()=>{
+        const step = document.querySelector(`.step[data-node="${n.id}"]`);
+        step?.classList.add('hl');
+      });
+      n.addEventListener('mouseleave',()=>{
+        const step = document.querySelector(`.step[data-node="${n.id}"]`);
+        step?.classList.remove('hl');
+      });
+    });
+
+    // toggle visual modes
+    document.querySelectorAll('.toggleBtn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const map = {scheme:'schemeBox', redox:'redoxBox', ionic:'ionicBox'};
+        Object.values(map).forEach(id=>document.getElementById(id).style.display='none');
+        document.getElementById(map[btn.dataset.toggle]).style.display='block';
+      });
+    });
+
+    // quiz
+    document.getElementById('checkQuiz').addEventListener('click',()=>{
+      const pick = document.querySelector('input[name="q1"]:checked');
+      const out = document.getElementById('quizResult');
+      if(!pick){ out.textContent='Выберите вариант.'; out.className='quiz-result bad'; return; }
+      if(pick.value==='b'){
+        out.textContent='Верно: NaHCO₃ даёт выделение CO₂ с карбоновой кислотой.';
+        out.className='quiz-result ok';
+      }else{
+        out.textContent='Неверно: для большинства карбоновых кислот корректный школьный выбор — NaHCO₃.';
+        out.className='quiz-result bad';
+      }
+    });
+
+    // self-check
+    const selfBoxes = [...document.querySelectorAll('.self')];
+    const selfStat = document.getElementById('selfStat');
+    selfBoxes.forEach(cb=>cb.addEventListener('change',()=>{
+      const n = selfBoxes.filter(x=>x.checked).length;
+      selfStat.textContent = `Отмечено: ${n}/5`;
+    }));
+
+    // generator (safe curated templates)
+    const taskBank = [
+      {
+        q:'Подберите реактив для различения этаналя и этанола.',
+        a:'Аммиачный раствор оксида серебра: этаналь даёт «серебряное зеркало», этанол — нет.',
+        idea:'Различаем по наличию альдегидной группы –CHO.'
+      },
+      {
+        q:'Запишите признак реакции уксусной кислоты с NaHCO₃.',
+        a:'Выделение CO₂ (пузырьки), образуется ацетат натрия и вода.',
+        idea:'Карбоновые кислоты реагируют с гидрокарбонатами с выделением углекислого газа.'
+      },
+      {
+        q:'Уравняйте: Fe + HNO₃(конц.) → Fe(NO₃)₃ + NO₂ + H₂O.',
+        a:'Fe + 6HNO₃ → Fe(NO₃)₃ + 3NO₂ + 3H₂O.',
+        idea:'Fe окисляется до +3, N(+5) восстанавливается до N(+4).'
+      },
+      {
+        q:'Реагируют ли CuSO₄ и разбавленная HNO₃ в растворе?',
+        a:'В школьной постановке — нет, нет осадка/газа/слабого электролита.',
+        idea:'Проверяем критерий необратимости ионного обмена.'
+      },
+      {
+        q:'Из 1 м³ CO и 2 м³ H₂ получили 1,0 кг CH₃OH. Найдите выход.',
+        a:'Около 70%.',
+        idea:'Сначала теоретическая масса по стехиометрии, затем η = m(практ)/m(теор) · 100%.'
+      }
+    ];
+
+    const generated = document.getElementById('generated');
+    let currentSet = [];
+
+    function pickThree(){
+      const copy = [...taskBank];
+      const out = [];
+      for(let i=0;i<3;i++){
+        const idx = Math.floor(Math.random()*copy.length);
+        out.push(copy.splice(idx,1)[0]);
+      }
+      return out;
+    }
+
+    function renderGenerated(){
+      generated.innerHTML = currentSet.map((t,i)=>`
+        <div class="gen-item">
+          <strong>${i+1}) ${t.q}</strong>
+          <div><span style="color:var(--muted)">Идея:</span> ${t.idea}</div>
+          <div><span style="color:var(--muted)">Ответ:</span> ${t.a}</div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('gen3').addEventListener('click',()=>{
+      currentSet = pickThree();
+      renderGenerated();
+    });
+
+    document.getElementById('applyTask').addEventListener('click',()=>{
+      if(!currentSet.length){ currentSet = pickThree(); renderGenerated(); }
+      document.getElementById('schemeBox').style.display='block';
+      document.getElementById('redoxBox').style.display='none';
+      document.getElementById('ionicBox').style.display='none';
+      current = 2;
+      viewMode.value='step';
+      applyStepMode();
+      alert('Первая сгенерированная задача применена: откройте шаги 3–7 и сверяйте с моделью справа.');
+    });
+
+    // init
+    setDetail();
+    applyStepMode();
+    currentSet = pickThree();
+    renderGenerated();
+  </script>
+</body>
+</html>
