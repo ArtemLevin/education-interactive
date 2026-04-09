@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Линейная функция · наглядная математика</title>
+    <style>
+        /* ----- RESET & NEO-BRUTALIST BASE ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #F4F4F0;
+            --surface: #FFFFFF;
+            --text: #000000;
+            --border: #000000;
+            --accent: #D72638;
+            --shadow: #000000;
+            --axis: #000000;
+            --grid: #cccccc;
+        }
+
+        body.dark {
+            --bg: #1A1A1A;
+            --surface: #2C2C2C;
+            --text: #F0F0F0;
+            --border: #F0F0F0;
+            --shadow: #F0F0F0;
+            --axis: #F0F0F0;
+            --grid: #444444;
+        }
+
+        body {
+            font-family: 'Inter', 'Helvetica Neue', 'Arial', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            transition: background 0.2s, color 0.2s;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            width: 100%;
+        }
+
+        /* ----- TYPOGRAPHY (uppercase, sharp) ----- */
+        h1, h2, h3, .nav-title {
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+        h1 { font-size: 3rem; line-height: 1.1; }
+        h2 { font-size: 2rem; margin-top: 1.5rem; }
+        h3 { font-size: 1.5rem; }
+
+        /* ----- NEO-BRUTALIST COMPONENTS (sharp, offset shadow) ----- */
+        .card, .nav, .banner, button, .canvas-wrapper, .step-panel,
+        .quiz-item, .generator-box, .modal-content, .footer, .legend-box,
+        .hint-box {
+            border: 2px solid var(--border);
+            box-shadow: 4px 4px 0 var(--shadow);
+            background: var(--surface);
+            border-radius: 0;
+            transition: all 0.1s ease;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            background: var(--surface);
+            cursor: pointer;
+            font-size: 0.9rem;
+            border: 2px solid var(--border);
+            box-shadow: 4px 4px 0 var(--shadow);
+            color: var(--text);
+        }
+        button:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 var(--shadow);
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--border);
+        }
+        body.dark .btn-primary {
+            color: #000;
+        }
+
+        /* navigation */
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .nav-links { display: flex; gap: 0.5rem; }
+        .nav-item {
+            padding: 0.5rem 1.2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            background: var(--accent);
+            color: #fff;
+            border: 2px solid var(--border);
+            box-shadow: 3px 3px 0 var(--shadow);
+        }
+
+        /* banner */
+        .banner {
+            background: #000;
+            color: #fff;
+            padding: 0.8rem 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        body.dark .banner {
+            background: #000;
+            color: #fff;
+            border-color: var(--border);
+        }
+
+        /* 2x2 cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .mode-card {
+            background: var(--surface);
+            padding: 1.8rem 1.2rem;
+            border: 2px solid var(--border);
+            box-shadow: 6px 6px 0 var(--shadow);
+        }
+        .mode-card .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .mode-card h4 { font-size: 1.5rem; text-transform: uppercase; font-weight: 800; }
+
+        /* two column */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        /* sticky canvas */
+        .sticky-wrapper {
+            position: relative;
+        }
+        .sticky-canvas {
+            position: sticky;
+            top: 1rem;
+        }
+        .canvas-wrapper {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            background: var(--surface);
+            cursor: grab;
+            touch-action: none;
+        }
+        canvas:active { cursor: grabbing; }
+        .canvas-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        input[type="range"] {
+            width: 120px;
+            margin: 0 0.5rem;
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            height: 4px;
+            background: var(--text);
+            border: 1px solid var(--border);
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 10px;
+            background: var(--accent);
+            border: 2px solid var(--border);
+            margin-top: -8px;
+        }
+
+        /* legend / hints */
+        .legend-box {
+            padding: 0.8rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        .hint-box {
+            padding: 0.8rem;
+            margin: 1rem 0;
+            position: relative;
+        }
+        .hint-close {
+            position: absolute;
+            top: 0.2rem; right: 0.5rem;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* step panel */
+        .step {
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .step.active {
+            border-left: 4px solid var(--accent);
+            background: rgba(0,0,0,0.05);
+            font-weight: 600;
+        }
+        body.dark .step.active { background: #3A3A3A; }
+
+        /* quiz / generator */
+        .quiz-item { padding: 1rem; margin: 0.8rem 0; }
+        .generator-box { padding: 1.5rem; margin: 1.5rem 0; }
+
+        .footer {
+            margin-top: 3rem;
+            padding: 1.5rem;
+            text-align: center;
+            border-top: 2px solid var(--border);
+        }
+        .footer-tag { color: var(--accent); font-weight: 800; text-transform: uppercase; }
+
+        /* modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            width: 90vw;
+            max-width: 1000px;
+            background: var(--bg);
+            padding: 1rem;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 0.5rem; right: 1rem;
+            font-size: 2rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* print */
+        @media print {
+            .nav, .theme-toggle, .canvas-controls, .step-nav, button,
+            .card-grid, .generator-box, .quiz-item button, .modal, .footer,
+            .hint-box .hint-close, .no-print { display: none !important; }
+            .two-column { display: block; }
+            .sticky-canvas { position: static; }
+            body { background: white; color: black; }
+            .print-summary { display: block !important; }
+        }
+
+        .print-summary { display: none; }
+
+        @media (max-width: 800px) {
+            .two-column { grid-template-columns: 1fr; }
+            .sticky-canvas { position: static; }
+            .container { padding: 1rem; }
+        }
+
+        /* helpers */
+        .flex { display: flex; gap: 0.5rem; align-items: center; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mt-2 { margin-top: 1rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-title">📐 MATH·STUDIO</div>
+        <div class="nav-links">
+            <span class="nav-item active">ТЕОРИЯ</span>
+            <span class="nav-item">ТРЕНАЖЁР</span>
+            <span class="nav-item">ЗАДАЧИ</span>
+        </div>
+        <button class="theme-toggle" id="themeToggle">🌙 DARK</button>
+    </nav>
+
+    <!-- Hero -->
+    <h1>ЛИНЕЙНАЯ<br>ФУНКЦИЯ</h1>
+    <div class="banner">y = kx + b · УГЛОВОЙ КОЭФФИЦИЕНТ · СВОБОДНЫЙ ЧЛЕН</div>
+
+    <!-- 2x2 cards (иконки в стиле line-art) -->
+    <div class="card-grid">
+        <div class="mode-card"><div class="icon">📈</div><h4>ПОСТРОЕНИЕ</h4><div class="sub">от двух точек</div></div>
+        <div class="mode-card"><div class="icon">🔍</div><h4>АНАЛИЗ</h4><div class="sub">k и b по графику</div></div>
+        <div class="mode-card"><div class="icon">⚖️</div><h4>СРАВНЕНИЕ</h4><div class="sub">параллельность</div></div>
+        <div class="mode-card"><div class="icon">🧩</div><h4>ЗАДАЧИ</h4><div class="sub">пересечение</div></div>
+    </div>
+
+    <!-- Обучающие подсказки (3 шт) -->
+    <div class="hint-box" id="hint1"><span class="hint-close" data-hint="1">&times;</span>💡 Наведи на шаг — объект на графике подсветится.</div>
+    <div class="hint-box" id="hint2"><span class="hint-close" data-hint="2">&times;</span>🖱️ Зажми левую кнопку и двигай мышь — сдвинешь координатную плоскость.</div>
+    <div class="hint-box" id="hint3"><span class="hint-close" data-hint="3">&times;</span>🔍 Крути колёсико или двигай слайдер, чтобы изменить масштаб.</div>
+
+    <!-- Two column -->
+    <div class="two-column">
+        <div class="step-panel">
+            <h2 style="margin-top:0;">РАЗБОР: <span id="funcDisplay">y = 2x − 1</span></h2>
+            <div id="stepContainer">
+                <div class="step active" data-step="0">1. Что дано: y = 2x − 1</div>
+                <div class="step" data-step="1">2. k = 2 > 0 → функция возрастает</div>
+                <div class="step" data-step="2">3. b = −1 → точка пересечения с Oy: (0, −1)</div>
+                <div class="step" data-step="3">4. Найдём вторую точку: x=1 → y=1</div>
+                <div class="step" data-step="4">5. Проведём прямую через (0,−1) и (1,1)</div>
+            </div>
+            <div class="step-nav">
+                <button id="prevStep">← НАЗАД</button>
+                <button id="nextStep">ВПЕРЁД →</button>
+                <button id="showAllSteps">ПОКАЗАТЬ ВСЁ</button>
+            </div>
+            <div style="margin-top:1.5rem;">
+                <h3>💡 ИДЕЯ РЕШЕНИЯ</h3>
+                <p>k задаёт наклон, b — точку на оси Y. Достаточно двух точек.</p>
+            </div>
+            <div>
+                <h3>⚠️ ТИПИЧНЫЕ ОШИБКИ</h3>
+                <ul><li>Путаница знака k и направления</li><li>Неправильный выбор точек</li></ul>
+            </div>
+            <div>
+                <h3>✅ ПРОВЕРКА</h3>
+                <p>Подставьте x=0 → y=−1 (верно). При x=2 → y=3 (точка лежит на прямой).</p>
+            </div>
+            <div>
+                <h3>📌 КРАТКИЙ ИТОГ</h3>
+                <p>y = kx + b: k>0 ↗, k<0 ↘; b — пересечение с Oy.</p>
+            </div>
+        </div>
+
+        <div class="sticky-wrapper">
+            <div class="sticky-canvas">
+                <div class="canvas-wrapper">
+                    <canvas id="mainCanvas" width="500" height="400"></canvas>
+                    <div class="canvas-controls">
+                        <button id="zoomOutMain">−</button>
+                        <input type="range" id="zoomSliderMain" min="15" max="120" value="40" step="1">
+                        <button id="zoomInMain">+</button>
+                        <button id="resetViewMain">⟲ СБРОС</button>
+                        <span style="margin-left:auto;">🖱️ drag</span>
+                    </div>
+                </div>
+                <div class="legend-box" id="legendBox">
+                    <strong>ЛЕГЕНДА</strong><br>
+                    <span style="color:#D72638;">●</span> точка (0,b)   
+                    <span style="color:var(--text);">●</span> вторая точка   
+                    <span>—— прямая y=kx+b</span>
+                </div>
+                <button id="openModal" style="width:100%; margin-top:0.5rem;">🔍 УВЕЛИЧИТЬ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Генератор задач -->
+    <div class="generator-box">
+        <h3>🎲 ГЕНЕРАТОР ЗАДАЧ</h3>
+        <div class="flex" style="justify-content: space-between;">
+            <span id="generatedFunction">y = 2.0 x − 1.0</span>
+            <button id="newTaskBtn">НОВАЯ ЗАДАЧА</button>
+        </div>
+        <p id="taskHint" style="margin-top:0.8rem;">k = 2.0, b = −1.0. Возрастает, пересекает Oy в (0, −1).</p>
+    </div>
+
+    <!-- Мини-квиз (4 вопроса) -->
+    <h3>📋 САМОПРОВЕРКА</h3>
+    <div class="quiz-item">
+        <p>1. Если k < 0, функция:</p>
+        <label><input type="radio" name="q1" value="dec"> убывает</label>  
+        <label><input type="radio" name="q1" value="inc"> возрастает</label>
+        <button class="check-quiz" data-q="1">ПРОВЕРИТЬ</button>
+        <span id="quizFeedback1"></span>
+    </div>
+    <div class="quiz-item">
+        <p>2. Точка пересечения y = 3x + 5 с осью Oy:</p>
+        <label><input type="radio" name="q2" value="5"> (0,5)</label>  
+        <label><input type="radio" name="q2" value="3"> (3,0)</label>
+        <button class="check-quiz" data-q="2">ПРОВЕРИТЬ</button>
+        <span id="quizFeedback2"></span>
+    </div>
+    <div class="quiz-item">
+        <p>3. Прямые y = 2x+1 и y = 2x−5:</p>
+        <label><input type="radio" name="q3" value="par"> параллельны</label>  
+        <label><input type="radio" name="q3" value="per"> пересекаются</label>
+        <button class="check-quiz" data-q="3">ПРОВЕРИТЬ</button>
+        <span id="quizFeedback3"></span>
+    </div>
+    <div class="quiz-item">
+        <p>4. Уравнение прямой, проходящей через (0,2) и (2,0):</p>
+        <label><input type="radio" name="q4" value="yx2"> y = x+2</label>  
+        <label><input type="radio" name="q4" value="ymx2"> y = −x+2</label>
+        <button class="check-quiz" data-q="4">ПРОВЕРИТЬ</button>
+        <span id="quizFeedback4"></span>
+    </div>
+
+    <!-- Print summary (скрыт на экране) -->
+    <div class="print-summary">
+        <h3>🖨️ ПАМЯТКА: линейная функция</h3>
+        <p>y = kx + b. k — угловой коэффициент, b — ордината пересечения с Oy.</p>
+    </div>
+
+    <footer class="footer">
+        <div>© 2025 MATH·STUDIO</div>
+        <div class="footer-tag">МАТЕМАТИКА. НАГЛЯДНО</div>
+    </footer>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="graphModal">
+    <div class="modal-content">
+        <span class="modal-close" id="closeModal">&times;</span>
+        <canvas id="modalCanvas" width="800" height="500" style="width:100%; height:auto;"></canvas>
+        <div class="canvas-controls">
+            <button id="modalZoomOut">−</button>
+            <input type="range" id="zoomSliderModal" min="15" max="120" value="45" step="1">
+            <button id="modalZoomIn">+</button>
+            <button id="modalReset">⟲ СБРОС</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        "use strict";
+
+        // ---------- ГЛОБАЛЬНОЕ СОСТОЯНИЕ ----------
+        const state = {
+            theme: 'light',
+            k: 2.0,
+            b: -1.0,
+            activeStep: 0,
+            viewMain: { offsetX: 0, offsetY: 0, scale: 40 },
+            viewModal: { offsetX: 0, offsetY: 0, scale: 45 },
+            isDraggingMain: false,
+            isDraggingModal: false,
+            lastMouse: { x: 0, y: 0 }
+        };
+
+        // DOM
+        const body = document.body;
+        const themeToggle = document.getElementById('themeToggle');
+        const mainCanvas = document.getElementById('mainCanvas');
+        const modalCanvas = document.getElementById('modalCanvas');
+        const ctx = mainCanvas.getContext('2d');
+        const mCtx = modalCanvas.getContext('2d');
+        const modal = document.getElementById('graphModal');
+        const funcDisplay = document.getElementById('funcDisplay');
+        const genSpan = document.getElementById('generatedFunction');
+        const taskHint = document.getElementById('taskHint');
+        const steps = document.querySelectorAll('.step');
+        const legendBox = document.getElementById('legendBox');
+
+        // Sliders
+        const sliderMain = document.getElementById('zoomSliderMain');
+        const sliderModal = document.getElementById('zoomSliderModal');
+
+        // ---------- ТЕМА ----------
+        function setTheme(theme) {
+            state.theme = theme;
+            body.classList.toggle('dark', theme === 'dark');
+            themeToggle.textContent = theme === 'dark' ? '☀️ LIGHT' : '🌙 DARK';
+            localStorage.setItem('mathTheme', theme);
+            drawMain(); drawModal();
+        }
+        const savedTheme = localStorage.getItem('mathTheme');
+        setTheme(savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+        themeToggle.addEventListener('click', () => setTheme(state.theme === 'light' ? 'dark' : 'light'));
+
+        // ---------- РИСОВАНИЕ (общая логика) ----------
+        function drawGridAndAxes(ctx, w, h, v) {
+            const { offsetX, offsetY, scale } = v;
+            ctx.save();
+            ctx.translate(w/2 + offsetX, h/2 - offsetY);
+            ctx.fillStyle = getComputedStyle(body).getPropertyValue('--surface').trim();
+            ctx.fillRect(-w/2-offsetX, -h/2+offsetY, w, h);
+
+            // сетка
+            ctx.lineWidth = 0.5;
+            ctx.strokeStyle = getComputedStyle(body).getPropertyValue('--grid').trim();
+            const step = scale;
+            const startX = Math.floor((-w/2 - offsetX)/scale)*scale;
+            const endX = Math.ceil((w/2 - offsetX)/scale)*scale;
+            const startY = Math.floor((-h/2 + offsetY)/scale)*scale;
+            const endY = Math.ceil((h/2 + offsetY)/scale)*scale;
+            for (let x = startX; x <= endX; x += step) {
+                ctx.beginPath();
+                ctx.moveTo(x, -h/2+offsetY);
+                ctx.lineTo(x, h/2+offsetY);
+                ctx.stroke();
+            }
+            for (let y = startY; y <= endY; y += step) {
+                ctx.beginPath();
+                ctx.moveTo(-w/2-offsetX, y);
+                ctx.lineTo(w/2-offsetX, y);
+                ctx.stroke();
+            }
+            // оси
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = getComputedStyle(body).getPropertyValue('--axis').trim();
+            ctx.beginPath();
+            ctx.moveTo(-w/2-offsetX, 0); ctx.lineTo(w/2-offsetX, 0);
+            ctx.moveTo(0, -h/2+offsetY); ctx.lineTo(0, h/2+offsetY);
+            ctx.stroke();
+            ctx.fillStyle = getComputedStyle(body).getPropertyValue('--text').trim();
+            ctx.font = 'bold 12px "Inter", sans-serif';
+            ctx.fillText('x', w/2-offsetX-15, -5);
+            ctx.fillText('y', 5, -h/2+offsetY+15);
+            ctx.restore();
+        }
+
+        function drawLine(ctx, w, h, v, kVal, bVal, highlightStep) {
+            const { offsetX, offsetY, scale } = v;
+            ctx.save();
+            ctx.translate(w/2 + offsetX, h/2 - offsetY);
+            // прямая
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = getComputedStyle(body).getPropertyValue('--text').trim();
+            ctx.beginPath();
+            const xStart = (-w/2 - offsetX) / scale;
+            const xEnd = (w/2 - offsetX) / scale;
+            ctx.moveTo(xStart*scale, -(kVal*xStart + bVal)*scale);
+            ctx.lineTo(xEnd*scale, -(kVal*xEnd + bVal)*scale);
+            ctx.stroke();
+
+            // точки
+            const pt1 = { x: 0, y: bVal };
+            const pt2 = { x: 1, y: kVal*1 + bVal };
+            // подсветка по шагу
+            ctx.fillStyle = '#D72638';
+            ctx.beginPath();
+            ctx.arc(pt1.x*scale, -pt1.y*scale, (highlightStep === 2) ? 8 : 6, 0, 2*Math.PI);
+            ctx.fill();
+            ctx.fillStyle = getComputedStyle(body).getPropertyValue('--text').trim();
+            ctx.beginPath();
+            ctx.arc(pt2.x*scale, -pt2.y*scale, (highlightStep === 3 || highlightStep === 4) ? 8 : 6, 0, 2*Math.PI);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawMain() {
+            const w = mainCanvas.width = mainCanvas.clientWidth || 500;
+            const h = mainCanvas.height = mainCanvas.clientHeight || 400;
+            drawGridAndAxes(ctx, w, h, state.viewMain);
+            drawLine(ctx, w, h, state.viewMain, state.k, state.b, state.activeStep);
+        }
+
+        function drawModal() {
+            modalCanvas.width = 800; modalCanvas.height = 500;
+            drawGridAndAxes(mCtx, 800, 500, state.viewModal);
+            drawLine(mCtx, 800, 500, state.viewModal, state.k, state.b, state.activeStep);
+        }
+
+        // ---------- СИНХРОНИЗАЦИЯ ИНТЕРФЕЙСА ----------
+        function updateUIForTask() {
+            const sign = state.b >= 0 ? '+' : '−';
+            const absB = Math.abs(state.b).toFixed(1);
+            const expr = `y = ${state.k.toFixed(1)} x ${sign} ${absB}`;
+            funcDisplay.textContent = expr;
+            genSpan.textContent = expr;
+            const trend = state.k > 0 ? 'возрастает' : (state.k < 0 ? 'убывает' : 'постоянна');
+            taskHint.textContent = `k = ${state.k.toFixed(1)}, b = ${state.b.toFixed(1)}. ${trend}, пересекает Oy в (0, ${state.b.toFixed(1)}).`;
+            legendBox.innerHTML = `<strong>ЛЕГЕНДА</strong><br>
+          <span style="color:#D72638;">●</span> точка (0,b) &nbsp;&nbsp;
+          <span style="color:var(--text);">●</span> вторая точка &nbsp;&nbsp;
+          <span>—— прямая y = ${state.k.toFixed(1)}x ${sign} ${absB}</span>`;
+            drawMain();
+            if (modal.style.display === 'flex') drawModal();
+            sliderMain.value = state.viewMain.scale;
+            sliderModal.value = state.viewModal.scale;
+        }
+
+        // Шаги
+        function setActiveStep(step) {
+            state.activeStep = step;
+            steps.forEach((s, i) => s.classList.toggle('active', i === step));
+            drawMain(); drawModal();
+        }
+
+        steps.forEach((s, idx) => s.addEventListener('click', () => setActiveStep(idx)));
+        document.getElementById('prevStep').addEventListener('click', () => { if (state.activeStep > 0) setActiveStep(state.activeStep-1); });
+        document.getElementById('nextStep').addEventListener('click', () => { if (state.activeStep < 4) setActiveStep(state.activeStep+1); });
+        document.getElementById('showAllSteps').addEventListener('click', () => setActiveStep(4));
+
+        // Генератор
+        function generateTask() {
+            state.k = +( (Math.random()*10 - 5).toFixed(1) );
+            state.b = +( (Math.random()*10 - 5).toFixed(1) );
+            if (state.k === 0) state.k = 1.0;
+            updateUIForTask();
+            setActiveStep(0);
+        }
+        document.getElementById('newTaskBtn').addEventListener('click', generateTask);
+
+        // Zoom / pan
+        function setupPanZoom(canvas, viewObj, redraw) {
+            let isDragging = false, lastX, lastY;
+            canvas.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                lastX = e.clientX; lastY = e.clientY;
+                canvas.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - lastX, dy = e.clientY - lastY;
+                viewObj.offsetX += dx;
+                viewObj.offsetY -= dy;
+                lastX = e.clientX; lastY = e.clientY;
+                redraw();
+                if (canvas === mainCanvas) sliderMain.value = viewObj.scale;
+                else sliderModal.value = viewObj.scale;
+            });
+            window.addEventListener('mouseup', () => { isDragging = false; canvas.style.cursor = 'grab'; });
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                const newScale = viewObj.scale * delta;
+                if (newScale < 15 || newScale > 120) return;
+                viewObj.scale = newScale;
+                redraw();
+                if (canvas === mainCanvas) sliderMain.value = newScale;
+                else sliderModal.value = newScale;
+            }, { passive: false });
+        }
+
+        setupPanZoom(mainCanvas, state.viewMain, drawMain);
+        setupPanZoom(modalCanvas, state.viewModal, drawModal);
+
+        // Кнопки масштаба и слайдеры
+        document.getElementById('zoomInMain').addEventListener('click', () => { state.viewMain.scale = Math.min(120, state.viewMain.scale*1.2); sliderMain.value = state.viewMain.scale; drawMain(); });
+        document.getElementById('zoomOutMain').addEventListener('click', () => { state.viewMain.scale = Math.max(15, state.viewMain.scale/1.2); sliderMain.value = state.viewMain.scale; drawMain(); });
+        document.getElementById('resetViewMain').addEventListener('click', () => { state.viewMain = { offsetX:0, offsetY:0, scale:40 }; sliderMain.value=40; drawMain(); });
+        sliderMain.addEventListener('input', (e) => { state.viewMain.scale = +e.target.value; drawMain(); });
+
+        document.getElementById('modalZoomIn').addEventListener('click', () => { state.viewModal.scale = Math.min(120, state.viewModal.scale*1.2); sliderModal.value = state.viewModal.scale; drawModal(); });
+        document.getElementById('modalZoomOut').addEventListener('click', () => { state.viewModal.scale = Math.max(15, state.viewModal.scale/1.2); sliderModal.value = state.viewModal.scale; drawModal(); });
+        document.getElementById('modalReset').addEventListener('click', () => { state.viewModal = { offsetX:0, offsetY:0, scale:45 }; sliderModal.value=45; drawModal(); });
+        sliderModal.addEventListener('input', (e) => { state.viewModal.scale = +e.target.value; drawModal(); });
+
+        // Модалка
+        document.getElementById('openModal').addEventListener('click', () => {
+            state.viewModal.offsetX = state.viewMain.offsetX;
+            state.viewModal.offsetY = state.viewMain.offsetY;
+            state.viewModal.scale = state.viewMain.scale;
+            sliderModal.value = state.viewModal.scale;
+            modal.style.display = 'flex';
+            drawModal();
+        });
+        document.getElementById('closeModal').addEventListener('click', () => modal.style.display = 'none');
+        window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+        window.addEventListener('keydown', (e) => { if (e.key === 'Escape') modal.style.display = 'none'; });
+
+        // Подсказки закрытие
+        document.querySelectorAll('.hint-close').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.dataset.hint;
+                document.getElementById(`hint${id}`).style.display = 'none';
+            });
+        });
+
+        // Квиз
+        document.querySelectorAll('.check-quiz').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const q = e.target.dataset.q;
+                const fb = document.getElementById(`quizFeedback${q}`);
+                let correct = false;
+                if (q === '1') correct = document.querySelector('input[name="q1"]:checked')?.value === 'dec';
+                else if (q === '2') correct = document.querySelector('input[name="q2"]:checked')?.value === '5';
+                else if (q === '3') correct = document.querySelector('input[name="q3"]:checked')?.value === 'par';
+                else if (q === '4') correct = document.querySelector('input[name="q4"]:checked')?.value === 'ymx2';
+                fb.textContent = correct ? '✓ Верно!' : '✗ Неверно.';
+            });
+        });
+
+        // Инициализация
+        updateUIForTask();
+        setActiveStep(0);
+        window.addEventListener('resize', () => { drawMain(); if(modal.style.display==='flex') drawModal(); });
+    })();
+</script>
+</body>
+</html>

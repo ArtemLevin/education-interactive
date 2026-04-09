@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная геометрия — плоскости, углы и сечения</title>
+    <style>
+        :root{
+            --bg:#0b1020;
+            --panel:#121a31;
+            --panel-2:#17213d;
+            --ink:#eef3ff;
+            --muted:#a9b7d6;
+            --line:#2b3a68;
+            --accent:#7dd3fc;
+            --accent-2:#a78bfa;
+            --ok:#86efac;
+            --warn:#fcd34d;
+            --bad:#fca5a5;
+            --shadow:0 18px 48px rgba(0,0,0,.35);
+            --radius:22px;
+            --stickyTop:18px;
+        }
+
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:radial-gradient(circle at top, #18264d 0%, #0b1020 44%, #09101f 100%);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+        body{line-height:1.55}
+        a{color:inherit}
+
+        .wrap{max-width:1440px;margin:0 auto;padding:24px}
+
+        .hero{
+            border:1px solid rgba(125,211,252,.25);
+            background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+            border-radius:30px;
+            box-shadow:var(--shadow);
+            padding:28px;
+            position:relative;
+            overflow:hidden;
+        }
+        .hero::before{
+            content:"";
+            position:absolute;inset:auto -10% -35% auto;
+            width:520px;height:520px;border-radius:50%;
+            background:radial-gradient(circle, rgba(125,211,252,.16), rgba(125,211,252,0));
+            pointer-events:none;
+        }
+        .hero h1{margin:0 0 10px;font-size:clamp(30px,5vw,54px);line-height:1.02;letter-spacing:-.03em}
+        .hero p{margin:0;color:var(--muted);max-width:900px;font-size:18px}
+
+        .banner{
+            margin-top:16px;
+            display:inline-block;
+            padding:10px 14px;
+            background:#0a0f1d;
+            border:1px solid #33426f;
+            border-radius:999px;
+            color:var(--accent);
+            font-weight:700;
+            letter-spacing:.02em;
+        }
+
+        .controls{
+            margin-top:22px;
+            display:grid;
+            grid-template-columns:repeat(4,minmax(0,1fr));
+            gap:12px;
+        }
+        .control-card,.mini-card,.panel,.step,.note,.quiz,.generator,.legend,.info-chip,.metric,.tab-btn,.ghost-btn,.primary-btn,.badge{
+            border:1px solid rgba(255,255,255,.08);
+            background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+            box-shadow:var(--shadow);
+        }
+        .control-card{padding:14px 16px;border-radius:18px}
+        .control-card label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
+        select,input[type="range"],button{
+            width:100%;border-radius:14px;border:1px solid #40558f;background:#0c1430;color:var(--ink);padding:10px 12px;font:inherit;
+        }
+        input[type="range"]{padding:0;height:38px;background:transparent;border:none}
+        button{cursor:pointer;transition:.18s transform,.18s opacity,.18s border-color}
+        button:hover{transform:translateY(-1px);border-color:#7dd3fc88}
+        .primary-btn{background:linear-gradient(135deg,#11345c,#1b4f86);font-weight:700}
+        .ghost-btn{background:#0c1430}
+
+        .main{
+            display:grid;
+            grid-template-columns:minmax(0,1.02fr) minmax(380px,.98fr);
+            gap:22px;
+            margin-top:24px;
+            align-items:start;
+        }
+
+        .left-col{display:flex;flex-direction:column;gap:18px}
+        .panel{padding:22px;border-radius:24px}
+        .panel h2,.panel h3{margin:0 0 12px}
+        .panel h2{font-size:28px}
+        .panel h3{font-size:22px}
+        .muted{color:var(--muted)}
+
+        .schema-grid{
+            display:grid;
+            grid-template-columns:repeat(4,minmax(0,1fr));
+            gap:12px;
+            margin-top:14px;
+        }
+        .mini-card{padding:14px;border-radius:18px}
+        .mini-card b{display:block;margin-bottom:6px;color:var(--accent)}
+
+        .step-list{display:flex;flex-direction:column;gap:12px}
+        .step{
+            border-radius:18px;
+            padding:16px 16px 16px 18px;
+            position:relative;
+            overflow:hidden;
+            transition:.2s transform,.2s border-color,.2s background;
+        }
+        .step.active{border-color:#7dd3fc66;background:linear-gradient(180deg, rgba(125,211,252,.12), rgba(255,255,255,.03));transform:translateY(-1px)}
+        .step h4{margin:0 0 8px;font-size:18px}
+        .step p,.step li{margin:0;color:#dfe7ff}
+        .step ul{margin:10px 0 0 18px;padding:0}
+        .step .step-tag{display:inline-block;margin-bottom:8px;padding:5px 10px;border-radius:999px;background:#0b1533;border:1px solid #314678;color:var(--accent);font-size:12px;font-weight:700}
+
+        .sticky-col{position:sticky;top:var(--stickyTop);display:flex;flex-direction:column;gap:16px}
+        .viz-shell{padding:18px;border-radius:26px}
+        .canvas-wrap{
+            position:relative;
+            border-radius:20px;
+            overflow:hidden;
+            background:linear-gradient(180deg,#081227,#0c1731);
+            border:1px solid #26385d;
+            min-height:560px;
+        }
+        canvas{display:block;width:100%;height:560px;cursor:grab}
+        canvas.grabbing{cursor:grabbing}
+        .viz-toolbar{
+            display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:14px;
+        }
+        .legend{padding:14px;border-radius:18px}
+        .legend-row{display:flex;gap:10px;align-items:center;margin:8px 0;color:var(--muted)}
+        .swatch{width:14px;height:14px;border-radius:4px;display:inline-block}
+
+        .metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+        .metric{padding:14px;border-radius:18px}
+        .metric .k{font-size:12px;color:var(--muted);margin-bottom:6px}
+        .metric .v{font-size:20px;font-weight:800}
+
+        .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+        .tab-btn{padding:10px 14px;border-radius:14px;background:#0c1430;color:var(--muted)}
+        .tab-btn.active{color:var(--ink);border-color:#7dd3fc66;background:linear-gradient(180deg, rgba(125,211,252,.14), rgba(255,255,255,.02))}
+        .tab-pane{display:none}
+        .tab-pane.active{display:block}
+
+        .formula{
+            margin:12px 0;padding:14px 16px;border-radius:16px;background:#0b1430;border:1px solid #314678;overflow:auto;font-family:"STIX Two Math","Cambria Math","Times New Roman",serif;font-size:20px
+        }
+        .formula small{font-family:inherit;font-size:16px;color:var(--muted)}
+
+        .bullets{margin:0;padding-left:20px}
+        .bullets li{margin:8px 0}
+        .note{padding:16px;border-radius:18px}
+        .note.good{border-color:#3a7753;background:linear-gradient(180deg, rgba(134,239,172,.10), rgba(255,255,255,.02))}
+        .note.warn{border-color:#8a6c21;background:linear-gradient(180deg, rgba(252,211,77,.10), rgba(255,255,255,.02))}
+        .note.bad{border-color:#874242;background:linear-gradient(180deg, rgba(252,165,165,.10), rgba(255,255,255,.02))}
+
+        .hint-pulse{animation:hintPulse 2.2s ease-in-out infinite}
+        @keyframes hintPulse{
+            0%,100%{box-shadow:0 0 0 0 rgba(125,211,252,.0)}
+            50%{box-shadow:0 0 0 10px rgba(125,211,252,.08)}
+        }
+
+        .quiz,.generator{padding:18px;border-radius:22px}
+        .quiz-options{display:grid;gap:10px;margin-top:12px}
+        .quiz-result{margin-top:12px;font-weight:700}
+
+        .generator-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+        .problem-box,.answer-box{margin-top:12px;padding:14px;border-radius:16px;background:#0b1430;border:1px solid #314678;white-space:pre-line}
+        .answer-box{display:none}
+        .answer-box.show{display:block}
+
+        .print-card{padding:18px;border-radius:22px}
+        .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+
+        .footer{margin:26px 0 8px;text-align:center;color:var(--muted)}
+
+        .popover{
+            position:fixed;z-index:40;max-width:320px;padding:14px 14px 12px;border-radius:18px;
+            background:linear-gradient(180deg,#152756,#0f1b3a);border:1px solid #7dd3fc66;box-shadow:var(--shadow);
+            opacity:0;pointer-events:none;transform:translateY(6px);transition:.22s ease;
+        }
+        .popover.show{opacity:1;pointer-events:auto;transform:translateY(0)}
+        .popover h4{margin:0 0 8px;font-size:16px}
+        .popover p{margin:0;color:var(--muted);font-size:14px}
+        .popover .x{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;padding:0}
+        .popover::after{
+            content:"";position:absolute;left:24px;bottom:-10px;border:10px solid transparent;border-top-color:#12204a;
+        }
+
+        .overlay{
+            position:fixed;inset:0;background:rgba(4,8,18,.78);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100;
+        }
+        .overlay.show{display:flex}
+        .overlay-card{width:min(1200px,94vw);background:linear-gradient(180deg,#101935,#0d1730);border:1px solid #324676;border-radius:24px;box-shadow:var(--shadow);padding:18px}
+        .overlay-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+        .overlay-canvas{border-radius:18px;overflow:hidden;border:1px solid #26385d;background:#081227}
+        .overlay-canvas canvas{height:72vh}
+
+        .sr-only{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
+
+        @media (max-width: 1120px){
+            .controls,.schema-grid,.generator-grid,.check-grid,.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+            .main{grid-template-columns:1fr}
+            .sticky-col{position:static}
+        }
+        @media (max-width: 720px){
+            .wrap{padding:14px}
+            .controls,.schema-grid,.generator-grid,.check-grid,.metrics,.viz-toolbar{grid-template-columns:1fr}
+            .hero{padding:20px}
+            .panel,.viz-shell,.quiz,.generator,.print-card{padding:16px}
+            canvas,.overlay-canvas canvas{height:420px}
+        }
+
+        @media print{
+            :root{--bg:#fff;--panel:#fff;--panel-2:#fff;--ink:#111;--muted:#444;--line:#bbb;--shadow:none}
+            html,body{background:#fff;color:#111}
+            .wrap{max-width:none;padding:0}
+            .hero,.panel,.viz-shell,.quiz,.generator,.print-card,.note,.step,.mini-card,.metric,.legend,.control-card{box-shadow:none;background:#fff;border-color:#ccc}
+            .controls,.viz-toolbar,.overlay,.popover,.footer{display:none!important}
+            .main{display:block}
+            .sticky-col{position:static}
+            .canvas-wrap{min-height:auto}
+            canvas{height:420px}
+            .tab-pane{display:block!important}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <h1>Наглядная геометрия: плоскости, углы и сечения</h1>
+        <p>Большая интерактивная шпаргалка по стереометрии: как составлять уравнение плоскости, как извлекать из него нормаль, как находить угол между плоскостями и как считать площадь сечения через его проекцию на основание.</p>
+        <div class="banner">ДАНО → КООРДИНАТЫ → УРАВНЕНИЕ → НОРМАЛЬ → УГОЛ → ПЛОЩАДЬ</div>
+
+        <div class="controls" aria-label="Панель управления материалом">
+            <div class="control-card">
+                <label for="modeSelect">Режим</label>
+                <select id="modeSelect">
+                    <option value="plane">Уравнение плоскости</option>
+                    <option value="angle">Угол между плоскостями</option>
+                    <option value="section">Площадь сечения</option>
+                </select>
+            </div>
+            <div class="control-card">
+                <label for="detailSelect">Подробность объяснения</label>
+                <select id="detailSelect">
+                    <option value="brief">Кратко</option>
+                    <option value="full" selected>Подробно</option>
+                    <option value="expert">Очень подробно</option>
+                </select>
+            </div>
+            <div class="control-card">
+                <label for="stepRange">Шаг раскрытия решения</label>
+                <input id="stepRange" type="range" min="1" max="7" step="1" value="1" />
+            </div>
+            <div class="control-card">
+                <label>Быстрые действия</label>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                    <button id="playSteps" class="primary-btn">Проиграть шаги</button>
+                    <button id="resetAll" class="ghost-btn">Сброс</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="main">
+        <section class="left-col">
+            <article class="panel">
+                <h2>Схема решения</h2>
+                <p class="muted">В этой теме почти всё держится на одной связке: удачно выбрали систему координат → составили уравнение плоскости → сразу получили нормаль → угол между плоскостями свели к углу между векторами → при необходимости нашли площадь сечения через проекцию.</p>
+                <div class="schema-grid">
+                    <div class="mini-card"><b>Что дано</b> точки, рёбра, плоскость сечения, основание</div>
+                    <div class="mini-card"><b>Смысл условий</b> какие точки лежат в плоскости, где выгодно взять начало координат</div>
+                    <div class="mini-card"><b>Ключевая идея</b> использовать общий вид Ax + By + Cz + D = 0</div>
+                    <div class="mini-card"><b>Проверка</b> подставить координаты точек и убедиться, что уравнение верно</div>
+                </div>
+            </article>
+
+            <article class="panel">
+                <h2>Пошаговое решение</h2>
+                <div id="stepList" class="step-list"></div>
+            </article>
+
+            <article class="panel">
+                <div class="tabs" role="tablist" aria-label="Вкладки с теорией">
+                    <button class="tab-btn active" data-tab="idea">Идея решения</button>
+                    <button class="tab-btn" data-tab="formulas">Формулы</button>
+                    <button class="tab-btn" data-tab="mistakes">Типичные ошибки</button>
+                    <button class="tab-btn" data-tab="selfcheck">Самопроверка</button>
+                </div>
+
+                <div class="tab-pane active" id="idea">
+                    <h3>Идея решения</h3>
+                    <p>Вместо того чтобы сразу охотиться за углом или площадью, мы сначала строим координатную модель. Это делает задачу более алгебраической и управляемой. Особенно полезен приём: поставить начало координат в точку, лежащую в нужной плоскости. Тогда свободный коэффициент часто исчезает, потому что получается <b>D = 0</b>.</p>
+                    <div class="note good">
+                        <b>Главная мысль.</b> Уравнение плоскости — это не конечная цель, а инструмент. Из него достаётся нормаль, а нормаль уже даёт угол между плоскостями. Потом этот угол используется в формуле площади сечения через проекцию.
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="formulas">
+                    <h3>Ключевые формулы</h3>
+                    <div class="formula">Ax + By + Cz + D = 0<br><small>Общее уравнение плоскости</small></div>
+                    <div class="formula">n = (A, B, C)<br><small>Нормаль к плоскости</small></div>
+                    <div class="formula">cos φ = |n₁ · n₂| / (|n₁| · |n₂|)<br><small>Угол между плоскостями равен углу между их нормалями; берём острый угол</small></div>
+                    <div class="formula">S<sub>сеч</sub> = S<sub>пр</sub> / cos φ<br><small>Площадь сечения через площадь его ортогональной проекции на основание</small></div>
+                </div>
+
+                <div class="tab-pane" id="mistakes">
+                    <h3>Типичные ошибки</h3>
+                    <ul class="bullets">
+                        <li>Писать уравнение плоскости как <b>Ax + y + z + D = 0</b> вместо <b>Ax + By + Cz + D = 0</b>.</li>
+                        <li>Думать, что коэффициент <b>D</b> обязан быть только 0 или 1. Это неверно: он может быть любым числом.</li>
+                        <li>Забывать модуль в формуле для косинуса и получать тупой угол вместо острого.</li>
+                        <li>Искать площадь сечения напрямую, хотя проще сначала найти площадь проекции.</li>
+                        <li>Путать саму фигуру сечения и её проекцию на основание.</li>
+                    </ul>
+                    <div class="note warn"><b>Проверка здравого смысла.</b> Если найденный косинус по модулю больше единицы, значит где-то ошибка в вычислениях. Если проекция по площади больше самого сечения при наклонном положении, тоже ошибка.</div>
+                </div>
+
+                <div class="tab-pane" id="selfcheck">
+                    <h3>Самопроверка</h3>
+                    <div class="check-grid">
+                        <div class="print-card">
+                            <b>Чек-лист после уравнения плоскости</b>
+                            <ul class="bullets">
+                                <li>Все нужные точки подставлены?</li>
+                                <li>Уравнение удовлетворяется для каждой точки?</li>
+                                <li>Коэффициенты сокращены красиво, но без потери смысла?</li>
+                            </ul>
+                        </div>
+                        <div class="print-card">
+                            <b>Чек-лист после угла</b>
+                            <ul class="bullets">
+                                <li>Нормали выписаны верно?</li>
+                                <li>Скалярное произведение посчитано без ошибки знака?</li>
+                                <li>В ответе взят именно острый угол?</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="quiz">
+                <h3>Мини-квиз</h3>
+                <p class="muted">Выберите верное утверждение.</p>
+                <div class="quiz-options">
+                    <button class="ghost-btn quiz-option" data-correct="0">Если плоскость не проходит через начало координат, то D обязательно равно 1.</button>
+                    <button class="ghost-btn quiz-option" data-correct="1">Координаты нормали к плоскости Ax + By + Cz + D = 0 равны (A, B, C).</button>
+                    <button class="ghost-btn quiz-option" data-correct="0">Угол между плоскостями ищется как угол между любыми двумя отрезками в этих плоскостях.</button>
+                </div>
+                <div id="quizResult" class="quiz-result"></div>
+            </article>
+
+            <article class="generator">
+                <h3>Генератор похожих задач</h3>
+                <p class="muted">Генератор подбирает безопасные параметры без вырождения и сразу даёт короткую идею решения. После генерации визуальная модель обновляется.</p>
+                <div class="generator-grid">
+                    <button id="genPlane" class="primary-btn">Сгенерировать задачу на плоскость</button>
+                    <button id="genAngle" class="ghost-btn">Сгенерировать задачу на угол</button>
+                    <button id="genSection" class="ghost-btn">Сгенерировать задачу на сечение</button>
+                    <button id="toggleAnswer" class="ghost-btn">Показать / скрыть ответ</button>
+                </div>
+                <div id="problemBox" class="problem-box">Нажмите на кнопку генерации, чтобы получить новую задачу.</div>
+                <div id="answerBox" class="answer-box"></div>
+            </article>
+
+            <article class="print-card">
+                <h3>Памятка для печати</h3>
+                <ul class="bullets">
+                    <li>Уравнение плоскости: <b>Ax + By + Cz + D = 0</b>.</li>
+                    <li>Нормаль: <b>(A, B, C)</b>.</li>
+                    <li>Если плоскость проходит через начало координат, то <b>D = 0</b>.</li>
+                    <li>Угол между плоскостями = угол между нормалями.</li>
+                    <li>Площадь сечения: <b>S<sub>сеч</sub> = S<sub>пр</sub> / cos φ</b>.</li>
+                </ul>
+            </article>
+        </section>
+
+        <aside class="sticky-col">
+            <section class="viz-shell panel hint-pulse" id="vizCard">
+                <h2>Интерактивная модель</h2>
+                <p class="muted">Основной чертёж можно двигать, масштабировать колёсиком мыши и открывать в модальном окне. Всё синхронизировано: изменение шага, режима и параметров сразу отражается и в увеличенной версии.</p>
+                <div class="canvas-wrap">
+                    <canvas id="mainCanvas" aria-label="Интерактивная геометрическая модель"></canvas>
+                </div>
+
+                <div class="viz-toolbar">
+                    <button id="zoomIn" class="ghost-btn">Увеличить</button>
+                    <button id="zoomOut" class="ghost-btn">Уменьшить</button>
+                    <button id="resetView" class="ghost-btn">Сброс вида</button>
+                    <button id="toggleProj" class="ghost-btn">Проекция</button>
+                    <button id="openModal" class="primary-btn">Открыть крупно</button>
+                </div>
+
+                <div class="metrics">
+                    <div class="metric"><div class="k">Нормаль 1</div><div id="metricN1" class="v">(4, 9, −6)</div></div>
+                    <div class="metric"><div class="k">Нормаль 2</div><div id="metricN2" class="v">(0, 0, 1)</div></div>
+                    <div class="metric"><div class="k">cos φ</div><div id="metricCos" class="v">0.512</div></div>
+                </div>
+
+                <div class="legend" style="margin-top:14px">
+                    <b>Легенда</b>
+                    <div class="legend-row"><span class="swatch" style="background:#7dd3fc"></span> плоскость сечения / первая плоскость</div>
+                    <div class="legend-row"><span class="swatch" style="background:#a78bfa"></span> основание / вторая плоскость</div>
+                    <div class="legend-row"><span class="swatch" style="background:#86efac"></span> нормаль</div>
+                    <div class="legend-row"><span class="swatch" style="background:#fcd34d"></span> проекция сечения</div>
+                </div>
+            </section>
+        </aside>
+    </main>
+
+    <p class="footer">Наглядная геометрия · автономная страница без внешних зависимостей · режим печати поддерживается</p>
+</div>
+
+<div id="popover" class="popover" role="tooltip" aria-hidden="true">
+    <button id="closePopover" class="x ghost-btn" aria-label="Закрыть подсказку">×</button>
+    <h4 id="popoverTitle">Подсказка</h4>
+    <p id="popoverText">Здесь появится контекстная подсказка.</p>
+</div>
+
+<div id="overlay" class="overlay" aria-hidden="true">
+    <div class="overlay-card">
+        <div class="overlay-head">
+            <div>
+                <h3 style="margin:0">Увеличенная модель</h3>
+                <div class="muted">Синхронизация с основной визуализацией активна</div>
+            </div>
+            <button id="closeModal" class="ghost-btn" style="width:auto">Закрыть</button>
+        </div>
+        <div class="overlay-canvas">
+            <canvas id="modalCanvas"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    (() => {
+        const state = {
+            mode: 'plane',
+            detail: 'full',
+            activeStep: 1,
+            playing: false,
+            showProjection: true,
+            showModal: false,
+            viewport: { scale: 1, panX: 0, panY: 18 },
+            hoverHotspot: null,
+            scene: {
+                plane1: { A: 4, B: 9, C: -6, D: 0 },
+                plane2: { A: 0, B: 0, C: 1, D: 0 },
+                projArea: 6,
+                pyramid: {
+                    S: [0.9, 1.05, 1.9],
+                    A: [0, 0, 0],
+                    B: [2.35, 0.18, 0],
+                    C: [2.05, 1.72, 0],
+                    D: [0.25, 1.55, 0]
+                },
+                points: {
+                    O: [0,0,0],
+                    A: [2,0,0],
+                    B: [0,1.5,0],
+                    C1: [0.7,0.8,1.4]
+                }
+            }
+        };
+
+        const el = {
+            modeSelect: document.getElementById('modeSelect'),
+            detailSelect: document.getElementById('detailSelect'),
+            stepRange: document.getElementById('stepRange'),
+            playSteps: document.getElementById('playSteps'),
+            resetAll: document.getElementById('resetAll'),
+            stepList: document.getElementById('stepList'),
+            metricN1: document.getElementById('metricN1'),
+            metricN2: document.getElementById('metricN2'),
+            metricCos: document.getElementById('metricCos'),
+            mainCanvas: document.getElementById('mainCanvas'),
+            modalCanvas: document.getElementById('modalCanvas'),
+            zoomIn: document.getElementById('zoomIn'),
+            zoomOut: document.getElementById('zoomOut'),
+            resetView: document.getElementById('resetView'),
+            toggleProj: document.getElementById('toggleProj'),
+            openModal: document.getElementById('openModal'),
+            overlay: document.getElementById('overlay'),
+            closeModal: document.getElementById('closeModal'),
+            tabs: Array.from(document.querySelectorAll('.tab-btn')),
+            panes: Array.from(document.querySelectorAll('.tab-pane')),
+            quizOptions: Array.from(document.querySelectorAll('.quiz-option')),
+            quizResult: document.getElementById('quizResult'),
+            problemBox: document.getElementById('problemBox'),
+            answerBox: document.getElementById('answerBox'),
+            genPlane: document.getElementById('genPlane'),
+            genAngle: document.getElementById('genAngle'),
+            genSection: document.getElementById('genSection'),
+            toggleAnswer: document.getElementById('toggleAnswer'),
+            popover: document.getElementById('popover'),
+            popoverTitle: document.getElementById('popoverTitle'),
+            popoverText: document.getElementById('popoverText'),
+            closePopover: document.getElementById('closePopover'),
+            vizCard: document.getElementById('vizCard')
+        };
+
+        const ctxMain = el.mainCanvas.getContext('2d');
+        const ctxModal = el.modalCanvas.getContext('2d');
+
+        const stepsByMode = {
+            plane: [
+                {
+                    title: 'Выбрать систему координат',
+                    text: {
+                        brief: 'Ставим начало координат в удобную точку плоскости.',
+                        full: 'Сначала выбираем систему координат так, чтобы одна из точек плоскости стала началом координат или хотя бы имела простые координаты. Это резко упрощает вычисления.',
+                        expert: 'В координатной геометрии удобный выбор осей часто решает половину задачи. Если плоскость проходит через начало координат, то в уравнении сразу исчезает свободный коэффициент: D = 0.'
+                    },
+                    tag: 'Шаг 1'
+                },
+                {
+                    title: 'Записать общий вид уравнения',
+                    text: {
+                        brief: 'Пишем Ax + By + Cz + D = 0.',
+                        full: 'Любая плоскость в пространстве задаётся уравнением Ax + By + Cz + D = 0, где A, B, C не равны одновременно нулю.',
+                        expert: 'Важно не путать коэффициенты: у x, y, z стоят именно A, B, C. Эти коэффициенты потом станут координатами нормали к плоскости.'
+                    },
+                    tag: 'Шаг 2'
+                },
+                {
+                    title: 'Подставить координаты точек',
+                    text: {
+                        brief: 'Подставляем координаты трёх точек плоскости.',
+                        full: 'Если плоскость проходит через три известные точки, мы подставляем координаты каждой точки в общее уравнение и получаем систему линейных уравнений для коэффициентов A, B, C, D.',
+                        expert: 'На практике коэффициенты определяются с точностью до общего ненулевого множителя, поэтому не обязательно искать единственный набор. Достаточно найти любой пропорциональный набор коэффициентов.'
+                    },
+                    tag: 'Шаг 3'
+                },
+                {
+                    title: 'Упростить систему',
+                    text: {
+                        brief: 'Выражаем коэффициенты через один параметр.',
+                        full: 'Часто удобно выразить A и B через C или наоборот. Затем подставить это обратно в уравнение и получить аккуратную форму.',
+                        expert: 'Красивый итог важен не только эстетически: из упрощённого уравнения легче читать нормаль, проверять подстановкой точки и дальше использовать формулу для угла.'
+                    },
+                    tag: 'Шаг 4'
+                },
+                {
+                    title: 'Прочитать нормаль',
+                    text: {
+                        brief: 'Нормаль — это (A, B, C).',
+                        full: 'Как только уравнение плоскости готово, нормаль к ней находится мгновенно: n = (A, B, C).',
+                        expert: 'Нормаль определяется с точностью до общего ненулевого множителя. Векторы (4, 9, -6) и (-2, -4.5, 3) задают одну и ту же нормаль по направлению с точностью до масштаба.'
+                    },
+                    tag: 'Шаг 5'
+                },
+                {
+                    title: 'Проверить ответ',
+                    text: {
+                        brief: 'Подставить точки в уравнение.',
+                        full: 'Финальная проверка проста: каждая точка, лежащая в плоскости, должна обращаться уравнение в ноль.',
+                        expert: 'Если хотя бы одна точка не даёт ноль, значит либо ошибка в координатах, либо ошибка знака, либо неверное упрощение коэффициентов.'
+                    },
+                    tag: 'Шаг 6'
+                },
+                {
+                    title: 'Сделать вывод',
+                    text: {
+                        brief: 'Уравнение готово и нормаль найдена.',
+                        full: 'На этом задача на плоскость завершена: уравнение найдено, нормаль извлечена, модель готова для задач на угол и сечение.',
+                        expert: 'Именно поэтому этот тип задач — фундамент для следующего уровня: углы между плоскостями, прямой и плоскостью, а также площади сечений в координатном подходе.'
+                    },
+                    tag: 'Шаг 7'
+                }
+            ],
+            angle: [
+                {
+                    title: 'Найти уравнения обеих плоскостей',
+                    text: {
+                        brief: 'Сначала нужны обе плоскости в координатной форме.',
+                        full: 'Без уравнений плоскостей не получить нормали, а без нормалей неудобно искать угол. Поэтому первый шаг — довести обе плоскости до вида Ax + By + Cz + D = 0.',
+                        expert: 'Даже если одна плоскость — основание, её тоже стоит записать уравнением. Например, основание часто имеет уравнение z = 0, а значит его нормаль сразу (0, 0, 1).'
+                    },
+                    tag: 'Шаг 1'
+                },
+                {
+                    title: 'Выписать нормали',
+                    text: {
+                        brief: 'Берём (A, B, C) из каждой плоскости.',
+                        full: 'Если первая плоскость имеет коэффициенты A₁, B₁, C₁, а вторая — A₂, B₂, C₂, то нормали равны n₁ = (A₁, B₁, C₁) и n₂ = (A₂, B₂, C₂).',
+                        expert: 'Здесь особенно важна аккуратность со знаками. Ошибка в одном коэффициенте меняет скалярное произведение и может полностью испортить ответ.'
+                    },
+                    tag: 'Шаг 2'
+                },
+                {
+                    title: 'Вычислить скалярное произведение',
+                    text: {
+                        brief: 'n₁·n₂ = A₁A₂ + B₁B₂ + C₁C₂.',
+                        full: 'Скалярное произведение даёт числитель формулы для косинуса угла между нормалями.',
+                        expert: 'Если результат отрицательный, это не проблема: для угла между плоскостями всё равно берётся модуль, потому что в ответе нужен острый угол.'
+                    },
+                    tag: 'Шаг 3'
+                },
+                {
+                    title: 'Найти длины нормалей',
+                    text: {
+                        brief: 'Считаем длины по теореме Пифагора.',
+                        full: 'Длина вектора (a, b, c) равна √(a² + b² + c²). Эти длины образуют знаменатель формулы.',
+                        expert: 'Если можно красиво сократить общий множитель в нормали заранее, вычисления становятся заметно короче.'
+                    },
+                    tag: 'Шаг 4'
+                },
+                {
+                    title: 'Подставить в формулу',
+                    text: {
+                        brief: 'cos φ = |n₁·n₂| / (|n₁||n₂|).',
+                        full: 'Подставляем модуль скалярного произведения и длины обеих нормалей. Получаем косинус угла между плоскостями.',
+                        expert: 'Здесь самая частая ошибка — забыть модуль. Тогда можно получить косинус тупого угла, хотя по определению в задачах обычно берут острый угол между плоскостями.'
+                    },
+                    tag: 'Шаг 5'
+                },
+                {
+                    title: 'При необходимости найти сам угол',
+                    text: {
+                        brief: 'Берём arccos от найденного значения.',
+                        full: 'Если требуется не косинус, а сам угол, то вычисляем φ = arccos(cos φ).',
+                        expert: 'В задачах ЕГЭ иногда достаточно оставить ответ через arccos, если значение косинуса не табличное и упрощать дальше не требуется.'
+                    },
+                    tag: 'Шаг 6'
+                },
+                {
+                    title: 'Проверить разумность ответа',
+                    text: {
+                        brief: 'Косинус должен лежать между 0 и 1.',
+                        full: 'Для острого угла между плоскостями косинус должен оказаться в промежутке от 0 до 1.',
+                        expert: 'Если косинус вышел больше единицы по модулю, ошибка почти наверняка в длинах, скалярном произведении или в переписывании коэффициентов нормали.'
+                    },
+                    tag: 'Шаг 7'
+                }
+            ],
+            section: [
+                {
+                    title: 'Понять, что именно является сечением',
+                    text: {
+                        brief: 'Сначала определяем саму фигуру сечения.',
+                        full: 'Нужно чётко увидеть многоугольник, который получается при пересечении плоскости с телом. Без этого невозможно ни найти проекцию, ни площадь.',
+                        expert: 'В координатном подходе полезно сначала понять структуру фигуры: треугольник, четырёхугольник, шестиугольник и так далее. Это влияет на способ вычисления площади проекции.'
+                    },
+                    tag: 'Шаг 1'
+                },
+                {
+                    title: 'Построить ортогональную проекцию',
+                    text: {
+                        brief: 'Опускаем перпендикуляры на основание.',
+                        full: 'От вершин сечения опускаем перпендикуляры на плоскость основания. Соединив основания этих перпендикуляров, получаем фигуру проекции.',
+                        expert: 'Проекция почти всегда проще самого сечения: часто это прямоугольник, трапеция или другой удобный многоугольник в плоскости основания.'
+                    },
+                    tag: 'Шаг 2'
+                },
+                {
+                    title: 'Найти площадь проекции',
+                    text: {
+                        brief: 'Считаем площадь плоской фигуры в основании.',
+                        full: 'Площадь проекции ищется обычными плоскими методами: через формулы площадей прямоугольника, треугольника, трапеции или через разбиение на части.',
+                        expert: 'Если проекция сложная, её удобно разбивать на простые фигуры. Это надёжнее, чем пытаться сразу выводить экзотическую формулу для всей фигуры.'
+                    },
+                    tag: 'Шаг 3'
+                },
+                {
+                    title: 'Найти угол между плоскостями',
+                    text: {
+                        brief: 'Нужен угол между сечением и основанием.',
+                        full: 'Дальше нужен тот же угол φ: между плоскостью сечения и плоскостью основания. Его удобно искать через нормали.',
+                        expert: 'Именно тут связка тем работает в полную силу: задача на площадь фактически использует уже отработанный алгоритм для угла между плоскостями.'
+                    },
+                    tag: 'Шаг 4'
+                },
+                {
+                    title: 'Подставить в формулу площади',
+                    text: {
+                        brief: 'Sсеч = Sпр / cos φ.',
+                        full: 'Когда площадь проекции и угол найдены, площадь сечения вычисляется по формуле Sсеч = Sпр / cos φ.',
+                        expert: 'Нужно быть внимательным: делим именно на cos φ. Если умножить вместо деления, ответ будет занижен.'
+                    },
+                    tag: 'Шаг 5'
+                },
+                {
+                    title: 'Сделать геометрическую проверку',
+                    text: {
+                        brief: 'Сечение не может быть меньше своей проекции.',
+                        full: 'При наклоне плоскости площадь сечения обычно больше площади его ортогональной проекции на основание, потому что cos φ ≤ 1.',
+                        expert: 'Если получилось Sсеч < Sпр при ненулевом угле, значит формула была использована неверно или перепутаны обозначения.'
+                    },
+                    tag: 'Шаг 6'
+                },
+                {
+                    title: 'Сформулировать итог',
+                    text: {
+                        brief: 'Записываем площадь и кратко указываем опору на проекцию.',
+                        full: 'В финале полезно явно указать: сначала найдена площадь проекции, затем найден угол между плоскостями, затем применена формула для площади сечения.',
+                        expert: 'Такой ответ выглядит логично, полно и методически чисто: каждое вычисление опирается на предыдущий шаг и не висит в воздухе.'
+                    },
+                    tag: 'Шаг 7'
+                }
+            ]
+        };
+
+        function fmt(num) {
+            const n = Math.round(num * 1000) / 1000;
+            return String(n).replace('.', ',');
+        }
+
+        function norm(v){ return Math.hypot(v[0],v[1],v[2]); }
+        function dot(a,b){ return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
+        function mul(v,k){ return [v[0]*k,v[1]*k,v[2]*k]; }
+        function add(a,b){ return [a[0]+b[0],a[1]+b[1],a[2]+b[2]]; }
+        function sub(a,b){ return [a[0]-b[0],a[1]-b[1],a[2]-b[2]]; }
+        function cross(a,b){ return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
+        function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
+
+        function project3D([x,y,z], w, h) {
+            // Человекочитаемая изометрия: ось x идёт вправо-вниз,
+            // ось y идёт влево-вниз, ось z идёт вертикально вверх.
+            // Такой вид ближе к школьным стереометрическим чертежам.
+            const isoX = (x - y) * Math.cos(Math.PI / 6);
+            const isoY = (x + y) * 0.5 - z;
+            const s = 128 * state.viewport.scale;
+            return {
+                x: w/2 + isoX * s + state.viewport.panX,
+                y: h/2 + isoY * s + state.viewport.panY,
+                depth: x + y + z
+            };
+        }
+
+        function resizeCanvas(canvas, ctx) {
+            const dpr = Math.max(1, window.devicePixelRatio || 1);
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = Math.round(rect.width * dpr);
+            canvas.height = Math.round(rect.height * dpr);
+            ctx.setTransform(dpr,0,0,dpr,0,0);
+        }
+
+        function planeNormal(p1, p2, p3) {
+            return cross(sub(p2,p1), sub(p3,p1));
+        }
+
+        function updateMetrics() {
+            const { plane1, plane2 } = state.scene;
+            const n1 = [plane1.A, plane1.B, plane1.C];
+            const n2 = [plane2.A, plane2.B, plane2.C];
+            const cos = Math.abs(dot(n1,n2) / (norm(n1)*norm(n2)));
+            el.metricN1.textContent = `(${fmt(n1[0])}, ${fmt(n1[1])}, ${fmt(n1[2])})`;
+            el.metricN2.textContent = `(${fmt(n2[0])}, ${fmt(n2[1])}, ${fmt(n2[2])})`;
+            el.metricCos.textContent = fmt(cos);
+        }
+
+        function drawAxes(ctx, w, h) {
+            const O = project3D([0,0,0], w, h);
+            const X = project3D([2.2,0,0], w, h);
+            const Y = project3D([0,2.2,0], w, h);
+            const Z = project3D([0,0,2.2], w, h);
+            ctx.save();
+            ctx.lineWidth = 1.6;
+            [[O,X,'x'],[O,Y,'y'],[O,Z,'z']].forEach(([a,b,label], idx)=>{
+                ctx.beginPath();
+                ctx.moveTo(a.x,a.y);
+                ctx.lineTo(b.x,b.y);
+                ctx.strokeStyle = idx === 0 ? '#7dd3fc' : idx === 1 ? '#c4b5fd' : '#86efac';
+                ctx.stroke();
+                ctx.fillStyle = '#dbe7ff';
+                ctx.font = '14px sans-serif';
+                const dx = label === 'x' ? 8 : label === 'y' ? -16 : 8;
+                const dy = label === 'z' ? -8 : 12;
+                ctx.fillText(label, b.x + dx, b.y + dy);
+            });
+            ctx.fillStyle = '#eef3ff';
+            ctx.font = '13px sans-serif';
+            ctx.fillText('O', O.x + 8, O.y - 6);
+            ctx.restore();
+        }
+
+        function drawPolygon(ctx, pts3d, fill, stroke, dash = []) {
+            const rect = ctx.canvas.getBoundingClientRect();
+            const pts = pts3d.map(p => project3D(p, rect.width, rect.height));
+            ctx.save();
+            ctx.setLineDash(dash);
+            ctx.beginPath();
+            pts.forEach((p,i)=> i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
+            ctx.closePath();
+            ctx.fillStyle = fill;
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = 2;
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawEdgeLoop(ctx, pts3d, color, width = 2.2, dash = []) {
+            for (let i = 0; i < pts3d.length; i++) {
+                drawSegment3(ctx, pts3d[i], pts3d[(i + 1) % pts3d.length], color, width, dash);
+            }
+        }
+
+        function midpoint(a, b, t = 0.5) {
+            return [
+                a[0] + (b[0] - a[0]) * t,
+                a[1] + (b[1] - a[1]) * t,
+                a[2] + (b[2] - a[2]) * t
+            ];
+        }
+
+        function drawPyramidShell(ctx, emphasizeBase = true) {
+            const { S, A, B, C, D } = state.scene.pyramid;
+            const base = [A, B, C, D];
+            drawPolygon(ctx, base, 'rgba(167,139,250,.10)', 'rgba(167,139,250,.82)');
+            if (emphasizeBase) drawEdgeLoop(ctx, base, 'rgba(196,181,253,.92)', 2.4);
+
+            drawSegment3(ctx, S, A, 'rgba(209,213,255,.92)', 2.2);
+            drawSegment3(ctx, S, B, 'rgba(209,213,255,.92)', 2.2);
+            drawSegment3(ctx, S, C, 'rgba(209,213,255,.92)', 2.2);
+            drawSegment3(ctx, S, D, 'rgba(209,213,255,.92)', 2.2);
+
+            const H = [S[0], S[1], 0];
+            if (state.activeStep >= 2) {
+                drawSegment3(ctx, S, H, 'rgba(134,239,172,.78)', 2, [5,5]);
+                drawPoint3(ctx, H, 'H', '#fcd34d', 3.5);
+            }
+
+            drawPoint3(ctx, S, 'S', '#ffffff', 4.5);
+            drawPoint3(ctx, A, 'A', '#ffffff', 4);
+            drawPoint3(ctx, B, 'B', '#ffffff', 4);
+            drawPoint3(ctx, C, 'C', '#ffffff', 4);
+            drawPoint3(ctx, D, 'D', '#ffffff', 4);
+        }
+
+        function drawPlaneMode(ctx) {
+            const { S, A, B, C, D } = state.scene.pyramid;
+            drawPyramidShell(ctx, true);
+
+            const section = [A, C, S];
+            drawPolygon(ctx, section, 'rgba(125,211,252,.18)', 'rgba(125,211,252,.98)');
+            drawEdgeLoop(ctx, section, '#7dd3fc', 2.8);
+
+            if (state.activeStep >= 3) {
+                drawSegment3(ctx, A, C, 'rgba(252,211,77,.82)', 2.2, [7,5]);
+                drawPoint3(ctx, midpoint(A, C), 'AC', '#fcd34d', 3.5);
+            }
+
+            if (state.activeStep >= 5) {
+                drawNormalArrow(ctx, midpoint(A, midpoint(C, S, 0.5), 0.5), [4,9,-6], '#86efac');
+            }
+        }
+
+        function drawAngleArc2D(ctx, center, r, a1, a2) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(center.x, center.y, r, a1, a2, false);
+            ctx.strokeStyle = '#fcd34d';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.fillStyle = '#fcd34d';
+            ctx.font = '15px sans-serif';
+            const mid = (a1 + a2) / 2;
+            ctx.fillText('φ', center.x + Math.cos(mid) * (r + 12), center.y + Math.sin(mid) * (r + 12));
+            ctx.restore();
+        }
+
+        function drawAngleMode(ctx) {
+            const rect = ctx.canvas.getBoundingClientRect();
+            const w = rect.width, h = rect.height;
+            const { S, A, B, C, D } = state.scene.pyramid;
+            drawPyramidShell(ctx, true);
+
+            const section = [A, C, S];
+            drawPolygon(ctx, section, 'rgba(125,211,252,.17)', 'rgba(125,211,252,.98)');
+            drawEdgeLoop(ctx, section, '#7dd3fc', 2.7);
+
+            if (state.activeStep >= 2) {
+                drawNormalArrow(ctx, midpoint(A, C), [0,0,1], '#c4b5fd');
+                drawNormalArrow(ctx, midpoint(S, midpoint(A, C)), [4,9,-6], '#86efac');
+            }
+
+            const c = {x: w*0.82, y: h*0.20};
+            ctx.save();
+            ctx.fillStyle = 'rgba(9,15,29,.75)';
+            ctx.strokeStyle = 'rgba(125,211,252,.28)';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.roundRect(c.x - 64, c.y - 88, 150, 148, 18);
+            ctx.fill();
+            ctx.stroke();
+            ctx.strokeStyle = '#c4b5fd';
+            ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(c.x,c.y); ctx.lineTo(c.x,c.y-72); ctx.stroke();
+            ctx.strokeStyle = '#86efac';
+            ctx.beginPath(); ctx.moveTo(c.x,c.y); ctx.lineTo(c.x+58,c.y+54); ctx.stroke();
+            if (state.activeStep >= 5) drawAngleArc2D(ctx, c, 28, -Math.PI/2, 0.75);
+            ctx.fillStyle = '#dfe7ff';
+            ctx.font = '13px sans-serif';
+            ctx.fillText('нормаль к основанию', c.x-52, c.y-84);
+            ctx.fillText('нормаль к SAC', c.x-16, c.y+78);
+            ctx.restore();
+        }
+
+        function drawSectionMode(ctx) {
+            const { S, A, B, C, D } = state.scene.pyramid;
+            drawPyramidShell(ctx, true);
+
+            const P1 = midpoint(S, A, 0.48);
+            const P2 = midpoint(S, B, 0.46);
+            const P3 = midpoint(S, C, 0.63);
+            const P4 = midpoint(S, D, 0.58);
+            const section = [P1, P2, P3, P4];
+            drawPolygon(ctx, section, 'rgba(125,211,252,.20)', 'rgba(125,211,252,.98)');
+            drawEdgeLoop(ctx, section, '#7dd3fc', 2.7);
+
+            if (state.showProjection) {
+                const proj = section.map(([x,y]) => [x,y,0]);
+                drawPolygon(ctx, proj, 'rgba(252,211,77,.15)', 'rgba(252,211,77,.98)', [7,5]);
+                drawEdgeLoop(ctx, proj, 'rgba(252,211,77,.98)', 2.1, [7,5]);
+                section.forEach((p, i) => drawSegment3(ctx, p, proj[i], 'rgba(252,211,77,.72)', 1.8, [4,6]));
+            }
+
+            if (state.activeStep >= 4) {
+                drawNormalArrow(ctx, midpoint(P1, P3), [4,9,-6], '#86efac');
+                drawNormalArrow(ctx, midpoint(B, D), [0,0,1], '#c4b5fd');
+            }
+
+            drawPoint3(ctx, P1, 'P₁', '#fff');
+            drawPoint3(ctx, P2, 'P₂', '#fff');
+            drawPoint3(ctx, P3, 'P₃', '#fff');
+            drawPoint3(ctx, P4, 'P₄', '#fff');
+        }
+
+        function clearAndPrep(ctx) {
+            const rect = ctx.canvas.getBoundingClientRect();
+            ctx.clearRect(0,0,rect.width,rect.height);
+            const g = ctx.createLinearGradient(0,0,0,rect.height);
+            g.addColorStop(0,'#081227');
+            g.addColorStop(1,'#0e1730');
+            ctx.fillStyle = g;
+            ctx.fillRect(0,0,rect.width,rect.height);
+            drawAxes(ctx, rect.width, rect.height);
+        }
+
+        function renderCanvas(ctx) {
+            clearAndPrep(ctx);
+            if (state.mode === 'plane') drawPlaneMode(ctx);
+            if (state.mode === 'angle') drawAngleMode(ctx);
+            if (state.mode === 'section') drawSectionMode(ctx);
+        }
+
+        function renderAll() {
+            updateMetrics();
+            renderSteps();
+            renderCanvas(ctxMain);
+            renderCanvas(ctxModal);
+        }
+
+        function renderSteps() {
+            const steps = stepsByMode[state.mode];
+            el.stepRange.max = steps.length;
+            el.stepRange.value = state.activeStep;
+            el.stepList.innerHTML = steps.map((step, idx) => {
+                const active = idx + 1 <= state.activeStep ? 'active' : '';
+                return `<div class="step ${active}" data-step="${idx+1}">
+            <div class="step-tag">${step.tag}</div>
+            <h4>${step.title}</h4>
+            <p>${step.text[state.detail]}</p>
+          </div>`;
+            }).join('');
+        }
+
+        function syncModePreset() {
+            if (state.mode === 'plane') {
+                state.scene.plane1 = { A: 4, B: 9, C: -6, D: 0 };
+                state.scene.plane2 = { A: 0, B: 0, C: 1, D: 0 };
+                state.scene.projArea = 6;
+            } else if (state.mode === 'angle') {
+                state.scene.plane1 = { A: 4, B: 9, C: -6, D: 0 };
+                state.scene.plane2 = { A: 0, B: 0, C: 1, D: 0 };
+                state.scene.projArea = 6;
+            } else {
+                state.scene.plane1 = { A: 4, B: 9, C: -6, D: 0 };
+                state.scene.plane2 = { A: 0, B: 0, C: 1, D: 0 };
+                state.scene.projArea = 6;
+            }
+        }
+
+        function animateSteps() {
+            if (state.playing) return;
+            state.playing = true;
+            const steps = stepsByMode[state.mode].length;
+            state.activeStep = 1;
+            renderAll();
+            const timer = setInterval(() => {
+                state.activeStep += 1;
+                renderAll();
+                if (state.activeStep >= steps) {
+                    clearInterval(timer);
+                    state.playing = false;
+                }
+            }, 1200);
+        }
+
+        function resetState() {
+            state.activeStep = 1;
+            state.viewport = { scale: 1, panX: 0, panY: 0 };
+            state.showProjection = true;
+            state.playing = false;
+            syncModePreset();
+            renderAll();
+        }
+
+        function showPopover(title, text, anchorEl) {
+            if (!anchorEl) return;
+            el.popoverTitle.textContent = title;
+            el.popoverText.textContent = text;
+            const r = anchorEl.getBoundingClientRect();
+            el.popover.style.left = Math.min(window.innerWidth - 340, Math.max(10, r.left + 20)) + 'px';
+            el.popover.style.top = Math.min(window.innerHeight - 180, r.top + 80) + 'px';
+            el.popover.classList.add('show');
+            el.popover.setAttribute('aria-hidden', 'false');
+        }
+
+        function hidePopover() {
+            el.popover.classList.remove('show');
+            el.popover.setAttribute('aria-hidden', 'true');
+        }
+
+        function maybeShowInitialHints() {
+            if (sessionStorage.getItem('geomHintsShown')) return;
+            setTimeout(() => showPopover('Как читать модель', 'Колёсико мыши меняет масштаб, перетаскивание двигает чертёж, а кнопка «Открыть крупно» показывает увеличенную синхронную версию.', el.vizCard), 3000);
+            sessionStorage.setItem('geomHintsShown', '1');
+            setTimeout(hidePopover, 15000);
+        }
+
+        function setupTabs() {
+            el.tabs.forEach(btn => btn.addEventListener('click', () => {
+                el.tabs.forEach(b => b.classList.remove('active'));
+                el.panes.forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            }));
+        }
+
+        function setupQuiz() {
+            el.quizOptions.forEach(btn => btn.addEventListener('click', () => {
+                const ok = btn.dataset.correct === '1';
+                el.quizResult.textContent = ok
+                ? 'Верно. Именно коэффициенты A, B, C образуют координаты нормали.'
+                : 'Пока нет. Перечитайте блок «Типичные ошибки» и формулу общего уравнения плоскости.';
+                el.quizResult.style.color = ok ? '#86efac' : '#fca5a5';
+            }));
+        }
+
+        function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+
+        function safePlaneTask() {
+            const pts = [[0,0,0],[randInt(1,3),0,0],[0,randInt(1,3),randInt(1,2)]];
+            const n = planeNormal(pts[0],pts[1],pts[2]);
+            const g = n.reduce((acc,v)=>gcd(acc,Math.abs(Math.round(v))),0) || 1;
+            const nn = n.map(v => Math.round(v/g));
+            state.scene.plane1 = {A:nn[0],B:nn[1],C:nn[2],D:0};
+            state.mode = 'plane';
+            el.modeSelect.value = 'plane';
+            state.activeStep = 1;
+            renderAll();
+            return {
+                problem: `Через точки O(0, 0, 0), A(${pts[1][0]}, 0, 0), B(0, ${pts[2][1]}, ${pts[2][2]}) проходит плоскость.\nСоставьте её уравнение и укажите нормаль.`,
+                answer: `Идея: подставить координаты трёх точек в общий вид Ax + By + Cz + D = 0. Так как плоскость проходит через начало координат, D = 0.\nОдин из вариантов ответа: ${nn[0]}x ${nn[1] >= 0 ? '+ ' + nn[1] : '- ' + Math.abs(nn[1])}y ${nn[2] >= 0 ? '+ ' + nn[2] : '- ' + Math.abs(nn[2])}z = 0.\nНормаль: (${nn[0]}, ${nn[1]}, ${nn[2]}).`
+            };
+        }
+
+        function safeAngleTask() {
+            const n1 = [randInt(1,4), randInt(1,4), randInt(1,4)];
+            const n2 = [0,0,1];
+            state.scene.plane1 = {A:n1[0],B:n1[1],C:n1[2],D:0};
+            state.scene.plane2 = {A:0,B:0,C:1,D:0};
+            state.mode = 'angle';
+            el.modeSelect.value = 'angle';
+            state.activeStep = 1;
+            renderAll();
+            const c = Math.abs(n1[2]/norm(n1));
+            return {
+                problem: `Найдите угол между плоскостями ${n1[0]}x + ${n1[1]}y + ${n1[2]}z = 0 и z = 0.`,
+                answer: `Идея: взять нормали n₁ = (${n1[0]}, ${n1[1]}, ${n1[2]}) и n₂ = (0, 0, 1).\ncos φ = |${n1[2]}| / √(${n1[0]}² + ${n1[1]}² + ${n1[2]}²) = ${fmt(c)}.\nОтвет: φ = arccos(${fmt(c)}).`
+            };
+        }
+
+        function safeSectionTask() {
+            const projArea = randInt(4,12);
+            const options = [2, Math.sqrt(2), Math.sqrt(3), 2/Math.sqrt(5)];
+            const cos = options[randInt(0, options.length-1)]/2;
+            state.scene.projArea = projArea;
+            state.mode = 'section';
+            el.modeSelect.value = 'section';
+            state.activeStep = 1;
+            renderAll();
+            return {
+                problem: `Площадь проекции сечения на основание равна ${projArea}. Косинус угла между плоскостью сечения и основанием равен ${fmt(cos)}. Найдите площадь сечения.`,
+                answer: `Идея: использовать формулу Sсеч = Sпр / cos φ.\nSсеч = ${projArea} / ${fmt(cos)} = ${fmt(projArea / cos)}.`
+            };
+        }
+
+        function gcd(a,b){ return b===0 ? a : gcd(b,a%b); }
+
+        function setGenerated(task) {
+            el.problemBox.textContent = task.problem;
+            el.answerBox.textContent = task.answer;
+            el.answerBox.classList.remove('show');
+        }
+
+        function setupGenerator() {
+            el.genPlane.addEventListener('click', () => setGenerated(safePlaneTask()));
+            el.genAngle.addEventListener('click', () => setGenerated(safeAngleTask()));
+            el.genSection.addEventListener('click', () => setGenerated(safeSectionTask()));
+            el.toggleAnswer.addEventListener('click', () => el.answerBox.classList.toggle('show'));
+        }
+
+        function setupModal() {
+            el.openModal.addEventListener('click', () => {
+                state.showModal = true;
+                el.overlay.classList.add('show');
+                el.overlay.setAttribute('aria-hidden', 'false');
+                renderAll();
+            });
+            const close = () => {
+                state.showModal = false;
+                el.overlay.classList.remove('show');
+                el.overlay.setAttribute('aria-hidden', 'true');
+            };
+            el.closeModal.addEventListener('click', close);
+            el.overlay.addEventListener('click', (e) => { if (e.target === el.overlay) close(); });
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') { close(); hidePopover(); }
+            });
+        }
+
+        function setupControls() {
+            el.modeSelect.addEventListener('change', () => {
+                state.mode = el.modeSelect.value;
+                state.activeStep = 1;
+                syncModePreset();
+                renderAll();
+            });
+            el.detailSelect.addEventListener('change', () => {
+                state.detail = el.detailSelect.value;
+                renderAll();
+            });
+            el.stepRange.addEventListener('input', () => {
+                state.activeStep = Number(el.stepRange.value);
+                renderAll();
+            });
+            el.playSteps.addEventListener('click', animateSteps);
+            el.resetAll.addEventListener('click', resetState);
+            el.zoomIn.addEventListener('click', () => { state.viewport.scale = clamp(state.viewport.scale * 1.15, 0.45, 3.2); renderAll(); });
+            el.zoomOut.addEventListener('click', () => { state.viewport.scale = clamp(state.viewport.scale / 1.15, 0.45, 3.2); renderAll(); });
+            el.resetView.addEventListener('click', () => { state.viewport = { scale: 1, panX: 0, panY: 0 }; renderAll(); });
+            el.toggleProj.addEventListener('click', () => { state.showProjection = !state.showProjection; renderAll(); });
+            el.closePopover.addEventListener('click', hidePopover);
+        }
+
+        function setupPanZoom(canvas) {
+            let dragging = false;
+            let lastX = 0, lastY = 0;
+            canvas.addEventListener('mousedown', (e) => {
+                dragging = true;
+                lastX = e.clientX; lastY = e.clientY;
+                canvas.classList.add('grabbing');
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!dragging) return;
+                state.viewport.panX += e.clientX - lastX;
+                state.viewport.panY += e.clientY - lastY;
+                lastX = e.clientX; lastY = e.clientY;
+                renderAll();
+            });
+            window.addEventListener('mouseup', () => { dragging = false; canvas.classList.remove('grabbing'); });
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const factor = e.deltaY < 0 ? 1.08 : 1/1.08;
+                state.viewport.scale = clamp(state.viewport.scale * factor, 0.45, 3.2);
+                renderAll();
+            }, {passive:false});
+        }
+
+        function init() {
+            resizeCanvas(el.mainCanvas, ctxMain);
+            resizeCanvas(el.modalCanvas, ctxModal);
+            syncModePreset();
+            setupControls();
+            setupTabs();
+            setupQuiz();
+            setupGenerator();
+            setupModal();
+            setupPanZoom(el.mainCanvas);
+            setupPanZoom(el.modalCanvas);
+            renderAll();
+            maybeShowInitialHints();
+            window.addEventListener('resize', () => {
+                resizeCanvas(el.mainCanvas, ctxMain);
+                resizeCanvas(el.modalCanvas, ctxModal);
+                renderAll();
+            });
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
