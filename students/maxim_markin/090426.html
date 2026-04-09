@@ -1,0 +1,2744 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — смешанная схема кредитования</title>
+    <style>
+        :root {
+            --bg: #F4F4F0;
+            --panel: #FFFFFF;
+            --panel-2: #EFEFE8;
+            --text: #000000;
+            --muted: #2C2C2C;
+            --line: #000000;
+            --shadow: #000000;
+            --accent: #D72638;
+            --accent-2: #1E8E72;
+            --accent-3: #F4C542;
+            --banner: #000000;
+            --banner-text: #FFFFFF;
+            --nav: #FFFFFF;
+            --nav-active: #D72638;
+            --nav-active-text: #FFFFFF;
+            --hint: #FFF6D8;
+            --success: #1F7A4C;
+            --danger: #B42318;
+            --grid: rgba(0,0,0,0.16);
+            --viz-bg: #FFFFFF;
+            --legend-bg: #F4F4F0;
+            --soft-text: #4C4C4C;
+            --edge: 2px solid #000000;
+            --shadow-sm: 4px 4px 0 #000000;
+            --shadow-md: 6px 6px 0 #000000;
+            --shadow-lg: 8px 8px 0 #000000;
+            --maxw: 1360px;
+            --sticky-top: 92px;
+            --step-gap: 18px;
+        }
+
+        body[data-theme="dark"] {
+            --bg: #181818;
+            --panel: #232323;
+            --panel-2: #111111;
+            --text: #F5F3ED;
+            --muted: #DDDBD2;
+            --line: #F5F3ED;
+            --shadow: #000000;
+            --accent: #D72638;
+            --accent-2: #56C9A7;
+            --accent-3: #F4C542;
+            --banner: #000000;
+            --banner-text: #FFFFFF;
+            --nav: #232323;
+            --nav-active: #D72638;
+            --nav-active-text: #FFFFFF;
+            --hint: #302712;
+            --success: #7BDF98;
+            --danger: #FF857A;
+            --grid: rgba(255,255,255,0.14);
+            --viz-bg: #1C1C1C;
+            --legend-bg: #232323;
+            --soft-text: #C5C2B8;
+            --edge: 2px solid #F5F3ED;
+            --shadow-sm: 4px 4px 0 #000000;
+            --shadow-md: 6px 6px 0 #000000;
+            --shadow-lg: 8px 8px 0 #000000;
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: geometricPrecision;
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button, input, select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            border: var(--edge);
+            background: var(--panel);
+            color: var(--text);
+            padding: 10px 14px;
+            box-shadow: var(--shadow-sm);
+            border-radius: 0;
+            transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease;
+        }
+
+        button:hover,
+        .clickable:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        button:active,
+        .pressed {
+            transform: translate(2px, 2px);
+            box-shadow: 0 0 0 #000000;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+
+        .app-shell {
+            width: min(var(--maxw), calc(100vw - 32px));
+            margin: 0 auto;
+            padding-bottom: 40px;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--bg);
+            padding: 16px 0 10px;
+            border-bottom: var(--edge);
+        }
+
+        .topbar-inner {
+            width: min(var(--maxw), calc(100vw - 32px));
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .brand-mark {
+            width: 52px;
+            height: 52px;
+            border: var(--edge);
+            box-shadow: var(--shadow-sm);
+            background: var(--accent);
+            display: grid;
+            place-items: center;
+            font-weight: 900;
+            font-size: 26px;
+            color: #fff;
+            flex: 0 0 auto;
+        }
+
+        .brand-copy {
+            min-width: 0;
+        }
+
+        .brand-copy .kicker {
+            font-size: 12px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-weight: 900;
+            color: var(--soft-text);
+            margin-bottom: 3px;
+        }
+
+        .brand-copy .title {
+            font-size: 18px;
+            line-height: 1.1;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .nav a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 12px;
+            background: var(--nav);
+            border: var(--edge);
+            box-shadow: var(--shadow-sm);
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .nav a.active {
+            background: var(--nav-active);
+            color: var(--nav-active-text);
+        }
+
+        .utility-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .theme-switch {
+            display: inline-flex;
+            border: var(--edge);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            background: var(--panel);
+        }
+
+        .theme-switch button {
+            box-shadow: none;
+            border: none;
+            border-right: var(--edge);
+            padding: 10px 12px;
+            min-width: 74px;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: transparent;
+        }
+
+        .theme-switch button:last-child {
+            border-right: none;
+        }
+
+        .theme-switch button.is-active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .hero {
+            padding: 28px 0 16px;
+        }
+
+        .hero-panel {
+            background: var(--panel);
+            border: var(--edge);
+            box-shadow: var(--shadow-lg);
+            padding: 24px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .hero-title {
+            margin: 0 0 10px;
+            font-size: clamp(34px, 5vw, 64px);
+            line-height: 0.95;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .hero-sub {
+            font-size: 18px;
+            max-width: 62ch;
+            color: var(--muted);
+            margin-bottom: 18px;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 10px;
+        }
+
+        .meta-card {
+            background: var(--panel-2);
+            border: var(--edge);
+            box-shadow: var(--shadow-sm);
+            padding: 10px 12px;
+        }
+
+        .meta-card .label {
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--soft-text);
+            margin-bottom: 4px;
+        }
+
+        .meta-card .value {
+            font-weight: 900;
+            line-height: 1.15;
+        }
+
+        .banner {
+            margin-top: 16px;
+            background: var(--banner);
+            color: var(--banner-text);
+            border: var(--edge);
+            box-shadow: var(--shadow-sm);
+            padding: 12px 16px;
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            font-size: 14px;
+        }
+
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0,1fr));
+            gap: 16px;
+            margin: 20px 0 28px;
+        }
+
+        .mode-card {
+            border: var(--edge);
+            box-shadow: var(--shadow-md);
+            padding: 18px;
+            min-height: 178px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card:nth-child(1) { background: #ffffff; }
+        .mode-card:nth-child(2) { background: var(--accent); color: #fff; }
+        .mode-card:nth-child(3) { background: var(--accent-2); }
+        .mode-card:nth-child(4) { background: var(--accent-3); }
+
+        body[data-theme="dark"] .mode-card:nth-child(1) { background: #232323; color: var(--text); }
+        body[data-theme="dark"] .mode-card:nth-child(3) { color: #000; }
+
+        .mode-icon {
+            width: 42px;
+            height: 42px;
+            border: var(--edge);
+            display: grid;
+            place-items: center;
+            margin-bottom: 14px;
+            font-weight: 900;
+            box-shadow: var(--shadow-sm);
+            background: rgba(255,255,255,0.82);
+            color: #000;
+        }
+
+        body[data-theme="dark"] .mode-icon {
+            background: rgba(0,0,0,0.82);
+            color: #fff;
+            border-color: var(--line);
+        }
+
+        .mode-title {
+            font-size: 20px;
+            line-height: 1;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 0.04em;
+        }
+
+        .mode-sub {
+            font-size: 13px;
+            line-height: 1.35;
+            max-width: 28ch;
+        }
+
+        .layout-main {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 500px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .left-col {
+            min-width: 0;
+        }
+
+        .right-col {
+            min-width: 0;
+            position: relative;
+        }
+
+        .sticky-panel {
+            position: sticky;
+            top: var(--sticky-top);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: var(--edge);
+            box-shadow: var(--shadow-md);
+            padding: 18px;
+        }
+
+        .panel-title {
+            margin: 0 0 12px;
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .section {
+            margin-bottom: 24px;
+            scroll-margin-top: 100px;
+        }
+
+        .section-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px 14px;
+            margin-bottom: 14px;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: clamp(22px, 3vw, 34px);
+            line-height: 1;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: var(--edge);
+            background: var(--panel);
+            box-shadow: var(--shadow-sm);
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .control-bar {
+            display: grid;
+            grid-template-columns: auto auto 1fr auto;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .step-buttons,
+        .detail-buttons,
+        .toggle-buttons,
+        .tool-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .toggle-button.active,
+        .detail-button.active,
+        .tool-button.active,
+        .step-nav-button.active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .step-cards {
+            display: grid;
+            gap: var(--step-gap);
+        }
+
+        .step-card {
+            border: var(--edge);
+            background: var(--panel);
+            box-shadow: var(--shadow-md);
+            padding: 16px;
+            position: relative;
+            transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease;
+        }
+
+        .step-card:hover {
+            transform: translate(-2px,-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .step-card.is-active {
+            background: color-mix(in srgb, var(--panel) 60%, var(--accent) 40%);
+            color: var(--text);
+            outline: 3px solid var(--accent);
+            outline-offset: -3px;
+        }
+
+        body[data-theme="dark"] .step-card.is-active {
+            background: color-mix(in srgb, var(--panel) 78%, var(--accent) 22%);
+        }
+
+        .step-card.is-linked {
+            background: color-mix(in srgb, var(--panel) 70%, var(--accent-3) 30%);
+        }
+
+        .step-head {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .step-num {
+            width: 42px;
+            height: 42px;
+            flex: 0 0 auto;
+            border: var(--edge);
+            box-shadow: var(--shadow-sm);
+            display: grid;
+            place-items: center;
+            font-size: 18px;
+            font-weight: 900;
+            background: var(--panel-2);
+        }
+
+        .step-title {
+            margin: 0;
+            font-size: 20px;
+            line-height: 1.1;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .step-body {
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .step-body p {
+            margin: 0 0 10px;
+        }
+
+        .math-line {
+            display: inline-block;
+            border: var(--edge);
+            box-shadow: var(--shadow-sm);
+            background: var(--panel-2);
+            padding: 8px 10px;
+            margin: 6px 6px 8px 0;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .neo-note {
+            border: var(--edge);
+            background: var(--accent-3);
+            box-shadow: var(--shadow-sm);
+            padding: 12px;
+            margin-top: 10px;
+            font-weight: 700;
+        }
+
+        body[data-theme="dark"] .neo-note {
+            color: #000;
+        }
+
+        .mini-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .mini-card {
+            border: var(--edge);
+            box-shadow: var(--shadow-sm);
+            padding: 12px;
+            background: var(--panel-2);
+        }
+
+        .mini-card h4 {
+            margin: 0 0 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .checklist {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .checklist li {
+            margin-bottom: 8px;
+        }
+
+        .compact-system {
+            display: inline-grid;
+            grid-template-columns: 6px 1fr;
+            gap: 10px;
+            align-items: stretch;
+            margin: 8px 0;
+            border: var(--edge);
+            background: var(--panel-2);
+            box-shadow: var(--shadow-sm);
+            padding: 12px;
+        }
+
+        .compact-system .system-bar {
+            background: var(--line);
+            width: 100%;
+        }
+
+        .compact-system .system-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-weight: 900;
+        }
+
+        .table-wrap {
+            overflow: auto;
+            border: var(--edge);
+            box-shadow: var(--shadow-sm);
+            background: var(--panel-2);
+            margin: 12px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 720px;
+        }
+
+        th, td {
+            border-bottom: var(--edge);
+            padding: 10px 10px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 14px;
+        }
+
+        th {
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 12px;
+            background: color-mix(in srgb, var(--panel-2) 80%, var(--accent-3) 20%);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr[data-row-hover="true"] { background: color-mix(in srgb, var(--panel-2) 70%, var(--accent-3) 30%); }
+
+        .viz-wrap {
+            border: var(--edge);
+            background: var(--viz-bg);
+            box-shadow: var(--shadow-lg);
+            min-height: 430px;
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .viz-wrap.is-dragging {
+            cursor: grabbing;
+        }
+
+        .viz-svg {
+            width: 100%;
+            height: 430px;
+            display: block;
+            background: var(--viz-bg);
+        }
+
+        .viz-caption {
+            font-size: 13px;
+            color: var(--soft-text);
+            margin-top: 10px;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: var(--edge);
+            box-shadow: var(--shadow-sm);
+            background: var(--legend-bg);
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .swatch {
+            width: 16px;
+            height: 16px;
+            border: var(--edge);
+            flex: 0 0 auto;
+        }
+
+        .viz-controls {
+            display: grid;
+            gap: 14px;
+        }
+
+        .small-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--soft-text);
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        .vis-help {
+            font-size: 12px;
+            color: var(--soft-text);
+            padding: 8px 10px;
+            border: var(--edge);
+            box-shadow: var(--shadow-sm);
+            background: var(--panel-2);
+        }
+
+        .formula-ribbon {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .formula-tag {
+            border: var(--edge);
+            background: var(--accent-3);
+            box-shadow: var(--shadow-sm);
+            padding: 8px 10px;
+            font-weight: 900;
+            color: #000;
+        }
+
+        .error-grid,
+        .summary-grid,
+        .quiz-grid,
+        .generator-grid,
+        .print-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .error-card,
+        .summary-card,
+        .quiz-card,
+        .generator-card,
+        .print-card {
+            border: var(--edge);
+            box-shadow: var(--shadow-md);
+            padding: 16px;
+            background: var(--panel);
+        }
+
+        .error-card h3,
+        .summary-card h3,
+        .quiz-card h3,
+        .generator-card h3,
+        .print-card h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .quiz-question {
+            margin-bottom: 12px;
+            padding: 12px;
+            border: var(--edge);
+            background: var(--panel-2);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .feedback {
+            margin-top: 8px;
+            font-weight: 900;
+            min-height: 22px;
+        }
+
+        .feedback.ok { color: var(--success); }
+        .feedback.no { color: var(--danger); }
+
+        .generator-out {
+            margin-top: 14px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .generator-box {
+            border: var(--edge);
+            box-shadow: var(--shadow-sm);
+            padding: 12px;
+            background: var(--panel-2);
+        }
+
+        .summary-bullets {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .footer {
+            margin-top: 34px;
+            border-top: var(--edge);
+            padding-top: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .footer-tagline {
+            color: var(--accent);
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .helper-stack {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 62;
+        }
+
+        .helper-button {
+            width: 54px;
+            height: 54px;
+            display: grid;
+            place-items: center;
+            font-weight: 900;
+            font-size: 18px;
+            background: var(--accent);
+            color: #fff;
+            border: var(--edge);
+            box-shadow: var(--shadow-md);
+        }
+
+        .hint-pop {
+            position: fixed;
+            right: 82px;
+            bottom: 16px;
+            width: min(340px, calc(100vw - 110px));
+            background: var(--hint);
+            color: #000;
+            border: 2px solid #000;
+            box-shadow: var(--shadow-lg);
+            padding: 14px;
+            z-index: 70;
+            display: none;
+        }
+
+        .hint-pop.is-open {
+            display: block;
+            animation: hintIn 0.14s steps(2, end);
+        }
+
+        @keyframes hintIn {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .hint-title {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 6px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .hint-close {
+            border: var(--edge);
+            background: #fff;
+            padding: 4px 8px;
+            box-shadow: var(--shadow-sm);
+            font-size: 12px;
+            font-weight: 900;
+            color: #000;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 22px;
+            z-index: 90;
+        }
+
+        .modal.is-open {
+            display: flex;
+        }
+
+        .modal-card {
+            width: min(1140px, 100%);
+            max-height: calc(100vh - 44px);
+            overflow: auto;
+            background: var(--panel);
+            border: var(--edge);
+            box-shadow: var(--shadow-lg);
+            padding: 18px;
+            position: relative;
+        }
+
+        .modal-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .modal-title {
+            margin: 0;
+            text-transform: uppercase;
+            font-size: 20px;
+            letter-spacing: 0.06em;
+            font-weight: 900;
+        }
+
+        .modal-close {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .modal-viz {
+            border: var(--edge);
+            background: var(--viz-bg);
+            box-shadow: var(--shadow-lg);
+            min-height: 650px;
+            overflow: hidden;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .modal-viz.is-dragging { cursor: grabbing; }
+        .modal-svg {
+            width: 100%;
+            height: 650px;
+            display: block;
+        }
+
+        .object-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 900;
+            border: var(--edge);
+            box-shadow: var(--shadow-sm);
+            padding: 6px 8px;
+            background: var(--panel-2);
+            margin: 4px 6px 0 0;
+        }
+
+        .mono {
+            font-family: "Courier New", Courier, monospace;
+            font-weight: 900;
+        }
+
+        .muted {
+            color: var(--soft-text);
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .under-banner-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+            align-items: center;
+            margin-top: 14px;
+        }
+
+        .print-pill {
+            background: var(--accent-3);
+            color: #000;
+        }
+
+        .insight-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 14px 0 4px;
+        }
+
+        .insight {
+            border: var(--edge);
+            box-shadow: var(--shadow-sm);
+            background: var(--panel-2);
+            padding: 10px 12px;
+            font-weight: 900;
+            font-size: 13px;
+        }
+
+        @media (max-width: 1160px) {
+            .layout-main {
+                grid-template-columns: 1fr;
+            }
+            .sticky-panel {
+                position: relative;
+                top: 0;
+            }
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+            .mode-grid {
+                grid-template-columns: repeat(2, minmax(0,1fr));
+            }
+            .topbar-inner {
+                grid-template-columns: 1fr;
+            }
+            .nav {
+                justify-content: flex-start;
+            }
+            .utility-group {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .app-shell,
+            .topbar-inner {
+                width: min(var(--maxw), calc(100vw - 20px));
+            }
+            .hero-panel,
+            .panel {
+                padding: 14px;
+            }
+            .mode-grid {
+                grid-template-columns: 1fr;
+            }
+            .meta-grid,
+            .mini-grid {
+                grid-template-columns: 1fr;
+            }
+            .control-bar {
+                grid-template-columns: 1fr;
+            }
+            .viz-svg,
+            .modal-svg {
+                height: 380px;
+            }
+            .modal-viz {
+                min-height: 380px;
+            }
+            .helper-stack {
+                right: 10px;
+                bottom: 10px;
+            }
+            .hint-pop {
+                right: 10px;
+                left: 10px;
+                width: auto;
+                bottom: 78px;
+            }
+        }
+
+        @media print {
+            :root {
+                --bg: #ffffff;
+                --panel: #ffffff;
+                --panel-2: #ffffff;
+                --text: #000000;
+                --muted: #111111;
+                --line: #000000;
+                --shadow-sm: none;
+                --shadow-md: none;
+                --shadow-lg: none;
+                --grid: rgba(0,0,0,0.16);
+                --viz-bg: #ffffff;
+            }
+
+            body {
+                background: #ffffff;
+                color: #000;
+            }
+
+            .topbar,
+            .mode-grid,
+            .helper-stack,
+            .hint-pop,
+            .viz-controls,
+            .modal,
+            .tool-row,
+            .control-bar,
+            .generator-grid .generator-card:first-child,
+            .quiz-grid .quiz-card:first-child,
+            .insight-strip {
+                display: none !important;
+            }
+
+            .layout-main {
+                grid-template-columns: 1fr;
+            }
+
+            .sticky-panel {
+                position: relative;
+                top: auto;
+            }
+
+            .step-card,
+            .panel,
+            .hero-panel,
+            .mode-card,
+            .error-card,
+            .summary-card,
+            .quiz-card,
+            .generator-card,
+            .print-card,
+            .meta-card,
+            .banner,
+            .viz-wrap,
+            .theme-switch,
+            .nav a {
+                box-shadow: none !important;
+            }
+
+            .footer {
+                page-break-inside: avoid;
+            }
+
+            a[href]:after {
+                content: "";
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <div class="topbar-inner">
+        <div class="brand">
+            <div class="brand-mark" aria-hidden="true">Σ</div>
+            <div class="brand-copy">
+                <div class="kicker">Neo-brutalist math studio</div>
+                <div class="title">Наглядная математика 2.0</div>
+            </div>
+        </div>
+
+        <nav class="nav" aria-label="Главная навигация">
+            <a href="#overview" class="active">Обзор</a>
+            <a href="#solution">Разбор</a>
+            <a href="#errors">Ошибки</a>
+            <a href="#quiz">Квиз</a>
+            <a href="#generator">Генератор</a>
+            <a href="#summary">Итог</a>
+        </nav>
+
+        <div class="utility-group">
+            <div class="theme-switch" role="group" aria-label="Переключение темы">
+                <button type="button" class="theme-btn" data-theme-set="light">Light</button>
+                <button type="button" class="theme-btn" data-theme-set="dark">Dark</button>
+                <button type="button" class="theme-btn" data-theme-set="auto">Auto</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="app-shell">
+    <header class="hero" id="overview">
+        <div class="hero-panel">
+            <div class="hero-grid">
+                <div>
+                    <h1 class="hero-title" id="heroTitle">Смешанная схема погашения кредита</h1>
+                    <div class="hero-sub" id="heroSub">
+                        Разбор задачи ЕГЭ, где долг меняется по заранее заданным остаткам, а решение строится не по готовой формуле аннуитета, а через ручную таблицу: «начальный долг → проценты → долг после процентов → платёж → остаток».
+                    </div>
+
+                    <div class="insight-strip" id="insightStrip"></div>
+
+                    <div class="banner" id="heroBanner">
+                        Платёж за период всегда считается так: долг после процентов − остаток после платежа.
+                    </div>
+
+                    <div class="under-banner-grid">
+                        <div class="formula-ribbon">
+                            <div class="formula-tag">Q = 1 + p/100</div>
+                            <div class="formula-tag">Платёж = Q·D − R</div>
+                            <div class="formula-tag">Переплата = ((Σ выплат − S) / S) · 100%</div>
+                        </div>
+                        <button type="button" id="printBtn" class="print-pill">Печать / PDF</button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="meta-grid" id="metaGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mode-grid" aria-label="Быстрые режимы">
+            <div class="mode-card">
+                <div class="mode-icon" aria-hidden="true">01</div>
+                <div class="mode-title">Остатки</div>
+                <div class="mode-sub">Если в условии известен долг после каждого периода, Вы сразу заполняете таблицу по остаткам, а не ищете «общую формулу платежа».</div>
+            </div>
+            <div class="mode-card">
+                <div class="mode-icon" aria-hidden="true">02</div>
+                <div class="mode-title">Платежи</div>
+                <div class="mode-sub">Если платежи неизвестны, но остатки заданы, каждый платёж вычисляется локально из одной строки таблицы.</div>
+            </div>
+            <div class="mode-card">
+                <div class="mode-icon" aria-hidden="true">03</div>
+                <div class="mode-title">Проверка</div>
+                <div class="mode-sub">Финальная проверка: после последнего платежа остаток должен стать нулём, а сумма выплат должна соответствовать вопросу задачи.</div>
+            </div>
+            <div class="mode-card">
+                <div class="mode-icon" aria-hidden="true">04</div>
+                <div class="mode-title">ЕГЭ</div>
+                <div class="mode-sub">Это тип задач, где особенно важны оформление таблицы, аккуратные вычисления и умение работать без шаблона «аннуитет / дифференцированный кредит».</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="layout-main">
+        <section class="left-col">
+            <section class="section" id="solution">
+                <div class="section-header">
+                    <h2 class="section-title">Пошаговый разбор</h2>
+                    <div class="pill">Text ↔ Visual Sync</div>
+                    <div class="pill">Show one / show all</div>
+                    <div class="pill">Detail level</div>
+                </div>
+
+                <div class="panel">
+                    <div class="control-bar">
+                        <div class="step-buttons">
+                            <button type="button" id="prevStepBtn" class="step-nav-button">← Назад</button>
+                            <button type="button" id="nextStepBtn" class="step-nav-button">Далее →</button>
+                            <button type="button" id="showAllBtn" class="step-nav-button">Показать всё</button>
+                        </div>
+
+                        <div class="detail-buttons" id="detailButtons">
+                            <button type="button" class="detail-button active" data-detail="подробный">Подробно</button>
+                            <button type="button" class="detail-button" data-detail="средний">Средне</button>
+                            <button type="button" class="detail-button" data-detail="краткий">Кратко</button>
+                        </div>
+
+                        <div class="muted" id="stepStatus" aria-live="polite">Шаг 1 из 8</div>
+
+                        <div class="toggle-buttons">
+                            <button type="button" class="toggle-button active" id="highlightModeBtn">Подсветка включена</button>
+                        </div>
+                    </div>
+
+                    <div class="step-cards" id="stepCards"></div>
+                </div>
+            </section>
+
+            <section class="section" id="errors">
+                <div class="section-header">
+                    <h2 class="section-title">Типичные ошибки</h2>
+                    <div class="pill">Антишаблоны</div>
+                </div>
+                <div class="error-grid">
+                    <div class="error-card">
+                        <h3>Ошибка 1. Подгонять под аннуитет</h3>
+                        <p>Если остатки долга идут как 100%, 90%, 80%, 70%, 60%, 50%, 0%, это ещё не означает готовую стандартную схему. Здесь долг в последние периоды ведёт себя неравномерно, значит безопаснее решать вручную по строкам таблицы.</p>
+                    </div>
+                    <div class="error-card">
+                        <h3>Ошибка 2. Забыть проценты перед платёжом</h3>
+                        <p>Платёж нельзя считать как «начальный долг − остаток». Сначала банк увеличивает долг на p%, только потом делается выплата.</p>
+                        <div class="math-line">Xₖ = (долг в начале)·Q − остаток</div>
+                    </div>
+                    <div class="error-card">
+                        <h3>Ошибка 3. Совокупность вместо системы</h3>
+                        <p>Если в задаче сказано, что <strong>каждый</strong> платёж больше некоторого числа, то нужно писать систему, потому что все условия должны выполняться одновременно.</p>
+                        <div class="compact-system" aria-label="Пример компактной записи системы">
+                            <div class="system-bar"></div>
+                            <div class="system-lines">
+                                <div>X₁ &gt; 5</div>
+                                <div>X₂ &gt; 5</div>
+                                <div>X₃ &gt; 5</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="error-card">
+                        <h3>Ошибка 4. Потерять смысл ответа</h3>
+                        <p>Если вопрос о переплате, то после нахождения суммы всех платежей нужно ещё вычесть исходную сумму кредита и перейти к процентам. Если вопрос о ставке, проверяйте, не требуется ли именно целое значение.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section" id="quiz">
+                <div class="section-header">
+                    <h2 class="section-title">Мини-квиз / самопроверка</h2>
+                    <div class="pill">Immediate feedback</div>
+                </div>
+                <div class="quiz-grid">
+                    <div class="quiz-card">
+                        <h3>Проверьте понимание</h3>
+                        <div id="quizMount"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section" id="generator">
+                <div class="section-header">
+                    <h2 class="section-title">Генератор похожих задач</h2>
+                    <div class="pill">Safe randomization</div>
+                </div>
+                <div class="generator-grid">
+                    <div class="generator-card">
+                        <h3>Новый вариант</h3>
+                        <p>Генератор создаёт задачу того же типа: известны остатки долга по периодам, процентная ставка задана, требуется найти переплату. Сценарии подобраны так, чтобы не было вырожденных случаев и не ломалась логика таблицы.</p>
+                        <div class="tool-row">
+                            <button type="button" id="generateTaskBtn">Сгенерировать</button>
+                            <button type="button" id="loadDefaultBtn">Вернуть базовый пример</button>
+                        </div>
+                        <div class="generator-out" id="generatorOut"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section" id="summary">
+                <div class="section-header">
+                    <h2 class="section-title">Краткий итог / takeaway</h2>
+                    <div class="pill">Print-friendly</div>
+                </div>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <h3>Главная идея</h3>
+                        <ul class="summary-bullets">
+                            <li>В смешанной схеме нет одной «магической формулы» платежа на все периоды.</li>
+                            <li>Основной инструмент — строка таблицы: долг в начале → проценты → долг после процентов → платёж → остаток.</li>
+                            <li>Если остаток известен, платёж восстанавливается сразу: <span class="mono">X = Q·D − R</span>.</li>
+                            <li>Если нужно найти переплату, то сначала складываются все выплаты, а затем из суммы вычитается исходный кредит.</li>
+                        </ul>
+                    </div>
+
+                    <div class="print-grid">
+                        <div class="print-card">
+                            <h3>Памятка для печати</h3>
+                            <ol class="summary-bullets">
+                                <li>Обозначьте исходную сумму кредита через <strong>S</strong>, процентную ставку через <strong>p%</strong>, коэффициент роста через <strong>Q = 1 + p/100</strong>.</li>
+                                <li>Заполняйте таблицу по периодам. Новый начальный долг — это остаток прошлого периода.</li>
+                                <li>Каждый платёж считайте как разность между долгом после процентов и известным остатком.</li>
+                                <li>В конце проверьте: последний остаток равен нулю, а искомая величина соответствует вопросу задачи.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <aside class="right-col">
+            <div class="sticky-panel">
+                <div class="panel">
+                    <h3 class="panel-title">Интерактивная визуализация</h3>
+                    <div class="viz-controls">
+                        <div>
+                            <div class="small-label">Масштаб</div>
+                            <div class="tool-row">
+                                <button type="button" id="zoomOutBtn" class="tool-button">−</button>
+                                <button type="button" id="zoomResetBtn" class="tool-button">Reset</button>
+                                <button type="button" id="zoomInBtn" class="tool-button">+</button>
+                            </div>
+                            <input id="zoomSlider" type="range" min="0.65" max="2.4" step="0.01" value="1" aria-label="Масштаб визуализации" />
+                        </div>
+
+                        <div>
+                            <div class="small-label">Слои</div>
+                            <div class="tool-row">
+                                <button type="button" class="tool-button active" data-layer-toggle="debt">График долга</button>
+                                <button type="button" class="tool-button active" data-layer-toggle="payments">Платежи</button>
+                                <button type="button" class="tool-button active" data-layer-toggle="guides">Подсказки</button>
+                                <button type="button" class="tool-button active" data-layer-toggle="labels">Подписи</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="viz-wrap" id="vizWrap" aria-label="Основная математическая сцена">
+                        <svg class="viz-svg" id="mainSvg" viewBox="0 0 920 430" role="img" aria-label="Схема долга и платежей по периодам"></svg>
+                    </div>
+
+                    <div class="viz-caption">
+                        Клик по сцене открывает увеличенный режим. Поддерживаются pan мышью, zoom колёсиком и сброс вида.
+                    </div>
+
+                    <div class="legend" id="legendMount"></div>
+
+                    <div class="vis-help">
+                        <strong>Как управлять:</strong> колёсико — масштаб, перетаскивание пустого места — pan, Reset — вернуть вид, клик по объектам — связанный шаг, клик по сцене — открыть модальное окно.
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h3 class="panel-title">Легенда объектов</h3>
+                    <div id="objectLegend"></div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <footer class="footer">
+        <div>© <span id="yearNow"></span> Наглядная математика — автономная учебная web-страница</div>
+        <div class="footer-tagline">МАТЕМАТИКА. НАГЛЯДНО</div>
+    </footer>
+</div>
+
+<div class="helper-stack" aria-label="Обучающие подсказки">
+    <button type="button" class="helper-button" data-open-hint="hint1" aria-label="Подсказка 1">?</button>
+    <button type="button" class="helper-button" data-open-hint="hint2" aria-label="Подсказка 2">Σ</button>
+    <button type="button" class="helper-button" data-open-hint="hint3" aria-label="Подсказка 3">!</button>
+</div>
+
+<div class="hint-pop" id="hint1" role="tooltip" aria-hidden="true">
+    <div class="hint-title">
+        <span>Подсказка 1</span>
+        <button type="button" class="hint-close" data-close-hint="hint1" aria-label="Закрыть подсказку">×</button>
+    </div>
+    <div><strong>Первое действие:</strong> не пытайтесь угадывать «тип кредита». Сразу выпишите остатки долга по периодам и стройте таблицу сверху вниз.</div>
+</div>
+
+<div class="hint-pop" id="hint2" role="tooltip" aria-hidden="true">
+    <div class="hint-title">
+        <span>Подсказка 2</span>
+        <button type="button" class="hint-close" data-close-hint="hint2" aria-label="Закрыть подсказку">×</button>
+    </div>
+    <div><strong>Локальная формула строки:</strong> платёж периода — это всегда <strong>долг после процентов минус остаток</strong>. Именно эта формула держит весь разбор.</div>
+</div>
+
+<div class="hint-pop" id="hint3" role="tooltip" aria-hidden="true">
+    <div class="hint-title">
+        <span>Подсказка 3</span>
+        <button type="button" class="hint-close" data-close-hint="hint3" aria-label="Закрыть подсказку">×</button>
+    </div>
+    <div><strong>Если условие звучит как «каждый платёж больше...»</strong>, то это система условий, а не совокупность. Все неравенства должны выполняться одновременно.</div>
+</div>
+
+<div class="modal" id="vizModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-top">
+            <h3 class="modal-title" id="modalTitle">Увеличенная визуализация</h3>
+            <button type="button" class="modal-close" id="modalCloseBtn" aria-label="Закрыть увеличенную визуализацию">Закрыть ×</button>
+        </div>
+
+        <div class="tool-row" style="margin-bottom:12px;">
+            <button type="button" id="modalZoomOutBtn">−</button>
+            <button type="button" id="modalZoomResetBtn">Reset</button>
+            <button type="button" id="modalZoomInBtn">+</button>
+            <div class="pill">Состояние синхронизировано с основной сценой</div>
+        </div>
+
+        <div class="modal-viz" id="modalVizWrap">
+            <svg class="modal-svg" id="modalSvg" viewBox="0 0 1140 650" role="img" aria-label="Увеличенная математическая сцена"></svg>
+        </div>
+    </div>
+</div>
+
+<script>
+    const APP_CONFIG = {
+        topic: 'Смешанная схема погашения кредита',
+        level: 'ЕГЭ / профиль',
+        goal: 'Показать, как решать кредитную задачу через таблицу по периодам, если нет готовой стандартной схемы.',
+        explanationFormat: 'подробный',
+        visualizationType: 'схема + координатная плоскость',
+        interactivity: 'высокая',
+        similarGenerator: 'да',
+        miniQuiz: 'да',
+        printVersion: 'да',
+        defaultTheme: 'auto',
+        restrictions: 'Без внешних библиотек, без MathJax, без CDN, только один автономный index.html.'
+    };
+
+    const DEFAULT_TASK = {
+        kind: 'overpayment',
+        title: 'Базовый пример',
+        subtitle: 'Долг увеличивается на 5% в месяц. После месяцев 1…6 остаток составляет 90%, 80%, 70%, 60%, 50%, 0% от исходного долга.',
+        months: 6,
+        ratePercent: 5,
+        debtPercentsAfter: [90, 80, 70, 60, 50, 0],
+        question: 'На сколько процентов общая сумма выплат больше суммы самого кредита?',
+        notes: 'Это типичный случай смешанной схемы: платежи не равны, а остатки долга заданы по периодам.'
+    };
+
+    const appState = {
+        task: structuredClone(DEFAULT_TASK),
+        detailLevel: APP_CONFIG.explanationFormat,
+        activeStep: 0,
+        showAll: false,
+        highlightEnabled: true,
+        themeState: {
+            mode: APP_CONFIG.defaultTheme,
+            resolved: 'light'
+        },
+        sceneState: {
+            zoom: 1,
+            panX: 0,
+            panY: 0,
+            orientation: 0,
+            minZoom: 0.65,
+            maxZoom: 2.4,
+            bounds: { x: 230, y: 140 }
+        },
+        modalState: {
+            isOpen: false
+        },
+        visualState: {
+            layers: {
+                debt: true,
+                payments: true,
+                guides: true,
+                labels: true
+            },
+            hoverKeys: [],
+            selectedKeys: []
+        },
+        dragState: {
+            dragging: false,
+            originX: 0,
+            originY: 0,
+            startPanX: 0,
+            startPanY: 0,
+            moved: false,
+            target: null
+        }
+    };
+
+    const STEP_BINDINGS = [
+        ['node-start','line-debt','period-start'],
+        ['node-final','payment-all'],
+        ['axis-periods','node-all'],
+        ['line-debt','payment-all','guide-arrow'],
+        ['payment-all','formula-main'],
+        ['row-all','payment-all','guide-arrow','node-all'],
+        ['node-final','check-badge'],
+        ['summary-badge']
+    ];
+
+    const dom = {
+        body: document.body,
+        heroTitle: document.getElementById('heroTitle'),
+        heroSub: document.getElementById('heroSub'),
+        heroBanner: document.getElementById('heroBanner'),
+        metaGrid: document.getElementById('metaGrid'),
+        insightStrip: document.getElementById('insightStrip'),
+        stepCards: document.getElementById('stepCards'),
+        stepStatus: document.getElementById('stepStatus'),
+        prevStepBtn: document.getElementById('prevStepBtn'),
+        nextStepBtn: document.getElementById('nextStepBtn'),
+        showAllBtn: document.getElementById('showAllBtn'),
+        detailButtons: document.getElementById('detailButtons'),
+        highlightModeBtn: document.getElementById('highlightModeBtn'),
+        zoomSlider: document.getElementById('zoomSlider'),
+        zoomInBtn: document.getElementById('zoomInBtn'),
+        zoomOutBtn: document.getElementById('zoomOutBtn'),
+        zoomResetBtn: document.getElementById('zoomResetBtn'),
+        mainSvg: document.getElementById('mainSvg'),
+        modalSvg: document.getElementById('modalSvg'),
+        vizWrap: document.getElementById('vizWrap'),
+        modalVizWrap: document.getElementById('modalVizWrap'),
+        vizModal: document.getElementById('vizModal'),
+        modalCloseBtn: document.getElementById('modalCloseBtn'),
+        modalZoomInBtn: document.getElementById('modalZoomInBtn'),
+        modalZoomOutBtn: document.getElementById('modalZoomOutBtn'),
+        modalZoomResetBtn: document.getElementById('modalZoomResetBtn'),
+        legendMount: document.getElementById('legendMount'),
+        objectLegend: document.getElementById('objectLegend'),
+        quizMount: document.getElementById('quizMount'),
+        generatorOut: document.getElementById('generatorOut'),
+        generateTaskBtn: document.getElementById('generateTaskBtn'),
+        loadDefaultBtn: document.getElementById('loadDefaultBtn'),
+        printBtn: document.getElementById('printBtn'),
+        yearNow: document.getElementById('yearNow')
+    };
+
+    function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+    }
+
+    function round(value, digits = 3) {
+        const k = 10 ** digits;
+        return Math.round(value * k) / k;
+    }
+
+    function fmtPercent(value) {
+        const rounded = round(value, 3);
+        if (Number.isInteger(rounded)) return String(rounded).replace('.', ',');
+        return String(rounded).replace('.', ',');
+    }
+
+    function fmtShare(value) {
+        const rounded = round(value, 3);
+        return String(rounded).replace('.', ',');
+    }
+
+    function fmtMoneyLikeShare(value) {
+        return fmtShare(value) + 'S';
+    }
+
+    function computeRows(task) {
+        const q = 1 + task.ratePercent / 100;
+        const rows = [];
+        let current = 1;
+
+        for (let i = 0; i < task.months; i++) {
+            const end = task.debtPercentsAfter[i] / 100;
+            const interest = current * task.ratePercent / 100;
+            const after = current + interest;
+            const payment = after - end;
+            rows.push({
+                period: i + 1,
+                start: current,
+                interest,
+                after,
+                payment,
+                end
+            });
+            current = end;
+        }
+
+        const sumPayments = rows.reduce((s, row) => s + row.payment, 0);
+        const overpayment = (sumPayments - 1) * 100;
+
+        return { q, rows, sumPayments, overpayment };
+    }
+
+    function buildInsightStrip(task, calc) {
+        return [
+            `Q = 1 + ${task.ratePercent}/100 = ${fmtShare(calc.q)}`,
+            `Σ выплат = ${fmtMoneyLikeShare(calc.sumPayments)}`,
+            `Переплата = ${fmtPercent(calc.overpayment)}%`,
+            `${task.months} периодов`
+        ];
+    }
+
+    function buildMetaItems() {
+        return [
+            ['Тема', APP_CONFIG.topic],
+            ['Уровень', APP_CONFIG.level],
+            ['Цель', APP_CONFIG.goal],
+            ['Формат объяснения', APP_CONFIG.explanationFormat],
+            ['Тип визуализации', APP_CONFIG.visualizationType],
+            ['Интерактивность', APP_CONFIG.interactivity],
+            ['Генератор', APP_CONFIG.similarGenerator],
+            ['Мини-квиз', APP_CONFIG.miniQuiz],
+            ['Печать', APP_CONFIG.printVersion],
+            ['Тема по умолчанию', APP_CONFIG.defaultTheme],
+            ['Ограничения', APP_CONFIG.restrictions]
+        ];
+    }
+
+    function buildStepContent(task) {
+        const calc = computeRows(task);
+        const rows = calc.rows;
+
+        const firstRow = rows[0];
+        const secondRow = rows[1];
+        const tableRows = rows.map((row) => {
+            return `
+          <tr data-row-index="${row.period - 1}">
+            <td>${row.period}</td>
+            <td>${fmtMoneyLikeShare(row.start)}</td>
+            <td>${fmtMoneyLikeShare(row.interest)}</td>
+            <td>${fmtMoneyLikeShare(row.after)}</td>
+            <td>${fmtMoneyLikeShare(row.payment)}</td>
+            <td>${fmtMoneyLikeShare(row.end)}</td>
+          </tr>
+        `;
+        }).join('');
+
+        const tableHTML = `
+        <div class="table-wrap">
+          <table aria-label="Таблица расчёта по периодам">
+            <thead>
+              <tr>
+                <th>Период</th>
+                <th>Долг в начале</th>
+                <th>Проценты</th>
+                <th>После процентов</th>
+                <th>Платёж</th>
+                <th>Остаток</th>
+              </tr>
+            </thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+        </div>
+      `;
+
+        const formulas = rows.map((row, i) => {
+            const prevLabel = i === 0 ? 'S' : `${fmtShare(rows[i - 1].end)}S`;
+            return `<div class="math-line">X${row.period} = ${fmtShare(calc.q)}·${prevLabel} − ${fmtShare(row.end)}S = ${fmtShare(row.payment)}S</div>`;
+        }).join('');
+
+        const verboseSolution = `
+        <p>Работаем по периодам. В начале первого периода долг равен <strong>S</strong>. После начисления ${task.ratePercent}% он становится <strong>${fmtShare(calc.q)}S</strong>. По условию после первого платежа остаётся <strong>${fmtShare(firstRow.end)}S</strong>. Значит, первый платёж равен:</p>
+        <div class="math-line">X₁ = ${fmtShare(calc.q)}S − ${fmtShare(firstRow.end)}S = ${fmtShare(firstRow.payment)}S</div>
+        <p>Во втором периоде стартовый долг уже равен <strong>${fmtShare(secondRow.start)}S</strong>. После процентов имеем <strong>${fmtShare(secondRow.after)}S</strong>, затем остаётся <strong>${fmtShare(secondRow.end)}S</strong>, значит:</p>
+        <div class="math-line">X₂ = ${fmtShare(calc.q)}·${fmtShare(secondRow.start)}S − ${fmtShare(secondRow.end)}S = ${fmtShare(secondRow.payment)}S</div>
+        <p>Точно так же считаем остальные периоды — локально, без попытки вывести единую «формулу платежа».</p>
+        ${tableHTML}
+        <p>${formulas}</p>
+        <p>Теперь складываем все платежи:</p>
+        <div class="math-line">Σ выплат = ${rows.map(row => `${fmtShare(row.payment)}S`).join(' + ')} = ${fmtShare(calc.sumPayments)}S</div>
+        <p>Ищем переплату:</p>
+        <div class="math-line">(( ${fmtShare(calc.sumPayments)}S − S ) / S) · 100% = ${fmtPercent(calc.overpayment)}%</div>
+      `;
+
+        const mediumSolution = `
+        <p>Строим таблицу по строкам. Для каждого периода используем одну и ту же формулу:</p>
+        <div class="math-line">Платёж = долг после процентов − остаток</div>
+        ${tableHTML}
+        <p>Сумма выплат равна <strong>${fmtShare(calc.sumPayments)}S</strong>, поэтому переплата:</p>
+        <div class="math-line">${fmtPercent(calc.overpayment)}%</div>
+      `;
+
+        const shortSolution = `
+        <p>По каждой строке таблицы считаем платёж как <strong>Q·D − R</strong>, где Q = ${fmtShare(calc.q)}.</p>
+        <p>После суммирования платежей получаем <strong>${fmtShare(calc.sumPayments)}S</strong>, значит переплата равна <strong>${fmtPercent(calc.overpayment)}%</strong>.</p>
+      `;
+
+        const commonCheck = `
+        <div class="mini-grid">
+          <div class="mini-card">
+            <h4>Проверка 1</h4>
+            <p>Последний остаток действительно равен <strong>0</strong>, значит кредит закрыт полностью.</p>
+          </div>
+          <div class="mini-card">
+            <h4>Проверка 2</h4>
+            <p>Каждый платёж положителен, а долг после процентов всегда больше соответствующего остатка.</p>
+          </div>
+        </div>
+      `;
+
+        return [
+            {
+                id: 'given',
+                title: 'Что дано',
+                body: {
+                    'подробный': `
+              <p>${task.subtitle}</p>
+              <p>Исходная сумма кредита обозначается через <strong>S</strong>. Процентная ставка за период равна <strong>${task.ratePercent}%</strong>. Остатки долга после периодов заданы в долях от <strong>S</strong>: <strong>${task.debtPercentsAfter.join('%, ')}%</strong>.</p>
+              <div class="neo-note">Условие даёт нам не платежи, а именно остатки долга. Это означает, что таблицу удобно строить именно по остаткам.</div>
+            `,
+                    'средний': `
+              <p>Дан кредит <strong>S</strong> под <strong>${task.ratePercent}%</strong> за период и известные остатки: <strong>${task.debtPercentsAfter.join('%, ')}%</strong> от <strong>S</strong>.</p>
+            `,
+                    'краткий': `
+              <p>Знаем <strong>S</strong>, ставку <strong>${task.ratePercent}%</strong> и остатки долга по периодам.</p>
+            `
+                }
+            },
+            {
+                id: 'find',
+                title: 'Что нужно найти',
+                body: {
+                    'подробный': `
+              <p>${task.question}</p>
+              <div class="math-line">Ищем процент переплаты</div>
+            `,
+                    'средний': `<p>Нужно найти <strong>процент переплаты</strong>.</p>`,
+                    'краткий': `<p>Ищем <strong>переплату в процентах</strong>.</p>`
+                }
+            },
+            {
+                id: 'meaning',
+                title: 'Смысл условий',
+                body: {
+                    'подробный': `
+              <p>Остатки типа 90%, 80%, 70%, … говорят не о фиксированном платеже, а только о том, какой долг остаётся после каждой выплаты. Значит, платёж нужно восстанавливать отдельно в каждом периоде.</p>
+              <p>Важно: сначала начисляются проценты, и только потом совершается платёж.</p>
+            `,
+                    'средний': `
+              <p>Условие задаёт траекторию долга, а не платежи. Поэтому восстанавливаем каждый платёж из одной строки таблицы.</p>
+            `,
+                    'краткий': `
+              <p>Сначала проценты, потом платёж. Остаток известен — значит платёж можно восстановить.</p>
+            `
+                }
+            },
+            {
+                id: 'interpretation',
+                title: 'Интерпретация задачи',
+                body: {
+                    'подробный': `
+              <p>Это задача на <strong>смешанную схему</strong>. Её невыгодно подгонять под аннуитет или дифференцированную схему. Правильная интерпретация: мы идём период за периодом и собираем таблицу вручную.</p>
+              <div class="math-line">Q = 1 + ${task.ratePercent}/100 = ${fmtShare(calc.q)}</div>
+            `,
+                    'средний': `
+              <p>Это смешанная схема: платёж не задан одной общей формулой. Работаем по таблице и используем коэффициент <strong>Q = ${fmtShare(calc.q)}</strong>.</p>
+            `,
+                    'краткий': `
+              <p>Задача решается таблицей по периодам, где <strong>Q = ${fmtShare(calc.q)}</strong>.</p>
+            `
+                }
+            },
+            {
+                id: 'idea',
+                title: 'Ключевая идея решения',
+                body: {
+                    'подробный': `
+              <p>В каждом периоде одна и та же логика:</p>
+              <div class="math-line">долг после процентов = Q · долг в начале периода</div>
+              <div class="math-line">платёж = долг после процентов − остаток</div>
+              <p>То есть нам не нужен глобальный закон платежей. Нам достаточно локальной формулы для каждой строки.</p>
+            `,
+                    'средний': `
+              <p>Главная формула строки:</p>
+              <div class="math-line">X = Q·D − R</div>
+            `,
+                    'краткий': `
+              <p><strong>Идея:</strong> считать каждый платёж локально по одной строке таблицы.</p>
+            `
+                }
+            },
+            {
+                id: 'solution',
+                title: 'Пошаговое решение',
+                body: {
+                    'подробный': verboseSolution,
+                    'средний': mediumSolution,
+                    'краткий': shortSolution
+                }
+            },
+            {
+                id: 'check',
+                title: 'Проверка',
+                body: {
+                    'подробный': `
+              <p>Переплата должна быть положительной, но не абсурдно большой. Мы получили <strong>${fmtPercent(calc.overpayment)}%</strong>, что согласуется с умеренной ставкой ${task.ratePercent}% и постепенным погашением долга.</p>
+              ${commonCheck}
+            `,
+                    'средний': `
+              <p>Последний остаток равен нулю, все платежи положительны, итоговая переплата <strong>${fmtPercent(calc.overpayment)}%</strong> выглядит разумно.</p>
+              ${commonCheck}
+            `,
+                    'краткий': `
+              <p>Проверка пройдена: последний остаток <strong>0</strong>, переплата <strong>${fmtPercent(calc.overpayment)}%</strong>.</p>
+            `
+                }
+            },
+            {
+                id: 'conclusion',
+                title: 'Вывод',
+                body: {
+                    'подробный': `
+              <p>Общая сумма выплат составляет <strong>${fmtShare(calc.sumPayments)}S</strong>, следовательно, сумма выплат больше суммы кредита на <strong>${fmtPercent(calc.overpayment)}%</strong>.</p>
+              <div class="neo-note">Итоговый ответ: <strong>${fmtPercent(calc.overpayment)}%</strong>.</div>
+            `,
+                    'средний': `
+              <p>Сумма выплат <strong>${fmtShare(calc.sumPayments)}S</strong>, значит переплата равна <strong>${fmtPercent(calc.overpayment)}%</strong>.</p>
+            `,
+                    'краткий': `
+              <p><strong>Ответ:</strong> ${fmtPercent(calc.overpayment)}%.</p>
+            `
+                }
+            }
+        ];
+    }
+
+    function renderMeta() {
+        dom.metaGrid.innerHTML = buildMetaItems().map(([label, value]) => {
+            return `
+          <div class="meta-card">
+            <div class="label">${label}</div>
+            <div class="value">${value}</div>
+          </div>
+        `;
+        }).join('');
+    }
+
+    function renderHero() {
+        const calc = computeRows(appState.task);
+        dom.heroTitle.textContent = APP_CONFIG.topic.toUpperCase();
+        dom.heroSub.textContent = appState.task.subtitle;
+        dom.heroBanner.textContent = 'ЧЁРНЫЙ БАННЕР: ПЛАТЁЖ = ДОЛГ ПОСЛЕ ПРОЦЕНТОВ − ОСТАТОК. ЭТО ОСНОВНАЯ ЛОКАЛЬНАЯ ФОРМУЛА ДЛЯ КАЖДОЙ СТРОКИ ТАБЛИЦЫ.';
+        dom.insightStrip.innerHTML = buildInsightStrip(appState.task, calc).map(item => `<div class="insight">${item}</div>`).join('');
+    }
+
+    function renderSteps() {
+        const steps = buildStepContent(appState.task);
+        const detailLevel = appState.detailLevel;
+        const active = appState.activeStep;
+        const showAll = appState.showAll;
+
+        dom.stepCards.innerHTML = steps.map((step, i) => {
+            const hidden = !showAll && i !== active;
+            const linked = appState.visualState.hoverKeys.some(key => STEP_BINDINGS[i].includes(key));
+            return `
+          <article
+            class="step-card ${i === active ? 'is-active' : ''} ${linked ? 'is-linked' : ''} ${hidden ? 'hide' : ''}"
+            data-step-index="${i}"
+            data-bindings="${STEP_BINDINGS[i].join(',')}"
+          >
+            <div class="step-head">
+              <div class="step-num">${i + 1}</div>
+              <div>
+                <h3 class="step-title">${step.title}</h3>
+                <div class="muted">Шаг ${i + 1} из ${steps.length}</div>
+              </div>
+            </div>
+            <div class="step-body">${step.body[detailLevel]}</div>
+          </article>
+        `;
+        }).join('');
+
+        dom.stepStatus.textContent = `Шаг ${active + 1} из ${steps.length}`;
+        dom.showAllBtn.textContent = showAll ? 'Показывать по одному' : 'Показать всё';
+
+        dom.stepCards.querySelectorAll('.step-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                if (!appState.highlightEnabled) return;
+                const bindings = (card.getAttribute('data-bindings') || '').split(',').filter(Boolean);
+                appState.visualState.hoverKeys = bindings;
+                renderVisuals();
+                renderSteps();
+            });
+
+            card.addEventListener('mouseleave', () => {
+                if (!appState.highlightEnabled) return;
+                appState.visualState.hoverKeys = [];
+                renderVisuals();
+                renderSteps();
+            });
+
+            card.addEventListener('click', () => {
+                appState.activeStep = Number(card.getAttribute('data-step-index'));
+                appState.showAll = false;
+                appState.visualState.selectedKeys = STEP_BINDINGS[appState.activeStep];
+                renderAll();
+            });
+        });
+
+        dom.stepCards.querySelectorAll('tr[data-row-index]').forEach(tr => {
+            tr.addEventListener('mouseenter', () => {
+                const idx = Number(tr.getAttribute('data-row-index')) + 1;
+                appState.visualState.hoverKeys = [`row-${idx}`, `payment-${idx}`, `node-${idx}`];
+                renderVisuals();
+            });
+            tr.addEventListener('mouseleave', () => {
+                appState.visualState.hoverKeys = [];
+                renderVisuals();
+            });
+        });
+    }
+
+    function renderLegend() {
+        dom.legendMount.innerHTML = [
+            ['var(--accent)', 'Линия остатка долга'],
+            ['var(--accent-2)', 'Платежи по периодам'],
+            ['var(--accent-3)', 'Подсказки / активный объект'],
+            ['var(--panel-2)', 'Фон рабочих слоёв']
+        ].map(item => {
+            return `<div class="legend-item"><span class="swatch" style="background:${item[0]};"></span>${item[1]}</div>`;
+        }).join('');
+
+        const objectChips = [
+            ['node-start', 'Стартовый долг S'],
+            ['node-all', 'Узлы остатка после периодов'],
+            ['payment-all', 'Столбцы платежей'],
+            ['line-debt', 'Ломаная долга'],
+            ['axis-periods', 'Ось периодов'],
+            ['guide-arrow', 'Вспомогательные стрелки']
+        ];
+
+        dom.objectLegend.innerHTML = objectChips.map(([key, label]) => {
+            return `<div class="object-chip"><span class="mono">${key}</span><span>${label}</span></div>`;
+        }).join('');
+    }
+
+    function renderQuiz() {
+        const questions = [
+            {
+                q: 'Что считается первым в каждой строке таблицы?',
+                a: 1,
+                options: ['Платёж', 'Проценты и долг после процентов', 'Переплата по всему кредиту'],
+                ok: 'Верно: сначала долг увеличивается на проценты.',
+                no: 'Нет: сначала начисляются проценты, только потом идёт платёж.'
+            },
+            {
+                q: 'Как найти платёж периода, если известен остаток после него?',
+                a: 2,
+                options: ['Остаток − долг в начале', 'Остаток + проценты', 'Долг после процентов − остаток'],
+                ok: 'Да: это главная локальная формула строки.',
+                no: 'Нужно брать именно долг после процентов и вычитать остаток.'
+            },
+            {
+                q: 'Если каждый платёж больше 5, это...',
+                a: 0,
+                options: ['Система условий', 'Совокупность условий', 'Просто одно неравенство'],
+                ok: 'Точно: все условия должны выполняться одновременно.',
+                no: 'Здесь нужна система, потому что условие относится к каждому платежу.'
+            },
+            {
+                q: 'Как вычисляется процент переплаты?',
+                a: 2,
+                options: ['Σ выплат / S', '(Σ выплат + S)/S · 100%', '((Σ выплат − S)/S) · 100%'],
+                ok: 'Верно: сначала вычитаем сам кредит, затем делим на S и умножаем на 100%.',
+                no: 'Переплата — это именно лишняя часть сверх суммы кредита.'
+            }
+        ];
+
+        dom.quizMount.innerHTML = questions.map((item, i) => {
+            return `
+          <div class="quiz-question" data-quiz-index="${i}">
+            <div><strong>${i + 1}.</strong> ${item.q}</div>
+            <div class="quiz-options">
+              ${item.options.map((opt, idx) => `<button type="button" data-opt="${idx}">${opt}</button>`).join('')}
+            </div>
+            <div class="feedback" aria-live="polite"></div>
+          </div>
+        `;
+        }).join('');
+
+        dom.quizMount.querySelectorAll('.quiz-question').forEach((block, i) => {
+            const feedback = block.querySelector('.feedback');
+            block.querySelectorAll('button[data-opt]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const chosen = Number(btn.getAttribute('data-opt'));
+                    if (chosen === questions[i].a) {
+                        feedback.textContent = questions[i].ok;
+                        feedback.className = 'feedback ok';
+                    } else {
+                        feedback.textContent = questions[i].no;
+                        feedback.className = 'feedback no';
+                    }
+                });
+            });
+        });
+    }
+
+    function buildGeneratorOutput(task) {
+        const calc = computeRows(task);
+        const debtList = task.debtPercentsAfter.map(v => `${v}%`).join(', ');
+        return `
+        <div class="generator-box">
+          <strong>Условие.</strong>
+          <p>Кредит в размере <strong>S</strong> взят на <strong>${task.months}</strong> ${task.months < 5 ? 'периода' : 'периодов'} под <strong>${task.ratePercent}%</strong> за период. После периодов 1…${task.months} остаток долга равен соответственно <strong>${debtList}</strong> от исходной суммы. На сколько процентов общая сумма выплат больше суммы кредита?</p>
+        </div>
+        <div class="generator-box">
+          <strong>Ответ.</strong>
+          <p><strong>${fmtPercent(calc.overpayment)}%</strong></p>
+        </div>
+        <div class="generator-box">
+          <strong>Краткая идея решения.</strong>
+          <p>Постройте таблицу по периодам. В каждой строке используйте формулу <strong>платёж = Q·D − R</strong>, где <strong>Q = ${fmtShare(calc.q)}</strong>. Затем сложите все платежи и вычислите переплату относительно <strong>S</strong>.</p>
+        </div>
+      `;
+    }
+
+    function renderGenerator() {
+        dom.generatorOut.innerHTML = buildGeneratorOutput(appState.task);
+    }
+
+    function generateTask() {
+        const months = randomInt(4, 7);
+        const ratePercent = randomChoice([4, 5, 6, 7, 8, 9, 10, 12]);
+        let curr = 100;
+        const ends = [];
+
+        for (let i = 0; i < months - 1; i++) {
+            const leftAfterThis = months - i - 1;
+            const minReserved = leftAfterThis * 5;
+            const maxDrop = curr - minReserved;
+            const minDrop = 5;
+            let drop = randomMultipleOfFive(minDrop, maxDrop);
+            if (drop >= curr) drop = curr - 5;
+            curr -= drop;
+            ends.push(curr);
+        }
+
+        ends.push(0);
+
+        const uniqueDrops = new Set(
+            [100, ...ends.slice(0, -1)].map((value, i, arr) => i === 0 ? 100 - ends[0] : arr[i] - ends[i])
+        );
+        if (uniqueDrops.size < 2) {
+            return generateTask();
+        }
+
+        return {
+            kind: 'overpayment',
+            title: 'Сгенерированный пример',
+            subtitle: `Ставка ${ratePercent}% за период. Известны остатки долга по периодам; требуется найти процент переплаты.`,
+            months,
+            ratePercent,
+            debtPercentsAfter: ends,
+            question: 'На сколько процентов общая сумма выплат больше суммы кредита?',
+            notes: 'Сгенерированный безопасный вариант.'
+        };
+    }
+
+    function randomInt(min, max) {
+        return Math.floor(min + Math.random() * (max - min + 1));
+    }
+
+    function randomChoice(list) {
+        return list[Math.floor(Math.random() * list.length)];
+    }
+
+    function randomMultipleOfFive(min, max) {
+        const lo = Math.ceil(min / 5);
+        const hi = Math.floor(max / 5);
+        return randomInt(lo, hi) * 5;
+    }
+
+    function applyTheme(mode) {
+        appState.themeState.mode = mode;
+        localStorage.setItem('nm_theme_mode', mode);
+
+        let resolved = mode;
+        if (mode === 'auto') {
+            resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        appState.themeState.resolved = resolved;
+        dom.body.setAttribute('data-theme', resolved);
+
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.classList.toggle('is-active', btn.getAttribute('data-theme-set') === mode);
+        });
+
+        renderVisuals();
+    }
+
+    function setupTheme() {
+        const stored = localStorage.getItem('nm_theme_mode');
+        const mode = stored || APP_CONFIG.defaultTheme || 'light';
+        applyTheme(mode);
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.addEventListener('click', () => applyTheme(btn.getAttribute('data-theme-set')));
+        });
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (appState.themeState.mode === 'auto') applyTheme('auto');
+        });
+    }
+
+    function viewFromState(svg, width, height) {
+        return {
+            x: width / 2 + appState.sceneState.panX,
+            y: height / 2 + appState.sceneState.panY,
+            zoom: appState.sceneState.zoom
+        };
+    }
+
+    function sceneToScreen(x, y, width, height) {
+        const view = viewFromState(null, width, height);
+        return {
+            x: (x - 460) * view.zoom + view.x,
+            y: (y - 215) * view.zoom + view.y
+        };
+    }
+
+    function screenToScene(clientX, clientY, element) {
+        const rect = element.getBoundingClientRect();
+        const width = rect.width;
+        const height = rect.height;
+        const sx = clientX - rect.left;
+        const sy = clientY - rect.top;
+        const view = viewFromState(null, width, height);
+        return {
+            x: (sx - view.x) / view.zoom + 460,
+            y: (sy - view.y) / view.zoom + 215
+        };
+    }
+
+    function zoomAt(clientX, clientY, element, factor) {
+        const oldZoom = appState.sceneState.zoom;
+        const newZoom = clamp(round(oldZoom * factor, 4), appState.sceneState.minZoom, appState.sceneState.maxZoom);
+        if (newZoom === oldZoom) return;
+
+        const before = screenToScene(clientX, clientY, element);
+        appState.sceneState.zoom = newZoom;
+        const after = screenToScene(clientX, clientY, element);
+
+        appState.sceneState.panX += (after.x - before.x) * newZoom;
+        appState.sceneState.panY += (after.y - before.y) * newZoom;
+        clampPan();
+        syncZoomSlider();
+        renderVisuals();
+    }
+
+    function clampPan() {
+        appState.sceneState.panX = clamp(appState.sceneState.panX, -appState.sceneState.bounds.x, appState.sceneState.bounds.x);
+        appState.sceneState.panY = clamp(appState.sceneState.panY, -appState.sceneState.bounds.y, appState.sceneState.bounds.y);
+    }
+
+    function syncZoomSlider() {
+        dom.zoomSlider.value = String(appState.sceneState.zoom);
+    }
+
+    function resetView() {
+        appState.sceneState.zoom = 1;
+        appState.sceneState.panX = 0;
+        appState.sceneState.panY = 0;
+        syncZoomSlider();
+        renderVisuals();
+    }
+
+    function attachPointerPan(targetWrap, isModal = false) {
+        const target = targetWrap;
+        target.addEventListener('pointerdown', (e) => {
+            if (e.button !== 0) return;
+            const interactive = e.target.closest('[data-object-key]');
+            if (interactive) return;
+            appState.dragState.dragging = true;
+            appState.dragState.originX = e.clientX;
+            appState.dragState.originY = e.clientY;
+            appState.dragState.startPanX = appState.sceneState.panX;
+            appState.dragState.startPanY = appState.sceneState.panY;
+            appState.dragState.moved = false;
+            appState.dragState.target = target;
+            target.setPointerCapture(e.pointerId);
+            target.classList.add('is-dragging');
+        });
+
+        target.addEventListener('pointermove', (e) => {
+            if (!appState.dragState.dragging || appState.dragState.target !== target) return;
+            const dx = e.clientX - appState.dragState.originX;
+            const dy = e.clientY - appState.dragState.originY;
+            if (Math.abs(dx) > 2 || Math.abs(dy) > 2) appState.dragState.moved = true;
+            appState.sceneState.panX = appState.dragState.startPanX + dx;
+            appState.sceneState.panY = appState.dragState.startPanY + dy;
+            clampPan();
+            renderVisuals();
+        });
+
+        function endDrag(e) {
+            if (!appState.dragState.dragging || appState.dragState.target !== target) return;
+            target.releasePointerCapture?.(e.pointerId);
+            target.classList.remove('is-dragging');
+            const moved = appState.dragState.moved;
+            appState.dragState.dragging = false;
+            appState.dragState.target = null;
+
+            if (!moved && !isModal) {
+                openModal();
+            }
+        }
+
+        target.addEventListener('pointerup', endDrag);
+        target.addEventListener('pointercancel', endDrag);
+
+        target.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const factor = e.deltaY < 0 ? 1.1 : 0.92;
+            zoomAt(e.clientX, e.clientY, target, factor);
+        }, { passive: false });
+    }
+
+    function attachObjectEvents(svg) {
+        svg.querySelectorAll('[data-object-key]').forEach(node => {
+            node.addEventListener('mouseenter', () => {
+                if (!appState.highlightEnabled) return;
+                const key = node.getAttribute('data-object-key');
+                appState.visualState.hoverKeys = [key];
+                if (key.startsWith('payment-')) {
+                    const idx = key.split('-')[1];
+                    appState.visualState.hoverKeys.push(`row-${idx}`);
+                }
+                renderVisuals();
+                renderSteps();
+            });
+
+            node.addEventListener('mouseleave', () => {
+                if (!appState.highlightEnabled) return;
+                appState.visualState.hoverKeys = [];
+                renderVisuals();
+                renderSteps();
+            });
+
+            node.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const key = node.getAttribute('data-object-key');
+                appState.visualState.selectedKeys = [key];
+                const stepIndex = STEP_BINDINGS.findIndex(group => group.includes(key) || group.includes(key.replace(/^payment-\d+$/, 'payment-all')) || group.includes(key.replace(/^node-\d+$/, 'node-all')));
+                if (stepIndex >= 0) {
+                    appState.activeStep = stepIndex;
+                    appState.showAll = false;
+                    renderAll();
+                    document.querySelector(`#solution`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    }
+
+    function currentStroke() {
+        return getComputedStyle(document.body).getPropertyValue('--line').trim();
+    }
+
+    function layerColor(name) {
+        return getComputedStyle(document.body).getPropertyValue(name).trim();
+    }
+
+    function isHighlighted(key) {
+        if (!appState.highlightEnabled) return false;
+        return appState.visualState.hoverKeys.includes(key) || appState.visualState.selectedKeys.includes(key);
+    }
+
+    function isGroupHighlighted(groupKey, exactKey) {
+        return isHighlighted(groupKey) || isHighlighted(exactKey);
+    }
+
+    function renderSvg(svg, width, height) {
+        const task = appState.task;
+        const calc = computeRows(task);
+        const rows = calc.rows;
+        const line = currentStroke();
+        const accent = layerColor('--accent');
+        const accent2 = layerColor('--accent-2');
+        const accent3 = layerColor('--accent-3');
+        const panel2 = layerColor('--panel-2');
+        const grid = layerColor('--grid');
+        const text = layerColor('--text');
+        const muted = layerColor('--soft-text');
+        const vizBg = layerColor('--viz-bg');
+        const layers = appState.visualState.layers;
+        const stepKeySet = new Set([...(appState.visualState.hoverKeys || []), ...(appState.visualState.selectedKeys || [])]);
+
+        const baseX = 90;
+        const baseY = 360;
+        const xStep = 115;
+        const chartHeight = 260;
+
+        const debtPoints = [{ x: baseX, y: baseY - chartHeight, label: 'S', percent: 100, key: 'node-start', step: 0 }];
+        rows.forEach((row, idx) => {
+            debtPoints.push({
+                x: baseX + (idx + 1) * xStep,
+                y: baseY - chartHeight * row.end,
+                label: row.end === 0 ? '0' : `${fmtPercent(row.end * 100)}%S`,
+                percent: row.end * 100,
+                key: `node-${idx + 1}`,
+                step: idx + 1
+            });
+        });
+
+        const debtPath = debtPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+
+        const paymentBars = rows.map((row, idx) => {
+            const h = row.payment * 220;
+            return {
+                x: baseX + idx * xStep + 48,
+                y: baseY - h,
+                w: 38,
+                h,
+                label: `${fmtPercent(row.payment * 100)}%S`,
+                key: `payment-${idx + 1}`
+            };
+        });
+
+        const view = viewFromState(svg, width, height);
+
+        const transformedGroupOpen = `<g transform="translate(${view.x},${view.y}) scale(${view.zoom}) translate(-460,-215)">`;
+        const transformedGroupClose = `</g>`;
+
+        const gridLines = [];
+        for (let i = 0; i <= 5; i++) {
+            const y = baseY - i * 52;
+            gridLines.push(`<line x1="${baseX - 28}" y1="${y}" x2="${baseX + xStep * task.months + 26}" y2="${y}" stroke="${grid}" stroke-width="1"/>`);
+        }
+
+        const percentLabels = [];
+        for (let i = 0; i <= 5; i++) {
+            percentLabels.push(`
+          <text x="${baseX - 36}" y="${baseY - i * 52 + 4}" fill="${muted}" font-size="12" font-weight="900" text-anchor="end">
+            ${i * 20}%
+          </text>
+        `);
+        }
+
+        const guideArrows = rows.map((row, idx) => {
+            const x = baseX + idx * xStep + 58;
+            const startY = baseY - chartHeight * row.start;
+            const endY = baseY - chartHeight * row.end;
+            const high = isGroupHighlighted('guide-arrow', `guide-${idx + 1}`);
+            return `
+          <g data-object-key="guide-arrow" style="cursor:pointer;">
+            <line x1="${x}" y1="${startY}" x2="${x}" y2="${endY}" stroke="${high ? accent3 : muted}" stroke-width="${high ? 4 : 2}" stroke-dasharray="6 5"/>
+            <polygon points="${x - 6},${endY + 10} ${x + 6},${endY + 10} ${x},${endY}" fill="${high ? accent3 : muted}"/>
+          </g>
+        `;
+        }).join('');
+
+        const debtLayer = `
+        <g data-layer="debt">
+          <path d="${debtPath}" fill="none" stroke="${isHighlighted('line-debt') ? accent3 : accent}" stroke-width="${isHighlighted('line-debt') ? 6 : 4}" />
+          ${debtPoints.map((p, idx) => {
+            const active = isGroupHighlighted('node-all', p.key) || stepKeySet.has(`row-${idx}`);
+            const radius = active ? 11 : 8;
+            const fill = active ? accent3 : accent;
+            return `
+              <g data-object-key="${p.key}" style="cursor:pointer;">
+                <circle cx="${p.x}" cy="${p.y}" r="${radius}" fill="${fill}" stroke="${line}" stroke-width="2"></circle>
+                ${layers.labels ? `<text x="${p.x}" y="${p.y - 16}" fill="${text}" font-size="12" font-weight="900" text-anchor="middle">${p.label}</text>` : ''}
+              </g>
+            `;
+        }).join('')}
+        </g>
+      `;
+
+        const paymentLayer = `
+        <g data-layer="payments">
+          ${paymentBars.map((b, idx) => {
+            const active = isGroupHighlighted('payment-all', b.key) || stepKeySet.has(`row-${idx + 1}`);
+            return `
+              <g data-object-key="${b.key}" style="cursor:pointer;">
+                <rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="${active ? accent3 : accent2}" stroke="${line}" stroke-width="2"></rect>
+                ${layers.labels ? `<text x="${b.x + b.w / 2}" y="${b.y - 10}" fill="${text}" font-size="12" font-weight="900" text-anchor="middle">${b.label}</text>` : ''}
+              </g>
+            `;
+        }).join('')}
+        </g>
+      `;
+
+        const axisLayer = `
+        <g data-layer="axis" data-object-key="axis-periods" style="cursor:pointer;">
+          <line x1="${baseX - 18}" y1="${baseY}" x2="${baseX + xStep * task.months + 36}" y2="${baseY}" stroke="${isHighlighted('axis-periods') ? accent3 : line}" stroke-width="3"></line>
+          <line x1="${baseX}" y1="${baseY + 18}" x2="${baseX}" y2="${baseY - chartHeight - 16}" stroke="${isHighlighted('axis-periods') ? accent3 : line}" stroke-width="3"></line>
+          ${Array.from({ length: task.months + 1 }).map((_, idx) => {
+            const x = baseX + idx * xStep;
+            return `
+        <g>
+        <line x1="${x}" y1="${baseY}" x2="${x}" y2="${baseY + 8}" stroke="${line}" stroke-width="2"></line>
+        <text x="${x}" y="${baseY + 26}" fill="${muted}" font-size="12" font-weight="900" text-anchor="middle">${idx}</text>
+    </g>
+    `;
+          }).join('')}
+          ${layers.labels ? `
+            <text x="${baseX + xStep * task.months + 32}" y="${baseY + 24}" fill="${muted}" font-size="12" font-weight="900">Период</text>
+            <text x="${baseX - 18}" y="${baseY - chartHeight - 22}" fill="${muted}" font-size="12" font-weight="900">Долг</text>
+          ` : ''}
+        </g>
+      `;
+
+    const overlayBadges = `
+        <g>
+          <rect x="628" y="28" width="230" height="56" fill="${panel2}" stroke="${line}" stroke-width="2"></rect>
+          <text x="643" y="50" fill="${text}" font-size="14" font-weight="900">Q = ${fmtShare(calc.q)}</text>
+          <text x="643" y="70" fill="${text}" font-size="14" font-weight="900">Σ выплат = ${fmtMoneyLikeShare(calc.sumPayments)}</text>
+        </g>
+        <g data-object-key="formula-main" style="cursor:pointer;">
+          <rect x="628" y="96" width="230" height="56" fill="${isHighlighted('formula-main') ? accent3 : panel2}" stroke="${line}" stroke-width="2"></rect>
+          <text x="643" y="118" fill="#000000" font-size="14" font-weight="900">${isHighlighted('formula-main') ? 'Платёж = Q·D − R' : ''}</text>
+          <text x="643" y="138" fill="${isHighlighted('formula-main') ? '#000000' : text}" font-size="14" font-weight="900">${isHighlighted('formula-main') ? 'Главная формула строки' : 'Переплата = ' + fmtPercent(calc.overpayment) + '%'}</text>
+        </g>
+      `;
+
+    const checkBadge = `
+        <g data-object-key="check-badge" style="cursor:pointer;">
+          <rect x="628" y="164" width="230" height="62" fill="${isHighlighted('check-badge') ? accent3 : panel2}" stroke="${line}" stroke-width="2"></rect>
+          <text x="643" y="188" fill="${isHighlighted('check-badge') ? '#000' : text}" font-size="14" font-weight="900">Проверка</text>
+          <text x="643" y="208" fill="${isHighlighted('check-badge') ? '#000' : text}" font-size="13" font-weight="900">Последний остаток = 0</text>
+        </g>
+      `;
+
+    const summaryBadge = `
+        <g data-object-key="summary-badge" style="cursor:pointer;">
+          <rect x="628" y="238" width="230" height="62" fill="${isHighlighted('summary-badge') ? accent3 : panel2}" stroke="${line}" stroke-width="2"></rect>
+          <text x="643" y="262" fill="${isHighlighted('summary-badge') ? '#000' : text}" font-size="14" font-weight="900">Ответ</text>
+          <text x="643" y="282" fill="${isHighlighted('summary-badge') ? '#000' : text}" font-size="16" font-weight="900">${fmtPercent(calc.overpayment)}%</text>
+        </g>
+      `;
+
+    svg.innerHTML = `
+        <rect x="0" y="0" width="${width}" height="${height}" fill="${vizBg}"></rect>
+        ${transformedGroupOpen}
+          ${layers.guides ? gridLines.join('') : ''}
+          ${layers.guides ? percentLabels.join('') : ''}
+          ${axisLayer}
+          ${layers.guides ? guideArrows : ''}
+          ${layers.payments ? paymentLayer : ''}
+          ${layers.debt ? debtLayer : ''}
+          ${overlayBadges}
+          ${checkBadge}
+          ${summaryBadge}
+        ${transformedGroupClose}
+      `;
+
+    attachObjectEvents(svg);
+    }
+
+    function renderVisuals() {
+    renderSvg(dom.mainSvg, 920, 430);
+    renderSvg(dom.modalSvg, 1140, 650);
+    syncZoomSlider();
+    document.querySelectorAll('[data-layer-toggle]').forEach(btn => {
+    const layer = btn.getAttribute('data-layer-toggle');
+    btn.classList.toggle('active', !!appState.visualState.layers[layer]);
+    });
+    }
+
+    function renderAll() {
+    renderHero();
+    renderMeta();
+    renderLegend();
+    renderSteps();
+    renderQuiz();
+    renderGenerator();
+    renderVisuals();
+    updateControls();
+    }
+
+    function updateControls() {
+    document.querySelectorAll('.detail-button').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-detail') === appState.detailLevel);
+    });
+    dom.highlightModeBtn.classList.toggle('active', appState.highlightEnabled);
+    dom.highlightModeBtn.textContent = appState.highlightEnabled ? 'Подсветка включена' : 'Подсветка выключена';
+    }
+
+    function nextStep() {
+    appState.activeStep = clamp(appState.activeStep + 1, 0, 7);
+    appState.showAll = false;
+    appState.visualState.selectedKeys = STEP_BINDINGS[appState.activeStep];
+    renderAll();
+    }
+
+    function prevStep() {
+    appState.activeStep = clamp(appState.activeStep - 1, 0, 7);
+    appState.showAll = false;
+    appState.visualState.selectedKeys = STEP_BINDINGS[appState.activeStep];
+    renderAll();
+    }
+
+    function openModal() {
+    appState.modalState.isOpen = true;
+    dom.vizModal.classList.add('is-open');
+    dom.vizModal.setAttribute('aria-hidden', 'false');
+    renderVisuals();
+    }
+
+    function closeModal() {
+    appState.modalState.isOpen = false;
+    dom.vizModal.classList.remove('is-open');
+    dom.vizModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function setupEvents() {
+    dom.prevStepBtn.addEventListener('click', prevStep);
+    dom.nextStepBtn.addEventListener('click', nextStep);
+    dom.showAllBtn.addEventListener('click', () => {
+    appState.showAll = !appState.showAll;
+    renderAll();
+    });
+
+    dom.highlightModeBtn.addEventListener('click', () => {
+    appState.highlightEnabled = !appState.highlightEnabled;
+    if (!appState.highlightEnabled) {
+    appState.visualState.hoverKeys = [];
+    appState.visualState.selectedKeys = [];
+    }
+    renderAll();
+    });
+
+    dom.detailButtons.querySelectorAll('.detail-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+    appState.detailLevel = btn.getAttribute('data-detail');
+    renderAll();
+    });
+    });
+
+    dom.zoomSlider.addEventListener('input', () => {
+    appState.sceneState.zoom = Number(dom.zoomSlider.value);
+    renderVisuals();
+    });
+
+    dom.zoomInBtn.addEventListener('click', () => {
+    appState.sceneState.zoom = clamp(appState.sceneState.zoom * 1.1, appState.sceneState.minZoom, appState.sceneState.maxZoom);
+    syncZoomSlider();
+    renderVisuals();
+    });
+
+    dom.zoomOutBtn.addEventListener('click', () => {
+    appState.sceneState.zoom = clamp(appState.sceneState.zoom * 0.92, appState.sceneState.minZoom, appState.sceneState.maxZoom);
+    syncZoomSlider();
+    renderVisuals();
+    });
+
+    dom.zoomResetBtn.addEventListener('click', resetView);
+    dom.modalZoomInBtn.addEventListener('click', () => {
+    appState.sceneState.zoom = clamp(appState.sceneState.zoom * 1.1, appState.sceneState.minZoom, appState.sceneState.maxZoom);
+    syncZoomSlider();
+    renderVisuals();
+    });
+    dom.modalZoomOutBtn.addEventListener('click', () => {
+    appState.sceneState.zoom = clamp(appState.sceneState.zoom * 0.92, appState.sceneState.minZoom, appState.sceneState.maxZoom);
+    syncZoomSlider();
+    renderVisuals();
+    });
+    dom.modalZoomResetBtn.addEventListener('click', resetView);
+
+    document.querySelectorAll('[data-layer-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+    const layer = btn.getAttribute('data-layer-toggle');
+    appState.visualState.layers[layer] = !appState.visualState.layers[layer];
+    renderVisuals();
+    });
+    });
+
+    dom.generateTaskBtn.addEventListener('click', () => {
+    appState.task = generateTask();
+    appState.activeStep = 0;
+    appState.showAll = false;
+    appState.visualState.selectedKeys = ['node-start'];
+    resetView();
+    renderAll();
+    });
+
+    dom.loadDefaultBtn.addEventListener('click', () => {
+    appState.task = structuredClone(DEFAULT_TASK);
+    appState.activeStep = 0;
+    appState.showAll = false;
+    appState.visualState.selectedKeys = ['node-start'];
+    resetView();
+    renderAll();
+    });
+
+    dom.printBtn.addEventListener('click', () => window.print());
+
+    dom.modalCloseBtn.addEventListener('click', closeModal);
+    dom.vizModal.addEventListener('click', (e) => {
+    if (e.target === dom.vizModal) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+    closeAllHints();
+    if (appState.modalState.isOpen) closeModal();
+    }
+    if (e.key === 'ArrowRight') nextStep();
+    if (e.key === 'ArrowLeft') prevStep();
+    });
+
+    attachPointerPan(dom.vizWrap, false);
+    attachPointerPan(dom.modalVizWrap, true);
+
+    document.querySelectorAll('[data-open-hint]').forEach(btn => {
+    btn.addEventListener('click', () => openHint(btn.getAttribute('data-open-hint')));
+    });
+    document.querySelectorAll('[data-close-hint]').forEach(btn => {
+    btn.addEventListener('click', () => closeHint(btn.getAttribute('data-close-hint')));
+    });
+
+    document.addEventListener('click', (e) => {
+    const pop = e.target.closest('.hint-pop');
+    const helper = e.target.closest('.helper-button');
+    if (!pop && !helper) closeAllHints();
+    });
+
+    dom.yearNow.textContent = String(new Date().getFullYear());
+    }
+
+    function openHint(id) {
+    closeAllHints();
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('is-open');
+    el.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeHint(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('is-open');
+    el.setAttribute('aria-hidden', 'true');
+    }
+
+    function closeAllHints() {
+    document.querySelectorAll('.hint-pop').forEach(el => {
+    el.classList.remove('is-open');
+    el.setAttribute('aria-hidden', 'true');
+    });
+    }
+
+    function autoHint() {
+    if (sessionStorage.getItem('nm_hint_seen')) return;
+    setTimeout(() => {
+    openHint('hint1');
+    sessionStorage.setItem('nm_hint_seen', '1');
+    }, 3000);
+    }
+
+    function init() {
+    setupTheme();
+    setupEvents();
+    appState.visualState.selectedKeys = ['node-start'];
+    renderAll();
+    autoHint();
+    }
+
+    init();
+</script>
+</body>
+</html>
