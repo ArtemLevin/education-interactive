@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Теорема Безу — Наглядная математика</title>
+    <style>
+        :root {
+            --bg: #F4F4F0;
+            --bg-secondary: #FFFFFF;
+            --fg: #111111;
+            --fg-secondary: #444444;
+            --fg-muted: #777777;
+            --border: #000000;
+            --accent: #D72638;
+            --accent-dark: #A81C2B;
+            --highlight: #FFEAA7;
+            --highlight-soft: #FFF8E1;
+            --shadow: 6px 6px 0 #000;
+            --shadow-sm: 4px 4px 0 #000;
+            --shadow-active: 2px 2px 0 #000;
+            --radius: 0px;
+            --font-main: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --font-mono: "SF Mono", "Fira Code", "Consolas", monospace;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-xxl: 48px;
+            --border-thick: 3px solid var(--border);
+            --border-thin: 2px solid var(--border);
+        }
+
+        [data-theme="dark"] {
+            --bg: #1A1A18;
+            --bg-secondary: #252522;
+            --fg: #F4F4F0;
+            --fg-secondary: #B0B0AA;
+            --fg-muted: #707068;
+            --border: #F4F4F0;
+            --accent: #E8464E;
+            --accent-dark: #FF6B6B;
+            --highlight: #F5C842;
+            --highlight-soft: #3D3520;
+            --shadow: 6px 6px 0 #F4F4F0;
+            --shadow-sm: 4px 4px 0 #F4F4F0;
+            --shadow-active: 2px 2px 0 #F4F4F0;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg);
+            color: var(--fg);
+            line-height: 1.6;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        a:hover { text-decoration: underline; }
+
+        /* ===== NAVIGATION ===== */
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg-secondary);
+            border-bottom: var(--border-thick);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-weight: 900;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--fg);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .nav-link {
+            padding: var(--spacing-xs) var(--spacing-md);
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--fg-secondary);
+            border: var(--border-thin);
+            background: var(--bg);
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            text-decoration: none;
+        }
+
+        .theme-toggle {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 1.2rem;
+            background: var(--bg);
+            border: var(--border-thin);
+            cursor: pointer;
+            color: var(--fg);
+            line-height: 1;
+            transition: all 0.1s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--fg);
+            color: var(--bg);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--spacing-xxl) var(--spacing-lg) var(--spacing-lg);
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .hero-title .accent {
+            color: var(--accent);
+        }
+
+        .hero-sub {
+            font-size: 1.15rem;
+            color: var(--fg-secondary);
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        /* ===== BANNER ===== */
+        .banner {
+            background: var(--border);
+            color: var(--bg);
+            padding: var(--spacing-md) var(--spacing-lg);
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            max-width: 1400px;
+            margin: 0 auto var(--spacing-xl);
+            border-top: var(--border-thick);
+            border-bottom: var(--border-thick);
+        }
+
+        [data-theme="dark"] .banner {
+            background: var(--fg);
+            color: var(--bg);
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg) var(--spacing-xxl);
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: var(--spacing-xl);
+            align-items: start;
+        }
+
+        /* ===== LEFT COLUMN ===== */
+        .content-panel {
+            background: var(--bg-secondary);
+            border: var(--border-thick);
+            box-shadow: var(--shadow);
+            min-height: 500px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: var(--border-thick);
+            background: var(--bg);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: var(--spacing-md) var(--spacing-sm);
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            background: var(--bg);
+            color: var(--fg-muted);
+            border: none;
+            border-right: var(--border-thin);
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .tab-btn:last-child { border-right: none; }
+
+        .tab-btn:hover {
+            background: var(--highlight-soft);
+            color: var(--fg);
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+            padding: var(--spacing-lg);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ===== ACCORDION ===== */
+        .accordion-item {
+            border: var(--border-thin);
+            margin-bottom: var(--spacing-sm);
+            background: var(--bg);
+        }
+
+        .accordion-header {
+            width: 100%;
+            padding: var(--spacing-md);
+            font-weight: 700;
+            font-size: 0.95rem;
+            background: var(--bg);
+            color: var(--fg);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+            transition: background 0.1s ease;
+        }
+
+        .accordion-header:hover {
+            background: var(--highlight-soft);
+        }
+
+        .accordion-header.active {
+            background: var(--highlight);
+            border-bottom: var(--border-thin);
+        }
+
+        .accordion-icon {
+            font-size: 1.4rem;
+            font-weight: 300;
+            transition: transform 0.15s ease;
+        }
+
+        .accordion-header.active .accordion-icon {
+            transform: rotate(45deg);
+        }
+
+        .accordion-body {
+            display: none;
+            padding: var(--spacing-md);
+            line-height: 1.7;
+        }
+
+        .accordion-body.open {
+            display: block;
+        }
+
+        .step-badge {
+            display: inline-block;
+            background: var(--border);
+            color: var(--bg);
+            padding: 2px 10px;
+            font-weight: 900;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            margin-bottom: var(--spacing-sm);
+            letter-spacing: 0.05em;
+        }
+
+        [data-theme="dark"] .step-badge {
+            background: var(--fg);
+            color: var(--bg);
+        }
+
+        /* ===== FORMULA BLOCK ===== */
+        .formula {
+            background: var(--bg);
+            border: var(--border-thin);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin: var(--spacing-md) 0;
+            font-family: var(--font-mono);
+            font-size: 1.05rem;
+            text-align: center;
+            letter-spacing: 0.02em;
+        }
+
+        .formula .highlight-var {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .math-block {
+            background: var(--highlight-soft);
+            border-left: var(--border-thick);
+            padding: var(--spacing-md);
+            margin: var(--spacing-md) 0;
+            font-size: 0.95rem;
+        }
+
+        .math-block strong {
+            color: var(--accent);
+        }
+
+        /* ===== SUMMARY CARD ===== */
+        .summary-card {
+            background: var(--accent);
+            color: #fff;
+            padding: var(--spacing-lg);
+            margin: var(--spacing-md) 0;
+            font-weight: 600;
+        }
+
+        .summary-card .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            opacity: 0.85;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .summary-card .value {
+            font-size: 1.15rem;
+        }
+
+        /* ===== RIGHT COLUMN - VISUALIZATION ===== */
+        .viz-container {
+            position: sticky;
+            top: 70px;
+            background: var(--bg-secondary);
+            border: var(--border-thick);
+            box-shadow: var(--shadow);
+        }
+
+        .viz-header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: var(--border-thin);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg);
+        }
+
+        .viz-title {
+            font-weight: 900;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .viz-controls {
+            display: flex;
+            gap: var(--spacing-xs);
+            align-items: center;
+        }
+
+        .viz-btn {
+            width: 36px;
+            height: 36px;
+            background: var(--bg);
+            border: var(--border-thin);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--fg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s ease;
+        }
+
+        .viz-btn:hover {
+            background: var(--fg);
+            color: var(--bg);
+        }
+
+        .viz-btn:active {
+            box-shadow: var(--shadow-active);
+            transform: translate(2px, 2px);
+        }
+
+        .zoom-display {
+            min-width: 48px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            font-family: var(--font-mono);
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 0.85;
+            background: var(--bg);
+            cursor: grab;
+            overflow: hidden;
+        }
+
+        .canvas-wrapper:active {
+            cursor: grabbing;
+        }
+
+        canvas#vizCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .viz-legend {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-top: var(--border-thin);
+            background: var(--bg);
+            display: flex;
+            gap: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--border);
+        }
+
+        .viz-step-info {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-top: var(--border-thin);
+            background: var(--highlight-soft);
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .viz-expand-btn {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            background: var(--bg);
+            border: var(--border-thin);
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--fg);
+        }
+
+        .viz-expand-btn:hover {
+            background: var(--fg);
+            color: var(--bg);
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-lg);
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: var(--border-thick);
+            box-shadow: 8px 8px 0 var(--fg);
+            width: 100%;
+            max-width: 95vw;
+            max-height: 95vh;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border: var(--border-thick);
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+        }
+
+        .modal-close:hover {
+            background: var(--accent-dark);
+        }
+
+        .modal-canvas-wrapper {
+            width: 100%;
+            height: 80vh;
+            background: var(--bg);
+            cursor: grab;
+        }
+
+        .modal-canvas-wrapper:active {
+            cursor: grabbing;
+        }
+
+        canvas#modalCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* ===== ERROR LIST ===== */
+        .error-item {
+            border: var(--border-thin);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+            background: var(--bg);
+        }
+
+        .error-item .error-title {
+            font-weight: 800;
+            color: var(--accent);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .error-item p {
+            font-size: 0.9rem;
+            color: var(--fg-secondary);
+            line-height: 1.5;
+        }
+
+        /* ===== QUIZ ===== */
+        .quiz-question {
+            border: var(--border-thin);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            background: var(--bg);
+        }
+
+        .quiz-q-text {
+            font-weight: 700;
+            margin-bottom: var(--spacing-sm);
+            font-size: 0.95rem;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .quiz-option {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: var(--border-thin);
+            background: var(--bg-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.1s ease;
+        }
+
+        .quiz-option:hover {
+            background: var(--highlight-soft);
+        }
+
+        .quiz-option.selected {
+            background: var(--fg);
+            color: var(--bg);
+        }
+
+        .quiz-option.correct {
+            background: #2D6A4F;
+            color: #fff;
+            border-color: #2D6A4F;
+        }
+
+        .quiz-option.wrong {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .quiz-feedback {
+            margin-top: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: none;
+        }
+
+        .quiz-feedback.show { display: block; }
+
+        /* ===== GENERATOR ===== */
+        .generator-box {
+            border: var(--border-thick);
+            padding: var(--spacing-lg);
+            background: var(--bg);
+            margin-top: var(--spacing-lg);
+        }
+
+        .gen-header {
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .gen-btn {
+            padding: var(--spacing-xs) var(--spacing-md);
+            background: var(--accent);
+            color: #fff;
+            border: var(--border-thin);
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .gen-btn:hover {
+            background: var(--accent-dark);
+        }
+
+        .gen-task {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            margin: var(--spacing-md) 0;
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+            border: var(--border-thin);
+            text-align: center;
+        }
+
+        .gen-answer {
+            display: none;
+            padding: var(--spacing-md);
+            background: var(--highlight-soft);
+            border: var(--border-thin);
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .gen-answer.show { display: block; }
+
+        /* ===== PRINT SECTION ===== */
+        .print-section {
+            max-width: 1400px;
+            margin: 0 auto var(--spacing-xxl);
+            padding: 0 var(--spacing-lg);
+        }
+
+        .print-summary {
+            border: var(--border-thick);
+            padding: var(--spacing-xl);
+            background: var(--bg-secondary);
+            box-shadow: var(--shadow);
+        }
+
+        .print-title {
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: var(--border-thick);
+        }
+
+        .print-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .print-item h4 {
+            font-weight: 800;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: var(--spacing-xs);
+            color: var(--accent);
+        }
+
+        .print-item p {
+            font-size: 0.9rem;
+            color: var(--fg-secondary);
+            line-height: 1.5;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--border);
+            color: var(--bg);
+            padding: var(--spacing-xl) var(--spacing-lg);
+            text-align: center;
+            border-top: var(--border-thick);
+        }
+
+        [data-theme="dark"] .footer {
+            background: var(--fg);
+            color: var(--bg);
+        }
+
+        .footer-tagline {
+            color: var(--accent);
+            font-weight: 900;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        [data-theme="dark"] .footer-tagline {
+            color: var(--accent);
+        }
+
+        .footer-copy {
+            font-size: 0.75rem;
+            opacity: 0.6;
+        }
+
+        /* ===== STEP HIGHLIGHT ===== */
+        .step-highlight {
+            transition: all 0.2s ease;
+        }
+
+        .step-highlight.active-step {
+            background: var(--highlight-soft);
+            border-color: var(--accent);
+        }
+
+        .step-highlight.active-step .accordion-header {
+            background: var(--highlight);
+        }
+
+        /* ===== TOOLTIP ===== */
+        .tooltip-trigger {
+            position: relative;
+            cursor: help;
+            border-bottom: 1px dashed var(--fg-muted);
+        }
+
+        .tooltip-trigger .tooltip-text {
+            visibility: hidden;
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--border);
+            color: var(--bg);
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: 0.78rem;
+            font-weight: 600;
+            white-space: nowrap;
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.15s ease, visibility 0.15s ease;
+        }
+
+        .tooltip-trigger:hover .tooltip-text,
+        .tooltip-trigger:focus .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 960px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+
+            .viz-container {
+                position: static;
+            }
+
+            .canvas-wrapper {
+                aspect-ratio: 1 / 0.7;
+            }
+
+            .print-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                gap: var(--spacing-xs);
+            }
+
+            .nav-link {
+                padding: var(--spacing-xs) var(--spacing-sm);
+                font-size: 0.75rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                flex: 1 1 50%;
+                border-bottom: var(--border-thin);
+            }
+
+            .hero {
+                padding: var(--spacing-lg) var(--spacing-md);
+            }
+
+            .main {
+                padding: 0 var(--spacing-md) var(--spacing-xl);
+            }
+
+            .viz-controls {
+                gap: 2px;
+            }
+
+            .viz-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* ===== PRINT ===== */
+        @media print {
+            .nav, .theme-toggle, .viz-container, .modal-overlay,
+            .generator-box, .viz-controls, .viz-expand-btn,
+            .gen-btn, .tab-content:not(.active) {
+                display: none !important;
+            }
+
+            body {
+                background: #fff;
+                color: #000;
+            }
+
+            .content-panel, .print-summary {
+                border: 2px solid #000;
+                box-shadow: none;
+            }
+
+            .tab-content {
+                display: block !important;
+            }
+
+            .accordion-body {
+                display: block !important;
+            }
+
+            .hero { padding: 1cm; }
+            .main { grid-template-columns: 1fr; }
+        }
+
+        /* ===== ACCESSIBILITY ===== */
+        :focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav" role="navigation" aria-label="Основная навигация">
+    <div class="nav-logo">НАГЛЯДНАЯ МАТЕМАТИКА</div>
+    <div class="nav-links">
+        <button class="nav-link active" data-nav="main">Разбор</button>
+        <button class="nav-link" data-nav="errors">Ошибки</button>
+        <button class="nav-link" data-nav="quiz">Самопроверка</button>
+        <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему" title="Сменить тему">◐</button>
+    </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+    <h1 class="hero-title">Теорема Безу<br><span class="accent">и кубические уравнения</span></h1>
+    <p class="hero-sub">Как находить корни многочленов третьей степени, делить «уголком» и переходить к квадратным уравнениям — без лишней сложности.</p>
+</header>
+
+<!-- BANNER -->
+<div class="banner" role="note">
+    Разбираем уравнение&nbsp;&nbsp;x³ − 6x² + 11x − 6 = 0&nbsp;&nbsp;по шагам →
+</div>
+
+<!-- MAIN -->
+<div class="main">
+    <!-- LEFT COLUMN -->
+    <div class="content-panel" id="contentPanel">
+        <div class="tabs" role="tablist">
+            <button class="tab-btn active" data-tab="solution" role="tab" aria-selected="true">Разбор</button>
+            <button class="tab-btn" data-tab="errors" role="tab" aria-selected="false">Ошибки</button>
+            <button class="tab-btn" data-tab="quiz" role="tab" aria-selected="false">Самопроверка</button>
+            <button class="tab-btn" data-tab="summary" role="tab" aria-selected="false">Итог</button>
+        </div>
+
+        <!-- TAB: SOLUTION -->
+        <div class="tab-content active" id="tab-solution" role="tabpanel">
+            <div class="accordion" id="accordion">
+                <div class="accordion-item step-highlight" data-step="0">
+                    <button class="accordion-header active" aria-expanded="true">
+                        <span>Шаг 1 — Ищем целые корни (делители свободного члена)</span>
+                        <span class="accordion-icon">+</span>
+                    </button>
+                    <div class="accordion-body open">
+                        <div class="step-badge">Шаг 1 из 4</div>
+                        <p>Свободный член: <strong>−6</strong>. Его целые делители:</p>
+                        <div class="formula">±1,&nbsp; ±2,&nbsp; ±3,&nbsp; ±6</div>
+                        <p>Подставляем их в <span class="tooltip-trigger">P(x) = x³ − 6x² + 11x − 6<span class="tooltip-text">Это наш многочлен, обозначенный P(x)</span></span> и ищем ноль.</p>
+                        <p>Пробуем <strong>x = 1</strong>:</p>
+                        <div class="formula">P(1) = 1³ − 6·1² + 11·1 − 6 = <span class="highlight-var">1 − 6 + 11 − 6 = 0</span></div>
+                        <p>✅ Повезло с первой попытки! <strong>x = 1</strong> — корень.</p>
+                    </div>
+                </div>
+
+                <div class="accordion-item step-highlight" data-step="1">
+                    <button class="accordion-header" aria-expanded="false">
+                        <span>Шаг 2 — Делим многочлен на (x − 1)</span>
+                        <span class="accordion-icon">+</span>
+                    </button>
+                    <div class="accordion-body">
+                        <div class="step-badge">Шаг 2 из 4</div>
+                        <p>Делим <strong>x³ − 6x² + 11x − 6</strong> на <strong>(x − 1)</strong> «уголком»:</p>
+                        <div class="math-block">
+                            <strong>Вопрос:</strong> на что умножить x, чтобы получить x³?<br>
+                            <strong>Ответ:</strong> на x² → получаем x³ − x²<br>
+                            <strong>Вычитаем:</strong> −5x²<br>
+                            <strong>Сносим:</strong> +11x<br>
+                            <strong>Далее:</strong> на что умножить x, чтобы получить −5x²? → на −5x<br>
+                            <strong>Вычитаем:</strong> 6x<br>
+                            <strong>Финал:</strong> на что умножить x, чтобы получить 6x? → на 6<br>
+                            <strong>Остаток:</strong> 0 ✅
+                        </div>
+                        <div class="formula">x³ − 6x² + 11x − 6 = (x − 1)(x² − 5x + 6)</div>
+                    </div>
+                </div>
+
+                <div class="accordion-item step-highlight" data-step="2">
+                    <button class="accordion-header" aria-expanded="false">
+                        <span>Шаг 3 — Решаем квадратное уравнение</span>
+                        <span class="accordion-icon">+</span>
+                    </button>
+                    <div class="accordion-body">
+                        <div class="step-badge">Шаг 3 из 4</div>
+                        <p>Решаем <strong>x² − 5x + 6 = 0</strong>.</p>
+                        <p>По теореме Виета: сумма корней = 5, произведение = 6.</p>
+                        <div class="formula">x₂ = 2,&nbsp;&nbsp; x₃ = 3</div>
+                        <p>Проверка: 2 + 3 = 5 ✓, 2 · 3 = 6 ✓</p>
+                    </div>
+                </div>
+
+                <div class="accordion-item step-highlight" data-step="3">
+                    <button class="accordion-header" aria-expanded="false">
+                        <span>Шаг 4 — Ответ и факторизация</span>
+                        <span class="accordion-icon">+</span>
+                    </button>
+                    <div class="accordion-body">
+                        <div class="step-badge">Шаг 4 из 4</div>
+                        <p>Все корни найдены:</p>
+                        <div class="summary-card">
+                            <div class="label">Ответ</div>
+                            <div class="value">x ∈ {1,&nbsp; 2,&nbsp; 3}</div>
+                        </div>
+                        <p>Полная факторизация:</p>
+                        <div class="formula">(x − 1)(x − 2)(x − 3) = 0</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="gen-btn" id="showAllBtn" style="width:100%;margin-top:12px;">Показать все шаги</button>
+        </div>
+
+        <!-- TAB: ERRORS -->
+        <div class="tab-content" id="tab-errors" role="tabpanel">
+            <div class="error-item">
+                <div class="error-title">❌ Ошибка при вычитании в делении «уголком»</div>
+                <p>Самая частая ошибка: при вычитании <strong>−6x² − (−x²)</strong> забывают знак минус и получают <strong>−2x²</strong> вместо <strong>−5x²</strong>. Всегда раскрывайте скобки подробно: −6x² + x² = −5x².</p>
+            </div>
+            <div class="error-item">
+                <div class="error-title">❌ Пропуск отрицательных делителей</div>
+                <p>Нужно проверять <strong>все</strong> делители: ±1, ±2, ±3, ±6. Иногда корень оказывается отрицательным (например, x = −2).</p>
+            </div>
+            <div class="error-item">
+                <div class="error-title">❌ Потеря корней после разложения</div>
+                <p>После деления получаем произведение: (x − 1)(x² − 5x + 6) = 0. Нужно приравнять <strong>каждый</strong> множитель к нулю, а не только первый.</p>
+            </div>
+            <div class="error-item">
+                <div class="error-title">❌ Ошибка в знаках при подстановке</div>
+                <p>При подстановке x = −2: (−2)³ = <strong>−8</strong>, а не 8. Чётные степени делают число положительным, нечётные сохраняют знак.</p>
+            </div>
+        </div>
+
+        <!-- TAB: QUIZ -->
+        <div class="tab-content" id="tab-quiz" role="tabpanel">
+            <div class="quiz-question" data-quiz="1">
+                <div class="quiz-q-text">Вопрос 1. Какие целые числа нужно проверить как возможные корни уравнения x³ + 3x² − 4x − 12 = 0?</div>
+                <div class="quiz-options">
+                    <button class="quiz-option" data-val="a">±1, ±2, ±3, ±4, ±6, ±12</button>
+                    <button class="quiz-option" data-val="b">±1, ±3, ±4, ±12</button>
+                    <button class="quiz-option" data-val="c">1, 2, 3, 4, 6, 12</button>
+                </div>
+                <div class="quiz-feedback" data-correct="a">✅ Верно! Свободный член −12, делители: ±1, ±2, ±3, ±4, ±6, ±12.</div>
+                <div class="quiz-feedback" data-wrong="a">❌ Нужно проверить все целые делители −12: ±1, ±2, ±3, ±4, ±6, ±12.</div>
+            </div>
+
+            <div class="quiz-question" data-quiz="2">
+                <div class="quiz-q-text">Вопрос 2. Если P(2) = 0, на какой двучлен делится многочлен P(x)?</div>
+                <div class="quiz-options">
+                    <button class="quiz-option" data-val="a">x + 2</button>
+                    <button class="quiz-option" data-val="b">x − 2</button>
+                    <button class="quiz-option" data-val="c">2x − 1</button>
+                </div>
+                <div class="quiz-feedback" data-correct="b">✅ Верно! По теореме Безу: если P(c) = 0, то P(x) делится на (x − c).</div>
+                <div class="quiz-feedback" data-wrong="b">❌ По теореме Безу: P(c) = 0 ⇒ P(x) делится на (x − c), то есть на (x − 2).</div>
+            </div>
+
+            <div class="quiz-question" data-quiz="3">
+                <div class="quiz-q-text">Вопрос 3. Чему равно x² − 5x + 6 при x = 2?</div>
+                <div class="quiz-options">
+                    <button class="quiz-option" data-val="a">4</button>
+                    <button class="quiz-option" data-val="b">0</button>
+                    <button class="quiz-option" data-val="c">6</button>
+                </div>
+                <div class="quiz-feedback" data-correct="b">✅ Верно! 2² − 5·2 + 6 = 4 − 10 + 6 = 0.</div>
+                <div class="quiz-feedback" data-wrong="b">❌ 2² − 5·2 + 6 = 4 − 10 + 6 = 0. Это подтверждает, что x = 2 — корень.</div>
+            </div>
+        </div>
+
+        <!-- TAB: SUMMARY -->
+        <div class="tab-content" id="tab-summary" role="tabpanel">
+            <div class="math-block">
+                <strong>Алгоритм решения уравнения P(x) = 0:</strong><br>
+                1. Найдите все целые делители свободного члена a₀.<br>
+                2. Подставляйте их в P(x), пока не найдёте корень x = c.<br>
+                3. Разделите P(x) на (x − c) «уголком» → получите Q(x).<br>
+                4. Решите Q(x) = 0 (обычно квадратное).<br>
+                5. Объедините все корни.
+            </div>
+            <div class="summary-card">
+                <div class="label">Ключевая формула</div>
+                <div class="value" style="font-family: var(--font-mono);">P(x) = (x − c) · Q(x) + R,&nbsp;&nbsp; R = 0</div>
+            </div>
+            <p style="margin-top:12px;color:var(--fg-secondary);font-size:0.9rem;">Этот метод работает для многочленов любой степени. После каждого деления степень снижается, и уравнение становится проще.</p>
+        </div>
+    </div>
+
+    <!-- RIGHT COLUMN - VISUALIZATION -->
+    <div class="viz-container">
+        <div class="viz-header">
+            <span class="viz-title">График P(x)</span>
+            <div class="viz-controls">
+                <button class="viz-btn" id="zoomOut" aria-label="Уменьшить">−</button>
+                <span class="zoom-display" id="zoomDisplay">100%</span>
+                <button class="viz-btn" id="zoomIn" aria-label="Увеличить">+</button>
+                <button class="viz-btn" id="zoomReset" aria-label="Сбросить">↺</button>
+            </div>
+        </div>
+        <div class="canvas-wrapper" id="canvasWrapper">
+            <canvas id="vizCanvas"></canvas>
+        </div>
+        <div class="viz-legend">
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#D72638;"></div>
+                <span>Корни: 1, 2, 3</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#2B2B2B;"></div>
+                <span>P(x)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background:rgba(215,38,56,0.15);"></div>
+                <span>Область между корнями</span>
+            </div>
+        </div>
+        <div class="viz-step-info">
+            <span id="vizStepText">Все корни на месте</span>
+            <button class="viz-expand-btn" id="vizExpandBtn">⤢ На весь экран</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-label="Увеличенная визуализация">
+    <div class="modal-content">
+        <button class="modal-close" id="modalClose" aria-label="Закрыть">×</button>
+        <div class="modal-canvas-wrapper" id="modalCanvasWrapper">
+            <canvas id="modalCanvas"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- GENERATOR -->
+<div style="max-width:1400px;margin:0 auto;padding:0 24px 48px;">
+    <div class="generator-box">
+        <div class="gen-header">
+            Генератор похожих задач
+            <button class="gen-btn" id="genBtn">Новая задача</button>
+        </div>
+        <div class="gen-task" id="genTask">Нажмите «Новая задача»</div>
+        <button class="gen-btn" id="genAnswerBtn" style="background:#2D6A4F;border-color:#2D6A4F;">Показать ответ</button>
+        <div class="gen-answer" id="genAnswer"></div>
+    </div>
+</div>
+
+<!-- PRINT SUMMARY -->
+<div class="print-section">
+    <div class="print-summary">
+        <div class="print-title">Краткий конспект для печати</div>
+        <div class="print-grid">
+            <div class="print-item">
+                <h4>Теорема Безу</h4>
+                <p>Остаток от деления P(x) на (x − c) равен P(c). Если P(c) = 0, то P(x) делится на (x − c).</p>
+            </div>
+            <div class="print-item">
+                <h4>Целые корни</h4>
+                <p>Целые корни — делители свободного члена a₀. Подставляем последовательно, пока не обнулится.</p>
+            </div>
+            <div class="print-item">
+                <h4>Деление «уголком»</h4>
+                <p>Делим старший член на старший, умножаем, вычитаем, сносим. Повторяем до остатка 0.</p>
+            </div>
+            <div class="print-item">
+                <h4>Переход к квадратному</h4>
+                <p>P(x) = (x − c) · Q(x). Корни P(x) — это c и корни Q(x) = 0.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-tagline">МАТЕМАТИКА. НАГЛЯДНО</div>
+    <div class="footer-copy">© 2026 · Артём Александрович Лёвин эксклюзивно для Николь</div>
+</footer>
+
+<script>
+    (function() {
+        'use strict';
+
+        // ===== THEME =====
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem('math-theme');
+        if (savedTheme) {
+            html.setAttribute('data-theme', savedTheme);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            html.setAttribute('data-theme', 'dark');
+        }
+
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('math-theme', next);
+            renderAll();
+        });
+
+        // ===== TABS =====
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                tabBtns.forEach(function(b) { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+                tabContents.forEach(function(c) { c.classList.remove('active'); });
+                btn.classList.add('active');
+                btn.setAttribute('aria-selected','true');
+                document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Nav links sync with tabs
+        document.querySelectorAll('.nav-link[data-nav]').forEach(function(link) {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('active'); });
+                link.classList.add('active');
+                const tabId = link.dataset.nav === 'main' ? 'solution' : link.dataset.nav;
+                tabBtns.forEach(function(b) {
+                    b.classList.toggle('active', b.dataset.tab === tabId);
+                    b.setAttribute('aria-selected', b.dataset.tab === tabId ? 'true' : 'false');
+                });
+                tabContents.forEach(function(c) { c.classList.remove('active'); });
+                document.getElementById('tab-' + tabId).classList.add('active');
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            });
+        });
+
+        // ===== ACCORDION =====
+        const accordionHeaders = document.querySelectorAll('.accordion-header');
+
+        accordionHeaders.forEach(function(header) {
+            header.addEventListener('click', function() {
+                const body = header.nextElementSibling;
+                const item = header.parentElement;
+                const isOpen = body.classList.contains('open');
+
+                // Close all
+                document.querySelectorAll('.accordion-body').forEach(function(b) { b.classList.remove('open'); });
+                document.querySelectorAll('.accordion-header').forEach(function(h) { h.classList.remove('active'); h.setAttribute('aria-expanded','false'); });
+                document.querySelectorAll('.accordion-item').forEach(function(i) { i.classList.remove('active-step'); });
+
+                if (!isOpen) {
+                    body.classList.add('open');
+                    header.classList.add('active');
+                    header.setAttribute('aria-expanded','true');
+                    item.classList.add('active-step');
+                    activeStep = parseInt(item.dataset.step);
+                    renderAll();
+                }
+            });
+        });
+
+        // Open first accordion by default
+        let activeStep = 0;
+
+        document.getElementById('showAllBtn').addEventListener('click', function() {
+            document.querySelectorAll('.accordion-body').forEach(function(b) { b.classList.add('open'); });
+            document.querySelectorAll('.accordion-header').forEach(function(h) { h.classList.add('active'); h.setAttribute('aria-expanded','true'); });
+            document.querySelectorAll('.accordion-item').forEach(function(i) { i.classList.add('active-step'); });
+            this.style.display = 'none';
+        });
+
+        // ===== QUIZ =====
+        document.querySelectorAll('.quiz-question').forEach(function(q) {
+            q.querySelectorAll('.quiz-option').forEach(function(opt) {
+                opt.addEventListener('click', function() {
+                    const question = this.closest('.quiz-question');
+                    const correctVal = question.querySelector('[data-correct]').dataset.correct;
+                    const selectedVal = this.dataset.val;
+
+                    question.querySelectorAll('.quiz-option').forEach(function(o) {
+                        o.classList.remove('selected','correct','wrong');
+                        o.disabled = true;
+                        o.style.pointerEvents = 'none';
+                    });
+
+                    if (selectedVal === correctVal) {
+                        this.classList.add('correct');
+                        question.querySelector('[data-correct]').style.display = 'block';
+                    } else {
+                        this.classList.add('wrong');
+                        question.querySelector('.quiz-option[data-val="' + correctVal + '"]').classList.add('correct');
+                        question.querySelector('[data-wrong]').style.display = 'block';
+                    }
+                });
+            });
+        });
+
+        // ===== GENERATOR =====
+        function generateTask() {
+            const tasks = [
+                { task: 'x³ − 7x² + 14x − 8 = 0', answer: 'x ∈ {1, 2, 4}', hint: 'Делители −8: ±1, ±2, ±4, ±8' },
+                { task: 'x³ + x² − 4x − 4 = 0', answer: 'x ∈ {−2, −1, 2}', hint: 'Делители −4: ±1, ±2, ±4' },
+                { task: 'x³ − 4x² + x + 6 = 0', answer: 'x ∈ {−1, 2, 3}', hint: 'Делители 6: ±1, ±2, ±3, ±6' },
+                { task: 'x³ − 3x² − 4x + 12 = 0', answer: 'x ∈ {−2, 2, 3}', hint: 'Делители 12: ±1, ±2, ±3, ±4, ±6, ±12' },
+                { task: 'x³ − 5x² + 2x + 8 = 0', answer: 'x ∈ {−1, 2, 4}', hint: 'Делители 8: ±1, ±2, ±4, ±8' },
+                { task: 'x³ + 2x² − 5x − 6 = 0', answer: 'x ∈ {−3, −1, 2}', hint: 'Делители −6: ±1, ±2, ±3, ±6' },
+                { task: 'x³ − 2x² − 5x + 6 = 0', answer: 'x ∈ {−2, 1, 3}', hint: 'Делители 6: ±1, ±2, ±3, ±6' },
+                { task: 'x³ + 3x² − 6x − 8 = 0', answer: 'x ∈ {−4, −1, 2}', hint: 'Делители −8: ±1, ±2, ±4, ±8' }
+            ];
+            const t = tasks[Math.floor(Math.random() * tasks.length)];
+            document.getElementById('genTask').textContent = t.task;
+            document.getElementById('genAnswer').innerHTML = '<strong>Ответ:</strong> ' + t.answer + '<br><em>' + t.hint + '</em>';
+            document.getElementById('genAnswer').classList.remove('show');
+        }
+
+        document.getElementById('genBtn').addEventListener('click', generateTask);
+        document.getElementById('genAnswerBtn').addEventListener('click', function() {
+            document.getElementById('genAnswer').classList.toggle('show');
+        });
+
+        // ===== VISUALIZATION ENGINE =====
+        const vizCanvas = document.getElementById('vizCanvas');
+        const modalCanvas = document.getElementById('modalCanvas');
+        const canvasWrapper = document.getElementById('canvasWrapper');
+        const modalCanvasWrapper = document.getElementById('modalCanvasWrapper');
+        const zoomDisplay = document.getElementById('zoomDisplay');
+        const vizStepText = document.getElementById('vizStepText');
+
+        // Polynomial: P(x) = x³ - 6x² + 11x - 6
+        function P(x) {
+            return x*x*x - 6*x*x + 11*x - 6;
+        }
+
+        // Camera state
+        let camera = { x: 2, y: 0, zoom: 1 };
+        let isDragging = false;
+        let dragStart = { x: 0, y: 0 };
+        let camStart = { x: 0, y: 0 };
+        const roots = [1, 2, 3];
+
+        function getCtx(canvas) {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+            return { ctx, w: rect.width, h: rect.height };
+        }
+
+        function worldToScreen(wx, wy, w, h) {
+            const pxPerUnit = 60 * camera.zoom;
+            const sx = w / 2 + (wx - camera.x) * pxPerUnit;
+            const sy = h / 2 - (wy - camera.y) * pxPerUnit;
+            return { x: sx, y: sy };
+        }
+
+        function screenToWorld(sx, sy, w, h) {
+            const pxPerUnit = 60 * camera.zoom;
+            const wx = (sx - w / 2) / pxPerUnit + camera.x;
+            const wy = -(sy - h / 2) / pxPerUnit + camera.y;
+            return { x: wx, y: wy };
+        }
+
+        function isDark() {
+            return html.getAttribute('data-theme') === 'dark';
+        }
+
+        function drawGrid(ctx, w, h) {
+            const dark = isDark();
+            const gridColor = dark ? 'rgba(244,244,240,0.12)' : 'rgba(0,0,0,0.08)';
+            const axisColor = dark ? '#F4F4F0' : '#000000';
+            const pxPerUnit = 60 * camera.zoom;
+            const { x: xMin } = screenToWorld(0, 0, w, h);
+            const { x: xMax } = screenToWorld(w, 0, w, h);
+            const { y: yMin } = screenToWorld(0, h, w, h);
+            const { y: yMax } = screenToWorld(0, 0, w, h);
+
+            // Grid lines
+            const step = pxPerUnit > 80 ? 1 : pxPerUnit > 30 ? 2 : 5;
+            ctx.strokeStyle = gridColor;
+            ctx.lineWidth = 1;
+
+            for (let x = Math.floor(xMin / step) * step; x <= xMax; x += step) {
+                const s = worldToScreen(x, 0, w, h);
+                ctx.beginPath();
+                ctx.moveTo(s.x, 0);
+                ctx.lineTo(s.x, h);
+                ctx.stroke();
+            }
+            for (let y = Math.floor(yMin / step) * step; y <= yMax; y += step) {
+                const s = worldToScreen(0, y, w, h);
+                ctx.beginPath();
+                ctx.moveTo(0, s.y);
+                ctx.lineTo(w, s.y);
+                ctx.stroke();
+            }
+
+            // Axes
+            ctx.strokeStyle = axisColor;
+            ctx.lineWidth = 2;
+            const origin = worldToScreen(0, 0, w, h);
+            ctx.beginPath();
+            ctx.moveTo(0, origin.y);
+            ctx.lineTo(w, origin.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(origin.x, 0);
+            ctx.lineTo(origin.x, h);
+            ctx.stroke();
+
+            // Labels
+            ctx.fillStyle = axisColor;
+            ctx.font = '12px system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            for (let x = Math.floor(xMin / step) * step; x <= xMax; x += step) {
+                if (x === 0) continue;
+                const s = worldToScreen(x, 0, w, h);
+                if (s.x > 10 && s.x < w - 10) {
+                    ctx.fillText(x.toString(), s.x, origin.y + 6);
+                }
+            }
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            for (let y = Math.floor(yMin / step) * step; y <= yMax; y += step) {
+                if (y === 0) continue;
+                const s = worldToScreen(0, y, w, h);
+                if (s.y > 10 && s.y < h - 10) {
+                    ctx.fillText(y.toString(), origin.x - 8, s.y);
+                }
+            }
+        }
+
+        function drawPolynomial(ctx, w, h) {
+            const dark = isDark();
+            const curveColor = dark ? '#F4F4F0' : '#111111';
+
+            ctx.strokeStyle = curveColor;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+
+            const { x: xMin } = screenToWorld(0, 0, w, h);
+            const { x: xMax } = screenToWorld(w, 0, w, h);
+            const step = (xMax - xMin) / (w * 2);
+
+            let first = true;
+            for (let x = xMin - step; x <= xMax + step; x += step) {
+                const y = P(x);
+                const s = worldToScreen(x, y, w, h);
+                if (first) {
+                    ctx.moveTo(s.x, s.y);
+                    first = false;
+                } else {
+                    ctx.lineTo(s.x, s.y);
+                }
+            }
+            ctx.stroke();
+
+            // P(x) label
+            const labelX = xMax - 0.5;
+            const labelY = P(labelX);
+            const ls = worldToScreen(labelX, labelY, w, h);
+            if (ls.y > 20 && ls.y < h - 20) {
+                ctx.fillStyle = curveColor;
+                ctx.font = 'bold 13px system-ui, sans-serif';
+                ctx.fillText('P(x)', ls.x + 10, ls.y - 8);
+            }
+        }
+
+        function drawRoots(ctx, w, h) {
+            const dark = isDark();
+            const rootColor = '#D72638';
+            const highlightColor = dark ? '#FF6B6B' : '#D72638';
+            const bgColor = dark ? '#1A1A18' : '#F4F4F0';
+
+            roots.forEach(function(r, i) {
+                const show = i <= activeStep || activeStep === 3;
+                if (!show) return;
+
+                const s = worldToScreen(r, 0, w, h);
+                const isActive = (i === activeStep && activeStep < 3);
+
+                // Highlight circle
+                if (isActive) {
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, 20, 0, Math.PI * 2);
+                    ctx.fillStyle = dark ? 'rgba(215,38,56,0.2)' : 'rgba(215,38,56,0.15)';
+                    ctx.fill();
+                }
+
+                // Dot
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, isActive ? 7 : 5, 0, Math.PI * 2);
+                ctx.fillStyle = isActive ? highlightColor : rootColor;
+                ctx.fill();
+                ctx.strokeStyle = dark ? '#F4F4F0' : '#000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Label
+                ctx.fillStyle = dark ? '#F4F4F0' : '#000';
+                ctx.font = 'bold 14px system-ui, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText('x' + (i + 1) + ' = ' + r, s.x, s.y + 14);
+            });
+        }
+
+        function drawBetweenRoots(ctx, w, h) {
+            if (activeStep < 1) return;
+
+            const dark = isDark();
+            const fillColor = dark ? 'rgba(215,38,56,0.12)' : 'rgba(215,38,56,0.1)';
+
+            ctx.fillStyle = fillColor;
+            ctx.beginPath();
+
+            const { x: xMin, x: xMax } = { xMin: roots[0] - 0.5, xMax: roots[roots.length - 1] + 0.5 };
+            const step = (xMax - xMin) / 200;
+
+            const bottom = worldToScreen(0, 0, w, h).y;
+
+            let first = true;
+            for (let x = xMin; x <= xMax; x += step) {
+                const y = P(x);
+                const s = worldToScreen(x, y, w, h);
+                if (first) { ctx.moveTo(s.x, s.y); first = false; }
+                else ctx.lineTo(s.x, s.y);
+            }
+
+            // Close to bottom
+            const sRight = worldToScreen(xMax, 0, w, h);
+            const sLeft = worldToScreen(xMin, 0, w, h);
+            ctx.lineTo(sRight.x, bottom);
+            ctx.lineTo(sLeft.x, bottom);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function render(canvas, wrapper) {
+            const { ctx, w, h } = getCtx(canvas);
+            ctx.clearRect(0, 0, w, h);
+            drawGrid(ctx, w, h);
+            drawBetweenRoots(ctx, w, h);
+            drawPolynomial(ctx, w, h);
+            drawRoots(ctx, w, h);
+        }
+
+        function renderAll() {
+            render(vizCanvas, canvasWrapper);
+            if (modalOverlay.classList.contains('open')) {
+                render(modalCanvas, modalCanvasWrapper);
+            }
+        }
+
+        function updateZoomDisplay() {
+            zoomDisplay.textContent = Math.round(camera.zoom * 100) + '%';
+        }
+
+        function updateVizStepText() {
+            const texts = [
+                'Ищем корень: x = 1',
+                'Корень найден! Делим на (x − 1)',
+                'Решаем x² − 5x + 6 = 0',
+                'Все корни: 1, 2, 3'
+            ];
+            vizStepText.textContent = texts[activeStep] || texts[3];
+        }
+
+        updateZoomDisplay();
+        updateVizStepText();
+
+        // ===== PAN & ZOOM =====
+        function setupInteraction(canvas, wrapper) {
+            let isPanning = false;
+            let panStart = { x: 0, y: 0 };
+            let camAtPanStart = { x: 0, y: 0 };
+
+            wrapper.addEventListener('mousedown', function(e) {
+                if (e.button !== 0) return;
+                isPanning = true;
+                panStart = { x: e.clientX, y: e.clientY };
+                camAtPanStart = { x: camera.x, y: camera.y };
+                wrapper.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+
+            window.addEventListener('mousemove', function(e) {
+                if (!isPanning) return;
+                const dx = e.clientX - panStart.x;
+                const dy = e.clientY - panStart.y;
+                const pxPerUnit = 60 * camera.zoom;
+                camera.x = camAtPanStart.x - dx / pxPerUnit;
+                camera.y = camAtPanStart.y + dy / pxPerUnit;
+                renderAll();
+            });
+
+            window.addEventListener('mouseup', function() {
+                if (isPanning) {
+                    isPanning = false;
+                    wrapper.style.cursor = 'grab';
+                }
+            });
+
+            wrapper.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                const rect = wrapper.getBoundingClientRect();
+                const mx = e.clientX - rect.left;
+                const my = e.clientY - rect.top;
+                const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+
+                const world = screenToWorld(mx, my, rect.width, rect.height);
+                camera.zoom = Math.max(0.2, Math.min(5, camera.zoom * zoomFactor));
+
+                // Zoom to cursor
+                const newWorld = screenToWorld(mx, my, rect.width, rect.height);
+                camera.x -= (newWorld.x - world.x);
+                camera.y -= (newWorld.y - world.y);
+
+                updateZoomDisplay();
+                renderAll();
+            }, { passive: false });
+
+            // Touch support
+            let touchStartDist = 0;
+            let touchStartZoom = 1;
+            let lastTouch = null;
+
+            wrapper.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 1) {
+                    isPanning = true;
+                    panStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                    camAtPanStart = { x: camera.x, y: camera.y };
+                } else if (e.touches.length === 2) {
+                    isPanning = false;
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    touchStartDist = Math.sqrt(dx*dx + dy*dy);
+                    touchStartZoom = camera.zoom;
+                }
+                e.preventDefault();
+            }, { passive: false });
+
+            wrapper.addEventListener('touchmove', function(e) {
+                if (e.touches.length === 1 && isPanning) {
+                    const dx = e.touches[0].clientX - panStart.x;
+                    const dy = e.touches[0].clientY - panStart.y;
+                    const pxPerUnit = 60 * camera.zoom;
+                    camera.x = camAtPanStart.x - dx / pxPerUnit;
+                    camera.y = camAtPanStart.y + dy / pxPerUnit;
+                    renderAll();
+                } else if (e.touches.length === 2) {
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    camera.zoom = Math.max(0.2, Math.min(5, touchStartZoom * (dist / touchStartDist)));
+                    updateZoomDisplay();
+                    renderAll();
+                }
+                e.preventDefault();
+            }, { passive: false });
+
+            wrapper.addEventListener('touchend', function() {
+                isPanning = false;
+            });
+        }
+
+        setupInteraction(vizCanvas, canvasWrapper);
+        setupInteraction(modalCanvas, modalCanvasWrapper);
+
+        // Zoom buttons
+        document.getElementById('zoomIn').addEventListener('click', function() {
+            camera.zoom = Math.min(5, camera.zoom * 1.2);
+            updateZoomDisplay();
+            renderAll();
+        });
+
+        document.getElementById('zoomOut').addEventListener('click', function() {
+            camera.zoom = Math.max(0.2, camera.zoom / 1.2);
+            updateZoomDisplay();
+            renderAll();
+        });
+
+        document.getElementById('zoomReset').addEventListener('click', function() {
+            camera = { x: 2, y: 0, zoom: 1 };
+            updateZoomDisplay();
+            renderAll();
+        });
+
+        // ===== MODAL =====
+        const modalOverlay = document.getElementById('modalOverlay');
+        document.getElementById('vizExpandBtn').addEventListener('click', function() {
+            modalOverlay.classList.add('open');
+            setTimeout(function() { renderAll(); }, 50);
+        });
+
+        document.getElementById('modalClose').addEventListener('click', function() {
+            modalOverlay.classList.remove('open');
+        });
+
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) {
+                modalOverlay.classList.remove('open');
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                modalOverlay.classList.remove('open');
+            }
+        });
+
+        // ===== INIT =====
+        function init() {
+            renderAll();
+        }
+
+        window.addEventListener('resize', renderAll);
+
+        // Wait for layout
+        requestAnimationFrame(function() {
+            requestAnimationFrame(init);
+        });
+
+    })();
+</script>
+</body>
+</html>
