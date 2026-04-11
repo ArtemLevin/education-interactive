@@ -1,0 +1,2814 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — трапеция и вписанная окружность</title>
+    <style>
+        :root {
+            --bg: #F4F4F0;
+            --panel: #FFFFFF;
+            --panel-soft: #ECECE6;
+            --ink: #000000;
+            --muted: #525252;
+            --line: #000000;
+            --accent: #D72638;
+            --accent-2: #1E8E79;
+            --accent-3: #F2C94C;
+            --banner: #000000;
+            --banner-ink: #FFFFFF;
+            --shadow-1: 4px 4px 0 #000;
+            --shadow-2: 6px 6px 0 #000;
+            --shadow-3: 8px 8px 0 #000;
+            --tab-bg: #FFFFFF;
+            --tab-active-bg: #D72638;
+            --tab-active-ink: #FFFFFF;
+            --hint-bg: #FFFFFF;
+            --success: #1E8E79;
+            --danger: #D72638;
+            --overlay: rgba(0,0,0,.75);
+            --viz-bg: #F8F8F4;
+            --grid: #D8D8D2;
+            --scene-weak: #767676;
+            --scene-strong: #000;
+            --scene-accent: #D72638;
+            --scene-circle: #1E8E79;
+            --scene-wash: #EFEFEA;
+            --focus-ring: 0 0 0 3px #F2C94C;
+        }
+
+        html[data-theme="dark"] {
+            --bg: #141414;
+            --panel: #202020;
+            --panel-soft: #2A2A2A;
+            --ink: #F4F4F0;
+            --muted: #BBBBBB;
+            --line: #F4F4F0;
+            --accent: #D72638;
+            --accent-2: #46C8A8;
+            --accent-3: #F2C94C;
+            --banner: #F4F4F0;
+            --banner-ink: #000000;
+            --shadow-1: 4px 4px 0 #F4F4F0;
+            --shadow-2: 6px 6px 0 #F4F4F0;
+            --shadow-3: 8px 8px 0 #F4F4F0;
+            --tab-bg: #202020;
+            --tab-active-bg: #D72638;
+            --tab-active-ink: #FFFFFF;
+            --hint-bg: #202020;
+            --success: #46C8A8;
+            --danger: #FF6A78;
+            --overlay: rgba(0,0,0,.82);
+            --viz-bg: #1A1A1A;
+            --grid: #343434;
+            --scene-weak: #B6B6B6;
+            --scene-strong: #F4F4F0;
+            --scene-accent: #FF6A78;
+            --scene-circle: #46C8A8;
+            --scene-wash: #232323;
+            --focus-ring: 0 0 0 3px #F2C94C;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.45;
+            min-height: 100vh;
+            transition: background .18s linear, color .18s linear;
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .app {
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 20px 18px 72px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+            border: 2px solid var(--line);
+            background: var(--panel);
+            box-shadow: var(--shadow-1);
+            padding: 10px 12px;
+            position: sticky;
+            top: 10px;
+            z-index: 20;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .brand-badge {
+            border: 2px solid var(--line);
+            background: var(--accent);
+            color: #fff;
+            padding: 8px 10px;
+            font-weight: 900;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            flex: 0 0 auto;
+        }
+
+        .brand-copy {
+            min-width: 0;
+        }
+
+        .brand-copy strong {
+            display: block;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 2px;
+        }
+
+        .brand-copy span {
+            display: block;
+            color: var(--muted);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .topnav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .nav-btn, .theme-toggle, .mini-btn, .step-btn, .chip-toggle, .seg-btn, .ghost-btn {
+            appearance: none;
+            border: 2px solid var(--line);
+            background: var(--panel);
+            color: var(--ink);
+            padding: 10px 12px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 800;
+            letter-spacing: .02em;
+            transition: transform .08s linear, background .12s linear, color .12s linear, box-shadow .12s linear;
+        }
+
+        .nav-btn:hover, .theme-toggle:hover, .mini-btn:hover, .step-btn:hover, .chip-toggle:hover, .seg-btn:hover, .ghost-btn:hover {
+            transform: translate(-1px,-1px);
+            box-shadow: var(--shadow-1);
+        }
+
+        .nav-btn.active, .seg-btn.active, .chip-toggle.active {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: var(--shadow-1);
+        }
+
+        .theme-toggle {
+            background: var(--ink);
+            color: var(--bg);
+            text-transform: uppercase;
+            min-width: 132px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.15fr .85fr;
+            gap: 18px;
+            align-items: start;
+            margin-bottom: 16px;
+        }
+
+        .hero-main, .hero-side, .banner, .panel, .sticky-visual, .compact-block, .footer {
+            border: 2px solid var(--line);
+            background: var(--panel);
+            box-shadow: var(--shadow-2);
+        }
+
+        .hero-main {
+            padding: 24px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            background: var(--accent-3);
+            border: 2px solid var(--line);
+            padding: 6px 10px;
+            font-size: .82rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 14px;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: clamp(2rem, 4vw, 4.1rem);
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            font-weight: 900;
+            max-width: 12ch;
+        }
+
+        .hero-lead {
+            margin: 0;
+            font-size: 1.08rem;
+            max-width: 62ch;
+            color: var(--muted);
+        }
+
+        .hero-side {
+            padding: 16px;
+            display: grid;
+            gap: 12px;
+            align-content: start;
+        }
+
+        .hero-meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 10px;
+        }
+
+        .meta-row {
+            border: 2px solid var(--line);
+            padding: 10px;
+            background: var(--panel-soft);
+            min-height: 72px;
+        }
+
+        .meta-row strong {
+            display: block;
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 6px;
+        }
+
+        .meta-row span {
+            font-weight: 700;
+        }
+
+        .hero-config details {
+            border: 2px solid var(--line);
+            background: var(--panel-soft);
+        }
+
+        .hero-config summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 10px 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .hero-config summary::-webkit-details-marker { display: none; }
+        .hero-config .config-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 8px;
+            padding: 0 12px 12px;
+            font-size: .92rem;
+        }
+
+        .hero-config .config-grid div {
+            border-top: 1px solid var(--line);
+            padding-top: 8px;
+        }
+
+        .banner {
+            background: var(--banner);
+            color: var(--banner-ink);
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-2);
+        }
+
+        .banner strong {
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: minmax(320px, 1fr) minmax(420px, 1.06fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .panel {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            border-bottom: 2px solid var(--line);
+            padding: 14px 14px 12px;
+            background: var(--panel-soft);
+        }
+
+        .panel-head strong {
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-size: .92rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            appearance: none;
+            border: 2px solid var(--line);
+            background: var(--tab-bg);
+            color: var(--ink);
+            padding: 10px 12px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: .83rem;
+            letter-spacing: .06em;
+        }
+
+        .tab-btn.active {
+            background: var(--tab-active-bg);
+            color: var(--tab-active-ink);
+            box-shadow: var(--shadow-1);
+        }
+
+        .panel-body {
+            padding: 14px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .step-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            border: 2px solid var(--line);
+            background: var(--panel-soft);
+            padding: 10px;
+        }
+
+        .step-toolbar .left, .step-toolbar .right {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .step-counter {
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-size: .84rem;
+        }
+
+        .accordion {
+            display: grid;
+            gap: 10px;
+        }
+
+        .acc-item {
+            border: 2px solid var(--line);
+            background: var(--panel);
+        }
+
+        .acc-head {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border: none;
+            background: transparent;
+            color: inherit;
+            padding: 14px;
+            font: inherit;
+            font-weight: 900;
+            cursor: pointer;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .acc-head:hover { background: var(--panel-soft); }
+        .acc-head .num {
+            flex: 0 0 auto;
+            border: 2px solid var(--line);
+            padding: 5px 8px;
+            font-size: .78rem;
+            background: var(--panel-soft);
+        }
+
+        .acc-head .arrow {
+            flex: 0 0 auto;
+            font-size: 1.05rem;
+            line-height: 1;
+        }
+
+        .acc-item.active .acc-head {
+            background: var(--panel-soft);
+        }
+
+        .acc-item.active .acc-head .num {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .acc-panel {
+            display: none;
+            border-top: 2px solid var(--line);
+            padding: 14px;
+            background: var(--panel);
+        }
+
+        .acc-item.open .acc-panel { display: block; }
+
+        .step-card {
+            border: 2px solid var(--line);
+            background: var(--panel-soft);
+            padding: 12px;
+            margin-top: 12px;
+            box-shadow: var(--shadow-1);
+        }
+
+        .step-card strong {
+            display: block;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            font-size: .78rem;
+        }
+
+        .text-link {
+            display: inline-block;
+            border-bottom: 2px dashed var(--line);
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .text-link.hovered, .linked-text.highlighted {
+            background: var(--accent-3);
+            box-shadow: inset 0 -0.38em 0 var(--accent-3);
+        }
+
+        .mini-list {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .mini-list li + li { margin-top: 6px; }
+
+        .info-strip {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .info-pill {
+            border: 2px solid var(--line);
+            background: var(--panel-soft);
+            padding: 8px 10px;
+            font-size: .9rem;
+            font-weight: 800;
+        }
+
+        .error-list, .check-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .soft-note {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .question-block {
+            display: grid;
+            gap: 12px;
+        }
+
+        .quiz-item {
+            border: 2px solid var(--line);
+            background: var(--panel-soft);
+            padding: 12px;
+        }
+
+        .quiz-item h4 {
+            margin: 0 0 10px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .quiz-item label {
+            display: block;
+            padding: 6px 0;
+            cursor: pointer;
+        }
+
+        .quiz-feedback {
+            margin-top: 10px;
+            font-weight: 900;
+        }
+
+        .quiz-feedback.ok { color: var(--success); }
+        .quiz-feedback.bad { color: var(--danger); }
+
+        .summary-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .summary-box {
+            border: 2px solid var(--line);
+            background: var(--panel-soft);
+            padding: 12px;
+        }
+
+        .summary-box strong {
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-bottom: 8px;
+        }
+
+        .sticky-visual {
+            position: sticky;
+            top: 92px;
+            padding: 0;
+            overflow: hidden;
+            min-height: 640px;
+            background: var(--panel);
+        }
+
+        .visual-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            border-bottom: 2px solid var(--line);
+            padding: 14px;
+            background: var(--panel-soft);
+        }
+
+        .visual-head strong {
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-size: .92rem;
+        }
+
+        .visual-stage {
+            padding: 14px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .visual-wrap {
+            border: 2px solid var(--line);
+            background: var(--viz-bg);
+            height: 420px;
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .visual-wrap.grabbing { cursor: grabbing; }
+        .visual-wrap.pointer-mode { cursor: pointer; }
+
+        svg.scene {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: transparent;
+        }
+
+        .visual-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .visual-controls .left, .visual-controls .right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .zoom-range {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 2px solid var(--line);
+            padding: 8px 10px;
+            background: var(--panel-soft);
+            min-width: 220px;
+        }
+
+        .zoom-range label {
+            font-size: .85rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            white-space: nowrap;
+        }
+
+        .zoom-range input[type="range"] {
+            width: 130px;
+            accent-color: var(--accent);
+        }
+
+        .toggle-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .chip-toggle {
+            padding: 8px 10px;
+            font-size: .82rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            font-weight: 900;
+            background: var(--panel-soft);
+            box-shadow: none;
+        }
+
+        .viz-status {
+            border: 2px solid var(--line);
+            background: var(--panel-soft);
+            padding: 8px 10px;
+            font-size: .9rem;
+            font-weight: 800;
+        }
+
+        details.compact {
+            border-top: 2px solid var(--line);
+            padding-top: 10px;
+        }
+
+        details.compact summary {
+            cursor: pointer;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            font-size: .86rem;
+            margin-bottom: 10px;
+        }
+
+        details.compact summary::-webkit-details-marker { display: none; }
+
+        .legend-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: .95rem;
+        }
+
+        .swatch {
+            width: 24px;
+            height: 10px;
+            border: 2px solid var(--line);
+            flex: 0 0 auto;
+        }
+
+        .swatch.base { background: transparent; }
+        .swatch.circle { background: var(--scene-circle); }
+        .swatch.helper { background: var(--scene-weak); }
+        .swatch.focus { background: var(--scene-accent); }
+
+        .lower-grid {
+            margin-top: 22px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .compact-block {
+            padding: 0;
+            overflow: hidden;
+            box-shadow: var(--shadow-2);
+        }
+
+        .compact-head {
+            padding: 14px;
+            border-bottom: 2px solid var(--line);
+            background: var(--panel-soft);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .compact-head strong {
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-size: .92rem;
+        }
+
+        .compact-body {
+            padding: 14px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .generator-row {
+            display: grid;
+            grid-template-columns: auto auto 1fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .select, .input, .answer-box {
+            border: 2px solid var(--line);
+            background: var(--panel);
+            color: var(--ink);
+            padding: 10px 12px;
+            font: inherit;
+            min-height: 46px;
+        }
+
+        .task-sheet {
+            border: 2px solid var(--line);
+            background: var(--panel-soft);
+            padding: 14px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .task-sheet strong {
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            font-size: .78rem;
+        }
+
+        .task-main {
+            font-size: 1.02rem;
+            font-weight: 800;
+        }
+
+        .answer-box {
+            background: var(--panel-soft);
+            display: grid;
+            gap: 6px;
+        }
+
+        .small-note {
+            color: var(--muted);
+            font-size: .92rem;
+        }
+
+        .print-memo {
+            border: 2px solid var(--line);
+            background: var(--panel-soft);
+            padding: 14px;
+            margin-top: 8px;
+        }
+
+        .print-memo strong {
+            display: block;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .footer {
+            margin-top: 24px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            background: var(--panel);
+        }
+
+        .footer small {
+            color: var(--muted);
+            font-size: .92rem;
+        }
+
+        .footer .tagline {
+            color: var(--accent);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+        }
+
+        .hint-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 40;
+        }
+
+        .hint {
+            position: absolute;
+            max-width: 280px;
+            border: 2px solid var(--line);
+            background: var(--hint-bg);
+            color: var(--ink);
+            box-shadow: var(--shadow-1);
+            padding: 12px;
+            pointer-events: auto;
+            display: none;
+        }
+
+        .hint.show { display: block; }
+
+        .hint-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .hint-head strong {
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-size: .75rem;
+        }
+
+        .hint-close {
+            appearance: none;
+            border: 2px solid var(--line);
+            background: var(--panel-soft);
+            color: var(--ink);
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .hint p {
+            margin: 0;
+            font-size: .95rem;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: var(--overlay);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 60;
+            padding: 18px;
+        }
+
+        .modal.open { display: flex; }
+
+        .modal-card {
+            width: min(1180px, 96vw);
+            max-height: 92vh;
+            overflow: hidden;
+            border: 2px solid var(--line);
+            background: var(--panel);
+            box-shadow: var(--shadow-3);
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+        }
+
+        .modal-head {
+            border-bottom: 2px solid var(--line);
+            padding: 12px 14px;
+            background: var(--panel-soft);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-head strong {
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-size: .92rem;
+        }
+
+        .modal-close {
+            appearance: none;
+            border: 2px solid var(--line);
+            background: var(--accent);
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            cursor: pointer;
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        .modal-body {
+            padding: 14px;
+            display: grid;
+            gap: 12px;
+            overflow: auto;
+        }
+
+        .modal-stage {
+            height: min(72vh, 720px);
+            border: 2px solid var(--line);
+            background: var(--viz-bg);
+            overflow: hidden;
+            position: relative;
+            user-select: none;
+            touch-action: none;
+            cursor: grab;
+        }
+
+        .modal-stage.grabbing { cursor: grabbing; }
+
+        .modal-controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .linked-text {
+            transition: background .08s linear;
+        }
+
+        .scene-hit {
+            cursor: pointer;
+        }
+
+        .scene-hit:hover {
+            filter: none;
+        }
+
+        .scene-label {
+            font-size: 13px;
+            font-weight: 900;
+            fill: var(--scene-strong);
+            paint-order: stroke fill;
+            stroke: var(--viz-bg);
+            stroke-width: 3px;
+            stroke-linejoin: round;
+        }
+
+        .scene-math {
+            font-size: 14px;
+            font-weight: 900;
+            fill: var(--scene-strong);
+            paint-order: stroke fill;
+            stroke: var(--viz-bg);
+            stroke-width: 3px;
+            stroke-linejoin: round;
+        }
+
+        .scene-math.small {
+            font-size: 12px;
+        }
+
+        .scene-grid {
+            stroke: var(--grid);
+            stroke-width: 1;
+        }
+
+        .scene-axis {
+            stroke: var(--scene-weak);
+            stroke-width: 1.2;
+        }
+
+        .scene-base {
+            stroke: var(--scene-strong);
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .scene-helper {
+            stroke: var(--scene-weak);
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 6 6;
+        }
+
+        .scene-circle {
+            stroke: var(--scene-circle);
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .scene-radius {
+            stroke: var(--scene-circle);
+            stroke-width: 2.5;
+        }
+
+        .scene-highlight {
+            stroke: var(--scene-accent);
+            stroke-width: 4;
+            fill: none;
+        }
+
+        .scene-fill {
+            fill: var(--scene-wash);
+            stroke: none;
+        }
+
+        .scene-angle {
+            fill: none;
+            stroke: var(--scene-accent);
+            stroke-width: 3;
+        }
+
+        .scene-dot {
+            fill: var(--scene-strong);
+            stroke: none;
+        }
+
+        .hidden { display: none !important; }
+
+        .visually-hidden {
+            position: absolute !important;
+            width: 1px; height: 1px;
+            padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0,0,0,0);
+            border: 0;
+            white-space: nowrap;
+        }
+
+        [role="button"]:focus,
+        button:focus,
+        input:focus,
+        select:focus,
+        summary:focus,
+        .visual-wrap:focus,
+        .modal-stage:focus {
+            outline: none;
+            box-shadow: var(--focus-ring);
+        }
+
+        @media (max-width: 1080px) {
+            .hero { grid-template-columns: 1fr; }
+            .main-grid { grid-template-columns: 1fr; }
+            .sticky-visual {
+                position: static;
+                min-height: 0;
+            }
+            .lower-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 720px) {
+            .app { padding: 14px 12px 52px; }
+            .topbar { position: static; }
+            .hero-main { padding: 18px; }
+            h1 { max-width: 100%; }
+            .hero-meta, .hero-config .config-grid { grid-template-columns: 1fr; }
+            .generator-row { grid-template-columns: 1fr; }
+            .visual-wrap { height: 340px; }
+            .modal-stage { height: 58vh; }
+            .zoom-range { min-width: 0; width: 100%; }
+        }
+
+        @media print {
+            :root {
+                --bg: #fff;
+                --panel: #fff;
+                --panel-soft: #fff;
+                --ink: #000;
+                --line: #000;
+                --muted: #333;
+                --shadow-1: none;
+                --shadow-2: none;
+                --shadow-3: none;
+                --viz-bg: #fff;
+                --grid: #ddd;
+                --scene-strong: #000;
+                --scene-weak: #555;
+                --scene-accent: #000;
+                --scene-circle: #000;
+                --scene-wash: #fff;
+            }
+            body { background: #fff; color: #000; }
+            .topbar, .banner, .visual-controls, .hint-layer, .modal, .compact-head .right, .generator-row, .quiz-actions, .footer {
+                display: none !important;
+            }
+            .app { max-width: none; padding: 0; }
+            .main-grid, .lower-grid, .hero { display: block; }
+            .sticky-visual { position: static; margin-top: 16px; }
+            .visual-wrap { height: 360px; }
+            .compact-block, .panel, .hero-main, .hero-side, .sticky-visual, .print-memo {
+                box-shadow: none !important;
+                break-inside: avoid;
+            }
+            .panel-body, .compact-body { padding: 10px 0 0; }
+            .acc-panel { display: block !important; }
+            .acc-item { break-inside: avoid; margin-bottom: 10px; }
+            .tab-btn, .theme-toggle, .nav-btn, .step-btn, .chip-toggle, .seg-btn, .mini-btn, .ghost-btn {
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <header class="topbar" aria-label="Верхняя панель">
+        <div class="brand">
+            <div class="brand-badge">NM</div>
+            <div class="brand-copy">
+                <strong>Наглядная математика</strong>
+                <span>Трапеция + вписанная окружность + чистый пошаговый разбор</span>
+            </div>
+        </div>
+        <nav class="topnav" aria-label="Навигация по странице">
+            <button class="nav-btn active" data-scroll="#hero">Тема</button>
+            <button class="nav-btn" data-scroll="#study">Разбор</button>
+            <button class="nav-btn" data-scroll="#practice">Генератор</button>
+            <button class="nav-btn" data-scroll="#quiz">Квиз</button>
+            <button class="nav-btn" data-scroll="#memo">Памятка</button>
+            <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">LIGHT / DARK</button>
+        </nav>
+    </header>
+
+    <section class="hero" id="hero">
+        <div class="hero-main">
+            <div class="eyebrow">Neo-brutalist • clean study mode</div>
+            <h1>ТРАПЕЦИЯ И ВПИСАННАЯ ОКРУЖНОСТЬ</h1>
+            <p class="hero-lead">
+                Главная цель этой страницы — не показать всё сразу, а привести Вас к двум сильным идеям:
+                средняя линия равнобедренной трапеции, описанной около окружности, выражается через площадь и острый угол,
+                а радиус вписанной окружности можно находить по отрезкам касательной.
+            </p>
+        </div>
+        <aside class="hero-side" aria-label="Параметры материала">
+            <div class="hero-meta">
+                <div class="meta-row">
+                    <strong>Тема</strong>
+                    <span>Равнобедренная трапеция, описанная около окружности</span>
+                </div>
+                <div class="meta-row">
+                    <strong>Уровень</strong>
+                    <span>ЕГЭ / профиль</span>
+                </div>
+                <div class="meta-row">
+                    <strong>Цель</strong>
+                    <span>Увидеть связь: площадь ↔ средняя линия ↔ угол</span>
+                </div>
+                <div class="meta-row">
+                    <strong>Тип визуализации</strong>
+                    <span>Геометрия + динамическая схема</span>
+                </div>
+            </div>
+
+            <div class="hero-config">
+                <details>
+                    <summary>Показать встроенные настройки</summary>
+                    <div class="config-grid" id="configGrid"></div>
+                </details>
+            </div>
+        </aside>
+    </section>
+
+    <section class="banner" aria-label="Ключевой тезис">
+        <strong>Один главный фокус</strong>
+        <span>Сначала видим структуру задачи: описанная равнобедренная трапеция даёт среднюю линию, равную боковой стороне, а высота выражается как ℓ·sin α.</span>
+    </section>
+
+    <section class="main-grid" id="study">
+        <section class="panel" aria-label="Основной разбор">
+            <div class="panel-head">
+                <strong>Основной контейнер разбора</strong>
+                <div class="tabs" role="tablist" aria-label="Вкладки разбора">
+                    <button class="tab-btn active" role="tab" aria-selected="true" data-tab="analysis">Разбор</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" data-tab="mistakes">Ошибки</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" data-tab="selfcheck">Самопроверка</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" data-tab="takeaway">Итог</button>
+                </div>
+            </div>
+
+            <div class="panel-body">
+                <div class="tab-panel" data-panel="analysis">
+                    <div class="step-toolbar">
+                        <div class="left">
+                            <div class="step-counter" id="stepCounter">Шаг 1 из 8</div>
+                            <button class="step-btn" id="prevStep">← Назад</button>
+                            <button class="step-btn" id="nextStep">Далее →</button>
+                        </div>
+                        <div class="right">
+                            <button class="seg-btn active" id="showFocused">По одному</button>
+                            <button class="seg-btn" id="showAll">Показать всё</button>
+                            <button class="ghost-btn" id="detailToggle">Подробность: средняя</button>
+                        </div>
+                    </div>
+
+                    <div class="accordion" id="accordion"></div>
+                </div>
+
+                <div class="tab-panel hidden" data-panel="mistakes">
+                    <div class="error-list">
+                        <div class="summary-box">
+                            <strong>Типичная ошибка 1</strong>
+                            <p>Сразу подставлять формулу площади, не выяснив, чему равна высота. В этой теме главный мост — это переход от средней линии к высоте через угол α.</p>
+                        </div>
+                        <div class="summary-box">
+                            <strong>Типичная ошибка 2</strong>
+                            <p>Забывать свойство описанного четырёхугольника: суммы противоположных сторон равны. Для равнобедренной трапеции отсюда сразу следует: AD + BC = 2AB.</p>
+                        </div>
+                        <div class="summary-box">
+                            <strong>Типичная ошибка 3</strong>
+                            <p>Путать две величины: средняя линия ℓ = (AD + BC)/2 и полуразность оснований x = (AD − BC)/2. Это разные отрезки с разным смыслом.</p>
+                        </div>
+                        <div class="summary-box">
+                            <strong>Типичная ошибка 4</strong>
+                            <p>В задачах на касание не использовать факт: радиус, проведённый в точку касания, перпендикулярен касательной. Именно это создаёт прямой треугольник.</p>
+                        </div>
+                        <div class="summary-box">
+                            <strong>Типичная ошибка 5</strong>
+                            <p>Не замечать, что биссектрисы односторонних углов при параллельных прямых перпендикулярны. Это даёт прямой угол при центре вписанной окружности.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-panel hidden" data-panel="selfcheck">
+                    <div class="check-list">
+                        <div class="summary-box">
+                            <strong>Быстрая самопроверка</strong>
+                            <ul class="mini-list">
+                                <li>Почему в описанной равнобедренной трапеции боковая сторона равна средней линии?</li>
+                                <li>Как из боковой стороны получить высоту, если известен острый угол α при основании?</li>
+                                <li>Почему формула площади превращается в S = ℓ²·sin α?</li>
+                                <li>Как доказать, что r = √(a·b), если точка касания делит боковую сторону на a и b?</li>
+                            </ul>
+                        </div>
+                        <div class="summary-box">
+                            <strong>Мини-план ответа на экзамене</strong>
+                            <ol class="mini-list">
+                                <li>Запишите S = ℓ·h.</li>
+                                <li>Используйте свойство описанного четырёхугольника: AD + BC = AB + CD.</li>
+                                <li>Для равнобедренной трапеции CD = AB, значит AD + BC = 2AB.</li>
+                                <li>Следовательно, AB = (AD + BC)/2 = ℓ.</li>
+                                <li>Из прямоугольного треугольника: h = AB·sin α = ℓ·sin α.</li>
+                                <li>Подставьте в площадь: S = ℓ²·sin α, отсюда ℓ = √(S / sin α).</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-panel hidden" data-panel="takeaway">
+                    <div class="summary-grid">
+                        <div class="summary-box">
+                            <strong>Идея решения</strong>
+                            <p>
+                                Нужно не искать высоту напрямую из воздуха, а сначала заметить, что в описанной равнобедренной трапеции
+                                боковая сторона совпадает со средней линией: AB = ℓ.
+                                После этого высота — просто катет в прямоугольном треугольнике: h = ℓ·sin α.
+                            </p>
+                        </div>
+                        <div class="summary-box">
+                            <strong>Главная формула</strong>
+                            <p style="font-size:1.08rem;font-weight:900;">ℓ = √( S / sin α )</p>
+                            <p class="soft-note">Здесь ℓ — средняя линия, S — площадь, α — острый угол при основании.</p>
+                        </div>
+                        <div class="summary-box">
+                            <strong>Вторая опорная формула</strong>
+                            <p style="font-size:1.08rem;font-weight:900;">r = √( a·b )</p>
+                            <p class="soft-note">Если точка касания делит боковую сторону на отрезки a и b, то радиус вписанной окружности равен корню из их произведения.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <aside class="sticky-visual" aria-label="Интерактивная визуализация">
+            <div class="visual-head">
+                <strong>Связанная визуализация</strong>
+                <button class="mini-btn" id="openModal">Открыть крупно</button>
+            </div>
+
+            <div class="visual-stage">
+                <div class="visual-wrap" id="visualWrap" tabindex="0" aria-label="Интерактивная геометрическая сцена">
+                    <svg class="scene" id="sceneSvg" viewBox="0 0 900 620" aria-hidden="true"></svg>
+                </div>
+
+                <div class="visual-controls">
+                    <div class="left">
+                        <div class="zoom-range">
+                            <label for="zoomRange">Zoom</label>
+                            <input id="zoomRange" type="range" min="0.75" max="2.8" step="0.01" value="1" />
+                            <span id="zoomValue">100%</span>
+                        </div>
+                        <button class="mini-btn" id="zoomIn">+</button>
+                        <button class="mini-btn" id="zoomOut">−</button>
+                        <button class="mini-btn" id="resetView">Reset</button>
+                    </div>
+
+                    <div class="right">
+                        <div class="toggle-row">
+                            <button class="chip-toggle active" data-toggle="labels">Метки</button>
+                            <button class="chip-toggle active" data-toggle="helpers">Вспомог.</button>
+                            <button class="chip-toggle active" data-toggle="circle">Окружн.</button>
+                        </div>
+                        <div class="viz-status" id="vizStatus">Активный шаг: что дано</div>
+                    </div>
+                </div>
+
+                <details class="compact">
+                    <summary>Легенда и пояснения</summary>
+                    <div class="legend-grid">
+                        <div class="legend-item"><span class="swatch base"></span><span>Основной контур трапеции и ключевые стороны</span></div>
+                        <div class="legend-item"><span class="swatch circle"></span><span>Вписанная окружность и радиус</span></div>
+                        <div class="legend-item"><span class="swatch helper"></span><span>Высота, полуразность оснований, служебные линии</span></div>
+                        <div class="legend-item"><span class="swatch focus"></span><span>Текущий акцент выбранного шага</span></div>
+                    </div>
+                </details>
+            </div>
+        </aside>
+    </section>
+
+    <section class="lower-grid">
+        <section class="compact-block" id="practice" aria-label="Генератор похожих задач">
+            <div class="compact-head">
+                <strong>Генератор похожих задач</strong>
+                <div class="right">
+                    <span class="small-note">Компактный режим, без лишнего конструктора</span>
+                </div>
+            </div>
+            <div class="compact-body">
+                <div class="generator-row">
+                    <select id="generatorType" class="select" aria-label="Тип задачи">
+                        <option value="line">Найти среднюю линию</option>
+                        <option value="radius">Найти радиус</option>
+                    </select>
+                    <button class="mini-btn" id="generateBtn">Новая задача</button>
+                    <div class="small-note">Сцена обновляется автоматически под текущий тип.</div>
+                    <button class="mini-btn" id="applyToSceneBtn">Показать на сцене</button>
+                </div>
+
+                <div class="task-sheet">
+                    <strong>Условие</strong>
+                    <div class="task-main" id="generatedTaskText">
+                        Площадь равнобедренной трапеции, описанной около окружности, равна 18, а острый угол при основании равен 30°. Найдите среднюю линию.
+                    </div>
+                </div>
+
+                <div class="answer-box">
+                    <strong>Ответ</strong>
+                    <div id="generatedAnswer">ℓ = 6</div>
+                    <div class="small-note" id="generatedIdea">Идея: ℓ = √(S / sin α). При α = 30° имеем sin α = 1/2, значит ℓ = √(18 / 1/2) = 6.</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="compact-block" id="quiz" aria-label="Мини-квиз">
+            <div class="compact-head">
+                <strong>Мини-квиз</strong>
+                <div class="right">
+                    <span class="small-note">4 коротких вопроса с мгновенной проверкой</span>
+                </div>
+            </div>
+            <div class="compact-body">
+                <div class="question-block" id="quizRoot"></div>
+                <div class="quiz-actions">
+                    <button class="mini-btn" id="resetQuiz">Сбросить квиз</button>
+                </div>
+            </div>
+        </section>
+    </section>
+
+    <section class="compact-block" id="memo" aria-label="Памятка">
+        <div class="compact-head">
+            <strong>Печатная памятка</strong>
+            <div class="right">
+                <button class="mini-btn" onclick="window.print()">Печать</button>
+            </div>
+        </div>
+        <div class="compact-body">
+            <div class="print-memo">
+                <strong>Короткий конспект</strong>
+                <ul class="mini-list">
+                    <li>Средняя линия трапеции: ℓ = (AD + BC) / 2.</li>
+                    <li>Площадь: S = ℓ·h.</li>
+                    <li>В описанной равнобедренной трапеции: AD + BC = AB + CD = 2AB, значит AB = ℓ.</li>
+                    <li>Высота: h = AB·sin α = ℓ·sin α.</li>
+                    <li>Отсюда: S = ℓ²·sin α, значит ℓ = √(S / sin α).</li>
+                    <li>Если точка касания делит боковую сторону на a и b, то r = √(a·b).</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <small>Локальный автономный учебный файл • без библиотек • без интернета</small>
+        <div class="tagline">МАТЕМАТИКА. НАГЛЯДНО</div>
+    </footer>
+</div>
+
+<div class="hint-layer" id="hintLayer" aria-hidden="false">
+    <div class="hint" id="hintStep" role="tooltip" aria-live="polite" aria-label="Подсказка по шагам">
+        <div class="hint-head">
+            <strong>Подсказка</strong>
+            <button class="hint-close" data-close-hint="hintStep" aria-label="Закрыть">×</button>
+        </div>
+        <p>Используйте кнопки «Назад / Далее», чтобы держать на экране только один смысловой шаг.</p>
+    </div>
+
+    <div class="hint" id="hintScene" role="tooltip" aria-live="polite" aria-label="Подсказка по сцене">
+        <div class="hint-head">
+            <strong>Сцена</strong>
+            <button class="hint-close" data-close-hint="hintScene" aria-label="Закрыть">×</button>
+        </div>
+        <p>Сцену можно двигать мышью, а колёсиком — масштабировать. Клик по рисунку открывает большой режим.</p>
+    </div>
+
+    <div class="hint" id="hintTabs" role="tooltip" aria-live="polite" aria-label="Подсказка по вкладкам">
+        <div class="hint-head">
+            <strong>Вкладки</strong>
+            <button class="hint-close" data-close-hint="hintTabs" aria-label="Закрыть">×</button>
+        </div>
+        <p>Лишние блоки не висят сразу на странице: переключайтесь между «Разбором», «Ошибками», «Самопроверкой» и «Итогом».</p>
+    </div>
+</div>
+
+<div class="modal" id="sceneModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-head">
+            <strong id="modalTitle">Увеличенная визуализация</strong>
+            <button class="modal-close" id="closeModal" aria-label="Закрыть модальное окно">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-stage" id="modalStage" tabindex="0" aria-label="Большая интерактивная сцена">
+                <svg class="scene" id="sceneSvgModal" viewBox="0 0 1200 820" aria-hidden="true"></svg>
+            </div>
+            <div class="modal-controls">
+                <div class="left" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                    <div class="zoom-range">
+                        <label for="zoomRangeModal">Zoom</label>
+                        <input id="zoomRangeModal" type="range" min="0.75" max="2.8" step="0.01" value="1" />
+                        <span id="zoomValueModal">100%</span>
+                    </div>
+                    <button class="mini-btn" id="zoomInModal">+</button>
+                    <button class="mini-btn" id="zoomOutModal">−</button>
+                    <button class="mini-btn" id="resetViewModal">Reset</button>
+                </div>
+                <div class="small-note">То же состояние, что и в основном окне. Всё синхронизировано.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        "use strict";
+
+        const SETTINGS = {
+            "ТЕМА": "Равнобедренная трапеция, описанная около окружности",
+            "УРОВЕНЬ": "ЕГЭ / профиль",
+            "ЦЕЛЬ": "Понять формулу ℓ = √(S / sin α) и формулу r = √(a·b)",
+            "ФОРМАТ ОБЪЯСНЕНИЯ": "подробный",
+            "ТИП ВИЗУАЛИЗАЦИИ": "геометрия",
+            "ИНТЕРАКТИВНОСТЬ": "высокая",
+            "НУЖЕН ЛИ ГЕНЕРАТОР ПОХОЖИХ ЗАДАЧ": "да",
+            "НУЖЕН ЛИ МИНИ-КВИЗ": "да",
+            "НУЖНА ЛИ ВЕРСИЯ ДЛЯ ПЕЧАТИ": "да",
+            "ТЕМА ИНТЕРФЕЙСА ПО УМОЛЧАНИЮ": "auto",
+            "ОГРАНИЧЕНИЯ": "Без внешних библиотек, без raw LaTeX, без шума на экране"
+        };
+
+        const steps = [
+            {
+                id: "given",
+                title: "Что дано",
+                short: "Дано S и α. Нужно найти среднюю линию ℓ.",
+                highlights: ["bases", "angle", "circle"],
+                blocks: {
+                    short: `
+              <p>Рассматриваем <span class="linked-text" data-bind="bases">равнобедренную трапецию</span>, описанную около
+              <span class="linked-text" data-bind="circle">окружности</span>. Известны площадь <strong>S</strong> и острый угол при основании <strong>α</strong>.</p>
+              <div class="step-card">
+                <strong>Что ищем</strong>
+                <div>Нужно найти <span class="linked-text" data-bind="midline">среднюю линию ℓ</span>.</div>
+              </div>
+            `,
+                    medium: `
+              <p>Известно: трапеция равнобедренная, около неё можно вписать окружность, её площадь равна <strong>S</strong>, острый угол при основании равен <strong>α</strong>.</p>
+              <div class="info-strip">
+                <div class="info-pill linked-text" data-bind="bases">Основания: AD и BC</div>
+                <div class="info-pill linked-text" data-bind="leg">Боковые стороны: AB = CD</div>
+                <div class="info-pill linked-text" data-bind="angle">Острый угол: α</div>
+              </div>
+              <div class="step-card">
+                <strong>Цель</strong>
+                <div>Найти среднюю линию: ℓ = (AD + BC) / 2.</div>
+              </div>
+            `,
+                    long: `
+              <p>Сразу фиксируем структуру задачи: это не просто трапеция, а <span class="linked-text" data-bind="leg">равнобедренная</span>
+              трапеция, и при этом она <span class="linked-text" data-bind="circle">описана около окружности</span>. Значит, у нас одновременно работают свойства трапеции и свойства описанного четырёхугольника.</p>
+              <ul class="mini-list">
+                <li>Площадь обозначим через <strong>S</strong>.</li>
+                <li>Острый угол при основании — через <strong>α</strong>.</li>
+                <li>Средняя линия — через <strong>ℓ</strong>, где ℓ = (AD + BC) / 2.</li>
+              </ul>
+              <div class="step-card">
+                <strong>Главный вопрос шага</strong>
+                <div>Как связать <strong>S</strong> и <strong>α</strong> с величиной <strong>ℓ</strong> без длинного вычисления всех сторон?</div>
+              </div>
+            `
+                }
+            },
+            {
+                id: "find",
+                title: "Что нужно найти",
+                short: "Нужно выразить ℓ через S и α.",
+                highlights: ["midline", "formula"],
+                blocks: {
+                    short: `
+              <p>Цель — получить формулу вида <span class="linked-text" data-bind="formula">ℓ = ...</span>.</p>
+              <div class="step-card">
+                <strong>Почему это удобно</strong>
+                <div>Средняя линия сразу входит в формулу площади: S = ℓ·h.</div>
+              </div>
+            `,
+                    medium: `
+              <p>Мы не ищем все стороны по отдельности. Нам нужна только <span class="linked-text" data-bind="midline">средняя линия ℓ</span>.</p>
+              <div class="step-card">
+                <strong>Удобная опора</strong>
+                <div>Площадь трапеции равна произведению средней линии на высоту: <strong>S = ℓ·h</strong>.</div>
+              </div>
+              <p>Значит, если удастся выразить <strong>h</strong> через <strong>ℓ</strong> и <strong>α</strong>, задача почти решена.</p>
+            `,
+                    long: `
+              <p>Искомая величина — <span class="linked-text" data-bind="midline">средняя линия ℓ</span>. Это правильный выбор фокуса, потому что:</p>
+              <ol class="mini-list">
+                <li>она напрямую участвует в площади;</li>
+                <li>её можно связать с боковой стороной через свойство описанного четырёхугольника;</li>
+                <li>после этого высота выражается через угол α.</li>
+              </ol>
+              <div class="step-card">
+                <strong>Опорная формула</strong>
+                <div class="linked-text" data-bind="formula">S = ℓ·h</div>
+              </div>
+            `
+                }
+            },
+            {
+                id: "sense",
+                title: "Смысл условий",
+                short: "Описанность и равнобедренность — это главный механизм решения.",
+                highlights: ["sum", "leg", "midline"],
+                blocks: {
+                    short: `
+              <p>Ключевой смысл условия «описана около окружности» — можно применить равенство сумм противоположных сторон.</p>
+              <div class="step-card">
+                <strong>Факт</strong>
+                <div class="linked-text" data-bind="sum">AD + BC = AB + CD</div>
+              </div>
+            `,
+                    medium: `
+              <p>Условие «описана около окружности» даёт свойство описанного четырёхугольника:</p>
+              <div class="step-card">
+                <strong>Формула</strong>
+                <div class="linked-text" data-bind="sum">AD + BC = AB + CD</div>
+              </div>
+              <p>Условие «равнобедренная» даёт <span class="linked-text" data-bind="leg">AB = CD</span>, поэтому:</p>
+              <div class="step-card">
+                <strong>Следствие</strong>
+                <div>AD + BC = 2AB</div>
+              </div>
+            `,
+                    long: `
+              <p>Смысл задачи не в длинных вычислениях, а в правильном чтении условий.</p>
+              <ul class="mini-list">
+                <li><strong>Описана около окружности</strong> ⟶ суммы противоположных сторон равны.</li>
+                <li><strong>Равнобедренная</strong> ⟶ боковые стороны равны: AB = CD.</li>
+              </ul>
+              <div class="step-card">
+                <strong>Ключевой переход</strong>
+                <div class="linked-text" data-bind="sum">AD + BC = AB + CD = 2AB</div>
+              </div>
+              <p>А значит, половина суммы оснований равна боковой стороне.</p>
+            `
+                }
+            },
+            {
+                id: "interpret",
+                title: "Интерпретация задачи",
+                short: "Средняя линия совпадает с боковой стороной.",
+                highlights: ["midline", "leg", "sum"],
+                blocks: {
+                    short: `
+              <p>Так как ℓ = (AD + BC)/2 и AD + BC = 2AB, получаем:</p>
+              <div class="step-card">
+                <strong>Промежуточный вывод</strong>
+                <div class="linked-text" data-bind="midline">ℓ = AB</div>
+              </div>
+            `,
+                    medium: `
+              <p>Средняя линия трапеции равна полусумме оснований:</p>
+              <div class="step-card">
+                <strong>Определение</strong>
+                <div class="linked-text" data-bind="midline">ℓ = (AD + BC) / 2</div>
+              </div>
+              <p>Но из предыдущего шага знаем, что AD + BC = 2AB.</p>
+              <div class="step-card">
+                <strong>Следствие</strong>
+                <div>ℓ = AB</div>
+              </div>
+            `,
+                    long: `
+              <p>Теперь задача резко упрощается: вместо абстрактной средней линии мы фактически получили длину боковой стороны.</p>
+              <div class="step-card">
+                <strong>Цепочка</strong>
+                <div>ℓ = (AD + BC) / 2 = (2AB) / 2 = AB</div>
+              </div>
+              <p>То есть <span class="linked-text" data-bind="leg">боковая сторона AB</span> и <span class="linked-text" data-bind="midline">средняя линия ℓ</span> —
+              одна и та же числовая величина. Дальше остаётся перейти к высоте через угол α.</p>
+            `
+                }
+            },
+            {
+                id: "idea",
+                title: "Ключевая идея решения",
+                short: "Высоту надо взять как катет в прямоугольном треугольнике.",
+                highlights: ["height", "angle", "leg"],
+                blocks: {
+                    short: `
+              <p>Если опустить высоту, получится прямоугольный треугольник. В нём высота — противолежащий катет к углу α.</p>
+              <div class="step-card">
+                <strong>Формула</strong>
+                <div class="linked-text" data-bind="height">h = AB·sin α</div>
+              </div>
+            `,
+                    medium: `
+              <p>Опускаем высоту из верхней вершины на большее основание. Возникает прямоугольный треугольник с гипотенузой <strong>AB</strong>.</p>
+              <div class="step-card">
+                <strong>Тригонометрия</strong>
+                <div class="linked-text" data-bind="height">sin α = h / AB</div>
+              </div>
+              <p>Следовательно, <span class="linked-text" data-bind="height">h = AB·sin α</span>.</p>
+            `,
+                    long: `
+              <p>С этого места задача становится почти стандартной. Нужно увидеть не всю трапецию сразу, а один прямоугольный треугольник, полученный после проведения высоты.</p>
+              <ul class="mini-list">
+                <li>угол при основании равен <span class="linked-text" data-bind="angle">α</span>;</li>
+                <li>гипотенуза этого треугольника — <span class="linked-text" data-bind="leg">AB</span>;</li>
+                <li>высота трапеции — противолежащий катет <span class="linked-text" data-bind="height">h</span>.</li>
+              </ul>
+              <div class="step-card">
+                <strong>Тригонометрический мост</strong>
+                <div>sin α = h / AB ⟶ h = AB·sin α</div>
+              </div>
+            `
+                }
+            },
+            {
+                id: "solution",
+                title: "Пошаговое решение",
+                short: "Подставляем AB = ℓ в высоту и затем — в площадь.",
+                highlights: ["formula", "height", "midline"],
+                blocks: {
+                    short: `
+              <p>Так как AB = ℓ, то:</p>
+              <div class="step-card">
+                <strong>Высота</strong>
+                <div class="linked-text" data-bind="height">h = ℓ·sin α</div>
+              </div>
+              <p>Теперь подставляем это в площадь.</p>
+            `,
+                    medium: `
+              <p>Из предыдущих шагов:</p>
+              <ul class="mini-list">
+                <li>AB = ℓ;</li>
+                <li>h = AB·sin α.</li>
+              </ul>
+              <div class="step-card">
+                <strong>Подстановка</strong>
+                <div class="linked-text" data-bind="height">h = ℓ·sin α</div>
+              </div>
+              <div class="step-card">
+                <strong>Площадь</strong>
+                <div class="linked-text" data-bind="formula">S = ℓ·h = ℓ·(ℓ·sin α) = ℓ²·sin α</div>
+              </div>
+            `,
+                    long: `
+              <p>Теперь собираем решение в одну аккуратную цепочку.</p>
+              <ol class="mini-list">
+                <li>ℓ = (AD + BC)/2.</li>
+                <li>AD + BC = AB + CD.</li>
+                <li>AB = CD.</li>
+                <li>Значит, AD + BC = 2AB, следовательно ℓ = AB.</li>
+                <li>Из прямоугольного треугольника: h = AB·sin α = ℓ·sin α.</li>
+                <li>Площадь трапеции: S = ℓ·h = ℓ²·sin α.</li>
+              </ol>
+              <div class="step-card">
+                <strong>Ключевая формула перед ответом</strong>
+                <div class="linked-text" data-bind="formula">S = ℓ²·sin α</div>
+              </div>
+            `
+                }
+            },
+            {
+                id: "check",
+                title: "Проверка",
+                short: "Отсюда ℓ = √(S / sin α). Проверяем смысл.",
+                highlights: ["formula", "angle", "midline"],
+                blocks: {
+                    short: `
+              <p>Из S = ℓ²·sin α получаем:</p>
+              <div class="step-card">
+                <strong>Ответ</strong>
+                <div class="linked-text" data-bind="formula">ℓ = √(S / sin α)</div>
+              </div>
+            `,
+                    medium: `
+              <p>Решаем уравнение S = ℓ²·sin α относительно ℓ:</p>
+              <div class="step-card">
+                <strong>Переход</strong>
+                <div>ℓ² = S / sin α</div>
+              </div>
+              <div class="step-card">
+                <strong>Ответ</strong>
+                <div class="linked-text" data-bind="formula">ℓ = √(S / sin α)</div>
+              </div>
+            `,
+                    long: `
+              <p>Проверяем, что формула логична.</p>
+              <ul class="mini-list">
+                <li>Если площадь больше, средняя линия должна увеличиваться — это выполняется.</li>
+                <li>Если угол α меньше, синус меньше, значит для той же площади средняя линия должна стать больше — тоже логично.</li>
+                <li>При α в пределах от 0° до 90° величина sin α положительна, значит подкоренное выражение корректно.</li>
+              </ul>
+              <div class="step-card">
+                <strong>Итоговый ответ</strong>
+                <div class="linked-text" data-bind="formula">ℓ = √(S / sin α)</div>
+              </div>
+            `
+                }
+            },
+            {
+                id: "conclusion",
+                title: "Вывод",
+                short: "Смысл решения — увидеть структуру, а не считать вслепую.",
+                highlights: ["sum", "height", "formula"],
+                blocks: {
+                    short: `
+              <p>Сильная мысль задачи: описанность переводит задачу к средней линии, а угол — к высоте.</p>
+              <div class="step-card">
+                <strong>Takeaway</strong>
+                <div>Сначала структура, потом вычисление.</div>
+              </div>
+            `,
+                    medium: `
+              <p>В этой теме нельзя ограничиваться одной формулой площади. Важно увидеть две связки:</p>
+              <ul class="mini-list">
+                <li>описанный четырёхугольник ⟶ AB = ℓ;</li>
+                <li>прямоугольный треугольник ⟶ h = ℓ·sin α.</li>
+              </ul>
+              <div class="step-card">
+                <strong>Итог</strong>
+                <div>Отсюда автоматически получается ℓ = √(S / sin α).</div>
+              </div>
+            `,
+                    long: `
+              <p>Это типичная задача, где побеждает не вычислительная сила, а правильная организация мысли.</p>
+              <div class="step-card">
+                <strong>Схема идеи</strong>
+                <div>Описанная трапеция ⟶ равенство сумм сторон ⟶ AB = ℓ ⟶ h = ℓ·sin α ⟶ S = ℓ²·sin α ⟶ ℓ = √(S / sin α)</div>
+              </div>
+              <p>Отдельно держите в уме родственную формулу для касательной: <strong>r = √(a·b)</strong>. Она строится на прямоугольном треугольнике и высоте к гипотенузе.</p>
+            `
+                }
+            }
+        ];
+
+        const quizData = [
+            {
+                q: "Что равно средней линии трапеции?",
+                options: [
+                    "AD + BC",
+                    "(AD + BC) / 2",
+                    "(AB + CD) / 2"
+                ],
+                correct: 1,
+                explain: "Средняя линия трапеции — это полусумма оснований."
+            },
+            {
+                q: "Какое свойство верно для описанного четырёхугольника?",
+                options: [
+                    "Диагонали равны",
+                    "Суммы противоположных сторон равны",
+                    "Все углы равны"
+                ],
+                correct: 1,
+                explain: "Именно равенство сумм противоположных сторон нужно в этой теме."
+            },
+            {
+                q: "Если в нашей задаче AB = ℓ, то чему равна высота?",
+                options: [
+                    "h = ℓ·cos α",
+                    "h = ℓ·sin α",
+                    "h = ℓ / sin α"
+                ],
+                correct: 1,
+                explain: "Высота — противолежащий катет к углу α."
+            },
+            {
+                q: "Если точка касания делит боковую сторону на a и b, чему равен радиус?",
+                options: [
+                    "a + b",
+                    "√(a·b)",
+                    "(a + b) / 2"
+                ],
+                correct: 1,
+                explain: "Это свойство высоты к гипотенузе в прямоугольном треугольнике."
+            }
+        ];
+
+        const state = {
+            theme: "light",
+            detailLevel: "medium",
+            showAllSteps: false,
+            activeStep: 0,
+            hoverKey: null,
+            activeTab: "analysis",
+            toggles: {
+                labels: true,
+                helpers: true,
+                circle: true
+            },
+            sceneMode: "line",
+            geometry: {
+                l: 6,
+                alphaDeg: 30,
+                splitA: 1,
+                splitB: 4
+            },
+            viewport: {
+                scale: 1,
+                panX: 0,
+                panY: 0,
+                minScale: 0.75,
+                maxScale: 2.8
+            },
+            orientation: {
+                rotation: 0
+            },
+            modal: {
+                open: false
+            }
+        };
+
+        const els = {
+            html: document.documentElement,
+            themeToggle: document.getElementById("themeToggle"),
+            configGrid: document.getElementById("configGrid"),
+            accordion: document.getElementById("accordion"),
+            stepCounter: document.getElementById("stepCounter"),
+            prevStep: document.getElementById("prevStep"),
+            nextStep: document.getElementById("nextStep"),
+            showFocused: document.getElementById("showFocused"),
+            showAll: document.getElementById("showAll"),
+            detailToggle: document.getElementById("detailToggle"),
+            tabButtons: Array.from(document.querySelectorAll(".tab-btn")),
+            tabPanels: Array.from(document.querySelectorAll(".tab-panel")),
+            vizStatus: document.getElementById("vizStatus"),
+            sceneSvg: document.getElementById("sceneSvg"),
+            sceneSvgModal: document.getElementById("sceneSvgModal"),
+            visualWrap: document.getElementById("visualWrap"),
+            modalStage: document.getElementById("modalStage"),
+            zoomRange: document.getElementById("zoomRange"),
+            zoomValue: document.getElementById("zoomValue"),
+            zoomIn: document.getElementById("zoomIn"),
+            zoomOut: document.getElementById("zoomOut"),
+            resetView: document.getElementById("resetView"),
+            zoomRangeModal: document.getElementById("zoomRangeModal"),
+            zoomValueModal: document.getElementById("zoomValueModal"),
+            zoomInModal: document.getElementById("zoomInModal"),
+            zoomOutModal: document.getElementById("zoomOutModal"),
+            resetViewModal: document.getElementById("resetViewModal"),
+            openModal: document.getElementById("openModal"),
+            sceneModal: document.getElementById("sceneModal"),
+            closeModal: document.getElementById("closeModal"),
+            navBtns: Array.from(document.querySelectorAll(".nav-btn")),
+            toggleBtns: Array.from(document.querySelectorAll(".chip-toggle")),
+            hintLayer: document.getElementById("hintLayer"),
+            hints: {
+                hintStep: document.getElementById("hintStep"),
+                hintScene: document.getElementById("hintScene"),
+                hintTabs: document.getElementById("hintTabs")
+            },
+            generatorType: document.getElementById("generatorType"),
+            generateBtn: document.getElementById("generateBtn"),
+            applyToSceneBtn: document.getElementById("applyToSceneBtn"),
+            generatedTaskText: document.getElementById("generatedTaskText"),
+            generatedAnswer: document.getElementById("generatedAnswer"),
+            generatedIdea: document.getElementById("generatedIdea"),
+            quizRoot: document.getElementById("quizRoot"),
+            resetQuiz: document.getElementById("resetQuiz")
+        };
+
+        const storageKeys = {
+            theme: "nm-clean-theme",
+            hints: "nm-clean-hints-dismissed"
+        };
+
+        let generatedTask = {
+            type: "line",
+            l: 6,
+            alphaDeg: 30,
+            S: 18,
+            splitA: 1,
+            splitB: 4
+        };
+
+        function init() {
+            buildConfig();
+            initTheme();
+            buildAccordion();
+            buildQuiz();
+            bindUI();
+            renderAll();
+            scheduleHints();
+        }
+
+        function buildConfig() {
+            const html = Object.entries(SETTINGS)
+                .map(([key, value]) => `<div><strong>${escapeHtml(key)}</strong><br>${escapeHtml(value)}</div>`)
+                .join("");
+            els.configGrid.innerHTML = html;
+        }
+
+        function initTheme() {
+            const saved = localStorage.getItem(storageKeys.theme);
+            let theme = saved || SETTINGS["ТЕМА ИНТЕРФЕЙСА ПО УМОЛЧАНИЮ"];
+            if (theme === "auto") {
+                theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+            }
+            setTheme(theme === "dark" ? "dark" : "light");
+        }
+
+        function setTheme(theme) {
+            state.theme = theme;
+            els.html.setAttribute("data-theme", theme);
+            els.themeToggle.textContent = theme === "dark" ? "DARK / LIGHT" : "LIGHT / DARK";
+            localStorage.setItem(storageKeys.theme, theme);
+            renderScene(els.sceneSvg, false);
+            renderScene(els.sceneSvgModal, true);
+        }
+
+        function buildAccordion() {
+            els.accordion.innerHTML = steps.map((step, index) => {
+                const open = state.showAllSteps || index === state.activeStep;
+                const activeClass = index === state.activeStep ? "active" : "";
+                const openClass = open ? "open" : "";
+                return `
+            <div class="acc-item ${activeClass} ${openClass}" data-step-index="${index}">
+              <button class="acc-head" aria-expanded="${open ? "true" : "false"}" data-acc-button="${index}">
+                <span class="num">${index + 1}</span>
+                <span>${escapeHtml(step.title)}</span>
+                <span class="arrow">${open ? "−" : "+"}</span>
+              </button>
+              <div class="acc-panel">${getStepHtml(step)}</div>
+            </div>
+          `;
+            }).join("");
+
+            Array.from(els.accordion.querySelectorAll(".acc-head")).forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const index = Number(btn.getAttribute("data-acc-button"));
+                    state.activeStep = index;
+                    if (!state.showAllSteps) {
+                        renderAccordion();
+                    } else {
+                        renderAccordion();
+                    }
+                    updateStatus();
+                    renderScene(els.sceneSvg, false);
+                    renderScene(els.sceneSvgModal, true);
+                });
+
+                btn.addEventListener("mouseenter", () => {
+                    const index = Number(btn.getAttribute("data-acc-button"));
+                    state.hoverKey = steps[index].highlights[0] || null;
+                    renderScene(els.sceneSvg, false);
+                    renderScene(els.sceneSvgModal, true);
+                });
+
+                btn.addEventListener("mouseleave", () => {
+                    state.hoverKey = null;
+                    renderScene(els.sceneSvg, false);
+                    renderScene(els.sceneSvgModal, true);
+                });
+            });
+
+            bindLinkedText();
+            updateStatus();
+        }
+
+        function renderAccordion() {
+            buildAccordion();
+            updateStepCounter();
+        }
+
+        function getStepHtml(step) {
+            const level = state.detailLevel;
+            return step.blocks[level];
+        }
+
+        function updateStepCounter() {
+            els.stepCounter.textContent = `Шаг ${state.activeStep + 1} из ${steps.length}`;
+        }
+
+        function bindLinkedText() {
+            Array.from(document.querySelectorAll("[data-bind]")).forEach(node => {
+                node.addEventListener("mouseenter", () => {
+                    state.hoverKey = node.getAttribute("data-bind");
+                    highlightBoundText(state.hoverKey);
+                    renderScene(els.sceneSvg, false);
+                    renderScene(els.sceneSvgModal, true);
+                });
+                node.addEventListener("mouseleave", () => {
+                    state.hoverKey = null;
+                    highlightBoundText(null);
+                    renderScene(els.sceneSvg, false);
+                    renderScene(els.sceneSvgModal, true);
+                });
+            });
+        }
+
+        function highlightBoundText(key) {
+            Array.from(document.querySelectorAll("[data-bind]")).forEach(node => {
+                const on = key && node.getAttribute("data-bind") === key;
+                node.classList.toggle("highlighted", !!on);
+            });
+        }
+
+        function updateStatus() {
+            updateStepCounter();
+            const step = steps[state.activeStep];
+            els.vizStatus.textContent = `Активный шаг: ${step.title.toLowerCase()}`;
+        }
+
+        function bindUI() {
+            els.themeToggle.addEventListener("click", () => setTheme(state.theme === "light" ? "dark" : "light"));
+
+            els.prevStep.addEventListener("click", () => {
+                state.activeStep = Math.max(0, state.activeStep - 1);
+                renderAccordion();
+                renderAllScenes();
+            });
+
+            els.nextStep.addEventListener("click", () => {
+                state.activeStep = Math.min(steps.length - 1, state.activeStep + 1);
+                renderAccordion();
+                renderAllScenes();
+            });
+
+            els.showFocused.addEventListener("click", () => {
+                state.showAllSteps = false;
+                els.showFocused.classList.add("active");
+                els.showAll.classList.remove("active");
+                renderAccordion();
+            });
+
+            els.showAll.addEventListener("click", () => {
+                state.showAllSteps = true;
+                els.showAll.classList.add("active");
+                els.showFocused.classList.remove("active");
+                renderAccordion();
+            });
+
+            els.detailToggle.addEventListener("click", () => {
+                const order = ["short", "medium", "long"];
+                const labels = { short: "краткая", medium: "средняя", long: "подробная" };
+                const currentIndex = order.indexOf(state.detailLevel);
+                state.detailLevel = order[(currentIndex + 1) % order.length];
+                els.detailToggle.textContent = `Подробность: ${labels[state.detailLevel]}`;
+                renderAccordion();
+            });
+
+            els.tabButtons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const tab = btn.getAttribute("data-tab");
+                    state.activeTab = tab;
+                    els.tabButtons.forEach(b => {
+                        const active = b === btn;
+                        b.classList.toggle("active", active);
+                        b.setAttribute("aria-selected", active ? "true" : "false");
+                    });
+                    els.tabPanels.forEach(panel => {
+                        panel.classList.toggle("hidden", panel.getAttribute("data-panel") !== tab);
+                    });
+                });
+            });
+
+            els.zoomRange.addEventListener("input", e => {
+                state.viewport.scale = Number(e.target.value);
+                syncZoomUi();
+                renderAllScenes();
+            });
+
+            els.zoomRangeModal.addEventListener("input", e => {
+                state.viewport.scale = Number(e.target.value);
+                syncZoomUi();
+                renderAllScenes();
+            });
+
+            els.zoomIn.addEventListener("click", () => zoomBy(1.12));
+            els.zoomOut.addEventListener("click", () => zoomBy(1 / 1.12));
+            els.resetView.addEventListener("click", resetView);
+            els.zoomInModal.addEventListener("click", () => zoomBy(1.12));
+            els.zoomOutModal.addEventListener("click", () => zoomBy(1 / 1.12));
+            els.resetViewModal.addEventListener("click", resetView);
+
+            els.toggleBtns.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const key = btn.getAttribute("data-toggle");
+                    state.toggles[key] = !state.toggles[key];
+                    btn.classList.toggle("active", state.toggles[key]);
+                    renderAllScenes();
+                });
+            });
+
+            els.openModal.addEventListener("click", openModal);
+            els.closeModal.addEventListener("click", closeModal);
+            els.sceneModal.addEventListener("click", e => {
+                if (e.target === els.sceneModal) closeModal();
+            });
+
+            document.addEventListener("keydown", e => {
+                if (e.key === "Escape") {
+                    closeModal();
+                    closeAllHints();
+                }
+                if (state.activeTab === "analysis" && !state.modal.open) {
+                    if (e.key === "ArrowRight") {
+                        state.activeStep = Math.min(steps.length - 1, state.activeStep + 1);
+                        renderAccordion();
+                        renderAllScenes();
+                    } else if (e.key === "ArrowLeft") {
+                        state.activeStep = Math.max(0, state.activeStep - 1);
+                        renderAccordion();
+                        renderAllScenes();
+                    }
+                }
+            });
+
+            els.navBtns.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const target = document.querySelector(btn.getAttribute("data-scroll"));
+                    if (target) {
+                        target.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                    els.navBtns.forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                });
+            });
+
+            document.querySelectorAll("[data-close-hint]").forEach(btn => {
+                btn.addEventListener("click", () => closeHint(btn.getAttribute("data-close-hint")));
+            });
+
+            setupPointerNavigation(els.visualWrap, false);
+            setupPointerNavigation(els.modalStage, true);
+
+            els.generatorType.addEventListener("change", () => {
+                generateTask(false);
+            });
+            els.generateBtn.addEventListener("click", () => generateTask(true));
+            els.applyToSceneBtn.addEventListener("click", applyGeneratedTaskToScene);
+
+            els.resetQuiz.addEventListener("click", buildQuiz);
+
+            generateTask(false);
+        }
+
+        function syncZoomUi() {
+            const pct = Math.round(state.viewport.scale * 100);
+            els.zoomRange.value = String(state.viewport.scale);
+            els.zoomRangeModal.value = String(state.viewport.scale);
+            els.zoomValue.textContent = `${pct}%`;
+            els.zoomValueModal.textContent = `${pct}%`;
+        }
+
+        function zoomBy(multiplier, center) {
+            const old = state.viewport.scale;
+            state.viewport.scale = clamp(old * multiplier, state.viewport.minScale, state.viewport.maxScale);
+            if (center) {
+                const ratio = state.viewport.scale / old;
+                state.viewport.panX = center.x - (center.x - state.viewport.panX) * ratio;
+                state.viewport.panY = center.y - (center.y - state.viewport.panY) * ratio;
+                clampPan();
+            }
+            syncZoomUi();
+            renderAllScenes();
+        }
+
+        function resetView() {
+            state.viewport.scale = 1;
+            state.viewport.panX = 0;
+            state.viewport.panY = 0;
+            state.orientation.rotation = 0;
+            syncZoomUi();
+            renderAllScenes();
+        }
+
+        function openModal() {
+            state.modal.open = true;
+            els.sceneModal.classList.add("open");
+            els.sceneModal.setAttribute("aria-hidden", "false");
+            renderScene(els.sceneSvgModal, true);
+        }
+
+        function closeModal() {
+            state.modal.open = false;
+            els.sceneModal.classList.remove("open");
+            els.sceneModal.setAttribute("aria-hidden", "true");
+        }
+
+        function scheduleHints() {
+            const dismissed = getDismissedHints();
+            const showHint = (id, anchorRect, dx, dy) => {
+                if (dismissed[id]) return;
+                const hint = els.hints[id];
+                hint.style.left = `${Math.max(12, anchorRect.left + dx)}px`;
+                hint.style.top = `${Math.max(12, anchorRect.top + dy)}px`;
+                hint.classList.add("show");
+            };
+
+            setTimeout(() => {
+                const rect = els.stepCounter.getBoundingClientRect();
+                showHint("hintStep", rect, -4, 46);
+            }, 3000);
+
+            setTimeout(() => {
+                const rect = els.visualWrap.getBoundingClientRect();
+                showHint("hintScene", rect, 16, 16);
+            }, 4500);
+
+            setTimeout(() => {
+                const rect = document.querySelector(".tabs").getBoundingClientRect();
+                showHint("hintTabs", rect, 0, 48);
+            }, 6000);
+
+            setTimeout(() => {
+                Object.keys(els.hints).forEach(id => {
+                    const hint = els.hints[id];
+                    if (hint.classList.contains("show")) {
+                        hint.classList.remove("show");
+                    }
+                });
+            }, 18000);
+        }
+
+        function getDismissedHints() {
+            try {
+                return JSON.parse(localStorage.getItem(storageKeys.hints) || "{}");
+            } catch {
+                return {};
+            }
+        }
+
+        function closeHint(id) {
+            const hint = els.hints[id];
+            if (!hint) return;
+            hint.classList.remove("show");
+            const dismissed = getDismissedHints();
+            dismissed[id] = true;
+            localStorage.setItem(storageKeys.hints, JSON.stringify(dismissed));
+        }
+
+        function closeAllHints() {
+            Object.keys(els.hints).forEach(id => els.hints[id].classList.remove("show"));
+        }
+
+        function buildQuiz() {
+            els.quizRoot.innerHTML = quizData.map((item, index) => `
+          <div class="quiz-item" data-quiz-index="${index}">
+            <h4>${index + 1}. ${escapeHtml(item.q)}</h4>
+            ${item.options.map((opt, oi) => `
+              <label>
+                <input type="radio" name="quiz-${index}" value="${oi}" />
+                ${escapeHtml(opt)}
+              </label>
+            `).join("")}
+            <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="mini-btn" data-check-quiz="${index}">Проверить</button>
+            </div>
+            <div class="quiz-feedback" id="quiz-feedback-${index}" aria-live="polite"></div>
+          </div>
+        `).join("");
+
+            els.quizRoot.querySelectorAll("[data-check-quiz]").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const index = Number(btn.getAttribute("data-check-quiz"));
+                    const checked = els.quizRoot.querySelector(`input[name="quiz-${index}"]:checked`);
+                    const feedback = document.getElementById(`quiz-feedback-${index}`);
+                    if (!checked) {
+                        feedback.textContent = "Сначала выберите вариант.";
+                        feedback.className = "quiz-feedback bad";
+                        return;
+                    }
+                    const user = Number(checked.value);
+                    const correct = quizData[index].correct;
+                    if (user === correct) {
+                        feedback.textContent = `Верно. ${quizData[index].explain}`;
+                        feedback.className = "quiz-feedback ok";
+                    } else {
+                        feedback.textContent = `Пока нет. ${quizData[index].explain}`;
+                        feedback.className = "quiz-feedback bad";
+                    }
+                });
+            });
+        }
+
+        function generateTask(randomize = true) {
+            const type = els.generatorType.value;
+            generatedTask.type = type;
+
+            if (type === "line") {
+                let l = 6, alphaDeg = 30;
+                if (randomize) {
+                    const ls = [4, 5, 6, 7, 8, 9];
+                    const angles = [30, 45, 60];
+                    l = ls[rand(ls.length)];
+                    alphaDeg = angles[rand(angles.length)];
+                }
+                const S = lineAreaFrom(l, alphaDeg);
+                generatedTask = { type, l, alphaDeg, S, splitA: 1, splitB: 4 };
+
+                els.generatedTaskText.textContent =
+                `Площадь равнобедренной трапеции, описанной около окружности, равна ${formatNumber(S)}, а острый угол при основании равен ${alphaDeg}°. Найдите среднюю линию.`;
+                els.generatedAnswer.textContent = `ℓ = ${formatNumber(l)}`;
+                els.generatedIdea.textContent =
+                `Идея: ℓ = √(S / sin α). Здесь sin ${alphaDeg}° = ${formatNumber(sinDeg(alphaDeg))}, значит ℓ = √(${formatNumber(S)} / ${formatNumber(sinDeg(alphaDeg))}) = ${formatNumber(l)}.`;
+            } else {
+                let a = 2, b = 8;
+                if (randomize) {
+                    const pairs = [[1,4],[2,8],[3,12],[4,9],[5,20],[6,24]];
+                    [a, b] = pairs[rand(pairs.length)];
+                }
+                generatedTask = { type, l: 6, alphaDeg: 30, S: 18, splitA: a, splitB: b };
+
+                els.generatedTaskText.textContent =
+                `Окружность, вписанная в трапецию, касается боковой стороны в точке, делящей её на отрезки ${a} и ${b}. Найдите радиус окружности.`;
+                els.generatedAnswer.textContent = `r = √(${a}·${b}) = ${formatNumber(Math.sqrt(a * b))}`;
+                els.generatedIdea.textContent =
+                `Идея: в соответствующем прямоугольном треугольнике радиус — это высота к гипотенузе, поэтому r² = a·b и r = √(a·b).`;
+            }
+        }
+
+        function applyGeneratedTaskToScene() {
+            if (generatedTask.type === "line") {
+                state.sceneMode = "line";
+                state.geometry.l = generatedTask.l;
+                state.geometry.alphaDeg = generatedTask.alphaDeg;
+                state.activeStep = 0;
+                if (state.activeTab !== "analysis") {
+                    activateTab("analysis");
+                }
+            } else {
+                state.sceneMode = "radius";
+                state.geometry.splitA = generatedTask.splitA;
+                state.geometry.splitB = generatedTask.splitB;
+                state.activeStep = 6;
+                if (state.activeTab !== "takeaway") {
+                    activateTab("takeaway");
+                }
+            }
+            renderAccordion();
+            renderAllScenes();
+        }
+
+        function activateTab(name) {
+            state.activeTab = name;
+            els.tabButtons.forEach(btn => {
+                const active = btn.getAttribute("data-tab") === name;
+                btn.classList.toggle("active", active);
+                btn.setAttribute("aria-selected", active ? "true" : "false");
+            });
+            els.tabPanels.forEach(panel => {
+                panel.classList.toggle("hidden", panel.getAttribute("data-panel") !== name);
+            });
+        }
+
+        function lineAreaFrom(l, alphaDeg) {
+            return round2(l * l * sinDeg(alphaDeg));
+        }
+
+        function sinDeg(deg) {
+            return Math.sin(deg * Math.PI / 180);
+        }
+
+        function cosDeg(deg) {
+            return Math.cos(deg * Math.PI / 180);
+        }
+
+        function rand(n) {
+            return Math.floor(Math.random() * n);
+        }
+
+        function round2(x) {
+            return Math.round(x * 100) / 100;
+        }
+
+        function formatNumber(x) {
+            if (Math.abs(x - Math.round(x)) < 1e-9) return String(Math.round(x));
+            const s = String(round2(x)).replace(".", ",");
+            return s;
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, ch => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+            }[ch]));
+        }
+
+        function clamp(val, min, max) {
+            return Math.max(min, Math.min(max, val));
+        }
+
+        function clampPan() {
+            const maxShift = 260 * state.viewport.scale;
+            state.viewport.panX = clamp(state.viewport.panX, -maxShift, maxShift);
+            state.viewport.panY = clamp(state.viewport.panY, -maxShift, maxShift);
+        }
+
+        function renderAll() {
+            syncZoomUi();
+            renderAccordion();
+            renderAllScenes();
+        }
+
+        function renderAllScenes() {
+            renderScene(els.sceneSvg, false);
+            renderScene(els.sceneSvgModal, true);
+        }
+
+        function renderScene(svg, isModal) {
+            if (!svg) return;
+            const vb = svg.viewBox.baseVal;
+            const width = vb && vb.width ? vb.width : (isModal ? 1200 : 900);
+            const height = vb && vb.height ? vb.height : (isModal ? 820 : 620);
+            const cx = width / 2 + state.viewport.panX * (isModal ? 1.25 : 1);
+            const cy = height / 2 + state.viewport.panY * (isModal ? 1.25 : 1);
+            const unit = (isModal ? 46 : 34) * state.viewport.scale;
+
+            const content = state.sceneMode === "line"
+            ? buildLineScene(width, height, cx, cy, unit)
+            : buildRadiusScene(width, height, cx, cy, unit);
+
+            svg.innerHTML = content;
+            bindSceneHits(svg);
+        }
+
+        function buildLineScene(width, height, cx, cy, unit) {
+            const l = state.geometry.l;
+            const alpha = state.geometry.alphaDeg;
+            const h = l * sinDeg(alpha);
+            const a = l * (1 - cosDeg(alpha));
+            const b = l * (1 + cosDeg(alpha));
+            const yTop = h / 2;
+            const yBot = -h / 2;
+            const pts = {
+                A: { x: -b / 2, y: yBot },
+                D: { x:  b / 2, y: yBot },
+                B: { x: -a / 2, y: yTop },
+                C: { x:  a / 2, y: yTop },
+                O: { x: 0, y: 0 },
+                H: { x: -a / 2, y: yBot },
+                T1: { x: 0, y: yTop },
+                T2: { x: 0, y: yBot }
+            };
+            const active = steps[state.activeStep];
+            const activeKeys = new Set([...(active.highlights || []), ...(state.hoverKey ? [state.hoverKey] : [])]);
+
+            const toX = x => cx + x * unit;
+            const toY = y => cy - y * unit;
+
+            const path = `M ${toX(pts.A.x)} ${toY(pts.A.y)} L ${toX(pts.B.x)} ${toY(pts.B.y)} L ${toX(pts.C.x)} ${toY(pts.C.y)} L ${toX(pts.D.x)} ${toY(pts.D.y)} Z`;
+            const grid = buildGrid(width, height, unit, cx, cy);
+
+            const showLabels = state.toggles.labels;
+            const showHelpers = state.toggles.helpers;
+            const showCircle = state.toggles.circle;
+
+            return `
+          ${grid}
+          <path class="scene-fill" d="${path}"></path>
+
+          <g data-key="bases">
+            <path class="scene-base scene-hit ${activeKeys.has("bases") ? "scene-highlight" : ""}" d="${path}" fill="none"></path>
+            <line class="scene-base ${activeKeys.has("bases") ? "scene-highlight" : ""}" x1="${toX(pts.A.x)}" y1="${toY(pts.A.y)}" x2="${toX(pts.D.x)}" y2="${toY(pts.D.y)}"></line>
+            <line class="scene-base ${activeKeys.has("bases") ? "scene-highlight" : ""}" x1="${toX(pts.B.x)}" y1="${toY(pts.B.y)}" x2="${toX(pts.C.x)}" y2="${toY(pts.C.y)}"></line>
+          </g>
+
+          <g data-key="leg">
+            <line class="${activeKeys.has("leg") ? "scene-highlight" : "scene-base"} scene-hit" x1="${toX(pts.A.x)}" y1="${toY(pts.A.y)}" x2="${toX(pts.B.x)}" y2="${toY(pts.B.y)}"></line>
+            <line class="${activeKeys.has("leg") ? "scene-highlight" : "scene-base"}" x1="${toX(pts.C.x)}" y1="${toY(pts.C.y)}" x2="${toX(pts.D.x)}" y2="${toY(pts.D.y)}"></line>
+          </g>
+
+          ${showCircle ? `
+          <g data-key="circle">
+            <circle class="${activeKeys.has("circle") ? "scene-highlight" : "scene-circle"} scene-hit" cx="${toX(pts.O.x)}" cy="${toY(pts.O.y)}" r="${Math.abs(h/2) * unit}"></circle>
+            <line class="${activeKeys.has("circle") ? "scene-highlight" : "scene-radius"}" x1="${toX(pts.O.x)}" y1="${toY(pts.O.y)}" x2="${toX(pts.T2.x)}" y2="${toY(pts.T2.y)}"></line>
+          </g>` : ""}
+
+          ${showHelpers ? `
+          <g data-key="height">
+            <line class="${activeKeys.has("height") ? "scene-highlight" : "scene-helper"} scene-hit" x1="${toX(pts.B.x)}" y1="${toY(pts.B.y)}" x2="${toX(pts.H.x)}" y2="${toY(pts.H.y)}"></line>
+            <rect x="${toX(pts.H.x)-12}" y="${toY(pts.H.y)-12}" width="12" height="12" fill="none" stroke="var(--scene-weak)" stroke-width="2"></rect>
+          </g>
+
+          <g data-key="angle">
+            ${arcPath(toX, toY, pts.A, 0.0, alpha, 1.1, unit, activeKeys.has("angle"))}
+          </g>
+
+          <g data-key="midline">
+            <line class="${activeKeys.has("midline") ? "scene-highlight" : "scene-helper"} scene-hit" x1="${toX(pts.A.x + (b-a)/4)}" y1="${toY((pts.A.y+pts.B.y)/2)}" x2="${toX(pts.D.x - (b-a)/4)}" y2="${toY((pts.D.y+pts.C.y)/2)}"></line>
+          </g>` : ""}
+
+          ${showLabels ? `
+          <g>
+            <circle class="scene-dot" cx="${toX(pts.A.x)}" cy="${toY(pts.A.y)}" r="4"></circle>
+            <circle class="scene-dot" cx="${toX(pts.B.x)}" cy="${toY(pts.B.y)}" r="4"></circle>
+            <circle class="scene-dot" cx="${toX(pts.C.x)}" cy="${toY(pts.C.y)}" r="4"></circle>
+            <circle class="scene-dot" cx="${toX(pts.D.x)}" cy="${toY(pts.D.y)}" r="4"></circle>
+            <circle class="scene-dot" cx="${toX(pts.O.x)}" cy="${toY(pts.O.y)}" r="4"></circle>
+            <text class="scene-label" x="${toX(pts.A.x)-16}" y="${toY(pts.A.y)+18}">A</text>
+            <text class="scene-label" x="${toX(pts.B.x)-16}" y="${toY(pts.B.y)-10}">B</text>
+            <text class="scene-label" x="${toX(pts.C.x)+8}" y="${toY(pts.C.y)-10}">C</text>
+            <text class="scene-label" x="${toX(pts.D.x)+8}" y="${toY(pts.D.y)+18}">D</text>
+            <text class="scene-label" x="${toX(pts.O.x)+8}" y="${toY(pts.O.y)-10}">O</text>
+            <text class="scene-math" x="${toX((pts.A.x+pts.D.x)/2)-10}" y="${toY(pts.A.y)+32}">AD = ${formatNumber(b)}</text>
+            <text class="scene-math" x="${toX((pts.B.x+pts.C.x)/2)-10}" y="${toY(pts.B.y)-18}">BC = ${formatNumber(a)}</text>
+            <text class="scene-math" x="${toX((pts.A.x+pts.B.x)/2)-58}" y="${toY((pts.A.y+pts.B.y)/2)}">AB = ℓ = ${formatNumber(l)}</text>
+            <text class="scene-math" x="${toX(pts.B.x)-60}" y="${toY((pts.B.y+pts.H.y)/2)}">h = ${formatNumber(h)}</text>
+            <text class="scene-math small" x="${toX(pts.A.x)+32}" y="${toY(pts.A.y)-20}">α = ${alpha}°</text>
+            <text class="scene-math" x="${toX(-0.8)}" y="${toY(0)+24}">r = h/2</text>
+          </g>` : ""}
+
+          <g data-key="sum">
+            <rect class="scene-hit" x="${width - 320}" y="24" width="280" height="128" fill="var(--panel)" stroke="var(--line)" stroke-width="2"></rect>
+            <text class="scene-math" x="${width - 302}" y="54">AD + BC = AB + CD</text>
+            <text class="scene-math" x="${width - 302}" y="84">AB = CD</text>
+            <text class="scene-math" x="${width - 302}" y="114">⇒ AD + BC = 2AB</text>
+            <text class="scene-math" x="${width - 302}" y="144">⇒ ℓ = (AD + BC)/2 = AB</text>
+          </g>
+
+          <g data-key="formula">
+            <rect class="scene-hit" x="${width - 352}" y="${height - 124}" width="312" height="86" fill="var(--panel)" stroke="var(--line)" stroke-width="2"></rect>
+            <text class="scene-math" x="${width - 332}" y="${height - 88}">S = ℓ·h = ℓ·(ℓ·sin α)</text>
+            <text class="scene-math" x="${width - 332}" y="${height - 54}">ℓ = √(S / sin α)</text>
+          </g>
+        `;
+        }
+
+        function buildRadiusScene(width, height, cx, cy, unit) {
+            const a = state.geometry.splitA;
+            const b = state.geometry.splitB;
+            const r = Math.sqrt(a * b);
+            const hyp = a + b;
+            const xJ = -2;
+            const yJ = 0;
+            const xA = xJ - a;
+            const xB = xJ + b;
+            const yO = -r;
+            const activeKeys = new Set([...(steps[state.activeStep].highlights || []), ...(state.hoverKey ? [state.hoverKey] : [])]);
+
+            const toX = x => cx + x * unit;
+            const toY = y => cy - y * unit;
+            const showLabels = state.toggles.labels;
+            const showHelpers = state.toggles.helpers;
+            const showCircle = state.toggles.circle;
+
+            return `
+          ${buildGrid(width, height, unit, cx, cy)}
+
+          <g data-key="leg">
+            <line class="${activeKeys.has("leg") ? "scene-highlight" : "scene-base"}" x1="${toX(xA)}" y1="${toY(yJ)}" x2="${toX(xB)}" y2="${toY(yJ)}"></line>
+          </g>
+
+          ${showCircle ? `
+          <g data-key="circle">
+            <circle class="${activeKeys.has("circle") ? "scene-highlight" : "scene-circle"}" cx="${toX(xJ)}" cy="${toY(yO)}" r="${r * unit}"></circle>
+          </g>` : ""}
+
+          <g data-key="formula">
+            <line class="${activeKeys.has("formula") ? "scene-highlight" : "scene-base"}" x1="${toX(xJ)}" y1="${toY(yO)}" x2="${toX(xJ)}" y2="${toY(yJ)}"></line>
+            <rect x="${width - 360}" y="${height - 138}" width="320" height="100" fill="var(--panel)" stroke="var(--line)" stroke-width="2"></rect>
+            <text class="scene-math" x="${width - 338}" y="${height - 98}">r² = a·b</text>
+            <text class="scene-math" x="${width - 338}" y="${height - 64}">r = √(${a}·${b}) = ${formatNumber(r)}</text>
+          </g>
+
+          ${showHelpers ? `
+          <g data-key="height">
+            <line class="${activeKeys.has("height") ? "scene-highlight" : "scene-helper"}" x1="${toX(xJ)}" y1="${toY(yJ)}" x2="${toX(xJ)}" y2="${toY(yO)}"></line>
+            <rect x="${toX(xJ)}" y="${toY(yJ)}" width="12" height="12" fill="none" stroke="var(--scene-weak)" stroke-width="2"></rect>
+          </g>` : ""}
+
+          ${showLabels ? `
+          <g>
+            <circle class="scene-dot" cx="${toX(xA)}" cy="${toY(yJ)}" r="4"></circle>
+            <circle class="scene-dot" cx="${toX(xJ)}" cy="${toY(yJ)}" r="4"></circle>
+            <circle class="scene-dot" cx="${toX(xB)}" cy="${toY(yJ)}" r="4"></circle>
+            <circle class="scene-dot" cx="${toX(xJ)}" cy="${toY(yO)}" r="4"></circle>
+            <text class="scene-label" x="${toX(xA)-14}" y="${toY(yJ)+20}">A</text>
+            <text class="scene-label" x="${toX(xJ)-8}" y="${toY(yJ)+20}">J</text>
+            <text class="scene-label" x="${toX(xB)+8}" y="${toY(yJ)+20}">B</text>
+            <text class="scene-label" x="${toX(xJ)+8}" y="${toY(yO)-8}">O</text>
+            <text class="scene-math" x="${toX((xA+xJ)/2)-28}" y="${toY(yJ)-14}">AJ = ${a}</text>
+            <text class="scene-math" x="${toX((xJ+xB)/2)-18}" y="${toY(yJ)-14}">JB = ${b}</text>
+            <text class="scene-math" x="${toX(xJ)+16}" y="${toY((yO+yJ)/2)}">OJ = r</text>
+            <text class="scene-math small" x="${toX(xJ)+18}" y="${toY(yJ)-4}">OJ ⟂ AB</text>
+          </g>` : ""}
+
+          <g data-key="sum">
+            <rect x="${width - 360}" y="28" width="320" height="130" fill="var(--panel)" stroke="var(--line)" stroke-width="2"></rect>
+            <text class="scene-math" x="${width - 336}" y="62">В прямоугольном ΔAOB</text>
+            <text class="scene-math" x="${width - 336}" y="96">OJ — высота к гипотенузе AB</text>
+            <text class="scene-math" x="${width - 336}" y="130">Поэтому OJ² = AJ·JB</text>
+          </g>
+        `;
+        }
+
+        function buildGrid(width, height, unit, cx, cy) {
+            const stepPx = unit;
+            let lines = `<rect x="0" y="0" width="${width}" height="${height}" fill="var(--viz-bg)"></rect>`;
+            for (let x = cx % stepPx; x < width; x += stepPx) {
+                lines += `<line class="scene-grid" x1="${x}" y1="0" x2="${x}" y2="${height}"></line>`;
+            }
+            for (let y = cy % stepPx; y < height; y += stepPx) {
+                lines += `<line class="scene-grid" x1="0" y1="${y}" x2="${width}" y2="${y}"></line>`;
+            }
+            lines += `<line class="scene-axis" x1="0" y1="${cy}" x2="${width}" y2="${cy}"></line>`;
+            lines += `<line class="scene-axis" x1="${cx}" y1="0" x2="${cx}" y2="${height}"></line>`;
+            return lines;
+        }
+
+        function arcPath(toX, toY, point, startDeg, endDeg, radiusWorld, unit, highlight) {
+            const r = radiusWorld;
+            const sx = point.x + r * Math.cos(startDeg * Math.PI / 180);
+            const sy = point.y + r * Math.sin(startDeg * Math.PI / 180);
+            const ex = point.x + r * Math.cos(endDeg * Math.PI / 180);
+            const ey = point.y + r * Math.sin(endDeg * Math.PI / 180);
+            const largeArc = endDeg - startDeg > 180 ? 1 : 0;
+            return `
+          <path class="${highlight ? "scene-highlight" : "scene-angle"} scene-hit"
+            d="M ${toX(sx)} ${toY(sy)} A ${r * unit} ${r * unit} 0 ${largeArc} 0 ${toX(ex)} ${toY(ey)}"></path>
+        `;
+        }
+
+        function bindSceneHits(svg) {
+            Array.from(svg.querySelectorAll("[data-key]")).forEach(node => {
+                const key = node.getAttribute("data-key");
+                if (!key) return;
+                node.addEventListener("mouseenter", () => {
+                    state.hoverKey = key;
+                    highlightBoundText(key);
+                    renderAllScenes();
+                });
+                node.addEventListener("mouseleave", () => {
+                    state.hoverKey = null;
+                    highlightBoundText(null);
+                    renderAllScenes();
+                });
+            });
+
+            const isMain = svg === els.sceneSvg;
+            if (isMain) {
+                svg.parentElement.onclick = (e) => {
+                    if (e.target.closest("svg")) openModal();
+                };
+            }
+        }
+
+        function setupPointerNavigation(container, isModal) {
+            let dragging = false;
+            let lastX = 0;
+            let lastY = 0;
+            let moved = false;
+            let pointers = new Map();
+            let pinchStartDist = 0;
+            let pinchStartScale = 1;
+
+            container.addEventListener("pointerdown", e => {
+                container.setPointerCapture(e.pointerId);
+                pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+                if (pointers.size === 2) {
+                    const pts = Array.from(pointers.values());
+                    pinchStartDist = dist(pts[0], pts[1]);
+                    pinchStartScale = state.viewport.scale;
+                } else {
+                    dragging = true;
+                    moved = false;
+                    lastX = e.clientX;
+                    lastY = e.clientY;
+                    container.classList.add("grabbing");
+                }
+            });
+
+            container.addEventListener("pointermove", e => {
+                if (!pointers.has(e.pointerId)) return;
+                pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+                if (pointers.size === 2) {
+                    const pts = Array.from(pointers.values());
+                    const d = dist(pts[0], pts[1]);
+                    if (pinchStartDist > 0) {
+                        state.viewport.scale = clamp(pinchStartScale * (d / pinchStartDist), state.viewport.minScale, state.viewport.maxScale);
+                        syncZoomUi();
+                        renderAllScenes();
+                    }
+                    return;
+                }
+
+                if (!dragging) return;
+                const dx = e.clientX - lastX;
+                const dy = e.clientY - lastY;
+                if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
+                lastX = e.clientX;
+                lastY = e.clientY;
+                state.viewport.panX += dx;
+                state.viewport.panY += dy;
+                clampPan();
+                renderAllScenes();
+            });
+
+            function endPointer(e) {
+                pointers.delete(e.pointerId);
+                if (pointers.size < 2) {
+                    pinchStartDist = 0;
+                }
+                dragging = false;
+                container.classList.remove("grabbing");
+            }
+
+            container.addEventListener("pointerup", endPointer);
+            container.addEventListener("pointercancel", endPointer);
+            container.addEventListener("pointerleave", endPointer);
+
+            container.addEventListener("wheel", e => {
+                e.preventDefault();
+                const rect = container.getBoundingClientRect();
+                const center = {
+                    x: (e.clientX - rect.left - rect.width / 2) * 0.16,
+                    y: (e.clientY - rect.top - rect.height / 2) * 0.16
+                };
+                const multiplier = e.deltaY < 0 ? 1.08 : 1 / 1.08;
+                zoomBy(multiplier, center);
+            }, { passive: false });
+
+            if (!isModal) {
+                container.addEventListener("dblclick", openModal);
+            }
+
+            container.addEventListener("keydown", e => {
+                if (e.key === "+") zoomBy(1.08);
+                if (e.key === "-") zoomBy(1 / 1.08);
+                if (e.key.toLowerCase() === "r") resetView();
+            });
+        }
+
+        function dist(a, b) {
+            return Math.hypot(a.x - b.x, a.y - b.y);
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
