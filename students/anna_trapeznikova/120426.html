@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Алгебраические выражения: Интерактивный разбор</title>
+    <style>
+        :root {
+            --bg: #F4F4F0;
+            --text: #000000;
+            --border: 2px solid #000000;
+            --shadow: 6px 6px 0px #000000;
+            --shadow-sm: 3px 3px 0px #000000;
+            --red: #D72638;
+            --red-light: #FFE6E8;
+            --yellow: #F1C40F;
+            --yellow-light: #FFF9E6;
+            --green: #4CAF50;
+            --green-light: #E8F5E9;
+            --blue: #2196F3;
+            --blue-light: #E3F2FD;
+            --white: #FFFFFF;
+            --gray: #E0E0E0;
+            --font-main: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --font-mono: 'Courier New', Courier, monospace;
+        }
+
+        [data-theme="dark"] {
+            --bg: #121212;
+            --text: #F4F4F0;
+            --shadow: 6px 6px 0px #444444;
+            --shadow-sm: 3px 3px 0px #444444;
+            --red: #FF4D5C;
+            --red-light: #331114;
+            --yellow: #F1C40F;
+            --yellow-light: #332900;
+            --green: #66BB6A;
+            --green-light: #1B331D;
+            --blue: #64B5F6;
+            --blue-light: #1A2F4A;
+            --white: #1E1E1E;
+            --gray: #2A2A2A;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+            font-size: 16px;
+        }
+
+        button { font-family: inherit; cursor: pointer; }
+
+        h1, h2, h3, h4 {
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* Navigation */
+        nav {
+            border-bottom: var(--border);
+            padding: 15px 0;
+            background: var(--white);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 900;
+            font-size: 1.2rem;
+            border: var(--border);
+            padding: 5px 15px;
+            box-shadow: var(--shadow-sm);
+            background: var(--white);
+        }
+
+        .theme-btn {
+            background: var(--text);
+            color: var(--bg);
+            border: none;
+            padding: 8px 16px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .theme-btn:hover { opacity: 0.9; }
+
+        /* Hero */
+        .hero {
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .banner {
+            background: var(--text);
+            color: var(--bg);
+            padding: 15px 25px;
+            font-weight: bold;
+            font-size: 1rem;
+            border: var(--border);
+            box-shadow: var(--shadow);
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            padding: 40px 0;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Cards */
+        .card {
+            border: var(--border);
+            box-shadow: var(--shadow);
+            background: var(--white);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px var(--text);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--gray);
+        }
+
+        .card-title {
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: var(--text);
+        }
+
+        /* Problem Statement */
+        .problem-box {
+            background: var(--blue-light);
+            border-left: 5px solid var(--blue);
+            padding: 20px;
+            margin: 20px 0;
+            border: var(--border);
+        }
+
+        .problem-box h3 {
+            color: var(--blue);
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .math-display {
+            font-family: var(--font-mono);
+            font-size: 1.3rem;
+            text-align: center;
+            padding: 15px;
+            background: var(--white);
+            border: var(--border);
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        /* Steps */
+        .step-container {
+            margin: 20px 0;
+        }
+
+        .step {
+            border: var(--border);
+            margin-bottom: 15px;
+            background: var(--bg);
+            overflow: hidden;
+        }
+
+        .step-header {
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background 0.2s;
+            background: var(--white);
+        }
+
+        .step-header:hover {
+            background: var(--gray);
+        }
+
+        .step-header.active {
+            background: var(--yellow);
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: var(--text);
+            color: var(--bg);
+            border-radius: 50%;
+            margin-right: 10px;
+            font-weight: 900;
+        }
+
+        .step-body {
+            display: none;
+            padding: 20px;
+            border-top: var(--border);
+            background: var(--white);
+            animation: slideDown 0.3s ease;
+        }
+
+        .step-body.open {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-content {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .math-inline {
+            font-family: var(--font-mono);
+            background: var(--gray);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .highlight {
+            background: var(--yellow);
+            padding: 2px 6px;
+            font-weight: bold;
+        }
+
+        .hint-box {
+            background: var(--yellow-light);
+            border: 2px solid var(--yellow);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0;
+            position: relative;
+        }
+
+        .hint-box::before {
+            content: "💡 Подсказка";
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .hint-toggle {
+            background: none;
+            border: var(--border);
+            padding: 8px 15px;
+            font-weight: bold;
+            margin: 10px 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .hint-toggle:hover {
+            background: var(--yellow);
+        }
+
+        /* Interactive Elements */
+        .interactive-box {
+            background: var(--green-light);
+            border: var(--border);
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .interactive-box h4 {
+            color: var(--green);
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            margin: 15px 0;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: var(--border);
+            background: var(--bg);
+            font-size: 1rem;
+            font-family: var(--font-mono);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: var(--border);
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px var(--text);
+        }
+
+        .btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px var(--text);
+        }
+
+        .btn-primary {
+            background: var(--blue);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--green);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--yellow);
+            color: var(--text);
+        }
+
+        /* Visualization */
+        .viz-container {
+            position: sticky;
+            top: 100px;
+        }
+
+        .viz-panel {
+            border: var(--border);
+            box-shadow: var(--shadow);
+            background: var(--white);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .viz-title {
+            font-weight: 900;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .equation-builder {
+            background: var(--bg);
+            padding: 15px;
+            border: var(--border);
+            margin: 10px 0;
+            font-family: var(--font-mono);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .token {
+            display: inline-block;
+            padding: 5px 10px;
+            background: var(--white);
+            border: 2px solid var(--text);
+            margin: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .token:hover {
+            background: var(--yellow);
+            transform: scale(1.1);
+        }
+
+        .token.active {
+            background: var(--red);
+            color: white;
+        }
+
+        /* Progress */
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: var(--gray);
+            border: var(--border);
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--green);
+            transition: width 0.5s ease;
+            border-right: var(--border);
+        }
+
+        .progress-text {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        /* Quiz */
+        .quiz-option {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: var(--border);
+            background: var(--bg);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .quiz-option:hover {
+            background: var(--gray);
+            transform: translateX(5px);
+        }
+
+        .quiz-option.correct {
+            background: var(--green);
+            color: white;
+            box-shadow: 4px 4px 0px var(--text);
+        }
+
+        .quiz-option.wrong {
+            background: var(--red);
+            color: white;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Generator */
+        .generator-panel {
+            background: var(--red-light);
+            border: var(--border);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .generator-panel h3 {
+            color: var(--red);
+            margin-bottom: 15px;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 2px dotted var(--blue);
+            cursor: help;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text);
+            color: var(--bg);
+            padding: 8px 12px;
+            border-radius: 4px;
+            white-space: nowrap;
+            font-size: 0.85rem;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 60px;
+            border-top: var(--border);
+            padding: 30px 0;
+            text-align: center;
+            background: var(--white);
+        }
+
+        .tagline {
+            font-weight: 900;
+            color: var(--red);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        /* Utility */
+        .text-center { text-align: center; }
+        .mb-2 { margin-bottom: 2rem; }
+        .mt-2 { margin-top: 2rem; }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background: var(--text);
+            color: var(--bg);
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+    <div class="container nav-inner">
+        <div class="logo">MATH.INTERACTIVE</div>
+        <button class="theme-btn" id="themeToggle">LIGHT / DARK</button>
+    </div>
+</nav>
+
+<!-- Hero -->
+<header class="hero">
+    <div class="container">
+        <h1>Алгебраические выражения</h1>
+        <p class="subtitle">Интерактивный разбор задачи с пошаговыми подсказками</p>
+        <div class="banner">
+            УРОВЕНЬ: 9-11 КЛАСС &bull; СЛОЖНОСТЬ: СРЕДНИЙ+
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="container">
+    <div class="main-grid">
+
+        <!-- Left Column: Steps -->
+        <div class="left-column">
+
+            <!-- Problem Statement -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">📋 Условие задачи</span>
+                    <span class="badge">ОСНОВНАЯ</span>
+                </div>
+                <div class="problem-box">
+                    <h3>Найдите значение выражения:</h3>
+                    <div class="math-display">31a - 4b + 55</div>
+                    <h3>если известно:</h3>
+                    <div class="math-display">(a - 4b + 7) / (4a - b + 7) = 8</div>
+                </div>
+
+                <div class="hint-box">
+                    <strong>Ключевая идея:</strong> не нужно находить a и b по отдельности!
+                    Достаточно найти комбинацию <span class="math-inline">31a - 4b</span>.
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="progress-text">Прогресс решения: <span id="progressNum">0</span>/5 шагов</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+
+            <!-- Steps -->
+            <div class="step-container">
+
+                <!-- Step 1 -->
+                <div class="step" data-step="1">
+                    <div class="step-header" onclick="toggleStep(1)">
+                        <div>
+                            <span class="step-number">1</span>
+                            <span>Записываем уравнение</span>
+                        </div>
+                        <span id="icon1">▶</span>
+                    </div>
+                    <div class="step-body" id="step1">
+                        <div class="step-content">
+                            <p>Начнём с данного нам уравнения:</p>
+                            <div class="math-display">\[\frac{a - 4b + 7}{4a - b + 7} = 8\]</div>
+
+                            <button class="hint-toggle" onclick="showHint(1)">💡 Показать подсказку</button>
+                            <div class="hint-box" id="hint1" style="display: none;">
+                                Чтобы избавиться от дроби, нужно <strong>умножить обе части уравнения на знаменатель</strong> (4a - b + 7).
+                            </div>
+
+                            <button class="btn btn-primary mt-2" onclick="completeStep(1)">
+                                Понятно, дальше →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step" data-step="2">
+                    <div class="step-header" onclick="toggleStep(2)">
+                        <div>
+                            <span class="step-number">2</span>
+                            <span>Избавляемся от дроби</span>
+                        </div>
+                        <span id="icon2">▶</span>
+                    </div>
+                    <div class="step-body" id="step2">
+                        <div class="step-content">
+                            <p>Умножаем обе части на <span class="math-inline">(4a - b + 7)</span>:</p>
+                            <div class="equation-builder" id="eq2">
+                                <span class="token" onclick="highlightToken(this)">a - 4b + 7</span>
+                                <span>=</span>
+                                <span class="token" onclick="highlightToken(this)">8</span>
+                                <span class="token" onclick="highlightToken(this)">(4a - b + 7)</span>
+                            </div>
+
+                            <div class="interactive-box">
+                                <h4>🎯 Интерактив:</h4>
+                                <p>Нажмите на слагаемые выше, чтобы увидеть, как они преобразуются</p>
+                                <div id="tokenInfo" style="margin-top: 10px; font-weight: bold; min-height: 24px;"></div>
+                            </div>
+
+                            <button class="btn btn-primary mt-2" onclick="completeStep(2)">
+                                Раскрыть скобки →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step" data-step="3">
+                    <div class="step-header" onclick="toggleStep(3)">
+                        <div>
+                            <span class="step-number">3</span>
+                            <span>Раскрываем скобки</span>
+                        </div>
+                        <span id="icon3">▶</span>
+                    </div>
+                    <div class="step-body" id="step3">
+                        <div class="step-content">
+                            <p>Раскрываем скобки справа (умножаем 8 на каждое слагаемое):</p>
+                            <div class="math-display">a - 4b + 7 = 32a - 8b + 56</div>
+
+                            <div class="hint-box">
+                                <strong>Проверка:</strong> 8 × 4a = 32a, 8 × (-b) = -8b, 8 × 7 = 56
+                            </div>
+
+                            <button class="btn btn-primary mt-2" onclick="completeStep(3)">
+                                Переносим слагаемые →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="step" data-step="4">
+                    <div class="step-header" onclick="toggleStep(4)">
+                        <div>
+                            <span class="step-number">4</span>
+                            <span>Приводим подобные</span>
+                        </div>
+                        <span id="icon4">▶</span>
+                    </div>
+                    <div class="step-body" id="step4">
+                        <div class="step-content">
+                            <p>Переносим всё в левую часть (меняем знаки при переносе):</p>
+                            <div class="math-display">a - 4b + 7 - 32a + 8b - 56 = 0</div>
+
+                            <p>Группируем подобные слагаемые:</p>
+                            <ul style="margin: 15px 0; padding-left: 30px;">
+                                <li>При a: <span class="highlight">a - 32a = -31a</span></li>
+                                <li>При b: <span class="highlight">-4b + 8b = 4b</span></li>
+                                <li>Свободные: <span class="highlight">7 - 56 = -49</span></li>
+                            </ul>
+
+                            <div class="math-display">-31a + 4b - 49 = 0</div>
+
+                            <button class="btn btn-primary mt-2" onclick="completeStep(4)">
+                                Находим ответ →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="step" data-step="5">
+                    <div class="step-header" onclick="toggleStep(5)">
+                        <div>
+                            <span class="step-number">5</span>
+                            <span>Финальный ответ</span>
+                        </div>
+                        <span id="icon5">▶</span>
+                    </div>
+                    <div class="step-body" id="step5">
+                        <div class="step-content">
+                            <p>Переносим -49 вправо:</p>
+                            <div class="math-display">-31a + 4b = 49</div>
+
+                            <p>Умножаем на -1 (чтобы получить нужную нам комбинацию):</p>
+                            <div class="math-display">31a - 4b = -49</div>
+
+                            <div class="problem-box" style="background: var(--green-light); border-color: var(--green);">
+                                <h3 style="color: var(--green);">🎉 Теперь подставляем в исходное выражение:</h3>
+                                <div class="math-display">31a - 4b + 55 = <span class="highlight">-49</span> + 55 = <span class="highlight" style="font-size: 1.5em;">6</span></div>
+                            </div>
+
+                            <button class="btn btn-success" onclick="showCelebration()">
+                                ✓ Решение завершено!
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Quiz Section -->
+            <div class="card mt-2" id="quizSection" style="display: none;">
+                <div class="card-header">
+                    <span class="card-title">📝 Проверь себя</span>
+                </div>
+                <div id="quizContainer"></div>
+            </div>
+
+            <!-- Generator -->
+            <div class="generator-panel">
+                <h3>🎲 Генератор похожих задач</h3>
+                <div class="input-group">
+                    <label>Коэффициент при a в числителе:</label>
+                    <input type="number" id="genA1" value="1" min="-10" max="10">
+                </div>
+                <div class="input-group">
+                    <label>Коэффициент при b в числителе:</label>
+                    <input type="number" id="genB1" value="-4" min="-10" max="10">
+                </div>
+                <div class="input-group">
+                    <label>Коэффициент при a в знаменателе:</label>
+                    <input type="number" id="genA2" value="4" min="-10" max="10">
+                </div>
+                <div class="input-group">
+                    <label>Коэффициент при b в знаменателе:</label>
+                    <input type="number" id="genB2" value="-1" min="-10" max="10">
+                </div>
+                <div class="input-group">
+                    <label>Правая часть (значение дроби):</label>
+                    <input type="number" id="genRhs" value="8" min="-20" max="20">
+                </div>
+                <button class="btn btn-warning" onclick="generateTask()">Сгенерировать задачу</button>
+                <div id="generatedTask" style="margin-top: 20px; display: none;">
+                    <div class="math-display" id="genEquation"></div>
+                    <div class="math-display" id="genAnswer" style="background: var(--green-light); border-color: var(--green);"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Visualization -->
+        <div class="viz-container">
+
+            <div class="viz-panel">
+                <div class="viz-title">
+                    <span>📊</span>
+                    <span>Визуализация решения</span>
+                </div>
+
+                <div id="vizContent">
+                    <div class="text-center" style="padding: 40px 20px; opacity: 0.6;">
+                        <p>Раскрывайте шаги слева,<br>чтобы увидеть преобразования</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="viz-panel">
+                <div class="viz-title">
+                    <span>🎯</span>
+                    <span>Цель решения</span>
+                </div>
+                <p style="margin-bottom: 15px;">Нам нужно найти:</p>
+                <div class="math-display" style="background: var(--yellow-light); border-color: var(--yellow);">
+                    31a - 4b + 55
+                </div>
+                <p style="margin: 15px 0;">Достаточно найти <span class="highlight">31a - 4b</span>, а затем прибавить 55</p>
+            </div>
+
+            <div class="viz-panel">
+                <div class="viz-title">
+                    <span>💭</span>
+                    <span>Логика решения</span>
+                </div>
+                <ul style="padding-left: 20px; line-height: 2;">
+                    <li>Дробь = 8</li>
+                    <li>⇒ Числитель = 8 × Знаменатель</li>
+                    <li>⇒ Раскрываем скобки</li>
+                    <li>⇒ Переносим всё влево</li>
+                    <li>⇒ Получаем связь a и b</li>
+                    <li>⇒ Подставляем в цель</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="tagline">МАТЕМАТИКА. ИНТЕРАКТИВНО.</div>
+        <p style="font-size: 0.9rem; opacity: 0.8;">
+            Создано для глубокого понимания алгебраических преобразований
+        </p>
+    </div>
+</footer>
+
+<script>
+    // State
+    let currentStep = 0;
+    const totalSteps = 5;
+    let completedSteps = new Set();
+
+    // Theme
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', newTheme);
+        themeToggle.textContent = newTheme === 'light' ? 'LIGHT' : 'DARK';
+        localStorage.setItem('theme', newTheme);
+    });
+
+    // Load theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggle.textContent = savedTheme === 'light' ? 'LIGHT' : 'DARK';
+
+    // Step Management
+    function toggleStep(stepNum) {
+        const stepBody = document.getElementById(`step${stepNum}`);
+        const icon = document.getElementById(`icon${stepNum}`);
+        const header = stepBody.previousElementSibling;
+
+        if (stepBody.classList.contains('open')) {
+            stepBody.classList.remove('open');
+            icon.textContent = '▶';
+            header.classList.remove('active');
+        } else {
+            // Close all others
+            document.querySelectorAll('.step-body').forEach(body => {
+                body.classList.remove('open');
+                body.previousElementSibling.classList.remove('active');
+            });
+            document.querySelectorAll('.step-header span:last-child').forEach(i => {
+                i.textContent = '▶';
+            });
+
+            stepBody.classList.add('open');
+            icon.textContent = '▼';
+            header.classList.add('active');
+            updateViz(stepNum);
+        }
+    }
+
+    function completeStep(stepNum) {
+        completedSteps.add(stepNum);
+        currentStep = Math.max(currentStep, stepNum);
+        updateProgress();
+
+        // Auto-open next step
+        if (stepNum < totalSteps) {
+            setTimeout(() => {
+                toggleStep(stepNum + 1);
+            }, 300);
+        } else {
+            // Show quiz after completion
+            setTimeout(() => {
+                document.getElementById('quizSection').style.display = 'block';
+                initQuiz();
+                document.getElementById('quizSection').scrollIntoView({ behavior: 'smooth' });
+            }, 500);
+        }
+    }
+
+    function updateProgress() {
+        const percent = (completedSteps.size / totalSteps) * 100;
+        document.getElementById('progressBar').style.width = percent + '%';
+        document.getElementById('progressNum').textContent = completedSteps.size;
+    }
+
+    function showHint(hintNum) {
+        const hint = document.getElementById(`hint${hintNum}`);
+        hint.style.display = hint.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function highlightToken(token) {
+        const info = document.getElementById('tokenInfo');
+        const text = token.textContent;
+
+        if (text.includes('8')) {
+            info.textContent = 'Это значение дроби, на которое умножаем знаменатель';
+            info.style.color = 'var(--blue)';
+        } else if (text.includes('4a')) {
+            info.textContent = '8 × 4a = 32a';
+            info.style.color = 'var(--red)';
+        } else if (text.includes('-b')) {
+            info.textContent = '8 × (-b) = -8b';
+            info.style.color = 'var(--red)';
+        } else if (text.includes('7') && text.includes('(')) {
+            info.textContent = '8 × 7 = 56';
+            info.style.color = 'var(--red)';
+        } else {
+            info.textContent = 'Это числитель, он остаётся без изменений';
+            info.style.color = 'var(--green)';
+        }
+
+        token.classList.add('active');
+        setTimeout(() => token.classList.remove('active'), 500);
+    }
+
+    function updateViz(stepNum) {
+        const viz = document.getElementById('vizContent');
+        const animations = {
+            1: `
+            <div class="math-display fade-in">
+                <div style="margin-bottom: 10px; color: var(--blue);">Исходное уравнение:</div>
+                (a - 4b + 7) / (4a - b + 7) = 8
+            </div>
+            <div class="hint-box fade-in">
+                Умножаем обе части на (4a - b + 7)
+            </div>
+        `,
+            2: `
+            <div class="math-display fade-in">
+                a - 4b + 7 = 8(4a - b + 7)
+            </div>
+            <div class="hint-box fade-in">
+                Дробь исчезла! Теперь раскрываем скобки
+            </div>
+        `,
+            3: `
+            <div class="math-display fade-in">
+                a - 4b + 7 = 32a - 8b + 56
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <div class="token" style="text-align: center;">8×4a<br>=<strong>32a</strong></div>
+                <div class="token" style="text-align: center;">8×(-b)<br>=<strong>-8b</strong></div>
+                <div class="token" style="text-align: center;">8×7<br>=<strong>56</strong></div>
+            </div>
+        `,
+            4: `
+            <div class="math-display fade-in">
+                -31a + 4b - 49 = 0
+            </div>
+            <div style="margin-top: 15px;">
+                <div style="margin: 5px 0;"><span style="color: var(--red);">a - 32a</span> = -31a</div>
+                <div style="margin: 5px 0;"><span style="color: var(--red);">-4b + 8b</span> = 4b</div>
+                <div style="margin: 5px 0;"><span style="color: var(--red);">7 - 56</span> = -49</div>
+            </div>
+        `,
+            5: `
+            <div class="math-display fade-in" style="background: var(--green-light); border-color: var(--green);">
+                31a - 4b = -49
+            </div>
+            <div class="math-display fade-in" style="background: var(--yellow-light); border-color: var(--yellow); margin-top: 10px;">
+                31a - 4b + 55 = -49 + 55 = <strong>6</strong>
+            </div>
+            <div class="text-center pulse" style="margin-top: 15px; font-size: 2rem;">🎉</div>
+        `
+        };
+
+        viz.innerHTML = animations[stepNum] || viz.innerHTML;
+    }
+
+    function showCelebration() {
+        alert('🎉 Поздравляем! Вы успешно решили задачу!\n\nОтвет: 6\n\nТеперь попробуйте решить похожую задачу в генераторе ниже или пройдите тест!');
+    }
+
+    // Quiz
+    const quizQuestions = [
+        {
+            question: "Если (x - 3y)/(2x + y) = 5, то чему равно x - 3y?",
+            options: ["5(2x + y)", "2x + y", "5x - 3y", "Невозможно определить"],
+            correct: 0
+        },
+        {
+            question: "При раскрытии скобок 3(2a - 4b + 1) получим:",
+            options: ["6a - 12b + 1", "6a - 4b + 3", "6a - 12b + 3", "5a - 7b + 4"],
+            correct: 2
+        },
+        {
+            question: "Если -5a + 2b = 10, то 5a - 2b равно:",
+            options: ["10", "-10", "0", "5"],
+            correct: 1
+        }
+    ];
+
+    function initQuiz() {
+        const container = document.getElementById('quizContainer');
+        container.innerHTML = '';
+
+        quizQuestions.forEach((q, idx) => {
+            const qDiv = document.createElement('div');
+            qDiv.style.marginBottom = '25px';
+            qDiv.innerHTML = `<p style="font-weight: bold; margin-bottom: 10px;">${idx + 1}. ${q.question}</p>`;
+
+            q.options.forEach((opt, optIdx) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(btn, optIdx, q.correct, qDiv);
+                qDiv.appendChild(btn);
+            });
+
+            container.appendChild(qDiv);
+        });
+    }
+
+    function checkAnswer(btn, selected, correct, container) {
+        const buttons = container.querySelectorAll('.quiz-option');
+        buttons.forEach(b => b.disabled = true);
+
+        if (selected === correct) {
+            btn.classList.add('correct');
+            btn.innerHTML += ' ✓';
+        } else {
+            btn.classList.add('wrong');
+            btn.innerHTML += ' ✗';
+            buttons[correct].classList.add('correct');
+            buttons[correct].innerHTML += ' (правильно)';
+        }
+    }
+
+    // Generator
+    function generateTask() {
+        const a1 = parseInt(document.getElementById('genA1').value);
+        const b1 = parseInt(document.getElementById('genB1').value);
+        const c1 = 7; // constant in numerator
+        const a2 = parseInt(document.getElementById('genA2').value);
+        const b2 = parseInt(document.getElementById('genB2').value);
+        const c2 = 7; // constant in denominator
+        const rhs = parseInt(document.getElementById('genRhs').value);
+
+        // Equation: (a1*a + b1*b + c1) / (a2*a + b2*b + c2) = rhs
+        // => a1*a + b1*b + c1 = rhs * (a2*a + b2*b + c2)
+        // => a1*a + b1*b + c1 = rhs*a2*a + rhs*b2*b + rhs*c2
+        // => (a1 - rhs*a2)*a + (b1 - rhs*b2)*b + (c1 - rhs*c2) = 0
+
+        const coeffA = a1 - rhs * a2;
+        const coeffB = b1 - rhs * b2;
+        const constant = c1 - rhs * c2;
+
+        // We need to find expression: -coeffA*a - coeffB*b - constant + adjustment
+        // Actually, from equation: coeffA*a + coeffB*b = -constant
+        // So if we want coeffA*a + coeffB*b + X, answer is -constant + X
+
+        const targetExpr = `${-coeffA}a ${coeffB >= 0 ? '+' : ''}${coeffB}b + ${-constant + 55}`;
+        const answer = -constant + 55;
+
+        document.getElementById('genEquation').innerHTML = `
+        <div style="margin-bottom: 10px;">Дано:</div>
+        (${a1}a ${b1 >= 0 ? '+' : ''}${b1}b + ${c1}) / (${a2}a ${b2 >= 0 ? '+' : ''}${b2}b + ${c2}) = ${rhs}
+        <div style="margin-top: 10px; font-size: 0.9em; color: var(--text); opacity: 0.8;">
+            Найдите: ${targetExpr}
+        </div>
+    `;
+
+        document.getElementById('genAnswer').innerHTML = `
+        <div style="margin-bottom: 5px;">Ответ:</div>
+        <strong style="font-size: 1.3em;">${answer}</strong>
+        <div style="margin-top: 10px; font-size: 0.85em;">
+            Подсказка: ${coeffA}a ${coeffB >= 0 ? '+' : ''}${coeffB}b = ${-constant}
+        </div>
+    `;
+
+        document.getElementById('generatedTask').style.display = 'block';
+        document.getElementById('generatedTask').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Initialize first step open
+    window.onload = () => {
+        toggleStep(1);
+    };
+</script>
+
+</body>
+</html>
