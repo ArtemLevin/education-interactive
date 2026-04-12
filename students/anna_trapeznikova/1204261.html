@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Построение графика с модулем — Наглядная математика</title>
+    <style>
+        :root {
+            --bg: #F4F4F0;
+            --card-bg: #FFFFFF;
+            --text: #111111;
+            --text-secondary: #555555;
+            --border: #000000;
+            --accent: #D72638;
+            --accent-hover: #b91f2f;
+            --shadow: 4px 4px 0 #000;
+            --shadow-lg: 6px 6px 0 #000;
+            --shadow-xl: 8px 8px 0 #000;
+            --grid: #ddd;
+            --axis: #333;
+            --canvas-bg: #FFFFFF;
+            --highlight: #FFF3B0;
+            --tab-active-bg: #D72638;
+            --tab-active-text: #FFFFFF;
+            --step-active-bg: #FFF3B0;
+            --banner-bg: #000000;
+            --banner-text: #FFFFFF;
+            --footer-bg: #111111;
+            --footer-text: #FFFFFF;
+            --quiz-correct: #2E7D32;
+            --quiz-wrong: #C62828;
+            --toggle-bg: #ccc;
+            --toggle-knob: #fff;
+        }
+
+        [data-theme="dark"] {
+            --bg: #1A1A1A;
+            --card-bg: #2A2A2A;
+            --text: #EEEEEE;
+            --text-secondary: #AAAAAA;
+            --border: #FFFFFF;
+            --accent: #FF4455;
+            --accent-hover: #FF6677;
+            --shadow: 4px 4px 0 #FFF;
+            --shadow-lg: 6px 6px 0 #FFF;
+            --shadow-xl: 8px 8px 0 #FFF;
+            --grid: #444;
+            --axis: #ccc;
+            --canvas-bg: #222222;
+            --highlight: #444400;
+            --tab-active-bg: #FF4455;
+            --tab-active-text: #000000;
+            --step-active-bg: #444400;
+            --banner-bg: #FFFFFF;
+            --banner-text: #000000;
+            --footer-bg: #000000;
+            --footer-text: #CCCCCC;
+            --quiz-correct: #66BB6A;
+            --quiz-wrong: #EF5350;
+            --toggle-bg: #555;
+            --toggle-knob: #fff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        /* NAV */
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            border-bottom: 2px solid var(--border);
+            background: var(--card-bg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav .logo {
+            font-weight: 900;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        nav .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        nav .nav-link {
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            color: var(--text);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        nav .nav-link:hover {
+            border-color: var(--border);
+        }
+
+        nav .nav-link.active {
+            background: var(--accent);
+            color: var(--tab-active-text);
+            border-color: var(--border);
+        }
+
+        /* THEME TOGGLE */
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .theme-toggle span {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .toggle-track {
+            width: 44px;
+            height: 24px;
+            background: var(--toggle-bg);
+            border: 2px solid var(--border);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .toggle-track::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: var(--toggle-knob);
+            border: 1px solid var(--border);
+            transition: left 0.2s;
+        }
+
+        [data-theme="dark"] .toggle-track::after {
+            left: 22px;
+        }
+
+        /* HERO */
+        .hero {
+            text-align: center;
+            padding: 48px 24px 32px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: clamp(28px, 5vw, 42px);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            line-height: 1.15;
+            margin-bottom: 16px;
+        }
+
+        .hero .subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* BANNER */
+        .banner {
+            background: var(--banner-bg);
+            color: var(--banner-text);
+            text-align: center;
+            padding: 16px 24px;
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-top: 2px solid var(--border);
+            border-bottom: 2px solid var(--border);
+        }
+
+        /* MAIN LAYOUT */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        @media (max-width: 900px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* LEFT COLUMN */
+        .left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            border: 2px solid var(--border);
+            margin-bottom: -2px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 8px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            border: none;
+            border-right: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .tab-btn:last-child { border-right: none; }
+
+        .tab-btn:hover { color: var(--text); }
+
+        .tab-btn.active {
+            background: var(--tab-active-bg);
+            color: var(--tab-active-text);
+        }
+
+        .tab-content {
+            border: 2px solid var(--border);
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            min-height: 500px;
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ACCORDION */
+        .accordion-item {
+            border: 2px solid var(--border);
+            margin-bottom: 12px;
+            background: var(--card-bg);
+        }
+
+        .accordion-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            background: var(--card-bg);
+            user-select: none;
+            transition: background 0.1s;
+        }
+
+        .accordion-header:hover {
+            background: var(--highlight);
+        }
+
+        .accordion-header .step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 900;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .accordion-arrow {
+            transition: transform 0.2s;
+            font-size: 12px;
+        }
+
+        .accordion-item.open .accordion-arrow {
+            transform: rotate(180deg);
+        }
+
+        .accordion-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .accordion-item.open .accordion-body {
+            max-height: 2000px;
+        }
+
+        .accordion-body-inner {
+            padding: 16px;
+            border-top: 2px solid var(--border);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* MATH */
+        .math {
+            font-family: 'Times New Roman', Times, serif;
+            font-style: italic;
+            font-size: 1.05em;
+        }
+
+        .math-block {
+            display: block;
+            text-align: center;
+            padding: 16px;
+            margin: 12px 0;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1.1em;
+            background: var(--highlight);
+            border: 2px solid var(--border);
+        }
+
+        .case-block {
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-left: 4px solid var(--accent);
+            background: rgba(0,0,0,0.02);
+        }
+
+        [data-theme="dark"] .case-block {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 3px;
+        }
+        .frac .num { border-bottom: 1.5px solid var(--text); padding: 0 4px 2px; }
+        .frac .den { padding: 2px 4px 0; }
+
+        /* RIGHT COLUMN - VISUALIZATION */
+        .right-col {
+            position: sticky;
+            top: 80px;
+            align-self: start;
+        }
+
+        .viz-container {
+            border: 2px solid var(--border);
+            background: var(--card-bg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .viz-header {
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--card-bg);
+        }
+
+        .viz-title {
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .viz-expand-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: var(--accent);
+            color: #fff;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            box-shadow: 2px 2px 0 var(--border);
+            transition: all 0.1s;
+        }
+
+        .viz-expand-btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0 var(--border);
+        }
+
+        .viz-canvas-wrap {
+            position: relative;
+            background: var(--canvas-bg);
+            cursor: grab;
+        }
+
+        .viz-canvas-wrap:active { cursor: grabbing; }
+
+        canvas.viz-canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .viz-controls {
+            padding: 12px 16px;
+            border-top: 2px solid var(--border);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            background: var(--card-bg);
+        }
+
+        .viz-btn {
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            background: var(--card-bg);
+            color: var(--text);
+            border: 2px solid var(--border);
+            cursor: pointer;
+            box-shadow: 2px 2px 0 var(--border);
+            transition: all 0.1s;
+        }
+
+        .viz-btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0 var(--border);
+        }
+
+        .viz-btn:active {
+            transform: translate(1px, 1px);
+            box-shadow: 0 0 0 var(--border);
+        }
+
+        .viz-slider-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .viz-slider-group label {
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .viz-slider-group input[type="range"] {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--border);
+            outline: none;
+        }
+
+        .viz-slider-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            border: 2px solid var(--border);
+            cursor: pointer;
+        }
+
+        .viz-slider-group input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            border: 2px solid var(--border);
+            cursor: pointer;
+        }
+
+        .k-value {
+            font-weight: 900;
+            font-size: 14px;
+            min-width: 40px;
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+        }
+
+        /* COLLAPSIBLE */
+        details {
+            border: 2px solid var(--border);
+            background: var(--card-bg);
+            margin-bottom: 12px;
+        }
+
+        details summary {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+
+        details summary::-webkit-details-marker { display: none; }
+
+        details summary::before {
+            content: '▸';
+            transition: transform 0.2s;
+        }
+
+        details[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        details .details-body {
+            padding: 16px;
+            border-top: 2px solid var(--border);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* QUIZ */
+        .quiz-question {
+            margin-bottom: 20px;
+            padding: 16px;
+            border: 2px solid var(--border);
+            background: var(--card-bg);
+        }
+
+        .quiz-question p {
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .quiz-option {
+            padding: 10px 14px;
+            border: 2px solid var(--border);
+            background: var(--card-bg);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.1s;
+        }
+
+        .quiz-option:hover {
+            background: var(--highlight);
+        }
+
+        .quiz-option.correct {
+            background: var(--quiz-correct);
+            color: #fff;
+            border-color: var(--quiz-correct);
+        }
+
+        .quiz-option.wrong {
+            background: var(--quiz-wrong);
+            color: #fff;
+            border-color: var(--quiz-wrong);
+        }
+
+        .quiz-feedback {
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 8px 12px;
+            display: none;
+        }
+
+        /* GENERATOR */
+        .gen-container {
+            border: 2px solid var(--border);
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-top: 32px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .gen-container h3 {
+            font-size: 18px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .gen-task {
+            padding: 16px;
+            border: 2px solid var(--border);
+            margin-bottom: 16px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .gen-btn {
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: var(--accent);
+            color: #fff;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.1s;
+        }
+
+        .gen-btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .gen-answer {
+            margin-top: 12px;
+            padding: 12px 16px;
+            border: 2px solid var(--accent);
+            background: var(--highlight);
+            font-weight: 700;
+            display: none;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 95vw;
+            max-height: 95vh;
+            border: 3px solid #fff;
+            background: var(--canvas-bg);
+            box-shadow: 12px 12px 0 rgba(0,0,0,0.3);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -16px;
+            right: -16px;
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            color: #fff;
+            border: 2px solid #fff;
+            font-size: 20px;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .modal-canvas-wrap {
+            cursor: grab;
+        }
+
+        .modal-canvas-wrap:active { cursor: grabbing; }
+
+        /* HIGHLIGHT STEP */
+        .step-highlight {
+            background: var(--step-active-bg);
+            border-left: 4px solid var(--accent);
+            padding: 8px 12px;
+            margin: 4px 0;
+        }
+
+        /* SUMMARY CARD */
+        .summary-card {
+            border: 2px solid var(--border);
+            background: var(--highlight);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-top: 16px;
+        }
+
+        .summary-card h4 {
+            font-size: 16px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        /* FOOTER */
+        footer {
+            background: var(--footer-bg);
+            color: var(--footer-text);
+            text-align: center;
+            padding: 32px 24px;
+            margin-top: 48px;
+        }
+
+        footer .tagline {
+            color: var(--accent);
+            font-weight: 900;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+
+        /* PRINT */
+        @media print {
+            nav, .viz-controls, .gen-container, footer, .theme-toggle, .banner, .tabs, .viz-expand-btn { display: none !important; }
+            .main-layout { grid-template-columns: 1fr; }
+            .tab-panel { display: block !important; }
+            .accordion-body { max-height: none !important; }
+            .right-col { position: static; }
+            body { background: #fff; color: #000; }
+            .tab-content { border: none; box-shadow: none; }
+        }
+
+        /* Utility */
+        .hidden { display: none !important; }
+
+        .error-list li {
+            margin-bottom: 8px;
+            padding-left: 8px;
+        }
+
+        .error-list { list-style: none; }
+        .error-list li::before { content: '⚠ '; }
+
+        .takeaway {
+            border: 2px solid var(--accent);
+            padding: 16px;
+            margin-top: 16px;
+            background: var(--card-bg);
+            font-weight: 700;
+        }
+
+        .nav-step-btns {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .nav-step-btns button {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: var(--card-bg);
+            color: var(--text);
+            border: 2px solid var(--border);
+            cursor: pointer;
+            box-shadow: 2px 2px 0 var(--border);
+        }
+
+        .nav-step-btns button:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0 var(--border);
+        }
+
+        .status-indicator {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border: 2px solid var(--border);
+            background: var(--highlight);
+            display: inline-block;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">НАГЛЯДНАЯ МАТЕМАТИКА</div>
+    <div class="nav-links">
+        <a class="nav-link active" href="#" data-section="viz">График</a>
+        <a class="nav-link" href="#" data-section="generator">Генератор</a>
+        <a class="nav-link" href="#" data-section="quiz">Квиз</a>
+    </div>
+    <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Переключить тему">
+        <span>Light</span>
+        <div class="toggle-track"></div>
+        <span>Dark</span>
+    </div>
+</nav>
+
+<div class="hero">
+    <h1>Построение графика функции с&nbsp;модулем</h1>
+    <p class="subtitle">Исследование пересечения графика <span class="math">y&nbsp;=&nbsp;f(x)</span> с прямой <span class="math">y&nbsp;=&nbsp;kx</span>. Пошаговый разбор с&nbsp;интерактивной визуализацией.</p>
+</div>
+
+<div class="banner">Задача ОГЭ / 9–11 класс — Функции с модулем и параметром</div>
+
+<div class="main-layout">
+    <!-- LEFT COLUMN -->
+    <div class="left-col">
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="razbor">Разбор</button>
+            <button class="tab-btn" data-tab="errors">Ошибки</button>
+            <button class="tab-btn" data-tab="selfcheck">Самопроверка</button>
+            <button class="tab-btn" data-tab="summary">Итог</button>
+        </div>
+
+        <div class="tab-content">
+            <!-- TAB: РАЗБОР -->
+            <div class="tab-panel active" id="tab-razbor">
+                <div class="accordion-item open" data-step="1">
+                    <div class="accordion-header" role="button" tabindex="0">
+                        <span><span class="step-num">1</span> Что дано и что нужно найти</span>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-body">
+                        <div class="accordion-body-inner">
+                            <p><strong>Дана функция:</strong></p>
+                            <div class="math-block">
+                                y = <span class="frac"><span class="num">3,5|x| − 1</span><span class="den">|x| − 3,5x²</span></span>
+                            </div>
+                            <p><strong>Нужно:</strong></p>
+                            <ol>
+                                <li>Построить график функции.</li>
+                                <li>Определить, при каких значениях <em>k</em> прямая <span class="math">y = kx</span> <strong>не имеет</strong> с графиком общих точек.</li>
+                            </ol>
+                            <div class="status-indicator">💡 Ключевая идея: раскрыть модуль по случаям, упростить дробь, затем решить уравнение пересечения.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item" data-step="2">
+                    <div class="accordion-header" role="button" tabindex="0">
+                        <span><span class="step-num">2</span> Область определения (ОДЗ)</span>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-body">
+                        <div class="accordion-body-inner">
+                            <p>Знаменатель не должен обращаться в ноль:</p>
+                            <div class="math-block">
+                                |x| − 3,5x² ≠ 0
+                            </div>
+                            <p>Выносим |x| за скобку (учитывая x² = |x|²):</p>
+                            <div class="math-block">
+                                |x| · (1 − 3,5|x|) ≠ 0
+                            </div>
+                            <p>Получаем два условия:</p>
+                            <div class="case-block">
+                                <strong>①</strong> |x| ≠ 0 &nbsp;⟹&nbsp; <strong>x ≠ 0</strong>
+                            </div>
+                            <div class="case-block">
+                                <strong>②</strong> 1 − 3,5|x| ≠ 0 &nbsp;⟹&nbsp; |x| ≠ <span class="frac"><span class="num">1</span><span class="den">3,5</span></span> = <span class="frac"><span class="num">2</span><span class="den">7</span></span> &nbsp;⟹&nbsp; <strong>x ≠ ±<span class="frac"><span class="num">2</span><span class="den">7</span></span></strong>
+                            </div>
+                            <div class="math-block">
+                                ОДЗ: x ∈ (−∞; −<span class="frac"><span class="num">2</span><span class="den">7</span></span>) ∪ (−<span class="frac"><span class="num">2</span><span class="den">7</span></span>; 0) ∪ (0; <span class="frac"><span class="num">2</span><span class="den">7</span></span>) ∪ (<span class="frac"><span class="num">2</span><span class="den">7</span></span>; +∞)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item" data-step="3">
+                    <div class="accordion-header" role="button" tabindex="0">
+                        <span><span class="step-num">3</span> Раскрываем модуль и упрощаем</span>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-body">
+                        <div class="accordion-body-inner">
+                            <div class="case-block">
+                                <strong>Случай x &gt; 0</strong> (при этом x ≠ 2/7):<br>
+                                |x| = x
+                                <div class="math-block">
+                                    y = <span class="frac"><span class="num">3,5x − 1</span><span class="den">x − 3,5x²</span></span> = <span class="frac"><span class="num">3,5x − 1</span><span class="den">x(1 − 3,5x)</span></span> = <span class="frac"><span class="num">3,5x − 1</span><span class="den">−x(3,5x − 1)</span></span> = <strong>−<span class="frac"><span class="num">1</span><span class="den">x</span></span></strong>
+                                </div>
+                            </div>
+                            <div class="case-block">
+                                <strong>Случай x &lt; 0</strong> (при этом x ≠ −2/7):<br>
+                                |x| = −x
+                                <div class="math-block">
+                                    y = <span class="frac"><span class="num">−3,5x − 1</span><span class="den">−x − 3,5x²</span></span> = <span class="frac"><span class="num">−(3,5x + 1)</span><span class="den">−x(1 + 3,5x)</span></span> = <span class="frac"><span class="num">3,5x + 1</span><span class="den">x(1 + 3,5x)</span></span> = <strong><span class="frac"><span class="num">1</span><span class="den">x</span></span></strong>
+                                </div>
+                            </div>
+                            <p>Итоговая кусочная запись:</p>
+                            <div class="math-block">
+                                y = <span style="font-size:1.1em">⎧</span><span class="frac"><span class="num">1</span><span class="den">x</span></span>, x &lt; 0, x ≠ −<span class="frac"><span class="num">2</span><span class="den">7</span></span><br>
+                                <span style="font-size:1.1em">⎨</span><br>
+                                <span style="font-size:1.1em">⎩</span>−<span class="frac"><span class="num">1</span><span class="den">x</span></span>, x &gt; 0, x ≠ <span class="frac"><span class="num">2</span><span class="den">7</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item" data-step="4">
+                    <div class="accordion-header" role="button" tabindex="0">
+                        <span><span class="step-num">4</span> Исследуем пересечение с прямой y = kx</span>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-body">
+                        <div class="accordion-body-inner">
+                            <p><strong>При x &gt; 0:</strong> <span class="math">−1/x = kx</span></p>
+                            <div class="math-block">kx² = −1</div>
+                            <ul>
+                                <li>При <strong>k ≥ 0</strong>: уравнение <strong>не имеет решений</strong> (левая часть ≥ 0, правая &lt; 0)</li>
+                                <li>При <strong>k &lt; 0</strong>: x = √(−1/k) — одно решение (если оно не равно выколотой точке)</li>
+                            </ul>
+
+                            <p><strong>При x &lt; 0:</strong> <span class="math">1/x = kx</span></p>
+                            <div class="math-block">kx² = 1</div>
+                            <ul>
+                                <li>При <strong>k ≤ 0</strong>: уравнение <strong>не имеет решений</strong> (левая часть ≤ 0, правая &gt; 0)</li>
+                                <li>При <strong>k &gt; 0</strong>: x = −√(1/k) — одно решение (если не равно выколотой точке)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item" data-step="5">
+                    <div class="accordion-header" role="button" tabindex="0">
+                        <span><span class="step-num">5</span> Проверяем выколотые точки</span>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-body">
+                        <div class="accordion-body-inner">
+                            <p>Если корень уравнения попадает в выколотую точку, то решения <strong>нет</strong>.</p>
+                            <div class="case-block">
+                                <strong>x = 2/7</strong> (выколота справа):<br>
+                                Подставляем в kx² = −1:<br>
+                                k · (2/7)² = −1 ⟹ k · 4/49 = −1 ⟹ <strong>k = −49/4 = −12,25</strong>
+                            </div>
+                            <div class="case-block">
+                                <strong>x = −2/7</strong> (выколота слева):<br>
+                                Подставляем в kx² = 1:<br>
+                                k · (−2/7)² = 1 ⟹ k · 4/49 = 1 ⟹ <strong>k = 49/4 = 12,25</strong>
+                            </div>
+                            <p>При этих значениях <em>k</em> корень «пропадает» — решений нет.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item" data-step="6">
+                    <div class="accordion-header" role="button" tabindex="0">
+                        <span><span class="step-num">6</span> Объединяем и получаем ответ</span>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-body">
+                        <div class="accordion-body-inner">
+                            <p>Прямая <span class="math">y = kx</span> <strong>не имеет общих точек</strong>, если нет решений ни при x &gt; 0, ни при x &lt; 0.</p>
+
+                            <table style="width:100%;border-collapse:collapse;margin:12px 0;font-size:14px;">
+                                <tr style="background:var(--highlight);">
+                                    <th style="border:2px solid var(--border);padding:8px;text-align:left;">k</th>
+                                    <th style="border:2px solid var(--border);padding:8px;">x &gt; 0</th>
+                                    <th style="border:2px solid var(--border);padding:8px;">x &lt; 0</th>
+                                    <th style="border:2px solid var(--border);padding:8px;">Итого</th>
+                                </tr>
+                                <tr><td style="border:2px solid var(--border);padding:8px;">k &lt; −12,25</td><td style="border:2px solid var(--border);padding:8px;text-align:center;">есть</td><td style="border:2px solid var(--border);padding:8px;text-align:center;">нет</td><td style="border:2px solid var(--border);padding:8px;text-align:center;">1 точка</td></tr>
+                                <tr><td style="border:2px solid var(--border);padding:8px;"><strong>k = −12,25</strong></td><td style="border:2px solid var(--border);padding:8px;text-align:center;"><strong>нет ✓</strong></td><td style="border:2px solid var(--border);padding:8px;text-align:center;">нет</td><td style="border:2px solid var(--border);padding:8px;text-align:center;background:var(--step-active-bg);"><strong>0 ✓</strong></td></tr>
+                                <tr><td style="border:2px solid var(--border);padding:8px;">−12,25 &lt; k &lt; 0</td><td style="border:2px solid var(--border);padding:8px;text-align:center;">есть</td><td style="border:2px solid var(--border);padding:8px;text-align:center;">нет</td><td style="border:2px solid var(--border);padding:8px;text-align:center;">1 точка</td></tr>
+                                <tr><td style="border:2px solid var(--border);padding:8px;"><strong>k = 0</strong></td><td style="border:2px solid var(--border);padding:8px;text-align:center;"><strong>нет ✓</strong></td><td style="border:2px solid var(--border);padding:8px;text-align:center;"><strong>нет ✓</strong></td><td style="border:2px solid var(--border);padding:8px;text-align:center;background:var(--step-active-bg);"><strong>0 ✓</strong></td></tr>
+                                <tr><td style="border:2px solid var(--border);padding:8px;">0 &lt; k &lt; 12,25</td><td style="border:2px solid var(--border);padding:8px;text-align:center;">нет</td><td style="border:2px solid var(--border);padding:8px;text-align:center;">есть</td><td style="border:2px solid var(--border);padding:8px;text-align:center;">1 точка</td></tr>
+                                <tr><td style="border:2px solid var(--border);padding:8px;"><strong>k = 12,25</strong></td><td style="border:2px solid var(--border);padding:8px;text-align:center;">нет</td><td style="border:2px solid var(--border);padding:8px;text-align:center;"><strong>нет ✓</strong></td><td style="border:2px solid var(--border);padding:8px;text-align:center;background:var(--step-active-bg);"><strong>0 ✓</strong></td></tr>
+                                <tr><td style="border:2px solid var(--border);padding:8px;">k &gt; 12,25</td><td style="border:2px solid var(--border);padding:8px;text-align:center;">нет</td><td style="border:2px solid var(--border);padding:8px;text-align:center;">есть</td><td style="border:2px solid var(--border);padding:8px;text-align:center;">1 точка</td></tr>
+                            </table>
+
+                            <div class="summary-card">
+                                <h4>Ответ</h4>
+                                <div class="math-block" style="font-size:1.2em;">
+                                    k ∈ { −49/4; &nbsp;0; &nbsp;49/4 }<br>
+                                    <span style="font-size:0.85em;color:var(--text-secondary);">или k ∈ { −12,25; &nbsp;0; &nbsp;12,25 }</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-step-btns">
+                    <button id="prevStep">◀ Назад</button>
+                    <button id="nextStep">Далее ▶</button>
+                    <button id="showAllSteps">Показать всё</button>
+                </div>
+            </div>
+
+            <!-- TAB: ОШИБКИ -->
+            <div class="tab-panel" id="tab-errors">
+                <h3 style="font-size:18px;text-transform:uppercase;margin-bottom:16px;">Типичные ошибки</h3>
+                <ul class="error-list">
+                    <li><strong>Забыть ОДЗ.</strong> Не исключить точки x = 0 и x = ±2/7. Без этого ответ будет неверным — «лишние» пересечения в выколотых точках.</li>
+                    <li><strong>Неправильное раскрытие модуля.</strong> При x &lt; 0 должно быть |x| = −x. Ошибка в знаке ведёт к неправильному упрощению.</li>
+                    <li><strong>Путаница со знаками при упрощении.</strong> Дробь (3,5x − 1) / (x − 3,5x²) нужно аккуратно преобразовать: вынести минус из знаменателя.</li>
+                    <li><strong>Не проверить выколотые точки при подстановке.</strong> Даже если уравнение kx² = −1 имеет корень, он может совпасть с x = 2/7 — тогда решения нет.</li>
+                    <li><strong>Пропустить случай k = 0.</strong> Прямая y = 0 (ось абсцисс) не пересекает график, так как y = ±1/x ≠ 0 при любом x.</li>
+                    <li><strong>Смешать условия для x &gt; 0 и x &lt; 0.</strong> Для каждой ветви своё уравнение: −1/x = kx и 1/x = kx. Нельзя объединять их в одно.</li>
+                </ul>
+                <div class="takeaway">
+                    💡 Запомните: всегда сначала находите ОДЗ, потом упрощаете, потом решаете уравнение пересечения, и только потом проверяете, не попали ли корни в выколотые точки.
+                </div>
+            </div>
+
+            <!-- TAB: САМОПРОВЕРКА -->
+            <div class="tab-panel" id="tab-selfcheck">
+                <h3 style="font-size:18px;text-transform:uppercase;margin-bottom:16px;">Мини-квиз</h3>
+                <div class="quiz-question" data-q="1">
+                    <p>1. Чему равна область определения функции?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-val="a" onclick="checkQuiz(this, 'b')">x ≠ 0</div>
+                        <div class="quiz-option" data-val="b" onclick="checkQuiz(this, 'b')">x ≠ 0 и x ≠ ±2/7</div>
+                        <div class="quiz-option" data-val="c" onclick="checkQuiz(this, 'b')">x ∈ ℝ</div>
+                        <div class="quiz-option" data-val="d" onclick="checkQuiz(this, 'b')">x ≠ ±3,5</div>
+                    </div>
+                    <div class="quiz-feedback"></div>
+                </div>
+
+                <div class="quiz-question" data-q="2">
+                    <p>2. Какое выражение принимает функция при x &gt; 0?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-val="a" onclick="checkQuiz(this, 'c')">y = 1/x</div>
+                        <div class="quiz-option" data-val="b" onclick="checkQuiz(this, 'c')">y = 3,5/x</div>
+                        <div class="quiz-option" data-val="c" onclick="checkQuiz(this, 'c')">y = −1/x</div>
+                        <div class="quiz-option" data-val="d" onclick="checkQuiz(this, 'c')">y = 1/(3,5x)</div>
+                    </div>
+                    <div class="quiz-feedback"></div>
+                </div>
+
+                <div class="quiz-question" data-q="3">
+                    <p>3. При каком значении k прямая y = kx точно не пересекает график?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-val="a" onclick="checkQuiz(this, 'a')">k = 0</div>
+                        <div class="quiz-option" data-val="b" onclick="checkQuiz(this, 'a')">k = 1</div>
+                        <div class="quiz-option" data-val="c" onclick="checkQuiz(this, 'a')">k = −1</div>
+                        <div class="quiz-option" data-val="d" onclick="checkQuiz(this, 'a')">k = 3,5</div>
+                    </div>
+                    <div class="quiz-feedback"></div>
+                </div>
+
+                <div class="quiz-question" data-q="4">
+                    <p>4. Сколько всего значений k, при которых нет пересечений?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-val="a" onclick="checkQuiz(this, 'b')">1</div>
+                        <div class="quiz-option" data-val="b" onclick="checkQuiz(this, 'b')">3</div>
+                        <div class="quiz-option" data-val="c" onclick="checkQuiz(this, 'b')">2</div>
+                        <div class="quiz-option" data-val="d" onclick="checkQuiz(this, 'b')">Бесконечно много</div>
+                    </div>
+                    <div class="quiz-feedback"></div>
+                </div>
+
+                <div class="quiz-question" data-q="5">
+                    <p>5. Чему равно −49/4 в десятичной записи?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-val="a" onclick="checkQuiz(this, 'c')">−4,9</div>
+                        <div class="quiz-option" data-val="b" onclick="checkQuiz(this, 'c')">−49,4</div>
+                        <div class="quiz-option" data-val="c" onclick="checkQuiz(this, 'c')">−12,25</div>
+                        <div class="quiz-option" data-val="d" onclick="checkQuiz(this, 'c')">−1,225</div>
+                    </div>
+                    <div class="quiz-feedback"></div>
+                </div>
+            </div>
+
+            <!-- TAB: ИТОГ -->
+            <div class="tab-panel" id="tab-summary">
+                <h3 style="font-size:18px;text-transform:uppercase;margin-bottom:16px;">Краткий итог</h3>
+                <div class="math-block">
+                    y = <span class="frac"><span class="num">3,5|x| − 1</span><span class="den">|x| − 3,5x²</span></span> &nbsp;⟹&nbsp;
+                    y = <span style="font-size:1.1em">⎧</span><span class="frac"><span class="num">1</span><span class="den">x</span></span> (x&lt;0) &nbsp;|&nbsp; −<span class="frac"><span class="num">1</span><span class="den">x</span></span> (x&gt;0)
+                </div>
+                <p style="margin-top:12px;font-size:14px;line-height:1.7;">
+                    После упрощения график состоит из двух ветвей гипербол: <strong>y = 1/x</strong> при x &lt; 0 и <strong>y = −1/x</strong> при x &gt; 0, с выколотыми точками при x = ±2/7.
+                </p>
+                <p style="margin-top:8px;font-size:14px;line-height:1.7;">
+                    Прямая <span class="math">y = kx</span> не пересекает график, когда:
+                </p>
+                <ul style="margin:12px 0 12px 20px;font-size:14px;line-height:1.8;">
+                    <li><strong>k = 0</strong> — ось абсцисс не пересекает ни одну ветвь (y ≠ 0)</li>
+                    <li><strong>k = −49/4</strong> — корень при x &gt; 0 совпадает с выколотой точкой x = 2/7</li>
+                    <li><strong>k = 49/4</strong> — корень при x &lt; 0 совпадает с выколотой точкой x = −2/7</li>
+                </ul>
+                <div class="summary-card">
+                    <h4>Финальный ответ</h4>
+                    <div class="math-block" style="font-size:1.3em;">
+                        k ∈ { −12,25; &nbsp;0; &nbsp;12,25 }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+        <div class="viz-container">
+            <div class="viz-header">
+                <span class="viz-title">Интерактивный график</span>
+                <button class="viz-expand-btn" onclick="openModal()" aria-label="Развернуть график">⛶ Развернуть</button>
+            </div>
+            <div class="viz-canvas-wrap" id="vizWrap">
+                <canvas class="viz-canvas" id="mainCanvas" width="600" height="500"></canvas>
+            </div>
+            <div class="viz-controls">
+                <button class="viz-btn" onclick="zoomIn()">+</button>
+                <button class="viz-btn" onclick="zoomOut()">−</button>
+                <button class="viz-btn" onclick="resetView()">Reset</button>
+                <div class="viz-slider-group">
+                    <label for="kSlider">k =</label>
+                    <input type="range" id="kSlider" min="-20" max="20" step="0.25" value="0">
+                    <span class="k-value" id="kValue">0</span>
+                </div>
+            </div>
+            <details>
+                <summary>Легенда и подсказки</summary>
+                <div class="details-body">
+                    <p style="font-size:13px;line-height:1.7;">
+                        <span style="display:inline-block;width:20px;height:3px;background:var(--accent);vertical-align:middle;margin-right:6px;"></span>
+                        <strong style="color:var(--accent);">Красный</strong> — график функции<br>
+                        <span style="display:inline-block;width:20px;height:3px;background:#0066cc;vertical-align:middle;margin-right:6px;"></span>
+                        <strong style="color:#0066cc;">Синий</strong> — прямая y = kx<br>
+                        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--border);vertical-align:middle;margin-right:6px;"></span>
+                        <strong>Красные точки</strong> — выколотые точки<br>
+                        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#0066cc;border:2px solid var(--border);vertical-align:middle;margin-right:6px;"></span>
+                        <strong style="color:#0066cc;">Синяя точка</strong> — пересечение
+                    </p>
+                    <p style="font-size:12px;margin-top:8px;color:var(--text-secondary);">Перетаскивайте для перемещения. Колёсико — масштаб.</p>
+                </div>
+            </details>
+        </div>
+    </div>
+</div>
+
+<!-- GENERATOR -->
+<div class="gen-container" id="generatorSection">
+    <h3>Генератор похожих задач</h3>
+    <div class="gen-task" id="genTask">
+        Нажмите «Сгенерировать» для получения новой задачи.
+    </div>
+    <button class="gen-btn" onclick="generateTask()">Сгенерировать задачу</button>
+    <button class="gen-btn" style="background:var(--card-bg);color:var(--text);margin-left:8px;" onclick="toggleGenAnswer()">Показать ответ</button>
+    <div class="gen-answer" id="genAnswer"></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <p>© 2026 Артём Александрович Лёвин эксклюзивно для Анны Трапезниковой</p>
+    <p class="tagline">МАТЕМАТИКА. НАГЛЯДНО.</p>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" role="dialog" aria-label="Увеличенный график">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()" aria-label="Закрыть">×</button>
+        <div class="modal-canvas-wrap" id="modalWrap">
+            <canvas class="viz-canvas" id="modalCanvas" width="900" height="700"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========================
+    // THEME
+    // ========================
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+
+    function getPreferredTheme() {
+        const saved = localStorage.getItem('theme');
+        if (saved) return saved;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    function applyTheme(t) {
+        html.setAttribute('data-theme', t);
+        localStorage.setItem('theme', t);
+    }
+
+    applyTheme(getPreferredTheme());
+
+    themeToggle.addEventListener('click', () => {
+        applyTheme(html.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+        drawMain();
+        if (modalOpen) drawModal();
+    });
+
+    // ========================
+    // TABS
+    // ========================
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    // ========================
+    // ACCORDION
+    // ========================
+    document.querySelectorAll('.accordion-header').forEach(h => {
+        h.addEventListener('click', () => {
+            const item = h.parentElement;
+            item.classList.toggle('open');
+            syncStepHighlight(item.dataset.step);
+        });
+        h.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); h.click(); }
+        });
+    });
+
+    function syncStepHighlight(step) {
+        document.querySelectorAll('.accordion-item').forEach(a => {
+            a.style.borderColor = a.dataset.step === step ? 'var(--accent)' : '';
+            a.style.borderLeftWidth = a.dataset.step === step ? '4px' : '';
+        });
+    }
+
+    // Step navigation
+    let currentStep = 1;
+    const totalSteps = 6;
+
+    function goToStep(s) {
+        if (s < 1 || s > totalSteps) return;
+        currentStep = s;
+        document.querySelectorAll('.accordion-item').forEach((a, i) => {
+            a.classList.toggle('open', i + 1 === s);
+            a.style.borderColor = i + 1 === s ? 'var(--accent)' : '';
+            a.style.borderLeftWidth = i + 1 === s ? '4px' : '';
+        });
+        syncStepHighlight(String(s));
+    }
+
+    document.getElementById('prevStep').addEventListener('click', () => goToStep(currentStep - 1));
+    document.getElementById('nextStep').addEventListener('click', () => goToStep(currentStep + 1));
+    document.getElementById('showAllSteps').addEventListener('click', () => {
+        document.querySelectorAll('.accordion-item').forEach(a => {
+            a.classList.add('open');
+            a.style.borderColor = '';
+            a.style.borderLeftWidth = '';
+        });
+    });
+
+    // ========================
+    // NAV LINKS
+    // ========================
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            const sec = link.dataset.section;
+            if (sec === 'generator') {
+                document.getElementById('generatorSection').scrollIntoView({ behavior: 'smooth' });
+            } else if (sec === 'quiz') {
+                document.querySelector('[data-tab="selfcheck"]').click();
+                document.querySelector('.tab-content').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+    });
+
+    // ========================
+    // QUIZ
+    // ========================
+    function checkQuiz(el, correctVal) {
+        const question = el.closest('.quiz-question');
+        const options = question.querySelectorAll('.quiz-option');
+        const feedback = question.querySelector('.quiz-feedback');
+
+        options.forEach(o => {
+            o.classList.remove('correct', 'wrong');
+            o.style.pointerEvents = 'none';
+        });
+
+        if (el.dataset.val === correctVal) {
+            el.classList.add('correct');
+            feedback.textContent = '✓ Верно!';
+            feedback.style.color = 'var(--quiz-correct)';
+        } else {
+            el.classList.add('wrong');
+            options.forEach(o => { if (o.dataset.val === correctVal) o.classList.add('correct'); });
+            feedback.textContent = '✗ Неверно. Правильный ответ выделен зелёным.';
+            feedback.style.color = 'var(--quiz-wrong)';
+        }
+        feedback.style.display = 'block';
+    }
+
+    // ========================
+    // GENERATOR
+    // ========================
+    function generateTask() {
+        const configs = [
+            { a: 2, b: 3, c: 1, d: 2, label: 'y = (2|x|−3)/(|x|−2x²)', ans: 'k ∈ {−1/4; 0; 1/4}', idea: 'Упрощается до y=3/x (x<0) и y=−3/x (x>0). Выколотые точки при x=±1/2.' },
+            { a: 4, b: 1, c: 2, d: 1, label: 'y = (4|x|−1)/(|x|−2x²)', ans: 'k ∈ {−8; 0; 8}', idea: 'Упрощается до y=1/x (x<0) и y=−1/x (x>0). Выколотые точки при x=±1/2.' },
+            { a: 5, b: 2, c: 1, d: 5, label: 'y = (5|x|−2)/(|x|−5x²)', ans: 'k ∈ {−20; 0; 20}', idea: 'Упрощается до y=2/x (x<0) и y=−2/x (x>0). Выколотые точки при x=±1/5.' },
+        ];
+        const cfg = configs[Math.floor(Math.random() * configs.length)];
+        document.getElementById('genTask').innerHTML =
+        `<p><strong>Задача:</strong> Постройте график функции</p>
+         <div class="math-block">${cfg.label}</div>
+         <p>Определите, при каких значениях <em>k</em> прямая y = kx не имеет с графиком общих точек.</p>
+         <p style="margin-top:8px;font-size:13px;color:var(--text-secondary);"><em>Идея решения:</em> ${cfg.idea}</p>`;
+        document.getElementById('genAnswer').innerHTML = `<strong>Ответ:</strong> ${cfg.ans}`;
+        document.getElementById('genAnswer').style.display = 'none';
+    }
+
+    function toggleGenAnswer() {
+        const el = document.getElementById('genAnswer');
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // ========================
+    // CANVAS VISUALIZATION
+    // ========================
+    const mainCanvas = document.getElementById('mainCanvas');
+    const mainCtx = mainCanvas.getContext('2d');
+    const kSlider = document.getElementById('kSlider');
+    const kValueDisplay = document.getElementById('kValue');
+
+    const dpr = window.devicePixelRatio || 1;
+
+    function setupCanvas(canvas) {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        const w = canvas.width;
+        const h = canvas.height;
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        canvas.getContext('2d').scale(dpr, dpr);
+    }
+
+    // Camera state
+    const camera = { x: 0, y: 0, zoom: 40 }; // zoom: pixels per unit
+    const modalCamera = { x: 0, y: 0, zoom: 40 };
+
+    let isDragging = false;
+    let dragStart = { x: 0, y: 0 };
+    let camStart = { x: 0, y: 0 };
+    let isModalDragging = false;
+    let modalDragStart = { x: 0, y: 0 };
+    let modalCamStart = { x: 0, y: 0 };
+
+    function worldToScreen(wx, wy, cam) {
+        const cw = cam.x;
+        const ch = cam.y;
+        const z = cam.zoom;
+        const canvasW = cam === camera ? mainCanvas.width / dpr : 900;
+        const canvasH = cam === camera ? mainCanvas.height / dpr : 700;
+        return {
+            x: canvasW / 2 + (wx - cw) * z,
+            y: canvasH / 2 - (wy - ch) * z
+        };
+    }
+
+    function screenToWorld(sx, sy, cam) {
+        const cw = cam.x;
+        const ch = cam.y;
+        const z = cam.zoom;
+        const canvasW = cam === camera ? mainCanvas.width / dpr : 900;
+        const canvasH = cam === camera ? mainCanvas.height / dpr : 700;
+        return {
+            x: (sx - canvasW / 2) / z + cw,
+            y: -(sy - canvasH / 2) / z + ch
+        };
+    }
+
+    function drawGraph(ctx, cam, w, h) {
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        const bgColor = isDark ? '#222222' : '#FFFFFF';
+        const gridColor = isDark ? '#444444' : '#DDDDDD';
+        const axisColor = isDark ? '#CCCCCC' : '#333333';
+        const textColor = isDark ? '#EEEEEE' : '#333333';
+        const graphColor = '#D72638';
+        const lineColor = '#0066CC';
+
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, w, h);
+
+        const z = cam.zoom;
+        const cw = cam.x;
+        const ch = cam.y;
+
+        // Grid
+        ctx.strokeStyle = gridColor;
+        ctx.lineWidth = 0.5;
+
+        // Determine grid spacing
+        let gridStep = 1;
+        if (z < 20) gridStep = 2;
+        if (z < 10) gridStep = 5;
+        if (z > 80) gridStep = 0.5;
+        if (z > 160) gridStep = 0.25;
+
+        const left = -cw;
+        const right = w / z - cw;
+        const bottom = ch;
+        const top = h / z + ch;
+
+        ctx.beginPath();
+        for (let x = Math.floor(left / gridStep) * gridStep; x <= right; x += gridStep) {
+            const sx = w / 2 + (x - cw) * z;
+            ctx.moveTo(sx, 0);
+            ctx.lineTo(sx, h);
+        }
+        for (let y = Math.floor(bottom / gridStep) * gridStep; y <= top; y += gridStep) {
+            const sy = h / 2 - (y - ch) * z;
+            ctx.moveTo(0, sy);
+            ctx.lineTo(w, sy);
+        }
+        ctx.stroke();
+
+        // Axes
+        ctx.strokeStyle = axisColor;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        // X axis
+        const y0 = h / 2 + ch * z;
+        if (y0 >= 0 && y0 <= h) {
+            ctx.moveTo(0, y0);
+            ctx.lineTo(w, y0);
+        }
+        // Y axis
+        const x0 = w / 2 - cw * z;
+        if (x0 >= 0 && x0 <= w) {
+            ctx.moveTo(x0, 0);
+            ctx.lineTo(x0, h);
+        }
+        ctx.stroke();
+
+        // Axis labels
+        ctx.fillStyle = textColor;
+        ctx.font = '12px Helvetica, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+
+        for (let x = Math.floor(left / gridStep) * gridStep; x <= right; x += gridStep) {
+            if (Math.abs(x) < 0.001) continue;
+            const sx = w / 2 + (x - cw) * z;
+            if (sx < 10 || sx > w - 10) continue;
+            const label = Math.abs(x) >= 1 ? String(Math.round(x * 100) / 100) : String(x);
+            ctx.fillText(label, sx, y0 + 4);
+        }
+
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        for (let y = Math.floor(bottom / gridStep) * gridStep; y <= top; y += gridStep) {
+            if (Math.abs(y) < 0.001) continue;
+            const sy = h / 2 - (y - ch) * z;
+            if (sy < 10 || sy > h - 10) continue;
+            const label = Math.abs(y) >= 1 ? String(Math.round(y * 100) / 100) : String(y);
+            ctx.fillText(label, x0 - 6, sy);
+        }
+
+        // Origin label
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'top';
+        ctx.fillText('0', x0 - 6, y0 + 4);
+
+        // Draw function: y = 1/x (x<0) and y = -1/x (x>0)
+        const holeX = 2 / 7;
+        const holeY = -7 / 2; // at x=2/7, y=-1/x = -7/2
+
+        ctx.strokeStyle = graphColor;
+        ctx.lineWidth = 2.5;
+
+        // Left branch: y = 1/x, x < 0, x ≠ -2/7
+        ctx.beginPath();
+        let started = false;
+        const holeXneg = -2 / 7;
+        const step = 0.005;
+        for (let wx = left; wx < right; wx += step) {
+            if (wx >= 0) continue;
+            if (Math.abs(wx - holeXneg) < 0.02) {
+                if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+                continue;
+            }
+            const wy = 1 / wx;
+            const s = worldToScreen(wx, wy, cam);
+            if (s.y < -100 || s.y > h + 100) {
+                if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+                continue;
+            }
+            if (!started) { ctx.moveTo(s.x, s.y); started = true; }
+            else ctx.lineTo(s.x, s.y);
+        }
+        if (started) ctx.stroke();
+
+        // Right branch: y = -1/x, x > 0, x ≠ 2/7
+        ctx.beginPath();
+        started = false;
+        for (let wx = left; wx < right; wx += step) {
+            if (wx <= 0) continue;
+            if (Math.abs(wx - holeX) < 0.02) {
+                if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+                continue;
+            }
+            const wy = -1 / wx;
+            const s = worldToScreen(wx, wy, cam);
+            if (s.y < -100 || s.y > h + 100) {
+                if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+                continue;
+            }
+            if (!started) { ctx.moveTo(s.x, s.y); started = true; }
+            else ctx.lineTo(s.x, s.y);
+        }
+        if (started) ctx.stroke();
+
+        // Hole points
+        const holePts = [
+            { x: holeX, y: holeY },
+            { x: -holeX, y: holeY }
+        ];
+        holePts.forEach(p => {
+            const s = worldToScreen(p.x, p.y, cam);
+            ctx.fillStyle = bgColor;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = graphColor;
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, 5, 0, Math.PI * 2);
+            ctx.stroke();
+        });
+
+        // Draw line y = kx
+        const k = parseFloat(kSlider.value);
+        ctx.strokeStyle = lineColor;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        const lineLeft = worldToScreen(left, k * left, cam);
+        const lineRight = worldToScreen(right, k * right, cam);
+        ctx.moveTo(lineLeft.x, lineLeft.y);
+        ctx.lineTo(lineRight.x, lineRight.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Find and draw intersection points
+        const intersections = [];
+        if (k !== 0) {
+            // For x > 0: -1/x = kx => kx^2 = -1
+            if (k < 0) {
+                const xInt = Math.sqrt(-1 / k);
+                if (Math.abs(xInt - holeX) > 0.01) {
+                    intersections.push({ x: xInt, y: k * xInt });
+                }
+            }
+            // For x < 0: 1/x = kx => kx^2 = 1
+            if (k > 0) {
+                const xInt = -Math.sqrt(1 / k);
+                if (Math.abs(xInt - (-holeX)) > 0.01) {
+                    intersections.push({ x: xInt, y: k * xInt });
+                }
+            }
+        }
+
+        intersections.forEach(p => {
+            const s = worldToScreen(p.x, p.y, cam);
+            ctx.fillStyle = lineColor;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = isDark ? '#FFFFFF' : '#000000';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+        });
+
+        // Labels
+        ctx.font = 'bold 13px Helvetica, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+
+        // Function label
+        const labelX = holeX + 0.3;
+        const labelY = -1 / labelX;
+        const ls = worldToScreen(labelX, labelY, cam);
+        if (ls.x < w - 60 && ls.x > 10 && ls.y > 10 && ls.y < h - 10) {
+            ctx.fillStyle = graphColor;
+            ctx.fillText('y = −1/x', ls.x + 8, ls.y - 6);
+        }
+
+        const labelX2 = -holeX - 0.8;
+        const labelY2 = 1 / labelX2;
+        const ls2 = worldToScreen(labelX2, labelY2, cam);
+        if (ls2.x < w - 60 && ls2.x > 10 && ls2.y > 10 && ls2.y < h - 10) {
+            ctx.fillStyle = graphColor;
+            ctx.fillText('y = 1/x', ls2.x + 8, ls2.y - 6);
+        }
+
+        // Line label
+        const llX = right * 0.6;
+        const llY = k * llX;
+        const lls = worldToScreen(llX, llY, cam);
+        if (lls.x < w - 60 && lls.x > 10 && lls.y > 10 && lls.y < h - 10) {
+            ctx.fillStyle = lineColor;
+            ctx.fillText(`y = ${k}x`, lls.x + 8, lls.y - 6);
+        }
+
+        // Status text
+        ctx.font = '12px Helvetica, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        const noIntersect = intersections.length === 0;
+        ctx.fillStyle = noIntersect ? '#2E7D32' : textColor;
+        ctx.fillText(noIntersect ? '✓ Нет пересечений' : `Пересечений: ${intersections.length}`, 10, 10);
+    }
+
+    function drawMain() {
+        setupCanvas(mainCanvas);
+        const w = mainCanvas.width / dpr;
+        const h = mainCanvas.height / dpr;
+        mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+        drawGraph(mainCtx, camera, w, h);
+    }
+
+    function drawModal() {
+        const modalCanvas = document.getElementById('modalCanvas');
+        const ctx = modalCanvas.getContext('2d');
+        setupCanvas(modalCanvas);
+        const w = modalCanvas.width / dpr;
+        const h = modalCanvas.height / dpr;
+        ctx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+        drawGraph(ctx, modalCamera, w, h);
+    }
+
+    // Sync cameras
+    function syncCameras() {
+        modalCamera.x = camera.x;
+        modalCamera.y = camera.y;
+        modalCamera.zoom = camera.zoom;
+    }
+
+    kSlider.addEventListener('input', () => {
+        const k = parseFloat(kSlider.value);
+        kValueDisplay.textContent = k % 1 === 0 ? k : k.toFixed(2);
+        drawMain();
+        if (modalOpen) drawModal();
+    });
+
+    // Mouse pan/zoom for main canvas
+    const vizWrap = document.getElementById('vizWrap');
+
+    vizWrap.addEventListener('mousedown', e => {
+        if (e.button !== 0) return;
+        isDragging = true;
+        dragStart = { x: e.clientX, y: e.clientY };
+        camStart = { x: camera.x, y: camera.y };
+        vizWrap.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        const dx = e.clientX - dragStart.x;
+        const dy = e.clientY - dragStart.y;
+        const z = camera.zoom;
+        camera.x = camStart.x - dx / z;
+        camera.y = camStart.y + dy / z;
+        drawMain();
+    });
+
+    window.addEventListener('mouseup', () => {
+        isDragging = false;
+        vizWrap.style.cursor = 'grab';
+    });
+
+    vizWrap.addEventListener('wheel', e => {
+        e.preventDefault();
+        const rect = mainCanvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+
+        const w = mainCanvas.width / dpr;
+        const h = mainCanvas.height / dpr;
+
+        const worldBefore = screenToWorld(mx, my, camera);
+
+        const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+        camera.zoom *= factor;
+        camera.zoom = Math.max(5, Math.min(500, camera.zoom));
+
+        const worldAfter = screenToWorld(mx, my, camera);
+        camera.x -= (worldAfter.x - worldBefore.x);
+        camera.y -= (worldAfter.y - worldBefore.y);
+
+        drawMain();
+    }, { passive: false });
+
+    // Touch support
+    let touchStart = null;
+    let touchDist = null;
+
+    vizWrap.addEventListener('touchstart', e => {
+        if (e.touches.length === 1) {
+            isDragging = true;
+            dragStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            camStart = { x: camera.x, y: camera.y };
+        } else if (e.touches.length === 2) {
+            isDragging = false;
+            touchDist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+        }
+    }, { passive: false });
+
+    vizWrap.addEventListener('touchmove', e => {
+        e.preventDefault();
+        if (e.touches.length === 1 && isDragging) {
+            const dx = e.touches[0].clientX - dragStart.x;
+            const dy = e.touches[0].clientY - dragStart.y;
+            const z = camera.zoom;
+            camera.x = camStart.x - dx / z;
+            camera.y = camStart.y + dy / z;
+            drawMain();
+        } else if (e.touches.length === 2 && touchDist) {
+            const newDist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            const factor = newDist / touchDist;
+            camera.zoom *= factor;
+            camera.zoom = Math.max(5, Math.min(500, camera.zoom));
+            touchDist = newDist;
+            drawMain();
+        }
+    }, { passive: false });
+
+    vizWrap.addEventListener('touchend', () => {
+        isDragging = false;
+        touchDist = null;
+    });
+
+    // Modal
+    let modalOpen = false;
+
+    function openModal() {
+        modalOpen = true;
+        syncCameras();
+        document.getElementById('modalOverlay').classList.add('open');
+        drawModal();
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        modalOpen = false;
+        document.getElementById('modalOverlay').classList.remove('open');
+        document.body.style.overflow = '';
+        syncCameras();
+        drawMain();
+    }
+
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeModal();
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && modalOpen) closeModal();
+    });
+
+    // Modal pan/zoom
+    const modalWrap = document.getElementById('modalWrap');
+
+    modalWrap.addEventListener('mousedown', e => {
+        if (e.button !== 0) return;
+        isModalDragging = true;
+        modalDragStart = { x: e.clientX, y: e.clientY };
+        modalCamStart = { x: modalCamera.x, y: modalCamera.y };
+        modalWrap.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('mousemove', e => {
+        if (!isModalDragging) return;
+        const dx = e.clientX - modalDragStart.x;
+        const dy = e.clientY - modalDragStart.y;
+        const z = modalCamera.zoom;
+        modalCamera.x = modalCamStart.x - dx / z;
+        modalCamera.y = modalCamStart.y + dy / z;
+        drawModal();
+    });
+
+    window.addEventListener('mouseup', () => {
+        isModalDragging = false;
+        modalWrap.style.cursor = 'grab';
+    });
+
+    modalWrap.addEventListener('wheel', e => {
+        e.preventDefault();
+        const rect = document.getElementById('modalCanvas').getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const w = 900;
+        const h = 700;
+        const worldBefore = { x: (mx - w / 2) / modalCamera.zoom + modalCamera.x, y: -(my - h / 2) / modalCamera.zoom + modalCamera.y };
+        const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+        modalCamera.zoom *= factor;
+        modalCamera.zoom = Math.max(5, Math.min(500, modalCamera.zoom));
+        const worldAfter = { x: (mx - w / 2) / modalCamera.zoom + modalCamera.x, y: -(my - h / 2) / modalCamera.zoom + modalCamera.y };
+        modalCamera.x -= (worldAfter.x - worldBefore.x);
+        modalCamera.y -= (worldAfter.y - worldBefore.y);
+        drawModal();
+    }, { passive: false });
+
+    // Zoom buttons
+    function zoomIn() {
+        camera.zoom *= 1.3;
+        camera.zoom = Math.min(500, camera.zoom);
+        drawMain();
+    }
+
+    function zoomOut() {
+        camera.zoom /= 1.3;
+        camera.zoom = Math.max(5, camera.zoom);
+        drawMain();
+    }
+
+    function resetView() {
+        camera.x = 0;
+        camera.y = 0;
+        camera.zoom = 40;
+        drawMain();
+    }
+
+    // Initial draw
+    window.addEventListener('load', () => {
+        drawMain();
+    });
+
+    window.addEventListener('resize', () => {
+        drawMain();
+        if (modalOpen) drawModal();
+    });
+</script>
+</body>
+</html>
