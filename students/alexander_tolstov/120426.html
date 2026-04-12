@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивное пособие: Интегрирование рациональных дробей</title>
+    <style>
+        :root {
+            --accent: #0066cc;
+            --light-blue: #e6f0ff;
+            --dark-gray: #505050;
+            --light-gray: #f5f5f5;
+            --success: #28a745;
+            --error: #dc3545;
+            --warning: #ffc107;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            background: #f8f9fa;
+            color: #333;
+        }
+        header {
+            background: var(--accent);
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+        header h1 { margin: 0; font-size: 1.8rem; }
+        header p { margin: 0.3rem 0 0; opacity: 0.9; }
+        nav {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 0.5rem;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        nav button {
+            background: none;
+            border: none;
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: var(--dark-gray);
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            border-radius: 4px 4px 0 0;
+        }
+        nav button:hover { background: #f0f4f8; }
+        nav button.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+        main {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem 3rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .section { display: none; padding: 1.5rem; animation: fadeIn 0.3s; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        h2 { color: var(--accent); border-bottom: 2px solid var(--light-blue); padding-bottom: 0.4rem; margin-top: 0; }
+        h3 { color: var(--dark-gray); margin: 1.2rem 0 0.5rem; }
+        .box {
+            background: var(--light-blue);
+            border-left: 4px solid var(--accent);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        .box.warning { background: #fff8e1; border-left-color: var(--warning); }
+        .box.danger { background: #ffebee; border-left-color: var(--error); }
+
+        /* MathML tweaks */
+        math {
+            font-size: 1.05em;
+            vertical-align: middle;
+            overflow-x: auto;
+            max-width: 100%;
+        }
+        @media (max-width: 600px) { math { font-size: 0.9em; } }
+
+        /* Алгоритм и Примеры */
+        .step, .example-card {
+            background: var(--light-gray);
+            margin: 0.8rem 0;
+            border-radius: 6px;
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid #e0e0e0;
+        }
+        .example-card { background: white; }
+        .step-header, .ex-header { padding: 0.9rem 1rem; font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
+        .step-header::after, .ex-header::after { content: '▼'; font-size: 0.8rem; transition: transform 0.2s; }
+        .step.open .step-header::after, .example-card.open .ex-header::after { transform: rotate(-90deg); }
+        .step-content, .ex-content { display: none; padding: 0 1rem 1.5rem; border-top: 1px dashed #ccc; line-height: 1.8; }
+        .step.open .step-content, .example-card.open .ex-content { display: block; }
+        .ex-content p { margin: 0.6rem 0; }
+        .ex-step { margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid #eee; }
+        .ex-step:last-child { border-bottom: none; }
+        .ex-step-title { font-weight: 600; color: var(--accent); margin-bottom: 0.3rem; }
+        .ex-comment { background: #f0f7ff; padding: 0.6rem; border-radius: 4px; margin-top: 0.3rem; font-size: 0.95em; }
+
+        /* Шпаргалка */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+        .card {
+            background: var(--light-gray);
+            padding: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid transparent;
+        }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.08); border-color: #ccc; }
+        .card-q { font-weight: 500; margin-bottom: 0.3rem; }
+        .card-a { display: none; color: var(--accent); font-weight: 600; margin-top: 0.4rem; }
+        .card.open .card-a { display: block; }
+
+        footer { text-align: center; padding: 1.5rem; color: var(--dark-gray); font-size: 0.85rem; opacity: 0.7; }
+        @media (max-width: 600px) {
+            nav { justify-content: flex-start; overflow-x: auto; white-space: nowrap; }
+            main { margin: 1rem 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Интегрирование рациональных дробей</h1>
+    <p>Метод неопределённых коэффициентов • Интерактивный тренажёр</p>
+</header>
+
+<nav>
+    <button class="active" onclick="show('theory', this)">📖 Теория</button>
+    <button onclick="show('algorithm', this)">⚙️ Алгоритм</button>
+    <button onclick="show('examples', this)">📚 Примеры</button>
+    <button onclick="show('cheatsheet', this)">📋 Шпаргалка</button>
+</nav>
+
+<main>
+    <!-- ТЕОРИЯ -->
+    <section id="theory" class="section active">
+        <h2>Базовые понятия</h2>
+        <div class="box">
+            <strong>Рациональная дробь</strong> — отношение двух многочленов
+            <math><mfrac><mrow><mi>P</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow><mrow><mi>Q</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow></mfrac></math>.
+            Дробь <em>правильная</em>, если
+            <math><mtext>deg</mtext><mi>P</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>&lt;</mo><mtext>deg</mtext><mi>Q</mi><mo>(</mo><mi>x</mi><mo>)</mo></math>.
+            Если нет → сначала деление многочленов.
+        </div>
+        <h3>4 типа простейших дробей</h3>
+        <ol>
+            <li><math><mfrac><mi>A</mi><mrow><mi>x</mi><mo>-</mo><mi>a</mi></mrow></mfrac></math></li>
+            <li><math><mfrac><mi>A</mi><msup><mrow><mo>(</mo><mi>x</mi><mo>-</mo><mi>a</mi><mo>)</mo></mrow><mi>k</mi></msup></mfrac><mo>,</mo><mi>k</mi><mo>≥</mo><mn>2</mn></math></li>
+            <li><math><mfrac><mrow><mi>B</mi><mi>x</mi><mo>+</mo><mi>C</mi></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mi>p</mi><mi>x</mi><mo>+</mo><mi>q</mi></mrow></mfrac><mspace width="0.3em"/><mo>(</mo><mi>D</mi><mo>&lt;</mo><mn>0</mn><mo>)</mo></math></li>
+            <li><math><mfrac><mrow><mi>B</mi><mi>x</mi><mo>+</mo><mi>C</mi></mrow><msup><mrow><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mi>p</mi><mi>x</mi><mo>+</mo><mi>q</mi><mo>)</mo></mrow><mi>m</mi></msup></mfrac><mo>,</mo><mi>m</mi><mo>≥</mo><mn>2</mn></math></li>
+        </ol>
+        <div class="box warning">
+            ⚠️ <strong>Ловушка:</strong> Не пропускайте проверку на правильность дроби! Пример: <br>
+            <math><mfrac><mrow><msup><mi>x</mi><mn>3</mn></msup><mo>+</mo><mn>1</mn></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></mfrac><mo>=</mo><mi>x</mi><mo>+</mo><mfrac><mrow><mn>1</mn><mo>-</mo><mi>x</mi></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></mfrac></math>
+        </div>
+    </section>
+
+    <!-- АЛГОРИТМ -->
+    <section id="algorithm" class="section">
+        <h2>Пошаговый алгоритм разложения</h2>
+        <p>Нажмите на шаг, чтобы раскрыть пояснение:</p>
+        <div class="step" onclick="toggleStep(this)">
+            <div class="step-header">Шаг 1. Разложить знаменатель на множители</div>
+            <div class="step-content">Проверьте дискриминант квадратных трёхчленов. Если <math><mi>D</mi><mo>≥</mo><mn>0</mn></math>, разложите их на линейные множители над <math><mi mathvariant="double-struck">ℝ</mi></math>.</div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+            <div class="step-header">Шаг 2. Записать разложение с неопределёнными коэффициентами</div>
+            <div class="step-content">
+                • <math><mi>x</mi><mo>-</mo><mi>a</mi></math> → <math><mfrac><mi>A</mi><mrow><mi>x</mi><mo>-</mo><mi>a</mi></mrow></mfrac></math><br>
+                • <math><msup><mrow><mo>(</mo><mi>x</mi><mo>-</mo><mi>a</mi><mo>)</mo></mrow><mi>k</mi></msup></math> → сумма <math><mfrac><msub><mi>A</mi><mn>1</mn></msub><mrow><mi>x</mi><mo>-</mo><mi>a</mi></mrow></mfrac><mo>+</mo><mo>…</mo><mo>+</mo><mfrac><msub><mi>A</mi><mi>k</mi></msub><msup><mrow><mo>(</mo><mi>x</mi><mo>-</mo><mi>a</mi><mo>)</mo></mrow><mi>k</mi></msup></mfrac></math><br>
+                • Неприводимый квадратичный → <math><mfrac><mrow><mi>B</mi><mi>x</mi><mo>+</mo><mi>C</mi></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mi>p</mi><mi>x</mi><mo>+</mo><mi>q</mi></mrow></mfrac></math>
+            </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+            <div class="step-header">Шаг 3. Привести к общему знаменателю и приравнять числители</div>
+            <div class="step-content">Умножьте обе части на <math><mi>Q</mi><mo>(</mo><mi>x</mi><mo>)</mo></math>. Получите тождество многочленов, верное при всех <math><mi>x</mi></math>.</div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+            <div class="step-header">Шаг 4. Найти коэффициенты</div>
+            <div class="step-content">
+                • <strong>Метод частных значений:</strong> подставляйте корни знаменателя (быстро находит <math><mi>A</mi><mo>,</mo><mi>B</mi><mo>,</mo><mi>C</mi></math>).<br>
+                • <strong>Метод неопределённых коэффициентов:</strong> раскройте скобки, сгруппируйте по степеням <math><mi>x</mi></math>, приравняйте коэффициенты → система уравнений.
+            </div>
+        </div>
+        <div class="step" onclick="toggleStep(this)">
+            <div class="step-header">Шаг 5. Проинтегрировать каждую простейшую дробь</div>
+            <div class="step-content">Используйте табличные интегралы. Для типа 3 выделяйте в числителе производную знаменателя → логарифм + арктангенс.</div>
+        </div>
+    </section>
+
+    <!-- ПРИМЕРЫ -->
+    <section id="examples" class="section">
+        <h2>Подробные примеры решения</h2>
+        <p>Нажмите на карточку, чтобы увидеть пошаговое решение с комментариями:</p>
+
+        <!-- Пример 1 -->
+        <div class="example-card" onclick="toggleStep(this)">
+            <div class="ex-header">Пример 1. Различные линейные множители</div>
+            <div class="ex-content">
+                <div class="ex-step">
+                    <div class="ex-step-title">🔍 Шаг 1. Анализ структуры знаменателя и запись вида разложения</div>
+                    <p>Знаменатель уже представлен в виде произведения двух <em>различных</em> линейных множителей: <math><mo>(</mo><mi>x</mi><mo>-</mo><mn>2</mn><mo>)</mo></math> и <math><mo>(</mo><mi>x</mi><mo>+</mo><mn>3</mn><mo>)</mo></math>.</p>
+                    <p><strong>Правило:</strong> каждому линейному множителю первой степени соответствует простейшая дробь с <em>константой</em> в числителе.</p>
+                    <p>Поэтому мы записываем разложение в общем виде:</p>
+                    <p><math><mfrac><mrow><mn>5</mn><mi>x</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo>(</mo><mi>x</mi><mo>-</mo><mn>2</mn><mo>)</mo><mo>(</mo><mi>x</mi><mo>+</mo><mn>3</mn><mo>)</mo></mrow></mfrac><mo>=</mo><mfrac><mi>A</mi><mrow><mi>x</mi><mo>-</mo><mn>2</mn></mrow></mfrac><mo>+</mo><mfrac><mi>B</mi><mrow><mi>x</mi><mo>+</mo><mn>3</mn></mrow></mfrac></math></p>
+                    <div class="ex-comment">💡 <strong>Почему константы?</strong> Степень числителя простейшей дроби всегда на 1 меньше степени её знаменателя. Для линейного знаменателя (степень 1) числитель имеет степень 0, то есть является числом.</div>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">📐 Шаг 2. Избавление от знаменателей (тождество числителей)</div>
+                    <p>Умножим обе части равенства на исходный знаменатель <math><mo>(</mo><mi>x</mi><mo>-</mo><mn>2</mn><mo>)</mo><mo>(</mo><mi>x</mi><mo>+</mo><mn>3</mn><mo>)</mo></math>. Это допустимо, так как мы ищем тождество, верное при всех <math><mi>x</mi></math>, кроме корней знаменателя, а многочлены непрерывны.</p>
+                    <p>Получаем:</p>
+                    <p><math><mn>5</mn><mi>x</mi><mo>+</mo><mn>1</mn><mo>≡</mo><mi>A</mi><mo>(</mo><mi>x</mi><mo>+</mo><mn>3</mn><mo>)</mo><mo>+</mo><mi>B</mi><mo>(</mo><mi>x</mi><mo>-</mo><mn>2</mn><mo>)</mo></math></p>
+                    <div class="ex-comment">💡 <strong>Символ ≡</strong> означает «тождественно равно». Это равенство выполняется при <em>любых</em> значениях <math><mi>x</mi></math>, что открывает нам путь к подстановке удобных чисел.</div>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">🔢 Шаг 3. Метод частных значений (подстановка корней)</div>
+                    <p>Подставим <math><mi>x</mi><mo>=</mo><mn>2</mn></math>. Второе слагаемое обнулится, так как <math><mo>(</mo><mi>x</mi><mo>-</mo><mn>2</mn><mo>)</mo><mo>=</mo><mn>0</mn></math>:</p>
+                    <p><math><mn>5</mn><mo>(</mo><mn>2</mn><mo>)</mo><mo>+</mo><mn>1</mn><mo>=</mo><mi>A</mi><mo>(</mo><mn>2</mn><mo>+</mo><mn>3</mn><mo>)</mo> <mo>⇒</mo> <mn>11</mn><mo>=</mo><mn>5</mn><mi>A</mi></math></p>
+                    <p>Аналогично подставим <math><mi>x</mi><mo>=</mo><mo>-</mo><mn>3</mn></math>. Первое слагаемое обнулится:</p>
+                    <p><math><mn>5</mn><mo>(</mo><mo>-</mo><mn>3</mn><mo>)</mo><mo>+</mo><mn>1</mn><mo>=</mo><mi>B</mi><mo>(</mo><mo>-</mo><mn>3</mn><mo>-</mo><mn>2</mn><mo>)</mo> <mo>⇒</mo> <mo>-</mo><mn>14</mn><mo>=</mo><mo>-</mo><mn>5</mn><mi>B</mi></math></p>
+                    <div class="ex-comment">💡 Этот метод работает только для <em>линейных</em> множителей первой степени. Для кратных или квадратичных множителей одного только подстановки недостаточно.</div>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">✅ Шаг 4. Вычисление коэффициентов и запись ответа</div>
+                    <p>Решаем простые уравнения:</p>
+                    <p><math><mi>A</mi><mo>=</mo><mfrac><mn>11</mn><mn>5</mn></mfrac><mo>,</mo><mspace width="1em"/><mi>B</mi><mo>=</mo><mfrac><mn>14</mn><mn>5</mn></mfrac></math></p>
+                    <p>Подставляем найденные константы обратно в общий вид:</p>
+                    <p><math><mfrac><mn>11</mn><mrow><mn>5</mn><mo>(</mo><mi>x</mi><mo>-</mo><mn>2</mn><mo>)</mo></mrow></mfrac><mo>+</mo><mfrac><mn>14</mn><mrow><mn>5</mn><mo>(</mo><mi>x</mi><mo>+</mo><mn>3</mn><mo>)</mo></mrow></mfrac></math></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Пример 2 -->
+        <div class="example-card" onclick="toggleStep(this)">
+            <div class="ex-header">Пример 2. Кратный линейный корень</div>
+            <div class="ex-content">
+                <div class="ex-step">
+                    <div class="ex-step-title">🔍 Шаг 1. Правило для кратных корней</div>
+                    <p>В знаменателе присутствует множитель <math><mi>x</mi></math> в степени 1 и множитель <math><mo>(</mo><mi>x</mi><mo>-</mo><mn>1</mn><mo>)</mo></math> в степени 2.</p>
+                    <p><strong>Правило:</strong> если линейный множитель <math><mo>(</mo><mi>x</mi><mo>-</mo><mi>a</mi><mo>)</mo></math> встречается <math><mi>k</mi></math> раз, то в разложении должны присутствовать <em>все</em> степени от 1 до <math><mi>k</mi></math> с отдельными константами.</p>
+                    <p>Поэтому вид разложения:</p>
+                    <p><math><mfrac><mi>A</mi><mi>x</mi></mfrac><mo>+</mo><mfrac><mi>B</mi><mrow><mi>x</mi><mo>-</mo><mn>1</mn></mrow></mfrac><mo>+</mo><mfrac><mi>C</mi><msup><mrow><mo>(</mo><mi>x</mi><mo>-</mo><mn>1</mn><mo>)</mo></mrow><mn>2</mn></msup></mfrac></math></p>
+                    <div class="ex-comment">💡 <strong>Частая ошибка:</strong> написать только <math><mfrac><mi>C</mi><msup><mrow><mo>(</mo><mi>x</mi><mo>-</mo><mn>1</mn><mo>)</mo></mrow><mn>2</mn></msup></mfrac>, пропустив <math><mfrac><mi>B</mi><mrow><mi>x</mi><mo>-</mo><mn>1</mn></mrow></mfrac></math>. Без него система не будет иметь решений, так как не хватит свободных параметров для покрытия всех степеней <math><mi>x</mi></math> в числителе.</div>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">📐 Шаг 2. Тождество числителей</div>
+                    <p>Умножаем на <math><mi>x</mi><msup><mrow><mo>(</mo><mi>x</mi><mo>-</mo><mn>1</mn><mo>)</mo></mrow><mn>2</mn></msup></math>:</p>
+                    <p><math><mn>3</mn><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>1</mn><mo>≡</mo><mi>A</mi><msup><mrow><mo>(</mo><mi>x</mi><mo>-</mo><mn>1</mn><mo>)</mo></mrow><mn>2</mn></msup><mo>+</mo><mi>B</mi><mi>x</mi><mo>(</mo><mi>x</mi><mo>-</mo><mn>1</mn><mo>)</mo><mo>+</mo><mi>C</mi><mi>x</mi></math></p>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">🔢 Шаг 3. Нахождение A и C через корни</div>
+                    <p>Подставляем <math><mi>x</mi><mo>=</mo><mn>0</mn></math> (корень множителя <math><mi>x</mi></math>):</p>
+                    <p><math><mn>1</mn><mo>=</mo><mi>A</mi><mo>(</mo><mo>-</mo><mn>1</mn><msup><mo>)</mo></msup><mn>2</mn><mo>+</mo><mn>0</mn><mo>+</mo><mn>0</mn> <mo>⇒</mo> <mi>A</mi><mo>=</mo><mn>1</mn></math></p>
+                    <p>Подставляем <math><mi>x</mi><mo>=</mo><mn>1</mn></math> (корень множителя <math><mo>(</mo><mi>x</mi><mo>-</mo><mn>1</mn><mo>)</mo></math>):</p>
+                    <p><math><mn>3</mn><mo>+</mo><mn>2</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>0</mn><mo>+</mo><mn>0</mn><mo>+</mo><mi>C</mi><mo>(</mo><mn>1</mn><mo>)</mo> <mo>⇒</mo> <mi>C</mi><mo>=</mo><mn>6</mn></math></p>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">📊 Шаг 4. Нахождение B через сравнение старших степеней</div>
+                    <p>Метод частных значений уже исчерпан (корней всего 2, а неизвестных 3). Используем <strong>метод неопределённых коэффициентов</strong>. Приравняем коэффициенты при <math><msup><mi>x</mi><mn>2</mn></msup></math> слева и справа.</p>
+                    <p>Слева: <math><mn>3</mn><msup><mi>x</mi><mn>2</mn></msup></math> → коэффициент <math><mn>3</mn></math>.<br>
+                        Справа: <math><mi>A</mi><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mi>B</mi><msup><mi>x</mi><mn>2</mn></msup></math> → коэффициент <math><mi>A</mi><mo>+</mo><mi>B</mi></math>.</p>
+                    <p>Получаем: <math><mn>3</mn><mo>=</mo><mi>A</mi><mo>+</mo><mi>B</mi></math>. Подставляем найденное <math><mi>A</mi><mo>=</mo><mn>1</mn></math>:</p>
+                    <p><math><mi>B</mi><mo>=</mo><mn>3</mn><mo>-</mo><mn>1</mn><mo>=</mo><mn>2</mn></math></p>
+                    <div class="ex-comment">💡 Сравнивать можно коэффициенты при любой степени <math><mi>x</mi></math>, но при старшей степени обычно быстрее всего, так как меньше слагаемых.</div>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">✅ Шаг 5. Итоговое разложение</div>
+                    <p><math><mfrac><mn>1</mn><mi>x</mi></mfrac><mo>+</mo><mfrac><mn>2</mn><mrow><mi>x</mi><mo>-</mo><mn>1</mn></mrow></mfrac><mo>+</mo><mfrac><mn>6</mn><msup><mrow><mo>(</mo><mi>x</mi><mo>-</mo><mn>1</mn><mo>)</mo></mrow><mn>2</mn></msup></mfrac></math></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Пример 3 -->
+        <div class="example-card" onclick="toggleStep(this)">
+            <div class="ex-header">Пример 3. Неприводимый квадратный множитель</div>
+            <div class="ex-content">
+                <div class="ex-step">
+                    <div class="ex-step-title">🔍 Шаг 1. Проверка квадратного трёхчлена</div>
+                    <p>Рассмотрим <math><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>4</mn></math>. Вычисляем дискриминант: <math><mi>D</mi><mo>=</mo><msup><mn>0</mn><mn>2</mn></msup><mo>-</mo><mn>4</mn><mo>·</mo><mn>1</mn><mo>·</mo><mn>4</mn><mo>=</mo><mo>-</mo><mn>16</mn><mo>&lt;</mo><mn>0</mn></math>.</p>
+                    <p>Так как <math><mi>D</mi><mo>&lt;</mo><mn>0</mn></math>, трёхчлен не имеет действительных корней и <em>не раскладывается</em> на линейные множители над <math><mi mathvariant="double-struck">ℝ</mi></math>. Он остаётся как есть.</p>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">📐 Шаг 2. Вид разложения для квадратичного множителя</div>
+                    <p><strong>Правило:</strong> неприводимому квадратному знаменателю соответствует простейшая дробь с <em>линейным</em> числителем <math><mi>B</mi><mi>x</mi><mo>+</mo><mi>C</mi></math>.</p>
+                    <p>Общий вид:</p>
+                    <p><math><mfrac><mrow><mn>2</mn><mi>x</mi><mo>+</mo><mn>5</mn></mrow><mrow><mi>x</mi><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>4</mn><mo>)</mo></mrow></mfrac><mo>=</mo><mfrac><mi>A</mi><mi>x</mi></mfrac><mo>+</mo><mfrac><mrow><mi>B</mi><mi>x</mi><mo>+</mo><mi>C</mi></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>4</mn></mrow></mfrac></math></p>
+                    <div class="ex-comment">💡 Почему числитель линейный? Потому что степень числителя должна быть строго меньше степени знаменателя (2). Максимальная возможная степень → 1.</div>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">🔢 Шаг 3. Тождество и нахождение A</div>
+                    <p>Умножаем на общий знаменатель:</p>
+                    <p><math><mn>2</mn><mi>x</mi><mo>+</mo><mn>5</mn><mo>≡</mo><mi>A</mi><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>4</mn><mo>)</mo><mo>+</mo><mo>(</mo><mi>B</mi><mi>x</mi><mo>+</mo><mi>C</mi><mo>)</mo><mi>x</mi></math></p>
+                    <p>Подставляем <math><mi>x</mi><mo>=</mo><mn>0</mn></math> (корень линейного множителя):</p>
+                    <p><math><mn>5</mn><mo>=</mo><mi>A</mi><mo>(</mo><mn>4</mn><mo>)</mo> <mo>⇒</mo> <mi>A</mi><mo>=</mo><mfrac><mn>5</mn><mn>4</mn></mfrac></math></p>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">📊 Шаг 4. Система для B и C</div>
+                    <p>Раскрываем скобки в правой части и группируем по степеням <math><mi>x</mi></math>:</p>
+                    <p><math><mn>2</mn><mi>x</mi><mo>+</mo><mn>5</mn><mo>≡</mo><mo>(</mo><mi>A</mi><mo>+</mo><mi>B</mi><mo>)</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mi>C</mi><mi>x</mi><mo>+</mo><mn>4</mn><mi>A</mi></math></p>
+                    <p>Сравниваем коэффициенты:</p>
+                    <ul>
+                        <li>При <math><msup><mi>x</mi><mn>2</mn></msup></math>: <math><mn>0</mn><mo>=</mo><mi>A</mi><mo>+</mo><mi>B</mi> <mo>⇒</mo> <mi>B</mi><mo>=</mo><mo>-</mo><mi>A</mi><mo>=</mo><mo>-</mo><mfrac><mn>5</mn><mn>4</mn></mfrac></math></li>
+                        <li>При <math><mi>x</mi></math>: <math><mn>2</mn><mo>=</mo><mi>C</mi></math> (готово!)</li>
+                        <li>Свободный член: <math><mn>5</mn><mo>=</mo><mn>4</mn><mi>A</mi></math> (проверка: совпадает)</li>
+                    </ul>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">✅ Шаг 5. Запись и упрощение</div>
+                    <p><math><mfrac><mn>5</mn><mrow><mn>4</mn><mi>x</mi></mrow></mfrac><mo>+</mo><mfrac><mrow><mo>-</mo><mfrac><mn>5</mn><mn>4</mn></mfrac><mi>x</mi><mo>+</mo><mn>2</mn></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>4</mn></mrow></mfrac></math></p>
+                    <p>Приводим вторую дробь к общему знаменателю <math><mn>4</mn></math>:</p>
+                    <p><math><mfrac><mn>5</mn><mrow><mn>4</mn><mi>x</mi></mrow></mfrac><mo>+</mo><mfrac><mrow><mo>-</mo><mn>5</mn><mi>x</mi><mo>+</mo><mn>8</mn></mrow><mrow><mn>4</mn><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>4</mn><mo>)</mo></mrow></mfrac></math></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Пример 4 -->
+        <div class="example-card" onclick="toggleStep(this)">
+            <div class="ex-header">Пример 4. Неправильная дробь (деление многочленов)</div>
+            <div class="ex-content">
+                <div class="ex-step">
+                    <div class="ex-step-title">🔍 Шаг 1. Проверка степеней</div>
+                    <p>Числитель: <math><msup><mi>x</mi><mn>3</mn></msup><mo>+</mo><mn>2</mn></math> (степень 3).<br>
+                        Знаменатель: <math><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></math> (степень 2).</p>
+                    <p>Так как <math><mn>3</mn><mo>≥</mo><mn>2</mn></math>, дробь <em>неправильная</em>. Применять метод неопределённых коэффициентов к ней нельзя. Сначала нужно выделить целую часть.</p>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">📐 Шаг 2. Деление многочленов «уголком»</div>
+                    <p>Делим <math><msup><mi>x</mi><mn>3</mn></msup><mo>+</mo><mn>2</mn></math> на <math><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></math>:</p>
+                    <ol>
+                        <li><math><msup><mi>x</mi><mn>3</mn></msup><mo>/</mo><msup><mi>x</mi><mn>2</mn></msup><mo>=</mo><mi>x</mi></math> → пишем в частное.</li>
+                        <li>Умножаем: <math><mi>x</mi><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn><mo>)</mo><mo>=</mo><msup><mi>x</mi><mn>3</mn></msup><mo>+</mo><mi>x</mi></math>.</li>
+                        <li>Вычитаем: <math><mo>(</mo><msup><mi>x</mi><mn>3</mn></msup><mo>+</mo><mn>2</mn><mo>)</mo><mo>-</mo><mo>(</mo><msup><mi>x</mi><mn>3</mn></msup><mo>+</mo><mi>x</mi><mo>)</mo><mo>=</mo><mo>-</mo><mi>x</mi><mo>+</mo><mn>2</mn></math>.</li>
+                    </ol>
+                    <p>Остаток <math><mo>-</mo><mi>x</mi><mo>+</mo><mn>2</mn></math> имеет степень 1, что меньше степени знаменателя (2). Деление завершено.</p>
+                    <div class="ex-comment">💡 Результат деления всегда имеет вид: <math><mfrac><mrow><mi>P</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow><mrow><mi>Q</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow></mfrac><mo>=</mo><mi>M</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>+</mo><mfrac><mrow><mi>R</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow><mrow><mi>Q</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow></mfrac></math>, где <math><mi>M</mi><mo>(</mo><mi>x</mi><mo>)</mo></math> — целая часть, <math><mi>R</mi><mo>(</mo><mi>x</mi><mo>)</mo></math> — остаток.</div>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">🔢 Шаг 3. Запись и разбиение интеграла</div>
+                    <p><math><mfrac><mrow><msup><mi>x</mi><mn>3</mn></msup><mo>+</mo><mn>2</mn></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></mfrac><mo>=</mo><mi>x</mi><mo>+</mo><mfrac><mrow><mo>-</mo><mi>x</mi><mo>+</mo><mn>2</mn></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></mfrac></math></p>
+                    <p>Интегрируем по слагаемым (свойство линейности интеграла):</p>
+                    <p><math><mo>∫</mo><mi>x</mi><mi>d</mi><mi>x</mi><mo>-</mo><mo>∫</mo><mfrac><mi>x</mi><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></mfrac><mi>d</mi><mi>x</mi><mo>+</mo><mn>2</mn><mo>∫</mo><mfrac><mi>d</mi><mi>x</mi><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></mfrac></math></p>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">✅ Шаг 4. Поинтегральное вычисление</div>
+                    <p>1. <math><mo>∫</mo><mi>x</mi><mi>d</mi><mi>x</mi><mo>=</mo><mfrac><msup><mi>x</mi><mn>2</mn></msup><mn>2</mn></mfrac></math> (степенное правило).</p>
+                    <p>2. <math><mo>∫</mo><mfrac><mi>x</mi><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></mfrac><mi>d</mi><mi>x</mi></math>: в числителе стоит половина производной знаменателя <math><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn><msup><mo>)</mo></msup><mo>'</mo><mo>=</mo><mn>2</mn><mi>x</mi></math>. Поэтому интеграл равен <math><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>ln</mo><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn><mo>)</mo></math>.</p>
+                    <p>3. <math><mo>∫</mo><mfrac><mi>d</mi><mi>x</mi><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></mfrac><mo>=</mo><mo>arctan</mo><mi>x</mi></math> (табличный интеграл при <math><mi>a</mi><mo>=</mo><mn>1</mn></math>).</p>
+                    <p><strong>Итог:</strong> <math><mfrac><msup><mi>x</mi><mn>2</mn></msup><mn>2</mn></mfrac><mo>-</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>ln</mo><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn><mo>)</mo><mo>+</mo><mn>2</mn><mo>arctan</mo><mi>x</mi><mo>+</mo><mi>C</mi></math></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Пример 5 -->
+        <div class="example-card" onclick="toggleStep(this)">
+            <div class="ex-header">Пример 5. Полное интегрирование квадратичной дроби</div>
+            <div class="ex-content">
+                <div class="ex-step">
+                    <div class="ex-step-title">🔍 Шаг 1. Анализ знаменателя</div>
+                    <p>Знаменатель <math><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>5</mn></math>. Дискриминант: <math><mi>D</mi><mo>=</mo><msup><mn>2</mn><mn>2</mn></msup><mo>-</mo><mn>4</mn><mo>·</mo><mn>5</mn><mo>=</mo><mo>-</mo><mn>16</mn><mo>&lt;</mo><mn>0</mn></math>. Трёхчлен неприводим.</p>
+                    <p>Интеграл имеет вид <math><mo>∫</mo><mfrac><mrow><mi>B</mi><mi>x</mi><mo>+</mo><mi>C</mi></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mi>p</mi><mi>x</mi><mo>+</mo><mi>q</mi></mrow></mfrac><mi>d</mi><mi>x</mi></math>. Стандартный приём: выделить в числителе производную знаменателя.</p>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">📐 Шаг 2. Нахождение производной знаменателя</div>
+                    <p><math><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>5</mn><msup><mo>)</mo></msup><mo>'</mo><mo>=</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>2</mn></math></p>
+                    <p>Нам нужно представить исходный числитель <math><mn>3</mn><mi>x</mi><mo>+</mo><mn>1</mn></math> в виде <math><mi>k</mi><mo>(</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>2</mn><mo>)</mo><mo>+</mo><mi>m</mi></math>.</p>
+                    <div class="ex-comment">💡 <strong>Зачем?</strong> Слагаемое <math><mfrac><mrow><mi>f</mi><mo>'</mo><mo>(</mo><mi>x</mi><mo>)</mo></mrow><mrow><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow></mfrac></math> интегрируется в логарифм. Оставшаяся константа даст арктангенс после выделения полного квадрата.</div>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">🔢 Шаг 3. Подбор коэффициентов</div>
+                    <p>Приравниваем коэффициенты при <math><mi>x</mi></math>: <math><mn>3</mn><mo>=</mo><mn>2</mn><mi>k</mi> <mo>⇒</mo> <mi>k</mi><mo>=</mo><mfrac><mn>3</mn><mn>2</mn></mfrac></math>.</p>
+                    <p>Приравниваем свободные члены: <math><mn>1</mn><mo>=</mo><mn>2</mn><mi>k</mi><mo>+</mo><mi>m</mi> <mo>⇒</mo> <mn>1</mn><mo>=</mo><mn>3</mn><mo>+</mo><mi>m</mi> <mo>⇒</mo> <mi>m</mi><mo>=</mo><mo>-</mo><mn>2</mn></math>.</p>
+                    <p>Итак: <math><mn>3</mn><mi>x</mi><mo>+</mo><mn>1</mn><mo>=</mo><mfrac><mn>3</mn><mn>2</mn></mfrac><mo>(</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>2</mn><mo>)</mo><mo>-</mo><mn>2</mn></math>.</p>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">📊 Шаг 4. Разбиение интеграла</div>
+                    <p><math><mo>∫</mo><mfrac><mrow><mn>3</mn><mi>x</mi><mo>+</mo><mn>1</mn></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>5</mn></mrow></mfrac><mi>d</mi><mi>x</mi><mo>=</mo><mfrac><mn>3</mn><mn>2</mn></mfrac><mo>∫</mo><mfrac><mrow><mn>2</mn><mi>x</mi><mo>+</mo><mn>2</mn></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>5</mn></mrow></mfrac><mi>d</mi><mi>x</mi><mo>-</mo><mn>2</mn><mo>∫</mo><mfrac><mi>d</mi><mi>x</mi><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>5</mn></mrow></mfrac></math></p>
+                    <p>Первый интеграл → логарифм. Во втором выделяем полный квадрат в знаменателе:</p>
+                    <p><math><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>5</mn><mo>=</mo><mo>(</mo><mi>x</mi><mo>+</mo><mn>1</mn><msup><mo>)</mo></msup><mn>2</mn><mo>+</mo><mn>4</mn></math></p>
+                </div>
+                <div class="ex-step">
+                    <div class="ex-step-title">✅ Шаг 5. Интегрирование и сборка ответа</div>
+                    <p>1. <math><mfrac><mn>3</mn><mn>2</mn></mfrac><mo>∫</mo><mfrac><mrow><mi>d</mi><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>5</mn><mo>)</mo></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>5</mn></mrow></mfrac><mo>=</mo><mfrac><mn>3</mn><mn>2</mn></mfrac><mo>ln</mo><mo>|</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>5</mn><mo>|</mo></math>. (Модуль можно опустить, так как квадратичная форма всегда положительна).</p>
+                    <p>2. <math><mo>-</mo><mn>2</mn><mo>∫</mo><mfrac><mi>d</mi><mi>x</mi><mrow><msup><mrow><mo>(</mo><mi>x</mi><mo>+</mo><mn>1</mn><mo>)</mo></mrow><mn>2</mn></msup><mo>+</mo><msup><mn>2</mn><mn>2</mn></msup></mrow></mfrac><mo>=</mo><mo>-</mo><mn>2</mn><mo>·</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>arctan</mo><mfrac><mrow><mi>x</mi><mo>+</mo><mn>1</mn></mrow><mn>2</mn></mfrac><mo>=</mo><mo>-</mo><mo>arctan</mo><mfrac><mrow><mi>x</mi><mo>+</mo><mn>1</mn></mrow><mn>2</mn></mfrac></math>.</p>
+                    <p><strong>Финальный ответ:</strong> <math><mfrac><mn>3</mn><mn>2</mn></mfrac><mo>ln</mo><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>5</mn><mo>)</mo><mo>-</mo><mo>arctan</mo><mfrac><mrow><mi>x</mi><mo>+</mo><mn>1</mn></mrow><mn>2</mn></mfrac><mo>+</mo><mi>C</mi></math></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ШПАРГАЛКА -->
+    <section id="cheatsheet" class="section">
+        <h2>Быстрая шпаргалка</h2>
+        <p>Нажмите на карточку, чтобы увидеть ответ:</p>
+        <div class="grid">
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-q"><math><mo>∫</mo><mfrac><mi>A</mi><mrow><mi>x</mi><mo>-</mo><mi>a</mi></mrow></mfrac><mi>d</mi><mi>x</mi></math></div>
+                <div class="card-a"><math><mi>A</mi><mo>·</mo><mo>ln</mo><mrow><mo>|</mo><mi>x</mi><mo>-</mo><mi>a</mi><mo>|</mo></mrow><mo>+</mo><mi>C</mi></math></div>
+            </div>
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-q"><math><mo>∫</mo><mfrac><mi>A</mi><msup><mrow><mo>(</mo><mi>x</mi><mo>-</mo><mi>a</mi><mo>)</mo></mrow><mi>k</mi></msup></mfrac><mi>d</mi><mi>x</mi><mo>,</mo><mi>k</mi><mo>≠</mo><mn>1</mn></math></div>
+                <div class="card-a"><math><mi>A</mi><mo>·</mo><mfrac><msup><mrow><mo>(</mo><mi>x</mi><mo>-</mo><mi>a</mi><mo>)</mo></mrow><mrow><mn>1</mn><mo>-</mo><mi>k</mi></mrow></msup><mrow><mn>1</mn><mo>-</mo><mi>k</mi></mrow></mfrac><mo>+</mo><mi>C</mi></math></div>
+            </div>
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-q"><math><mo>∫</mo><mfrac><mrow><mi>d</mi><mi>x</mi></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>a</mi><mn>2</mn></msup></mrow></mfrac></math></div>
+                <div class="card-a"><math><mfrac><mn>1</mn><mi>a</mi></mfrac><mo>·</mo><mo>arctan</mo><mfrac><mi>x</mi><mi>a</mi></mfrac><mo>+</mo><mi>C</mi></math></div>
+            </div>
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-q">Множитель <math><msup><mrow><mo>(</mo><mi>x</mi><mo>-</mo><mi>a</mi><mo>)</mo></mrow><mn>2</mn></msup></math> в знаменателе</div>
+                <div class="card-a"><math><mfrac><mi>A</mi><mrow><mi>x</mi><mo>-</mo><mi>a</mi></mrow></mfrac><mo>+</mo><mfrac><mi>B</mi><msup><mrow><mo>(</mo><mi>x</mi><mo>-</mo><mi>a</mi><mo>)</mo></mrow><mn>2</mn></msup></mfrac></math></div>
+            </div>
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-q">Множитель <math><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mi>p</mi><mi>x</mi><mo>+</mo><mi>q</mi><mspace width="0.3em"/><mo>(</mo><mi>D</mi><mo>&lt;</mo><mn>0</mn><mo>)</mo></math></div>
+                <div class="card-a"><math><mfrac><mrow><mi>B</mi><mi>x</mi><mo>+</mo><mi>C</mi></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mi>p</mi><mi>x</mi><mo>+</mo><mi>q</mi></mrow></mfrac></math></div>
+            </div>
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-q">Как брать <math><mo>∫</mo><mfrac><mrow><mi>B</mi><mi>x</mi><mo>+</mo><mi>C</mi></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mi>p</mi><mi>x</mi><mo>+</mo><mi>q</mi></mrow></mfrac><mi>d</mi><mi>x</mi></math>?</div>
+                <div class="card-a">1. Выделить производную знаменателя → ln<br>2. Остаток свести к arctan через полный квадрат</div>
+            </div>
+        </div>
+        <div class="box danger" style="margin-top: 1.5rem;">
+            🔑 <strong>Главное правило:</strong> Степень числителя должна быть строго меньше степени знаменателя. Если нет → деление многочленов "уголком" в первую очередь!
+        </div>
+    </section>
+</main>
+
+<footer>
+    Интерактивное пособие по методу неопределённых коэффициентов • На основе учебных материалов
+</footer>
+
+<script>
+    // Навигация
+    function show(id, btn) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Раскрытие шагов алгоритма и примеров
+    function toggleStep(el) { el.classList.toggle('open'); }
+
+    // Шпаргалка
+    function toggleCard(el) { el.classList.toggle('open'); }
+</script>
+
+</body>
+</html>
