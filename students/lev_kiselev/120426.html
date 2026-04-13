@@ -1,0 +1,2392 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>График и уравнение прямой — Наглядная математика</title>
+    <style>
+        :root{
+            --bg:#F4F4F0;
+            --bg-elev:#FFFFFF;
+            --bg-soft:#EEEDE7;
+            --panel:#FAFAF7;
+            --text:#171717;
+            --text-soft:#5A5A54;
+            --text-faint:#7A7A74;
+            --line:#111111;
+            --line-soft:#CFCFC7;
+            --accent:#D72638;
+            --ok:#2F7D4A;
+            --warn:#A55A00;
+            --shadow-lg:4px 4px 0 var(--line);
+            --shadow-none:none;
+            --radius:0px;
+            --container:1240px;
+            --hero-size:clamp(1.7rem, 3vw, 2.35rem);
+            --title-size:clamp(1.08rem, 1.9vw, 1.4rem);
+            --text-size:16px;
+            --small:13px;
+            --sticky-top:94px;
+            --canvas-h:520px;
+            --font:Arial, Helvetica, system-ui, sans-serif;
+            --focus:2px dashed var(--accent);
+            --anim:120ms ease;
+        }
+
+        html[data-theme="dark"]{
+            --bg:#141414;
+            --bg-elev:#1C1C1C;
+            --bg-soft:#202020;
+            --panel:#191919;
+            --text:#F4F4F0;
+            --text-soft:#C8C8C1;
+            --text-faint:#9A9A94;
+            --line:#F4F4F0;
+            --line-soft:#444;
+            --accent:#D72638;
+            --ok:#67B77E;
+            --warn:#D89A3E;
+            --shadow-lg:4px 4px 0 var(--line);
+        }
+
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:var(--text-size);line-height:1.6}
+        body{min-height:100vh}
+        img,svg{display:block;max-width:100%}
+        button,input{font:inherit}
+        button{cursor:pointer}
+        a{color:inherit}
+        .visually-hidden{
+            position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+        }
+
+        .app{
+            width:min(100%, var(--container));
+            margin:0 auto;
+            padding:0 16px 40px;
+        }
+
+        .topbar{
+            position:sticky;
+            top:0;
+            z-index:90;
+            background:var(--bg);
+            border-bottom:2px solid var(--line);
+            padding:12px 0 10px;
+        }
+
+        .topbar-row{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:12px;
+            flex-wrap:wrap;
+        }
+
+        .brand{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            min-width:0;
+        }
+
+        .brand-mark{
+            width:42px;height:42px;
+            display:grid;place-items:center;
+            border:2px solid var(--line);
+            background:var(--accent);
+            color:#fff;
+            font-weight:800;
+            box-shadow:var(--shadow-lg);
+            flex:0 0 auto;
+            user-select:none;
+        }
+
+        .brand-copy{
+            min-width:0;
+        }
+
+        .brand-title{
+            font-weight:800;
+            letter-spacing:.03em;
+            line-height:1.08;
+            font-size:1rem;
+        }
+
+        .brand-sub{
+            color:var(--text-faint);
+            font-size:12px;
+            line-height:1.2;
+            margin-top:2px;
+        }
+
+        .top-controls{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+            align-items:center;
+        }
+
+        .btn,
+        .mode-btn,
+        .tab-btn,
+        .step-btn{
+            border:2px solid var(--line);
+            background:var(--bg-elev);
+            color:var(--text);
+            padding:9px 12px;
+            min-height:40px;
+            transition:transform var(--anim), background var(--anim), color var(--anim), box-shadow var(--anim);
+            box-shadow:var(--shadow-lg);
+        }
+
+        .btn:hover,
+        .mode-btn:hover,
+        .tab-btn:hover,
+        .step-btn:hover{
+            transform:translate(-1px,-1px);
+        }
+
+        .btn:active,
+        .mode-btn:active,
+        .tab-btn:active,
+        .step-btn:active{
+            transform:translate(2px,2px);
+            box-shadow:2px 2px 0 var(--line);
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        summary:focus-visible{
+            outline:var(--focus);
+            outline-offset:3px;
+        }
+
+        .theme-toggle[aria-pressed="true"]{
+            background:var(--accent);
+            color:#fff;
+        }
+
+        .hero{
+            padding:18px 0 8px;
+        }
+
+        .hero-card{
+            border:2px solid var(--line);
+            background:var(--bg-elev);
+            padding:18px;
+            box-shadow:var(--shadow-lg);
+        }
+
+        .eyebrow{
+            display:inline-block;
+            font-size:12px;
+            letter-spacing:.06em;
+            text-transform:uppercase;
+            font-weight:800;
+            color:var(--text-faint);
+            margin-bottom:8px;
+        }
+
+        .hero h1{
+            margin:0;
+            font-size:var(--hero-size);
+            line-height:1.06;
+            max-width:18ch;
+            letter-spacing:.01em;
+        }
+
+        .hero p{
+            margin:10px 0 0;
+            max-width:68ch;
+            color:var(--text-soft);
+        }
+
+        .banner{
+            margin:10px 0 18px;
+            border:2px solid var(--line);
+            background:var(--line);
+            color:var(--bg);
+            box-shadow:var(--shadow-lg);
+            padding:10px 14px;
+        }
+
+        .banner strong{
+            display:block;
+            letter-spacing:.03em;
+            margin-bottom:2px;
+        }
+
+        .banner small{
+            display:block;
+            opacity:.92;
+            line-height:1.45;
+        }
+
+        .mode-strip-wrap{
+            margin-bottom:18px;
+        }
+
+        .mode-strip{
+            display:flex;
+            gap:8px;
+            overflow:auto;
+            padding-bottom:4px;
+            scrollbar-width:thin;
+        }
+
+        .mode-btn{
+            white-space:nowrap;
+            font-weight:700;
+            box-shadow:none;
+            border-color:var(--line);
+            background:var(--bg-soft);
+        }
+
+        .mode-btn[aria-current="page"]{
+            background:var(--accent);
+            color:#fff;
+            box-shadow:var(--shadow-lg);
+        }
+
+        .workspace{
+            min-height:56vh;
+        }
+
+        .mode-panel{display:none}
+        .mode-panel.active{display:grid}
+
+        .split{
+            grid-template-columns:minmax(0, 0.98fr) minmax(350px, 0.9fr);
+            gap:18px;
+            align-items:start;
+        }
+
+        .single{
+            grid-template-columns:minmax(0,1fr);
+        }
+
+        .panel{
+            border:2px solid var(--line);
+            background:var(--bg-elev);
+            box-shadow:var(--shadow-lg);
+            padding:16px;
+            min-width:0;
+        }
+
+        .panel-title{
+            margin:0 0 8px;
+            font-size:var(--title-size);
+            line-height:1.12;
+        }
+
+        .panel-sub{
+            margin:0 0 14px;
+            color:var(--text-soft);
+            font-size:14px;
+        }
+
+        .analysis-toolbar{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+            flex-wrap:wrap;
+            border-bottom:1px solid var(--line-soft);
+            padding-bottom:10px;
+            margin-bottom:14px;
+        }
+
+        .tabs{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+        }
+
+        .tab-btn{
+            box-shadow:none;
+            background:transparent;
+            padding:8px 10px;
+            min-height:38px;
+        }
+
+        .tab-btn[aria-selected="true"]{
+            background:var(--bg-soft);
+            box-shadow:none;
+        }
+
+        .toolbar-right{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+            align-items:center;
+        }
+
+        .toggle-inline{
+            display:flex;
+            gap:8px;
+            align-items:center;
+            padding:6px 0;
+            font-size:14px;
+            color:var(--text-soft);
+        }
+
+        .toggle-inline input{
+            width:16px;height:16px;
+            accent-color:var(--accent);
+        }
+
+        .tab-panel{display:none}
+        .tab-panel.active{display:block}
+
+        .idea-note{
+            border-left:4px solid var(--accent);
+            padding:8px 12px;
+            background:var(--bg-soft);
+            margin-bottom:14px;
+            color:var(--text);
+        }
+
+        .idea-note strong{
+            display:block;
+            margin-bottom:4px;
+            font-size:13px;
+            text-transform:uppercase;
+            letter-spacing:.05em;
+        }
+
+        .steps-header{
+            display:flex;
+            align-items:flex-start;
+            justify-content:space-between;
+            gap:12px;
+            flex-wrap:wrap;
+            margin-bottom:10px;
+        }
+
+        .steps-header p{
+            margin:0;
+            color:var(--text-soft);
+            font-size:14px;
+        }
+
+        .step-nav{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+        }
+
+        .step-btn{
+            box-shadow:none;
+            background:transparent;
+            padding:8px 10px;
+            min-height:38px;
+        }
+
+        .step-panels{
+            display:grid;
+            gap:10px;
+        }
+
+        .step-card{
+            border:1px solid var(--line-soft);
+            background:var(--panel);
+            overflow:hidden;
+        }
+
+        .step-card.active-step{
+            border-color:var(--line);
+            background:var(--bg-elev);
+        }
+
+        .step-card summary{
+            list-style:none;
+            cursor:pointer;
+            display:flex;
+            gap:12px;
+            align-items:flex-start;
+            padding:12px 12px;
+            user-select:none;
+        }
+
+        .step-card summary::-webkit-details-marker{display:none}
+
+        .step-index{
+            width:28px;height:28px;
+            border:2px solid var(--line);
+            display:grid;place-items:center;
+            font-size:13px;
+            font-weight:800;
+            background:var(--bg-elev);
+            flex:0 0 auto;
+        }
+
+        .step-copy{min-width:0;flex:1}
+        .step-title{
+            margin:0;
+            font-size:1rem;
+            line-height:1.25;
+            font-weight:800;
+        }
+
+        .step-hint{
+            margin:3px 0 0;
+            font-size:14px;
+            color:var(--text-soft);
+        }
+
+        .step-content{
+            padding:0 12px 12px 52px;
+            border-top:1px solid var(--line-soft);
+            color:var(--text);
+        }
+
+        .step-content p{margin:10px 0}
+        .step-content ul{margin:10px 0 0;padding-left:18px}
+        .step-content li+li{margin-top:6px}
+
+        .math-line{
+            margin:10px 0;
+            padding:8px 10px;
+            border-left:3px solid var(--accent);
+            background:var(--bg-soft);
+            font-weight:700;
+        }
+
+        .micro-list{
+            margin:10px 0 0;
+            padding-left:18px;
+        }
+
+        .micro-list li+li{margin-top:6px}
+
+        .visual-column{
+            min-width:0;
+        }
+
+        .visual-sticky{
+            position:sticky;
+            top:var(--sticky-top);
+            display:grid;
+            gap:12px;
+        }
+
+        .scene-card{
+            padding:12px;
+        }
+
+        .scene-head{
+            display:flex;
+            justify-content:space-between;
+            gap:10px;
+            align-items:center;
+            margin-bottom:10px;
+            flex-wrap:wrap;
+        }
+
+        .scene-status{
+            font-size:14px;
+            color:var(--text-soft);
+        }
+
+        .scene-main-tools{
+            display:flex;
+            gap:8px;
+            align-items:center;
+            flex-wrap:wrap;
+        }
+
+        .mini-tool{
+            border:1px solid var(--line);
+            background:transparent;
+            color:var(--text);
+            padding:6px 10px;
+            min-height:34px;
+            font-size:14px;
+            box-shadow:none;
+        }
+
+        .mini-tool:hover{background:var(--bg-soft)}
+
+        .scene-wrap{
+            border:2px solid var(--line);
+            background:var(--panel);
+            overflow:hidden;
+        }
+
+        .scene-stage{
+            position:relative;
+            height:var(--canvas-h);
+            overflow:hidden;
+            cursor:grab;
+            touch-action:none;
+            user-select:none;
+            background:var(--panel);
+        }
+
+        .scene-stage.dragging{cursor:grabbing}
+        .scene-svg{width:100%;height:100%;display:block}
+
+        .scene-caption{
+            margin-top:8px;
+            font-size:13px;
+            color:var(--text-faint);
+        }
+
+        .secondary-panel{
+            border-top:1px solid var(--line-soft);
+            padding-top:10px;
+        }
+
+        .collapsible summary{
+            list-style:none;
+            cursor:pointer;
+            font-weight:700;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:12px;
+            padding:0;
+            user-select:none;
+        }
+
+        .collapsible summary::-webkit-details-marker{display:none}
+
+        .collapsible summary span:last-child{
+            color:var(--text-faint);
+            font-size:13px;
+            font-weight:600;
+        }
+
+        .controls-inner{
+            display:grid;
+            gap:12px;
+            margin-top:12px;
+        }
+
+        .slider-row{
+            display:grid;
+            gap:6px;
+        }
+
+        .slider-row label{
+            font-size:14px;
+            font-weight:700;
+        }
+
+        .slider-row input[type="range"]{
+            width:100%;
+            accent-color:var(--accent);
+        }
+
+        .inline-toggles{
+            display:grid;
+            gap:8px;
+        }
+
+        .inline-toggles .toggle-inline{
+            padding:0;
+        }
+
+        .status-list{
+            margin:2px 0 0;
+            padding-left:18px;
+            color:var(--text-soft);
+            font-size:14px;
+        }
+
+        .status-list li+li{margin-top:4px}
+
+        .object-hot{cursor:pointer}
+        .object-hot.dimmed{opacity:.35}
+
+        .mode-grid{
+            display:grid;
+            gap:14px;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+        }
+
+        .compact-box{
+            border:1px solid var(--line-soft);
+            background:var(--panel);
+            padding:12px;
+        }
+
+        .compact-box h3{
+            margin:0 0 6px;
+            font-size:1rem;
+        }
+
+        .compact-box p,
+        .compact-box li{
+            color:var(--text-soft);
+        }
+
+        .compact-box p{margin:0}
+        .compact-box ul{margin:0;padding-left:18px}
+        .compact-box li+li{margin-top:5px}
+
+        .plain-list{
+            margin:0;
+            padding-left:18px;
+        }
+
+        .plain-list li+li{margin-top:10px}
+
+        .compare-table{
+            width:100%;
+            border-collapse:collapse;
+            font-size:15px;
+        }
+
+        .compare-table th,
+        .compare-table td{
+            border:1px solid var(--line-soft);
+            padding:10px;
+            text-align:left;
+            vertical-align:top;
+        }
+
+        .compare-table th{
+            background:var(--bg-soft);
+            font-size:14px;
+        }
+
+        .generator-box,
+        .quiz-box,
+        .takeaway-box{
+            display:grid;
+            gap:14px;
+        }
+
+        .generated-task{
+            border:1px solid var(--line-soft);
+            background:var(--panel);
+            padding:14px;
+        }
+
+        .generated-math{
+            margin:8px 0;
+            font-size:1.1rem;
+            font-weight:800;
+        }
+
+        .actions-row{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+        }
+
+        .quiz-list{
+            display:grid;
+            gap:12px;
+        }
+
+        .quiz-item{
+            border:1px solid var(--line-soft);
+            background:var(--panel);
+            padding:12px;
+        }
+
+        .quiz-item.correct{border-color:var(--ok)}
+        .quiz-item.wrong{border-color:var(--accent)}
+
+        .quiz-options{
+            display:grid;
+            gap:8px;
+            margin-top:10px;
+        }
+
+        .quiz-options label{
+            display:flex;
+            gap:8px;
+            align-items:flex-start;
+            padding:6px 0;
+            color:var(--text-soft);
+        }
+
+        .quiz-inline-answer{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+            align-items:center;
+            margin-top:10px;
+        }
+
+        .quiz-inline-answer input{
+            border:1px solid var(--line);
+            background:var(--bg-elev);
+            color:var(--text);
+            padding:9px 10px;
+            min-width:120px;
+        }
+
+        .feedback{
+            margin-top:8px;
+            font-size:14px;
+            color:var(--text-soft);
+        }
+
+        .memo-grid{
+            display:grid;
+            gap:12px;
+            grid-template-columns:repeat(3,minmax(0,1fr));
+        }
+
+        .footer{
+            margin-top:24px;
+            border-top:2px solid var(--line);
+            padding-top:14px;
+            display:flex;
+            justify-content:space-between;
+            gap:10px;
+            flex-wrap:wrap;
+            align-items:center;
+        }
+
+        .tagline{
+            font-weight:900;
+            letter-spacing:.07em;
+            color:var(--accent);
+        }
+
+        .footer small{
+            color:var(--text-faint);
+        }
+
+        .modal{
+            position:fixed;
+            inset:0;
+            display:none;
+            align-items:center;
+            justify-content:center;
+            background:rgba(0,0,0,.72);
+            z-index:120;
+            padding:20px;
+        }
+
+        .modal.open{display:flex}
+
+        .modal-dialog{
+            width:min(1180px, 100%);
+            max-height:92vh;
+            overflow:auto;
+            border:2px solid var(--line);
+            background:var(--bg);
+            box-shadow:8px 8px 0 var(--line);
+            padding:14px;
+        }
+
+        .modal-head{
+            display:flex;
+            justify-content:space-between;
+            gap:10px;
+            align-items:center;
+            flex-wrap:wrap;
+            margin-bottom:10px;
+        }
+
+        .modal-scene{
+            border:2px solid var(--line);
+            overflow:hidden;
+            background:var(--panel);
+        }
+
+        .modal .scene-stage{
+            height:min(76vh, 760px);
+        }
+
+        .print-summary{display:none}
+
+        .kbd{
+            display:inline-block;
+            border:1px solid var(--line);
+            padding:0 5px;
+            font-size:12px;
+            font-weight:700;
+        }
+
+        @media (max-width: 1040px){
+            .split{
+                grid-template-columns:1fr;
+            }
+            .visual-sticky{
+                position:relative;
+                top:auto;
+            }
+            .memo-grid,
+            .mode-grid{
+                grid-template-columns:1fr 1fr;
+            }
+        }
+
+        @media (max-width: 760px){
+            .app{padding:0 12px 32px}
+            .topbar{padding:10px 0}
+            .hero-card,.panel{padding:14px}
+            .mode-grid,.memo-grid{
+                grid-template-columns:1fr;
+            }
+            .scene-stage{height:360px}
+            .brand-mark{width:38px;height:38px}
+            .brand-title{font-size:.95rem}
+            .brand-sub{display:none}
+            .hero h1{max-width:none}
+            .hero p{font-size:15px}
+            .scene-head,
+            .analysis-toolbar,
+            .steps-header{
+                align-items:stretch;
+            }
+            .scene-main-tools{
+                width:100%;
+            }
+            .scene-main-tools .mini-tool{
+                flex:1 1 auto;
+            }
+            .step-content{
+                padding:0 12px 12px 12px;
+            }
+            .secondary-panel{
+                border-top:1px solid var(--line-soft);
+            }
+        }
+
+        @media print{
+            :root{
+                --bg:#fff;
+                --bg-elev:#fff;
+                --bg-soft:#f4f4f4;
+                --panel:#fff;
+                --text:#000;
+                --text-soft:#222;
+                --text-faint:#444;
+                --line:#000;
+                --line-soft:#bcbcbc;
+                --shadow-lg:none;
+            }
+
+            body{background:#fff}
+            .app{max-width:none;padding:0}
+            .topbar,
+            .banner,
+            .mode-strip-wrap,
+            .analysis-toolbar,
+            .scene-head,
+            .secondary-panel,
+            .top-controls,
+            .actions-row,
+            .footer,
+            .modal{
+                display:none!important;
+            }
+            .workspace .mode-panel{display:none!important}
+            #mode-breakdown{display:grid!important}
+            .split{grid-template-columns:1fr!important}
+            .visual-sticky{position:static!important}
+            .scene-stage{height:340px!important}
+            .step-card details{display:block!important}
+            .step-content{display:block!important;padding:0 12px 12px 12px}
+            .print-summary{
+                display:block;
+                border:1px solid #000;
+                padding:10px;
+                margin-top:12px;
+            }
+            .panel,.hero-card,.scene-wrap{
+                box-shadow:none!important;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <header class="topbar">
+        <div class="topbar-row">
+            <div class="brand">
+                <div class="brand-mark" aria-hidden="true">y =</div>
+                <div class="brand-copy">
+                    <div class="brand-title">ГРАФИК И УРАВНЕНИЕ ПРЯМОЙ</div>
+                    <div class="brand-sub">Наглядный интерактивный конспект</div>
+                </div>
+            </div>
+            <div class="top-controls">
+                <button class="btn theme-toggle" id="themeToggle" type="button" aria-pressed="false">LIGHT / DARK</button>
+                <button class="btn" id="printBtn" type="button">ПЕЧАТЬ</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero" aria-labelledby="heroTitle">
+        <div class="hero-card">
+            <span class="eyebrow">8 класс · интерактивный конспект</span>
+            <h1 id="heroTitle">Как коэффициенты влияют на положение прямой y = kx + b</h1>
+            <p>
+                Смысл всего урока очень короткий:
+                <strong>k</strong> задаёт наклон прямой,
+                <strong>b</strong> задаёт точку пересечения с осью Oy.
+            </p>
+        </div>
+    </section>
+
+    <section class="banner" aria-label="Ключевая мысль">
+        <strong>Главная мысль</strong>
+        <small>Отделяйте два вопроса: «как наклонена прямая?» — это k, и «где она стоит по вертикали?» — это b.</small>
+    </section>
+
+    <nav class="mode-strip-wrap" aria-label="Главные режимы страницы">
+        <div class="mode-strip">
+            <button class="mode-btn" type="button" data-mode="breakdown" aria-current="page">Разбор</button>
+            <button class="mode-btn" type="button" data-mode="visual">Визуализация</button>
+            <button class="mode-btn" type="button" data-mode="mistakes">Ошибки</button>
+            <button class="mode-btn" type="button" data-mode="selfcheck">Самопроверка</button>
+            <button class="mode-btn" type="button" data-mode="generator">Генератор</button>
+            <button class="mode-btn" type="button" data-mode="quiz">Квиз</button>
+            <button class="mode-btn" type="button" data-mode="memo">Памятка</button>
+            <button class="mode-btn" type="button" data-mode="takeaway">Итог</button>
+        </div>
+    </nav>
+
+    <main class="workspace">
+        <!-- BREAKDOWN -->
+        <section class="mode-panel split active" id="mode-breakdown" aria-labelledby="breakdownTitle">
+            <div class="panel">
+                <div class="analysis-toolbar">
+                    <div class="tabs" role="tablist" aria-label="Вкладки разбора">
+                        <button class="tab-btn" type="button" role="tab" aria-selected="true" data-tab="overview">Разбор</button>
+                        <button class="tab-btn" type="button" role="tab" aria-selected="false" data-tab="methods">Подходы</button>
+                        <button class="tab-btn" type="button" role="tab" aria-selected="false" data-tab="compare">Сравнение</button>
+                    </div>
+                    <div class="toolbar-right">
+                        <label class="toggle-inline">
+                            <input type="checkbox" id="showAllToggle">
+                            <span>Показать всё</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="tab-panel active" data-tab-panel="overview">
+                    <div class="idea-note">
+                        <strong>Идея</strong>
+                        Не заучиваем график целиком. Сначала читаем точку <span aria-hidden="true">(0; b)</span>,
+                        затем читаем наклон через <span aria-hidden="true">k</span>.
+                    </div>
+
+                    <div class="steps-header">
+                        <div>
+                            <h2 class="panel-title" id="breakdownTitle">Пошаговый разбор</h2>
+                            <p>По умолчанию открыт только один шаг, чтобы левая колонка не превращалась в длинную ленту.</p>
+                        </div>
+                        <div class="step-nav" aria-label="Навигация по шагам">
+                            <button class="step-btn" type="button" id="prevStepBtn">Назад</button>
+                            <button class="step-btn" type="button" id="nextStepBtn">Далее</button>
+                        </div>
+                    </div>
+
+                    <div class="step-panels" id="stepPanels">
+                        <details class="step-card active-step" data-step="0" data-object="axes line pointB" open>
+                            <summary>
+                                <div class="step-index">1</div>
+                                <div class="step-copy">
+                                    <h3 class="step-title">Что дано</h3>
+                                    <p class="step-hint">Рассматриваем уравнение прямой вида y = kx + b.</p>
+                                </div>
+                            </summary>
+                            <div class="step-content">
+                                <p class="math-line">y = kx + b</p>
+                                <p>
+                                    Это общий вид уравнения прямой. Ограничений по x нет: x может быть любым числом.
+                                    График всегда представляет собой прямую линию.
+                                </p>
+                            </div>
+                        </details>
+
+                        <details class="step-card" data-step="1" data-object="pointB axisOy bShift">
+                            <summary>
+                                <div class="step-index">2</div>
+                                <div class="step-copy">
+                                    <h3 class="step-title">Что нужно понять</h3>
+                                    <p class="step-hint">Надо научиться быстро читать роли k и b.</p>
+                                </div>
+                            </summary>
+                            <div class="step-content">
+                                <ul class="micro-list">
+                                    <li>Как k меняет наклон прямой.</li>
+                                    <li>Как b сдвигает прямую вверх или вниз.</li>
+                                    <li>Как по уравнению сразу представить график.</li>
+                                </ul>
+                                <p class="math-line">Если x = 0, то y = b, значит точка пересечения с Oy — это (0; b).</p>
+                            </div>
+                        </details>
+
+                        <details class="step-card" data-step="2" data-object="kTriangle line helperRise helperRun secondPoint">
+                            <summary>
+                                <div class="step-index">3</div>
+                                <div class="step-copy">
+                                    <h3 class="step-title">Смысл коэффициента k</h3>
+                                    <p class="step-hint">k отвечает за направление и крутизну.</p>
+                                </div>
+                            </summary>
+                            <div class="step-content">
+                                <p class="math-line">x увеличили на 1 → y изменился на k</p>
+                                <ul class="micro-list">
+                                    <li>k &gt; 0 → прямая идёт вверх вправо.</li>
+                                    <li>k &lt; 0 → прямая идёт вниз вправо.</li>
+                                    <li>|k| больше → прямая круче.</li>
+                                    <li>k = 0 → прямая горизонтальна: y = b.</li>
+                                </ul>
+                            </div>
+                        </details>
+
+                        <details class="step-card" data-step="3" data-object="pointB bShift line">
+                            <summary>
+                                <div class="step-index">4</div>
+                                <div class="step-copy">
+                                    <h3 class="step-title">Смысл коэффициента b</h3>
+                                    <p class="step-hint">b задаёт вертикальное положение прямой.</p>
+                                </div>
+                            </summary>
+                            <div class="step-content">
+                                <p>
+                                    Коэффициент b — это значение функции при x = 0.
+                                    Поэтому он задаёт точку пересечения с осью Oy.
+                                </p>
+                                <p class="math-line">b = 3 → прямая проходит через точку (0; 3)</p>
+                                <p>Если меняется только b, наклон не меняется: вся прямая лишь поднимается или опускается.</p>
+                            </div>
+                        </details>
+
+                        <details class="step-card" data-step="4" data-object="pointB secondPoint line helperRise helperRun">
+                            <summary>
+                                <div class="step-index">5</div>
+                                <div class="step-copy">
+                                    <h3 class="step-title">Как строить по графику</h3>
+                                    <p class="step-hint">Сначала точка (0; b), потом шаг наклона.</p>
+                                </div>
+                            </summary>
+                            <div class="step-content">
+                                <ul class="micro-list">
+                                    <li>Отмечаем точку (0; b).</li>
+                                    <li>Используем k как шаг по сетке.</li>
+                                    <li>Получаем вторую точку.</li>
+                                    <li>Проводим прямую через две точки.</li>
+                                </ul>
+                            </div>
+                        </details>
+
+                        <details class="step-card" data-step="5" data-object="line pointB secondPoint">
+                            <summary>
+                                <div class="step-index">6</div>
+                                <div class="step-copy">
+                                    <h3 class="step-title">Пример</h3>
+                                    <p class="step-hint">Разберём y = 2x + 1.</p>
+                                </div>
+                            </summary>
+                            <div class="step-content">
+                                <p class="math-line">y = 2x + 1</p>
+                                <ul class="micro-list">
+                                    <li>b = 1 → точка (0; 1).</li>
+                                    <li>k = 2 → вправо на 1, вверх на 2.</li>
+                                    <li>Получаем вторую точку (1; 3).</li>
+                                    <li>Через две точки проводим прямую.</li>
+                                </ul>
+                            </div>
+                        </details>
+
+                        <details class="step-card" data-step="6" data-object="line pointB">
+                            <summary>
+                                <div class="step-index">7</div>
+                                <div class="step-copy">
+                                    <h3 class="step-title">Проверка понимания</h3>
+                                    <p class="step-hint">Учимся читать формулу и график в обе стороны.</p>
+                                </div>
+                            </summary>
+                            <div class="step-content">
+                                <p>
+                                    Для y = -3x + 4 сразу видим:
+                                    точка (0; 4), наклон отрицательный, прямая идёт вниз вправо и достаточно крутая.
+                                </p>
+                            </div>
+                        </details>
+
+                        <details class="step-card" data-step="7" data-object="line pointB">
+                            <summary>
+                                <div class="step-index">8</div>
+                                <div class="step-copy">
+                                    <h3 class="step-title">Вывод</h3>
+                                    <p class="step-hint">Самая важная мысль всего урока.</p>
+                                </div>
+                            </summary>
+                            <div class="step-content">
+                                <p class="math-line">k — «как наклонена», b — «где стоит по вертикали»</p>
+                                <p>
+                                    Если держать это разделение в голове, читать и строить график прямой становится намного проще.
+                                </p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                <div class="tab-panel" data-tab-panel="methods">
+                    <h2 class="panel-title">Два подхода</h2>
+                    <p class="panel-sub">Ничего лишнего: только то, что реально помогает понять тему.</p>
+                    <div class="compact-box" style="margin-bottom:12px;">
+                        <h3>Алгебраический подход</h3>
+                        <p>По записи y = kx + b сразу читаем знак и величину k, а также точку (0; b).</p>
+                    </div>
+                    <div class="compact-box">
+                        <h3>Графический подход</h3>
+                        <p>Отмечаем (0; b), затем строим вторую точку шагом по наклону. Так формула быстро превращается в рисунок.</p>
+                    </div>
+                </div>
+
+                <div class="tab-panel" data-tab-panel="compare">
+                    <h2 class="panel-title">Сравнение</h2>
+                    <table class="compare-table" aria-label="Сравнение подходов">
+                        <thead>
+                        <tr>
+                            <th>Подход</th>
+                            <th>Что даёт</th>
+                            <th>Где особенно полезен</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Алгебраический</td>
+                            <td>Чтение смысла коэффициентов по формуле</td>
+                            <td>Быстро понять уравнение</td>
+                        </tr>
+                        <tr>
+                            <td>Графический</td>
+                            <td>Зрительное понимание наклона и сдвига</td>
+                            <td>Построение и сверка</td>
+                        </tr>
+                        <tr>
+                            <td>Вместе</td>
+                            <td>Формула ↔ рисунок ↔ смысл</td>
+                            <td>Настоящее понимание темы</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <aside class="visual-column">
+                <div class="visual-sticky">
+                    <section class="panel scene-card" id="sceneCard">
+                        <div class="scene-head">
+                            <div class="scene-status">
+                                Активный шаг: <strong id="sceneStatusText">1. Что дано</strong>
+                            </div>
+                            <div class="scene-main-tools">
+                                <button class="mini-tool" type="button" id="zoomOutBtn">−</button>
+                                <button class="mini-tool" type="button" id="zoomInBtn">+</button>
+                                <button class="mini-tool" type="button" id="resetViewBtn">reset</button>
+                                <button class="mini-tool" type="button" id="openModalBtn">развернуть</button>
+                            </div>
+                        </div>
+
+                        <div class="scene-wrap">
+                            <div class="scene-stage" id="sceneStage" aria-label="Интерактивная координатная плоскость">
+                                <svg class="scene-svg" id="sceneSvg" viewBox="0 0 900 520" role="img" aria-labelledby="sceneTitle sceneDesc">
+                                    <title id="sceneTitle">График прямой y = kx + b</title>
+                                    <desc id="sceneDesc">Координатная плоскость с прямой, точкой пересечения с осью Oy и вспомогательными элементами.</desc>
+
+                                    <defs>
+                                        <marker id="arrowBlack" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                                            <path d="M0,0 L10,5 L0,10 z" fill="var(--line)"></path>
+                                        </marker>
+                                        <marker id="arrowAccent" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                                            <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"></path>
+                                        </marker>
+                                    </defs>
+
+                                    <g id="viewport">
+                                        <g id="gridGroup"></g>
+
+                                        <g id="axes" class="object-hot" data-object-key="axes">
+                                            <line id="axisX" x1="60" y1="260" x2="840" y2="260" stroke="var(--line)" stroke-width="3" marker-end="url(#arrowBlack)"></line>
+                                            <line id="axisY" x1="450" y1="470" x2="450" y2="50" stroke="var(--line)" stroke-width="3" marker-end="url(#arrowBlack)"></line>
+                                            <text x="848" y="248" fill="var(--text)" font-size="22" font-weight="800">x</text>
+                                            <text x="462" y="62" fill="var(--text)" font-size="22" font-weight="800">y</text>
+                                            <text x="458" y="282" fill="var(--text)" font-size="18" font-weight="700">0</text>
+                                        </g>
+
+                                        <g id="helperRise" class="object-hot" data-object-key="helperRise">
+                                            <line id="riseLine" x1="0" y1="0" x2="0" y2="0" stroke="var(--text-faint)" stroke-width="3" stroke-dasharray="7 6"></line>
+                                            <text id="riseText" x="0" y="0" fill="var(--text)" font-size="17" font-weight="800"></text>
+                                        </g>
+
+                                        <g id="helperRun" class="object-hot" data-object-key="helperRun">
+                                            <line id="runLine" x1="0" y1="0" x2="0" y2="0" stroke="var(--text-faint)" stroke-width="3" stroke-dasharray="7 6"></line>
+                                            <text id="runText" x="0" y="0" fill="var(--text)" font-size="17" font-weight="800"></text>
+                                        </g>
+
+                                        <g id="kTriangle" class="object-hot" data-object-key="kTriangle">
+                                            <polyline id="trianglePoly" points="" fill="none" stroke="var(--text-faint)" stroke-width="3" stroke-dasharray="7 6"></polyline>
+                                        </g>
+
+                                        <g id="bShift" class="object-hot" data-object-key="bShift">
+                                            <line id="bGuide" x1="450" y1="260" x2="450" y2="260" stroke="var(--accent)" stroke-width="3" marker-end="url(#arrowAccent)"></line>
+                                            <text id="bText" x="465" y="250" fill="var(--accent)" font-size="17" font-weight="800">b</text>
+                                        </g>
+
+                                        <g id="lineGroup" class="object-hot" data-object-key="line">
+                                            <line id="mainLine" x1="0" y1="0" x2="0" y2="0" stroke="var(--accent)" stroke-width="5"></line>
+                                            <text id="lineLabel" x="0" y="0" fill="var(--accent)" font-size="20" font-weight="900">y = 2x + 1</text>
+                                        </g>
+
+                                        <g id="pointB" class="object-hot" data-object-key="pointB">
+                                            <circle id="pointBMark" cx="450" cy="220" r="7" fill="var(--accent)"></circle>
+                                            <text id="pointBLabel" x="465" y="214" fill="var(--text)" font-size="17" font-weight="800">(0; 1)</text>
+                                        </g>
+
+                                        <g id="secondPoint" class="object-hot" data-object-key="secondPoint">
+                                            <circle id="point2Mark" cx="0" cy="0" r="7" fill="var(--bg-elev)" stroke="var(--line)" stroke-width="2"></circle>
+                                            <text id="point2Label" x="0" y="0" fill="var(--text)" font-size="17" font-weight="800">(1; 3)</text>
+                                        </g>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="scene-caption">
+                            Клик по сцене открывает большой режим. Колёсико мыши — масштаб, перетаскивание — сдвиг.
+                        </div>
+
+                        <details class="secondary-panel collapsible" id="controlsDisclosure">
+                            <summary>
+                                <span>Параметры и вспомогательные элементы</span>
+                                <span>свернуть / развернуть</span>
+                            </summary>
+                            <div class="controls-inner">
+                                <div class="slider-row">
+                                    <label for="kRange">k — наклон: <strong id="kValue">2</strong></label>
+                                    <input id="kRange" type="range" min="-4" max="4" step="0.5" value="2" />
+                                </div>
+
+                                <div class="slider-row">
+                                    <label for="bRange">b — сдвиг по Oy: <strong id="bValue">1</strong></label>
+                                    <input id="bRange" type="range" min="-5" max="5" step="1" value="1" />
+                                </div>
+
+                                <div class="slider-row">
+                                    <label for="zoomRange">Масштаб: <strong id="zoomValue">100%</strong></label>
+                                    <input id="zoomRange" type="range" min="0.75" max="2.2" step="0.01" value="1" />
+                                </div>
+
+                                <div class="inline-toggles">
+                                    <label class="toggle-inline"><input type="checkbox" id="toggleGrid" checked><span>Сетка</span></label>
+                                    <label class="toggle-inline"><input type="checkbox" id="toggleLabels" checked><span>Подписи</span></label>
+                                    <label class="toggle-inline"><input type="checkbox" id="toggleHelpers" checked><span>Шаг наклона</span></label>
+                                    <label class="toggle-inline"><input type="checkbox" id="togglePoint" checked><span>Точка (0; b)</span></label>
+                                </div>
+
+                                <ul class="status-list" aria-label="Краткий статус графика">
+                                    <li><strong>Направление:</strong> <span id="directionText">возрастает</span></li>
+                                    <li><strong>Пересечение с Oy:</strong> <span id="interceptText">(0; 1)</span></li>
+                                    <li><strong>Крутизна:</strong> <span id="steepnessText">заметный наклон</span></li>
+                                    <li><strong>Уравнение:</strong> <span id="equationText">y = 2x + 1</span></li>
+                                </ul>
+                            </div>
+                        </details>
+
+                        <div class="print-summary" aria-hidden="true">
+                            <h2>Краткий печатный конспект</h2>
+                            <p><strong>Формула:</strong> y = kx + b</p>
+                            <p><strong>k</strong> определяет наклон прямой. <strong>b</strong> определяет точку пересечения с Oy.</p>
+                            <p><strong>Алгоритм:</strong> отметить (0; b), использовать k как шаг по сетке, построить вторую точку, провести прямую.</p>
+                        </div>
+                    </section>
+                </div>
+            </aside>
+        </section>
+
+        <!-- VISUAL -->
+        <section class="mode-panel single" id="mode-visual" aria-labelledby="visualTitle">
+            <div class="panel">
+                <h2 class="panel-title" id="visualTitle">Визуализация смысла коэффициентов</h2>
+                <p class="panel-sub">Только самые важные правила без лишних карточек и декоративного шума.</p>
+
+                <div class="compact-box" style="margin-bottom:10px;">
+                    <h3>Коэффициент k</h3>
+                    <ul class="plain-list">
+                        <li>k &gt; 0 → прямая поднимается слева направо.</li>
+                        <li>k &lt; 0 → прямая опускается слева направо.</li>
+                        <li>|k| больше → прямая круче.</li>
+                        <li>k = 0 → прямая горизонтальна.</li>
+                    </ul>
+                </div>
+
+                <div class="compact-box">
+                    <h3>Коэффициент b</h3>
+                    <ul class="plain-list">
+                        <li>b задаёт точку пересечения с осью Oy.</li>
+                        <li>Если b увеличивается, прямая поднимается вверх.</li>
+                        <li>Если b уменьшается, прямая опускается вниз.</li>
+                        <li>При изменении только b наклон не меняется.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- MISTAKES -->
+        <section class="mode-panel single" id="mode-mistakes" aria-labelledby="mistakesTitle">
+            <div class="panel">
+                <h2 class="panel-title" id="mistakesTitle">Типичные ошибки</h2>
+                <p class="panel-sub">Короткий список того, что действительно важно не путать.</p>
+                <ol class="plain-list">
+                    <li><strong>Путают роли k и b.</strong> Наклон задаёт k, а не b.</li>
+                    <li><strong>Неправильно читают b.</strong> Это пересечение с Oy, а не с Ox.</li>
+                    <li><strong>Теряют знак коэффициента k.</strong> Отрицательный k означает убывание.</li>
+                    <li><strong>Думают, что изменение b меняет наклон.</strong> Нет, оно лишь сдвигает прямую вверх или вниз.</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- SELFCHECK -->
+        <section class="mode-panel single" id="mode-selfcheck" aria-labelledby="selfcheckTitle">
+            <div class="panel">
+                <h2 class="panel-title" id="selfcheckTitle">Самопроверка</h2>
+                <p class="panel-sub">Короткие вопросы для устной проверки.</p>
+
+                <div class="compact-box" style="margin-bottom:10px;">
+                    <h3>1. Что можно сказать о прямой y = -2x + 5?</h3>
+                    <p>Она пересекает Oy в точке (0; 5) и убывает.</p>
+                </div>
+
+                <div class="compact-box" style="margin-bottom:10px;">
+                    <h3>2. Что происходит, если увеличить только b?</h3>
+                    <p>Прямая поднимется выше, но наклон не изменится.</p>
+                </div>
+
+                <div class="compact-box">
+                    <h3>3. Как быстро построить y = 0.5x - 2?</h3>
+                    <p>Сначала отметить точку (0; -2), затем взять шаг наклона: вправо на 2 и вверх на 1.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- GENERATOR -->
+        <section class="mode-panel single" id="mode-generator" aria-labelledby="generatorTitle">
+            <div class="panel generator-box">
+                <div>
+                    <h2 class="panel-title" id="generatorTitle">Генератор похожей задачи</h2>
+                    <p class="panel-sub">Та же логика: читаем точку пересечения с Oy и характер наклона.</p>
+                </div>
+
+                <div class="generated-task" id="generatedTask">
+                    <div id="generatedCondition">Определи, как расположена прямая y = -x + 3.</div>
+                    <div class="generated-math" id="generatedEquation">y = -x + 3</div>
+                    <div><strong>Ответ:</strong> <span id="generatedAnswer">пересекает Oy в точке (0; 3), идёт вниз вправо</span></div>
+                    <div><strong>Идея:</strong> <span id="generatedIdea">сначала читаем b, потом знак и модуль k</span></div>
+                </div>
+
+                <div class="actions-row">
+                    <button class="btn" type="button" id="generateBtn">Сгенерировать ещё</button>
+                    <button class="btn" type="button" id="applyGeneratedBtn">Показать на графике</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- QUIZ -->
+        <section class="mode-panel single" id="mode-quiz" aria-labelledby="quizTitle">
+            <div class="panel quiz-box">
+                <div>
+                    <h2 class="panel-title" id="quizTitle">Мини-квиз</h2>
+                    <p class="panel-sub">3 коротких вопроса с мгновенной проверкой.</p>
+                </div>
+
+                <div class="quiz-list">
+                    <article class="quiz-item" data-quiz-id="0">
+                        <strong>1. Что означает число b в уравнении y = kx + b?</strong>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="quiz0" value="0"> Это наклон прямой</label>
+                            <label><input type="radio" name="quiz0" value="1"> Это точка пересечения с Oy</label>
+                            <label><input type="radio" name="quiz0" value="2"> Это точка пересечения с Ox</label>
+                        </div>
+                        <div class="feedback" id="feedback0"></div>
+                    </article>
+
+                    <article class="quiz-item" data-quiz-id="1">
+                        <strong>2. Как идёт прямая, если k = -3?</strong>
+                        <div class="quiz-options">
+                            <label><input type="radio" name="quiz1" value="0"> Вверх вправо</label>
+                            <label><input type="radio" name="quiz1" value="1"> Горизонтально</label>
+                            <label><input type="radio" name="quiz1" value="2"> Вниз вправо</label>
+                        </div>
+                        <div class="feedback" id="feedback1"></div>
+                    </article>
+
+                    <article class="quiz-item" data-quiz-id="2">
+                        <strong>3. Введите b для прямой, которая пересекает Oy в точке (0; -4).</strong>
+                        <div class="quiz-inline-answer">
+                            <input type="text" id="quizInput2" inputmode="numeric" aria-label="Введите значение b" />
+                            <button class="btn" type="button" id="checkInput2">Проверить</button>
+                        </div>
+                        <div class="feedback" id="feedback2"></div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- MEMO -->
+        <section class="mode-panel single" id="mode-memo" aria-labelledby="memoTitle">
+            <div class="panel">
+                <h2 class="panel-title" id="memoTitle">Памятка</h2>
+                <p class="panel-sub">Краткий режим для повторения перед занятием или после него.</p>
+
+                <div class="memo-grid">
+                    <div class="compact-box">
+                        <h3>Формула</h3>
+                        <ul>
+                            <li>y = kx + b</li>
+                            <li>график — прямая</li>
+                            <li>x — любое число</li>
+                        </ul>
+                    </div>
+                    <div class="compact-box">
+                        <h3>Что делает k</h3>
+                        <ul>
+                            <li>задаёт наклон</li>
+                            <li>определяет рост/убывание</li>
+                            <li>задаёт крутизну</li>
+                        </ul>
+                    </div>
+                    <div class="compact-box">
+                        <h3>Что делает b</h3>
+                        <ul>
+                            <li>даёт точку (0; b)</li>
+                            <li>сдвигает график вверх/вниз</li>
+                            <li>не меняет наклон</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAKEAWAY -->
+        <section class="mode-panel single" id="mode-takeaway" aria-labelledby="takeawayTitle">
+            <div class="panel takeaway-box">
+                <div>
+                    <h2 class="panel-title" id="takeawayTitle">Итог</h2>
+                    <p class="panel-sub">Оставляем только четыре главные мысли.</p>
+                </div>
+
+                <div class="compact-box">
+                    <h3>1. Формула прямой</h3>
+                    <p>y = kx + b — это универсальная запись прямой на координатной плоскости.</p>
+                </div>
+                <div class="compact-box">
+                    <h3>2. Роль k</h3>
+                    <p>k отвечает за наклон: направление и крутизну.</p>
+                </div>
+                <div class="compact-box">
+                    <h3>3. Роль b</h3>
+                    <p>b отвечает за точку пересечения с осью Oy и вертикальный сдвиг.</p>
+                </div>
+                <div class="compact-box">
+                    <h3>4. Практический навык</h3>
+                    <p>По формуле можно быстро представить график, а по графику — восстановить смысл коэффициентов.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="tagline">МАТЕМАТИКА. НАГЛЯДНО</div>
+        <small><span class="kbd">Esc</span> — закрыть модальное окно, колёсико мыши — масштаб, drag — сдвиг графика.</small>
+    </footer>
+</div>
+
+<div class="modal" id="sceneModal" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-head">
+            <div>
+                <h2 class="panel-title" id="modalTitle" style="margin:0 0 4px;">Большой режим графика</h2>
+                <p class="panel-sub" style="margin:0;">Состояние синхронизировано с основным графиком.</p>
+            </div>
+            <button class="btn" type="button" id="closeModalBtn" aria-label="Закрыть окно">Закрыть</button>
+        </div>
+        <div class="modal-scene">
+            <div class="scene-stage" id="modalSceneStage" aria-label="Большая координатная плоскость">
+                <svg class="scene-svg" id="modalSceneSvg" viewBox="0 0 900 520" role="img" aria-hidden="true">
+                    <defs>
+                        <marker id="mArrowBlack" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="var(--line)"></path>
+                        </marker>
+                        <marker id="mArrowAccent" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"></path>
+                        </marker>
+                    </defs>
+                    <g id="modalViewport"></g>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (() => {
+        "use strict";
+
+        const STORAGE_KEYS = {
+            theme: "line-clean-theme"
+        };
+
+        const SCENE = {
+            width: 900,
+            height: 520,
+            originX: 450,
+            originY: 260
+        };
+
+        const state = {
+            theme: "light",
+            activeTopMode: "breakdown",
+            activeTab: "overview",
+            activeStep: 0,
+            modalState: { open: false },
+            viewport: {
+                baseScale: 40,
+                zoom: 1,
+                panX: 0,
+                panY: 0
+            },
+            panState: {
+                dragging: false,
+                startX: 0,
+                startY: 0,
+                originPanX: 0,
+                originPanY: 0
+            },
+            math: {
+                k: 2,
+                b: 1
+            },
+            generatorState: {
+                current: { k: -1, b: 3 }
+            },
+            visibilityToggles: {
+                grid: true,
+                labels: true,
+                helpers: true,
+                point: true
+            }
+        };
+
+        const stepTitles = [
+            "1. Что дано",
+            "2. Что нужно понять",
+            "3. Смысл коэффициента k",
+            "4. Смысл коэффициента b",
+            "5. Как строить по графику",
+            "6. Пример",
+            "7. Проверка понимания",
+            "8. Вывод"
+        ];
+
+        const el = {
+            html: document.documentElement,
+            themeToggle: document.getElementById("themeToggle"),
+            printBtn: document.getElementById("printBtn"),
+
+            modeButtons: Array.from(document.querySelectorAll(".mode-btn")),
+            modePanels: {
+                breakdown: document.getElementById("mode-breakdown"),
+                visual: document.getElementById("mode-visual"),
+                mistakes: document.getElementById("mode-mistakes"),
+                selfcheck: document.getElementById("mode-selfcheck"),
+                generator: document.getElementById("mode-generator"),
+                quiz: document.getElementById("mode-quiz"),
+                memo: document.getElementById("mode-memo"),
+                takeaway: document.getElementById("mode-takeaway")
+            },
+
+            tabButtons: Array.from(document.querySelectorAll(".tab-btn")),
+            tabPanels: Array.from(document.querySelectorAll(".tab-panel")),
+
+            showAllToggle: document.getElementById("showAllToggle"),
+            stepCards: Array.from(document.querySelectorAll(".step-card")),
+            prevStepBtn: document.getElementById("prevStepBtn"),
+            nextStepBtn: document.getElementById("nextStepBtn"),
+            sceneStatusText: document.getElementById("sceneStatusText"),
+
+            sceneStage: document.getElementById("sceneStage"),
+            viewport: document.getElementById("viewport"),
+            gridGroup: document.getElementById("gridGroup"),
+
+            kRange: document.getElementById("kRange"),
+            bRange: document.getElementById("bRange"),
+            zoomRange: document.getElementById("zoomRange"),
+            kValue: document.getElementById("kValue"),
+            bValue: document.getElementById("bValue"),
+            zoomValue: document.getElementById("zoomValue"),
+
+            toggleGrid: document.getElementById("toggleGrid"),
+            toggleLabels: document.getElementById("toggleLabels"),
+            toggleHelpers: document.getElementById("toggleHelpers"),
+            togglePoint: document.getElementById("togglePoint"),
+
+            directionText: document.getElementById("directionText"),
+            interceptText: document.getElementById("interceptText"),
+            steepnessText: document.getElementById("steepnessText"),
+            equationText: document.getElementById("equationText"),
+
+            zoomInBtn: document.getElementById("zoomInBtn"),
+            zoomOutBtn: document.getElementById("zoomOutBtn"),
+            resetViewBtn: document.getElementById("resetViewBtn"),
+            openModalBtn: document.getElementById("openModalBtn"),
+
+            sceneModal: document.getElementById("sceneModal"),
+            closeModalBtn: document.getElementById("closeModalBtn"),
+            modalSceneStage: document.getElementById("modalSceneStage"),
+            modalViewport: document.getElementById("modalViewport"),
+
+            generatedCondition: document.getElementById("generatedCondition"),
+            generatedEquation: document.getElementById("generatedEquation"),
+            generatedAnswer: document.getElementById("generatedAnswer"),
+            generatedIdea: document.getElementById("generatedIdea"),
+            generateBtn: document.getElementById("generateBtn"),
+            applyGeneratedBtn: document.getElementById("applyGeneratedBtn"),
+
+            quizInput2: document.getElementById("quizInput2"),
+            checkInput2: document.getElementById("checkInput2"),
+            quizItems: Array.from(document.querySelectorAll(".quiz-item")),
+            quizFeedback0: document.getElementById("feedback0"),
+            quizFeedback1: document.getElementById("feedback1"),
+            quizFeedback2: document.getElementById("feedback2")
+        };
+
+        function init() {
+            applySavedTheme();
+            buildModalScene();
+            renderGrid();
+            syncControlsFromState();
+            bindEvents();
+            updateScene();
+            openOnlyStep(0);
+            generateTask();
+        }
+
+        function applySavedTheme() {
+            const saved = localStorage.getItem(STORAGE_KEYS.theme);
+            state.theme = saved === "dark" ? "dark" : "light";
+            applyTheme();
+        }
+
+        function applyTheme() {
+            el.html.dataset.theme = state.theme;
+            el.themeToggle.setAttribute("aria-pressed", String(state.theme === "dark"));
+            localStorage.setItem(STORAGE_KEYS.theme, state.theme);
+        }
+
+        function bindEvents() {
+            el.themeToggle.addEventListener("click", () => {
+                state.theme = state.theme === "light" ? "dark" : "light";
+                applyTheme();
+            });
+
+            el.printBtn.addEventListener("click", () => window.print());
+
+            el.modeButtons.forEach(btn => {
+                btn.addEventListener("click", () => setMode(btn.dataset.mode));
+            });
+
+            el.tabButtons.forEach(btn => {
+                btn.addEventListener("click", () => setTab(btn.dataset.tab));
+            });
+
+            el.showAllToggle.addEventListener("change", () => {
+                if (el.showAllToggle.checked) {
+                    el.stepCards.forEach(card => card.open = true);
+                } else {
+                    openOnlyStep(state.activeStep);
+                }
+            });
+
+            el.stepCards.forEach((card, index) => {
+                const summary = card.querySelector("summary");
+                summary.addEventListener("click", () => {
+                    setTimeout(() => {
+                        state.activeStep = index;
+                        if (!el.showAllToggle.checked) {
+                            openOnlyStep(index);
+                        } else {
+                            highlightActiveStep(index);
+                        }
+                        syncStepSceneLink();
+                    }, 0);
+                });
+
+                card.addEventListener("mouseenter", () => setActiveObjectFromCard(card.dataset.object));
+                card.addEventListener("mouseleave", applyCurrentStepObjectFocus);
+            });
+
+            el.prevStepBtn.addEventListener("click", () => moveStep(-1));
+            el.nextStepBtn.addEventListener("click", () => moveStep(1));
+
+            el.kRange.addEventListener("input", () => {
+                state.math.k = parseFloat(el.kRange.value);
+                syncControlsFromState();
+                updateScene();
+            });
+
+            el.bRange.addEventListener("input", () => {
+                state.math.b = parseFloat(el.bRange.value);
+                syncControlsFromState();
+                updateScene();
+            });
+
+            el.zoomRange.addEventListener("input", () => {
+                setZoom(parseFloat(el.zoomRange.value));
+            });
+
+            el.toggleGrid.addEventListener("change", () => {
+                state.visibilityToggles.grid = el.toggleGrid.checked;
+                updateScene();
+            });
+
+            el.toggleLabels.addEventListener("change", () => {
+                state.visibilityToggles.labels = el.toggleLabels.checked;
+                updateScene();
+            });
+
+            el.toggleHelpers.addEventListener("change", () => {
+                state.visibilityToggles.helpers = el.toggleHelpers.checked;
+                updateScene();
+            });
+
+            el.togglePoint.addEventListener("change", () => {
+                state.visibilityToggles.point = el.togglePoint.checked;
+                updateScene();
+            });
+
+            el.zoomInBtn.addEventListener("click", () => setZoom(clamp(state.viewport.zoom + 0.1, 0.75, 2.2)));
+            el.zoomOutBtn.addEventListener("click", () => setZoom(clamp(state.viewport.zoom - 0.1, 0.75, 2.2)));
+            el.resetViewBtn.addEventListener("click", resetView);
+
+            bindPanZoom(el.sceneStage);
+            bindPanZoom(el.modalSceneStage);
+
+            el.sceneStage.addEventListener("wheel", handleWheelZoom, { passive:false });
+            el.modalSceneStage.addEventListener("wheel", handleWheelZoom, { passive:false });
+
+            el.openModalBtn.addEventListener("click", openModal);
+            el.sceneStage.addEventListener("click", event => {
+                if (!state.panState.dragging && event.target.closest("svg")) {
+                    openModal();
+                }
+            });
+
+            el.closeModalBtn.addEventListener("click", closeModal);
+            el.sceneModal.addEventListener("click", (event) => {
+                if (event.target === el.sceneModal) closeModal();
+            });
+
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape" && state.modalState.open) closeModal();
+            });
+
+            Array.from(document.querySelectorAll('input[name="quiz0"]')).forEach(input => {
+                input.addEventListener("change", () => checkQuizRadio(0, input.value));
+            });
+
+            Array.from(document.querySelectorAll('input[name="quiz1"]')).forEach(input => {
+                input.addEventListener("change", () => checkQuizRadio(1, input.value));
+            });
+
+            el.checkInput2.addEventListener("click", checkQuizInput);
+
+            el.generateBtn.addEventListener("click", generateTask);
+            el.applyGeneratedBtn.addEventListener("click", applyGeneratedTask);
+
+            document.querySelectorAll(".object-hot").forEach(obj => {
+                obj.addEventListener("mouseenter", () => highlightTextByObject(obj.dataset.objectKey));
+                obj.addEventListener("mouseleave", clearTextHover);
+                obj.addEventListener("click", () => jumpToObject(obj.dataset.objectKey));
+            });
+        }
+
+        function setMode(mode) {
+            state.activeTopMode = mode;
+            el.modeButtons.forEach(btn => {
+                btn.setAttribute("aria-current", btn.dataset.mode === mode ? "page" : "false");
+            });
+            Object.entries(el.modePanels).forEach(([key, panel]) => {
+                panel.classList.toggle("active", key === mode);
+            });
+        }
+
+        function setTab(tab) {
+            state.activeTab = tab;
+            el.tabButtons.forEach(btn => {
+                btn.setAttribute("aria-selected", String(btn.dataset.tab === tab));
+            });
+            el.tabPanels.forEach(panel => {
+                panel.classList.toggle("active", panel.dataset.tabPanel === tab);
+            });
+        }
+
+        function moveStep(delta) {
+            const next = clamp(state.activeStep + delta, 0, el.stepCards.length - 1);
+            state.activeStep = next;
+            if (!el.showAllToggle.checked) {
+                openOnlyStep(next);
+            } else {
+                highlightActiveStep(next);
+            }
+            el.stepCards[next].scrollIntoView({ behavior:"smooth", block:"nearest" });
+            syncStepSceneLink();
+        }
+
+        function openOnlyStep(index) {
+            el.stepCards.forEach((card, i) => card.open = i === index);
+            highlightActiveStep(index);
+        }
+
+        function highlightActiveStep(index) {
+            el.stepCards.forEach((card, i) => {
+                card.classList.toggle("active-step", i === index);
+            });
+        }
+
+        function syncStepSceneLink() {
+            el.sceneStatusText.textContent = stepTitles[state.activeStep];
+            applyCurrentStepObjectFocus();
+        }
+
+        function applyCurrentStepObjectFocus() {
+            const card = el.stepCards[state.activeStep];
+            setActiveObjectFromCard(card ? card.dataset.object : "");
+        }
+
+        function setActiveObjectFromCard(objectString) {
+            const activeKeys = objectString ? objectString.split(/\s+/) : [];
+            document.querySelectorAll(".object-hot").forEach(obj => {
+                const key = obj.dataset.objectKey;
+                const active = activeKeys.includes(key);
+                obj.classList.toggle("dimmed", activeKeys.length > 0 && !active);
+            });
+        }
+
+        function highlightTextByObject(objectKey) {
+            el.stepCards.forEach(card => {
+                const keys = (card.dataset.object || "").split(/\s+/);
+                card.classList.toggle("active-step", keys.includes(objectKey));
+            });
+        }
+
+        function clearTextHover() {
+            highlightActiveStep(state.activeStep);
+        }
+
+        function jumpToObject(objectKey) {
+            const index = el.stepCards.findIndex(card => (card.dataset.object || "").split(/\s+/).includes(objectKey));
+            if (index >= 0) {
+                setMode("breakdown");
+                state.activeStep = index;
+                if (!el.showAllToggle.checked) openOnlyStep(index);
+                else highlightActiveStep(index);
+                el.stepCards[index].scrollIntoView({ behavior:"smooth", block:"center" });
+                syncStepSceneLink();
+            }
+        }
+
+        function formatNumber(value) {
+            if (Number.isInteger(value)) return String(value);
+            return String(value).replace(".0", "");
+        }
+
+        function buildEquationText(k, b) {
+            let kText;
+            if (k === 1) kText = "x";
+            else if (k === -1) kText = "-x";
+            else kText = `${formatNumber(k)}x`;
+
+            if (b === 0) return `y = ${kText}`;
+            const sign = b > 0 ? "+" : "−";
+            return `y = ${kText} ${sign} ${formatNumber(Math.abs(b))}`;
+        }
+
+        function syncControlsFromState() {
+            el.kRange.value = String(state.math.k);
+            el.bRange.value = String(state.math.b);
+            el.zoomRange.value = String(state.viewport.zoom);
+            el.kValue.textContent = formatNumber(state.math.k);
+            el.bValue.textContent = formatNumber(state.math.b);
+            el.zoomValue.textContent = `${Math.round(state.viewport.zoom * 100)}%`;
+        }
+
+        function updateScene() {
+            updateGridVisibility();
+            updateLineGeometry(false);
+            updateLineGeometry(true);
+            updateViewportTransform();
+            updateStatusBlocks();
+            syncStepSceneLink();
+        }
+
+        function toScreen(x, y) {
+            const scale = state.viewport.baseScale;
+            return {
+                x: SCENE.originX + x * scale,
+                y: SCENE.originY - y * scale
+            };
+        }
+
+        function renderGrid() {
+            while (el.gridGroup.firstChild) el.gridGroup.removeChild(el.gridGroup.firstChild);
+
+            const minor = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            const major = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+            for (let x = -10; x <= 10; x++) {
+                const px = toScreen(x, 0).x;
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", px);
+                line.setAttribute("y1", 50);
+                line.setAttribute("x2", px);
+                line.setAttribute("y2", 470);
+                line.setAttribute("stroke", "var(--line)");
+                line.setAttribute("opacity", x === 0 ? "0" : (x % 5 === 0 ? "0.14" : "0.06"));
+                line.setAttribute("stroke-width", x % 5 === 0 ? "1.5" : "1");
+                (x % 5 === 0 ? major : minor).appendChild(line);
+
+                if (x !== 0) {
+                    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    t.setAttribute("x", px - 4);
+                    t.setAttribute("y", 280);
+                    t.setAttribute("fill", "var(--text-faint)");
+                    t.setAttribute("font-size", "13");
+                    t.textContent = String(x);
+                    t.classList.add("grid-label");
+                    major.appendChild(t);
+                }
+            }
+
+            for (let y = -5; y <= 5; y++) {
+                const py = toScreen(0, y).y;
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", 60);
+                line.setAttribute("y1", py);
+                line.setAttribute("x2", 840);
+                line.setAttribute("y2", py);
+                line.setAttribute("stroke", "var(--line)");
+                line.setAttribute("opacity", y === 0 ? "0" : (y % 5 === 0 ? "0.14" : "0.06"));
+                line.setAttribute("stroke-width", y % 5 === 0 ? "1.5" : "1");
+                (y % 5 === 0 ? major : minor).appendChild(line);
+
+                if (y !== 0) {
+                    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    t.setAttribute("x", 458);
+                    t.setAttribute("y", py + 4);
+                    t.setAttribute("fill", "var(--text-faint)");
+                    t.setAttribute("font-size", "13");
+                    t.textContent = String(y);
+                    t.classList.add("grid-label");
+                    major.appendChild(t);
+                }
+            }
+
+            el.gridGroup.appendChild(minor);
+            el.gridGroup.appendChild(major);
+        }
+
+        function updateGridVisibility() {
+            el.gridGroup.style.display = state.visibilityToggles.grid ? "" : "none";
+            document.querySelectorAll(".grid-label").forEach(node => {
+                node.style.display = state.visibilityToggles.grid && state.visibilityToggles.labels ? "" : "none";
+            });
+            document.querySelectorAll(".m-grid-label").forEach(node => {
+                node.style.display = state.visibilityToggles.grid && state.visibilityToggles.labels ? "" : "none";
+            });
+        }
+
+        function getLineEndpoints(k, b) {
+            const x1 = -10;
+            const x2 = 10;
+            return {
+                x1, y1: k * x1 + b,
+                x2, y2: k * x2 + b
+            };
+        }
+
+        function updateLineGeometry(modal) {
+            const refs = modal ? getModalRefs() : getMainRefs();
+            const { k, b } = state.math;
+            const endpoints = getLineEndpoints(k, b);
+            const p1 = toScreen(endpoints.x1, endpoints.y1);
+            const p2 = toScreen(endpoints.x2, endpoints.y2);
+            const pB = toScreen(0, b);
+            const pSecond = toScreen(1, k + b);
+            const pBase = toScreen(1, b);
+
+            refs.mainLine.setAttribute("x1", p1.x);
+            refs.mainLine.setAttribute("y1", p1.y);
+            refs.mainLine.setAttribute("x2", p2.x);
+            refs.mainLine.setAttribute("y2", p2.y);
+
+            refs.lineLabel.setAttribute("x", clamp(p2.x - 190, 84, 740));
+            refs.lineLabel.setAttribute("y", clamp(p2.y - 14, 70, 438));
+            refs.lineLabel.textContent = buildEquationText(k, b);
+
+            refs.pointBMark.setAttribute("cx", pB.x);
+            refs.pointBMark.setAttribute("cy", pB.y);
+            refs.pointBLabel.setAttribute("x", pB.x + 12);
+            refs.pointBLabel.setAttribute("y", pB.y - 8);
+            refs.pointBLabel.textContent = `(0; ${formatNumber(b)})`;
+
+            refs.point2Mark.setAttribute("cx", pSecond.x);
+            refs.point2Mark.setAttribute("cy", pSecond.y);
+            refs.point2Label.setAttribute("x", pSecond.x + 12);
+            refs.point2Label.setAttribute("y", pSecond.y - 8);
+            refs.point2Label.textContent = `(1; ${formatNumber(k + b)})`;
+
+            refs.riseLine.setAttribute("x1", pBase.x);
+            refs.riseLine.setAttribute("y1", pBase.y);
+            refs.riseLine.setAttribute("x2", pSecond.x);
+            refs.riseLine.setAttribute("y2", pSecond.y);
+
+            refs.runLine.setAttribute("x1", pB.x);
+            refs.runLine.setAttribute("y1", pB.y);
+            refs.runLine.setAttribute("x2", pBase.x);
+            refs.runLine.setAttribute("y2", pBase.y);
+
+            refs.riseText.setAttribute("x", pBase.x + 9);
+            refs.riseText.setAttribute("y", (pBase.y + pSecond.y) / 2 - 8);
+            refs.riseText.textContent = `Δy = ${formatNumber(k)}`;
+
+            refs.runText.setAttribute("x", (pB.x + pBase.x) / 2 - 14);
+            refs.runText.setAttribute("y", pBase.y + 22);
+            refs.runText.textContent = "Δx = 1";
+
+            refs.bGuide.setAttribute("x1", SCENE.originX);
+            refs.bGuide.setAttribute("y1", SCENE.originY);
+            refs.bGuide.setAttribute("x2", SCENE.originX);
+            refs.bGuide.setAttribute("y2", pB.y);
+
+            refs.bText.setAttribute("x", SCENE.originX + 14);
+            refs.bText.setAttribute("y", (SCENE.originY + pB.y) / 2 - 8);
+            refs.bText.textContent = `b = ${formatNumber(b)}`;
+
+            refs.trianglePoly.setAttribute("points", `${pB.x},${pB.y} ${pBase.x},${pBase.y} ${pSecond.x},${pSecond.y}`);
+
+            refs.pointB.style.display = state.visibilityToggles.point ? "" : "none";
+            refs.secondPoint.style.display = state.visibilityToggles.helpers ? "" : "none";
+            refs.helperRise.style.display = state.visibilityToggles.helpers ? "" : "none";
+            refs.helperRun.style.display = state.visibilityToggles.helpers ? "" : "none";
+            refs.kTriangle.style.display = state.visibilityToggles.helpers ? "" : "none";
+            refs.bShift.style.display = state.visibilityToggles.helpers ? "" : "none";
+
+            const labelsVisible = state.visibilityToggles.labels ? "" : "none";
+            [refs.lineLabel, refs.pointBLabel, refs.point2Label, refs.riseText, refs.runText, refs.bText].forEach(node => {
+                node.style.display = labelsVisible;
+            });
+        }
+
+        function getMainRefs() {
+            return {
+                mainLine: document.getElementById("mainLine"),
+                lineLabel: document.getElementById("lineLabel"),
+                pointBMark: document.getElementById("pointBMark"),
+                pointBLabel: document.getElementById("pointBLabel"),
+                point2Mark: document.getElementById("point2Mark"),
+                point2Label: document.getElementById("point2Label"),
+                riseLine: document.getElementById("riseLine"),
+                runLine: document.getElementById("runLine"),
+                riseText: document.getElementById("riseText"),
+                runText: document.getElementById("runText"),
+                bGuide: document.getElementById("bGuide"),
+                bText: document.getElementById("bText"),
+                trianglePoly: document.getElementById("trianglePoly"),
+                pointB: document.getElementById("pointB"),
+                secondPoint: document.getElementById("secondPoint"),
+                helperRise: document.getElementById("helperRise"),
+                helperRun: document.getElementById("helperRun"),
+                kTriangle: document.getElementById("kTriangle"),
+                bShift: document.getElementById("bShift")
+            };
+        }
+
+        function buildModalScene() {
+            el.modalViewport.innerHTML = `
+          <g id="modalGridGroup"></g>
+
+          <g id="mAxes">
+            <line x1="60" y1="260" x2="840" y2="260" stroke="var(--line)" stroke-width="3" marker-end="url(#mArrowBlack)"></line>
+            <line x1="450" y1="470" x2="450" y2="50" stroke="var(--line)" stroke-width="3" marker-end="url(#mArrowBlack)"></line>
+            <text x="848" y="248" fill="var(--text)" font-size="22" font-weight="800">x</text>
+            <text x="462" y="62" fill="var(--text)" font-size="22" font-weight="800">y</text>
+            <text x="458" y="282" fill="var(--text)" font-size="18" font-weight="700">0</text>
+          </g>
+
+          <g id="mHelperRise">
+            <line id="mRiseLine" x1="0" y1="0" x2="0" y2="0" stroke="var(--text-faint)" stroke-width="3" stroke-dasharray="7 6"></line>
+            <text id="mRiseText" x="0" y="0" fill="var(--text)" font-size="17" font-weight="800"></text>
+          </g>
+
+          <g id="mHelperRun">
+            <line id="mRunLine" x1="0" y1="0" x2="0" y2="0" stroke="var(--text-faint)" stroke-width="3" stroke-dasharray="7 6"></line>
+            <text id="mRunText" x="0" y="0" fill="var(--text)" font-size="17" font-weight="800"></text>
+          </g>
+
+          <g id="mKTriangle">
+            <polyline id="mTrianglePoly" points="" fill="none" stroke="var(--text-faint)" stroke-width="3" stroke-dasharray="7 6"></polyline>
+          </g>
+
+          <g id="mBShift">
+            <line id="mBGuide" x1="450" y1="260" x2="450" y2="260" stroke="var(--accent)" stroke-width="3" marker-end="url(#mArrowAccent)"></line>
+            <text id="mBText" x="465" y="250" fill="var(--accent)" font-size="17" font-weight="800"></text>
+          </g>
+
+          <g id="mLineGroup">
+            <line id="mMainLine" x1="0" y1="0" x2="0" y2="0" stroke="var(--accent)" stroke-width="5"></line>
+            <text id="mLineLabel" x="0" y="0" fill="var(--accent)" font-size="20" font-weight="900"></text>
+          </g>
+
+          <g id="mPointB">
+            <circle id="mPointBMark" cx="450" cy="220" r="7" fill="var(--accent)"></circle>
+            <text id="mPointBLabel" x="465" y="214" fill="var(--text)" font-size="17" font-weight="800"></text>
+          </g>
+
+          <g id="mSecondPoint">
+            <circle id="mPoint2Mark" cx="0" cy="0" r="7" fill="var(--bg-elev)" stroke="var(--line)" stroke-width="2"></circle>
+            <text id="mPoint2Label" x="0" y="0" fill="var(--text)" font-size="17" font-weight="800"></text>
+          </g>
+        `;
+
+            const modalGrid = document.getElementById("modalGridGroup");
+            const minor = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            const major = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+            for (let x = -10; x <= 10; x++) {
+                const px = toScreen(x, 0).x;
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", px);
+                line.setAttribute("y1", 50);
+                line.setAttribute("x2", px);
+                line.setAttribute("y2", 470);
+                line.setAttribute("stroke", "var(--line)");
+                line.setAttribute("opacity", x === 0 ? "0" : (x % 5 === 0 ? "0.14" : "0.06"));
+                line.setAttribute("stroke-width", x % 5 === 0 ? "1.5" : "1");
+                (x % 5 === 0 ? major : minor).appendChild(line);
+
+                if (x !== 0) {
+                    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    t.setAttribute("x", px - 4);
+                    t.setAttribute("y", 280);
+                    t.setAttribute("fill", "var(--text-faint)");
+                    t.setAttribute("font-size", "13");
+                    t.textContent = String(x);
+                    t.classList.add("m-grid-label");
+                    major.appendChild(t);
+                }
+            }
+
+            for (let y = -5; y <= 5; y++) {
+                const py = toScreen(0, y).y;
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", 60);
+                line.setAttribute("y1", py);
+                line.setAttribute("x2", 840);
+                line.setAttribute("y2", py);
+                line.setAttribute("stroke", "var(--line)");
+                line.setAttribute("opacity", y === 0 ? "0" : (y % 5 === 0 ? "0.14" : "0.06"));
+                line.setAttribute("stroke-width", y % 5 === 0 ? "1.5" : "1");
+                (y % 5 === 0 ? major : minor).appendChild(line);
+
+                if (y !== 0) {
+                    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    t.setAttribute("x", 458);
+                    t.setAttribute("y", py + 4);
+                    t.setAttribute("fill", "var(--text-faint)");
+                    t.setAttribute("font-size", "13");
+                    t.textContent = String(y);
+                    t.classList.add("m-grid-label");
+                    major.appendChild(t);
+                }
+            }
+
+            modalGrid.appendChild(minor);
+            modalGrid.appendChild(major);
+        }
+
+        function getModalRefs() {
+            return {
+                mainLine: document.getElementById("mMainLine"),
+                lineLabel: document.getElementById("mLineLabel"),
+                pointBMark: document.getElementById("mPointBMark"),
+                pointBLabel: document.getElementById("mPointBLabel"),
+                point2Mark: document.getElementById("mPoint2Mark"),
+                point2Label: document.getElementById("mPoint2Label"),
+                riseLine: document.getElementById("mRiseLine"),
+                runLine: document.getElementById("mRunLine"),
+                riseText: document.getElementById("mRiseText"),
+                runText: document.getElementById("mRunText"),
+                bGuide: document.getElementById("mBGuide"),
+                bText: document.getElementById("mBText"),
+                trianglePoly: document.getElementById("mTrianglePoly"),
+                pointB: document.getElementById("mPointB"),
+                secondPoint: document.getElementById("mSecondPoint"),
+                helperRise: document.getElementById("mHelperRise"),
+                helperRun: document.getElementById("mHelperRun"),
+                kTriangle: document.getElementById("mKTriangle"),
+                bShift: document.getElementById("mBShift")
+            };
+        }
+
+        function updateViewportTransform() {
+            const transform = `translate(${state.viewport.panX} ${state.viewport.panY}) scale(${state.viewport.zoom})`;
+            el.viewport.setAttribute("transform", transform);
+            el.modalViewport.setAttribute("transform", transform);
+        }
+
+        function setZoom(value) {
+            state.viewport.zoom = clamp(value, 0.75, 2.2);
+            el.zoomRange.value = String(state.viewport.zoom);
+            el.zoomValue.textContent = `${Math.round(state.viewport.zoom * 100)}%`;
+            updateViewportTransform();
+        }
+
+        function resetView() {
+            state.viewport.panX = 0;
+            state.viewport.panY = 0;
+            setZoom(1);
+        }
+
+        function bindPanZoom(stage) {
+            stage.addEventListener("pointerdown", (event) => {
+                state.panState.dragging = true;
+                state.panState.startX = event.clientX;
+                state.panState.startY = event.clientY;
+                state.panState.originPanX = state.viewport.panX;
+                state.panState.originPanY = state.viewport.panY;
+                stage.classList.add("dragging");
+                stage.setPointerCapture(event.pointerId);
+            });
+
+            stage.addEventListener("pointermove", (event) => {
+                if (!state.panState.dragging) return;
+                const dx = event.clientX - state.panState.startX;
+                const dy = event.clientY - state.panState.startY;
+                state.viewport.panX = clamp(state.panState.originPanX + dx, -240, 240);
+                state.viewport.panY = clamp(state.panState.originPanY + dy, -180, 180);
+                updateViewportTransform();
+            });
+
+            stage.addEventListener("pointerup", (event) => {
+                state.panState.dragging = false;
+                stage.classList.remove("dragging");
+                try { stage.releasePointerCapture(event.pointerId); } catch (_) {}
+            });
+
+            stage.addEventListener("pointercancel", () => {
+                state.panState.dragging = false;
+                stage.classList.remove("dragging");
+            });
+        }
+
+        function handleWheelZoom(event) {
+            event.preventDefault();
+            const delta = event.deltaY < 0 ? 0.08 : -0.08;
+            setZoom(state.viewport.zoom + delta);
+        }
+
+        function updateStatusBlocks() {
+            const { k, b } = state.math;
+            let direction = "горизонтальная";
+            if (k > 0) direction = "возрастает";
+            if (k < 0) direction = "убывает";
+
+            let steepness = "без наклона";
+            const abs = Math.abs(k);
+            if (abs === 0) steepness = "без наклона";
+            else if (abs < 1) steepness = "пологая";
+            else if (abs <= 2) steepness = "заметный наклон";
+            else steepness = "крутая";
+
+            el.directionText.textContent = direction;
+            el.interceptText.textContent = `(0; ${formatNumber(b)})`;
+            el.steepnessText.textContent = steepness;
+            el.equationText.textContent = buildEquationText(k, b).replace("−", "-");
+        }
+
+        function openModal() {
+            state.modalState.open = true;
+            el.sceneModal.classList.add("open");
+            el.sceneModal.setAttribute("aria-hidden", "false");
+        }
+
+        function closeModal() {
+            state.modalState.open = false;
+            el.sceneModal.classList.remove("open");
+            el.sceneModal.setAttribute("aria-hidden", "true");
+        }
+
+        function randomChoice(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function generateTask() {
+            const k = randomChoice([-3,-2,-1,-0.5,0.5,1,2,3]);
+            const b = Math.floor(Math.random() * 9) - 4;
+            state.generatorState.current = { k, b };
+
+            const eq = buildEquationText(k, b);
+            const direction = k > 0 ? "идёт вверх вправо" : (k < 0 ? "идёт вниз вправо" : "горизонтальна");
+            const intercept = `(0; ${formatNumber(b)})`;
+
+            el.generatedCondition.textContent = `Определи, как расположена прямая ${eq}.`;
+            el.generatedEquation.textContent = eq;
+            el.generatedAnswer.textContent = `пересекает Oy в точке ${intercept}, ${direction}`;
+            el.generatedIdea.textContent = `сначала читаем b = ${formatNumber(b)}, затем знак и модуль k = ${formatNumber(k)}`;
+        }
+
+        function applyGeneratedTask() {
+            const { k, b } = state.generatorState.current;
+            state.math.k = k;
+            state.math.b = b;
+            syncControlsFromState();
+            updateScene();
+            setMode("breakdown");
+        }
+
+        function checkQuizRadio(index, value) {
+            const correctMap = { 0: "1", 1: "2" };
+            const isCorrect = value === correctMap[index];
+            const item = el.quizItems[index];
+            item.classList.toggle("correct", isCorrect);
+            item.classList.toggle("wrong", !isCorrect);
+
+            if (index === 0) {
+                el.quizFeedback0.innerHTML = isCorrect
+                ? "<strong>Верно.</strong> b — это значение y при x = 0."
+                : "<strong>Пока нет.</strong> При x = 0 получаем y = b, значит речь о пересечении с Oy.";
+            } else {
+                el.quizFeedback1.innerHTML = isCorrect
+                ? "<strong>Верно.</strong> Отрицательный k означает убывание."
+                : "<strong>Пока нет.</strong> Если k отрицательный, прямая идёт вниз вправо.";
+            }
+        }
+
+        function checkQuizInput() {
+            const raw = el.quizInput2.value.trim().replace(",", ".");
+            const isCorrect = raw === "-4";
+            const item = el.quizItems[2];
+            item.classList.toggle("correct", isCorrect);
+            item.classList.toggle("wrong", !isCorrect);
+            el.quizFeedback2.innerHTML = isCorrect
+            ? "<strong>Верно.</strong> Если прямая проходит через (0; -4), то b = -4."
+            : "<strong>Неверно.</strong> Правильный ответ: b = -4.";
+        }
+
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
