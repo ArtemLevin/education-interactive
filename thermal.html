@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Радиальная тепловая карта знаний — Профильный ЕГЭ</title>
+    <style>
+        :root {
+            --bg: #07101f;
+            --panel: #10192e;
+            --panel-2: #162342;
+            --line: rgba(255,255,255,.08);
+            --text: #edf3ff;
+            --muted: #9fb0d8;
+            --accent: #72a8ff;
+            --accent-2: #7df0c5;
+            --shadow: 0 18px 48px rgba(0,0,0,.34);
+            --radius: 24px;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--text);
+            background:
+            radial-gradient(circle at top right, rgba(114,168,255,.14), transparent 25%),
+            radial-gradient(circle at left 30%, rgba(125,240,197,.08), transparent 24%),
+            linear-gradient(180deg, #07101f, #0b1326 40%, #08111f 100%);
+        }
+
+        .page {
+            max-width: 1460px;
+            margin: 0 auto;
+            padding: 22px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.25fr .95fr;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(22,35,66,.96), rgba(16,25,46,.98));
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .hero-main {
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-main::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(114,168,255,.10), transparent 36%, rgba(125,240,197,.08));
+            pointer-events: none;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.05);
+            color: var(--accent-2);
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: .08em;
+        }
+
+        h1 {
+            margin: 16px 0 12px;
+            font-size: clamp(30px, 4.6vw, 56px);
+            line-height: .96;
+            letter-spacing: -.035em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 72ch;
+            color: var(--muted);
+            line-height: 1.65;
+            font-size: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-stats {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 18px;
+            padding: 14px;
+        }
+
+        .stat .label {
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 8px;
+        }
+
+        .stat .value {
+            font-weight: 800;
+            font-size: clamp(22px, 2.6vw, 34px);
+            line-height: 1;
+        }
+
+        .hero-side {
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            justify-content: space-between;
+        }
+
+        .mini-title {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            margin-bottom: 10px;
+        }
+
+        .bar-wrap {
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.08);
+            overflow: hidden;
+            border-radius: 999px;
+            height: 16px;
+        }
+
+        .bar {
+            height: 100%;
+            width: 0;
+            transition: width .5s ease;
+            background: linear-gradient(90deg, #b22b50, #e18b35, #33a17a);
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .legend-item {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .legend-swatch {
+            height: 18px;
+            border-radius: 999px;
+            margin-bottom: 6px;
+            border: 1px solid rgba(255,255,255,.08);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.25fr) 390px;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .toolbar {
+            margin-bottom: 18px;
+            padding: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .toolbar-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .toolbar-label {
+            color: var(--muted);
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: .08em;
+            margin-right: 4px;
+        }
+
+        button, select, input[type="range"] { font: inherit; }
+
+        .chip, .action-btn {
+            border: 1px solid rgba(255,255,255,.10);
+            background: rgba(255,255,255,.05);
+            color: var(--text);
+            border-radius: 999px;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .chip:hover, .action-btn:hover { transform: translateY(-1px); background: rgba(255,255,255,.08); }
+        .chip.active { background: linear-gradient(180deg, rgba(114,168,255,.24), rgba(114,168,255,.12)); border-color: rgba(114,168,255,.45); }
+
+        .slider-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.08);
+        }
+
+        input[type="range"] { width: 130px; accent-color: var(--accent); }
+        select {
+            background: rgba(255,255,255,.05);
+            color: var(--text);
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 12px;
+            padding: 10px 12px;
+        }
+
+        .viz-card { padding: 18px; }
+
+        .viz-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: end;
+            margin-bottom: 14px;
+        }
+
+        .viz-title { font-size: 24px; font-weight: 800; }
+        .viz-subtitle { color: var(--muted); font-size: 14px; line-height: 1.55; margin-top: 6px; max-width: 72ch; }
+
+        .radial-wrap {
+            position: relative;
+            min-height: 760px;
+            border-radius: 24px;
+            background:
+            radial-gradient(circle at center, rgba(255,255,255,.04), transparent 38%),
+            linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+            border: 1px solid rgba(255,255,255,.06);
+            overflow: hidden;
+        }
+
+        .radial-svg {
+            width: 100%;
+            height: 760px;
+            display: block;
+        }
+
+        .ring-label {
+            font-size: 12px;
+            fill: rgba(255,255,255,.46);
+            font-weight: 700;
+        }
+
+        .center-title {
+            font-size: 22px;
+            font-weight: 800;
+            fill: #eef3ff;
+        }
+
+        .center-subtitle {
+            font-size: 12px;
+            fill: #9fb0d8;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+        }
+
+        .topic-path {
+            cursor: pointer;
+            transition: opacity .2s ease, filter .2s ease;
+        }
+
+        .topic-path.dim { opacity: .22; }
+        .topic-path:hover { filter: brightness(1.08); }
+
+        .topic-label {
+            font-size: 11px;
+            font-weight: 700;
+            fill: #eef3ff;
+            pointer-events: none;
+        }
+
+        .topic-score {
+            font-size: 10px;
+            fill: #cbd8fb;
+            pointer-events: none;
+            font-weight: 700;
+        }
+
+        .side-panel {
+            position: sticky;
+            top: 20px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .topic-name {
+            font-size: 25px;
+            font-weight: 800;
+            line-height: 1.08;
+            margin-bottom: 8px;
+        }
+
+        .muted { color: var(--muted); }
+
+        .score-ring-wrap {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .score-ring {
+            width: 112px;
+            height: 112px;
+            border-radius: 50%;
+            position: relative;
+            display: grid;
+            place-items: center;
+            flex: 0 0 auto;
+        }
+
+        .score-ring::before {
+            content: "";
+            position: absolute;
+            width: 78px;
+            height: 78px;
+            border-radius: 50%;
+            background: var(--panel);
+            border: 1px solid rgba(255,255,255,.07);
+        }
+
+        .score-ring span { position: relative; font-size: 26px; font-weight: 800; }
+
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .kpi {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 16px;
+            padding: 12px;
+        }
+
+        .kpi .k {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .kpi .v { font-size: 21px; font-weight: 800; }
+
+        .side-list { display: grid; gap: 10px; }
+        .bullet {
+            display: grid;
+            grid-template-columns: 10px 1fr;
+            gap: 10px;
+            align-items: start;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .bullet::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 6px;
+            background: var(--accent);
+            box-shadow: 0 0 0 4px rgba(114,168,255,.12);
+        }
+
+        .recommendation {
+            padding: 14px;
+            border-radius: 16px;
+            background: rgba(125,240,197,.08);
+            border: 1px solid rgba(125,240,197,.18);
+            color: #eafff5;
+            line-height: 1.55;
+        }
+
+        .footer-note {
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.07);
+            color: var(--muted);
+            line-height: 1.55;
+            font-size: 14px;
+        }
+
+        .small { font-size: 12px; color: var(--muted); }
+
+        .tooltip {
+            position: fixed;
+            pointer-events: none;
+            z-index: 50;
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: rgba(8,15,30,.92);
+            border: 1px solid rgba(255,255,255,.10);
+            color: var(--text);
+            box-shadow: 0 16px 34px rgba(0,0,0,.34);
+            font-size: 13px;
+            min-width: 180px;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity .14s ease, transform .14s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .tooltip.show { opacity: 1; transform: translateY(0); }
+        .tooltip .t1 { font-weight: 800; margin-bottom: 4px; }
+        .tooltip .t2 { color: var(--muted); }
+
+        @media (max-width: 1180px) {
+            .hero, .layout { grid-template-columns: 1fr; }
+            .side-panel { position: static; }
+        }
+
+        @media (max-width: 860px) {
+            .page { padding: 16px; }
+            .hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .legend { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .radial-wrap { min-height: 620px; }
+            .radial-svg { height: 620px; }
+        }
+
+        @media (max-width: 560px) {
+            .hero-stats, .legend, .kpis { grid-template-columns: 1fr; }
+            .viz-head { flex-direction: column; align-items: start; }
+            .score-ring-wrap { flex-direction: column; align-items: start; }
+            .radial-wrap { min-height: 520px; }
+            .radial-svg { height: 520px; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <section class="hero">
+        <div class="card hero-main">
+            <div class="eyebrow">Профильный ЕГЭ • Радиальная диагностика</div>
+            <h1>Круговая тепловая карта знаний ученика</h1>
+            <p>
+                Каждая тема — отдельный сектор круга. Процент усвоения показан по радиусу: чем дальше сектор тянется от центра, тем лучше освоение. Цвет тоже кодирует уровень владения, поэтому слабые зоны сразу читаются и по длине, и по теплоте.
+            </p>
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="label">Среднее освоение</div>
+                    <div class="value" id="avgMastery">0%</div>
+                </div>
+                <div class="stat">
+                    <div class="label">Устойчивость</div>
+                    <div class="value" id="stabilityForecast">0 / 10</div>
+                </div>
+                <div class="stat">
+                    <div class="label">Сильных тем</div>
+                    <div class="value" id="strongTopics">0</div>
+                </div>
+                <div class="stat">
+                    <div class="label">Критических тем</div>
+                    <div class="value" id="weakTopics">0</div>
+                </div>
+            </div>
+        </div>
+
+        <aside class="card hero-side">
+            <div>
+                <div class="mini-title">Общий прогресс</div>
+                <div class="bar-wrap"><div class="bar" id="globalBar"></div></div>
+                <div class="small" style="margin-top:10px" id="progressText">—</div>
+            </div>
+            <div>
+                <div class="mini-title">Шкала радиуса</div>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-swatch" style="background:#8b1e3f"></div>0–20%</div>
+                    <div class="legend-item"><div class="legend-swatch" style="background:#c53a50"></div>21–40%</div>
+                    <div class="legend-item"><div class="legend-swatch" style="background:#d98a33"></div>41–60%</div>
+                    <div class="legend-item"><div class="legend-swatch" style="background:#3f97a8"></div>61–80%</div>
+                    <div class="legend-item"><div class="legend-swatch" style="background:#2aa36f"></div>81–100%</div>
+                </div>
+            </div>
+            <div>
+                <div class="mini-title">Как читать карту</div>
+                <div class="small" id="focusSummary">
+                    Центр означает слабое владение темой, внешние кольца — более уверенное. Нажмите на сектор, чтобы увидеть типичные ошибки и следующий шаг подготовки.
+                </div>
+            </div>
+        </aside>
+    </section>
+
+    <div class="layout">
+        <main>
+            <div class="card toolbar">
+                <div class="toolbar-group">
+                    <span class="toolbar-label">Раздел</span>
+                    <button class="chip active" data-filter="all">Все темы</button>
+                    <button class="chip" data-filter="algebra">Алгебра</button>
+                    <button class="chip" data-filter="geometry">Геометрия</button>
+                    <button class="chip" data-filter="analysis">Анализ</button>
+                    <button class="chip" data-filter="probability">Вероятность</button>
+                </div>
+                <div class="toolbar-group">
+                    <span class="toolbar-label">Минимум усвоения</span>
+                    <div class="slider-box">
+                        <input type="range" id="threshold" min="0" max="100" step="5" value="0" />
+                        <strong id="thresholdValue">0%</strong>
+                    </div>
+                </div>
+                <div class="toolbar-group">
+                    <span class="toolbar-label">Порядок по кругу</span>
+                    <select id="sortMode">
+                        <option value="default">По плану подготовки</option>
+                        <option value="asc">От слабых к сильным</option>
+                        <option value="desc">От сильных к слабым</option>
+                        <option value="confidence">По уверенности</option>
+                    </select>
+                </div>
+                <div class="toolbar-group" style="margin-left:auto">
+                    <button class="action-btn" id="resetBtn">Сбросить фильтры</button>
+                </div>
+            </div>
+
+            <section class="card viz-card">
+                <div class="viz-head">
+                    <div>
+                        <div class="viz-title">Радиальная карта тем</div>
+                        <div class="viz-subtitle">
+                            Процент усвоения идёт вдоль радиуса. Все сектора одинаковы по углу, поэтому взгляд сразу сравнивает именно глубину освоения, а не площадь блока.
+                        </div>
+                    </div>
+                    <div class="small" id="visibleCount">Показано тем: 0</div>
+                </div>
+                <div class="radial-wrap">
+                    <svg id="radialSvg" class="radial-svg" viewBox="0 0 900 760" aria-label="Круговая тепловая карта знаний"></svg>
+                </div>
+            </section>
+        </main>
+
+        <aside class="card side-panel">
+            <div>
+                <div class="small">Выбранная тема</div>
+                <div class="topic-name" id="topicName">Логарифмы</div>
+                <div class="muted" id="topicMeta">Алгебра • Высокий приоритет</div>
+            </div>
+            <div class="score-ring-wrap">
+                <div class="score-ring" id="scoreRing"><span id="scoreValue">68</span></div>
+                <div>
+                    <div class="small">Текущий уровень</div>
+                    <div style="font-size:20px;font-weight:800;margin-top:4px" id="levelLabel">Рабочий уровень</div>
+                    <div class="muted" style="margin-top:6px" id="levelNote">Тема решается, но пока не совсем стабильно.</div>
+                </div>
+            </div>
+            <div class="kpis">
+                <div class="kpi"><div class="k">Уверенность</div><div class="v" id="confidenceValue">62%</div></div>
+                <div class="kpi"><div class="k">Приоритет</div><div class="v" id="priorityValue">Высокий</div></div>
+                <div class="kpi"><div class="k">Попытки</div><div class="v" id="attemptsValue">14</div></div>
+                <div class="kpi"><div class="k">Риск</div><div class="v" id="riskValue">Средний</div></div>
+            </div>
+            <div>
+                <div class="mini-title">Типичные ошибки</div>
+                <div class="side-list" id="mistakesList"></div>
+            </div>
+            <div>
+                <div class="mini-title">Следующий шаг</div>
+                <div class="recommendation" id="recommendationBox"></div>
+            </div>
+            <div class="footer-note" id="footerNote"></div>
+        </aside>
+    </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+    const topics = [
+        { id: 1, title: 'Числа и вычисления', block: 'algebra', blockLabel: 'Алгебра', mastery: 84, confidence: 78, attempts: 19, risk: 'Низкий', priority: 'Средний', mistakes: ['Иногда теряет знак при длинной цепочке преобразований', 'Торопится в устных вычислениях'], action: 'Поддерживать короткими сетами на скорость и не перегружать повторением.', examWeight: 'Высокая частотность', note: 'Надёжная стартовая тема.' },
+        { id: 2, title: 'Преобразование выражений', block: 'algebra', blockLabel: 'Алгебра', mastery: 73, confidence: 69, attempts: 16, risk: 'Средний', priority: 'Высокий', mistakes: ['Не всегда замечает ограничения на знаменатель', 'Путает свойства степеней с разными основаниями'], action: 'Дать отдельную серию на свойства степеней, корней и ОДЗ.', examWeight: 'Фундаментальная тема', note: 'Техника есть, нужна стабилизация.' },
+        { id: 3, title: 'Квадратные уравнения', block: 'algebra', blockLabel: 'Алгебра', mastery: 88, confidence: 83, attempts: 21, risk: 'Низкий', priority: 'Средний', mistakes: ['Редко допускает арифметические ошибки в дискриминанте'], action: 'Использовать как опорную тему и разминку в начале занятия.', examWeight: 'Базовая устойчивость', note: 'Очень сильный блок.' },
+        { id: 4, title: 'Рациональные неравенства', block: 'analysis', blockLabel: 'Анализ', mastery: 57, confidence: 51, attempts: 14, risk: 'Высокий', priority: 'Высокий', mistakes: ['Ошибается в расстановке точек разрыва', 'Иногда забывает выколотые точки'], action: 'Тренировать через числовую прямую и разделение нулей и точек разрыва.', examWeight: 'Даёт прирост баллов', note: 'Нужна жёсткая схема решения.' },
+        { id: 5, title: 'Иррациональные уравнения', block: 'analysis', blockLabel: 'Анализ', mastery: 49, confidence: 43, attempts: 11, risk: 'Высокий', priority: 'Высокий', mistakes: ['После возведения в квадрат не проверяет корни', 'Теряет ограничения подкоренных выражений'], action: 'Отработать шаблон: ОДЗ → решение → обязательная проверка.', examWeight: 'Сложная и ценная', note: 'Опасная тема по потере баллов.' },
+        { id: 6, title: 'Показательные уравнения', block: 'algebra', blockLabel: 'Алгебра', mastery: 64, confidence: 58, attempts: 15, risk: 'Средний', priority: 'Высокий', mistakes: ['Не всегда замечает выгодную замену', 'Иногда делает лишние переходы'], action: 'Учить распознавать шаблоны: одно основание, замена, монотонность.', examWeight: 'Частая тема', note: 'Нужно ускорить распознавание.' },
+        { id: 7, title: 'Логарифмы', block: 'algebra', blockLabel: 'Алгебра', mastery: 68, confidence: 62, attempts: 14, risk: 'Средний', priority: 'Высокий', mistakes: ['Смешивает свойства суммы и произведения', 'Иногда забывает условия на основание логарифма'], action: 'Дать карту свойств с контрпримерами и проговаривать ОДЗ до решения.', examWeight: 'Высокий потенциал', note: 'Решаемая, но дисциплинарная тема.' },
+        { id: 8, title: 'Тригонометрия', block: 'analysis', blockLabel: 'Анализ', mastery: 54, confidence: 46, attempts: 12, risk: 'Высокий', priority: 'Высокий', mistakes: ['Путается в сериях решений', 'Неуверенно работает с окружностью'], action: 'Сильнее опереться на единичную окружность и цветовое разделение серий корней.', examWeight: 'Сложный блок', note: 'Нужна визуальная опора.' },
+        { id: 9, title: 'Производная', block: 'analysis', blockLabel: 'Анализ', mastery: 61, confidence: 56, attempts: 13, risk: 'Средний', priority: 'Высокий', mistakes: ['Не связывает знак производной с поведением функции', 'Слабо формулирует вывод по таблице знаков'], action: 'Отработать цепочку: производная → критические точки → знаки → вывод.', examWeight: 'Очень важная тема', note: 'Есть понимание, мало автоматизма.' },
+        { id: 10, title: 'Планиметрия', block: 'geometry', blockLabel: 'Геометрия', mastery: 46, confidence: 39, attempts: 10, risk: 'Высокий', priority: 'Очень высокий', mistakes: ['Плохо извлекает информацию из рисунка', 'Не видит ключевую теорему для старта'], action: 'Учить видеть конфигурации: окружности, касательные, подобие, углы.', examWeight: 'Критичная тема второй части', note: 'Главная зона роста.' },
+        { id: 11, title: 'Стереометрия', block: 'geometry', blockLabel: 'Геометрия', mastery: 42, confidence: 34, attempts: 8, risk: 'Высокий', priority: 'Очень высокий', mistakes: ['Трудно представляет пространственную конфигурацию', 'Не умеет выбирать нужное сечение'], action: 'Разбирать через этапы: тело → сечение → переход к планиметрии.', examWeight: 'Сложная высокобалльная тема', note: 'Без визуализации тема тормозит.' },
+        { id: 12, title: 'Текстовые задачи', block: 'algebra', blockLabel: 'Алгебра', mastery: 58, confidence: 55, attempts: 17, risk: 'Средний', priority: 'Высокий', mistakes: ['Путает, что брать за единицу', 'Ошибается в переводе фразы “на ... больше/меньше”'], action: 'Ввести жёсткий табличный шаблон перевода текста в модель.', examWeight: 'Часто приносит баллы', note: 'Мышление есть, запись нестабильна.' },
+        { id: 13, title: 'Вероятность', block: 'probability', blockLabel: 'Вероятность', mastery: 76, confidence: 73, attempts: 15, risk: 'Низкий', priority: 'Средний', mistakes: ['Иногда не различает независимые и несовместные события'], action: 'Поддерживать короткими заданиями на классификацию ситуаций.', examWeight: 'Хороший источник баллов', note: 'Сильный блок.' },
+        { id: 14, title: 'Комбинаторика', block: 'probability', blockLabel: 'Вероятность', mastery: 66, confidence: 59, attempts: 12, risk: 'Средний', priority: 'Средний', mistakes: ['Путает, когда важен порядок', 'Берёт формулу раньше анализа сюжета'], action: 'Свести тему к трём вопросам: порядок, повторения, объект выбора.', examWeight: 'Поддерживающая тема', note: 'Нужна классификация сюжетов.' },
+        { id: 15, title: 'Параметр', block: 'analysis', blockLabel: 'Анализ', mastery: 31, confidence: 24, attempts: 6, risk: 'Очень высокий', priority: 'Очень высокий', mistakes: ['Не видит идею разбиения на случаи', 'Пытается считать без графического смысла'], action: 'Начинать с визуального смысла параметра и количества решений.', examWeight: 'Элитная тема', note: 'Брать после укрепления базы.' },
+        { id: 16, title: 'Экономическая задача', block: 'algebra', blockLabel: 'Алгебра', mastery: 38, confidence: 33, attempts: 7, risk: 'Высокий', priority: 'Очень высокий', mistakes: ['Не удерживает логику периодов начисления процентов', 'Смешивает типы схем платежей'], action: 'Разобрать табличную модель по периодам: остаток → проценты → платёж.', examWeight: 'Очень выгодная тема', note: 'Даёт большой прирост при системной отработке.' }
+    ];
+
+    const svg = document.getElementById('radialSvg');
+    const chips = [...document.querySelectorAll('.chip')];
+    const threshold = document.getElementById('threshold');
+    const thresholdValue = document.getElementById('thresholdValue');
+    const sortMode = document.getElementById('sortMode');
+    const resetBtn = document.getElementById('resetBtn');
+    const tooltip = document.getElementById('tooltip');
+
+    let state = {
+        filter: 'all',
+        threshold: 0,
+        sort: 'default',
+        activeId: 7,
+        hoverId: null,
+    };
+
+    function getHeatColor(value) {
+        if (value <= 20) return '#8b1e3f';
+        if (value <= 40) return '#c53a50';
+        if (value <= 60) return '#d98a33';
+        if (value <= 80) return '#3f97a8';
+        return '#2aa36f';
+    }
+
+    function getLevelLabel(value) {
+        if (value < 40) return 'Критическая просадка';
+        if (value < 60) return 'Нестабильное владение';
+        if (value < 75) return 'Рабочий уровень';
+        if (value < 90) return 'Уверенное владение';
+        return 'Сильная тема';
+    }
+
+    function getLevelNote(value) {
+        if (value < 40) return 'Тема требует отдельного системного блока и визуальной поддержки.';
+        if (value < 60) return 'Понимание частичное: идея есть, но решение часто ломается на деталях.';
+        if (value < 75) return 'Тема решается, однако устойчивость зависит от формата задания.';
+        if (value < 90) return 'Тема даётся уверенно, достаточно поддерживать форму.';
+        return 'Тема может служить опорой и давать быстрые баллы.';
+    }
+
+    function polarToCartesian(cx, cy, r, angle) {
+        return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+    }
+
+    function sectorPath(cx, cy, innerR, outerR, startA, endA) {
+        const p1 = polarToCartesian(cx, cy, outerR, startA);
+        const p2 = polarToCartesian(cx, cy, outerR, endA);
+        const p3 = polarToCartesian(cx, cy, innerR, endA);
+        const p4 = polarToCartesian(cx, cy, innerR, startA);
+        const largeArc = endA - startA > Math.PI ? 1 : 0;
+        return [
+            `M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}`,
+            `A ${outerR} ${outerR} 0 ${largeArc} 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`,
+            `L ${p3.x.toFixed(2)} ${p3.y.toFixed(2)}`,
+            `A ${innerR} ${innerR} 0 ${largeArc} 0 ${p4.x.toFixed(2)} ${p4.y.toFixed(2)}`,
+            'Z'
+        ].join(' ');
+    }
+
+    function filteredTopics() {
+        let result = [...topics];
+        if (state.filter !== 'all') result = result.filter(t => t.block === state.filter);
+        result = result.filter(t => t.mastery >= state.threshold);
+        if (state.sort === 'asc') result.sort((a, b) => a.mastery - b.mastery);
+        if (state.sort === 'desc') result.sort((a, b) => b.mastery - a.mastery);
+        if (state.sort === 'confidence') result.sort((a, b) => a.confidence - b.confidence);
+        return result;
+    }
+
+    function renderStats() {
+        const avg = Math.round(topics.reduce((s, x) => s + x.mastery, 0) / topics.length);
+        const stability = Math.round(topics.reduce((s, x) => s + x.confidence, 0) / topics.length / 10);
+        const strong = topics.filter(x => x.mastery >= 75).length;
+        const weak = topics.filter(x => x.mastery < 50).length;
+        document.getElementById('avgMastery').textContent = avg + '%';
+        document.getElementById('stabilityForecast').textContent = stability + ' / 10';
+        document.getElementById('strongTopics').textContent = strong;
+        document.getElementById('weakTopics').textContent = weak;
+        document.getElementById('globalBar').style.width = avg + '%';
+        document.getElementById('progressText').textContent = `Средняя карта ученика: ${avg}% освоения. Самые заметные провалы — геометрия и задачи второй части.`;
+    }
+
+    function renderRadial() {
+        const data = filteredTopics();
+        document.getElementById('visibleCount').textContent = `Показано тем: ${data.length}`;
+        svg.innerHTML = '';
+
+        const vb = svg.viewBox.baseVal;
+        const width = vb.width || 900;
+        const height = vb.height || 760;
+        const cx = width * 0.5;
+        const cy = height * 0.53;
+        const innerR = Math.min(width, height) * 0.11;
+        const maxR = Math.min(width, height) * 0.42;
+        const angleGap = 0.028;
+        const total = Math.max(data.length, 1);
+        const step = (Math.PI * 2) / total;
+
+        const bgGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        [20, 40, 60, 80, 100].forEach(p => {
+            const r = innerR + (maxR - innerR) * (p / 100);
+            const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            c.setAttribute('cx', cx);
+            c.setAttribute('cy', cy);
+            c.setAttribute('r', r);
+            c.setAttribute('fill', 'none');
+            c.setAttribute('stroke', 'rgba(255,255,255,.08)');
+            c.setAttribute('stroke-dasharray', p === 100 ? '0' : '5 8');
+            c.setAttribute('stroke-width', '1');
+            bgGroup.appendChild(c);
+
+            const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            t.setAttribute('x', cx + 10);
+            t.setAttribute('y', cy - r + 14);
+            t.setAttribute('class', 'ring-label');
+            t.textContent = p + '%';
+            bgGroup.appendChild(t);
+        });
+
+        for (let i = 0; i < 12; i++) {
+            const a = -Math.PI / 2 + i * (Math.PI * 2 / 12);
+            const p1 = polarToCartesian(cx, cy, innerR - 8, a);
+            const p2 = polarToCartesian(cx, cy, maxR + 18, a);
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', p1.x);
+            line.setAttribute('y1', p1.y);
+            line.setAttribute('x2', p2.x);
+            line.setAttribute('y2', p2.y);
+            line.setAttribute('stroke', 'rgba(255,255,255,.04)');
+            line.setAttribute('stroke-width', '1');
+            bgGroup.appendChild(line);
+        }
+        svg.appendChild(bgGroup);
+
+        const sectorsGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        data.forEach((item, index) => {
+            const start = -Math.PI / 2 + index * step + angleGap;
+            const end = -Math.PI / 2 + (index + 1) * step - angleGap;
+            const outerR = innerR + (maxR - innerR) * (item.mastery / 100);
+            const fullOuter = maxR;
+
+            const bgPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            bgPath.setAttribute('d', sectorPath(cx, cy, innerR, fullOuter, start, end));
+            bgPath.setAttribute('fill', 'rgba(255,255,255,.035)');
+            bgPath.setAttribute('stroke', 'rgba(255,255,255,.05)');
+            bgPath.setAttribute('stroke-width', '1');
+            sectorsGroup.appendChild(bgPath);
+
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', sectorPath(cx, cy, innerR, outerR, start, end));
+            path.setAttribute('fill', getHeatColor(item.mastery));
+            path.setAttribute('stroke', item.id === state.activeId ? 'rgba(255,255,255,.95)' : 'rgba(255,255,255,.14)');
+            path.setAttribute('stroke-width', item.id === state.activeId ? '2.2' : '1');
+            path.setAttribute('class', 'topic-path' + ((state.hoverId && state.hoverId !== item.id) || (state.activeId && state.activeId !== item.id && !state.hoverId) ? ' dim' : ''));
+
+            path.addEventListener('mouseenter', e => {
+                state.hoverId = item.id;
+                showTooltip(e, `<div class="t1">${item.title}</div><div>${item.mastery}% усвоения</div><div class="t2">${item.blockLabel} • уверенность ${item.confidence}%</div>`);
+                renderRadial();
+            });
+            path.addEventListener('mousemove', e => moveTooltip(e));
+            path.addEventListener('mouseleave', () => {
+                state.hoverId = null;
+                hideTooltip();
+                renderRadial();
+            });
+            path.addEventListener('click', () => {
+                state.activeId = item.id;
+                renderRadial();
+                renderDetails();
+            });
+            sectorsGroup.appendChild(path);
+
+            const mid = (start + end) / 2;
+            const labelR = maxR + 34;
+            const labelPos = polarToCartesian(cx, cy, labelR, mid);
+            const anchor = Math.cos(mid) > 0.15 ? 'start' : (Math.cos(mid) < -0.15 ? 'end' : 'middle');
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', labelPos.x);
+            label.setAttribute('y', labelPos.y);
+            label.setAttribute('text-anchor', anchor);
+            label.setAttribute('class', 'topic-label');
+            label.textContent = shorten(item.title, 18);
+            sectorsGroup.appendChild(label);
+
+            const scorePos = polarToCartesian(cx, cy, Math.max(innerR + 20, outerR - 18), mid);
+            const score = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            score.setAttribute('x', scorePos.x);
+            score.setAttribute('y', scorePos.y);
+            score.setAttribute('text-anchor', 'middle');
+            score.setAttribute('dominant-baseline', 'middle');
+            score.setAttribute('class', 'topic-score');
+            score.textContent = item.mastery + '%';
+            sectorsGroup.appendChild(score);
+        });
+        svg.appendChild(sectorsGroup);
+
+        const centerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        centerCircle.setAttribute('cx', cx);
+        centerCircle.setAttribute('cy', cy);
+        centerCircle.setAttribute('r', innerR - 10);
+        centerCircle.setAttribute('fill', '#0d1730');
+        centerCircle.setAttribute('stroke', 'rgba(255,255,255,.08)');
+        centerCircle.setAttribute('stroke-width', '1');
+        svg.appendChild(centerCircle);
+
+        const centerTitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        centerTitle.setAttribute('x', cx);
+        centerTitle.setAttribute('y', cy - 6);
+        centerTitle.setAttribute('text-anchor', 'middle');
+        centerTitle.setAttribute('class', 'center-title');
+        centerTitle.textContent = 'ЕГЭ';
+        svg.appendChild(centerTitle);
+
+        const centerSubtitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        centerSubtitle.setAttribute('x', cx);
+        centerSubtitle.setAttribute('y', cy + 18);
+        centerSubtitle.setAttribute('text-anchor', 'middle');
+        centerSubtitle.setAttribute('class', 'center-subtitle');
+        centerSubtitle.textContent = 'карта знаний';
+        svg.appendChild(centerSubtitle);
+
+        if (data.length && !data.some(x => x.id === state.activeId)) {
+            state.activeId = data[0].id;
+            renderDetails();
+        }
+    }
+
+    function shorten(text, max) {
+        return text.length > max ? text.slice(0, max - 1) + '…' : text;
+    }
+
+    function renderDetails() {
+        const active = topics.find(x => x.id === state.activeId) || topics[0];
+        document.getElementById('topicName').textContent = active.title;
+        document.getElementById('topicMeta').textContent = `${active.blockLabel} • ${active.priority} приоритет • ${active.examWeight}`;
+        document.getElementById('scoreValue').textContent = active.mastery;
+        document.getElementById('levelLabel').textContent = getLevelLabel(active.mastery);
+        document.getElementById('levelNote').textContent = getLevelNote(active.mastery);
+        document.getElementById('confidenceValue').textContent = active.confidence + '%';
+        document.getElementById('priorityValue').textContent = active.priority;
+        document.getElementById('attemptsValue').textContent = active.attempts;
+        document.getElementById('riskValue').textContent = active.risk;
+        document.getElementById('recommendationBox').textContent = active.action;
+        document.getElementById('footerNote').textContent = active.note;
+        document.getElementById('scoreRing').style.background = `conic-gradient(${getHeatColor(active.mastery)} ${active.mastery * 3.6}deg, rgba(255,255,255,.08) 0deg)`;
+        document.getElementById('mistakesList').innerHTML = active.mistakes.map(x => `<div class="bullet">${x}</div>`).join('');
+    }
+
+    function syncControls() {
+        chips.forEach(btn => btn.classList.toggle('active', btn.dataset.filter === state.filter));
+        threshold.value = state.threshold;
+        thresholdValue.textContent = state.threshold + '%';
+        sortMode.value = state.sort;
+    }
+
+    function showTooltip(e, html) {
+        tooltip.innerHTML = html;
+        tooltip.classList.add('show');
+        moveTooltip(e);
+    }
+
+    function moveTooltip(e) {
+        tooltip.style.left = (e.clientX + 14) + 'px';
+        tooltip.style.top = (e.clientY + 14) + 'px';
+    }
+
+    function hideTooltip() {
+        tooltip.classList.remove('show');
+    }
+
+    function renderAll() {
+        renderStats();
+        renderRadial();
+        renderDetails();
+    }
+
+    chips.forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.filter = btn.dataset.filter;
+            syncControls();
+            renderAll();
+        });
+    });
+
+    threshold.addEventListener('input', e => {
+        state.threshold = Number(e.target.value);
+        thresholdValue.textContent = state.threshold + '%';
+        renderAll();
+    });
+
+    sortMode.addEventListener('change', e => {
+        state.sort = e.target.value;
+        renderAll();
+    });
+
+    resetBtn.addEventListener('click', () => {
+        state = { filter: 'all', threshold: 0, sort: 'default', activeId: 7, hoverId: null };
+        syncControls();
+        renderAll();
+    });
+
+    syncControls();
+    renderAll();
+</script>
+</body>
+</html>
