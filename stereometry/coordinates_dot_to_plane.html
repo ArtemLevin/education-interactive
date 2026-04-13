@@ -1950,7 +1950,7 @@
                 { a:"A", b:"H", key:"AH", obj:"triangle" }
             ];
 
-            const visibleMap = buildVisibleEdgeMap(faces);
+            const visibleMap = buildVisibleEdgeMap(faces, edges, transformed, camera);
             let out = `<rect x="0" y="0" width="${width}" height="${height}" fill="${bgSoft}"></rect>`;
 
             faces.forEach(face => {
@@ -2085,33 +2085,87 @@
             return points.reduce((s,p) => s + p.z, 0) / points.length;
         }
 
-        function buildVisibleEdgeMap(faces) {
-            const map = {};
+        function buildVisibleEdgeMap(faces, edges, transformed, camera) {
+            const cameraPos = { x:0, y:0, z:-(camera.focal + 520) };
+            const facesByEdge = {};
             faces.forEach(face => {
-                const keyPts = face.points;
-                const edges = [
-                    [keyPts[0], keyPts[1]],
-                    [keyPts[1], keyPts[2]],
-                    [keyPts[2], keyPts[0]]
-                ];
-                edges.forEach(pair => {
-                    const key = normalizeEdgeKey(pair[0], pair[1]);
-                    if (!(key in map)) map[key] = avgZ(face.points.map(k => ({z:0})));
+                const [a, b, c] = face.points;
+                [[a,b], [b,c], [c,a]].forEach(([p1, p2]) => {
+                    const key = normalizeEdgeKey(p1, p2);
+                    if (!facesByEdge[key]) facesByEdge[key] = new Set();
+                    facesByEdge[key].add(face.key);
                 });
             });
-            return {
-                AB:true,
-                BC:true,
-                CD:false,
-                DA:true,
-                AC:false,
-                SA:true,
-                SB:true,
-                SC:true,
-                SD:false,
-                SH:true,
-                AH:true
+
+            const visibility = {};
+            edges.forEach(edge => {
+                const edgeKey = normalizeEdgeKey(edge.a, edge.b);
+                const midpoint = {
+                    x: (transformed[edge.a].x + transformed[edge.b].x) / 2,
+                    y: (transformed[edge.a].y + transformed[edge.b].y) / 2,
+                    z: (transformed[edge.a].z + transformed[edge.b].z) / 2
+                };
+                const blockers = faces.filter(face => !(facesByEdge[edgeKey]?.has(face.key)));
+                visibility[edge.key] = !isPointOccluded(cameraPos, midpoint, blockers, transformed);
+            });
+
+            return visibility;
+        }
+
+        function isPointOccluded(cameraPos, point, faces, transformed) {
+            const dir = {
+                x: point.x - cameraPos.x,
+                y: point.y - cameraPos.y,
+                z: point.z - cameraPos.z
             };
+            const maxT = 1;
+            const epsilon = 1e-6;
+
+            for (const face of faces) {
+                const [p0, p1, p2] = face.points.map(k => transformed[k]);
+                const hitT = intersectSegmentTriangle(cameraPos, dir, p0, p1, p2);
+                if (hitT > epsilon && hitT < maxT - epsilon) return true;
+            }
+
+            return false;
+        }
+
+        function intersectSegmentTriangle(origin, dir, v0, v1, v2) {
+            const epsilon = 1e-8;
+            const edge1 = sub3(v1, v0);
+            const edge2 = sub3(v2, v0);
+            const h = cross3(dir, edge2);
+            const a = dot3(edge1, h);
+
+            if (Math.abs(a) < epsilon) return Infinity;
+
+            const f = 1 / a;
+            const s = sub3(origin, v0);
+            const u = f * dot3(s, h);
+            if (u < 0 || u > 1) return Infinity;
+
+            const q = cross3(s, edge1);
+            const v = f * dot3(dir, q);
+            if (v < 0 || u + v > 1) return Infinity;
+
+            const t = f * dot3(edge2, q);
+            return t;
+        }
+
+        function sub3(a, b) {
+            return { x:a.x - b.x, y:a.y - b.y, z:a.z - b.z };
+        }
+
+        function cross3(a, b) {
+            return {
+                x: a.y * b.z - a.z * b.y,
+                y: a.z * b.x - a.x * b.z,
+                z: a.x * b.y - a.y * b.x
+            };
+        }
+
+        function dot3(a, b) {
+            return a.x * b.x + a.y * b.y + a.z * b.z;
         }
 
         function normalizeEdgeKey(a, b) {
