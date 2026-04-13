@@ -355,7 +355,7 @@
             var dx=px-cx,dy=py-cy,d=Math.sqrt(dx*dx+dy*dy);
             if(d<=r)return null;
             var base=Math.atan2(-dy,dx);
-            var a=Math.asin(r/d);
+            var a=Math.acos(r/d);
             return{t1:toDeg(base+a),t2:toDeg(base-a)};
         }
 
@@ -484,10 +484,8 @@
                 /* Extend secant lines beyond the circle */
                 var eA=extend(P.x,P.y,A.x,A.y,40);
                 var eC=extend(P.x,P.y,C2.x,C2.y,40);
-                svg.appendChild(lin(svg,eA.x,eA.y,eC.x,eC.y,c.ang,2.5));
-                svg.appendChild(lin(svg,P.x,P.y,B.x,B.y,c.ang,2.5));
-                var eD=extend(P.x,P.y,D.x,D.y,40);
-                svg.appendChild(lin(svg,eD.x,eD.y,P.x,P.y,c.ang,2.5));
+                svg.appendChild(lin(svg,P.x,P.y,eA.x,eA.y,c.ang,2.5));
+                svg.appendChild(lin(svg,P.x,P.y,eC.x,eC.y,c.ang,2.5));
                 svg.appendChild(cir(svg,P.x,P.y,6,c.pt,c.bg,2));
                 txt(svg,P.x+10,P.y+5,"P",c.tx,13);
                 drawP(svg,B,"B",S.B,c);drawP(svg,D,"D",S.D,c);
@@ -527,9 +525,8 @@
                     /* tangent line */
                     svg.appendChild(lin(svg,P.x,P.y,T.x,T.y,c.ang,2.5));
                     /* secant line extended */
-                    var eB=extend(P.x,P.y,B.x,B.y,40);
-                    svg.appendChild(lin(svg,eB.x,eB.y,P.x,P.y,c.ang,2.5));
-                    svg.appendChild(lin(svg,P.x,P.y,C2.x,C2.y,c.ang,2));
+                    var eC2=extend(P.x,P.y,C2.x,C2.y,40);
+                    svg.appendChild(lin(svg,P.x,P.y,eC2.x,eC2.y,c.ang,2.5));
                     svg.appendChild(cir(svg,P.x,P.y,6,c.pt,c.bg,2));
                     txt(svg,P.x+10,P.y+5,"P",c.tx,13);
                     drawP(svg,T,"T",tp3.t1,c);drawP(svg,B,"B",angB2,c);drawP(svg,C2,"C",angC2,c);
@@ -542,12 +539,21 @@
                 var tp4=tangentPts(cx,cy,r,P.x,P.y);
                 if(tp4){
                     var T4=pt(cx,cy,r,tp4.t1);
-                    var aAB3=arcLen(tp4.t1,S.B),val6=aAB3/2;
-                    svg.appendChild(mk("path",{d:arcP(cx,cy,r,tp4.t1,S.B),fill:"none",stroke:c.arc,"stroke-width":"8",opacity:"0.25"}));
-                    svg.appendChild(lin(svg,P.x,P.y,T4.x,T4.y,c.ang,2.5));
-                    svg.appendChild(lin(svg,T4.x,T4.y,B.x,B.y,c.ang,2.5));
-                    drawP(svg,T4,"A",tp4.t1,c);drawP(svg,B,"B",S.B,c);
-                    calc="⌒AB="+aAB3.toFixed(0)+"° → ∠="+val6.toFixed(1)+"°";
+                    A=T4;
+                    B=pt(cx,cy,r,S.B);
+                    var val6=angleAt(A.x,A.y,P.x,P.y,B.x,B.y);
+                    var aABcw=arcLen(tp4.t1,S.B),aABccw=360-aABcw;
+                    var aAB3=Math.abs(aABcw-2*val6)<=Math.abs(aABccw-2*val6)?aABcw:aABccw;
+                    var arcStart=Math.abs(aABcw-2*val6)<=Math.abs(aABccw-2*val6)?tp4.t1:S.B;
+                    var arcEnd=Math.abs(aABcw-2*val6)<=Math.abs(aABccw-2*val6)?S.B:tp4.t1;
+                    svg.appendChild(mk("path",{d:arcP(cx,cy,r,arcStart,arcEnd),fill:"none",stroke:c.arc,"stroke-width":"8",opacity:"0.25"}));
+                    var eTan=extend(P.x,P.y,A.x,A.y,40);
+                    svg.appendChild(lin(svg,P.x,P.y,eTan.x,eTan.y,c.ang,2.5));
+                    svg.appendChild(lin(svg,A.x,A.y,B.x,B.y,c.arc2,3));
+                    svg.appendChild(lin(svg,cx,cy,A.x,A.y,c.dash,1.5,"4,3"));
+                    drawP(svg,A,"A",tp4.t1,c);drawP(svg,B,"B",S.B,c);
+                    txt(svg,(A.x+B.x)/2+8,(A.y+B.y)/2-8,"хорда AB",c.arc2,11,700);
+                    calc="⌒AB="+aAB3.toFixed(0)+"° → ∠="+(aAB3/2).toFixed(1)+"°";
                 }
                 hint="Тяните точку B";
             }
@@ -595,35 +601,16 @@
             var r2=Math.min(W,H)*0.32*S.zoom;
             var best=null,bestD=25;
 
-            /* Check all base points */
-            var pts=[{lb:"A",a:S.A},{lb:"B",a:S.B},{lb:"C",a:S.C},{lb:"D",a:S.D}];
+            /* Check only points that are draggable for the current tab */
+            var pts=[];
+            if(S.tab==="inscribed")pts=[{lb:"A",a:S.A},{lb:"B",a:S.B},{lb:"C",a:S.C}];
+            else if(S.tab==="chords")pts=[{lb:"A",a:S.A},{lb:"B",a:S.B},{lb:"C",a:S.C},{lb:"D",a:S.D}];
+            else if(S.tab==="secants")pts=[{lb:"B",a:S.B},{lb:"D",a:S.D}];
+            else if(S.tab==="tangent-secant"||S.tab==="tangent-chord")pts=[{lb:"B",a:S.B}];
             for(var i=0;i<pts.length;i++){
                 var p=pt(cx2,cy2,r2,pts[i].a);
                 var d=Math.sqrt((mx-p.x)*(mx-p.x)+(my-p.y)*(my-p.y));
                 if(d<bestD){bestD=d;best=pts[i].lb}
-            }
-            /* For secants, also check computed far points */
-            if(S.tab==="secants"){
-                var P2={x:cx2+r2*1.8,y:cy2};
-                var B2=pt(cx2,cy2,r2,S.B),D2=pt(cx2,cy2,r2,S.D);
-                var A2=otherPt(cx2,cy2,r2,P2.x,P2.y,B2.x,B2.y);
-                var C3=otherPt(cx2,cy2,r2,P2.x,P2.y,D2.x,D2.y);
-                var aA=circleAngle(cx2,cy2,A2.x,A2.y),aC=circleAngle(cx2,cy2,C3.x,C3.y);
-                var pA=pt(cx2,cy2,r2,aA),pC=pt(cx2,cy2,r2,aC);
-                var dA=Math.sqrt((mx-pA.x)*(mx-pA.x)+(my-pA.y)*(my-pA.y));
-                if(dA<bestD){bestD=dA;best="A"}
-                var dC=Math.sqrt((mx-pC.x)*(mx-pC.x)+(my-pC.y)*(my-pC.y));
-                if(dC<bestD){bestD=dC;best="C"}
-            }
-            /* For tangent-secant, check tangent point and computed far point */
-            if(S.tab==="tangent-secant"){
-                var P3={x:cx2+r2*1.8,y:cy2};
-                var tp5=tangentPts(cx2,cy2,r2,P3.x,P3.y);
-                if(tp5){
-                    var pT=pt(cx2,cy2,r2,tp5.t1);
-                    var dT=Math.sqrt((mx-pT.x)*(mx-pT.x)+(my-pT.y)*(my-pT.y));
-                    if(dT<bestD){bestD=dT;best="T"}
-                }
             }
             return best;
         }
@@ -634,10 +621,9 @@
                 S.dragging=lbl;
                 var v=svg.viewBox.baseVal;
                 var cx2=v.width/2+S.panX,cy2=v.height/2+S.panY;
-                var r2=Math.min(v.width,v.height)*0.32*S.zoom;
                 var ma=toDeg(Math.atan2(-(p.y-cy2),p.x-cx2));
-                var cur=S["pt"+lbl]!==undefined?S["pt"+lbl]:S[lbl];
-                if(cur===undefined)cur=0;
+                var cur=S[lbl];
+                if(typeof cur!=="number")return false;
                 S.dragOff=ma-cur;
                 w1.classList.add("dragging-point");
                 w2.classList.add("dragging-point");
@@ -653,8 +639,7 @@
             var cx2=v.width/2+S.panX,cy2=v.height/2+S.panY;
             var a=toDeg(Math.atan2(-(p.y-cy2),p.x-cx2));
             var newVal=((a-S.dragOff)%360+360)%360;
-            if(S["pt"+S.dragging]!==undefined){S["pt"+S.dragging]=newVal}
-            else{S[S.dragging]=newVal}
+            if(typeof S[S.dragging]==="number")S[S.dragging]=newVal;
             if(svg===svg1)draw();else draw2();
         }
 
@@ -784,4 +769,3 @@
 </script>
 </body>
 </html>
-
