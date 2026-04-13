@@ -178,6 +178,9 @@
 
 <script>
 
+    const MIN_ZOOM = 0.6;
+    const MAX_ZOOM = 2.4;
+
     const state = {
         step:0, zoom:1, panX:0, panY:0, dragging:false, lastX:0, lastY:0,
         modal:false
@@ -229,8 +232,8 @@
         drawAll();
     }
     document.getElementById('zoom')?.addEventListener('input',e=>{state.zoom=+e.target.value; drawAll();});
-    document.getElementById('zin')?.addEventListener('click',()=>{state.zoom=Math.min(2.4, +(state.zoom+0.1).toFixed(2)); document.getElementById('zoom').value=state.zoom; drawAll();});
-    document.getElementById('zout')?.addEventListener('click',()=>{state.zoom=Math.max(0.6, +(state.zoom-0.1).toFixed(2)); document.getElementById('zoom').value=state.zoom; drawAll();});
+    document.getElementById('zin')?.addEventListener('click',()=>{state.zoom=Math.min(MAX_ZOOM, +(state.zoom+0.1).toFixed(2)); document.getElementById('zoom').value=state.zoom; drawAll();});
+    document.getElementById('zout')?.addEventListener('click',()=>{state.zoom=Math.max(MIN_ZOOM, +(state.zoom-0.1).toFixed(2)); document.getElementById('zoom').value=state.zoom; drawAll();});
     document.getElementById('zreset')?.addEventListener('click',()=>{state.zoom=1;state.panX=0;state.panY=0; document.getElementById('zoom').value=1; drawAll();});
     function dragBind(c){
         c.addEventListener('mousedown',e=>{state.dragging=true;state.lastX=e.clientX;state.lastY=e.clientY});
@@ -240,7 +243,7 @@
             state.panX += e.clientX-state.lastX; state.panY += e.clientY-state.lastY;
             state.lastX=e.clientX; state.lastY=e.clientY; drawAll();
         });
-        c.addEventListener('wheel',e=>{e.preventDefault(); const dir=e.deltaY<0?0.08:-0.08; state.zoom=Math.max(0.6,Math.min(2.6,state.zoom+dir)); document.getElementById('zoom').value=state.zoom; drawAll();},{passive:false});
+        c.addEventListener('wheel',e=>{e.preventDefault(); const dir=e.deltaY<0?0.08:-0.08; state.zoom=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,state.zoom+dir)); document.getElementById('zoom').value=state.zoom; drawAll();},{passive:false});
     }
     dragBind(canvas);
     document.getElementById('openModal')?.addEventListener('click',()=>{document.getElementById('overlay').classList.add('show'); setup();});
