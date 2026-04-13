@@ -1,0 +1,2771 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — график обратной пропорциональности</title>
+    <style>
+        :root{
+            --bg:#F4F4F0;
+            --bg-elev:#FFFFFF;
+            --bg-soft:#ECEBE5;
+            --text:#141414;
+            --muted:#5F5F58;
+            --line:#141414;
+            --accent:#D72638;
+            --accent-2:#F0C94A;
+            --ok:#1E7A46;
+            --warn:#A65A00;
+            --shadow:4px 4px 0 0 var(--line);
+            --shadow-soft:2px 2px 0 0 var(--line);
+            --panel-pad:18px;
+            --radius:0px;
+            --hero-max:1200px;
+            --font: Inter, Arial, Helvetica, sans-serif;
+            --mono: "Courier New", Courier, monospace;
+            --grid-major:#14141422;
+            --grid-minor:#14141411;
+            --highlight:#FFF3B0;
+            --focus:#D72638;
+            --step-bg:#fff;
+            --sticky-top:112px;
+            --scene-h:560px;
+            --print-border:#000;
+        }
+
+        [data-theme="dark"]{
+            --bg:#141414;
+            --bg-elev:#1E1E1E;
+            --bg-soft:#232323;
+            --text:#F4F4F0;
+            --muted:#B5B5AC;
+            --line:#F4F4F0;
+            --accent:#D72638;
+            --accent-2:#F0C94A;
+            --ok:#68D391;
+            --warn:#F6AD55;
+            --shadow:4px 4px 0 0 var(--line);
+            --shadow-soft:2px 2px 0 0 var(--line);
+            --grid-major:#F4F4F022;
+            --grid-minor:#F4F4F012;
+            --highlight:#584C12;
+            --step-bg:#1D1D1D;
+            --print-border:#000;
+        }
+
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            font-family:var(--font);
+            background:var(--bg);
+            color:var(--text);
+            line-height:1.55;
+            text-rendering:optimizeLegibility;
+            -webkit-font-smoothing:antialiased;
+        }
+
+        button, input, select{
+            font:inherit;
+            color:inherit;
+        }
+
+        .app-shell{
+            min-height:100vh;
+            background:var(--bg);
+        }
+
+        .topbar{
+            position:sticky;
+            top:0;
+            z-index:70;
+            border-bottom:2px solid var(--line);
+            background:var(--bg);
+        }
+
+        .topbar-inner{
+            max-width:1280px;
+            margin:0 auto;
+            padding:12px 18px;
+            display:flex;
+            gap:14px;
+            align-items:center;
+            justify-content:space-between;
+        }
+
+        .brand{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            min-width:0;
+        }
+
+        .brand-chip{
+            border:2px solid var(--line);
+            padding:8px 10px;
+            background:var(--bg-elev);
+            box-shadow:var(--shadow-soft);
+            font-weight:700;
+            letter-spacing:.04em;
+            white-space:nowrap;
+        }
+
+        .brand-text{
+            min-width:0;
+        }
+
+        .brand-title{
+            margin:0;
+            font-size:15px;
+            line-height:1.15;
+            font-weight:800;
+        }
+
+        .brand-sub{
+            margin:2px 0 0;
+            font-size:12px;
+            color:var(--muted);
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+        }
+
+        .top-actions{
+            display:flex;
+            gap:10px;
+            align-items:center;
+            flex-wrap:wrap;
+            justify-content:flex-end;
+        }
+
+        .btn{
+            background:var(--bg-elev);
+            border:2px solid var(--line);
+            padding:10px 12px;
+            box-shadow:var(--shadow-soft);
+            cursor:pointer;
+            min-height:44px;
+            transition:transform .08s ease, box-shadow .08s ease, background .12s ease;
+            user-select:none;
+        }
+
+        .btn:hover{
+            box-shadow:4px 4px 0 0 var(--line);
+        }
+
+        .btn:active,
+        .btn.is-pressed{
+            transform:translate(2px,2px);
+            box-shadow:none;
+        }
+
+        .btn-accent{
+            background:var(--accent);
+            color:#fff;
+            border-color:var(--line);
+        }
+
+        .btn-soft{
+            background:var(--bg-soft);
+        }
+
+        .btn-mini{
+            padding:7px 10px;
+            min-height:auto;
+            font-size:13px;
+        }
+
+        .hero{
+            max-width:var(--hero-max);
+            margin:0 auto;
+            padding:18px 18px 10px;
+        }
+
+        .hero-card{
+            border:2px solid var(--line);
+            background:var(--bg-elev);
+            box-shadow:var(--shadow);
+            padding:20px;
+        }
+
+        .hero-kicker{
+            display:inline-block;
+            border:2px solid var(--line);
+            padding:6px 10px;
+            background:var(--accent-2);
+            font-size:12px;
+            font-weight:800;
+            margin-bottom:12px;
+        }
+
+        .hero-title{
+            margin:0 0 10px;
+            font-size:clamp(28px, 4vw, 46px);
+            line-height:1.02;
+            font-weight:900;
+            letter-spacing:-.03em;
+        }
+
+        .hero-lead{
+            max-width:900px;
+            margin:0;
+            font-size:16px;
+            color:var(--muted);
+        }
+
+        .hero-meta{
+            display:grid;
+            grid-template-columns:repeat(4,minmax(0,1fr));
+            gap:12px;
+            margin-top:18px;
+        }
+
+        .meta-box{
+            border:2px solid var(--line);
+            background:var(--bg);
+            padding:12px;
+        }
+
+        .meta-label{
+            display:block;
+            font-size:12px;
+            font-weight:800;
+            margin-bottom:6px;
+            text-transform:uppercase;
+            letter-spacing:.06em;
+            color:var(--muted);
+        }
+
+        .meta-value{
+            font-size:14px;
+            font-weight:700;
+        }
+
+        .banner{
+            background:#111;
+            color:#F4F4F0;
+            border-top:2px solid var(--line);
+            border-bottom:2px solid var(--line);
+            margin-top:18px;
+        }
+
+        .banner-inner{
+            max-width:1280px;
+            margin:0 auto;
+            padding:12px 18px;
+            display:flex;
+            gap:12px;
+            flex-wrap:wrap;
+            align-items:center;
+            justify-content:space-between;
+        }
+
+        .banner-copy{
+            font-weight:700;
+            letter-spacing:.02em;
+        }
+
+        .banner-note{
+            color:#CFCFC7;
+            font-size:14px;
+        }
+
+        .modebar-wrap{
+            max-width:1280px;
+            margin:14px auto 0;
+            padding:0 18px;
+        }
+
+        .modebar{
+            display:flex;
+            gap:10px;
+            overflow:auto;
+            padding-bottom:6px;
+        }
+
+        .modebar::-webkit-scrollbar{
+            height:10px;
+        }
+
+        .modebar::-webkit-scrollbar-thumb{
+            background:var(--line);
+            border:2px solid var(--bg);
+        }
+
+        .mode-tab{
+            flex:0 0 auto;
+            border:2px solid var(--line);
+            background:var(--bg-elev);
+            box-shadow:var(--shadow-soft);
+            padding:12px 14px;
+            font-weight:800;
+            cursor:pointer;
+            white-space:nowrap;
+            min-height:46px;
+        }
+
+        .mode-tab[aria-selected="true"]{
+            background:var(--accent);
+            color:#fff;
+        }
+
+        .workspace{
+            max-width:1280px;
+            margin:0 auto;
+            padding:14px 18px 48px;
+        }
+
+        .workspace-grid{
+            display:grid;
+            grid-template-columns:minmax(0, 1.05fr) minmax(360px, .95fr);
+            gap:18px;
+            align-items:start;
+        }
+
+        .left-stack,
+        .right-stack{
+            min-width:0;
+        }
+
+        .panel{
+            border:2px solid var(--line);
+            background:var(--bg-elev);
+            box-shadow:var(--shadow);
+            padding:var(--panel-pad);
+        }
+
+        .panel + .panel{
+            margin-top:16px;
+        }
+
+        .panel-head{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+            margin-bottom:14px;
+            flex-wrap:wrap;
+        }
+
+        .panel-title{
+            margin:0;
+            font-size:22px;
+            line-height:1.1;
+        }
+
+        .panel-subtitle{
+            margin:6px 0 0;
+            color:var(--muted);
+            font-size:14px;
+            max-width:65ch;
+        }
+
+        .mode-section[hidden]{
+            display:none !important;
+        }
+
+        .left-tabs{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-bottom:14px;
+        }
+
+        .tab-btn{
+            border:2px solid var(--line);
+            background:var(--bg);
+            box-shadow:var(--shadow-soft);
+            padding:10px 12px;
+            font-weight:800;
+            cursor:pointer;
+        }
+
+        .tab-btn[aria-selected="true"]{
+            background:var(--accent-2);
+        }
+
+        .controls-row{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            align-items:center;
+            margin-bottom:14px;
+        }
+
+        .badge{
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            padding:7px 10px;
+            border:2px solid var(--line);
+            background:var(--bg-soft);
+            font-size:13px;
+            font-weight:700;
+        }
+
+        .step-list{
+            display:grid;
+            gap:12px;
+        }
+
+        .step-card{
+            border:2px solid var(--line);
+            background:var(--step-bg);
+            box-shadow:var(--shadow-soft);
+            overflow:hidden;
+            position:relative;
+        }
+
+        .step-card.is-active{
+            outline:3px solid var(--accent);
+            outline-offset:0;
+        }
+
+        .step-card.is-linked{
+            background:var(--highlight);
+        }
+
+        .step-trigger{
+            width:100%;
+            background:transparent;
+            border:none;
+            text-align:left;
+            padding:14px 16px;
+            cursor:pointer;
+            display:flex;
+            align-items:flex-start;
+            gap:14px;
+        }
+
+        .step-index{
+            flex:0 0 auto;
+            width:34px;
+            height:34px;
+            display:grid;
+            place-items:center;
+            border:2px solid var(--line);
+            background:var(--bg-soft);
+            font-weight:900;
+        }
+
+        .step-main{
+            min-width:0;
+            flex:1 1 auto;
+        }
+
+        .step-title{
+            margin:0 0 6px;
+            font-size:18px;
+            line-height:1.15;
+        }
+
+        .step-preview{
+            margin:0;
+            color:var(--muted);
+            font-size:14px;
+        }
+
+        .step-body{
+            border-top:2px solid var(--line);
+            padding:14px 16px 16px;
+            display:none;
+        }
+
+        .step-card.is-open .step-body{
+            display:block;
+        }
+
+        .step-body p,
+        .step-body ul{
+            margin:0 0 10px;
+        }
+
+        .step-body ul{
+            padding-left:18px;
+        }
+
+        .inline-formula{
+            display:inline-block;
+            font-family:var(--mono);
+            padding:1px 6px;
+            border:1px solid var(--line);
+            background:var(--bg-soft);
+            font-size:.96em;
+        }
+
+        .idea-box,
+        .summary-box,
+        .warning-box,
+        .ok-box{
+            border:2px solid var(--line);
+            padding:14px;
+            background:var(--bg);
+            box-shadow:var(--shadow-soft);
+            margin-top:12px;
+        }
+
+        .idea-box{
+            background:var(--accent-2);
+        }
+
+        .warning-box{
+            background:#FFE7C1;
+        }
+
+        [data-theme="dark"] .warning-box{
+            background:#4A3114;
+        }
+
+        .ok-box{
+            background:#D8F0DF;
+        }
+
+        [data-theme="dark"] .ok-box{
+            background:#1E3B2A;
+        }
+
+        .two-col-mini{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:12px;
+        }
+
+        .sticky-visual{
+            position:sticky;
+            top:var(--sticky-top);
+        }
+
+        .scene-shell{
+            border:2px solid var(--line);
+            background:var(--bg-soft);
+            box-shadow:var(--shadow-soft);
+            overflow:hidden;
+        }
+
+        .scene-toolbar{
+            display:flex;
+            gap:8px;
+            align-items:center;
+            flex-wrap:wrap;
+            padding:12px;
+            border-bottom:2px solid var(--line);
+            background:var(--bg-elev);
+        }
+
+        .scene-toolbar .group{
+            display:flex;
+            gap:8px;
+            align-items:center;
+            flex-wrap:wrap;
+        }
+
+        .scene-toolbar .spacer{
+            flex:1 1 auto;
+        }
+
+        .scene-box{
+            position:relative;
+            height:var(--scene-h);
+            background:var(--bg);
+            cursor:grab;
+            overflow:hidden;
+            touch-action:none;
+        }
+
+        .scene-box.is-dragging{
+            cursor:grabbing;
+        }
+
+        .scene-svg{
+            display:block;
+            width:100%;
+            height:100%;
+        }
+
+        .legend{
+            display:grid;
+            gap:8px;
+            padding:12px;
+            border-top:2px solid var(--line);
+            background:var(--bg-elev);
+        }
+
+        .legend-row{
+            display:flex;
+            gap:10px;
+            align-items:center;
+            justify-content:space-between;
+            flex-wrap:wrap;
+            font-size:14px;
+        }
+
+        .legend-left{
+            display:flex;
+            gap:10px;
+            align-items:center;
+        }
+
+        .swatch{
+            width:16px;
+            height:16px;
+            border:2px solid var(--line);
+            flex:0 0 auto;
+        }
+
+        .dot{
+            width:16px;
+            height:16px;
+            border-radius:50%;
+            border:2px solid var(--line);
+            flex:0 0 auto;
+        }
+
+        .status-grid{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:10px;
+            margin-top:12px;
+        }
+
+        .status-card{
+            border:2px solid var(--line);
+            background:var(--bg);
+            padding:12px;
+            min-height:82px;
+        }
+
+        .status-label{
+            font-size:12px;
+            text-transform:uppercase;
+            letter-spacing:.06em;
+            color:var(--muted);
+            font-weight:800;
+            margin-bottom:6px;
+        }
+
+        .status-value{
+            font-size:18px;
+            font-weight:900;
+            line-height:1.2;
+        }
+
+        .toggle-list{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+            margin-top:12px;
+        }
+
+        .toggle-chip{
+            border:2px solid var(--line);
+            background:var(--bg-elev);
+            padding:8px 10px;
+            box-shadow:var(--shadow-soft);
+            cursor:pointer;
+            user-select:none;
+            font-size:13px;
+            font-weight:700;
+        }
+
+        .toggle-chip[aria-pressed="true"]{
+            background:var(--accent-2);
+        }
+
+        .range-wrap{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            border:2px solid var(--line);
+            padding:8px 10px;
+            background:var(--bg-elev);
+            box-shadow:var(--shadow-soft);
+        }
+
+        input[type="range"]{
+            width:140px;
+            accent-color:var(--accent);
+        }
+
+        .mode-content-grid{
+            display:grid;
+            grid-template-columns:1fr;
+            gap:16px;
+        }
+
+        .compact-list{
+            display:grid;
+            gap:10px;
+        }
+
+        .compact-item{
+            border:2px solid var(--line);
+            padding:12px;
+            background:var(--bg-elev);
+            box-shadow:var(--shadow-soft);
+        }
+
+        .compact-item h4{
+            margin:0 0 6px;
+            font-size:16px;
+        }
+
+        .compact-item p,
+        .compact-item ul{
+            margin:0;
+            font-size:14px;
+            color:var(--muted);
+        }
+
+        .compact-item ul{
+            padding-left:18px;
+        }
+
+        .check-grid{
+            display:grid;
+            gap:12px;
+        }
+
+        .quiz-question{
+            border:2px solid var(--line);
+            background:var(--bg-elev);
+            padding:14px;
+            box-shadow:var(--shadow-soft);
+        }
+
+        .quiz-question h4{
+            margin:0 0 10px;
+            font-size:17px;
+        }
+
+        .quiz-options{
+            display:grid;
+            gap:8px;
+        }
+
+        .quiz-option{
+            display:flex;
+            gap:10px;
+            align-items:flex-start;
+            border:2px solid var(--line);
+            background:var(--bg);
+            padding:10px;
+            cursor:pointer;
+        }
+
+        .quiz-feedback{
+            margin-top:10px;
+            font-size:14px;
+            font-weight:700;
+        }
+
+        .quiz-feedback.ok{color:var(--ok)}
+        .quiz-feedback.bad{color:var(--accent)}
+
+        .generator-card{
+            display:grid;
+            gap:14px;
+        }
+
+        .task-box{
+            border:2px solid var(--line);
+            background:var(--bg);
+            box-shadow:var(--shadow-soft);
+            padding:14px;
+        }
+
+        .task-box h4{
+            margin:0 0 10px;
+            font-size:18px;
+        }
+
+        .task-box p{
+            margin:0 0 8px;
+        }
+
+        .muted{
+            color:var(--muted);
+        }
+
+        .formula-block{
+            border:2px solid var(--line);
+            background:var(--bg);
+            box-shadow:var(--shadow-soft);
+            padding:12px;
+            font-family:var(--mono);
+            font-size:15px;
+            overflow:auto;
+        }
+
+        .footer{
+            border-top:2px solid var(--line);
+            margin-top:24px;
+            background:var(--bg-elev);
+        }
+
+        .footer-inner{
+            max-width:1280px;
+            margin:0 auto;
+            padding:16px 18px 22px;
+            display:flex;
+            gap:16px;
+            align-items:center;
+            justify-content:space-between;
+            flex-wrap:wrap;
+        }
+
+        .footer-tag{
+            font-weight:900;
+            font-size:18px;
+            color:var(--accent);
+            letter-spacing:.08em;
+        }
+
+        .footer-note{
+            color:var(--muted);
+            font-size:14px;
+        }
+
+        .hint-layer{
+            position:fixed;
+            inset:0;
+            pointer-events:none;
+            z-index:120;
+        }
+
+        .hint{
+            position:fixed;
+            max-width:260px;
+            background:var(--bg-elev);
+            color:var(--text);
+            border:2px solid var(--line);
+            box-shadow:var(--shadow);
+            padding:12px 14px;
+            pointer-events:auto;
+            display:none;
+            animation:hintBounce .28s ease;
+        }
+
+        .hint.is-visible{
+            display:block;
+        }
+
+        .hint h4{
+            margin:0 0 6px;
+            font-size:15px;
+        }
+
+        .hint p{
+            margin:0;
+            font-size:13px;
+            color:var(--muted);
+        }
+
+        .hint-close{
+            position:absolute;
+            right:6px;
+            top:4px;
+            background:transparent;
+            border:none;
+            font-size:18px;
+            cursor:pointer;
+            color:inherit;
+        }
+
+        .hint::after{
+            content:"";
+            position:absolute;
+            width:16px;
+            height:16px;
+            background:var(--bg-elev);
+            border-left:2px solid var(--line);
+            border-top:2px solid var(--line);
+            transform:rotate(45deg);
+        }
+
+        .hint[data-side="bottom"]::after{
+            top:-10px;
+            left:22px;
+        }
+        .hint[data-side="top"]::after{
+            bottom:-10px;
+            left:22px;
+            transform:rotate(225deg);
+        }
+
+        .modal{
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,.72);
+            display:none;
+            align-items:center;
+            justify-content:center;
+            z-index:200;
+            padding:20px;
+        }
+
+        .modal.is-open{
+            display:flex;
+        }
+
+        .modal-dialog{
+            width:min(1200px, 96vw);
+            height:min(88vh, 900px);
+            background:var(--bg-elev);
+            border:2px solid var(--line);
+            box-shadow:8px 8px 0 0 var(--line);
+            display:grid;
+            grid-template-rows:auto 1fr auto;
+            overflow:hidden;
+        }
+
+        .modal-head,
+        .modal-foot{
+            padding:12px 14px;
+            border-bottom:2px solid var(--line);
+            display:flex;
+            gap:10px;
+            justify-content:space-between;
+            align-items:center;
+            flex-wrap:wrap;
+            background:var(--bg);
+        }
+
+        .modal-foot{
+            border-bottom:none;
+            border-top:2px solid var(--line);
+        }
+
+        .modal-title{
+            margin:0;
+            font-size:18px;
+            font-weight:900;
+        }
+
+        .modal-scene{
+            min-height:0;
+            padding:12px;
+            background:var(--bg-soft);
+        }
+
+        .modal-scene .scene-box{
+            height:100%;
+            min-height:420px;
+        }
+
+        .print-summary{
+            display:none;
+        }
+
+        .visually-hidden{
+            position:absolute !important;
+            width:1px !important;
+            height:1px !important;
+            padding:0 !important;
+            margin:-1px !important;
+            overflow:hidden !important;
+            clip:rect(0,0,0,0) !important;
+            white-space:nowrap !important;
+            border:0 !important;
+        }
+
+        .focus-ring:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        [tabindex]:focus-visible{
+            outline:3px solid var(--focus);
+            outline-offset:2px;
+        }
+
+        .object-hot{
+            cursor:pointer;
+            transition:opacity .12s ease, filter .12s ease;
+        }
+
+        .object-hot.is-emph{
+            filter:drop-shadow(0 0 0 var(--line));
+        }
+
+        .pill{
+            display:inline-block;
+            padding:5px 8px;
+            border:2px solid var(--line);
+            background:var(--bg-soft);
+            font-size:12px;
+            font-weight:800;
+        }
+
+        .tiny{
+            font-size:12px;
+        }
+
+        .scene-click-hint{
+            margin-top:10px;
+            color:var(--muted);
+            font-size:13px;
+        }
+
+        .accent-text{color:var(--accent)}
+        .yellow-text{color:#8E6B00}
+        [data-theme="dark"] .yellow-text{color:#F0C94A}
+
+        @keyframes hintBounce{
+            0%{transform:translateY(8px)}
+            100%{transform:translateY(0)}
+        }
+
+        @media (max-width: 1040px){
+            .workspace-grid{
+                grid-template-columns:1fr;
+            }
+            .sticky-visual{
+                position:relative;
+                top:auto;
+            }
+            .hero-meta{
+                grid-template-columns:repeat(2,minmax(0,1fr));
+            }
+            :root{
+                --scene-h:500px;
+            }
+        }
+
+        @media (max-width: 720px){
+            .topbar-inner,
+            .banner-inner,
+            .workspace,
+            .hero,
+            .modebar-wrap{
+                padding-left:12px;
+                padding-right:12px;
+            }
+            .brand{
+                align-items:flex-start;
+            }
+            .hero-card{
+                padding:16px;
+            }
+            .hero-title{
+                font-size:30px;
+            }
+            .hero-meta{
+                grid-template-columns:1fr;
+            }
+            .two-col-mini,
+            .status-grid{
+                grid-template-columns:1fr;
+            }
+            .scene-toolbar{
+                align-items:stretch;
+            }
+            .scene-toolbar .group{
+                width:100%;
+            }
+            .scene-toolbar .spacer{
+                display:none;
+            }
+            .mode-tab{
+                padding:10px 12px;
+            }
+            :root{
+                --sticky-top:92px;
+                --scene-h:420px;
+            }
+        }
+
+        @media print{
+            :root{
+                --bg:#fff;
+                --bg-elev:#fff;
+                --bg-soft:#fff;
+                --text:#000;
+                --muted:#333;
+                --line:#000;
+                --shadow:none;
+                --shadow-soft:none;
+            }
+            body{
+                background:#fff;
+                color:#000;
+            }
+            .topbar,
+            .banner,
+            .modebar-wrap,
+            .scene-toolbar,
+            .toggle-list,
+            .hint-layer,
+            .modal,
+            .footer,
+            .btn,
+            .controls-row,
+            .scene-click-hint{
+                display:none !important;
+            }
+            .hero{
+                padding:0;
+                margin:0 0 12px;
+            }
+            .hero-card,
+            .panel,
+            .scene-shell,
+            .meta-box,
+            .step-card,
+            .compact-item,
+            .task-box,
+            .quiz-question{
+                box-shadow:none !important;
+                border:1.4px solid var(--print-border) !important;
+                break-inside:avoid;
+            }
+            .workspace{
+                max-width:none;
+                padding:0;
+            }
+            .workspace-grid{
+                display:block;
+            }
+            .right-stack{
+                margin-top:12px;
+            }
+            .sticky-visual{
+                position:relative;
+                top:auto;
+            }
+            .scene-box{
+                height:360px !important;
+                cursor:default;
+            }
+            .mode-section{
+                display:block !important;
+            }
+            .mode-section:not(.print-keep){
+                display:none !important;
+            }
+            .print-summary{
+                display:block;
+                border:2px solid #000;
+                padding:14px;
+                margin:16px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-shell" id="app" data-theme="light">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="brand">
+                <div class="brand-chip">НМ 2.0</div>
+                <div class="brand-text">
+                    <h1 class="brand-title">График обратной пропорциональности</h1>
+                    <p class="brand-sub">Влияние коэффициентов на положение ветвей гиперболы</p>
+                </div>
+            </div>
+            <div class="top-actions">
+                <button class="btn btn-soft focus-ring" id="themeToggle" type="button" aria-pressed="false">LIGHT / DARK</button>
+                <button class="btn btn-soft focus-ring" id="showAllBtn" type="button">Показать всё</button>
+                <button class="btn btn-soft focus-ring" id="printBtn" type="button">Печать</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-card">
+            <span class="hero-kicker">ИНТЕРАКТИВНЫЙ КОНСПЕКТ ДЛЯ 8 КЛАССА</span>
+            <h2 class="hero-title">Как коэффициенты меняют положение ветвей гиперболы</h2>
+            <p class="hero-lead">
+                Здесь мы разбираем функцию вида <span class="inline-formula">y = k / x</span> и похожие формы
+                <span class="inline-formula">y = a / (x - b) + c</span>. Главное — понять, что знак коэффициента задаёт
+                квадранты, модуль коэффициента меняет «удалённость» ветвей от осей, а сдвиги двигают асимптоты.
+            </p>
+
+            <div class="hero-meta" aria-label="Краткая информация по материалу">
+                <div class="meta-box">
+                    <span class="meta-label">Цель</span>
+                    <div class="meta-value">Подготовить к экзамену через наглядный разбор</div>
+                </div>
+                <div class="meta-box">
+                    <span class="meta-label">Подходы</span>
+                    <div class="meta-value">Алгебраический + графический</div>
+                </div>
+                <div class="meta-box">
+                    <span class="meta-label">Что важно</span>
+                    <div class="meta-value">ОДЗ, асимптоты, знак, модуль коэффициента</div>
+                </div>
+                <div class="meta-box">
+                    <span class="meta-label">Режим</span>
+                    <div class="meta-value">Пошаговое объяснение + самопроверка</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="banner" aria-label="Ключевая идея">
+        <div class="banner-inner">
+            <div class="banner-copy">Ключевая идея: коэффициент перед дробью управляет формой и положением ветвей не «магически», а через знак, модуль и сдвиги асимптот.</div>
+            <div class="banner-note">Сначала смотри на знаменатель и знак. Потом — на расстояние от осей и на сдвиги.</div>
+        </div>
+    </section>
+
+    <div class="modebar-wrap">
+        <nav class="modebar" id="modebar" aria-label="Основные режимы">
+            <button class="mode-tab focus-ring" data-mode="analysis" aria-selected="true" type="button">Разбор</button>
+            <button class="mode-tab focus-ring" data-mode="visual" aria-selected="false" type="button">Визуализация</button>
+            <button class="mode-tab focus-ring" data-mode="mistakes" aria-selected="false" type="button">Ошибки</button>
+            <button class="mode-tab focus-ring" data-mode="selfcheck" aria-selected="false" type="button">Самопроверка</button>
+            <button class="mode-tab focus-ring" data-mode="generator" aria-selected="false" type="button">Генератор</button>
+            <button class="mode-tab focus-ring" data-mode="quiz" aria-selected="false" type="button">Квиз</button>
+            <button class="mode-tab focus-ring" data-mode="memo" aria-selected="false" type="button">Памятка</button>
+            <button class="mode-tab focus-ring" data-mode="summary" aria-selected="false" type="button">Итог</button>
+        </nav>
+    </div>
+
+    <main class="workspace">
+        <section class="mode-section print-keep" data-mode-section="analysis">
+            <div class="workspace-grid">
+                <div class="left-stack">
+                    <article class="panel" aria-labelledby="analysisTitle">
+                        <div class="panel-head">
+                            <div>
+                                <h3 class="panel-title" id="analysisTitle">Разбор по шагам</h3>
+                                <p class="panel-subtitle">Слева — подробный текстовый разбор. Справа — живая сцена. Наводи на шаги и объекты: текст и график подсвечиваются друг с другом.</p>
+                            </div>
+                            <div class="badge" id="stepBadge">Шаг 1 из 8</div>
+                        </div>
+
+                        <div class="left-tabs" role="tablist" aria-label="Вкладки разбора">
+                            <button class="tab-btn focus-ring" data-tab="steps" aria-selected="true" type="button">Шаги</button>
+                            <button class="tab-btn focus-ring" data-tab="idea" aria-selected="false" type="button">Идея</button>
+                            <button class="tab-btn focus-ring" data-tab="checks" aria-selected="false" type="button">Проверка</button>
+                        </div>
+
+                        <div class="controls-row">
+                            <button class="btn btn-mini focus-ring" id="prevStepBtn" type="button">Назад</button>
+                            <button class="btn btn-mini focus-ring" id="nextStepBtn" type="button">Далее</button>
+                            <button class="btn btn-mini focus-ring" id="toggleSingleBtn" type="button">Режим: по одному шагу</button>
+                            <button class="btn btn-mini focus-ring" id="detailBtn" type="button">Подробность: высокая</button>
+                        </div>
+
+                        <div data-tab-panel="steps">
+                            <div class="step-list" id="stepList">
+                                <section class="step-card is-open is-active" data-step="0" data-link-target="all,axes,domain,asymptotes">
+                                    <button class="step-trigger focus-ring" type="button" aria-expanded="true">
+                                        <span class="step-index">1</span>
+                                        <span class="step-main">
+                        <h4 class="step-title">Что дано</h4>
+                        <p class="step-preview">Изучаем функцию обратной пропорциональности и её коэффициенты.</p>
+                      </span>
+                                    </button>
+                                    <div class="step-body">
+                                        <p>Базовая форма: <span class="inline-formula">y = k / x</span>, где <span class="inline-formula">x ≠ 0</span>. Это уже сразу даёт ОДЗ: делить на ноль нельзя.</p>
+                                        <p>Расширенная форма: <span class="inline-formula">y = a / (x - b) + c</span>. Здесь:</p>
+                                        <ul>
+                                            <li><span class="inline-formula">a</span> влияет на направление ветвей и на «растянутость»;</li>
+                                            <li><span class="inline-formula">b</span> сдвигает график вправо-влево;</li>
+                                            <li><span class="inline-formula">c</span> сдвигает график вверх-вниз.</li>
+                                        </ul>
+                                        <div class="idea-box">
+                                            <strong>Идея:</strong> сначала ищем, где выражение не имеет смысла, потом смотрим на асимптоты, и только после этого — на знак и модуль коэффициента.
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section class="step-card" data-step="1" data-link-target="domain,asymptotes">
+                                    <button class="step-trigger focus-ring" type="button" aria-expanded="false">
+                                        <span class="step-index">2</span>
+                                        <span class="step-main">
+                        <h4 class="step-title">Что нужно найти</h4>
+                        <p class="step-preview">Понять, где будут ветви и как они меняются при разных коэффициентах.</p>
+                      </span>
+                                    </button>
+                                    <div class="step-body">
+                                        <p>Нас интересуют ответы на три вопроса:</p>
+                                        <ul>
+                                            <li>в каких квадрантах лежат ветви;</li>
+                                            <li>что происходит при увеличении или уменьшении модуля коэффициента;</li>
+                                            <li>как меняются асимптоты после сдвига.</li>
+                                        </ul>
+                                        <div class="summary-box">
+                                            <strong>Коротко:</strong> знак определяет квадранты, модуль — насколько ветви «далеко» от осей, а сдвиги двигают центр гиперболы.
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section class="step-card" data-step="2" data-link-target="sign,branches">
+                                    <button class="step-trigger focus-ring" type="button" aria-expanded="false">
+                                        <span class="step-index">3</span>
+                                        <span class="step-main">
+                        <h4 class="step-title">Смысл условий</h4>
+                        <p class="step-preview">Знак коэффициента показывает, согласованы ли знаки x и y.</p>
+                      </span>
+                                    </button>
+                                    <div class="step-body">
+                                        <p>Для функции <span class="inline-formula">y = k / x</span> знак дроби зависит от знаков числителя и знаменателя.</p>
+                                        <ul>
+                                            <li>Если <span class="inline-formula">k &gt; 0</span>, то <span class="inline-formula">x</span> и <span class="inline-formula">y</span> одного знака. Ветви лежат в I и III квадрантах.</li>
+                                            <li>Если <span class="inline-formula">k &lt; 0</span>, то <span class="inline-formula">x</span> и <span class="inline-formula">y</span> разных знаков. Ветви лежат во II и IV квадрантах.</li>
+                                        </ul>
+                                        <div class="warning-box">
+                                            <strong>Ловушка:</strong> нельзя решать «на глаз» только по картинке. Надо проверить знак при нескольких значениях x.
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section class="step-card" data-step="3" data-link-target="stretch,branches">
+                                    <button class="step-trigger focus-ring" type="button" aria-expanded="false">
+                                        <span class="step-index">4</span>
+                                        <span class="step-main">
+                        <h4 class="step-title">Интерпретация задачи</h4>
+                        <p class="step-preview">Модуль коэффициента меняет степень удалённости ветвей от осей.</p>
+                      </span>
+                                    </button>
+                                    <div class="step-body">
+                                        <p>Пусть сравниваем <span class="inline-formula">y = 1 / x</span> и <span class="inline-formula">y = 4 / x</span>.</p>
+                                        <p>При одном и том же <span class="inline-formula">x</span> значение <span class="inline-formula">4 / x</span> по модулю больше, чем <span class="inline-formula">1 / x</span>. Поэтому график <span class="inline-formula">y = 4 / x</span> проходит выше в I квадранте и ниже в III квадранте.</p>
+                                        <p>Говорят: при увеличении <span class="inline-formula">|k|</span> ветви как бы «отодвигаются» от начала координат по вертикали для фиксированного <span class="inline-formula">x</span>.</p>
+                                        <div class="ok-box">
+                                            <strong>Полезный ориентир:</strong> сравни точки с одинаковым x, например <span class="inline-formula">x = 1</span>, <span class="inline-formula">x = 2</span>, <span class="inline-formula">x = -1</span>.
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section class="step-card" data-step="4" data-link-target="asymptotes,shift,center">
+                                    <button class="step-trigger focus-ring" type="button" aria-expanded="false">
+                                        <span class="step-index">5</span>
+                                        <span class="step-main">
+                        <h4 class="step-title">Идея решения</h4>
+                        <p class="step-preview">Удобный алгоритм: ОДЗ → асимптоты → знак → модуль → сдвиг.</p>
+                      </span>
+                                    </button>
+                                    <div class="step-body">
+                                        <p>Для функции <span class="inline-formula">y = a / (x - b) + c</span> сразу видим:</p>
+                                        <ul>
+                                            <li>ОДЗ: <span class="inline-formula">x ≠ b</span>;</li>
+                                            <li>вертикальная асимптота: <span class="inline-formula">x = b</span>;</li>
+                                            <li>горизонтальная асимптота: <span class="inline-formula">y = c</span>;</li>
+                                            <li>центр гиперболы: точка <span class="inline-formula">(b; c)</span>.</li>
+                                        </ul>
+                                        <p>Дальше знак <span class="inline-formula">a</span> показывает, в каких «диагонально противоположных» областях относительно точки <span class="inline-formula">(b; c)</span> лежат ветви.</p>
+                                    </div>
+                                </section>
+
+                                <section class="step-card" data-step="5" data-link-target="sample,points">
+                                    <button class="step-trigger focus-ring" type="button" aria-expanded="false">
+                                        <span class="step-index">6</span>
+                                        <span class="step-main">
+                        <h4 class="step-title">Пошаговое решение на примере</h4>
+                        <p class="step-preview">Разберём функцию y = 3 / (x - 2) + 1.</p>
+                      </span>
+                                    </button>
+                                    <div class="step-body">
+                                        <p><strong>Пример:</strong> <span class="inline-formula">y = 3 / (x - 2) + 1</span>.</p>
+                                        <ul>
+                                            <li>ОДЗ: <span class="inline-formula">x ≠ 2</span>.</li>
+                                            <li>Вертикальная асимптота: <span class="inline-formula">x = 2</span>.</li>
+                                            <li>Горизонтальная асимптота: <span class="inline-formula">y = 1</span>.</li>
+                                            <li>Так как <span class="inline-formula">a = 3 &gt; 0</span>, ветви расположены как у обычной <span class="inline-formula">y = 1 / x</span>, но уже относительно центра <span class="inline-formula">(2;1)</span>.</li>
+                                        </ul>
+                                        <p>Проверим несколько точек:</p>
+                                        <div class="formula-block">
+                                            x = 3 → y = 3 / (3 - 2) + 1 = 4<br />
+                                            x = 5 → y = 3 / (5 - 2) + 1 = 2<br />
+                                            x = 1 → y = 3 / (1 - 2) + 1 = -2<br />
+                                            x = 0 → y = 3 / (0 - 2) + 1 = -0.5
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section class="step-card" data-step="6" data-link-target="sample,check">
+                                    <button class="step-trigger focus-ring" type="button" aria-expanded="false">
+                                        <span class="step-index">7</span>
+                                        <span class="step-main">
+                        <h4 class="step-title">Проверка</h4>
+                        <p class="step-preview">Сверяем точки, асимптоты и направление ветвей.</p>
+                      </span>
+                                    </button>
+                                    <div class="step-body">
+                                        <p>Если точки справа от <span class="inline-formula">x = 2</span> получаются выше <span class="inline-formula">y = 1</span>, а точки слева — ниже <span class="inline-formula">y = 1</span>, то рисунок согласован со знаком <span class="inline-formula">a &gt; 0</span>.</p>
+                                        <p>Ни одна точка не должна лежать на вертикальной асимптоте. График может к ней приближаться, но не пересекать её.</p>
+                                        <div class="warning-box">
+                                            <strong>Проверка здравого смысла:</strong> если кто-то нарисовал пересечение с прямой <span class="inline-formula">x = 2</span>, значит график построен неверно.
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section class="step-card" data-step="7" data-link-target="all,summary">
+                                    <button class="step-trigger focus-ring" type="button" aria-expanded="false">
+                                        <span class="step-index">8</span>
+                                        <span class="step-main">
+                        <h4 class="step-title">Вывод</h4>
+                        <p class="step-preview">Запоминаем не отдельные картинки, а логику чтения формулы.</p>
+                      </span>
+                                    </button>
+                                    <div class="step-body">
+                                        <p>У функции обратной пропорциональности всегда есть запрет по знаменателю. Это даёт вертикальную асимптоту.</p>
+                                        <p>Знак коэффициента отвечает за расположение ветвей. Модуль коэффициента влияет на высоту значений при выбранных x. Сдвиги переносят график вместе с асимптотами.</p>
+                                        <div class="idea-box">
+                                            <strong>Главный takeaway:</strong> смотри на формулу как на набор управляющих ручек: <span class="inline-formula">a</span> — форма и направление, <span class="inline-formula">b</span> — сдвиг по x, <span class="inline-formula">c</span> — сдвиг по y.
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+
+                        <div data-tab-panel="idea" hidden>
+                            <div class="idea-box">
+                                <strong>Идея решения:</strong> у гиперболы не нужно запоминать десятки картинок. Достаточно читать формулу в одном порядке:
+                                <span class="inline-formula">знаменатель → ОДЗ → асимптоты → знак коэффициента → модуль коэффициента → сдвиги</span>.
+                            </div>
+                            <div class="two-col-mini">
+                                <div class="compact-item">
+                                    <h4>Алгебраический взгляд</h4>
+                                    <p>Подставляем несколько удобных значений x и смотрим знак y, а затем сравниваем модуль значений.</p>
+                                </div>
+                                <div class="compact-item">
+                                    <h4>Графический взгляд</h4>
+                                    <p>Сначала рисуем асимптоты, отмечаем центр, затем размещаем ветви в нужных областях и уточняем по точкам.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div data-tab-panel="checks" hidden>
+                            <div class="check-grid">
+                                <div class="compact-item">
+                                    <h4>Проверка 1. ОДЗ</h4>
+                                    <p>Для <span class="inline-formula">y = a / (x - b) + c</span> обязательно: <span class="inline-formula">x ≠ b</span>.</p>
+                                </div>
+                                <div class="compact-item">
+                                    <h4>Проверка 2. Асимптоты</h4>
+                                    <p>Вертикальная: <span class="inline-formula">x = b</span>. Горизонтальная: <span class="inline-formula">y = c</span>.</p>
+                                </div>
+                                <div class="compact-item">
+                                    <h4>Проверка 3. Знак</h4>
+                                    <p><span class="inline-formula">a &gt; 0</span> — ветви как у <span class="inline-formula">1/x</span>. <span class="inline-formula">a &lt; 0</span> — как у <span class="inline-formula">-1/x</span>.</p>
+                                </div>
+                                <div class="compact-item">
+                                    <h4>Проверка 4. Несколько точек</h4>
+                                    <p>Всегда полезно взять хотя бы по две точки по разные стороны от вертикальной асимптоты.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="right-stack">
+                    <aside class="panel sticky-visual" aria-labelledby="sceneTitle">
+                        <div class="panel-head">
+                            <div>
+                                <h3 class="panel-title" id="sceneTitle">Живая визуализация</h3>
+                                <p class="panel-subtitle">Кликайте по сцене, чтобы открыть большую модальную версию. Колесо мыши — масштаб, перетаскивание — панорама.</p>
+                            </div>
+                            <span class="pill" id="sceneModePill">Режим: разбор</span>
+                        </div>
+
+                        <div class="scene-shell">
+                            <div class="scene-toolbar">
+                                <div class="group">
+                                    <button class="btn btn-mini focus-ring" id="zoomInBtn" type="button">+</button>
+                                    <button class="btn btn-mini focus-ring" id="zoomOutBtn" type="button">−</button>
+                                    <button class="btn btn-mini focus-ring" id="resetViewBtn" type="button">reset</button>
+                                </div>
+
+                                <div class="group">
+                                    <div class="range-wrap">
+                                        <label for="zoomRange">zoom</label>
+                                        <input id="zoomRange" type="range" min="0.65" max="2.2" step="0.01" value="1" />
+                                    </div>
+                                </div>
+
+                                <div class="spacer"></div>
+
+                                <div class="group">
+                                    <button class="btn btn-mini focus-ring" id="presetBaseBtn" type="button">y = k/x</button>
+                                    <button class="btn btn-mini focus-ring" id="presetShiftBtn" type="button">y = a/(x-b)+c</button>
+                                    <button class="btn btn-mini btn-accent focus-ring" id="openModalBtn" type="button">Открыть крупно</button>
+                                </div>
+                            </div>
+
+                            <div class="scene-box focus-ring" id="sceneBox" tabindex="0" aria-label="Интерактивный график гиперболы">
+                                <svg class="scene-svg" id="mainSvg" viewBox="0 0 720 560" aria-hidden="true"></svg>
+                            </div>
+
+                            <div class="legend">
+                                <div class="legend-row">
+                                    <div class="legend-left">
+                                        <span class="swatch" style="background:var(--accent)"></span>
+                                        <span>Активная гипербола</span>
+                                    </div>
+                                    <span class="tiny" id="formulaLabel">y = 3 / (x - 2) + 1</span>
+                                </div>
+                                <div class="legend-row">
+                                    <div class="legend-left">
+                                        <span class="swatch" style="background:var(--accent-2)"></span>
+                                        <span>Сравнительная гипербола</span>
+                                    </div>
+                                    <span class="tiny">Помогает увидеть влияние коэффициента</span>
+                                </div>
+                                <div class="legend-row">
+                                    <div class="legend-left">
+                                        <span class="dot" style="background:var(--ok)"></span>
+                                        <span>Опорные точки</span>
+                                    </div>
+                                    <span class="tiny">Используются для проверки положения ветвей</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="status-grid" aria-label="Статус графика">
+                            <div class="status-card">
+                                <div class="status-label">ОДЗ</div>
+                                <div class="status-value" id="domainValue">x ≠ 2</div>
+                            </div>
+                            <div class="status-card">
+                                <div class="status-label">Асимптоты</div>
+                                <div class="status-value" id="asymptoteValue">x = 2, y = 1</div>
+                            </div>
+                            <div class="status-card">
+                                <div class="status-label">Знак коэффициента</div>
+                                <div class="status-value" id="signValue">a &gt; 0 → ветви как у 1/x</div>
+                            </div>
+                            <div class="status-card">
+                                <div class="status-label">Активный фокус</div>
+                                <div class="status-value" id="focusValue">ОДЗ и асимптоты</div>
+                            </div>
+                        </div>
+
+                        <div class="toggle-list" aria-label="Переключатели вспомогательных элементов">
+                            <button class="toggle-chip focus-ring" data-toggle="showCompare" aria-pressed="true" type="button">Сравнительный график</button>
+                            <button class="toggle-chip focus-ring" data-toggle="showPoints" aria-pressed="true" type="button">Опорные точки</button>
+                            <button class="toggle-chip focus-ring" data-toggle="showAsymptotes" aria-pressed="true" type="button">Асимптоты</button>
+                            <button class="toggle-chip focus-ring" data-toggle="showLabels" aria-pressed="true" type="button">Подписи</button>
+                        </div>
+
+                        <p class="scene-click-hint">Подсказка: наведите на шаг слева или на объект на графике — соответствующий фрагмент подсветится.</p>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <section class="mode-section" data-mode-section="visual" hidden>
+            <div class="mode-content-grid">
+                <article class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h3 class="panel-title">Визуализация коэффициентов</h3>
+                            <p class="panel-subtitle">Здесь можно менять параметры и сразу видеть, как перестраивается гипербола и её асимптоты.</p>
+                        </div>
+                    </div>
+
+                    <div class="two-col-mini">
+                        <div class="compact-item">
+                            <h4>Что делает коэффициент a</h4>
+                            <ul>
+                                <li><span class="inline-formula">a &gt; 0</span> — ветви расположены как у <span class="inline-formula">1/x</span> относительно центра.</li>
+                                <li><span class="inline-formula">a &lt; 0</span> — ветви зеркально меняют направление.</li>
+                                <li>Чем больше <span class="inline-formula">|a|</span>, тем больше по модулю значения <span class="inline-formula">y</span> при том же расстоянии от вертикальной асимптоты.</li>
+                            </ul>
+                        </div>
+                        <div class="compact-item">
+                            <h4>Что делают b и c</h4>
+                            <ul>
+                                <li><span class="inline-formula">b</span> переносит вертикальную асимптоту в <span class="inline-formula">x = b</span>.</li>
+                                <li><span class="inline-formula">c</span> переносит горизонтальную асимптоту в <span class="inline-formula">y = c</span>.</li>
+                                <li>Точка пересечения асимптот — центр гиперболы <span class="inline-formula">(b; c)</span>.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="generator-card" style="margin-top:16px;">
+                        <div class="task-box">
+                            <h4>Быстрые сценарии</h4>
+                            <div class="controls-row">
+                                <button class="btn btn-mini focus-ring" data-scenario="positive" type="button">a &gt; 0</button>
+                                <button class="btn btn-mini focus-ring" data-scenario="negative" type="button">a &lt; 0</button>
+                                <button class="btn btn-mini focus-ring" data-scenario="large" type="button">|a| больше</button>
+                                <button class="btn btn-mini focus-ring" data-scenario="shifted" type="button">со сдвигом</button>
+                            </div>
+                            <p class="muted">Нажатие меняет активную модель в визуализации и переносит вас к крупной сцене в режиме разбора.</p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="mode-section" data-mode-section="mistakes" hidden>
+            <div class="mode-content-grid">
+                <article class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h3 class="panel-title">Типичные ошибки</h3>
+                            <p class="panel-subtitle">Здесь собраны ловушки, которые чаще всего приводят к неверному рисунку или неверным выводам.</p>
+                        </div>
+                    </div>
+                    <div class="compact-list">
+                        <div class="compact-item">
+                            <h4>1. Забывают ОДЗ</h4>
+                            <p>У функции <span class="inline-formula">y = a/(x-b)+c</span> нельзя брать <span class="inline-formula">x = b</span>. Если забыть это, можно случайно «посадить» точку на вертикальную асимптоту.</p>
+                        </div>
+                        <div class="compact-item">
+                            <h4>2. Путают знак коэффициента</h4>
+                            <p>Если <span class="inline-formula">a &lt; 0</span>, график не остаётся в I и III квадрантах относительно центра. Он переходит во II и IV относительно нового центра.</p>
+                        </div>
+                        <div class="compact-item">
+                            <h4>3. Сдвиг рисуют, а асимптоты не двигают</h4>
+                            <p>Если в формуле есть <span class="inline-formula">(x - b)</span> и <span class="inline-formula">+ c</span>, то двигаться должны не только ветви, но и асимптоты.</p>
+                        </div>
+                        <div class="compact-item">
+                            <h4>4. Неверно понимают влияние модуля коэффициента</h4>
+                            <p>Чем больше <span class="inline-formula">|a|</span>, тем больше модуль <span class="inline-formula">y</span> при одном и том же расстоянии от вертикальной асимптоты. Это не просто «растяжение картинки», а изменение значений функции.</p>
+                        </div>
+                        <div class="compact-item">
+                            <h4>5. Не делают проверку по точкам</h4>
+                            <p>Даже если форма кажется правильной, проверь хотя бы 2–4 точки. Это быстро обнаруживает ошибку в знаке или в сдвиге.</p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="mode-section" data-mode-section="selfcheck" hidden>
+            <div class="mode-content-grid">
+                <article class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h3 class="panel-title">Самопроверка</h3>
+                            <p class="panel-subtitle">Пройдите короткий чек-лист. Если на все пункты можно ответить «да», тема читается правильно.</p>
+                        </div>
+                    </div>
+                    <div class="check-grid">
+                        <label class="compact-item"><input type="checkbox" /> Я умею сразу находить ОДЗ по знаменателю.</label>
+                        <label class="compact-item"><input type="checkbox" /> Я могу назвать вертикальную и горизонтальную асимптоты.</label>
+                        <label class="compact-item"><input type="checkbox" /> Я понимаю, как знак коэффициента меняет расположение ветвей.</label>
+                        <label class="compact-item"><input type="checkbox" /> Я могу объяснить, что делает модуль коэффициента.</label>
+                        <label class="compact-item"><input type="checkbox" /> Я умею переносить гиперболу по формуле <span class="inline-formula">a/(x-b)+c</span>.</label>
+                        <label class="compact-item"><input type="checkbox" /> Я проверяю рисунок по нескольким точкам, а не только «по памяти».</label>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="mode-section" data-mode-section="generator" hidden>
+            <div class="mode-content-grid">
+                <article class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h3 class="panel-title">Генератор похожей задачи</h3>
+                            <p class="panel-subtitle">Один вариант за раз, без вырожденных случаев. После генерации визуализация справа обновляется под новую функцию.</p>
+                        </div>
+                        <button class="btn btn-accent focus-ring" id="generateBtn" type="button">Сгенерировать</button>
+                    </div>
+
+                    <div class="generator-card">
+                        <div class="task-box">
+                            <h4>Условие</h4>
+                            <p id="genCondition">Определите, в каких областях расположены ветви графика функции y = -4 / (x + 1) + 2, укажите ОДЗ и асимптоты.</p>
+                        </div>
+                        <div class="task-box">
+                            <h4>Ответ</h4>
+                            <p id="genAnswer">ОДЗ: x ≠ -1. Асимптоты: x = -1 и y = 2. Так как коэффициент отрицательный, ветви расположены как у -1/x относительно центра (-1; 2).</p>
+                        </div>
+                        <div class="task-box">
+                            <h4>Краткая идея</h4>
+                            <p id="genIdea">Сначала найдите запретное значение x из знаменателя. Затем определите асимптоты и только после этого посмотрите на знак коэффициента.</p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="mode-section" data-mode-section="quiz" hidden>
+            <div class="mode-content-grid">
+                <article class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h3 class="panel-title">Мини-квиз</h3>
+                            <p class="panel-subtitle">3 коротких вопроса с мгновенной проверкой. По умолчанию блок компактный — открывайте и решайте по одному.</p>
+                        </div>
+                    </div>
+
+                    <div class="check-grid" id="quizWrap">
+                        <details class="quiz-question" open>
+                            <summary><strong>Вопрос 1.</strong> Где расположены ветви графика <span class="inline-formula">y = -3/x</span>?</summary>
+                            <div style="margin-top:12px;">
+                                <div class="quiz-options">
+                                    <label class="quiz-option"><input type="radio" name="q1" value="0"> I и III квадранты</label>
+                                    <label class="quiz-option"><input type="radio" name="q1" value="1"> II и IV квадранты</label>
+                                    <label class="quiz-option"><input type="radio" name="q1" value="0"> Только I квадрант</label>
+                                </div>
+                                <div class="controls-row" style="margin-top:10px;">
+                                    <button class="btn btn-mini focus-ring" data-check-quiz="q1" type="button">Проверить</button>
+                                </div>
+                                <div class="quiz-feedback" data-feedback="q1" aria-live="polite"></div>
+                            </div>
+                        </details>
+
+                        <details class="quiz-question">
+                            <summary><strong>Вопрос 2.</strong> Для функции <span class="inline-formula">y = 5 / (x - 2) + 1</span> выберите асимптоты.</summary>
+                            <div style="margin-top:12px;">
+                                <div class="quiz-options">
+                                    <label class="quiz-option"><input type="radio" name="q2" value="0"> x = 0, y = 0</label>
+                                    <label class="quiz-option"><input type="radio" name="q2" value="1"> x = 2, y = 1</label>
+                                    <label class="quiz-option"><input type="radio" name="q2" value="0"> x = -2, y = -1</label>
+                                </div>
+                                <div class="controls-row" style="margin-top:10px;">
+                                    <button class="btn btn-mini focus-ring" data-check-quiz="q2" type="button">Проверить</button>
+                                </div>
+                                <div class="quiz-feedback" data-feedback="q2" aria-live="polite"></div>
+                            </div>
+                        </details>
+
+                        <details class="quiz-question">
+                            <summary><strong>Вопрос 3.</strong> Что происходит при увеличении <span class="inline-formula">|a|</span> в функции <span class="inline-formula">y = a/x</span>?</summary>
+                            <div style="margin-top:12px;">
+                                <div class="quiz-options">
+                                    <label class="quiz-option"><input type="radio" name="q3" value="1"> Модуль y при том же x увеличивается</label>
+                                    <label class="quiz-option"><input type="radio" name="q3" value="0"> Асимптоты меняются с x = 0 и y = 0 на другие</label>
+                                    <label class="quiz-option"><input type="radio" name="q3" value="0"> График становится прямой</label>
+                                </div>
+                                <div class="controls-row" style="margin-top:10px;">
+                                    <button class="btn btn-mini focus-ring" data-check-quiz="q3" type="button">Проверить</button>
+                                </div>
+                                <div class="quiz-feedback" data-feedback="q3" aria-live="polite"></div>
+                            </div>
+                        </details>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="mode-section" data-mode-section="memo" hidden>
+            <div class="mode-content-grid">
+                <article class="panel print-keep">
+                    <div class="panel-head">
+                        <div>
+                            <h3 class="panel-title">Памятка</h3>
+                            <p class="panel-subtitle">Краткий режим для повторения перед контрольной или экзаменом.</p>
+                        </div>
+                    </div>
+
+                    <div class="compact-list">
+                        <div class="compact-item">
+                            <h4>Форма</h4>
+                            <p><span class="inline-formula">y = a / (x - b) + c</span></p>
+                        </div>
+                        <div class="compact-item">
+                            <h4>ОДЗ</h4>
+                            <p><span class="inline-formula">x ≠ b</span></p>
+                        </div>
+                        <div class="compact-item">
+                            <h4>Асимптоты</h4>
+                            <p>Вертикальная: <span class="inline-formula">x = b</span>, горизонтальная: <span class="inline-formula">y = c</span></p>
+                        </div>
+                        <div class="compact-item">
+                            <h4>Центр гиперболы</h4>
+                            <p><span class="inline-formula">(b; c)</span></p>
+                        </div>
+                        <div class="compact-item">
+                            <h4>Знак коэффициента</h4>
+                            <p><span class="inline-formula">a &gt; 0</span> — ветви как у <span class="inline-formula">1/x</span>, <span class="inline-formula">a &lt; 0</span> — как у <span class="inline-formula">-1/x</span>.</p>
+                        </div>
+                        <div class="compact-item">
+                            <h4>Алгоритм</h4>
+                            <p>Знаменатель → ОДЗ → асимптоты → знак <span class="inline-formula">a</span> → влияние <span class="inline-formula">|a|</span> → проверка по точкам.</p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="mode-section print-keep" data-mode-section="summary" hidden>
+            <div class="mode-content-grid">
+                <article class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h3 class="panel-title">Итог</h3>
+                            <p class="panel-subtitle">Финальный компактный вывод по теме.</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-box">
+                        <strong>Что нужно уметь после этого конспекта:</strong>
+                        <ul>
+                            <li>по формуле определять ОДЗ и асимптоты;</li>
+                            <li>по знаку коэффициента понимать расположение ветвей;</li>
+                            <li>по модулю коэффициента оценивать изменение значений;</li>
+                            <li>по сдвигам <span class="inline-formula">b</span> и <span class="inline-formula">c</span> переносить график;</li>
+                            <li>проверять рисунок несколькими точками.</li>
+                        </ul>
+                    </div>
+
+                    <div class="print-summary">
+                        <h4>Печатный summary</h4>
+                        <p>
+                            У гиперболы вида <span class="inline-formula">y = a/(x-b)+c</span> вертикальная асимптота равна <span class="inline-formula">x = b</span>,
+                            горизонтальная — <span class="inline-formula">y = c</span>, ОДЗ — <span class="inline-formula">x ≠ b</span>.
+                            Знак <span class="inline-formula">a</span> задаёт расположение ветвей относительно центра <span class="inline-formula">(b;c)</span>,
+                            а модуль <span class="inline-formula">a</span> меняет величину значений функции.
+                        </p>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-tag">МАТЕМАТИКА. НАГЛЯДНО</div>
+            <div class="footer-note">Спокойная, собранная и учебно сильная страница для повторения функции обратной пропорциональности.</div>
+        </div>
+    </footer>
+
+    <div class="hint-layer" aria-hidden="false">
+        <div class="hint" id="hint1" role="tooltip" aria-live="polite" data-side="bottom">
+            <button class="hint-close" type="button" aria-label="Закрыть подсказку">×</button>
+            <h4>Смена режимов</h4>
+            <p>Верхняя шапка — главный переключатель больших смысловых режимов: разбор, квиз, генератор и памятка доступны сразу.</p>
+        </div>
+        <div class="hint" id="hint2" role="tooltip" aria-live="polite" data-side="top">
+            <button class="hint-close" type="button" aria-label="Закрыть подсказку">×</button>
+            <h4>Живой график</h4>
+            <p>Колесо мыши меняет масштаб, перетаскивание двигает сцену. Нажмите на график, чтобы открыть модальную крупную версию.</p>
+        </div>
+        <div class="hint" id="hint3" role="tooltip" aria-live="polite" data-side="bottom">
+            <button class="hint-close" type="button" aria-label="Закрыть подсказку">×</button>
+            <h4>Связка текст ↔ график</h4>
+            <p>Наводите курсор на шаги решения и на объекты графика. Вы увидите, какой фрагмент текста с чем связан.</p>
+        </div>
+    </div>
+
+    <div class="modal" id="modal" aria-hidden="true">
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-head">
+                <h3 class="modal-title" id="modalTitle">Крупная визуализация</h3>
+                <div class="controls-row" style="margin:0;">
+                    <button class="btn btn-mini focus-ring" id="modalZoomInBtn" type="button">+</button>
+                    <button class="btn btn-mini focus-ring" id="modalZoomOutBtn" type="button">−</button>
+                    <button class="btn btn-mini focus-ring" id="modalResetBtn" type="button">reset</button>
+                    <button class="btn btn-mini btn-accent focus-ring" id="closeModalBtn" type="button">Закрыть</button>
+                </div>
+            </div>
+            <div class="modal-scene">
+                <div class="scene-box focus-ring" id="modalSceneBox" tabindex="0" aria-label="Крупная интерактивная сцена">
+                    <svg class="scene-svg" id="modalSvg" viewBox="0 0 720 560" aria-hidden="true"></svg>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <span class="tiny">Состояние сцены синхронизировано с основной визуализацией.</span>
+                <span class="tiny" id="modalFormula">y = 3 / (x - 2) + 1</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        "use strict";
+
+        const STORAGE_KEYS = {
+            theme: "nm-hyperbola-theme",
+            hints: "nm-hyperbola-hints-shown"
+        };
+
+        const state = {
+            theme: "light",
+            activeTopMode: "analysis",
+            activeTab: "steps",
+            activeStep: 0,
+            showAll: false,
+            detailLevel: "high",
+            modalState: { open: false },
+            viewport: {
+                zoom: 1,
+                panX: 0,
+                panY: 0,
+                orientation: 0
+            },
+            zoomState: {
+                min: 0.65,
+                max: 2.2
+            },
+            panState: {
+                dragging: false,
+                startX: 0,
+                startY: 0,
+                startPanX: 0,
+                startPanY: 0,
+                pointerId: null
+            },
+            orientationState: {
+                enabled: false,
+                value: 0
+            },
+            generatorState: {
+                current: {
+                    a: -4,
+                    b: -1,
+                    c: 2
+                }
+            },
+            quizState: {},
+            visibilityTogglesState: {
+                showCompare: true,
+                showPoints: true,
+                showAsymptotes: true,
+                showLabels: true
+            },
+            sceneModel: {
+                mode: "shifted",
+                active: { a: 3, b: 2, c: 1 },
+                compare: { a: 1, b: 0, c: 0 }
+            },
+            hoverLink: null
+        };
+
+        const stepFocusText = [
+            "ОДЗ и асимптоты",
+            "Цель разбора",
+            "Знак коэффициента",
+            "Модуль коэффициента",
+            "Центр и сдвиги",
+            "Пример и точки",
+            "Проверка построения",
+            "Главный вывод"
+        ];
+
+        const els = {
+            app: document.getElementById("app"),
+            themeToggle: document.getElementById("themeToggle"),
+            showAllBtn: document.getElementById("showAllBtn"),
+            printBtn: document.getElementById("printBtn"),
+            modeTabs: [...document.querySelectorAll(".mode-tab")],
+            modeSections: [...document.querySelectorAll("[data-mode-section]")],
+            tabButtons: [...document.querySelectorAll(".tab-btn")],
+            tabPanels: [...document.querySelectorAll("[data-tab-panel]")],
+            stepList: document.getElementById("stepList"),
+            stepCards: [...document.querySelectorAll(".step-card")],
+            prevStepBtn: document.getElementById("prevStepBtn"),
+            nextStepBtn: document.getElementById("nextStepBtn"),
+            toggleSingleBtn: document.getElementById("toggleSingleBtn"),
+            detailBtn: document.getElementById("detailBtn"),
+            stepBadge: document.getElementById("stepBadge"),
+            sceneModePill: document.getElementById("sceneModePill"),
+            sceneBox: document.getElementById("sceneBox"),
+            modalSceneBox: document.getElementById("modalSceneBox"),
+            mainSvg: document.getElementById("mainSvg"),
+            modalSvg: document.getElementById("modalSvg"),
+            formulaLabel: document.getElementById("formulaLabel"),
+            modalFormula: document.getElementById("modalFormula"),
+            domainValue: document.getElementById("domainValue"),
+            asymptoteValue: document.getElementById("asymptoteValue"),
+            signValue: document.getElementById("signValue"),
+            focusValue: document.getElementById("focusValue"),
+            zoomRange: document.getElementById("zoomRange"),
+            zoomInBtn: document.getElementById("zoomInBtn"),
+            zoomOutBtn: document.getElementById("zoomOutBtn"),
+            resetViewBtn: document.getElementById("resetViewBtn"),
+            presetBaseBtn: document.getElementById("presetBaseBtn"),
+            presetShiftBtn: document.getElementById("presetShiftBtn"),
+            openModalBtn: document.getElementById("openModalBtn"),
+            modal: document.getElementById("modal"),
+            closeModalBtn: document.getElementById("closeModalBtn"),
+            modalZoomInBtn: document.getElementById("modalZoomInBtn"),
+            modalZoomOutBtn: document.getElementById("modalZoomOutBtn"),
+            modalResetBtn: document.getElementById("modalResetBtn"),
+            toggleChips: [...document.querySelectorAll(".toggle-chip")],
+            hint1: document.getElementById("hint1"),
+            hint2: document.getElementById("hint2"),
+            hint3: document.getElementById("hint3"),
+            generateBtn: document.getElementById("generateBtn"),
+            genCondition: document.getElementById("genCondition"),
+            genAnswer: document.getElementById("genAnswer"),
+            genIdea: document.getElementById("genIdea"),
+            quizButtons: [...document.querySelectorAll("[data-check-quiz]")],
+            scenarioButtons: [...document.querySelectorAll("[data-scenario]")]
+        };
+
+        function clamp(v, min, max){
+            return Math.max(min, Math.min(max, v));
+        }
+
+        function roundSmart(value){
+            const n = Number(value);
+            if (Math.abs(n) < 1e-9) return "0";
+            const rounded = Math.round(n * 100) / 100;
+            return String(rounded).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+        }
+
+        function formatSignedTerm(signNum, variable){
+            const sign = signNum >= 0 ? " + " : " - ";
+            return sign + Math.abs(signNum) + variable;
+        }
+
+        function formulaText({a, b, c}){
+            const aText = roundSmart(a);
+            const bText = roundSmart(b);
+            const cText = roundSmart(c);
+            const denom = b === 0 ? "x" : (b > 0 ? `(x - ${bText})` : `(x + ${roundSmart(Math.abs(b))})`);
+            const tail = c === 0 ? "" : (c > 0 ? ` + ${cText}` : ` - ${roundSmart(Math.abs(c))}`);
+            return `y = ${aText} / ${denom}${tail}`;
+        }
+
+        function domainText(b){
+            return b === 0 ? "x ≠ 0" : `x ≠ ${roundSmart(b)}`;
+        }
+
+        function asymptotesText(b, c){
+            return `x = ${roundSmart(b)}, y = ${roundSmart(c)}`;
+        }
+
+        function signText(a){
+            return a > 0 ? "a > 0 → ветви как у 1/x" : "a < 0 → ветви как у -1/x";
+        }
+
+        function setTheme(theme){
+            state.theme = theme;
+            els.app.setAttribute("data-theme", theme);
+            els.themeToggle.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+            localStorage.setItem(STORAGE_KEYS.theme, theme);
+        }
+
+        function toggleTheme(){
+            setTheme(state.theme === "light" ? "dark" : "light");
+            renderSceneAll();
+        }
+
+        function initTheme(){
+            const saved = localStorage.getItem(STORAGE_KEYS.theme);
+            setTheme(saved === "dark" ? "dark" : "light");
+        }
+
+        function setMode(mode){
+            state.activeTopMode = mode;
+            els.modeTabs.forEach(btn => {
+                const active = btn.dataset.mode === mode;
+                btn.setAttribute("aria-selected", active ? "true" : "false");
+            });
+            els.modeSections.forEach(section => {
+                section.hidden = section.dataset.modeSection !== mode;
+            });
+
+            const names = {
+                analysis: "разбор",
+                visual: "визуализация",
+                mistakes: "ошибки",
+                selfcheck: "самопроверка",
+                generator: "генератор",
+                quiz: "квиз",
+                memo: "памятка",
+                summary: "итог"
+            };
+            els.sceneModePill.textContent = "Режим: " + names[mode];
+        }
+
+        function setTab(tab){
+            state.activeTab = tab;
+            els.tabButtons.forEach(btn => {
+                btn.setAttribute("aria-selected", btn.dataset.tab === tab ? "true" : "false");
+            });
+            els.tabPanels.forEach(panel => {
+                panel.hidden = panel.dataset.tabPanel !== tab;
+            });
+        }
+
+        function setShowAll(flag){
+            state.showAll = flag;
+            els.showAllBtn.textContent = flag ? "Свернуть шаги" : "Показать всё";
+            els.toggleSingleBtn.textContent = flag ? "Режим: показать всё" : "Режим: по одному шагу";
+            els.stepCards.forEach((card, index) => {
+                const shouldOpen = flag || index === state.activeStep;
+                card.classList.toggle("is-open", shouldOpen);
+                const trigger = card.querySelector(".step-trigger");
+                trigger.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+            });
+        }
+
+        function setDetailLevel(level){
+            state.detailLevel = level;
+            els.detailBtn.textContent = level === "high" ? "Подробность: высокая" : "Подробность: средняя";
+            const previews = els.stepCards.map(card => card.querySelector(".step-preview"));
+            previews.forEach((el, idx) => {
+                const full = [
+                    "Изучаем функцию обратной пропорциональности и её коэффициенты.",
+                    "Понять, где будут ветви и как они меняются при разных коэффициентах.",
+                    "Знак коэффициента показывает, согласованы ли знаки x и y.",
+                    "Модуль коэффициента меняет степень удалённости ветвей от осей.",
+                    "Удобный алгоритм: ОДЗ → асимптоты → знак → модуль → сдвиг.",
+                    "Разберём функцию y = 3 / (x - 2) + 1.",
+                    "Сверяем точки, асимптоты и направление ветвей.",
+                    "Запоминаем не отдельные картинки, а логику чтения формулы."
+                ];
+                const short = [
+                    "Базовая функция и расширенная форма.",
+                    "Что ищем на графике.",
+                    "Как работает знак.",
+                    "Как работает модуль.",
+                    "Алгоритм чтения формулы.",
+                    "Пример построения.",
+                    "Финальная сверка.",
+                    "Главный вывод."
+                ];
+                el.textContent = level === "high" ? full[idx] : short[idx];
+            });
+        }
+
+        function setActiveStep(step){
+            state.activeStep = clamp(step, 0, els.stepCards.length - 1);
+            els.stepCards.forEach((card, index) => {
+                const active = index === state.activeStep;
+                card.classList.toggle("is-active", active);
+                if (!state.showAll){
+                    card.classList.toggle("is-open", active);
+                    card.querySelector(".step-trigger").setAttribute("aria-expanded", active ? "true" : "false");
+                }
+            });
+            els.stepBadge.textContent = `Шаг ${state.activeStep + 1} из ${els.stepCards.length}`;
+            els.focusValue.textContent = stepFocusText[state.activeStep];
+            syncSceneToStep();
+            highlightLinkedObjects();
+        }
+
+        function syncSceneToStep(){
+            const step = state.activeStep;
+            if (step <= 1){
+                applySceneModel({a: 3, b: 2, c: 1}, {a: 1, b: 0, c: 0}, "shifted");
+            } else if (step === 2){
+                applySceneModel({a: -3, b: 0, c: 0}, {a: 3, b: 0, c: 0}, "base");
+            } else if (step === 3){
+                applySceneModel({a: 4, b: 0, c: 0}, {a: 1, b: 0, c: 0}, "base");
+            } else if (step === 4){
+                applySceneModel({a: 3, b: 2, c: 1}, {a: -3, b: 2, c: 1}, "shifted");
+            } else {
+                applySceneModel({a: 3, b: 2, c: 1}, {a: 1, b: 0, c: 0}, "shifted");
+            }
+        }
+
+        function applySceneModel(active, compare, mode){
+            state.sceneModel.active = { ...active };
+            state.sceneModel.compare = { ...compare };
+            state.sceneModel.mode = mode;
+            updateStatus();
+            renderSceneAll();
+        }
+
+        function updateStatus(){
+            const active = state.sceneModel.active;
+            els.formulaLabel.textContent = formulaText(active);
+            els.modalFormula.textContent = formulaText(active);
+            els.domainValue.textContent = domainText(active.b);
+            els.asymptoteValue.textContent = asymptotesText(active.b, active.c);
+            els.signValue.textContent = signText(active.a);
+        }
+
+        function setZoom(newZoom, anchorClientX, anchorClientY, boxEl){
+            const prev = state.viewport.zoom;
+            const zoom = clamp(newZoom, state.zoomState.min, state.zoomState.max);
+            if (zoom === prev){
+                return;
+            }
+
+            if (typeof anchorClientX === "number" && typeof anchorClientY === "number" && boxEl){
+                const rect = boxEl.getBoundingClientRect();
+                const cx = rect.width / 2;
+                const cy = rect.height / 2;
+                const dx = anchorClientX - rect.left - cx;
+                const dy = anchorClientY - rect.top - cy;
+                const scale = zoom / prev;
+                state.viewport.panX = clamp(state.viewport.panX - dx * (scale - 1), -240, 240);
+                state.viewport.panY = clamp(state.viewport.panY - dy * (scale - 1), -190, 190);
+            }
+
+            state.viewport.zoom = zoom;
+            els.zoomRange.value = String(zoom);
+            renderSceneAll();
+        }
+
+        function resetView(){
+            state.viewport.zoom = 1;
+            state.viewport.panX = 0;
+            state.viewport.panY = 0;
+            els.zoomRange.value = "1";
+            renderSceneAll();
+        }
+
+        function startDrag(e, sceneEl){
+            if (e.button !== undefined && e.button !== 0) return;
+            state.panState.dragging = true;
+            state.panState.startX = e.clientX;
+            state.panState.startY = e.clientY;
+            state.panState.startPanX = state.viewport.panX;
+            state.panState.startPanY = state.viewport.panY;
+            state.panState.pointerId = e.pointerId || null;
+            sceneEl.classList.add("is-dragging");
+            if (sceneEl.setPointerCapture && e.pointerId !== undefined){
+                try { sceneEl.setPointerCapture(e.pointerId); } catch(_e) {}
+            }
+        }
+
+        function moveDrag(e){
+            if (!state.panState.dragging) return;
+            const dx = e.clientX - state.panState.startX;
+            const dy = e.clientY - state.panState.startY;
+            state.viewport.panX = clamp(state.panState.startPanX + dx, -240, 240);
+            state.viewport.panY = clamp(state.panState.startPanY + dy, -190, 190);
+            renderSceneAll();
+        }
+
+        function endDrag(sceneEl, e){
+            state.panState.dragging = false;
+            sceneEl.classList.remove("is-dragging");
+            if (sceneEl.releasePointerCapture && e && e.pointerId !== undefined){
+                try { sceneEl.releasePointerCapture(e.pointerId); } catch(_e) {}
+            }
+        }
+
+        function sceneToSvgPoint(x, y){
+            const width = 720;
+            const height = 560;
+            const zoom = state.viewport.zoom;
+            const panX = state.viewport.panX;
+            const panY = state.viewport.panY;
+
+            const sx = width/2 + panX + x * 36 * zoom;
+            const sy = height/2 + panY - y * 36 * zoom;
+            return {x:sx, y:sy};
+        }
+
+        function buildCurveSegments(model){
+            const {a, b, c} = model;
+            const xmin = -10;
+            const xmax = 10;
+            const cut = b;
+            const left = [];
+            const right = [];
+            const step = 0.07;
+
+            for (let x = xmin; x <= xmax; x += step){
+                if (Math.abs(x - cut) < 0.09) continue;
+                const y = a / (x - b) + c;
+                if (!isFinite(y) || Math.abs(y) > 18) continue;
+                const pt = sceneToSvgPoint(x, y);
+                if (x < cut) left.push(pt);
+                if (x > cut) right.push(pt);
+            }
+            return {left, right};
+        }
+
+        function polylinePath(points){
+            if (!points.length) return "";
+            return points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(" ");
+        }
+
+        function createSvgEl(tag, attrs){
+            const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+            Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, String(v)));
+            return el;
+        }
+
+        function drawScene(svg, isModal){
+            while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+            const computed = getComputedStyle(els.app);
+            const C = {
+                line: computed.getPropertyValue("--line").trim(),
+                bg: computed.getPropertyValue("--bg").trim(),
+                bgElev: computed.getPropertyValue("--bg-elev").trim(),
+                accent: computed.getPropertyValue("--accent").trim(),
+                accent2: computed.getPropertyValue("--accent-2").trim(),
+                ok: computed.getPropertyValue("--ok").trim(),
+                gridMajor: computed.getPropertyValue("--grid-major").trim(),
+                gridMinor: computed.getPropertyValue("--grid-minor").trim(),
+                muted: computed.getPropertyValue("--muted").trim(),
+                text: computed.getPropertyValue("--text").trim(),
+                highlight: computed.getPropertyValue("--highlight").trim()
+            };
+
+            const width = 720;
+            const height = 560;
+            const gRoot = createSvgEl("g", {});
+            const gGrid = createSvgEl("g", { "data-object":"grid" });
+            const gAxes = createSvgEl("g", { "data-object":"axes", class:"object-hot" });
+            const gCompare = createSvgEl("g", { "data-object":"compare" });
+            const gAsym = createSvgEl("g", { "data-object":"asymptotes", class:"object-hot" });
+            const gMain = createSvgEl("g", { "data-object":"branches", class:"object-hot" });
+            const gPoints = createSvgEl("g", { "data-object":"points", class:"object-hot" });
+            const gLabels = createSvgEl("g", { "data-object":"labels" });
+
+            const bg = createSvgEl("rect", {
+                x:0, y:0, width, height, fill:C.bg
+            });
+            svg.appendChild(bg);
+
+            const transformWrap = createSvgEl("g", {});
+            svg.appendChild(transformWrap);
+
+            for (let i = -10; i <= 10; i += 1){
+                const minorColor = i === 0 ? C.line : C.gridMajor;
+                const vx1 = sceneToSvgPoint(i, -100);
+                const vx2 = sceneToSvgPoint(i, 100);
+                const hx1 = sceneToSvgPoint(-100, i);
+                const hx2 = sceneToSvgPoint(100, i);
+
+                const vLine = createSvgEl("line", {
+                    x1: vx1.x, y1: 0, x2: vx2.x, y2: height,
+                    stroke: minorColor, "stroke-width": i === 0 ? 2.2 : 1
+                });
+                const hLine = createSvgEl("line", {
+                    x1: 0, y1: hx1.y, x2: width, y2: hx2.y,
+                    stroke: minorColor, "stroke-width": i === 0 ? 2.2 : 1
+                });
+                gGrid.appendChild(vLine);
+                gGrid.appendChild(hLine);
+            }
+
+            const active = state.sceneModel.active;
+            const compare = state.sceneModel.compare;
+
+            if (state.visibilityTogglesState.showAsymptotes){
+                const vX = sceneToSvgPoint(active.b, 0).x;
+                const hY = sceneToSvgPoint(0, active.c).y;
+                const vAs = createSvgEl("line", {
+                    x1:vX, y1:0, x2:vX, y2:height,
+                    stroke:C.accent2, "stroke-width":2, "stroke-dasharray":"10 8"
+                });
+                const hAs = createSvgEl("line", {
+                    x1:0, y1:hY, x2:width, y2:hY,
+                    stroke:C.accent2, "stroke-width":2, "stroke-dasharray":"10 8"
+                });
+                gAsym.appendChild(vAs);
+                gAsym.appendChild(hAs);
+
+                const center = sceneToSvgPoint(active.b, active.c);
+                const centerDot = createSvgEl("circle", {
+                    cx:center.x, cy:center.y, r:5.5,
+                    fill:C.accent2, stroke:C.line, "stroke-width":2
+                });
+                gAsym.appendChild(centerDot);
+            }
+
+            if (state.visibilityTogglesState.showCompare){
+                const cmpSegs = buildCurveSegments(compare);
+                ["left","right"].forEach(side => {
+                    const d = polylinePath(cmpSegs[side]);
+                    if (d){
+                        gCompare.appendChild(createSvgEl("path", {
+                            d,
+                            fill:"none",
+                            stroke:C.accent2,
+                            "stroke-width":3,
+                            "stroke-linecap":"round",
+                            "stroke-linejoin":"round",
+                            opacity:"0.9"
+                        }));
+                    }
+                });
+            }
+
+            const actSegs = buildCurveSegments(active);
+            ["left","right"].forEach(side => {
+                const d = polylinePath(actSegs[side]);
+                if (d){
+                    gMain.appendChild(createSvgEl("path", {
+                        d,
+                        fill:"none",
+                        stroke:C.accent,
+                        "stroke-width":4,
+                        "stroke-linecap":"round",
+                        "stroke-linejoin":"round"
+                    }));
+                }
+            });
+
+            if (state.visibilityTogglesState.showPoints){
+                const sampleXs = [active.b + 1, active.b + 3, active.b - 1, active.b - 2];
+                sampleXs.forEach((x, idx) => {
+                    if (Math.abs(x - active.b) < 1e-9) return;
+                    const y = active.a / (x - active.b) + active.c;
+                    if (!isFinite(y) || Math.abs(y) > 16) return;
+                    const pt = sceneToSvgPoint(x, y);
+                    const circle = createSvgEl("circle", {
+                        cx:pt.x, cy:pt.y, r:6.5,
+                        fill:C.ok, stroke:C.line, "stroke-width":2
+                    });
+                    circle.setAttribute("data-point-index", String(idx));
+                    gPoints.appendChild(circle);
+
+                    if (state.visibilityTogglesState.showLabels){
+                        const text = createSvgEl("text", {
+                            x:pt.x + 10, y:pt.y - 10, fill:C.text, "font-size":"13", "font-weight":"700"
+                        });
+                        text.textContent = `(${roundSmart(x)}; ${roundSmart(y)})`;
+                        gLabels.appendChild(text);
+                    }
+                });
+            }
+
+            if (state.visibilityTogglesState.showLabels){
+                const x0 = sceneToSvgPoint(9.2, 0);
+                const y0 = sceneToSvgPoint(0, 7.2);
+                const xLabel = createSvgEl("text", {
+                    x:x0.x, y:x0.y - 8, fill:C.text, "font-size":"16", "font-weight":"900"
+                });
+                xLabel.textContent = "x";
+                const yLabel = createSvgEl("text", {
+                    x:y0.x + 8, y:y0.y, fill:C.text, "font-size":"16", "font-weight":"900"
+                });
+                yLabel.textContent = "y";
+                gLabels.appendChild(xLabel);
+                gLabels.appendChild(yLabel);
+
+                if (state.visibilityTogglesState.showAsymptotes){
+                    const tx = createSvgEl("text", {
+                        x: sceneToSvgPoint(active.b, 0).x + 8,
+                        y: 22,
+                        fill:C.accent2,
+                        "font-size":"13",
+                        "font-weight":"700"
+                    });
+                    tx.textContent = `x = ${roundSmart(active.b)}`;
+                    const ty = createSvgEl("text", {
+                        x: 10,
+                        y: sceneToSvgPoint(0, active.c).y - 8,
+                        fill:C.accent2,
+                        "font-size":"13",
+                        "font-weight":"700"
+                    });
+                    ty.textContent = `y = ${roundSmart(active.c)}`;
+                    gLabels.appendChild(tx);
+                    gLabels.appendChild(ty);
+                }
+            }
+
+            transformWrap.appendChild(gGrid);
+            transformWrap.appendChild(gAxes);
+            transformWrap.appendChild(gCompare);
+            transformWrap.appendChild(gAsym);
+            transformWrap.appendChild(gMain);
+            transformWrap.appendChild(gPoints);
+            transformWrap.appendChild(gLabels);
+
+            bindSceneObjectInteractions(svg);
+            applySceneHighlighting(svg, isModal);
+        }
+
+        function bindSceneObjectInteractions(svg){
+            const map = [
+                { selector:'[data-object="axes"]', link:"axes" },
+                { selector:'[data-object="asymptotes"]', link:"asymptotes" },
+                { selector:'[data-object="branches"]', link:"branches" },
+                { selector:'[data-object="points"]', link:"points" },
+                { selector:'[data-object="compare"]', link:"stretch" }
+            ];
+            map.forEach(item => {
+                const el = svg.querySelector(item.selector);
+                if (!el) return;
+                el.addEventListener("mouseenter", () => {
+                    state.hoverLink = item.link;
+                    highlightLinkedObjects();
+                });
+                el.addEventListener("mouseleave", () => {
+                    state.hoverLink = null;
+                    highlightLinkedObjects();
+                });
+            });
+        }
+
+        function applySceneHighlighting(svg){
+            const activeLinkSet = getCurrentLinkSet();
+            const groups = svg.querySelectorAll("[data-object]");
+            groups.forEach(group => {
+                const key = group.getAttribute("data-object");
+                let should = false;
+                if (activeLinkSet.has("all")) should = true;
+                if (key === "axes" && activeLinkSet.has("axes")) should = true;
+                if (key === "asymptotes" && (activeLinkSet.has("asymptotes") || activeLinkSet.has("shift") || activeLinkSet.has("center"))) should = true;
+                if (key === "branches" && (activeLinkSet.has("branches") || activeLinkSet.has("sign") || activeLinkSet.has("sample"))) should = true;
+                if (key === "points" && (activeLinkSet.has("points") || activeLinkSet.has("sample") || activeLinkSet.has("check"))) should = true;
+                if (key === "compare" && activeLinkSet.has("stretch")) should = true;
+                group.style.opacity = should ? "1" : "0.48";
+            });
+        }
+
+        function getCurrentLinkSet(){
+            const set = new Set();
+            const activeCard = els.stepCards[state.activeStep];
+            if (activeCard){
+                (activeCard.dataset.linkTarget || "").split(",").map(s => s.trim()).filter(Boolean).forEach(v => set.add(v));
+            }
+            if (state.hoverLink){
+                set.add(state.hoverLink);
+            }
+            return set;
+        }
+
+        function highlightLinkedObjects(){
+            const linkSet = getCurrentLinkSet();
+            els.stepCards.forEach(card => {
+                const targets = (card.dataset.linkTarget || "").split(",").map(s => s.trim());
+                const match = targets.some(t => linkSet.has(t)) || linkSet.has("all");
+                card.classList.toggle("is-linked", match && !card.classList.contains("is-active"));
+            });
+            applySceneHighlighting(els.mainSvg, false);
+            applySceneHighlighting(els.modalSvg, true);
+        }
+
+        function renderSceneAll(){
+            drawScene(els.mainSvg, false);
+            drawScene(els.modalSvg, true);
+        }
+
+        function openModal(){
+            state.modalState.open = true;
+            els.modal.classList.add("is-open");
+            els.modal.setAttribute("aria-hidden", "false");
+            renderSceneAll();
+        }
+
+        function closeModal(){
+            state.modalState.open = false;
+            els.modal.classList.remove("is-open");
+            els.modal.setAttribute("aria-hidden", "true");
+        }
+
+        function showHints(){
+            if (sessionStorage.getItem(STORAGE_KEYS.hints) === "1") return;
+            setTimeout(() => {
+                positionHint(els.hint1, els.modeTabs[0], "bottom");
+                positionHint(els.hint2, els.sceneBox, "top");
+                positionHint(els.hint3, els.stepCards[2], "bottom");
+                [els.hint1, els.hint2, els.hint3].forEach(h => h.classList.add("is-visible"));
+                sessionStorage.setItem(STORAGE_KEYS.hints, "1");
+                setTimeout(() => {
+                    [els.hint1, els.hint2, els.hint3].forEach(h => h.classList.remove("is-visible"));
+                }, 15000);
+            }, 3000);
+        }
+
+        function positionHint(hint, target, side){
+            if (!target) return;
+            const r = target.getBoundingClientRect();
+            hint.dataset.side = side;
+            const width = 260;
+            let left = r.left;
+            let top = r.bottom + 14;
+            if (side === "top"){
+                top = r.top - 118;
+            }
+            left = clamp(left, 12, window.innerWidth - width - 12);
+            hint.style.left = left + "px";
+            hint.style.top = top + "px";
+        }
+
+        function updateHintsOnResize(){
+            if (els.hint1.classList.contains("is-visible")) positionHint(els.hint1, els.modeTabs[0], "bottom");
+            if (els.hint2.classList.contains("is-visible")) positionHint(els.hint2, els.sceneBox, "top");
+            if (els.hint3.classList.contains("is-visible")) positionHint(els.hint3, els.stepCards[2], "bottom");
+        }
+
+        function generateTask(){
+            const poolA = [-6,-5,-4,-3,-2,2,3,4,5,6];
+            const poolB = [-4,-3,-2,-1,1,2,3,4];
+            const poolC = [-3,-2,-1,0,1,2,3];
+            const a = poolA[Math.floor(Math.random() * poolA.length)];
+            const b = poolB[Math.floor(Math.random() * poolB.length)];
+            const c = poolC[Math.floor(Math.random() * poolC.length)];
+
+            state.generatorState.current = {a,b,c};
+
+            const cond = `Определите ОДЗ, асимптоты и расположение ветвей графика функции ${formulaText({a,b,c})}.`;
+            const centerText = `(${roundSmart(b)}; ${roundSmart(c)})`;
+            const ans = `ОДЗ: ${domainText(b)}. Асимптоты: ${asymptotesText(b,c)}. Центр гиперболы: ${centerText}. ${a > 0 ? "Коэффициент положительный, поэтому ветви расположены как у 1/x относительно центра." : "Коэффициент отрицательный, поэтому ветви расположены как у -1/x относительно центра."}`;
+            const idea = `Сначала найдите значение x, при котором знаменатель равен нулю. Затем отметьте асимптоты, найдите центр ${centerText} и по знаку коэффициента определите направление ветвей.`;
+
+            els.genCondition.textContent = cond;
+            els.genAnswer.textContent = ans;
+            els.genIdea.textContent = idea;
+
+            applySceneModel({a,b,c}, {a:1,b:0,c:0}, "shifted");
+            setMode("generator");
+        }
+
+        function checkQuiz(name){
+            const checked = document.querySelector(`input[name="${name}"]:checked`);
+            const feedback = document.querySelector(`[data-feedback="${name}"]`);
+            if (!checked){
+                feedback.textContent = "Сначала выберите вариант.";
+                feedback.className = "quiz-feedback bad";
+                return;
+            }
+            if (checked.value === "1"){
+                feedback.textContent = "Верно. Ответ правильный.";
+                feedback.className = "quiz-feedback ok";
+            } else {
+                const messages = {
+                    q1:"Неверно. При отрицательном коэффициенте ветви лежат во II и IV квадрантах.",
+                    q2:"Неверно. Асимптоты определяются сдвигами: x = 2 и y = 1.",
+                    q3:"Неверно. При увеличении |a| меняются значения функции, но асимптоты y = 0 и x = 0 для y = a/x остаются теми же."
+                };
+                feedback.textContent = messages[name];
+                feedback.className = "quiz-feedback bad";
+            }
+        }
+
+        function activateScenario(kind){
+            if (kind === "positive"){
+                applySceneModel({a:3,b:0,c:0}, {a:-3,b:0,c:0}, "base");
+            } else if (kind === "negative"){
+                applySceneModel({a:-3,b:0,c:0}, {a:3,b:0,c:0}, "base");
+            } else if (kind === "large"){
+                applySceneModel({a:5,b:0,c:0}, {a:1,b:0,c:0}, "base");
+            } else if (kind === "shifted"){
+                applySceneModel({a:3,b:2,c:1}, {a:3,b:0,c:0}, "shifted");
+            }
+            setMode("analysis");
+            window.scrollTo({top:0, behavior:"smooth"});
+        }
+
+        function attachEvents(){
+            els.themeToggle.addEventListener("click", toggleTheme);
+            els.showAllBtn.addEventListener("click", () => setShowAll(!state.showAll));
+            els.printBtn.addEventListener("click", () => window.print());
+
+            els.modeTabs.forEach(btn => {
+                btn.addEventListener("click", () => setMode(btn.dataset.mode));
+            });
+
+            els.tabButtons.forEach(btn => {
+                btn.addEventListener("click", () => setTab(btn.dataset.tab));
+            });
+
+            els.stepCards.forEach((card, index) => {
+                const trigger = card.querySelector(".step-trigger");
+                trigger.addEventListener("click", () => {
+                    setActiveStep(index);
+                    if (state.showAll){
+                        card.classList.toggle("is-open");
+                        trigger.setAttribute("aria-expanded", card.classList.contains("is-open") ? "true" : "false");
+                    } else {
+                        setShowAll(false);
+                    }
+                });
+                card.addEventListener("mouseenter", () => {
+                    state.hoverLink = (card.dataset.linkTarget || "").split(",")[0] || null;
+                    highlightLinkedObjects();
+                });
+                card.addEventListener("mouseleave", () => {
+                    state.hoverLink = null;
+                    highlightLinkedObjects();
+                });
+            });
+
+            els.prevStepBtn.addEventListener("click", () => setActiveStep(state.activeStep - 1));
+            els.nextStepBtn.addEventListener("click", () => setActiveStep(state.activeStep + 1));
+            els.toggleSingleBtn.addEventListener("click", () => setShowAll(!state.showAll));
+            els.detailBtn.addEventListener("click", () => {
+                setDetailLevel(state.detailLevel === "high" ? "mid" : "high");
+            });
+
+            els.zoomRange.addEventListener("input", (e) => {
+                setZoom(Number(e.target.value));
+            });
+            els.zoomInBtn.addEventListener("click", () => setZoom(state.viewport.zoom + 0.12));
+            els.zoomOutBtn.addEventListener("click", () => setZoom(state.viewport.zoom - 0.12));
+            els.resetViewBtn.addEventListener("click", resetView);
+
+            els.modalZoomInBtn.addEventListener("click", () => setZoom(state.viewport.zoom + 0.12));
+            els.modalZoomOutBtn.addEventListener("click", () => setZoom(state.viewport.zoom - 0.12));
+            els.modalResetBtn.addEventListener("click", resetView);
+
+            els.presetBaseBtn.addEventListener("click", () => applySceneModel({a:2,b:0,c:0}, {a:-2,b:0,c:0}, "base"));
+            els.presetShiftBtn.addEventListener("click", () => applySceneModel({a:3,b:2,c:1}, {a:-3,b:2,c:1}, "shifted"));
+
+            els.toggleChips.forEach(chip => {
+                chip.addEventListener("click", () => {
+                    const key = chip.dataset.toggle;
+                    state.visibilityTogglesState[key] = !state.visibilityTogglesState[key];
+                    chip.setAttribute("aria-pressed", state.visibilityTogglesState[key] ? "true" : "false");
+                    renderSceneAll();
+                });
+            });
+
+            [els.sceneBox, els.modalSceneBox].forEach(sceneEl => {
+                sceneEl.addEventListener("wheel", (e) => {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -0.09 : 0.09;
+                    setZoom(state.viewport.zoom + delta, e.clientX, e.clientY, sceneEl);
+                }, { passive:false });
+
+                sceneEl.addEventListener("pointerdown", (e) => startDrag(e, sceneEl));
+                sceneEl.addEventListener("pointermove", moveDrag);
+                sceneEl.addEventListener("pointerup", (e) => endDrag(sceneEl, e));
+                sceneEl.addEventListener("pointercancel", (e) => endDrag(sceneEl, e));
+                sceneEl.addEventListener("dblclick", resetView);
+            });
+
+            els.sceneBox.addEventListener("click", (e) => {
+                if (!state.panState.dragging){
+                    openModal();
+                }
+            });
+            els.openModalBtn.addEventListener("click", openModal);
+            els.closeModalBtn.addEventListener("click", closeModal);
+            els.modal.addEventListener("click", (e) => {
+                if (e.target === els.modal) closeModal();
+            });
+
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape"){
+                    closeModal();
+                    [els.hint1, els.hint2, els.hint3].forEach(h => h.classList.remove("is-visible"));
+                }
+                if (state.activeTopMode === "analysis"){
+                    if (e.key === "ArrowRight") setActiveStep(state.activeStep + 1);
+                    if (e.key === "ArrowLeft") setActiveStep(state.activeStep - 1);
+                }
+            });
+
+            [els.hint1, els.hint2, els.hint3].forEach(hint => {
+                hint.querySelector(".hint-close").addEventListener("click", () => {
+                    hint.classList.remove("is-visible");
+                });
+            });
+            document.addEventListener("click", (e) => {
+                const visibleHints = [els.hint1, els.hint2, els.hint3].filter(h => h.classList.contains("is-visible"));
+                visibleHints.forEach(h => {
+                    if (!h.contains(e.target) && !e.target.closest(".mode-tab") && !e.target.closest(".scene-box") && !e.target.closest(".step-card")){
+                        h.classList.remove("is-visible");
+                    }
+                });
+            });
+
+            els.generateBtn.addEventListener("click", generateTask);
+            els.quizButtons.forEach(btn => {
+                btn.addEventListener("click", () => checkQuiz(btn.dataset.checkQuiz));
+            });
+
+            els.scenarioButtons.forEach(btn => {
+                btn.addEventListener("click", () => activateScenario(btn.dataset.scenario));
+            });
+
+            window.addEventListener("resize", () => {
+                updateHintsOnResize();
+                renderSceneAll();
+            });
+        }
+
+        function init(){
+            initTheme();
+            setMode("analysis");
+            setTab("steps");
+            setShowAll(false);
+            setDetailLevel("high");
+            setActiveStep(0);
+            updateStatus();
+            renderSceneAll();
+            attachEvents();
+            showHints();
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
