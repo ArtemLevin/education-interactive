@@ -1,0 +1,2207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Стереометрия — расстояние от точки до плоскости</title>
+    <style>
+        :root{
+            --bg:#F4F4F0;
+            --bg-elev:#FFFFFF;
+            --bg-soft:#ECEBE4;
+            --text:#141414;
+            --muted:#555555;
+            --line:#141414;
+            --accent:#D72638;
+            --accent-2:#F3C94B;
+            --ok:#2F7D32;
+            --shadow:4px 4px 0 0 #141414;
+            --shadow-sm:2px 2px 0 0 #141414;
+            --hero-size:clamp(1.9rem,3vw,2.7rem);
+            --h2-size:clamp(1.15rem,1.9vw,1.45rem);
+            --maxw:1380px;
+            --scene-h:560px;
+            --sticky-top:16px;
+            --focus:0 0 0 3px rgba(215,38,56,.18);
+        }
+
+        [data-theme="dark"]{
+            --bg:#141414;
+            --bg-elev:#1E1E1E;
+            --bg-soft:#232323;
+            --text:#F4F4F0;
+            --muted:#C8C8C8;
+            --line:#F4F4F0;
+            --accent:#D72638;
+            --accent-2:#F3C94B;
+            --ok:#81C784;
+            --shadow:4px 4px 0 0 #F4F4F0;
+            --shadow-sm:2px 2px 0 0 #F4F4F0;
+            --focus:0 0 0 3px rgba(243,201,75,.18);
+        }
+
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            font-family:Arial,Helvetica,sans-serif;
+            background:var(--bg);
+            color:var(--text);
+            line-height:1.55;
+            -webkit-font-smoothing:antialiased;
+            text-rendering:optimizeLegibility;
+        }
+        body.modal-open{overflow:hidden}
+        ::selection{background:var(--accent-2);color:#111}
+        button,input,select,summary{font:inherit}
+        a{color:inherit;text-decoration:none}
+
+        button:focus-visible,
+        input:focus-visible,
+        .mode-chip:focus-visible,
+        .step-card:focus-visible,
+        .scene-surface:focus-visible,
+        .icon-btn:focus-visible,
+        .seg-btn:focus-visible,
+        .tab-btn:focus-visible,
+        .quiz-option:focus-visible{
+            outline:none;
+            box-shadow:var(--focus);
+        }
+
+        .page-shell{max-width:var(--maxw);margin:0 auto;padding:0 16px 28px}
+        .topbar{
+            position:sticky;top:0;z-index:40;
+            background:var(--bg);
+            border-bottom:2px solid var(--line);
+        }
+        .topbar-inner{
+            max-width:var(--maxw);
+            margin:0 auto;
+            padding:10px 16px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:12px;
+            min-height:62px;
+        }
+        .brand{display:flex;align-items:center;gap:12px;min-width:0}
+        .brand-mark{
+            width:42px;height:42px;display:grid;place-items:center;
+            border:2px solid var(--line);background:var(--accent-2);
+            box-shadow:var(--shadow-sm);font-weight:800;flex:0 0 auto;
+        }
+        .brand-kicker{
+            font-size:11px;text-transform:uppercase;letter-spacing:.12em;
+            color:var(--muted);margin-bottom:2px;
+        }
+        .brand-title{
+            font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        }
+        .topbar-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+
+        .btn,.icon-btn,.mode-chip,.seg-btn,.tab-btn,.quiz-option,.mini-btn{
+            border:2px solid var(--line);
+            background:var(--bg-elev);
+            color:var(--text);
+            box-shadow:var(--shadow-sm);
+            border-radius:0;
+            transition:transform .06s ease,box-shadow .06s ease,background .12s ease,color .12s ease,border-color .12s ease;
+        }
+        .btn:hover,.icon-btn:hover,.mode-chip:hover,.seg-btn:hover,.tab-btn:hover,.quiz-option:hover,.mini-btn:hover{
+            transform:translate(-1px,-1px);box-shadow:3px 3px 0 0 var(--line)
+        }
+        .btn:active,.icon-btn:active,.mode-chip:active,.seg-btn:active,.tab-btn:active,.quiz-option:active,.mini-btn:active{
+            transform:translate(1px,1px);box-shadow:none
+        }
+        .btn{padding:10px 14px;font-weight:700;cursor:pointer}
+        .btn-accent{background:var(--accent);color:#fff}
+        .btn-soft{background:var(--bg-soft)}
+        .icon-btn{
+            width:42px;height:42px;display:grid;place-items:center;
+            cursor:pointer;font-weight:800
+        }
+
+        .hero{padding:20px 0 14px}
+        .hero-card{
+            background:var(--bg-elev);
+            border:2px solid var(--line);
+            box-shadow:var(--shadow);
+            padding:18px;
+            display:grid;
+            gap:16px;
+        }
+        .hero-top{
+            display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;
+        }
+        .hero-copy{max-width:860px}
+        .hero-kicker{
+            font-size:12px;text-transform:uppercase;letter-spacing:.12em;
+            color:var(--accent);font-weight:800;margin-bottom:8px;
+        }
+        .hero h1{
+            margin:0 0 10px;
+            font-size:var(--hero-size);
+            line-height:1.08;
+            letter-spacing:-.02em;
+        }
+        .hero p{margin:0;color:var(--muted);max-width:72ch}
+        .hero-meta{display:flex;flex-wrap:wrap;gap:8px}
+        .pill{
+            border:2px solid var(--line);
+            background:var(--bg-soft);
+            padding:8px 10px;
+            box-shadow:var(--shadow-sm);
+            font-size:12px;
+            font-weight:700;
+        }
+
+        .banner{
+            margin-top:16px;
+            background:#111;
+            color:#F4F4F0;
+            border:2px solid #111;
+            box-shadow:4px 4px 0 0 var(--accent);
+            padding:14px 16px;
+            display:grid;
+            gap:10px;
+        }
+        .banner-row{
+            display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap;
+        }
+        .banner-title{font-weight:800;font-size:15px}
+        .banner-copy{color:#D9D9D9;font-size:14px;max-width:90ch}
+
+        .mode-nav{
+            margin:18px 0;
+            display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+            border-bottom:2px solid var(--line);padding-bottom:12px;
+        }
+        .mode-chip{cursor:pointer;padding:10px 12px;font-weight:800;background:var(--bg-elev)}
+        .mode-chip.is-active{background:var(--accent);color:#fff}
+
+        .workspace{display:grid;gap:20px}
+        .mode-panel{display:none}
+        .mode-panel.is-active{display:block}
+
+        .two-col{
+            display:grid;
+            grid-template-columns:minmax(0,1.06fr) minmax(360px,.94fr);
+            gap:20px;
+            align-items:start;
+        }
+        .card{
+            background:var(--bg-elev);
+            border:2px solid var(--line);
+            box-shadow:var(--shadow);
+            padding:18px;
+            min-width:0;
+        }
+        .card-tight{padding:12px}
+        .section-title{
+            display:flex;align-items:center;justify-content:space-between;
+            gap:10px;flex-wrap:wrap;margin-bottom:14px;
+        }
+        .section-title h2{margin:0;font-size:var(--h2-size)}
+        .section-subtitle{font-size:13px;color:var(--muted);max-width:70ch}
+
+        .toolbar-row,.scene-toolbar,.generator-controls,.quiz-controls{
+            display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+        }
+        .segmented{display:inline-flex;flex-wrap:wrap;gap:8px}
+        .seg-btn,.tab-btn,.mini-btn{
+            cursor:pointer;padding:8px 11px;font-size:13px;font-weight:700;background:var(--bg-elev);
+        }
+        .seg-btn.is-active,.tab-btn.is-active,.mini-btn.is-active{
+            background:var(--accent-2);color:#111;
+        }
+        .tab-strip{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+        .tab-panel{display:none}
+        .tab-panel.is-active{display:block}
+        .helper-line{color:var(--muted);font-size:13px;margin-bottom:14px}
+
+        .step-list{display:grid;gap:10px}
+        .step-card{
+            border:2px solid var(--line);
+            background:var(--bg-soft);
+            box-shadow:var(--shadow-sm);
+            overflow:hidden;
+            cursor:pointer;
+        }
+        .step-card.is-active{background:var(--bg-elev)}
+        .step-card.is-complete .step-index{background:var(--ok);color:#fff}
+        .step-head{
+            display:grid;grid-template-columns:auto 1fr auto;gap:12px;
+            align-items:center;padding:12px;
+        }
+        .step-index{
+            width:28px;height:28px;display:grid;place-items:center;
+            border:2px solid var(--line);background:var(--accent-2);
+            font-weight:800;box-shadow:var(--shadow-sm);flex:0 0 auto;
+        }
+        .step-title{font-weight:800;font-size:15px}
+        .step-tag{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+        .step-body{
+            display:none;padding:0 12px 12px;border-top:2px solid var(--line);background:var(--bg-elev);
+        }
+        .step-card.is-open .step-body{display:block}
+        .step-body p,.step-body ul,.step-body ol{margin:10px 0 0}
+        .step-body ul,.step-body ol{padding-left:18px}
+
+        .formula-box,.note-box,.takeaway-box,.status-box,.legend,.print-summary,.mini-panel,.quiz-feedback,.gen-result,.tips-grid>article{
+            border:2px solid var(--line);
+            background:var(--bg-soft);
+            box-shadow:var(--shadow-sm);
+        }
+        .formula-box,.note-box,.takeaway-box,.status-box,.print-summary,.mini-panel,.quiz-feedback,.gen-result{padding:12px}
+        .formula-box strong,.note-box strong,.takeaway-box strong,.status-box strong,.mini-panel strong,.print-summary strong{
+            display:block;margin-bottom:6px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;
+        }
+        .formula{font-weight:800;font-size:18px;letter-spacing:-.01em}
+        .subgrid{display:grid;gap:12px}
+        .subgrid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .accent-bar{
+            height:10px;width:100%;
+            background:linear-gradient(90deg,var(--accent) 0 18%,var(--accent-2) 18% 36%,transparent 36% 100%);
+            border:2px solid var(--line);
+        }
+
+        .sticky-col{position:sticky;top:var(--sticky-top);align-self:start}
+        .scene-shell{display:grid;gap:12px}
+        .scene-toolbar{justify-content:space-between}
+        .scene-toolbar-left,.scene-toolbar-right{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+        .range-wrap{
+            display:inline-flex;align-items:center;gap:10px;
+            border:2px solid var(--line);
+            padding:6px 8px;box-shadow:var(--shadow-sm);
+            background:var(--bg-elev);min-width:165px;
+        }
+        .range-wrap input[type="range"]{width:110px;cursor:pointer}
+        .range-val{font-size:12px;font-weight:800;min-width:44px;text-align:right}
+
+        .scene-surface{
+            position:relative;
+            border:2px solid var(--line);
+            background:var(--bg-soft);
+            box-shadow:var(--shadow);
+            min-height:var(--scene-h);
+            overflow:hidden;
+            cursor:grab;
+            user-select:none;
+            touch-action:none;
+        }
+        .scene-surface:active{cursor:grabbing}
+        .scene-hint-strip{
+            position:absolute;left:12px;bottom:12px;z-index:4;
+            display:flex;flex-wrap:wrap;gap:8px;max-width:calc(100% - 24px);pointer-events:none;
+        }
+        .scene-hint-chip{
+            border:2px solid var(--line);
+            background:rgba(244,244,240,.92);
+            color:#111;
+            padding:6px 8px;
+            font-size:11px;
+            font-weight:800;
+            box-shadow:var(--shadow-sm);
+        }
+        [data-theme="dark"] .scene-hint-chip{
+            background:rgba(20,20,20,.92);
+            color:#F4F4F0;
+        }
+
+        .legend{padding:12px;display:grid;gap:8px}
+        .legend-row{display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:center;font-size:13px}
+        .legend-swatch{width:24px;height:14px;border:2px solid var(--line)}
+        .status-box{display:grid;gap:8px;font-size:14px}
+        .status-metric{
+            display:flex;justify-content:space-between;gap:12px;border-top:1px dashed var(--line);padding-top:8px;
+        }
+        .status-metric:first-of-type{border-top:0;padding-top:0}
+        .muted{color:var(--muted)}
+
+        .tips-grid{
+            display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+        }
+        .tips-grid>article{padding:14px}
+        .tips-grid h3{margin:0 0 8px;font-size:15px}
+        .tips-grid p,.tips-grid ul{margin:0;color:var(--muted);font-size:14px}
+        .tips-grid ul{padding-left:18px;margin-top:8px}
+
+        .quiz-list{display:grid;gap:14px}
+        .quiz-item{
+            border:2px solid var(--line);
+            background:var(--bg-soft);
+            box-shadow:var(--shadow-sm);
+            padding:14px;
+        }
+        .quiz-question{font-weight:800;margin-bottom:10px}
+        .quiz-options{display:grid;gap:8px}
+        .quiz-option{padding:10px;cursor:pointer;text-align:left;width:100%}
+        .quiz-option.is-selected{background:var(--accent-2);color:#111}
+        .quiz-option.is-correct{background:var(--ok);color:#fff}
+        .quiz-option.is-wrong{background:var(--accent);color:#fff}
+        .quiz-feedback{margin-top:10px;font-size:14px;display:none}
+        .quiz-feedback.is-visible{display:block}
+        .scoreline{font-weight:800}
+
+        .generator-layout{
+            display:grid;gap:16px;grid-template-columns:minmax(280px,320px) minmax(0,1fr);
+        }
+        .field{display:grid;gap:6px;margin-bottom:12px}
+        .field label{
+            font-size:12px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;
+        }
+        .field input,.field select{
+            width:100%;padding:10px 12px;border:2px solid var(--line);
+            background:var(--bg-elev);color:var(--text);box-shadow:var(--shadow-sm);border-radius:0;
+        }
+        .gen-result{display:grid;gap:12px}
+        .gen-block{display:grid;gap:6px;padding-top:8px;border-top:1px dashed var(--line)}
+        .gen-block:first-child{border-top:0;padding-top:0}
+        .mini-kicker{
+            font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;
+        }
+        .big-answer{font-size:26px;font-weight:900;letter-spacing:-.02em}
+        .memo-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+        .memo-list{margin:0;padding-left:18px}
+        .memo-list li+li{margin-top:7px}
+
+        .summary-grid{
+            display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+        }
+        .summary-tile{
+            border:2px solid var(--line);background:var(--bg-soft);box-shadow:var(--shadow-sm);padding:14px;
+        }
+        .summary-tile h3{margin:0 0 8px;font-size:15px}
+        .summary-tile p{margin:0;color:var(--muted);font-size:14px}
+
+        .print-summary{margin-top:14px}
+
+        details.hint{
+            border:2px solid var(--line);
+            box-shadow:var(--shadow-sm);
+            background:var(--bg-soft);
+            overflow:hidden;
+        }
+        details.hint+details.hint{margin-top:10px}
+        details.hint summary{
+            list-style:none;cursor:pointer;padding:12px;font-weight:800;position:relative;
+        }
+        details.hint summary::-webkit-details-marker{display:none}
+        details.hint summary::after{
+            content:"+";
+            position:absolute;right:12px;top:12px;font-size:18px;font-weight:900;
+        }
+        details.hint[open] summary::after{content:"−"}
+        details.hint .hint-body{
+            padding:0 12px 12px;border-top:2px solid var(--line);color:var(--muted);
+        }
+
+        .footer{
+            margin-top:24px;padding:16px 0 0;border-top:2px solid var(--line);
+            display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+        }
+        .footer-tagline{
+            font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);
+        }
+        .footer-note{color:var(--muted);font-size:14px}
+
+        .tooltip-layer{
+            position:fixed;inset:0;pointer-events:none;z-index:70;
+        }
+        .hint-pop{
+            position:fixed;z-index:75;max-width:260px;border:2px solid var(--line);
+            background:var(--bg-elev);box-shadow:var(--shadow);padding:10px 12px;pointer-events:auto;
+            animation:hintBounce .28s ease-out;
+        }
+        .hint-pop[data-hidden="true"]{display:none}
+        .hint-pop-head{
+            display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:6px;
+        }
+        .hint-pop-title{
+            font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);
+        }
+        .hint-pop-close{
+            border:2px solid var(--line);
+            background:var(--bg-soft);
+            width:28px;height:28px;
+            cursor:pointer;box-shadow:var(--shadow-sm);font-weight:900;padding:0;color:var(--text);
+        }
+        .hint-pop-copy{font-size:13px;color:var(--text);line-height:1.42}
+        .hint-anchor-pulse{animation:hintPulse 1.5s ease-in-out infinite}
+        .border-glow{animation:borderGlow 1.6s ease-in-out infinite}
+
+        .modal{
+            position:fixed;inset:0;display:none;z-index:90;background:rgba(0,0,0,.68);padding:18px;
+        }
+        .modal.is-open{display:grid;place-items:center}
+        .modal-dialog{
+            width:min(1220px,100%);
+            max-height:calc(100vh - 36px);
+            overflow:auto;
+            border:2px solid var(--line);
+            background:var(--bg);
+            box-shadow:8px 8px 0 0 var(--accent);
+            padding:14px;
+            position:relative;
+        }
+        .modal-head{
+            display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;
+        }
+        .modal-title{font-size:18px;font-weight:900}
+        .close-btn{
+            width:42px;height:42px;border:2px solid var(--line);
+            background:var(--bg-elev);box-shadow:var(--shadow-sm);
+            font-size:20px;cursor:pointer;font-weight:900;color:var(--text);
+        }
+
+        .sr-only{
+            position:absolute!important;width:1px!important;height:1px!important;padding:0!important;
+            margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;
+        }
+        .hide-on-mobile{display:inline-flex}
+
+        @keyframes hintPulse{
+            0%,100%{box-shadow:var(--shadow-sm)}
+            50%{box-shadow:0 0 0 0 var(--line),0 0 0 4px rgba(215,38,56,.16)}
+        }
+        @keyframes borderGlow{
+            0%,100%{border-color:var(--line)}
+            50%{border-color:var(--accent)}
+        }
+        @keyframes hintBounce{
+            0%{transform:translateY(6px);opacity:0}
+            100%{transform:translateY(0);opacity:1}
+        }
+
+        @media (max-width:1080px){
+            .two-col{grid-template-columns:1fr}
+            .sticky-col{position:static}
+            .generator-layout{grid-template-columns:1fr}
+        }
+        @media (max-width:760px){
+            :root{--scene-h:440px}
+            .page-shell{padding:0 12px 22px}
+            .topbar-inner{padding:10px 12px}
+            .hero-card,.card{padding:14px}
+            .subgrid.cols-2{grid-template-columns:1fr}
+            .hide-on-mobile{display:none}
+            .scene-toolbar-left,.scene-toolbar-right{width:100%}
+            .scene-toolbar-right{justify-content:flex-start}
+            .mode-chip{padding:10px 10px;font-size:13px}
+            .scene-hint-chip{font-size:10px}
+        }
+
+        @media print{
+            :root{
+                --bg:#FFFFFF;--bg-elev:#FFFFFF;--bg-soft:#FFFFFF;
+                --text:#111111;--muted:#333333;--line:#111111;
+                --shadow:none;--shadow-sm:none;--scene-h:420px;
+            }
+            body{background:#FFFFFF;color:#111111;font-size:11pt}
+            .topbar,.mode-nav,.scene-toolbar,.banner .btn,.topbar-actions,.tooltip-layer,.modal,.quiz-controls,.generator-controls,details.hint,.scene-hint-strip,.hide-print{display:none!important}
+            .page-shell{max-width:none;padding:0}
+            .hero,.footer{margin:0;padding:0}
+            .hero-card,.card,.summary-tile,.step-card,.formula-box,.note-box,.takeaway-box,.status-box,.legend,.print-summary{box-shadow:none!important;break-inside:avoid}
+            .two-col{grid-template-columns:1fr}
+            .sticky-col{position:static!important}
+            .step-body{display:block!important}
+            .footer{border-top:1px solid #111;margin-top:12px;padding-top:8px}
+            .accent-bar{display:none}
+        }
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <div class="topbar-inner">
+        <div class="brand">
+            <div class="brand-mark" aria-hidden="true">3D</div>
+            <div>
+                <div class="brand-kicker">Наглядная математика</div>
+                <div class="brand-title">Стереометрия · расстояние от точки до плоскости</div>
+            </div>
+        </div>
+        <div class="topbar-actions">
+            <button class="icon-btn" id="themeToggle" type="button" aria-label="Переключить тему">◐</button>
+            <button class="btn btn-soft hide-on-mobile" id="printBtn" type="button">Печать</button>
+        </div>
+    </div>
+</div>
+
+<div class="page-shell">
+    <section class="hero">
+        <div class="hero-card">
+            <div class="hero-top">
+                <div class="hero-copy">
+                    <div class="hero-kicker">ЕГЭ профиль · интерактивный конспект</div>
+                    <h1>Как находить расстояние от точки до плоскости без путаницы</h1>
+                    <p>
+                        Главная идея: расстояние от точки до плоскости — это длина <strong>перпендикуляра</strong>, опущенного из точки на плоскость.
+                        Ни боковое ребро, ни случайная наклонная, ни «визуально удобный» отрезок расстоянием не являются.
+                    </p>
+                </div>
+                <div class="hero-meta">
+                    <div class="pill">Тема: стереометрия</div>
+                    <div class="pill">Фокус: точка → плоскость</div>
+                    <div class="pill">Подача: подробно, с нуля</div>
+                    <div class="pill">Режим: текст ↔ визуал</div>
+                </div>
+            </div>
+
+            <div class="banner">
+                <div class="banner-row">
+                    <div class="banner-title">Ключевая мысль</div>
+                    <button class="btn btn-accent" id="jumpToModeMemo" type="button">Открыть памятку</button>
+                </div>
+                <div class="banner-copy">
+                    Сначала найди <strong>основание перпендикуляра</strong> на плоскости, затем вырази его длину.
+                    Это можно сделать геометрически через прямоугольные треугольники или аналитически через координаты и уравнение плоскости.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="mode-nav" aria-label="Режимы страницы">
+        <button class="mode-chip is-active" data-mode-target="analysis" type="button">Разбор</button>
+        <button class="mode-chip" data-mode-target="visual" type="button">Визуализация</button>
+        <button class="mode-chip" data-mode-target="mistakes" type="button">Ошибки</button>
+        <button class="mode-chip" data-mode-target="selfcheck" type="button">Самопроверка</button>
+        <button class="mode-chip" data-mode-target="generator" type="button">Генератор</button>
+        <button class="mode-chip" data-mode-target="quiz" type="button">Квиз</button>
+        <button class="mode-chip" data-mode-target="memo" type="button">Памятка</button>
+        <button class="mode-chip" data-mode-target="final" type="button">Итог</button>
+    </nav>
+
+    <main class="workspace">
+        <section class="mode-panel is-active" id="mode-analysis">
+            <div class="two-col">
+                <div class="card">
+                    <div class="section-title">
+                        <div>
+                            <h2>Разбор метода</h2>
+                            <div class="section-subtitle">
+                                Слева — пошаговый разбор. Справа — изометрическая пирамида, которую можно вращать мышкой.
+                            </div>
+                        </div>
+                        <div class="toolbar-row">
+                            <div class="segmented">
+                                <button class="seg-btn is-active" id="stepModeSingle" type="button">По шагам</button>
+                                <button class="seg-btn" id="stepModeAll" type="button">Показать всё</button>
+                            </div>
+                            <div class="segmented">
+                                <button class="seg-btn is-active" data-detail="high" type="button">Подробно</button>
+                                <button class="seg-btn" data-detail="compact" type="button">Кратко</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-strip">
+                        <button class="tab-btn is-active" data-tab-target="core" type="button">Основной путь</button>
+                        <button class="tab-btn" data-tab-target="algebra" type="button">Алгебраический подход</button>
+                        <button class="tab-btn" data-tab-target="graphic" type="button">Графический взгляд</button>
+                    </div>
+
+                    <div class="tab-panel is-active" data-tab-panel="core">
+                        <div class="helper-line">
+                            Базовая модель: вершина S находится над плоскостью основания α, а SH ⟂ α. Именно SH — искомое расстояние.
+                        </div>
+
+                        <div class="subgrid cols-2">
+                            <div class="formula-box">
+                                <strong>Что дано</strong>
+                                Пирамида SABC или SABC D. Точка H — основание перпендикуляра из S на плоскость основания α.
+                            </div>
+                            <div class="formula-box">
+                                <strong>Что найти</strong>
+                                d(S, α) = SH
+                            </div>
+                        </div>
+
+                        <div class="note-box" style="margin-top:12px;">
+                            <strong>ОДЗ / смысл</strong>
+                            Если S лежит в плоскости α, то расстояние равно 0. Если S вне α, нужно найти именно длину перпендикуляра.
+                        </div>
+
+                        <div class="step-list" id="stepList"></div>
+
+                        <div class="accent-bar" aria-hidden="true"></div>
+
+                        <div class="subgrid cols-2" style="margin-top:12px;">
+                            <div class="takeaway-box">
+                                <strong>Идея решения</strong>
+                                Не ищи «удобный» отрезок. Сначала найди, куда падает высота, и только потом выражай длину SH.
+                            </div>
+                            <div class="takeaway-box">
+                                <strong>Проверка</strong>
+                                Искомое расстояние обязано быть не больше любой наклонной от S к точкам плоскости.
+                            </div>
+                        </div>
+
+                        <details class="hint border-glow" open>
+                            <summary>Мини-подсказка: как понять, что найден именно перпендикуляр?</summary>
+                            <div class="hint-body">
+                                Нужно обосновать прямой угол с двумя пересекающимися прямыми плоскости или опираться на явное условие задачи.
+                            </div>
+                        </details>
+                        <details class="hint">
+                            <summary>Почему нельзя брать боковое ребро как расстояние?</summary>
+                            <div class="hint-body">
+                                Потому что боковое ребро в общем случае наклонено к основанию. Расстояние идёт только по кратчайшему пути — по перпендикуляру.
+                            </div>
+                        </details>
+                        <details class="hint">
+                            <summary>Когда полезен координатный метод?</summary>
+                            <div class="hint-body">
+                                Когда вершины удобно задать координатами и быстро записать уравнение плоскости основания или грани.
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="tab-panel" data-tab-panel="algebra">
+                        <div class="subgrid">
+                            <div class="formula-box">
+                                <strong>Алгебраический путь</strong>
+                                Если плоскость задана уравнением ax + by + cz + d = 0, а S(x₀, y₀, z₀), то
+                                <div class="formula" style="margin-top:8px;">d = |ax₀ + by₀ + cz₀ + d| / √(a² + b² + c²)</div>
+                            </div>
+                            <div class="note-box">
+                                <strong>Когда удобно</strong>
+                                Когда чертёж сложный, а координаты — простые. Метод снимает часть пространственных ловушек.
+                            </div>
+                            <div class="takeaway-box">
+                                <strong>Осторожно</strong>
+                                Эта формула даёт расстояние до всей плоскости, а не автоматически до ограниченной грани.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" data-tab-panel="graphic">
+                        <div class="subgrid">
+                            <div class="formula-box">
+                                <strong>Графический взгляд</strong>
+                                На хорошем чертеже должны чётко читаться:
+                                <div style="margin-top:8px;">
+                                    1) вершина S вне основания;<br>
+                                    2) плоскость α;<br>
+                                    3) основание H перпендикуляра;<br>
+                                    4) наклонная, чтобы сравнить её с высотой.
+                                </div>
+                            </div>
+                            <div class="note-box">
+                                <strong>Что важно увидеть</strong>
+                                SH — это кратчайший путь от S к плоскости. Любая другая связь с точкой основания длиннее или равна SH.
+                            </div>
+                            <div class="takeaway-box">
+                                <strong>Приём</strong>
+                                Сначала дострой высоту к плоскости, потом ищи прямоугольные треугольники, где она участвует.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <aside class="sticky-col">
+                    <div class="scene-shell">
+                        <div class="card card-tight">
+                            <div class="section-title">
+                                <div>
+                                    <h2>Изометрическая пирамида</h2>
+                                    <div class="section-subtitle">
+                                        Крути мышкой: зажатие и движение вращают пирамиду. Колёсико меняет масштаб. Клик открывает крупный режим.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="scene-toolbar">
+                                <div class="scene-toolbar-left">
+                                    <div class="range-wrap" title="Масштаб">
+                                        <label class="sr-only" for="zoomRange">Масштаб</label>
+                                        <span>Zoom</span>
+                                        <input id="zoomRange" type="range" min="60" max="220" value="100">
+                                        <span class="range-val" id="zoomValue">100%</span>
+                                    </div>
+                                    <button class="icon-btn" id="zoomInBtn" type="button" aria-label="Увеличить">+</button>
+                                    <button class="icon-btn" id="zoomOutBtn" type="button" aria-label="Уменьшить">−</button>
+                                    <button class="btn btn-soft" id="resetViewBtn" type="button">Сброс</button>
+                                </div>
+                                <div class="scene-toolbar-right">
+                                    <button class="mini-btn is-active" data-toggle-key="showPlane" type="button">Основание</button>
+                                    <button class="mini-btn is-active" data-toggle-key="showDashed" type="button">Скрытые линии</button>
+                                    <button class="mini-btn is-active" data-toggle-key="showLabels" type="button">Обозначения</button>
+                                    <button class="mini-btn is-active" data-toggle-key="showAlt" type="button">Высота SH</button>
+                                </div>
+                            </div>
+
+                            <div id="sceneSurface" class="scene-surface hint-anchor-pulse" tabindex="0" aria-label="Интерактивная изометрическая пирамида">
+                                <svg id="mainScene" width="100%" height="100%" viewBox="0 0 820 620" role="img" aria-label="Изометрическая пирамида с высотой к плоскости основания">
+                                    <g id="sceneRoot"></g>
+                                </svg>
+                                <div class="scene-hint-strip">
+                                    <div class="scene-hint-chip">Drag — вращение</div>
+                                    <div class="scene-hint-chip">Shift + Drag — сдвиг</div>
+                                    <div class="scene-hint-chip">Wheel — zoom</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="legend">
+                            <div class="legend-row">
+                                <div class="legend-swatch" style="background:rgba(215,38,56,.16)"></div>
+                                <div>Плоскость основания α</div>
+                            </div>
+                            <div class="legend-row">
+                                <div class="legend-swatch" style="background:var(--accent)"></div>
+                                <div>Искомое расстояние SH</div>
+                            </div>
+                            <div class="legend-row">
+                                <div class="legend-swatch" style="background:var(--accent-2)"></div>
+                                <div>Наклонная SA</div>
+                            </div>
+                            <div class="legend-row">
+                                <div class="legend-swatch" style="background:var(--bg-elev)"></div>
+                                <div>Основание перпендикуляра H</div>
+                            </div>
+                        </div>
+
+                        <div class="status-box" aria-live="polite">
+                            <strong>Статус модели</strong>
+                            <div class="status-metric"><span>Активный шаг</span><span id="statusStep">1 / 8</span></div>
+                            <div class="status-metric"><span>Искомый объект</span><span id="statusObject">SH</span></div>
+                            <div class="status-metric"><span>Режим</span><span id="statusMode">Разбор</span></div>
+                            <div class="status-metric"><span>Поворот</span><span id="statusAngles">yaw 36° · pitch -22°</span></div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <section class="mode-panel" id="mode-visual">
+            <div class="two-col">
+                <div class="card">
+                    <div class="section-title">
+                        <div>
+                            <h2>Как читать пространственный рисунок</h2>
+                            <div class="section-subtitle">Здесь не считаем, а учимся правильно видеть объект.</div>
+                        </div>
+                    </div>
+                    <div class="tips-grid">
+                        <article>
+                            <h3>1. Сначала выдели плоскость</h3>
+                            <p>Нужно понять, какая грань или основание играет роль плоскости α.</p>
+                        </article>
+                        <article>
+                            <h3>2. Затем выдели точку вне плоскости</h3>
+                            <p>Обычно это вершина пирамиды S.</p>
+                        </article>
+                        <article>
+                            <h3>3. После этого ищи высоту</h3>
+                            <p>SH — единственный кандидат на расстояние от точки до плоскости.</p>
+                        </article>
+                        <article>
+                            <h3>4. Потом сравни с наклонной</h3>
+                            <p>Наклонная SA помогает понять, почему высота короче.</p>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">
+                        <div>
+                            <h2>Визуальные ориентиры</h2>
+                            <div class="section-subtitle">Наведи на пункт — соответствующий объект на пирамиде подсветится.</div>
+                        </div>
+                    </div>
+                    <div class="step-list" id="visualGuideList"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mode-panel" id="mode-mistakes">
+            <div class="card">
+                <div class="section-title">
+                    <div>
+                        <h2>Типичные ошибки</h2>
+                        <div class="section-subtitle">Это именно те ловушки, которые чаще всего ломают решение.</div>
+                    </div>
+                </div>
+                <div class="tips-grid">
+                    <article data-highlight-target="SA">
+                        <h3>Ошибка 1. Берут наклонную вместо высоты</h3>
+                        <p>SA может быть красивым отрезком, но расстоянием оно становится только если перпендикулярно плоскости.</p>
+                    </article>
+                    <article data-highlight-target="H">
+                        <h3>Ошибка 2. Вообще не ищут точку H</h3>
+                        <p>Тогда теряется прямой угол и неясно, какой именно треугольник использовать.</p>
+                    </article>
+                    <article data-highlight-target="plane">
+                        <h3>Ошибка 3. Путают плоскость с её ребром</h3>
+                        <p>Расстояние до плоскости — не то же самое, что расстояние до стороны основания.</p>
+                    </article>
+                    <article data-highlight-target="rightAngle">
+                        <h3>Ошибка 4. Прямой угол просто «видят» на рисунке</h3>
+                        <p>В пространстве рисунок условен. Прямой угол нужно обосновать.</p>
+                    </article>
+                    <article>
+                        <h3>Ошибка 5. В координатах забывают модуль</h3>
+                        <p>В формуле расстояния от точки до плоскости модуль обязателен.</p>
+                    </article>
+                    <article>
+                        <h3>Ошибка 6. Не проверяют смысл ответа</h3>
+                        <p>Высота не должна превышать наклонную, если наклонная является гипотенузой соответствующего треугольника.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="mode-panel" id="mode-selfcheck">
+            <div class="card">
+                <div class="section-title">
+                    <div>
+                        <h2>Самопроверка решения</h2>
+                        <div class="section-subtitle">Быстрый чек-лист перед финальным ответом.</div>
+                    </div>
+                </div>
+                <div class="memo-grid">
+                    <div class="mini-panel"><strong>Шаг 1</strong>Я точно указал нужную плоскость?</div>
+                    <div class="mini-panel"><strong>Шаг 2</strong>Я нашёл основание перпендикуляра H?</div>
+                    <div class="mini-panel"><strong>Шаг 3</strong>Искомый отрезок действительно перпендикулярен плоскости?</div>
+                    <div class="mini-panel"><strong>Шаг 4</strong>Я использовал правильный треугольник или формулу?</div>
+                    <div class="mini-panel"><strong>Шаг 5</strong>Ответ разумен по величине?</div>
+                    <div class="mini-panel"><strong>Шаг 6</strong>Если был координатный метод, модуль и знаменатель не потерялись?</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mode-panel" id="mode-generator">
+            <div class="card">
+                <div class="section-title">
+                    <div>
+                        <h2>Генератор похожей задачи</h2>
+                        <div class="section-subtitle">Генерируется одна корректная задача того же логического типа.</div>
+                    </div>
+                </div>
+
+                <div class="generator-layout">
+                    <div class="mini-panel">
+                        <div class="field">
+                            <label for="genType">Тип логики</label>
+                            <select id="genType">
+                                <option value="pyramid">Геометрическая модель</option>
+                                <option value="coords">Координатная модель</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="genDifficulty">Уровень</label>
+                            <select id="genDifficulty">
+                                <option value="ege">ЕГЭ профиль</option>
+                                <option value="base">Проще</option>
+                                <option value="hard">Чуть сложнее</option>
+                            </select>
+                        </div>
+                        <div class="generator-controls">
+                            <button class="btn btn-accent" id="generateBtn" type="button">Сгенерировать</button>
+                            <button class="btn btn-soft" id="applyGeneratedBtn" type="button">Применить к сцене</button>
+                        </div>
+                        <p class="muted" style="margin:10px 0 0">
+                            Генератор исключает вырожденные случаи и подставляет корректную высоту в интерактивную пирамиду.
+                        </p>
+                    </div>
+
+                    <div class="gen-result" id="genResult">
+                        <div class="gen-block">
+                            <div class="mini-kicker">Условие</div>
+                            <div id="genStatement">Нажмите «Сгенерировать», чтобы получить новый вариант.</div>
+                        </div>
+                        <div class="gen-block">
+                            <div class="mini-kicker">Ответ</div>
+                            <div class="big-answer" id="genAnswer">—</div>
+                        </div>
+                        <div class="gen-block">
+                            <div class="mini-kicker">Краткая идея</div>
+                            <div id="genIdea">—</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mode-panel" id="mode-quiz">
+            <div class="card">
+                <div class="section-title">
+                    <div>
+                        <h2>Мини-квиз</h2>
+                        <div class="section-subtitle">Три вопроса на понимание идеи.</div>
+                    </div>
+                    <div class="quiz-controls">
+                        <button class="btn btn-soft" id="resetQuizBtn" type="button">Сбросить квиз</button>
+                    </div>
+                </div>
+                <div class="quiz-list" id="quizList"></div>
+                <div class="print-summary" style="margin-top:16px;">
+                    <strong>Зачем нужен этот режим</strong>
+                    Здесь проверяется не только вычисление, но и понимание: что именно называется расстоянием.
+                </div>
+            </div>
+        </section>
+
+        <section class="mode-panel" id="mode-memo">
+            <div class="card">
+                <div class="section-title">
+                    <div>
+                        <h2>Памятка</h2>
+                        <div class="section-subtitle">Короткие правила, формулы и алгоритм.</div>
+                    </div>
+                </div>
+
+                <div class="memo-grid">
+                    <div class="mini-panel">
+                        <strong>Определение</strong>
+                        Расстояние от точки до плоскости — длина перпендикуляра, опущенного из точки на плоскость.
+                    </div>
+                    <div class="mini-panel">
+                        <strong>Формула в координатах</strong>
+                        <div class="formula">d = |ax₀ + by₀ + cz₀ + d| / √(a² + b² + c²)</div>
+                    </div>
+                    <div class="mini-panel">
+                        <strong>Алгоритм</strong>
+                        <ol class="memo-list">
+                            <li>Выдели плоскость α.</li>
+                            <li>Найди основание H.</li>
+                            <li>Построй или распознай прямоугольный треугольник.</li>
+                            <li>Найди SH.</li>
+                        </ol>
+                    </div>
+                    <div class="mini-panel">
+                        <strong>Критерий</strong>
+                        Искомый отрезок обязан быть перпендикулярен плоскости, а не просто идти к ней.
+                    </div>
+                    <div class="mini-panel">
+                        <strong>Типичные ошибки</strong>
+                        <ul class="memo-list">
+                            <li>берут наклонную вместо высоты;</li>
+                            <li>не обосновывают прямой угол;</li>
+                            <li>путают расстояние до плоскости и до прямой;</li>
+                            <li>забывают модуль.</li>
+                        </ul>
+                    </div>
+                    <div class="mini-panel">
+                        <strong>Проверка</strong>
+                        Высота — кратчайший путь. Она не может быть длиннее соответствующей наклонной.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mode-panel" id="mode-final">
+            <div class="card">
+                <div class="section-title">
+                    <div>
+                        <h2>Итог</h2>
+                        <div class="section-subtitle">Финальная сборка смысла в коротком виде.</div>
+                    </div>
+                </div>
+
+                <div class="summary-grid">
+                    <div class="summary-tile">
+                        <h3>Что помнить</h3>
+                        <p>Расстояние от точки до плоскости — это только перпендикуляр, а не любой соединяющий отрезок.</p>
+                    </div>
+                    <div class="summary-tile">
+                        <h3>Что делать в задаче</h3>
+                        <p>Сначала найди основание H, затем ищи SH геометрически или аналитически.</p>
+                    </div>
+                    <div class="summary-tile">
+                        <h3>Как проверять</h3>
+                        <p>Высота должна быть кратчайшей. Если она получилась длиннее наклонной, решение ошибочно.</p>
+                    </div>
+                    <div class="summary-tile">
+                        <h3>Что часто спрашивают</h3>
+                        <p>Высота пирамиды, расстояние от вершины до основания, до грани, а также задачи в координатах.</p>
+                    </div>
+                </div>
+
+                <div class="print-summary">
+                    <strong>Печатный конспект</strong>
+                    1) Выдели плоскость. 2) Найди H. 3) Докажи перпендикуляр. 4) Найди SH. 5) Проверь смысл ответа.
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-tagline">МАТЕМАТИКА. НАГЛЯДНО</div>
+        <div class="footer-note">Один главный смысловой фокус, минимум визуального шума, максимум учебной пользы.</div>
+    </footer>
+</div>
+
+<div class="tooltip-layer" aria-hidden="true">
+    <div class="hint-pop" id="hint1" role="tooltip" data-hidden="true">
+        <div class="hint-pop-head">
+            <div class="hint-pop-title">Подсказка 1</div>
+            <button class="hint-pop-close" type="button" data-close-hint="hint1" aria-label="Закрыть">×</button>
+        </div>
+        <div class="hint-pop-copy">Верхняя шапка — главный переключатель режимов. Генератор, квиз и памятка не спрятаны внизу страницы.</div>
+    </div>
+    <div class="hint-pop" id="hint2" role="tooltip" data-hidden="true">
+        <div class="hint-pop-head">
+            <div class="hint-pop-title">Подсказка 2</div>
+            <button class="hint-pop-close" type="button" data-close-hint="hint2" aria-label="Закрыть">×</button>
+        </div>
+        <div class="hint-pop-copy">Наведи на шаг решения — на пирамиде подсветится нужный объект. Так не теряется связь текста и рисунка.</div>
+    </div>
+    <div class="hint-pop" id="hint3" role="tooltip" data-hidden="true">
+        <div class="hint-pop-head">
+            <div class="hint-pop-title">Подсказка 3</div>
+            <button class="hint-pop-close" type="button" data-close-hint="hint3" aria-label="Закрыть">×</button>
+        </div>
+        <div class="hint-pop-copy">В интерактивном блоке можно крутить пирамиду мышкой. Это не псевдосдвиг плоскости, а настоящий поворот 3D-модели с проекцией.</div>
+    </div>
+</div>
+
+<div class="modal" id="sceneModal" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-head">
+            <div>
+                <div class="modal-title" id="modalTitle">Крупная интерактивная пирамида</div>
+                <div class="muted">Те же поворот, масштаб и подсветка, что и в основном окне.</div>
+            </div>
+            <button class="close-btn" id="closeModalBtn" type="button" aria-label="Закрыть">×</button>
+        </div>
+
+        <div class="scene-toolbar">
+            <div class="scene-toolbar-left">
+                <div class="range-wrap">
+                    <label class="sr-only" for="zoomRangeModal">Масштаб</label>
+                    <span>Zoom</span>
+                    <input id="zoomRangeModal" type="range" min="60" max="220" value="100">
+                    <span class="range-val" id="zoomValueModal">100%</span>
+                </div>
+                <button class="icon-btn" id="zoomInModalBtn" type="button" aria-label="Увеличить">+</button>
+                <button class="icon-btn" id="zoomOutModalBtn" type="button" aria-label="Уменьшить">−</button>
+                <button class="btn btn-soft" id="resetViewModalBtn" type="button">Сброс</button>
+            </div>
+            <div class="scene-toolbar-right">
+                <button class="mini-btn is-active" data-toggle-key="showPlane" type="button">Основание</button>
+                <button class="mini-btn is-active" data-toggle-key="showDashed" type="button">Скрытые линии</button>
+                <button class="mini-btn is-active" data-toggle-key="showLabels" type="button">Обозначения</button>
+                <button class="mini-btn is-active" data-toggle-key="showAlt" type="button">Высота SH</button>
+            </div>
+        </div>
+
+        <div id="sceneSurfaceModal" class="scene-surface" tabindex="0" style="min-height:min(74vh,760px)" aria-label="Крупная интерактивная 3D-пирамида">
+            <svg id="modalScene" width="100%" height="100%" viewBox="0 0 1040 760" role="img" aria-label="Увеличенная интерактивная пирамида">
+                <g id="modalSceneRoot"></g>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<script>
+    (() => {
+        "use strict";
+
+        const STORAGE_KEYS = {
+            theme: "stereo-distance-theme",
+            hintsSeen: "stereo-distance-hints-seen"
+        };
+
+        const appState = {
+            theme: "light",
+            activeTopMode: "analysis",
+            activeTab: "core",
+            activeStep: 0,
+            stepRevealMode: "single",
+            detailLevel: "high",
+            modalState: { open: false },
+            viewportState: { zoom: 1, panX: 0, panY: 0 },
+            zoomState: 1,
+            panState: { x: 0, y: 0 },
+            orientationState: { yaw: 0.63, pitch: -0.38 },
+            generatorState: { current: null, appliedHeightScale: 1 },
+            quizState: { answers: {}, checked: {} },
+            visibilityTogglesState: {
+                showPlane: true,
+                showDashed: true,
+                showLabels: true,
+                showAlt: true
+            },
+            highlightTarget: null
+        };
+
+        const stepData = [
+            {
+                title: "Что дано",
+                tag: "старт",
+                meaning: "видим вершину S и плоскость α",
+                target: ["S", "plane"],
+                short: "Фиксируем вершину S вне плоскости основания α.",
+                full: `
+            <p><strong>Дано:</strong> вершина <strong>S</strong> расположена вне плоскости основания <strong>α</strong>. На рисунке удобно видеть пирамиду с основанием в плоскости α.</p>
+            <p>Первый шаг — не вычислять, а правильно распознать объекты: где плоскость, где вершина, где возможная высота.</p>
+          `
+            },
+            {
+                title: "Что нужно найти",
+                tag: "цель",
+                meaning: "ищем перпендикуляр SH",
+                target: ["SH"],
+                short: "Нужно найти d(S, α) = SH.",
+                full: `
+            <p>Искомое расстояние от точки <strong>S</strong> до плоскости <strong>α</strong> — это длина отрезка <strong>SH</strong>, где <strong>H</strong> — основание перпендикуляра.</p>
+            <div class="formula-box" style="margin-top:10px;">
+              <strong>Запись</strong>
+              <div class="formula">d(S, α) = SH</div>
+            </div>
+          `
+            },
+            {
+                title: "Смысл условия",
+                tag: "смысл",
+                meaning: "нужно найти точку H",
+                target: ["H", "SH"],
+                short: "Точка H — место, где высота из S касается плоскости α.",
+                full: `
+            <p>Самое важное здесь — найти или распознать точку <strong>H</strong> на плоскости <strong>α</strong>, такую что <strong>SH ⟂ α</strong>.</p>
+            <p>После этого задача сводится к вычислению длины SH.</p>
+          `
+            },
+            {
+                title: "Интерпретация",
+                tag: "видим фигуру",
+                meaning: "SA — наклонная, SH — кратчайший путь",
+                target: ["SA", "SH"],
+                short: "Наклонная SA не равна расстоянию; расстояние даёт только SH.",
+                full: `
+            <p>Отрезок <strong>SA</strong> может соединять вершину с точкой основания, но это обычно <strong>наклонная</strong>, а не расстояние до плоскости.</p>
+            <p>Высота <strong>SH</strong> — кратчайший путь от точки S к плоскости α, поэтому именно она и является расстоянием.</p>
+          `
+            },
+            {
+                title: "Идея решения",
+                tag: "ядро",
+                meaning: "нужно встроить SH в прямоугольный треугольник",
+                target: ["triangle", "SH", "SA"],
+                short: "Находим треугольник, в котором SH — катет.",
+                full: `
+            <p>После построения высоты <strong>SH</strong> нужно найти прямоугольный треугольник, где эта высота участвует как катет.</p>
+            <p>Часто это треугольник <strong>SHA</strong>. Тогда, если известны <strong>SA</strong> и <strong>AH</strong>, можно использовать теорему Пифагора.</p>
+            <div class="formula-box" style="margin-top:10px;">
+              <strong>Типовая схема</strong>
+              <div class="formula">SH = √(SA² − AH²)</div>
+            </div>
+          `
+            },
+            {
+                title: "Пошаговое решение",
+                tag: "вычисление",
+                meaning: "вычисляем SH по Пифагору",
+                target: ["triangle", "rightAngle", "SH"],
+                short: "Используем прямоугольный треугольник SHA.",
+                full: `
+            <p>Предположим, что известны <strong>SA = 13</strong> и <strong>AH = 5</strong>.</p>
+            <p>Тогда в прямоугольном треугольнике <strong>SHA</strong>:</p>
+            <div class="formula-box" style="margin-top:10px;">
+              <div class="formula">SH = √(13² − 5²) = √(169 − 25) = √144 = 12</div>
+            </div>
+            <p>Следовательно, расстояние от точки S до плоскости α равно <strong>12</strong>.</p>
+          `
+            },
+            {
+                title: "Проверка",
+                tag: "контроль",
+                meaning: "высота короче наклонной",
+                target: ["SH", "SA"],
+                short: "SH = 12 меньше SA = 13, ответ правдоподобен.",
+                full: `
+            <p>Проверяем смысл: <strong>SH = 12</strong> меньше <strong>SA = 13</strong>. Это верно, потому что катет короче гипотенузы.</p>
+            <p>Значит, результат согласуется с геометрией.</p>
+          `
+            },
+            {
+                title: "Вывод",
+                tag: "финал",
+                meaning: "закрепляем универсальную схему",
+                target: ["SH", "plane", "S"],
+                short: "Расстояние от точки до плоскости — длина перпендикуляра.",
+                full: `
+            <p><strong>Вывод:</strong> в задачах на расстояние от точки до плоскости нужно не угадывать отрезок, а найти <strong>перпендикуляр</strong> к плоскости.</p>
+            <p>Дальше его длина выражается через свойства фигуры, прямоугольные треугольники или координатную формулу.</p>
+          `
+            }
+        ];
+
+        const visualGuideItems = [
+            { title: "Вершина S вне основания", target: ["S"] },
+            { title: "Плоскость основания α", target: ["plane"] },
+            { title: "Точка H — основание перпендикуляра", target: ["H"] },
+            { title: "Высота SH — искомое расстояние", target: ["SH"] },
+            { title: "Наклонная SA не равна расстоянию", target: ["SA"] },
+            { title: "Прямой угол при H нужно обосновать", target: ["rightAngle"] }
+        ];
+
+        const quizData = [
+            {
+                id: "q1",
+                question: "Какой отрезок является расстоянием от точки S до плоскости α?",
+                options: [
+                    "Любой отрезок из S к точке плоскости",
+                    "Перпендикуляр из S к плоскости",
+                    "Боковое ребро пирамиды",
+                    "Самый длинный отрезок внутри рисунка"
+                ],
+                correct: 1,
+                explain: "Расстояние от точки до плоскости — это именно длина перпендикуляра."
+            },
+            {
+                id: "q2",
+                question: "В прямоугольном треугольнике SHA: SA = 10, AH = 6. Чему равно SH?",
+                options: ["4", "8", "16", "√136"],
+                correct: 1,
+                explain: "SH = √(10² − 6²) = √(100 − 36) = √64 = 8."
+            },
+            {
+                id: "q3",
+                question: "Какая ошибка встречается чаще всего?",
+                options: [
+                    "Слишком маленький рисунок",
+                    "Путают наклонную с перпендикуляром к плоскости",
+                    "Ставят лишнюю точку в обозначении",
+                    "Пишут ответ без слова «см»"
+                ],
+                correct: 1,
+                explain: "Чаще всего берут наклонную вместо истинного расстояния до плоскости."
+            }
+        ];
+
+        const dom = {
+            body: document.body,
+            themeToggle: document.getElementById("themeToggle"),
+            printBtn: document.getElementById("printBtn"),
+            jumpToModeMemo: document.getElementById("jumpToModeMemo"),
+            modeButtons: [...document.querySelectorAll(".mode-chip")],
+            modePanels: {
+                analysis: document.getElementById("mode-analysis"),
+                visual: document.getElementById("mode-visual"),
+                mistakes: document.getElementById("mode-mistakes"),
+                selfcheck: document.getElementById("mode-selfcheck"),
+                generator: document.getElementById("mode-generator"),
+                quiz: document.getElementById("mode-quiz"),
+                memo: document.getElementById("mode-memo"),
+                final: document.getElementById("mode-final")
+            },
+            tabs: [...document.querySelectorAll(".tab-btn")],
+            tabPanels: [...document.querySelectorAll(".tab-panel")],
+            stepList: document.getElementById("stepList"),
+            visualGuideList: document.getElementById("visualGuideList"),
+            stepModeSingle: document.getElementById("stepModeSingle"),
+            stepModeAll: document.getElementById("stepModeAll"),
+            detailButtons: [...document.querySelectorAll("[data-detail]")],
+            sceneSurface: document.getElementById("sceneSurface"),
+            sceneSurfaceModal: document.getElementById("sceneSurfaceModal"),
+            mainSceneRoot: document.getElementById("sceneRoot"),
+            modalSceneRoot: document.getElementById("modalSceneRoot"),
+            zoomRange: document.getElementById("zoomRange"),
+            zoomRangeModal: document.getElementById("zoomRangeModal"),
+            zoomValue: document.getElementById("zoomValue"),
+            zoomValueModal: document.getElementById("zoomValueModal"),
+            zoomInBtn: document.getElementById("zoomInBtn"),
+            zoomOutBtn: document.getElementById("zoomOutBtn"),
+            zoomInModalBtn: document.getElementById("zoomInModalBtn"),
+            zoomOutModalBtn: document.getElementById("zoomOutModalBtn"),
+            resetViewBtn: document.getElementById("resetViewBtn"),
+            resetViewModalBtn: document.getElementById("resetViewModalBtn"),
+            toggleButtons: [...document.querySelectorAll("[data-toggle-key]")],
+            statusStep: document.getElementById("statusStep"),
+            statusObject: document.getElementById("statusObject"),
+            statusMode: document.getElementById("statusMode"),
+            statusAngles: document.getElementById("statusAngles"),
+            sceneModal: document.getElementById("sceneModal"),
+            closeModalBtn: document.getElementById("closeModalBtn"),
+            quizList: document.getElementById("quizList"),
+            resetQuizBtn: document.getElementById("resetQuizBtn"),
+            genType: document.getElementById("genType"),
+            genDifficulty: document.getElementById("genDifficulty"),
+            generateBtn: document.getElementById("generateBtn"),
+            applyGeneratedBtn: document.getElementById("applyGeneratedBtn"),
+            genStatement: document.getElementById("genStatement"),
+            genAnswer: document.getElementById("genAnswer"),
+            genIdea: document.getElementById("genIdea"),
+            hints: [
+                document.getElementById("hint1"),
+                document.getElementById("hint2"),
+                document.getElementById("hint3")
+            ]
+        };
+
+        function init() {
+            loadTheme();
+            renderSteps();
+            renderVisualGuide();
+            renderQuiz();
+            renderScene(dom.mainSceneRoot, false);
+            renderScene(dom.modalSceneRoot, true);
+            bindEvents();
+            updateUI();
+            showInitialHints();
+            generateNewTask();
+        }
+
+        function bindEvents() {
+            dom.themeToggle.addEventListener("click", toggleTheme);
+            dom.printBtn.addEventListener("click", () => window.print());
+            dom.jumpToModeMemo.addEventListener("click", () => setMode("memo"));
+
+            dom.modeButtons.forEach(btn => {
+                btn.addEventListener("click", () => setMode(btn.dataset.modeTarget));
+            });
+
+            dom.tabs.forEach(btn => {
+                btn.addEventListener("click", () => setTab(btn.dataset.tabTarget));
+            });
+
+            dom.stepModeSingle.addEventListener("click", () => setStepRevealMode("single"));
+            dom.stepModeAll.addEventListener("click", () => setStepRevealMode("all"));
+
+            dom.detailButtons.forEach(btn => {
+                btn.addEventListener("click", () => setDetailLevel(btn.dataset.detail));
+            });
+
+            dom.zoomRange.addEventListener("input", e => setZoom(Number(e.target.value) / 100));
+            dom.zoomRangeModal.addEventListener("input", e => setZoom(Number(e.target.value) / 100));
+
+            dom.zoomInBtn.addEventListener("click", () => adjustZoom(.1));
+            dom.zoomOutBtn.addEventListener("click", () => adjustZoom(-.1));
+            dom.zoomInModalBtn.addEventListener("click", () => adjustZoom(.1));
+            dom.zoomOutModalBtn.addEventListener("click", () => adjustZoom(-.1));
+
+            dom.resetViewBtn.addEventListener("click", resetView);
+            dom.resetViewModalBtn.addEventListener("click", resetView);
+
+            dom.toggleButtons.forEach(btn => {
+                btn.addEventListener("click", () => toggleVisibility(btn.dataset.toggleKey));
+            });
+
+            setupSceneInteractions(dom.sceneSurface, false);
+            setupSceneInteractions(dom.sceneSurfaceModal, true);
+
+            dom.closeModalBtn.addEventListener("click", closeModal);
+            dom.sceneModal.addEventListener("click", e => {
+                if (e.target === dom.sceneModal) closeModal();
+            });
+
+            document.addEventListener("keydown", e => {
+                if (e.key === "Escape") {
+                    closeModal();
+                    hideAllHints();
+                }
+                if (appState.activeTopMode === "analysis") {
+                    if (e.key === "ArrowRight") setActiveStep(Math.min(stepData.length - 1, appState.activeStep + 1));
+                    if (e.key === "ArrowLeft") setActiveStep(Math.max(0, appState.activeStep - 1));
+                }
+            });
+
+            dom.generateBtn.addEventListener("click", generateNewTask);
+            dom.applyGeneratedBtn.addEventListener("click", applyGeneratedTaskToScene);
+            dom.resetQuizBtn.addEventListener("click", resetQuiz);
+
+            document.querySelectorAll("[data-close-hint]").forEach(btn => {
+                btn.addEventListener("click", () => hideHint(btn.dataset.closeHint));
+            });
+
+            document.addEventListener("click", e => {
+                const insideHint = e.target.closest(".hint-pop");
+                const hintAnchor = e.target.closest(".mode-nav, .scene-surface, #stepList");
+                if (!insideHint && !hintAnchor) hideAllHints();
+            });
+
+            document.querySelectorAll("[data-highlight-target]").forEach(el => {
+                el.addEventListener("mouseenter", () => setHighlight(el.dataset.highlightTarget));
+                el.addEventListener("mouseleave", clearHighlight);
+            });
+        }
+
+        function loadTheme() {
+            const saved = localStorage.getItem(STORAGE_KEYS.theme);
+            appState.theme = saved === "dark" ? "dark" : "light";
+            applyTheme();
+        }
+
+        function applyTheme() {
+            document.documentElement.setAttribute("data-theme", appState.theme);
+            localStorage.setItem(STORAGE_KEYS.theme, appState.theme);
+        }
+
+        function toggleTheme() {
+            appState.theme = appState.theme === "light" ? "dark" : "light";
+            applyTheme();
+            renderScene(dom.mainSceneRoot, false);
+            renderScene(dom.modalSceneRoot, true);
+        }
+
+        function setMode(mode) {
+            appState.activeTopMode = mode;
+            updateModeUI();
+            const labelMap = {
+                analysis: "Разбор",
+                visual: "Визуализация",
+                mistakes: "Ошибки",
+                selfcheck: "Самопроверка",
+                generator: "Генератор",
+                quiz: "Квиз",
+                memo: "Памятка",
+                final: "Итог"
+            };
+            dom.statusMode.textContent = labelMap[mode] || "Разбор";
+            positionHints();
+        }
+
+        function setTab(tab) {
+            appState.activeTab = tab;
+            dom.tabs.forEach(btn => btn.classList.toggle("is-active", btn.dataset.tabTarget === tab));
+            dom.tabPanels.forEach(panel => panel.classList.toggle("is-active", panel.dataset.tabPanel === tab));
+        }
+
+        function setStepRevealMode(mode) {
+            appState.stepRevealMode = mode;
+            dom.stepModeSingle.classList.toggle("is-active", mode === "single");
+            dom.stepModeAll.classList.toggle("is-active", mode === "all");
+            updateStepCards();
+        }
+
+        function setDetailLevel(level) {
+            appState.detailLevel = level;
+            dom.detailButtons.forEach(btn => btn.classList.toggle("is-active", btn.dataset.detail === level));
+            renderSteps();
+        }
+
+        function setActiveStep(index) {
+            appState.activeStep = index;
+            updateStepCards();
+            updateStatus();
+            renderScene(dom.mainSceneRoot, false);
+            renderScene(dom.modalSceneRoot, true);
+        }
+
+        function setZoom(value) {
+            const clamped = clamp(value, .6, 2.2);
+            appState.zoomState = clamped;
+            appState.viewportState.zoom = clamped;
+            updateZoomUI();
+            renderScene(dom.mainSceneRoot, false);
+            renderScene(dom.modalSceneRoot, true);
+        }
+
+        function adjustZoom(delta) {
+            setZoom(appState.zoomState + delta);
+        }
+
+        function resetView() {
+            appState.zoomState = 1;
+            appState.viewportState.zoom = 1;
+            appState.panState.x = 0;
+            appState.panState.y = 0;
+            appState.viewportState.panX = 0;
+            appState.viewportState.panY = 0;
+            appState.orientationState.yaw = 0.63;
+            appState.orientationState.pitch = -0.38;
+            updateZoomUI();
+            updateStatus();
+            renderScene(dom.mainSceneRoot, false);
+            renderScene(dom.modalSceneRoot, true);
+        }
+
+        function toggleVisibility(key) {
+            appState.visibilityTogglesState[key] = !appState.visibilityTogglesState[key];
+            updateToggleButtons();
+            renderScene(dom.mainSceneRoot, false);
+            renderScene(dom.modalSceneRoot, true);
+        }
+
+        function setHighlight(target) {
+            appState.highlightTarget = target;
+            renderScene(dom.mainSceneRoot, false);
+            renderScene(dom.modalSceneRoot, true);
+        }
+
+        function clearHighlight() {
+            appState.highlightTarget = null;
+            renderScene(dom.mainSceneRoot, false);
+            renderScene(dom.modalSceneRoot, true);
+        }
+
+        function updateUI() {
+            updateModeUI();
+            updateZoomUI();
+            updateToggleButtons();
+            updateStatus();
+        }
+
+        function updateModeUI() {
+            dom.modeButtons.forEach(btn => {
+                btn.classList.toggle("is-active", btn.dataset.modeTarget === appState.activeTopMode);
+            });
+            Object.entries(dom.modePanels).forEach(([key, panel]) => {
+                panel.classList.toggle("is-active", key === appState.activeTopMode);
+            });
+        }
+
+        function updateZoomUI() {
+            const percent = Math.round(appState.zoomState * 100);
+            dom.zoomRange.value = String(percent);
+            dom.zoomRangeModal.value = String(percent);
+            dom.zoomValue.textContent = percent + "%";
+            dom.zoomValueModal.textContent = percent + "%";
+        }
+
+        function updateToggleButtons() {
+            dom.toggleButtons.forEach(btn => {
+                const key = btn.dataset.toggleKey;
+                btn.classList.toggle("is-active", !!appState.visibilityTogglesState[key]);
+            });
+        }
+
+        function updateStatus() {
+            const step = stepData[appState.activeStep];
+            dom.statusStep.textContent = `${appState.activeStep + 1} / ${stepData.length}`;
+            dom.statusObject.textContent = step.target.join(", ");
+            dom.statusAngles.textContent =
+            `yaw ${Math.round(radToDeg(appState.orientationState.yaw))}° · pitch ${Math.round(radToDeg(appState.orientationState.pitch))}°`;
+        }
+
+        function renderSteps() {
+            dom.stepList.innerHTML = "";
+            stepData.forEach((step, index) => {
+                const article = document.createElement("article");
+                article.className = "step-card";
+                article.tabIndex = 0;
+
+                const bodyContent = appState.detailLevel === "compact" ? `<p>${step.short}</p>` : step.full;
+
+                article.innerHTML = `
+            <div class="step-head">
+              <div class="step-index">${index + 1}</div>
+              <div>
+                <div class="step-title">${step.title}</div>
+                <div class="step-tag">${step.tag}</div>
+              </div>
+              <div class="muted" aria-hidden="true">↔</div>
+            </div>
+            <div class="step-body">${bodyContent}</div>
+          `;
+
+                article.addEventListener("click", () => setActiveStep(index));
+                article.addEventListener("keydown", e => {
+                    if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setActiveStep(index);
+                    }
+                });
+                article.addEventListener("mouseenter", () => setHighlight(step.target[0]));
+                article.addEventListener("mouseleave", clearHighlight);
+
+                dom.stepList.appendChild(article);
+            });
+            updateStepCards();
+        }
+
+        function updateStepCards() {
+            const cards = [...dom.stepList.querySelectorAll(".step-card")];
+            cards.forEach((card, index) => {
+                const active = index === appState.activeStep;
+                const open = appState.stepRevealMode === "all" || active;
+                card.classList.toggle("is-active", active);
+                card.classList.toggle("is-open", open);
+                card.classList.toggle("is-complete", index < appState.activeStep);
+            });
+        }
+
+        function renderVisualGuide() {
+            dom.visualGuideList.innerHTML = "";
+            visualGuideItems.forEach(item => {
+                const card = document.createElement("article");
+                card.className = "step-card is-open";
+                card.innerHTML = `
+            <div class="step-head">
+              <div class="step-index">•</div>
+              <div>
+                <div class="step-title">${item.title}</div>
+                <div class="step-tag">ориентир</div>
+              </div>
+              <div class="muted" aria-hidden="true">◎</div>
+            </div>
+            <div class="step-body">
+              <p>Подсветка помогает быстро сопоставить текст и конкретный элемент 3D-модели.</p>
+            </div>
+          `;
+                card.addEventListener("mouseenter", () => setHighlight(item.target[0]));
+                card.addEventListener("mouseleave", clearHighlight);
+                dom.visualGuideList.appendChild(card);
+            });
+        }
+
+        function renderQuiz() {
+            dom.quizList.innerHTML = "";
+            quizData.forEach((q, i) => {
+                const wrap = document.createElement("div");
+                wrap.className = "quiz-item";
+                wrap.innerHTML = `
+            <div class="mini-kicker">Вопрос ${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-options">
+              ${q.options.map((opt, idx) => `
+                <button class="quiz-option" type="button" data-quiz-id="${q.id}" data-option-index="${idx}">${opt}</button>
+              `).join("")}
+            </div>
+            <div class="quiz-feedback" id="feedback-${q.id}"></div>
+          `;
+                dom.quizList.appendChild(wrap);
+            });
+
+            dom.quizList.querySelectorAll(".quiz-option").forEach(btn => {
+                btn.addEventListener("click", () => handleQuizAnswer(btn.dataset.quizId, Number(btn.dataset.optionIndex)));
+            });
+        }
+
+        function handleQuizAnswer(quizId, optionIndex) {
+            appState.quizState.answers[quizId] = optionIndex;
+            appState.quizState.checked[quizId] = true;
+            updateQuizUI(quizId);
+        }
+
+        function updateQuizUI(quizId) {
+            const q = quizData.find(item => item.id === quizId);
+            if (!q) return;
+            const selected = appState.quizState.answers[quizId];
+            const feedback = document.getElementById(`feedback-${quizId}`);
+            const buttons = dom.quizList.querySelectorAll(`[data-quiz-id="${quizId}"]`);
+
+            buttons.forEach(btn => {
+                const idx = Number(btn.dataset.optionIndex);
+                btn.classList.remove("is-selected", "is-correct", "is-wrong");
+                if (idx === selected) btn.classList.add("is-selected");
+                if (appState.quizState.checked[quizId]) {
+                    if (idx === q.correct) btn.classList.add("is-correct");
+                    if (idx === selected && selected !== q.correct) btn.classList.add("is-wrong");
+                }
+            });
+
+            const ok = selected === q.correct;
+            feedback.classList.add("is-visible");
+            feedback.innerHTML = `
+          <div class="scoreline">${ok ? "Верно." : "Пока нет."}</div>
+          <div style="margin-top:6px">${q.explain}</div>
+          <div style="margin-top:6px"><strong>Правильный ответ:</strong> ${q.options[q.correct]}</div>
+        `;
+        }
+
+        function resetQuiz() {
+            appState.quizState.answers = {};
+            appState.quizState.checked = {};
+            renderQuiz();
+        }
+
+        function generateNewTask() {
+            const type = dom.genType.value;
+            const difficulty = dom.genDifficulty.value;
+            const task = type === "pyramid" ? generatePyramidTask(difficulty) : generateCoordinateTask(difficulty);
+
+            appState.generatorState.current = task;
+            dom.genStatement.textContent = task.statement;
+            dom.genAnswer.textContent = task.answer;
+            dom.genIdea.textContent = task.idea;
+        }
+
+        function generatePyramidTask(difficulty) {
+            const presets = {
+                base: [{sa:10,ah:6},{sa:13,ah:5},{sa:17,ah:15}],
+                ege: [{sa:13,ah:5},{sa:15,ah:9},{sa:25,ah:7}],
+                hard: [{sa:26,ah:10},{sa:29,ah:21},{sa:41,ah:9}]
+            };
+            const chosen = pick(presets[difficulty] || presets.ege);
+            const h = Math.sqrt(chosen.sa * chosen.sa - chosen.ah * chosen.ah);
+
+            return {
+                type: "pyramid",
+                config: { height: h, sideToA: chosen.sa, projToA: chosen.ah },
+                statement: `В пирамиде вершина S находится над плоскостью основания α. Известно, что SA = ${chosen.sa}, AH = ${chosen.ah}, где H — основание перпендикуляра из S на α. Найдите расстояние от точки S до плоскости α.`,
+                answer: `${formatNumber(h)}`,
+                idea: `Рассмотреть прямоугольный треугольник SHA и применить теорему Пифагора: SH = √(SA² − AH²).`
+            };
+        }
+
+        function generateCoordinateTask(difficulty) {
+            const sets = {
+                base: [
+                    {plane:[0,0,1,-4],point:[2,-1,10]},
+                    {plane:[1,0,0,-3],point:[8,2,-4]}
+                ],
+                ege: [
+                    {plane:[2,-1,2,-7],point:[3,1,4]},
+                    {plane:[1,2,2,-9],point:[2,0,5]}
+                ],
+                hard: [
+                    {plane:[2,3,6,-12],point:[1,-1,5]},
+                    {plane:[4,-2,4,-8],point:[3,2,7]}
+                ]
+            };
+            const chosen = pick(sets[difficulty] || sets.ege);
+            const [a,b,c,d] = chosen.plane;
+            const [x0,y0,z0] = chosen.point;
+            const num = Math.abs(a*x0 + b*y0 + c*z0 + d);
+            const den = Math.sqrt(a*a + b*b + c*c);
+            const val = num / den;
+
+            return {
+                type: "coords",
+                config: { height: val },
+                statement: `В пространстве дана точка S(${x0}; ${y0}; ${z0}) и плоскость ${formatPlaneEquation(a,b,c,d)} = 0. Найдите расстояние от точки S до этой плоскости.`,
+                answer: `${formatFractionDistance(num, den, val)}`,
+                idea: `Использовать формулу расстояния от точки до плоскости: d = |ax₀ + by₀ + cz₀ + d| / √(a² + b² + c²).`
+            };
+        }
+
+        function applyGeneratedTaskToScene() {
+            const task = appState.generatorState.current;
+            if (!task) return;
+            const scale = task.type === "pyramid"
+            ? clamp(task.config.height / 16, .72, 1.7)
+            : clamp(task.config.height / 6, .72, 1.7);
+            appState.generatorState.appliedHeightScale = scale;
+            renderScene(dom.mainSceneRoot, false);
+            renderScene(dom.modalSceneRoot, true);
+            setMode("visual");
+        }
+
+        function formatPlaneEquation(a, b, c, d) {
+            return [
+                formatCoeff(a, "x"),
+                formatCoeff(b, "y", true),
+                formatCoeff(c, "z", true),
+                formatConst(d, true)
+            ].join(" ").replace(/\s+/g, " ").trim();
+        }
+
+        function formatCoeff(coeff, variable, signed = false) {
+            if (coeff === 0) return "";
+            const sign = coeff > 0 ? (signed ? "+" : "") : "−";
+            const abs = Math.abs(coeff);
+            const coeffText = abs === 1 ? "" : abs;
+            return `${sign}${coeffText}${variable}`;
+        }
+
+        function formatConst(value, signed = false) {
+            if (value === 0) return "";
+            const sign = value > 0 ? (signed ? "+" : "") : "−";
+            return `${sign}${Math.abs(value)}`;
+        }
+
+        function formatFractionDistance(num, den, value) {
+            if (Math.abs(value - Math.round(value)) < 1e-9) return String(Math.round(value));
+            const denSq = den * den;
+            if (Math.abs(denSq - Math.round(denSq)) < 1e-9) return `${num}/√${Math.round(denSq)}`;
+            return `${num}/${formatNumber(den)}`;
+        }
+
+        function pick(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function formatNumber(n) {
+            if (Math.abs(n - Math.round(n)) < 1e-9) return String(Math.round(n));
+            return n.toFixed(2).replace(".", ",");
+        }
+
+        function setupSceneInteractions(surface, isModal) {
+            const state = {
+                dragging: false,
+                moved: false,
+                lastX: 0,
+                lastY: 0,
+                mode: "rotate"
+            };
+
+            surface.addEventListener("pointerdown", e => {
+                state.dragging = true;
+                state.moved = false;
+                state.lastX = e.clientX;
+                state.lastY = e.clientY;
+                state.mode = e.shiftKey ? "pan" : "rotate";
+                surface.setPointerCapture(e.pointerId);
+            });
+
+            surface.addEventListener("pointermove", e => {
+                if (!state.dragging) return;
+                const dx = e.clientX - state.lastX;
+                const dy = e.clientY - state.lastY;
+                if (Math.abs(dx) > 1 || Math.abs(dy) > 1) state.moved = true;
+
+                if (state.mode === "pan") {
+                    appState.panState.x = clamp(appState.panState.x + dx, -260, 260);
+                    appState.panState.y = clamp(appState.panState.y + dy, -220, 220);
+                    appState.viewportState.panX = appState.panState.x;
+                    appState.viewportState.panY = appState.panState.y;
+                } else {
+                    appState.orientationState.yaw += dx * 0.0105;
+                    appState.orientationState.pitch += dy * 0.0085;
+                    appState.orientationState.pitch = clamp(appState.orientationState.pitch, -1.2, .15);
+                }
+
+                state.lastX = e.clientX;
+                state.lastY = e.clientY;
+                updateStatus();
+                renderScene(dom.mainSceneRoot, false);
+                renderScene(dom.modalSceneRoot, true);
+            });
+
+            surface.addEventListener("pointerup", e => {
+                state.dragging = false;
+                surface.releasePointerCapture(e.pointerId);
+                if (!isModal && !state.moved) openModal();
+            });
+
+            surface.addEventListener("pointerleave", () => {
+                state.dragging = false;
+            });
+
+            surface.addEventListener("wheel", e => {
+                e.preventDefault();
+                const delta = e.deltaY < 0 ? .08 : -.08;
+                setZoom(appState.zoomState + delta);
+            }, { passive:false });
+
+            surface.addEventListener("mouseenter", () => setHighlight("plane"));
+            surface.addEventListener("mouseleave", clearHighlight);
+        }
+
+        function renderScene(root, isModal) {
+            const width = isModal ? 1040 : 820;
+            const height = isModal ? 760 : 620;
+            const scene = buildPyramidScene(width, height, isModal);
+            root.innerHTML = scene;
+        }
+
+        function buildPyramidScene(width, height, isModal) {
+            const line = css("--line");
+            const accent = css("--accent");
+            const accent2 = css("--accent-2");
+            const bgElev = css("--bg-elev");
+            const bgSoft = css("--bg-soft");
+            const muted = css("--muted");
+
+            const showPlane = appState.visibilityTogglesState.showPlane;
+            const showDashed = appState.visibilityTogglesState.showDashed;
+            const showLabels = appState.visibilityTogglesState.showLabels;
+            const showAlt = appState.visibilityTogglesState.showAlt;
+
+            const highlight = appState.highlightTarget || stepData[appState.activeStep].target[0];
+            const planeFillA = appState.theme === "dark" ? "rgba(215,38,56,.10)" : "rgba(215,38,56,.08)";
+            const planeFillB = appState.theme === "dark" ? "rgba(243,201,75,.10)" : "rgba(243,201,75,.08)";
+            const hiddenStroke = appState.theme === "dark" ? "rgba(244,244,240,.38)" : "rgba(20,20,20,.28)";
+            const faceSideA = appState.theme === "dark" ? "rgba(255,255,255,.05)" : "rgba(20,20,20,.03)";
+            const faceSideB = appState.theme === "dark" ? "rgba(255,255,255,.08)" : "rgba(20,20,20,.05)";
+
+            const baseScale = (isModal ? 1.18 : 1) * appState.generatorState.appliedHeightScale;
+            const model = createModel(baseScale);
+            const camera = {
+                yaw: appState.orientationState.yaw,
+                pitch: appState.orientationState.pitch,
+                zoom: appState.zoomState * (isModal ? 1.06 : 1),
+                panX: appState.panState.x,
+                panY: appState.panState.y,
+                centerX: width * 0.52,
+                centerY: height * 0.58,
+                focal: isModal ? 920 : 780
+            };
+
+            const projected = {};
+            const transformed = {};
+            Object.keys(model.points).forEach(key => {
+                const p = model.points[key];
+                const r = rotatePoint(p, camera.yaw, camera.pitch);
+                transformed[key] = r;
+                projected[key] = projectPoint(r, camera);
+            });
+
+            const faces = [
+                { key:"planeA", points:["A","B","C"], fill:planeFillA, object:"plane", base:true },
+                { key:"planeB", points:["A","C","D"], fill:planeFillB, object:"plane", base:true },
+                { key:"faceSAB", points:["S","A","B"], fill:faceSideA, object:"triangle" },
+                { key:"faceSBC", points:["S","B","C"], fill:faceSideB, object:"triangle" },
+                { key:"faceSCD", points:["S","C","D"], fill:faceSideA, object:"triangle" },
+                { key:"faceSDA", points:["S","D","A"], fill:faceSideB, object:"triangle" }
+            ];
+
+            faces.sort((f1, f2) => {
+                const z1 = avgZ(f1.points.map(k => transformed[k]));
+                const z2 = avgZ(f2.points.map(k => transformed[k]));
+                return z1 - z2;
+            });
+
+            const edges = [
+                { a:"A", b:"B", key:"AB", obj:"plane" },
+                { a:"B", b:"C", key:"BC", obj:"plane" },
+                { a:"C", b:"D", key:"CD", obj:"plane" },
+                { a:"D", b:"A", key:"DA", obj:"plane" },
+                { a:"A", b:"C", key:"AC", obj:"plane" },
+                { a:"S", b:"A", key:"SA", obj:"SA" },
+                { a:"S", b:"B", key:"SB", obj:"triangle" },
+                { a:"S", b:"C", key:"SC", obj:"triangle" },
+                { a:"S", b:"D", key:"SD", obj:"triangle" },
+                { a:"S", b:"H", key:"SH", obj:"SH" },
+                { a:"A", b:"H", key:"AH", obj:"triangle" }
+            ];
+
+            const visibleMap = buildVisibleEdgeMap(faces);
+            let out = `<rect x="0" y="0" width="${width}" height="${height}" fill="${bgSoft}"></rect>`;
+
+            faces.forEach(face => {
+                if (!showPlane && face.base) return;
+                const pts = face.points.map(k => pointToAttr(projected[k])).join(" ");
+                const active = highlight === face.object;
+                out += `
+            <polygon
+              points="${pts}"
+              fill="${face.fill}"
+              stroke="${line}"
+              stroke-width="${active ? 4 : 2}"
+              opacity="${face.base && !showPlane ? 0 : 1}"
+            ></polygon>
+          `;
+            });
+
+            edges.forEach(edge => {
+                if (!showPlane && ["AB","BC","CD","DA","AC"].includes(edge.key)) return;
+                if (!showAlt && edge.key === "SH") return;
+
+                const visible = visibleMap[edge.key] ?? true;
+                if (!visible && !showDashed) return;
+
+                const p1 = projected[edge.a];
+                const p2 = projected[edge.b];
+                const active = highlight === edge.obj || (edge.key === "AH" && highlight === "triangle");
+                const isSH = edge.key === "SH";
+                const isSA = edge.key === "SA";
+
+                let stroke = line;
+                let widthStroke = 2.2;
+                let dash = "";
+
+                if (isSH) {
+                    stroke = accent;
+                    widthStroke = active ? 6 : 4.5;
+                } else if (isSA) {
+                    stroke = accent2;
+                    widthStroke = active ? 5 : 3.6;
+                } else if (active) {
+                    stroke = accent;
+                    widthStroke = 4;
+                }
+
+                if (!visible) {
+                    stroke = hiddenStroke;
+                    dash = `stroke-dasharray="8 8"`;
+                    if (isSH || isSA) {
+                        stroke = isSH ? accent : accent2;
+                        dash = `stroke-dasharray="9 7"`;
+                    }
+                }
+
+                out += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${stroke}" stroke-width="${widthStroke}" ${dash}></line>`;
+            });
+
+            if (showAlt) {
+                const H = projected.H;
+                const s = isModal ? 16 : 13;
+                out += `
+            <path d="M ${H.x} ${H.y} l ${s} 0 l 0 ${-s} l ${-s} 0 Z"
+              fill="none"
+              stroke="${highlight === "rightAngle" || highlight === "SH" || highlight === "triangle" ? accent : line}"
+              stroke-width="${highlight === "rightAngle" || highlight === "SH" || highlight === "triangle" ? 3 : 2}">
+            </path>
+          `;
+            }
+
+            ["A","B","C","D","H","S"].forEach(label => {
+                const p = projected[label];
+                const active = highlight === label || (label === "H" && highlight === "SH") || (label === "S" && (highlight === "SH" || highlight === "SA"));
+                const r = active ? 7 : 5;
+                const sw = active ? 4 : 2;
+                out += `<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${bgElev}" stroke="${line}" stroke-width="${sw}"></circle>`;
+                if (showLabels) {
+                    const offsets = {
+                        A:[12,16], B:[12,16], C:[12,-12], D:[-18,-10], H:[12,-12], S:[12,-12]
+                    };
+                    const [dx,dy] = offsets[label];
+                    out += `<text x="${p.x + dx}" y="${p.y + dy}" font-size="${isModal ? 18 : 15}" font-weight="800" fill="${line}">${label}</text>`;
+                }
+            });
+
+            if (showLabels) {
+                const alphaPos = centroid([projected.A, projected.B, projected.C, projected.D]);
+                out += `<text x="${alphaPos.x - 12}" y="${alphaPos.y + 18}" font-size="${isModal ? 24 : 19}" font-weight="900" fill="${highlight === "plane" ? accent : muted}">α</text>`;
+                out += `<text x="${(projected.S.x + projected.H.x)/2 + 16}" y="${(projected.S.y + projected.H.y)/2 - 8}" font-size="${isModal ? 18 : 14}" font-weight="800" fill="${accent}">SH</text>`;
+                out += `<text x="${(projected.S.x + projected.A.x)/2 + 10}" y="${(projected.S.y + projected.A.y)/2 - 12}" font-size="${isModal ? 18 : 14}" font-weight="800" fill="${accent2}">SA</text>`;
+            }
+
+            return out;
+        }
+
+        function createModel(scale) {
+            const base = 155;
+            const h = 240 * scale;
+            return {
+                points: {
+                    A:{x:-base,y:0,z:-base},
+                    B:{x: base,y:0,z:-base},
+                    C:{x: base,y:0,z: base},
+                    D:{x:-base,y:0,z: base},
+                    H:{x:0,y:0,z:0},
+                    S:{x:0,y:h,z:0}
+                }
+            };
+        }
+
+        function rotatePoint(p, yaw, pitch) {
+            const cosY = Math.cos(yaw), sinY = Math.sin(yaw);
+            const cosP = Math.cos(pitch), sinP = Math.sin(pitch);
+
+            const x1 = p.x * cosY + p.z * sinY;
+            const z1 = -p.x * sinY + p.z * cosY;
+
+            const y2 = p.y * cosP - z1 * sinP;
+            const z2 = p.y * sinP + z1 * cosP;
+
+            return { x:x1, y:y2, z:z2 };
+        }
+
+        function projectPoint(p, camera) {
+            const perspective = camera.focal / (camera.focal + p.z + 520);
+            return {
+                x: camera.centerX + camera.panX + p.x * perspective * camera.zoom,
+                y: camera.centerY + camera.panY - p.y * perspective * camera.zoom
+            };
+        }
+
+        function avgZ(points) {
+            return points.reduce((s,p) => s + p.z, 0) / points.length;
+        }
+
+        function buildVisibleEdgeMap(faces) {
+            const map = {};
+            faces.forEach(face => {
+                const keyPts = face.points;
+                const edges = [
+                    [keyPts[0], keyPts[1]],
+                    [keyPts[1], keyPts[2]],
+                    [keyPts[2], keyPts[0]]
+                ];
+                edges.forEach(pair => {
+                    const key = normalizeEdgeKey(pair[0], pair[1]);
+                    if (!(key in map)) map[key] = avgZ(face.points.map(k => ({z:0})));
+                });
+            });
+            return {
+                AB:true,
+                BC:true,
+                CD:false,
+                DA:true,
+                AC:false,
+                SA:true,
+                SB:true,
+                SC:true,
+                SD:false,
+                SH:true,
+                AH:true
+            };
+        }
+
+        function normalizeEdgeKey(a, b) {
+            return [a,b].sort().join("");
+        }
+
+        function pointToAttr(p) {
+            return `${p.x},${p.y}`;
+        }
+
+        function centroid(points) {
+            const x = points.reduce((s,p) => s + p.x, 0) / points.length;
+            const y = points.reduce((s,p) => s + p.y, 0) / points.length;
+            return { x, y };
+        }
+
+        function css(name) {
+            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        }
+
+        function radToDeg(r) {
+            return r * 180 / Math.PI;
+        }
+
+        function openModal() {
+            appState.modalState.open = true;
+            dom.sceneModal.classList.add("is-open");
+            dom.sceneModal.setAttribute("aria-hidden", "false");
+            dom.body.classList.add("modal-open");
+            positionHints();
+        }
+
+        function closeModal() {
+            if (!appState.modalState.open) return;
+            appState.modalState.open = false;
+            dom.sceneModal.classList.remove("is-open");
+            dom.sceneModal.setAttribute("aria-hidden", "true");
+            dom.body.classList.remove("modal-open");
+        }
+
+        function showInitialHints() {
+            const seen = sessionStorage.getItem(STORAGE_KEYS.hintsSeen);
+            if (seen) return;
+            setTimeout(() => {
+                showHint("hint1");
+                showHint("hint2");
+                showHint("hint3");
+                sessionStorage.setItem(STORAGE_KEYS.hintsSeen, "1");
+            }, 3000);
+        }
+
+        function positionHints() {
+            const anchors = [
+                document.querySelector(".mode-nav"),
+                document.getElementById("stepList"),
+                document.getElementById("sceneSurface")
+            ];
+            dom.hints.forEach((hint, i) => {
+                const anchor = anchors[i];
+                if (!anchor) return;
+                const rect = anchor.getBoundingClientRect();
+                const top = window.scrollY + rect.top + (i === 1 ? 12 : rect.height + 10);
+                const left = window.scrollX + rect.left + (i === 2 ? rect.width - 250 : 10);
+                hint.style.top = Math.max(8, top) + "px";
+                hint.style.left = Math.max(8, left) + "px";
+            });
+        }
+
+        function showHint(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            positionHints();
+            el.dataset.hidden = "false";
+        }
+
+        function hideHint(id) {
+            const el = document.getElementById(id);
+            if (el) el.dataset.hidden = "true";
+        }
+
+        function hideAllHints() {
+            dom.hints.forEach(h => h.dataset.hidden = "true");
+        }
+
+        function clamp(v, min, max) {
+            return Math.min(max, Math.max(min, v));
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
