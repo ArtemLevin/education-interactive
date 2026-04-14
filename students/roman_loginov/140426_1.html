@@ -1,627 +1,752 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Наглядная математика — уравнение с параметром</title>
-    <style>
-        :root{
-            --bg:#0f1722;
-            --panel:#162232;
-            --panel-2:#1b2b40;
-            --text:#e8f1f8;
-            --muted:#9fb3c8;
-            --accent:#4dd0e1;
-            --accent-2:#ffd166;
-            --danger:#ff7b72;
-            --ok:#7ee787;
-            --line:#2d4157;
-            --shadow:0 10px 30px rgba(0,0,0,.28);
-            --radius:18px;
-        }
-        *{box-sizing:border-box}
-        html,body{margin:0;padding:0;background:linear-gradient(180deg,#0b121b,#0f1722 18%,#101a28);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
-        body{line-height:1.55}
-        .wrap{max-width:1500px;margin:0 auto;padding:24px}
-        .hero{padding:22px 24px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(77,208,225,.08),rgba(255,255,255,.02));border-radius:24px;box-shadow:var(--shadow)}
-        .eyebrow{display:inline-block;padding:6px 10px;border:1px solid var(--line);border-radius:999px;color:var(--accent);font-size:13px;letter-spacing:.04em}
-        h1{margin:14px 0 8px;font-size:clamp(28px,4vw,46px);line-height:1.1}
-        .hero p{max-width:980px;color:var(--muted);margin:10px 0 0}
-        .topbar{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:12px;margin-top:18px}
-        .chip{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px}
-        .chip .k{font-size:12px;color:var(--muted)}
-        .chip .v{font-weight:700;margin-top:4px}
-
-        .controls{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 22px}
-        .btn,.select,.rangeWrap{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:14px;padding:10px 12px}
-        .btn{cursor:pointer;transition:.2s transform,.2s background,.2s border-color}
-        .btn:hover{transform:translateY(-1px);border-color:#3f5b78;background:var(--panel-2)}
-        .btn.active{outline:2px solid rgba(77,208,225,.25);border-color:var(--accent)}
-        .select{padding:10px}
-        .workspace{display:grid;grid-template-columns:minmax(360px,1.1fr) minmax(360px,.95fr);gap:20px;align-items:start}
-        .leftCol{min-width:0}
-        .rightCol{position:sticky;top:18px}
-        .card{background:linear-gradient(180deg,var(--panel),#142235);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
-        .section{padding:20px 20px 22px;margin-bottom:16px}
-        .section h2{margin:0 0 12px;font-size:24px}
-        .section h3{margin:16px 0 8px;font-size:18px}
-        .muted{color:var(--muted)}
-        .formula{display:inline-block;padding:4px 10px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.03);font-family:"DejaVu Sans",Arial,sans-serif}
-        .idea{border-left:4px solid var(--accent);padding:10px 12px;background:rgba(77,208,225,.06);border-radius:12px}
-        .steps{display:grid;gap:12px}
-        .step{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02);cursor:pointer;transition:.2s border-color,.2s background}
-        .step:hover,.step.active{border-color:var(--accent);background:rgba(77,208,225,.07)}
-        .stepTitle{font-weight:700;display:flex;align-items:center;gap:10px}
-        .badge{width:28px;height:28px;display:grid;place-items:center;border-radius:999px;background:rgba(77,208,225,.15);color:var(--accent);font-weight:800}
-        .sub{margin-top:8px;color:var(--muted)}
-        .list{margin:10px 0 0 0;padding-left:18px}
-        .list li{margin:6px 0}
-        .noteGrid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:12px}
-        .mini{padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02)}
-
-        .viz{padding:14px}
-        .vizHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-        .vizTitle{font-weight:800}
-        .vizMeta{color:var(--muted);font-size:14px}
-        .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
-        .toolbar .btn{padding:8px 10px;border-radius:12px}
-        .rangeWrap{display:flex;align-items:center;gap:8px;padding:8px 10px}
-        input[type="range"]{width:150px}
-        .canvasWrap{position:relative;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:radial-gradient(circle at 50% 35%,rgba(255,255,255,.05),transparent 48%),linear-gradient(180deg,#101b29,#0f1824);min-height:620px}
-        canvas{display:block;width:100%;height:620px;cursor:grab}
-        canvas:active{cursor:grabbing}
-        .legend{display:grid;grid-template-columns:repeat(2,minmax(140px,1fr));gap:8px;margin-top:10px}
-        .legend div{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
-        .sw{width:26px;height:0;border-top:3px solid #fff}
-        .status{margin-top:10px;padding:12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:14px}
-        .status strong{color:var(--accent-2)}
-
-        .genBox,.quizBox{display:grid;gap:12px}
-        .problem{padding:14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.02)}
-        .answer{padding:10px 12px;border-left:4px solid var(--ok);background:rgba(126,231,135,.08);border-radius:12px}
-        .warn{padding:10px 12px;border-left:4px solid var(--danger);background:rgba(255,123,114,.08);border-radius:12px}
-
-        .modal{position:fixed;inset:0;background:rgba(4,8,14,.74);display:none;align-items:center;justify-content:center;padding:18px;z-index:40}
-        .modal.open{display:flex}
-        .modalCard{width:min(1200px,96vw);background:var(--panel);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:14px}
-        .modalTop{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
-        .close{font-size:22px;line-height:1;padding:8px 12px}
-        .modal canvas{height:76vh}
-
-        .footer{padding:18px 10px 36px;color:var(--muted);text-align:center}
-
-        @media (max-width: 1080px){
-            .workspace{grid-template-columns:1fr}
-            .rightCol{position:static}
-            .topbar{grid-template-columns:repeat(2,minmax(140px,1fr))}
-            .noteGrid,.legend{grid-template-columns:1fr}
-            .canvasWrap,canvas{min-height:480px;height:480px}
-            .modal canvas{height:62vh}
-        }
-        @media print{
-            .controls,.toolbar,.modal,.footer{display:none !important}
-            body{background:white;color:black}
-            .card,.hero,.section{box-shadow:none;background:white;border:1px solid #ccc}
-            .workspace{grid-template-columns:1fr}
-            .rightCol{position:static}
-            .canvasWrap{min-height:420px}
-            canvas{height:420px}
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Наглядная математика 2.0 — параметр и ровно один корень</title>
+  <style>
+    :root{
+      --font: "Arial Black", "Segoe UI", Arial, sans-serif;
+      --font-body: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+      --offwhite:#f4f4f0;
+      --paper:#ffffff;
+      --ink:#101010;
+      --muted:#4e4e4e;
+      --accent:#ff6b00;
+      --accent-2:#00a3ff;
+      --ok:#0a7f32;
+      --danger:#c21c1c;
+      --line:#111;
+      --shadow:6px 6px 0 #111;
+      --shadow-sm:4px 4px 0 #111;
+      --plot-bg:#f8f8f2;
+      --plot-grid:#d6d6d6;
+      --plot-axis:#202020;
+      --plot-circle:#3b3b3b;
+      --plot-lines:#ff6b00;
+      --plot-valid:#0074d9;
+      --plot-focus:#00a94f;
+      --plot-strip:rgba(255,107,0,.1);
+    }
+    html[data-theme="dark"]{
+      --offwhite:#141414;
+      --paper:#202020;
+      --ink:#f3f3f3;
+      --muted:#bfbfbf;
+      --accent:#ffc400;
+      --accent-2:#50b9ff;
+      --ok:#7bff9d;
+      --danger:#ff8a8a;
+      --line:#f3f3f3;
+      --shadow:6px 6px 0 #f3f3f3;
+      --shadow-sm:4px 4px 0 #f3f3f3;
+      --plot-bg:#151515;
+      --plot-grid:#343434;
+      --plot-axis:#cfcfcf;
+      --plot-circle:#d7d7d7;
+      --plot-lines:#ffc400;
+      --plot-valid:#69c6ff;
+      --plot-focus:#84ff9a;
+      --plot-strip:rgba(255,196,0,.16);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--offwhite);color:var(--ink);font-family:var(--font-body);line-height:1.5}
+    .wrap{max-width:1400px;margin:0 auto;padding:14px}
+    .nav,.hero,.panel,.viz,.footer,.hintCard,.printSummary{border:3px solid var(--line);border-radius:0;background:var(--paper);box-shadow:var(--shadow)}
+    .nav{display:flex;justify-content:space-between;gap:12px;padding:12px 14px;align-items:center;margin-bottom:12px}
+    .logo{font-family:var(--font);font-size:18px;text-transform:uppercase;letter-spacing:.06em}
+    .navItems{display:flex;gap:8px;flex-wrap:wrap}
+    .tab,.btn,.select{border:2px solid var(--line);background:var(--paper);color:var(--ink);padding:8px 10px;border-radius:0;font-weight:800;cursor:pointer;text-transform:uppercase}
+    .tab.active,.btn.active{background:var(--ink);color:var(--offwhite)}
+    .hero{padding:16px;margin-bottom:12px}
+    h1,h2,h3{font-family:var(--font);text-transform:uppercase;letter-spacing:.04em;margin:0 0 10px}
+    h1{font-size:clamp(28px,4vw,46px);line-height:1.06}
+    .banner{display:inline-block;background:var(--ink);color:var(--offwhite);padding:6px 10px;border:2px solid var(--line);text-transform:uppercase;font-weight:800}
+    .metrics{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:8px;margin-top:12px}
+    .metric{border:2px solid var(--line);padding:8px;background:var(--offwhite)}
+    .metric small{color:var(--muted);display:block;font-weight:700;text-transform:uppercase}
+    .formula{display:inline-block;border:2px solid var(--line);padding:2px 8px;background:var(--offwhite);font-weight:700}
+    .modeRail{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+    .layout{display:grid;grid-template-columns:minmax(360px,1.1fr) minmax(360px,.9fr);gap:14px;align-items:start}
+    .panel{padding:14px;margin-bottom:12px}
+    .step{border:2px solid var(--line);padding:10px;margin-bottom:8px;cursor:pointer;background:var(--offwhite)}
+    .step.active,.step:hover{background:var(--accent);color:#111}
+    .step[data-linked="true"]{outline:3px solid var(--accent-2);outline-offset:1px}
+    .cols{display:grid;grid-template-columns:repeat(2,minmax(180px,1fr));gap:8px}
+    .mini{border:2px solid var(--line);padding:10px;background:var(--offwhite)}
+    .rightCol{position:sticky;top:10px}
+    .viz{padding:10px}
+    .toolbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+    .canvasWrap{border:3px solid var(--line);background:var(--plot-bg);min-height:620px}
+    canvas{display:block;width:100%;height:620px;cursor:crosshair}
+    .legend{display:grid;grid-template-columns:repeat(2,minmax(160px,1fr));gap:6px;font-size:13px;margin-top:8px}
+    .sw{width:22px;height:0;border-top:3px solid #000;display:inline-block;margin-right:5px}
+    .status{border:2px solid var(--line);padding:10px;margin-top:8px;background:var(--offwhite)}
+    .hintLaunch{display:flex;gap:8px;flex-wrap:wrap}
+    .hintModal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:14px;z-index:50}
+    .hintModal.open{display:flex}
+    .hintCard{max-width:560px;padding:14px;position:relative}
+    .hintClose{position:absolute;right:8px;top:8px}
+    .result{margin-top:8px;padding:8px;border:2px solid var(--line)}
+    .result.ok{background:rgba(10,127,50,.14)}
+    .result.bad{background:rgba(194,28,28,.13)}
+    .printSummary{display:none;padding:14px;margin-top:12px}
+    .footer{padding:10px;text-align:center}
+    [hidden]{display:none !important}
+    @media (max-width: 1080px){
+      .layout{grid-template-columns:1fr}
+      .rightCol{position:static}
+      .metrics,.cols,.legend{grid-template-columns:1fr}
+      .canvasWrap,canvas{min-height:460px;height:460px}
+      .toolbar .btn,.toolbar .select{padding:10px 12px}
+    }
+    @media print{
+      .nav,.modeRail,.toolbar,.hintLaunch,.footer,.hintModal,#openZoom{display:none !important}
+      body{background:#fff;color:#000}
+      .panel,.viz,.hero{box-shadow:none;border:1px solid #222}
+      .layout{grid-template-columns:1fr}
+      .rightCol{position:static}
+      .printSummary{display:block}
+    }
+  </style>
 </head>
 <body>
 <div class="wrap">
-    <section class="hero card">
-        <span class="eyebrow">Наглядная математика · ЕГЭ · параметры</span>
-        <h1>Ровно один корень на отрезке: графо-аналитический разбор</h1>
-        <p>
-            Разбираем уравнение <span class="formula">(x² − 10x + a²) / √((a − x + 8)(a + x − 3)) = 0</span> на отрезке <span class="formula">[2; 6]</span>.
-            Слева — подробный пошаговый разбор, справа — интерактивная модель в плоскости <span class="formula">(x, a)</span> с зумом, панорамированием, подсветкой шагов и генератором похожих задач.
-        </p>
-        <div class="topbar">
-            <div class="chip"><div class="k">Тема</div><div class="v">Уравнение с параметром</div></div>
-            <div class="chip"><div class="k">Метод</div><div class="v">Графо-аналитический</div></div>
-            <div class="chip"><div class="k">Ключевая идея</div><div class="v">Числитель = 0, ОДЗ > 0</div></div>
-            <div class="chip"><div class="k">Ответ</div><div class="v">(-2√6; -(3+√41)/2) ∪ [4; 2√6) ∪ {-5, 5}</div></div>
-        </div>
-    </section>
+  <header class="nav">
+    <div class="logo">Наглядная математика 2.0</div>
+    <div class="navItems">
+      <button class="tab active" data-mode="razbor">Разбор</button>
+      <button class="tab" data-mode="visual">Визуализация</button>
+      <button class="tab" data-mode="errors">Ошибки</button>
+      <button class="tab" data-mode="quiz">Самопроверка</button>
+      <button class="tab" data-mode="generator">Генератор</button>
+      <button class="tab" data-mode="memo">Памятка</button>
+      <button class="tab" data-mode="summary">Итог</button>
+      <button class="tab" id="themeToggle" aria-label="Переключить тему">LIGHT</button>
+    </div>
+  </header>
 
-    <div class="controls">
-        <button class="btn active" data-mode="razbor">Разбор</button>
-        <button class="btn" data-mode="errors">Ошибки</button>
-        <button class="btn" data-mode="quiz">Самопроверка</button>
-        <button class="btn" data-mode="generator">Генератор</button>
-        <button class="btn" data-mode="memo">Памятка</button>
-        <select id="detailLevel" class="select">
-            <option value="full">Подробно</option>
-            <option value="mid">Средне</option>
-            <option value="short">Кратко</option>
-        </select>
+  <section class="hero">
+    <span class="banner">Neo-Brutalist + Retro-Indie Math Studio</span>
+    <h1>Ровно один корень на [2;6]: графо-аналитический тренажёр</h1>
+    <p>Уравнение: <span class="formula">(x²−10x+a²)/√((a−x+8)(a+x−3)) = 0</span>. Правило: <strong>числитель = 0</strong>, а подкоренное выражение в знаменателе <strong>строго больше нуля</strong>.</p>
+    <div class="metrics">
+      <div class="metric"><small>Что дано</small>Параметрическое уравнение</div>
+      <div class="metric"><small>Что найти</small>Все a с ровно 1 корнем</div>
+      <div class="metric"><small>Ключ</small>Окружность + ОДЗ + полоса</div>
+      <div class="metric"><small>Ответ</small>(−2√6;−(3+√41)/2)∪[4;2√6)∪{−5,5}</div>
+    </div>
+  </section>
+
+  <div class="modeRail">
+    <button class="btn active" data-mode="razbor">Режим: Разбор</button>
+    <button class="btn" data-mode="visual">Режим: Визуализация</button>
+    <button class="btn" data-mode="errors">Режим: Ошибки</button>
+    <button class="btn" data-mode="quiz">Режим: Квиз</button>
+    <button class="btn" data-mode="generator">Режим: Генератор</button>
+    <button class="btn" data-mode="memo">Режим: Памятка</button>
+    <button class="btn" data-mode="summary">Режим: Итог</button>
+    <select class="select" id="detailLevel">
+      <option value="full">Детализация: Подробно</option>
+      <option value="mid">Детализация: Средне</option>
+      <option value="short">Детализация: Кратко</option>
+    </select>
+  </div>
+
+  <main class="layout">
+    <div>
+      <section class="panel" id="mode-razbor">
+        <h2>Методическая структура</h2>
+        <div class="cols">
+          <div class="mini"><strong>Что дано.</strong> Дробь равна нулю на [2;6].</div>
+          <div class="mini"><strong>Что найти.</strong> Те и только те значения a, где ровно один допустимый x.</div>
+          <div class="mini"><strong>Смысл условий.</strong> Нуль дроби — это нуль числителя при ненулевом знаменателе.</div>
+          <div class="mini"><strong>Интерпретация.</strong> В плоскости (x,a): окружность + две прямые + вертикальная полоса.</div>
+        </div>
+        <h3>Идея решения</h3>
+        <p class="detail">По горизонтали <span class="formula">a=const</span> считаем число точек пересечения допустимых частей окружности внутри полосы <span class="formula">2≤x≤6</span>.</p>
+        <h3>Пошаговое решение</h3>
+        <article class="step active" data-step="0" data-object="given"><strong>1) Что дано и что ищем.</strong> Одна допустимая точка на уровне параметра.</article>
+        <article class="step" data-step="1" data-object="circle"><strong>2) Числитель=0.</strong> <span class="formula">(x−5)²+a²=25</span>, окружность.</article>
+        <article class="step" data-step="2" data-object="lines"><strong>3) ОДЗ.</strong> <span class="formula">(a−x+8)(a+x−3)&gt;0</span>, границы запрещены.</article>
+        <article class="step" data-step="3" data-object="strip"><strong>4) Полоса.</strong> Учитываем только <span class="formula">x∈[2,6]</span>.</article>
+        <article class="step" data-step="4" data-object="valid"><strong>5) Допустимые дуги.</strong> Убираем запрещённые части по ОДЗ и полосе.</article>
+        <article class="step" data-step="5" data-object="special"><strong>6) Проверка особых уровней.</strong> <span class="formula">a=±5</span> дают один двойной корень <span class="formula">x=5</span>.</article>
+        <article class="step" data-step="6" data-object="summary"><strong>7) Вывод.</strong> Итоговый набор параметров из интервалов и точек.</article>
+      </section>
+
+      <section class="panel" id="mode-visual" hidden>
+        <h2>Режим визуализации</h2>
+        <p class="detail">Наведи на объект в графике — соответствующий шаг слева подсветится. Наведи на шаг — подсветится объект.</p>
+        <div class="cols">
+          <div class="mini"><strong>Hover по объекту</strong><br/>Показывает связанный методический шаг.</div>
+          <div class="mini"><strong>Zoom-to-cursor</strong><br/>Масштаб под курсором, без рывков.</div>
+          <div class="mini"><strong>Pan с ограничениями</strong><br/>Сцену нельзя «увести» слишком далеко.</div>
+          <div class="mini"><strong>Reset</strong><br/>Возврат в базовый вид и стандартный масштаб.</div>
+        </div>
+      </section>
+
+      <section class="panel" id="mode-errors" hidden>
+        <h2>Типичные ошибки</h2>
+        <div class="cols">
+          <div class="mini"><strong>Ошибка 1.</strong> Ставить ≥0 вместо >0 для знаменателя.</div>
+          <div class="mini"><strong>Ошибка 2.</strong> Включать точки на прямых-границах ОДЗ.</div>
+          <div class="mini"><strong>Ошибка 3.</strong> Игнорировать ограничение x∈[2,6].</div>
+          <div class="mini"><strong>Ошибка 4.</strong> Терять случаи a=±5.</div>
+        </div>
+      </section>
+
+      <section class="panel" id="mode-quiz" hidden>
+        <h2>Самопроверка (5 вопросов)</h2>
+        <div class="mini"><strong>1)</strong> Геометрия числителя?<br/>
+          <button class="btn quiz" data-q="0" data-a="1">Парабола</button>
+          <button class="btn quiz" data-q="0" data-a="2">Окружность</button>
+          <div id="qr0" class="result" hidden></div>
+        </div>
+        <div class="mini"><strong>2)</strong> Почему границы ОДЗ исключаются?<br/>
+          <button class="btn quiz" data-q="1" data-a="1">Там x вне отрезка</button>
+          <button class="btn quiz" data-q="1" data-a="2">Там знаменатель 0</button>
+          <div id="qr1" class="result" hidden></div>
+        </div>
+        <div class="mini"><strong>3)</strong> Что даёт a=5?<br/>
+          <button class="btn quiz" data-q="2" data-a="1">Один двойной корень x=5</button>
+          <button class="btn quiz" data-q="2" data-a="2">Корней нет</button>
+          <div id="qr2" class="result" hidden></div>
+        </div>
+        <div class="mini"><strong>4)</strong> Почему нужен отрезок [2;6]?<br/>
+          <button class="btn quiz" data-q="3" data-a="1">Иначе считаем лишние точки</button>
+          <button class="btn quiz" data-q="3" data-a="2">Только для красоты рисунка</button>
+          <div id="qr3" class="result" hidden></div>
+        </div>
+        <div class="mini"><strong>5)</strong> Что проверяем в конце?<br/>
+          <button class="btn quiz" data-q="4" data-a="1">Границы, интервалы, особые точки</button>
+          <button class="btn quiz" data-q="4" data-a="2">Только приблизительные числа</button>
+          <div id="qr4" class="result" hidden></div>
+        </div>
+      </section>
+
+      <section class="panel" id="mode-generator" hidden>
+        <h2>Генератор похожих задач</h2>
+        <p class="detail">Генератор выдаёт условие, ответ, идею решения и обновляет визуальную модель под новый вариант.</p>
+        <button class="btn" id="genBtn">Сгенерировать задачу</button>
+        <div class="mini" id="genProblem">Нажмите кнопку, чтобы создать задачу.</div>
+        <div class="mini" id="genAnswer" hidden></div>
+        <div class="mini" id="genIdea" hidden></div>
+      </section>
+
+      <section class="panel" id="mode-memo" hidden>
+        <h2>Памятка</h2>
+        <div class="cols">
+          <div class="mini">1) Числитель = 0.</div>
+          <div class="mini">2) ОДЗ: строго >0.</div>
+          <div class="mini">3) Переход в (x,a).</div>
+          <div class="mini">4) Полоса по x.</div>
+          <div class="mini">5) Счёт пересечений по горизонталям.</div>
+          <div class="mini">6) Проверка a=±5 и концов интервалов.</div>
+        </div>
+      </section>
+
+      <section class="panel" id="mode-summary" hidden>
+        <h2>Итог и проверка ответа</h2>
+        <p>Ответ: <span class="formula">a∈(−2√6;−(3+√41)/2)∪[4;2√6)∪{−5,5}</span>.</p>
+        <div class="cols">
+          <div class="mini"><strong>Проверка границ:</strong> на линиях ОДЗ брать нельзя (знаменатель 0).</div>
+          <div class="mini"><strong>Проверка a=±5:</strong> ровно один допустимый корень x=5.</div>
+          <div class="mini"><strong>Проверка интервалов:</strong> внутри интервала одна допустимая точка на уровне a.</div>
+          <div class="mini"><strong>Вывод:</strong> метод переносится на другие задачи того же типа.</div>
+        </div>
+      </section>
     </div>
 
-    <main class="workspace">
-        <div class="leftCol">
-            <section class="card section" id="mode-razbor">
-                <h2>Структура решения</h2>
-                <div class="idea"><strong>Идея решения.</strong> Корень дроби появляется только там, где числитель равен нулю, а знаменатель определён и не равен нулю. Поэтому мы строим окружность из числителя, две прямые из границ ОДЗ, ограничиваемся полосой <span class="formula">2 ≤ x ≤ 6</span> и по горизонталям <span class="formula">a = const</span> считаем число допустимых точек.</div>
-
-                <div class="steps" id="steps">
-                    <article class="step active" data-step="0">
-                        <div class="stepTitle"><span class="badge">1</span> Что дано и что ищем</div>
-                        <div class="sub">Нужно найти все значения параметра <span class="formula">a</span>, при которых уравнение имеет ровно один корень по <span class="formula">x</span> на отрезке <span class="formula">[2; 6]</span>.</div>
-                    </article>
-                    <article class="step" data-step="1">
-                        <div class="stepTitle"><span class="badge">2</span> Числитель равен нулю</div>
-                        <div class="sub">Из <span class="formula">x² − 10x + a² = 0</span> получаем <span class="formula">(x − 5)² + a² = 25</span>. Это окружность с центром <span class="formula">(5, 0)</span> и радиусом <span class="formula">5</span>.</div>
-                    </article>
-                    <article class="step" data-step="2">
-                        <div class="stepTitle"><span class="badge">3</span> Ограничения из знаменателя</div>
-                        <div class="sub">Так как в знаменателе корень, нужно строгое неравенство: <span class="formula">(a − x + 8)(a + x − 3) &gt; 0</span>. Его границы — прямые <span class="formula">a = x − 8</span> и <span class="formula">a = −x + 3</span>.</div>
-                    </article>
-                    <article class="step" data-step="3">
-                        <div class="stepTitle"><span class="badge">4</span> Полоса по x</div>
-                        <div class="sub">Нас интересуют только точки внутри вертикальной полосы <span class="formula">2 ≤ x ≤ 6</span>.</div>
-                    </article>
-                    <article class="step" data-step="4">
-                        <div class="stepTitle"><span class="badge">5</span> Формулы для корней числителя</div>
-                        <div class="sub">На окружности <span class="formula">x = 5 ± √(25 − a²)</span>. Это даёт левый корень <span class="formula">x₁ = 5 − √(25 − a²)</span> и правый корень <span class="formula">x₂ = 5 + √(25 − a²)</span>.</div>
-                    </article>
-                    <article class="step" data-step="5">
-                        <div class="stepTitle"><span class="badge">6</span> Когда корень ровно один</div>
-                        <div class="sub">Нужно отдельно проверить, когда в отрезке остаётся только <span class="formula">x₁</span>, когда остаётся только <span class="formula">x₂</span>, и не забыть про особые случаи <span class="formula">a = ±5</span>, когда обе формулы сливаются в один корень <span class="formula">x = 5</span>.</div>
-                    </article>
-                    <article class="step" data-step="6">
-                        <div class="stepTitle"><span class="badge">7</span> Итог</div>
-                        <div class="sub">Ответ: <span class="formula">a ∈ (−2√6; −(3+√41)/2) ∪ [4; 2√6) ∪ {−5, 5}</span>.</div>
-                    </article>
-                </div>
-            </section>
-
-            <section class="card section" id="mode-errors" hidden>
-                <h2>Типичные ошибки</h2>
-                <div class="noteGrid">
-                    <div class="mini"><strong>Ошибка 1.</strong> Считать, что из знаменателя достаточно <span class="formula">≥ 0</span>. Здесь нужно именно <span class="formula">&gt; 0</span>, потому что знаменатель не может равняться нулю.</div>
-                    <div class="mini"><strong>Ошибка 2.</strong> Оставить все точки окружности. На самом деле часть окружности выколота границами ОДЗ.</div>
-                    <div class="mini"><strong>Ошибка 3.</strong> Не учитывать отрезок <span class="formula">[2; 6]</span>. Корни вне этой полосы не считаются.</div>
-                    <div class="mini"><strong>Ошибка 4.</strong> Потерять случаи <span class="formula">a = ±5</span>. В этих точках окружность даёт один-единственный корень <span class="formula">x = 5</span>.</div>
-                </div>
-                <h3>Почему особые случаи важны</h3>
-                <p class="muted">Когда <span class="formula">a = 5</span> или <span class="formula">a = −5</span>, уравнение числителя превращается в <span class="formula">(x − 5)² = 0</span>. Это один корень, а не два, и он допустим по ОДЗ.</p>
-            </section>
-
-            <section class="card section" id="mode-quiz" hidden>
-                <h2>Самопроверка</h2>
-                <div class="quizBox">
-                    <div class="problem">
-                        <strong>1.</strong> Какой график задаёт уравнение <span class="formula">x² − 10x + a² = 0</span> в плоскости <span class="formula">(x, a)</span>?<br>
-                        <button class="btn quiz" data-q="0" data-a="1">Парабола</button>
-                        <button class="btn quiz" data-q="0" data-a="2">Окружность</button>
-                        <button class="btn quiz" data-q="0" data-a="3">Гипербола</button>
-                        <div class="result" id="qr0"></div>
-                    </div>
-                    <div class="problem">
-                        <strong>2.</strong> Почему точки на прямых <span class="formula">a = x − 8</span> и <span class="formula">a = −x + 3</span> нельзя включать в ответ?<br>
-                        <button class="btn quiz" data-q="1" data-a="1">Потому что там числитель не ноль</button>
-                        <button class="btn quiz" data-q="1" data-a="2">Потому что там знаменатель равен нулю</button>
-                        <button class="btn quiz" data-q="1" data-a="3">Потому что x выходит из отрезка</button>
-                        <div class="result" id="qr1"></div>
-                    </div>
-                    <div class="problem">
-                        <strong>3.</strong> Что происходит при <span class="formula">a = 5</span>?<br>
-                        <button class="btn quiz" data-q="2" data-a="1">Два разных корня</button>
-                        <button class="btn quiz" data-q="2" data-a="2">Корней нет</button>
-                        <button class="btn quiz" data-q="2" data-a="3">Один двойной корень x = 5</button>
-                        <div class="result" id="qr2"></div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="card section" id="mode-generator" hidden>
-                <h2>Генератор похожих задач</h2>
-                <div class="genBox">
-                    <p class="muted">Генератор сохраняет ту же логику: окружность из числителя, две прямые из знаменателя, отбор по отрезку и поиск тех параметров, при которых остаётся ровно один корень.</p>
-                    <button class="btn" id="genBtn">Сгенерировать задачу</button>
-                    <div class="problem" id="genProblem">Нажмите кнопку, чтобы получить новую корректную задачу.</div>
-                    <div class="answer" id="genAnswer" hidden></div>
-                </div>
-            </section>
-
-            <section class="card section" id="mode-memo" hidden>
-                <h2>Памятка</h2>
-                <div class="noteGrid">
-                    <div class="mini"><strong>Что дано.</strong><br>Дробь равна нулю.</div>
-                    <div class="mini"><strong>Первый шаг.</strong><br>Числитель приравнять к нулю.</div>
-                    <div class="mini"><strong>Второй шаг.</strong><br>ОДЗ для знаменателя выписать отдельно.</div>
-                    <div class="mini"><strong>Третий шаг.</strong><br>Перейти к плоскости <span class="formula">(x, a)</span>.</div>
-                    <div class="mini"><strong>Четвёртый шаг.</strong><br>Оставить только нужную полосу по <span class="formula">x</span>.</div>
-                    <div class="mini"><strong>Пятый шаг.</strong><br>По горизонталям считать число допустимых точек.</div>
-                </div>
-            </section>
+    <aside class="rightCol">
+      <section class="viz">
+        <h2>Центральный учебный прибор</h2>
+        <div class="toolbar">
+          <button class="btn" id="zoomIn">+</button>
+          <button class="btn" id="zoomOut">−</button>
+          <button class="btn" id="resetView">Reset</button>
+          <button class="btn" id="openZoom">Открыть крупно</button>
+          <button class="btn active toggle" data-toggle="circle">Окружность</button>
+          <button class="btn active toggle" data-toggle="lines">Границы ОДЗ</button>
+          <button class="btn active toggle" data-toggle="strip">Полоса</button>
+          <button class="btn active toggle" data-toggle="valid">Допустимые дуги</button>
+          <label class="btn" style="cursor:default">Zoom <input id="zoomRange" type="range" min="0.7" max="2.4" step="0.01" value="1"></label>
         </div>
+        <div class="canvasWrap"><canvas id="plot"></canvas></div>
+        <div class="legend">
+          <div><span class="sw" style="border-color:var(--plot-circle)"></span>Окружность числителя</div>
+          <div><span class="sw" style="border-color:var(--plot-lines);border-style:dashed"></span>Границы ОДЗ</div>
+          <div><span class="sw" style="border-color:var(--plot-valid)"></span>Допустимые части</div>
+          <div><span class="sw" style="border-color:var(--plot-focus)"></span>Активный объект</div>
+        </div>
+        <div class="status" id="statusBox">Старт: полный вид. Выберите шаг или наведите курсор на график.</div>
+        <h3>Обучающие подсказки</h3>
+        <div class="hintLaunch">
+          <button class="btn hintBtn" data-hint="0">Подсказка 1</button>
+          <button class="btn hintBtn" data-hint="1">Подсказка 2</button>
+          <button class="btn hintBtn" data-hint="2">Подсказка 3</button>
+        </div>
+      </section>
+    </aside>
+  </main>
 
-        <aside class="rightCol">
-            <section class="card viz">
-                <div class="vizHead">
-                    <div>
-                        <div class="vizTitle">Интерактивная модель</div>
-                        <div class="vizMeta">Щёлкните по шагу слева, чтобы подсветить нужный объект. По клику на график откроется увеличенный режим.</div>
-                    </div>
-                    <button class="btn" id="openModal">Открыть крупно</button>
-                </div>
+  <section class="printSummary" id="printSummary">
+    <h2>Печатный конспект</h2>
+    <p><strong>Задача:</strong> найти все a, при которых дробь равна нулю и имеет ровно один корень x на [2;6].</p>
+    <p><strong>Шаги:</strong> 1) числитель=0 → окружность; 2) знаменатель > 0 → границы ОДЗ; 3) ограничить x∈[2,6]; 4) считать допустимые пересечения по уровням a.</p>
+    <p><strong>Проверка:</strong> исключить линии ОДЗ; отдельно проверить a=±5.</p>
+    <p><strong>Ответ:</strong> <span class="formula">(−2√6;−(3+√41)/2)∪[4;2√6)∪{−5,5}</span>.</p>
+  </section>
 
-                <div class="toolbar">
-                    <button class="btn" id="zoomIn">+</button>
-                    <button class="btn" id="zoomOut">−</button>
-                    <button class="btn" id="resetView">Сброс</button>
-                    <button class="btn active toggle" data-toggle="circle">Окружность</button>
-                    <button class="btn active toggle" data-toggle="lines">Прямые</button>
-                    <button class="btn active toggle" data-toggle="strip">Полоса [2;6]</button>
-                    <button class="btn active toggle" data-toggle="valid">Допустимые дуги</button>
-                    <div class="rangeWrap">Зум <input type="range" min="0.7" max="2.5" step="0.01" value="1" id="zoomRange"></div>
-                </div>
-
-                <div class="canvasWrap">
-                    <canvas id="plot"></canvas>
-                </div>
-
-                <div class="legend">
-                    <div><span class="sw" style="border-color:#98a9b7"></span> окружность числителя</div>
-                    <div><span class="sw" style="border-color:#ffd166;border-style:dashed"></span> границы ОДЗ</div>
-                    <div><span class="sw" style="border-color:#4dd0e1"></span> допустимые части графика</div>
-                    <div><span class="sw" style="border-color:#7ee787"></span> активная подсветка</div>
-                </div>
-
-                <div class="status" id="statusBox">
-                    Сейчас показан полный рисунок. <strong>Ключевой вывод:</strong> ответ состоит из одного отрицательного интервала, одного полуинтервала справа и двух отдельных точек <span class="formula">a = ±5</span>.
-                </div>
-            </section>
-        </aside>
-    </main>
-
-    <div class="footer">Наглядная математика · один автономный HTML · локальная работа без внешних библиотек</div>
+  <footer class="footer">Автономный HTML · LIGHT/DARK · localStorage · двусторонняя связка текст ↔ визуализация</footer>
 </div>
 
-<div class="modal" id="modal">
-    <div class="modalCard">
-        <div class="modalTop">
-            <div><strong>Увеличенная визуализация</strong><div class="muted">Состояние синхронизировано с основным окном</div></div>
-            <button class="btn close" id="closeModal">×</button>
-        </div>
-        <canvas id="plotModal"></canvas>
-    </div>
+<div class="hintModal" id="hintModal" role="dialog" aria-modal="true" aria-labelledby="hintTitle" aria-describedby="hintBody">
+  <div class="hintCard">
+    <button class="btn hintClose" id="hintClose" aria-label="Закрыть подсказку">×</button>
+    <h3 id="hintTitle">Подсказка</h3>
+    <p id="hintBody"></p>
+  </div>
+</div>
+
+<div class="hintModal" id="zoomModal" role="dialog" aria-modal="true" aria-labelledby="zoomTitle">
+  <div class="hintCard" style="max-width:1200px;width:96vw;">
+    <button class="btn hintClose" id="zoomClose" aria-label="Закрыть увеличенный график">×</button>
+    <h3 id="zoomTitle">Увеличенная визуализация</h3>
+    <div class="canvasWrap"><canvas id="plotModal" style="height:72vh"></canvas></div>
+  </div>
 </div>
 
 <script>
-    const state = {
-        mode: 'razbor',
-        step: 0,
-        zoom: 1,
-        panX: 0,
-        panY: 0,
-        dragging: false,
-        dragStart: null,
-        show: { circle:true, lines:true, strip:true, valid:true }
-    };
+(() => {
+  const themeState = { key: 'nm2-theme', value: 'light' };
+  const viewportState = { zoom: 1, panX: 0, panY: 0, minZoom: 0.7, maxZoom: 2.4, drag: null };
+  const uiState = { mode: 'razbor', detail: 'full', step: 0, hoverObject: null, hoverStepObject: null };
+  const modalState = { hintOpen: false, zoomOpen: false };
+  const generatorState = {
+    current: { c:10, b1:8, b2:3, L:2, R:6 },
+    pool: [
+      { c:10, b1:8, b2:3, L:2, R:6 },
+      { c:12, b1:9, b2:4, L:2, R:6 },
+      { c:8, b1:7, b2:2, L:1, R:5 },
+      { c:14, b1:10, b2:5, L:3, R:7 }
+    ]
+  };
+  const quizState = {
+    correct:[2,2,1,1,1],
+    explain:[
+      'После преобразования получаем окружность с центром (5,0).',
+      'На границе ОДЗ знаменатель равен нулю, поэтому точки исключаются.',
+      'При a=5: (x−5)^2=0, один двойной корень x=5.',
+      'Ограничение отрезком не даёт учитывать лишние пересечения.',
+      'Нужно проверить интервалы, концы и особые точки отдельно.'
+    ]
+  };
+  const plotState = { show:{circle:true,lines:true,strip:true,valid:true}, activeObject:'given' };
 
-    const plot = document.getElementById('plot');
-    const modalPlot = document.getElementById('plotModal');
-    const ctx = plot.getContext('2d');
-    const ctxM = modalPlot.getContext('2d');
-    const statusBox = document.getElementById('statusBox');
+  const hints = [
+    'Подсказка: у дроби, равной нулю, первым делом зануляем числитель, а знаменатель держим ненулевым.',
+    'Подсказка: ОДЗ из корня в знаменателе всегда строгое (>0), а не нестрогое (≥0).',
+    'Подсказка: на уровне a = const считаем число допустимых точек в полосе x∈[L,R].'
+  ];
 
-    function resizeCanvas(canvas){
-        const rect = canvas.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = Math.round(rect.width * dpr);
-        canvas.height = Math.round(rect.height * dpr);
-        const c = canvas.getContext('2d');
-        c.setTransform(dpr,0,0,dpr,0,0);
+  const plot = document.getElementById('plot');
+  const plotModal = document.getElementById('plotModal');
+  const ctx = plot.getContext('2d');
+  const ctxM = plotModal.getContext('2d');
+
+  const statusBox = document.getElementById('statusBox');
+  const stepMsgs = [
+    'Шаг 1: формулируем условие и цель — одна допустимая точка на уровне параметра.',
+    'Шаг 2: числитель задаёт окружность кандидатов.',
+    'Шаг 3: линии задают границы ОДЗ и выколоты.',
+    'Шаг 4: учитываем только x в пределах полосы.',
+    'Шаг 5: остаются допустимые дуги.',
+    'Шаг 6: проверяем особые случаи a=±5.',
+    'Шаг 7: фиксируем итоговый ответ.'
+  ];
+
+  function css(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  function applyTheme(theme){
+    themeState.value = theme === 'dark' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', themeState.value);
+    localStorage.setItem(themeState.key, themeState.value);
+    document.getElementById('themeToggle').textContent = themeState.value === 'light' ? 'DARK' : 'LIGHT';
+    drawAll();
+  }
+
+  function initTheme(){
+    const saved = localStorage.getItem(themeState.key);
+    applyTheme(saved || 'light');
+  }
+
+  function resizeCanvas(canvas){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    const c = canvas.getContext('2d');
+    c.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  function worldBounds(){
+    return {xMin:0.3,xMax:9.5,aMin:-6,aMax:6};
+  }
+
+  function clampPan(){
+    const b = worldBounds();
+    const hw = (b.xMax - b.xMin)/(2*viewportState.zoom);
+    const hh = (b.aMax - b.aMin)/(2*viewportState.zoom);
+    const maxShiftX = Math.max(0, (b.xMax-b.xMin)/2 - hw);
+    const maxShiftY = Math.max(0, (b.aMax-b.aMin)/2 - hh);
+    viewportState.panX = Math.max(-maxShiftX, Math.min(maxShiftX, viewportState.panX));
+    viewportState.panY = Math.max(-maxShiftY, Math.min(maxShiftY, viewportState.panY));
+  }
+
+  function worldToScreen(x,a,w,h){
+    const b = worldBounds();
+    const cx = (b.xMin+b.xMax)/2 + viewportState.panX;
+    const cy = (b.aMin+b.aMax)/2 + viewportState.panY;
+    const hw = (b.xMax-b.xMin)/(2*viewportState.zoom);
+    const hh = (b.aMax-b.aMin)/(2*viewportState.zoom);
+    const sx = (x-(cx-hw))/(2*hw)*w;
+    const sy = h-(a-(cy-hh))/(2*hh)*h;
+    return [sx,sy];
+  }
+
+  function screenToWorld(sx,sy,w,h){
+    const b = worldBounds();
+    const cx = (b.xMin+b.xMax)/2 + viewportState.panX;
+    const cy = (b.aMin+b.aMax)/2 + viewportState.panY;
+    const hw = (b.xMax-b.xMin)/(2*viewportState.zoom);
+    const hh = (b.aMax-b.aMin)/(2*viewportState.zoom);
+    return { x: (sx/w)*(2*hw)+(cx-hw), a: ((h-sy)/h)*(2*hh)+(cy-hh) };
+  }
+
+  function zoomAt(mouseX, mouseY, factor, canvas){
+    const rect = canvas.getBoundingClientRect();
+    const before = screenToWorld(mouseX - rect.left, mouseY - rect.top, rect.width, rect.height);
+    viewportState.zoom = Math.max(viewportState.minZoom, Math.min(viewportState.maxZoom, viewportState.zoom * factor));
+    clampPan();
+    const after = screenToWorld(mouseX - rect.left, mouseY - rect.top, rect.width, rect.height);
+    viewportState.panX += before.x - after.x;
+    viewportState.panY += before.a - after.a;
+    clampPan();
+    document.getElementById('zoomRange').value = viewportState.zoom;
+    drawAll();
+  }
+
+  function parseRoots(c,a){
+    const center = c / 2;
+    const disc = center * center - a * a;
+    if(disc < -1e-9) return [];
+    const s = Math.sqrt(Math.max(0,disc));
+    const r = [center - s, center + s];
+    return Math.abs(r[0]-r[1])<1e-8 ? [r[0]] : r;
+  }
+
+  function isAllowed(x,a,b1,b2,L,R){
+    return x>=L-1e-9 && x<=R+1e-9 && ((a - x + b1)*(a + x - b2) > 1e-9);
+  }
+
+  function solveVariant(v){
+    const center = v.c/2, rad = Math.abs(center);
+    const samples = [];
+    for(let a=-rad; a<=rad; a+=0.005){
+      const roots = parseRoots(v.c,a).filter(x=>isAllowed(x,a,v.b1,v.b2,v.L,v.R));
+      if(roots.length===1) samples.push(a);
+    }
+    if(!samples.length) return [];
+    const merged=[];
+    let s=samples[0], p=samples[0];
+    for(let i=1;i<samples.length;i++){
+      if(samples[i]-p<0.009) p=samples[i];
+      else { merged.push([s,p]); s=samples[i]; p=samples[i]; }
+    }
+    merged.push([s,p]);
+    return merged;
+  }
+
+  function formatMerged(merged){
+    if(!merged.length) return 'решений нет';
+    return merged.map(([l,r])=>Math.abs(l-r)<0.012?`{${l.toFixed(2)}}`:`(${l.toFixed(2)}; ${r.toFixed(2)})`).join(' ∪ ');
+  }
+
+  function drawScene(c,canvas){
+    const w = canvas.getBoundingClientRect().width;
+    const h = canvas.getBoundingClientRect().height;
+    c.clearRect(0,0,w,h);
+    c.fillStyle = css('--plot-bg');
+    c.fillRect(0,0,w,h);
+
+    c.strokeStyle = css('--plot-grid'); c.lineWidth=1;
+    for(let x=0;x<=10;x++){
+      const p1=worldToScreen(x,-6,w,h), p2=worldToScreen(x,6,w,h);
+      c.beginPath(); c.moveTo(...p1); c.lineTo(...p2); c.stroke();
+    }
+    for(let a=-6;a<=6;a++){
+      const p1=worldToScreen(0.2,a,w,h), p2=worldToScreen(9.6,a,w,h);
+      c.beginPath(); c.moveTo(...p1); c.lineTo(...p2); c.stroke();
     }
 
-    function worldToScreen(x,a,w,h,view){
-        const xMin = 0.6, xMax = 9.2, aMin = -5.6, aMax = 5.6;
-        const cx = (xMin + xMax)/2 + view.panX;
-        const cy = (aMin + aMax)/2 + view.panY;
-        const hw = (xMax - xMin)/(2*view.zoom);
-        const hh = (aMax - aMin)/(2*view.zoom);
-        const sx = (x - (cx - hw)) / (2*hw) * w;
-        const sy = h - (a - (cy - hh)) / (2*hh) * h;
-        return [sx,sy];
+    c.strokeStyle = css('--plot-axis'); c.lineWidth=1.8;
+    let p1=worldToScreen(0.3,0,w,h), p2=worldToScreen(9.5,0,w,h);
+    c.beginPath(); c.moveTo(...p1); c.lineTo(...p2); c.stroke();
+    p1=worldToScreen(0,-6,w,h); p2=worldToScreen(0,6,w,h);
+    c.beginPath(); c.moveTo(...p1); c.lineTo(...p2); c.stroke();
+
+    const v = generatorState.current;
+    const center=v.c/2, rad=Math.abs(center);
+
+    if(plotState.show.strip){
+      c.fillStyle=css('--plot-strip');
+      const tl=worldToScreen(v.L,6,w,h), br=worldToScreen(v.R,-6,w,h);
+      c.fillRect(tl[0],tl[1],br[0]-tl[0],br[1]-tl[1]);
     }
 
-    function screenDeltaToWorld(dx,dy,w,h,view){
-        const xMin = 0.6, xMax = 9.2, aMin = -5.6, aMax = 5.6;
-        const hw = (xMax - xMin)/(2*view.zoom);
-        const hh = (aMax - aMin)/(2*view.zoom);
-        return { dx: -dx / w * 2 * hw, dy: dy / h * 2 * hh };
+    if(plotState.show.lines){
+      c.setLineDash([8,6]);
+      c.strokeStyle=css('--plot-lines');
+      c.lineWidth= plotState.activeObject==='lines'?3.6:2.2;
+      c.beginPath();
+      for(let x=0.3;x<=9.5;x+=0.03){ const a=x-v.b1; const p=worldToScreen(x,a,w,h); if(x===0.3)c.moveTo(...p); else c.lineTo(...p); }
+      c.stroke();
+      c.beginPath();
+      for(let x=0.3;x<=9.5;x+=0.03){ const a=-x+v.b2; const p=worldToScreen(x,a,w,h); if(x===0.3)c.moveTo(...p); else c.lineTo(...p); }
+      c.stroke();
+      c.setLineDash([]);
     }
 
-    function drawScene(c, canvas, modal=false){
-        const w = canvas.getBoundingClientRect().width;
-        const h = canvas.getBoundingClientRect().height;
-        c.clearRect(0,0,w,h);
-        c.fillStyle = '#101826';
-        c.fillRect(0,0,w,h);
+    if(plotState.show.circle){
+      c.strokeStyle=css('--plot-circle');
+      c.lineWidth= plotState.activeObject==='circle'?3.8:2.4;
+      c.beginPath();
+      for(let t=0;t<=Math.PI*2+0.01;t+=0.01){
+        const x=center+rad*Math.cos(t), a=rad*Math.sin(t);
+        const p=worldToScreen(x,a,w,h);
+        if(t===0)c.moveTo(...p); else c.lineTo(...p);
+      }
+      c.stroke();
+    }
 
-        const view = { zoom:state.zoom, panX:state.panX, panY:state.panY };
-
-        // grid
-        c.strokeStyle = 'rgba(255,255,255,.06)';
-        c.lineWidth = 1;
-        for(let x=1;x<=9;x++){
-            const [sx1,sy1] = worldToScreen(x,-6,w,h,view);
-            const [sx2,sy2] = worldToScreen(x,6,w,h,view);
-            c.beginPath(); c.moveTo(sx1,sy1); c.lineTo(sx2,sy2); c.stroke();
-        }
-        for(let a=-5;a<=5;a++){
-            const [sx1,sy1] = worldToScreen(0,a,w,h,view);
-            const [sx2,sy2] = worldToScreen(10,a,w,h,view);
-            c.beginPath(); c.moveTo(sx1,sy1); c.lineTo(sx2,sy2); c.stroke();
-        }
-
-        // axes
-        c.strokeStyle = 'rgba(255,255,255,.25)';
-        c.lineWidth = 1.4;
-        let p1 = worldToScreen(0.6,0,w,h,view), p2 = worldToScreen(9.2,0,w,h,view);
-        c.beginPath(); c.moveTo(...p1); c.lineTo(...p2); c.stroke();
-        p1 = worldToScreen(0,-5.6,w,h,view); p2 = worldToScreen(0,5.6,w,h,view);
-        c.beginPath(); c.moveTo(...p1); c.lineTo(...p2); c.stroke();
-
-        // strip
-        if(state.show.strip){
-            c.fillStyle = 'rgba(255,255,255,.035)';
-            const [sxL,syT] = worldToScreen(2,5.6,w,h,view);
-            const [sxR,syB] = worldToScreen(6,-5.6,w,h,view);
-            c.fillRect(sxL,syT,sxR-sxL,syB-syT);
-            c.setLineDash([6,6]);
-            c.strokeStyle = 'rgba(255,255,255,.35)';
-            c.beginPath(); c.moveTo(sxL,syT); c.lineTo(sxL,syB); c.moveTo(sxR,syT); c.lineTo(sxR,syB); c.stroke();
-            c.setLineDash([]);
-        }
-
-        // helper functions
-        function drawPath(fn, color, dashed=false, xStart=0.6, xEnd=9.2, width=2, highlight=false){
-            c.beginPath();
-            let started=false;
-            for(let x=xStart;x<=xEnd;x+=0.02){
-                const a = fn(x);
-                if(Number.isFinite(a)){
-                    const [sx,sy]=worldToScreen(x,a,w,h,view);
-                    if(!started){c.moveTo(sx,sy);started=true;} else c.lineTo(sx,sy);
-                }
-            }
-            c.lineWidth = width;
-            c.strokeStyle = color;
-            c.setLineDash(dashed?[7,7]:[]);
-            c.stroke();
-            c.setLineDash([]);
-            if(highlight){
-                c.strokeStyle = '#7ee787';
-                c.lineWidth = width+1;
-                c.stroke();
-            }
-        }
-
-        // lines
-        const hlLines = state.step===2;
-        if(state.show.lines){
-            drawPath(x=>x-8,'#ffd166',true,0.6,9.2,2,hlLines);
-            drawPath(x=>-x+3,'#ffd166',true,0.6,9.2,2,hlLines);
-        }
-
-        // circle full
-        const hlCircle = state.step===1 || state.step===4;
-        if(state.show.circle){
-            c.beginPath();
-            let started=false;
-            for(let t=0;t<=Math.PI*2+0.01;t+=0.01){
-                const x=5+5*Math.cos(t), a=5*Math.sin(t);
-                const [sx,sy]=worldToScreen(x,a,w,h,view);
-                if(!started){c.moveTo(sx,sy);started=true;} else c.lineTo(sx,sy);
-            }
-            c.lineWidth=2.1;
-            c.strokeStyle='#9fb3c8';
-            c.stroke();
-            if(hlCircle){ c.lineWidth=3.5; c.strokeStyle='#7ee787'; c.stroke(); }
-        }
-
-        // valid arcs
-        if(state.show.valid){
-            const segments = [
-                [2,6, x=> Math.sqrt(25-(x-5)*(x-5))],
-                [2,4.898979486, x=> -Math.sqrt(25-(x-5)*(x-5))],
-                [5,5, x=> -5]
-            ];
-            const hlValid = state.step>=5;
-            segments.forEach(seg=>{
-                const [xs,xe,fn]=seg;
-                c.beginPath();
-                let started=false;
-                for(let x=xs;x<=xe+1e-9;x+=0.01){
-                    const a=fn(x);
-                    const [sx,sy]=worldToScreen(x,a,w,h,view);
-                    if(!started){c.moveTo(sx,sy);started=true;} else c.lineTo(sx,sy);
-                }
-                c.lineWidth=3.3;
-                c.strokeStyle='#4dd0e1';
-                c.stroke();
-                if(hlValid){ c.lineWidth=5; c.strokeStyle='rgba(126,231,135,.75)'; c.stroke(); }
-            });
-        }
-
-        // special points
-        const points = [
-            {x:2,a:4,label:'A(2, 4)', show: state.step>=3},
-            {x:6,a:Math.sqrt(24),label:'B(6, 2√6)', show: state.step>=5},
-            {x:6,a:-Math.sqrt(24),label:'D(6, -2√6)', show: state.step>=5},
-            {x:(13-Math.sqrt(41))/2,a:-(3+Math.sqrt(41))/2,label:'C', open:true, show: state.step>=5},
-            {x:5,a:-5,label:'E(5, -5)', show: state.step>=6},
-            {x:5,a:5,label:'F(5, 5)', show: state.step>=6}
-        ];
-        c.font='13px Inter, Arial';
-        points.forEach(p=>{
-            if(!p.show) return;
-            const [sx,sy]=worldToScreen(p.x,p.a,w,h,view);
-            c.beginPath();
-            c.arc(sx,sy,4,0,Math.PI*2);
-            c.fillStyle = p.open ? '#101826' : '#4dd0e1';
-            c.fill();
-            c.lineWidth=1.5; c.strokeStyle='#4dd0e1'; c.stroke();
-            c.fillStyle='#dce7f1';
-            c.fillText(p.label,sx+8,sy-8);
+    if(plotState.show.valid){
+      c.strokeStyle=css('--plot-valid');
+      c.lineWidth=plotState.activeObject==='valid'?4.2:3;
+      let started=false;
+      c.beginPath();
+      for(let x=v.L;x<=v.R;x+=0.01){
+        const sq = center*center-(x-center)*(x-center);
+        if(sq<0) continue;
+        const tops=[Math.sqrt(sq),-Math.sqrt(sq)];
+        tops.forEach(a=>{
+          if(isAllowed(x,a,v.b1,v.b2,v.L,v.R)){
+            const p=worldToScreen(x,a,w,h);
+            if(!started){c.moveTo(...p); started=true;} else c.lineTo(...p);
+          }
         });
-
-        // labels x and a
-        c.fillStyle='rgba(255,255,255,.8)';
-        c.fillText('x', w-16, worldToScreen(0,0,w,h,view)[1]-8);
-        const yAxis = worldToScreen(0,5.3,w,h,view); c.fillText('a', yAxis[0]+8, yAxis[1]);
+      }
+      c.stroke();
     }
 
-    function redraw(){ drawScene(ctx, plot, false); drawScene(ctxM, modalPlot, true); }
+    const points=[
+      {x:center,a:rad,label:'a=+R',obj:'special'},
+      {x:center,a:-rad,label:'a=-R',obj:'special'}
+    ];
 
-    function syncStatus(){
-        const msgs = [
-            'Сейчас выделено условие задачи. Нужно искать уровни параметра <strong>a</strong>, при которых допустимая точка внутри полосы <span class="formula">[2;6]</span> ровно одна.',
-            'Подсвечена окружность <span class="formula">(x − 5)² + a² = 25</span>. Именно она описывает все кандидаты на корни числителя.',
-            'Подсвечены прямые <span class="formula">a = x − 8</span> и <span class="formula">a = −x + 3</span>. Это границы ОДЗ, на них точки запрещены.',
-            'Подсвечена полоса <span class="formula">2 ≤ x ≤ 6</span>. Всё вне неё не участвует в подсчёте корней.',
-            'Теперь важно смотреть на формулы <span class="formula">x = 5 ± √(25 − a²)</span> и понимать, какие ветви попадают в полосу.',
-            'Подсвечены допустимые дуги: верхняя целиком внутри полосы и подходящая нижняя часть вместе с особой точкой <span class="formula">(5, -5)</span>.',
-            'Финальный ответ: <strong>(−2√6; −(3+√41)/2) ∪ [4; 2√6) ∪ {−5, 5}</strong>.'
-        ];
-        statusBox.innerHTML = msgs[state.step];
+    c.font='12px var(--font-body)';
+    points.forEach(pt=>{
+      const p=worldToScreen(pt.x,pt.a,w,h);
+      c.beginPath(); c.arc(p[0],p[1],4,0,Math.PI*2); c.fillStyle=css('--plot-focus'); c.fill();
+      c.fillStyle=css('--ink'); c.fillText(pt.label,p[0]+7,p[1]-8);
+    });
+
+    if(plotState.activeObject && plotState.activeObject !== 'given'){
+      c.fillStyle=css('--plot-focus');
+      c.fillRect(8,8,12,12);
+      c.fillStyle=css('--ink');
+      c.fillText(`focus: ${plotState.activeObject}`, 26, 18);
     }
+  }
 
-    function activateStep(n){
-        state.step = n;
-        document.querySelectorAll('.step').forEach(el=>el.classList.toggle('active', +el.dataset.step===n));
-        syncStatus(); redraw();
-    }
+  function drawAll(){ drawScene(ctx, plot); drawScene(ctxM, plotModal); }
 
+  function setStep(n){
+    uiState.step=n;
+    const el = document.querySelector(`.step[data-step="${n}"]`);
+    if(el) plotState.activeObject = el.dataset.object;
+    document.querySelectorAll('.step').forEach(s=>s.classList.toggle('active', +s.dataset.step===n));
+    statusBox.innerHTML = stepMsgs[n] || stepMsgs[0];
+    drawAll();
+  }
+
+  function setMode(mode){
+    uiState.mode = mode;
+    document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active', b.dataset.mode===mode));
+    ['razbor','visual','errors','quiz','generator','memo','summary'].forEach(id=>{
+      document.getElementById(`mode-${id}`).hidden = id!==mode;
+    });
+  }
+
+  function bindModes(){
+    document.querySelectorAll('[data-mode]').forEach(btn=>btn.addEventListener('click',()=>setMode(btn.dataset.mode)));
+  }
+
+  function bindSteps(){
     document.querySelectorAll('.step').forEach(el=>{
-        el.addEventListener('click', ()=>activateStep(+el.dataset.step));
+      el.addEventListener('click',()=>setStep(+el.dataset.step));
+      el.addEventListener('mouseenter',()=>{uiState.hoverStepObject=el.dataset.object; plotState.activeObject=el.dataset.object; drawAll();});
+      el.addEventListener('mouseleave',()=>{uiState.hoverStepObject=null; setStep(uiState.step);});
     });
+  }
 
-    document.querySelectorAll('[data-mode]').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-            state.mode = btn.dataset.mode;
-            document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active', b===btn));
-            ['razbor','errors','quiz','generator','memo'].forEach(id=>{
-                document.getElementById('mode-'+id).hidden = id!==state.mode;
-            });
-        });
-    });
+  function bindToggles(){
+    document.querySelectorAll('.toggle').forEach(btn=>btn.addEventListener('click',()=>{
+      const k=btn.dataset.toggle;
+      plotState.show[k]=!plotState.show[k];
+      btn.classList.toggle('active',plotState.show[k]);
+      drawAll();
+    }));
+  }
 
-    document.querySelectorAll('.toggle').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-            const key = btn.dataset.toggle;
-            state.show[key]=!state.show[key];
-            btn.classList.toggle('active', state.show[key]);
-            redraw();
-        });
-    });
+  function bindViewport(canvas){
+    canvas.addEventListener('mousedown',e=>{ viewportState.drag={x:e.clientX,y:e.clientY,moved:false}; });
+    window.addEventListener('mouseup',()=>{ viewportState.drag=null; });
+    canvas.addEventListener('mousemove',e=>{
+      const rect=canvas.getBoundingClientRect();
+      const w=rect.width, h=rect.height;
+      const wpos = screenToWorld(e.clientX-rect.left,e.clientY-rect.top,w,h);
 
-    document.getElementById('zoomIn').addEventListener('click', ()=>{ state.zoom=Math.min(2.5,state.zoom*1.15); document.getElementById('zoomRange').value=state.zoom; redraw(); });
-    document.getElementById('zoomOut').addEventListener('click', ()=>{ state.zoom=Math.max(.7,state.zoom/1.15); document.getElementById('zoomRange').value=state.zoom; redraw(); });
-    document.getElementById('resetView').addEventListener('click', ()=>{ state.zoom=1; state.panX=0; state.panY=0; document.getElementById('zoomRange').value=1; redraw(); });
-    document.getElementById('zoomRange').addEventListener('input', e=>{ state.zoom=+e.target.value; redraw(); });
+      if(viewportState.drag){
+        const dx = e.clientX - viewportState.drag.x;
+        const dy = e.clientY - viewportState.drag.y;
+        viewportState.drag.moved = viewportState.drag.moved || Math.abs(dx)+Math.abs(dy)>3;
+        const b = worldBounds();
+        const hw=(b.xMax-b.xMin)/(2*viewportState.zoom), hh=(b.aMax-b.aMin)/(2*viewportState.zoom);
+        viewportState.panX -= dx / w * 2 * hw;
+        viewportState.panY += dy / h * 2 * hh;
+        viewportState.drag={...viewportState.drag,x:e.clientX,y:e.clientY,moved:viewportState.drag.moved};
+        clampPan(); drawAll();
+      }
 
-    function bindPan(canvas){
-        canvas.addEventListener('mousedown', e=>{ state.dragging=true; state.dragStart={x:e.clientX,y:e.clientY}; });
-        window.addEventListener('mouseup', ()=> state.dragging=false);
-        canvas.addEventListener('mousemove', e=>{
-            if(!state.dragging) return;
-            const rect=canvas.getBoundingClientRect();
-            const dd = screenDeltaToWorld(e.clientX-state.dragStart.x,e.clientY-state.dragStart.y,rect.width,rect.height,{zoom:state.zoom});
-            state.panX += dd.dx; state.panY += dd.dy; state.dragStart={x:e.clientX,y:e.clientY}; redraw();
-        });
-        canvas.addEventListener('wheel', e=>{
-            e.preventDefault();
-            const factor = e.deltaY<0 ? 1.08 : 1/1.08;
-            state.zoom = Math.max(.7, Math.min(2.5, state.zoom*factor));
-            document.getElementById('zoomRange').value=state.zoom;
-            redraw();
-        }, {passive:false});
-    }
-    bindPan(plot); bindPan(modalPlot);
-
-    const modal = document.getElementById('modal');
-    document.getElementById('openModal').addEventListener('click', ()=>modal.classList.add('open'));
-    plot.addEventListener('click', ()=>modal.classList.add('open'));
-    document.getElementById('closeModal').addEventListener('click', ()=>modal.classList.remove('open'));
-    modal.addEventListener('click', e=>{ if(e.target===modal) modal.classList.remove('open'); });
-    window.addEventListener('keydown', e=>{ if(e.key==='Escape') modal.classList.remove('open'); });
-
-    // detail level
-    document.getElementById('detailLevel').addEventListener('change', e=>{
-        const level = e.target.value;
-        document.querySelectorAll('.sub').forEach(s=>{
-            s.style.display = level==='short' ? 'none' : 'block';
-            s.style.fontSize = level==='mid' ? '14px' : '15px';
-        });
-        if(level==='short') statusBox.innerHTML = 'Краткий режим: держим в голове только три вещи — числитель даёт окружность, знаменатель даёт строгую ОДЗ, ответ считаем по горизонталям.';
-        else syncStatus();
-    });
-
-    // quiz
-    const correct = [2,2,3];
-    document.querySelectorAll('.quiz').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-            const q = +btn.dataset.q, a = +btn.dataset.a;
-            const out = document.getElementById('qr'+q);
-            out.className = a===correct[q] ? 'answer' : 'warn';
-            out.textContent = a===correct[q] ? 'Верно.' : 'Пока нет. Проверь ещё раз.';
-        });
-    });
-
-    // generator
-    function solveVariant(c,b1,b2,L,R){
-        const center = c/2;
-        const rad = Math.sqrt(center*center);
-        const samples = [];
-        function rootsForA(a){
-            const disc = c*c/4 - a*a;
-            if(disc < -1e-9) return [];
-            const t = Math.sqrt(Math.max(0,disc));
-            const xs = [center - t, center + t];
-            const uniq = [];
-            xs.forEach(x=>{ if(!uniq.some(v=>Math.abs(v-x)<1e-8)) uniq.push(x); });
-            return uniq.filter(x=> x>=L-1e-8 && x<=R+1e-8 && ((a - x + b1)*(a + x - b2) > 1e-9));
+      const v=generatorState.current;
+      const near = {
+        circle: Math.abs((wpos.x-v.c/2)**2 + (wpos.a)**2 - (v.c/2)**2 < 0.25,
+        lines: Math.abs(wpos.a-(wpos.x-v.b1))<0.17 || Math.abs(wpos.a-(-wpos.x+v.b2))<0.17,
+        strip: Math.abs(wpos.x-v.L)<0.15 || Math.abs(wpos.x-v.R)<0.15,
+        special: Math.hypot(wpos.x-v.c/2,wpos.a-v.c/2)<0.35 || Math.hypot(wpos.x-v.c/2,wpos.a+v.c/2)<0.35
+      };
+      let obj=null;
+      if(near.special) obj='special';
+      else if(near.lines) obj='lines';
+      else if(near.strip) obj='strip';
+      else if(near.circle) obj='circle';
+      if(obj!==uiState.hoverObject){
+        uiState.hoverObject=obj;
+        if(obj){
+          plotState.activeObject=obj;
+          document.querySelectorAll('.step').forEach(s=>s.dataset.linked = (s.dataset.object===obj).toString());
+          statusBox.textContent = `Наведение: объект «${obj}» связан со шагом решения.`;
+        } else {
+          document.querySelectorAll('.step').forEach(s=>s.dataset.linked='false');
+          setStep(uiState.step);
         }
-        for(let a=-rad;a<=rad;a+=0.0025){
-            const roots = rootsForA(a);
-            if(roots.length===1) samples.push(a);
-        }
-        // compress to intervals and points
-        const merged=[];
-        let s=null, prev=null;
-        for(const a of samples){
-            if(s===null){ s=a; prev=a; }
-            else if(a-prev<0.0055){ prev=a; }
-            else { merged.push([s,prev]); s=a; prev=a; }
-        }
-        if(s!==null) merged.push([s,prev]);
-        return merged;
-    }
-
-    document.getElementById('genBtn').addEventListener('click', ()=>{
-        const variants = [
-            {c:8,b1:7,b2:2,L:2,R:4},
-            {c:12,b1:9,b2:4,L:3,R:7},
-            {c:10,b1:8,b2:3,L:2,R:5}
-        ];
-        const v = variants[Math.floor(Math.random()*variants.length)];
-        const merged = solveVariant(v.c,v.b1,v.b2,v.L,v.R);
-        const prob = document.getElementById('genProblem');
-        const ans = document.getElementById('genAnswer');
-        prob.innerHTML = 'Найдите все значения параметра <span class="formula">a</span>, при каждом из которых уравнение <span class="formula">(x² − '+v.c+'x + a²) / √((a − x + '+v.b1+')(a + x − '+v.b2+')) = 0</span> имеет ровно один корень на отрезке <span class="formula">['+v.L+'; '+v.R+']</span>.';
-        const nice = merged.map(([l,r])=> Math.abs(l-r)<0.01 ? '{'+l.toFixed(2)+'}' : '('+l.toFixed(2)+'; '+r.toFixed(2)+')').join(' ∪ ');
-        ans.hidden = false;
-        ans.innerHTML = '<strong>Проверенный численный ориентир для ответа:</strong> '+(nice||'решений нет')+'.<br><span class="muted">Это генератор школьных вариаций той же структуры. Для точного аналитического ответа здесь нужно повторить тот же графо-аналитический алгоритм.</span>';
+        drawAll();
+      }
     });
 
-    window.addEventListener('resize', ()=>{ resizeCanvas(plot); resizeCanvas(modalPlot); redraw(); });
-    resizeCanvas(plot); resizeCanvas(modalPlot); syncStatus(); redraw();
+    canvas.addEventListener('click',e=>{
+      if(viewportState.drag && viewportState.drag.moved) return;
+      if(canvas===plot) document.getElementById('zoomModal').classList.add('open');
+    });
+
+    canvas.addEventListener('wheel',e=>{
+      e.preventDefault();
+      zoomAt(e.clientX,e.clientY,e.deltaY<0?1.08:1/1.08,canvas);
+    },{passive:false});
+  }
+
+  function bindControls(){
+    document.getElementById('themeToggle').addEventListener('click',()=>applyTheme(themeState.value==='light'?'dark':'light'));
+    document.getElementById('zoomIn').addEventListener('click',()=>zoomAt(plot.getBoundingClientRect().left+plot.clientWidth/2,plot.getBoundingClientRect().top+plot.clientHeight/2,1.1,plot));
+    document.getElementById('zoomOut').addEventListener('click',()=>zoomAt(plot.getBoundingClientRect().left+plot.clientWidth/2,plot.getBoundingClientRect().top+plot.clientHeight/2,1/1.1,plot));
+    document.getElementById('zoomRange').addEventListener('input',e=>{viewportState.zoom=+e.target.value; clampPan(); drawAll();});
+    document.getElementById('resetView').addEventListener('click',()=>{viewportState.zoom=1;viewportState.panX=0;viewportState.panY=0;document.getElementById('zoomRange').value=1;drawAll();});
+
+    document.getElementById('detailLevel').addEventListener('change',e=>{
+      uiState.detail=e.target.value;
+      document.querySelectorAll('.detail').forEach(el=>{
+        el.style.display = uiState.detail==='short' ? 'none' : 'block';
+        el.style.fontSize = uiState.detail==='mid' ? '14px' : '16px';
+      });
+    });
+
+    document.getElementById('openZoom').addEventListener('click',()=>document.getElementById('zoomModal').classList.add('open'));
+    document.getElementById('zoomClose').addEventListener('click',()=>document.getElementById('zoomModal').classList.remove('open'));
+
+    const hintModal = document.getElementById('hintModal');
+    document.querySelectorAll('.hintBtn').forEach(btn=>btn.addEventListener('click',()=>{
+      const i=+btn.dataset.hint;
+      document.getElementById('hintTitle').textContent=`Подсказка ${i+1}`;
+      document.getElementById('hintBody').textContent=hints[i];
+      hintModal.classList.add('open');
+      modalState.hintOpen=true;
+    }));
+    document.getElementById('hintClose').addEventListener('click',()=>{hintModal.classList.remove('open'); modalState.hintOpen=false;});
+
+    [hintModal, document.getElementById('zoomModal')].forEach(modal=>{
+      modal.addEventListener('click',e=>{ if(e.target===modal) modal.classList.remove('open'); });
+    });
+
+    window.addEventListener('keydown',e=>{
+      if(e.key==='Escape'){
+        document.getElementById('hintModal').classList.remove('open');
+        document.getElementById('zoomModal').classList.remove('open');
+        modalState.hintOpen=false;
+        modalState.zoomOpen=false;
+      }
+    });
+  }
+
+  function bindQuiz(){
+    document.querySelectorAll('.quiz').forEach(btn=>btn.addEventListener('click',()=>{
+      const q=+btn.dataset.q, a=+btn.dataset.a;
+      const box=document.getElementById(`qr${q}`);
+      const ok = a===quizState.correct[q];
+      box.hidden=false;
+      box.className=`result ${ok?'ok':'bad'}`;
+      box.textContent = (ok?'Верно. ':'Неверно. ') + quizState.explain[q];
+    }));
+  }
+
+  function bindGenerator(){
+    document.getElementById('genBtn').addEventListener('click',()=>{
+      const v = generatorState.pool[Math.floor(Math.random()*generatorState.pool.length)];
+      generatorState.current = v;
+      const merged = solveVariant(v);
+      document.getElementById('genProblem').innerHTML = `Найдите все значения <span class="formula">a</span>, при которых <span class="formula">(x²−${v.c}x+a²)/√((a−x+${v.b1})(a+x−${v.b2}))=0</span> имеет ровно один корень на <span class="formula">[${v.L};${v.R}]</span>.`;
+      const ans=document.getElementById('genAnswer');
+      ans.hidden=false;
+      ans.innerHTML = `<strong>Ответ (численно проверенный):</strong> ${formatMerged(merged)}.`;
+      const idea=document.getElementById('genIdea');
+      idea.hidden=false;
+      idea.innerHTML = `<strong>Краткая идея решения:</strong> строим окружность <span class="formula">(x−${v.c/2})²+a²=(${v.c/2})²</span>, исключаем границы ОДЗ <span class="formula">a=x−${v.b1}</span>, <span class="formula">a=−x+${v.b2}</span>, оставляем полосу <span class="formula">x∈[${v.L};${v.R}]</span>, считаем по горизонталям.`;
+      statusBox.textContent = 'Генератор обновил параметрическую модель: график справа соответствует новому варианту.';
+      drawAll();
+    });
+  }
+
+  function init(){
+    initTheme();
+    resizeCanvas(plot); resizeCanvas(plotModal);
+    bindModes(); bindSteps(); bindToggles(); bindViewport(plot); bindViewport(plotModal);
+    bindControls(); bindQuiz(); bindGenerator();
+    setMode('razbor'); setStep(0); drawAll();
+    window.addEventListener('resize',()=>{ resizeCanvas(plot); resizeCanvas(plotModal); drawAll(); });
+  }
+
+  init();
+})();
 </script>
 </body>
 </html>
