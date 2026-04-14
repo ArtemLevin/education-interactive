@@ -1,1003 +1,627 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Наглядная Математика: Задачи с параметром</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — уравнение с параметром</title>
     <style>
-        /* --- CSS VARIABLES & THEMES --- */
-        :root {
-        /* Colors */
-            --bg: #F4F4F0;
-            --fg: #141414;
-            --accent: #D72638;
-            --accent-hover: #B01A2A;
-            --secondary: #2A2A2A;
-            --border: 2px solid var(--fg);
-            --shadow: 4px 4px 0 var(--fg);
-            --shadow-lg: 6px 6px 0 var(--fg);
-            --shadow-active: 2px 2px 0 var(--fg);
-
-            /* Spacing */
-            --space-xs: 4px;
-            --space-sm: 8px;
-            --space-md: 16px;
-            --space-lg: 32px;
-            --space-xl: 64px;
-
-            /* Typography */
-            --font-main: system-ui, -apple-system, sans-serif;
-            --font-mono: 'Courier New', Courier, monospace;
+        :root{
+            --bg:#0f1722;
+            --panel:#162232;
+            --panel-2:#1b2b40;
+            --text:#e8f1f8;
+            --muted:#9fb3c8;
+            --accent:#4dd0e1;
+            --accent-2:#ffd166;
+            --danger:#ff7b72;
+            --ok:#7ee787;
+            --line:#2d4157;
+            --shadow:0 10px 30px rgba(0,0,0,.28);
+            --radius:18px;
         }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:linear-gradient(180deg,#0b121b,#0f1722 18%,#101a28);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
+        body{line-height:1.55}
+        .wrap{max-width:1500px;margin:0 auto;padding:24px}
+        .hero{padding:22px 24px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(77,208,225,.08),rgba(255,255,255,.02));border-radius:24px;box-shadow:var(--shadow)}
+        .eyebrow{display:inline-block;padding:6px 10px;border:1px solid var(--line);border-radius:999px;color:var(--accent);font-size:13px;letter-spacing:.04em}
+        h1{margin:14px 0 8px;font-size:clamp(28px,4vw,46px);line-height:1.1}
+        .hero p{max-width:980px;color:var(--muted);margin:10px 0 0}
+        .topbar{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:12px;margin-top:18px}
+        .chip{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px}
+        .chip .k{font-size:12px;color:var(--muted)}
+        .chip .v{font-weight:700;margin-top:4px}
 
-        [data-theme="dark"] {
-            --bg: #141414;
-            --fg: #F4F4F0;
-            --accent: #D72638;
-            --secondary: #D4D4D4;
-            --shadow: 4px 4px 0 var(--fg);
-            --shadow-lg: 6px 6px 0 var(--fg);
-            --shadow-active: 2px 2px 0 var(--fg);
+        .controls{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 22px}
+        .btn,.select,.rangeWrap{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:14px;padding:10px 12px}
+        .btn{cursor:pointer;transition:.2s transform,.2s background,.2s border-color}
+        .btn:hover{transform:translateY(-1px);border-color:#3f5b78;background:var(--panel-2)}
+        .btn.active{outline:2px solid rgba(77,208,225,.25);border-color:var(--accent)}
+        .select{padding:10px}
+        .workspace{display:grid;grid-template-columns:minmax(360px,1.1fr) minmax(360px,.95fr);gap:20px;align-items:start}
+        .leftCol{min-width:0}
+        .rightCol{position:sticky;top:18px}
+        .card{background:linear-gradient(180deg,var(--panel),#142235);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+        .section{padding:20px 20px 22px;margin-bottom:16px}
+        .section h2{margin:0 0 12px;font-size:24px}
+        .section h3{margin:16px 0 8px;font-size:18px}
+        .muted{color:var(--muted)}
+        .formula{display:inline-block;padding:4px 10px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.03);font-family:"DejaVu Sans",Arial,sans-serif}
+        .idea{border-left:4px solid var(--accent);padding:10px 12px;background:rgba(77,208,225,.06);border-radius:12px}
+        .steps{display:grid;gap:12px}
+        .step{padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02);cursor:pointer;transition:.2s border-color,.2s background}
+        .step:hover,.step.active{border-color:var(--accent);background:rgba(77,208,225,.07)}
+        .stepTitle{font-weight:700;display:flex;align-items:center;gap:10px}
+        .badge{width:28px;height:28px;display:grid;place-items:center;border-radius:999px;background:rgba(77,208,225,.15);color:var(--accent);font-weight:800}
+        .sub{margin-top:8px;color:var(--muted)}
+        .list{margin:10px 0 0 0;padding-left:18px}
+        .list li{margin:6px 0}
+        .noteGrid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:12px}
+        .mini{padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02)}
+
+        .viz{padding:14px}
+        .vizHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+        .vizTitle{font-weight:800}
+        .vizMeta{color:var(--muted);font-size:14px}
+        .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+        .toolbar .btn{padding:8px 10px;border-radius:12px}
+        .rangeWrap{display:flex;align-items:center;gap:8px;padding:8px 10px}
+        input[type="range"]{width:150px}
+        .canvasWrap{position:relative;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:radial-gradient(circle at 50% 35%,rgba(255,255,255,.05),transparent 48%),linear-gradient(180deg,#101b29,#0f1824);min-height:620px}
+        canvas{display:block;width:100%;height:620px;cursor:grab}
+        canvas:active{cursor:grabbing}
+        .legend{display:grid;grid-template-columns:repeat(2,minmax(140px,1fr));gap:8px;margin-top:10px}
+        .legend div{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+        .sw{width:26px;height:0;border-top:3px solid #fff}
+        .status{margin-top:10px;padding:12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:14px}
+        .status strong{color:var(--accent-2)}
+
+        .genBox,.quizBox{display:grid;gap:12px}
+        .problem{padding:14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.02)}
+        .answer{padding:10px 12px;border-left:4px solid var(--ok);background:rgba(126,231,135,.08);border-radius:12px}
+        .warn{padding:10px 12px;border-left:4px solid var(--danger);background:rgba(255,123,114,.08);border-radius:12px}
+
+        .modal{position:fixed;inset:0;background:rgba(4,8,14,.74);display:none;align-items:center;justify-content:center;padding:18px;z-index:40}
+        .modal.open{display:flex}
+        .modalCard{width:min(1200px,96vw);background:var(--panel);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:14px}
+        .modalTop{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+        .close{font-size:22px;line-height:1;padding:8px 12px}
+        .modal canvas{height:76vh}
+
+        .footer{padding:18px 10px 36px;color:var(--muted);text-align:center}
+
+        @media (max-width: 1080px){
+            .workspace{grid-template-columns:1fr}
+            .rightCol{position:static}
+            .topbar{grid-template-columns:repeat(2,minmax(140px,1fr))}
+            .noteGrid,.legend{grid-template-columns:1fr}
+            .canvasWrap,canvas{min-height:480px;height:480px}
+            .modal canvas{height:62vh}
         }
-
-        /* --- RESET & BASE --- */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: var(--font-main);
-            background-color: var(--bg);
-            color: var(--fg);
-            line-height: 1.5;
-            transition: background-color 0.3s, color 0.3s;
-            overflow-x: hidden;
+        @media print{
+            .controls,.toolbar,.modal,.footer{display:none !important}
+            body{background:white;color:black}
+            .card,.hero,.section{box-shadow:none;background:white;border:1px solid #ccc}
+            .workspace{grid-template-columns:1fr}
+            .rightCol{position:static}
+            .canvasWrap{min-height:420px}
+            canvas{height:420px}
         }
-
-        a { color: var(--accent); text-decoration: none; font-weight: bold; }
-        a:hover { text-decoration: underline; }
-
-        /* --- LAYOUT UTILS --- */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: var(--space-md);
-        }
-
-        .hidden { display: none !important; }
-
-        /* --- COMPONENTS --- */
-        /* Neo-Brutalist Button */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: var(--space-sm) var(--space-md);
-            border: var(--border);
-            background: var(--bg);
-            color: var(--fg);
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            transition: all 0.1s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            user-select: none;
-        }
-
-        .btn:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .btn:active {
-            transform: translate(2px, 2px);
-            box-shadow: var(--shadow-active);
-        }
-
-        .btn-accent {
-            background: var(--accent);
-            color: white;
-            border-color: var(--fg);
-        }
-
-        .btn-accent:hover { background: var(--accent-hover); }
-
-        .btn-small { padding: 4px 8px; font-size: 0.8rem; }
-
-        /* Card */
-        .card {
-            border: var(--border);
-            background: var(--bg);
-            padding: var(--space-md);
-            box-shadow: var(--shadow);
-            margin-bottom: var(--space-md);
-        }
-
-        /* --- HEADER & NAV --- */
-        header {
-            border-bottom: var(--border);
-            background: var(--bg);
-            padding: var(--space-sm) 0;
-            margin-bottom: var(--space-md);
-        }
-
-        .header-inner {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 var(--space-md);
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: -0.05em;
-        }
-
-        .nav-modes {
-            display: flex;
-            gap: var(--space-xs);
-            flex-wrap: wrap;
-        }
-
-        .nav-btn {
-            border: var(--border);
-            background: transparent;
-            padding: var(--space-sm) var(--space-md);
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background 0.2s;
-        }
-
-        .nav-btn:hover { background: var(--fg); color: var(--bg); }
-
-        .nav-btn.active {
-            background: var(--accent);
-            color: white;
-            box-shadow: inset 0 0 0 2px var(--fg);
-        }
-
-        .theme-toggle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%; /* Circle for toggle */
-            border: var(--border);
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            font-size: 1.2rem;
-        }
-
-        /* --- HERO --- */
-        .hero {
-            text-align: center;
-            padding: var(--space-lg) 0;
-            border-bottom: var(--border);
-            background: var(--fg);
-            color: var(--bg);
-            margin-bottom: var(--space-md);
-        }
-
-        .hero h1 {
-            font-size: clamp(1.5rem, 4vw, 3rem);
-            margin-bottom: var(--space-sm);
-            line-height: 1.1;
-        }
-
-        .hero p {
-            font-size: 1.1rem;
-            opacity: 0.8;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* --- MAIN WORKSPACE --- */
-        .workspace {
-            display: grid;
-            grid-template-columns: 1fr 1.5fr; /* Left text, Right viz */
-            gap: var(--space-lg);
-            align-items: start;
-        }
-
-        @media (max-width: 1024px) {
-            .workspace { grid-template-columns: 1fr; }
-            .right-col { order: -1; } /* Viz on top for mobile */
-        }
-
-        /* Left Column */
-        .left-col {
-            position: relative;
-        }
-
-        .step-panel {
-            margin-bottom: var(--space-md);
-        }
-
-        .step-header {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            padding: var(--space-sm);
-            background: var(--bg);
-            border: var(--border);
-            box-shadow: var(--shadow);
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-
-        .step-header:hover { transform: translate(-2px, -2px); }
-
-        .step-number {
-            background: var(--fg);
-            color: var(--bg);
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: var(--space-sm);
-            font-weight: 900;
-        }
-
-        .step-content {
-            padding: var(--space-md);
-            background: var(--bg);
-            border: var(--border);
-            border-top: none;
-            display: none; /* Hidden by default */
-        }
-
-        .step-panel.active .step-content {
-            display: block;
-            box-shadow: var(--shadow);
-        }
-
-        .step-panel.active .step-header {
-            background: var(--secondary);
-            color: var(--bg);
-            border-color: var(--accent);
-            border-bottom: 2px dashed var(--accent);
-        }
-
-        /* Math Formatting */
-        .math {
-            font-family: 'Times New Roman', serif;
-            font-style: italic;
-            font-size: 1.1em;
-        }
-
-        .frac {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            vertical-align: middle;
-            margin: 0 4px;
-            font-style: normal;
-        }
-        .frac .num { border-bottom: 2px solid currentColor; padding: 0 4px; }
-        .frac .den { padding: 0 4px; }
-
-        /* Right Column (Viz) */
-        .right-col {
-            position: sticky;
-            top: 20px;
-        }
-
-        .viz-container {
-            background: var(--bg);
-            border: var(--border);
-            box-shadow: var(--shadow-lg);
-            padding: var(--space-md);
-            min-height: 500px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .viz-controls {
-            display: flex;
-            gap: var(--space-sm);
-            margin-bottom: var(--space-md);
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .viz-svg {
-            width: 100%;
-            height: 400px;
-            background: #fff; /* Always white for contrast in viz */
-            border: 2px solid #000;
-        }
-
-        [data-theme="dark"] .viz-svg {
-            background: #fff; /* Keep graph area white for readability */
-        }
-
-        /* SVG Styles */
-        .svg-line { stroke: #000; stroke-width: 2; stroke-linecap: round; }
-        .svg-axis { stroke: #000; stroke-width: 2; }
-        .svg-grid { stroke: #ddd; stroke-width: 1; stroke-dasharray: 4; }
-        .svg-segment { stroke: #D72638; stroke-width: 4; stroke-linecap: butt; }
-        .svg-point { fill: #000; stroke: #fff; stroke-width: 2; }
-        .svg-point-invalid { fill: #999; stroke: #fff; stroke-width: 2; }
-        .svg-bound { fill: #fff; stroke: #000; stroke-width: 2; }
-        .svg-text { font: 14px sans-serif; fill: #000; text-anchor: middle; }
-        .svg-text-left { text-anchor: start; }
-        .svg-od-zone { stroke: #4CAF50; stroke-width: 2; stroke-dasharray: 5; }
-
-        /* Generator Form */
-        .generator-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: var(--space-sm);
-            margin-bottom: var(--space-md);
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 0.8rem;
-            margin-bottom: 4px;
-            font-weight: bold;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 8px;
-            border: var(--border);
-            background: var(--bg);
-            color: var(--fg);
-            font-weight: bold;
-        }
-
-        /* Cheat Sheet Table */
-        .cheat-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .cheat-table th, .cheat-table td {
-            border: var(--border);
-            padding: var(--space-sm);
-            text-align: left;
-        }
-        .cheat-table th { background: var(--fg); color: var(--bg); }
-
-        /* Footer */
-        footer {
-            margin-top: var(--space-xl);
-            border-top: var(--border);
-            padding: var(--space-md);
-            text-align: center;
-            font-weight: bold;
-            font-size: 0.9rem;
-            opacity: 0.7;
-        }
-
-        /* Print */
-        @media print {
-            header, .nav-modes, .viz-controls, .generator-form, .theme-toggle, .step-header, footer, .btn {
-                display: none !important;
-            }
-            .workspace { display: block; }
-            .right-col { display: none; }
-            .step-content { display: block !important; border: 1px solid #000; box-shadow: none; margin-bottom: 10px; }
-            .step-panel.active .step-header { background: white; color: black; border: none; }
-            body { background: white; color: black; }
-            .card { box-shadow: none; border: 1px solid #000; }
-        }
-
     </style>
 </head>
-<body data-theme="light">
+<body>
+<div class="wrap">
+    <section class="hero card">
+        <span class="eyebrow">Наглядная математика · ЕГЭ · параметры</span>
+        <h1>Ровно один корень на отрезке: графо-аналитический разбор</h1>
+        <p>
+            Разбираем уравнение <span class="formula">(x² − 10x + a²) / √((a − x + 8)(a + x − 3)) = 0</span> на отрезке <span class="formula">[2; 6]</span>.
+            Слева — подробный пошаговый разбор, справа — интерактивная модель в плоскости <span class="formula">(x, a)</span> с зумом, панорамированием, подсветкой шагов и генератором похожих задач.
+        </p>
+        <div class="topbar">
+            <div class="chip"><div class="k">Тема</div><div class="v">Уравнение с параметром</div></div>
+            <div class="chip"><div class="k">Метод</div><div class="v">Графо-аналитический</div></div>
+            <div class="chip"><div class="k">Ключевая идея</div><div class="v">Числитель = 0, ОДЗ > 0</div></div>
+            <div class="chip"><div class="k">Ответ</div><div class="v">(-2√6; -(3+√41)/2) ∪ [4; 2√6) ∪ {-5, 5}</div></div>
+        </div>
+    </section>
 
-<!-- HEADER -->
-<header>
-    <div class="header-inner">
-        <div class="logo">MATH<span style="color:var(--accent)">.</span>VISUAL</div>
-        <nav class="nav-modes" role="navigation" aria-label="Modes">
-            <button class="nav-btn active" onclick="setMode('razbor')">Разбор</button>
-            <button class="nav-btn" onclick="setMode('viz')">Визуализация</button>
-            <button class="nav-btn" onclick="setMode('mistakes')">Ошибки</button>
-            <button class="nav-btn" onclick="setMode('quiz')">Самопроверка</button>
-            <button class="nav-btn" onclick="setMode('generator')">Генератор</button>
-            <button class="nav-btn" onclick="setMode('cheatsheet')">Итог</button>
-        </nav>
-        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Dark Mode">☀</button>
+    <div class="controls">
+        <button class="btn active" data-mode="razbor">Разбор</button>
+        <button class="btn" data-mode="errors">Ошибки</button>
+        <button class="btn" data-mode="quiz">Самопроверка</button>
+        <button class="btn" data-mode="generator">Генератор</button>
+        <button class="btn" data-mode="memo">Памятка</button>
+        <select id="detailLevel" class="select">
+            <option value="full">Подробно</option>
+            <option value="mid">Средне</option>
+            <option value="short">Кратко</option>
+        </select>
     </div>
-</header>
 
-<!-- HERO -->
-<section class="hero">
-    <div class="container">
-        <h1>Уравнения с параметром</h1>
-        <p>Дробь с радикалом: поиск параметра для одного корня на отрезке.</p>
-    </div>
-</section>
+    <main class="workspace">
+        <div class="leftCol">
+            <section class="card section" id="mode-razbor">
+                <h2>Структура решения</h2>
+                <div class="idea"><strong>Идея решения.</strong> Корень дроби появляется только там, где числитель равен нулю, а знаменатель определён и не равен нулю. Поэтому мы строим окружность из числителя, две прямые из границ ОДЗ, ограничиваемся полосой <span class="formula">2 ≤ x ≤ 6</span> и по горизонталям <span class="formula">a = const</span> считаем число допустимых точек.</div>
 
-<!-- MAIN WORKSPACE -->
-<main class="container">
-    <div class="workspace">
-
-        <!-- LEFT: CONTENT -->
-        <div class="left-col" id="content-area">
-
-            <!-- MODE: RAZBOR (Analysis) -->
-            <div id="mode-razbor" class="mode-content">
-                <div class="card">
-                    <h2 style="margin-bottom:1rem;">Условие задачи</h2>
-                    <p style="font-size:1.2rem; margin-bottom:1rem;">
-                        Найдите все значения <span class="math">a</span>, при каждом из которых уравнение
-                    </p>
-                    <div style="text-align:center; margin: 1.5rem 0;">
-                            <span class="frac">
-                                <span class="num"><span class="math">x</span><sup>2</sup> − 10<span class="math">x</span> + <span class="math">a</span><sup>2</sup></span>
-                                <span class="den">√<span style="border-top:1px solid black; padding: 0 2px;">(<span class="math">a</span>−<span class="math">x</span>+8)(<span class="math">a</span>+<span class="math">x</span>−3)</span></span>
-                            </span> = 0
-                    </div>
-                    <p>имеет ровно один корень на отрезке <strong>[2; 6]</strong>.</p>
+                <div class="steps" id="steps">
+                    <article class="step active" data-step="0">
+                        <div class="stepTitle"><span class="badge">1</span> Что дано и что ищем</div>
+                        <div class="sub">Нужно найти все значения параметра <span class="formula">a</span>, при которых уравнение имеет ровно один корень по <span class="formula">x</span> на отрезке <span class="formula">[2; 6]</span>.</div>
+                    </article>
+                    <article class="step" data-step="1">
+                        <div class="stepTitle"><span class="badge">2</span> Числитель равен нулю</div>
+                        <div class="sub">Из <span class="formula">x² − 10x + a² = 0</span> получаем <span class="formula">(x − 5)² + a² = 25</span>. Это окружность с центром <span class="formula">(5, 0)</span> и радиусом <span class="formula">5</span>.</div>
+                    </article>
+                    <article class="step" data-step="2">
+                        <div class="stepTitle"><span class="badge">3</span> Ограничения из знаменателя</div>
+                        <div class="sub">Так как в знаменателе корень, нужно строгое неравенство: <span class="formula">(a − x + 8)(a + x − 3) &gt; 0</span>. Его границы — прямые <span class="formula">a = x − 8</span> и <span class="formula">a = −x + 3</span>.</div>
+                    </article>
+                    <article class="step" data-step="3">
+                        <div class="stepTitle"><span class="badge">4</span> Полоса по x</div>
+                        <div class="sub">Нас интересуют только точки внутри вертикальной полосы <span class="formula">2 ≤ x ≤ 6</span>.</div>
+                    </article>
+                    <article class="step" data-step="4">
+                        <div class="stepTitle"><span class="badge">5</span> Формулы для корней числителя</div>
+                        <div class="sub">На окружности <span class="formula">x = 5 ± √(25 − a²)</span>. Это даёт левый корень <span class="formula">x₁ = 5 − √(25 − a²)</span> и правый корень <span class="formula">x₂ = 5 + √(25 − a²)</span>.</div>
+                    </article>
+                    <article class="step" data-step="5">
+                        <div class="stepTitle"><span class="badge">6</span> Когда корень ровно один</div>
+                        <div class="sub">Нужно отдельно проверить, когда в отрезке остаётся только <span class="formula">x₁</span>, когда остаётся только <span class="formula">x₂</span>, и не забыть про особые случаи <span class="formula">a = ±5</span>, когда обе формулы сливаются в один корень <span class="formula">x = 5</span>.</div>
+                    </article>
+                    <article class="step" data-step="6">
+                        <div class="stepTitle"><span class="badge">7</span> Итог</div>
+                        <div class="sub">Ответ: <span class="formula">a ∈ (−2√6; −(3+√41)/2) ∪ [4; 2√6) ∪ {−5, 5}</span>.</div>
+                    </article>
                 </div>
+            </section>
 
-                <div class="step-panel active" onclick="setStep(1)">
-                    <div class="step-header">
-                        <div class="step-number">1</div>
-                        Числитель равен нулю
-                    </div>
-                    <div class="step-content">
-                        <p>Дробь равна нулю, когда числитель = 0, а знаменатель ≠ 0.</p>
-                        <p><span class="math">x</span><sup>2</sup> − 10<span class="math">x</span> + <span class="math">a</span><sup>2</sup> = 0</p>
-                        <p>Дискриминант: <span class="math">D</span> = 100 − 4<span class="math">a</span><sup>2</sup> = 4(25 − <span class="math">a</span><sup>2</sup>).</p>
-                        <p>Чтобы были корни, нужно <span class="math">D</span> ≥ 0 ⇒ <span class="math">a</span> ∈ [−5; 5].</p>
-                        <p>Корни: <span class="math">x</span><sub>1,2</sub> = 5 ± √(25 − <span class="math">a</span><sup>2</sup>).</p>
-                        <p style="margin-top:0.5rem"><em>Обозначим <span class="math">x</span><sub>1</sub> ≤ 5, <span class="math">x</sub><sub>2</sub> ≥ 5.</em></p>
-                    </div>
+            <section class="card section" id="mode-errors" hidden>
+                <h2>Типичные ошибки</h2>
+                <div class="noteGrid">
+                    <div class="mini"><strong>Ошибка 1.</strong> Считать, что из знаменателя достаточно <span class="formula">≥ 0</span>. Здесь нужно именно <span class="formula">&gt; 0</span>, потому что знаменатель не может равняться нулю.</div>
+                    <div class="mini"><strong>Ошибка 2.</strong> Оставить все точки окружности. На самом деле часть окружности выколота границами ОДЗ.</div>
+                    <div class="mini"><strong>Ошибка 3.</strong> Не учитывать отрезок <span class="formula">[2; 6]</span>. Корни вне этой полосы не считаются.</div>
+                    <div class="mini"><strong>Ошибка 4.</strong> Потерять случаи <span class="formula">a = ±5</span>. В этих точках окружность даёт один-единственный корень <span class="formula">x = 5</span>.</div>
                 </div>
+                <h3>Почему особые случаи важны</h3>
+                <p class="muted">Когда <span class="formula">a = 5</span> или <span class="formula">a = −5</span>, уравнение числителя превращается в <span class="formula">(x − 5)² = 0</span>. Это один корень, а не два, и он допустим по ОДЗ.</p>
+            </section>
 
-                <div class="step-panel" onclick="setStep(2)">
-                    <div class="step-header">
-                        <div class="step-number">2</div>
-                        Область допустимых значений (ОДЗ)
+            <section class="card section" id="mode-quiz" hidden>
+                <h2>Самопроверка</h2>
+                <div class="quizBox">
+                    <div class="problem">
+                        <strong>1.</strong> Какой график задаёт уравнение <span class="formula">x² − 10x + a² = 0</span> в плоскости <span class="formula">(x, a)</span>?<br>
+                        <button class="btn quiz" data-q="0" data-a="1">Парабола</button>
+                        <button class="btn quiz" data-q="0" data-a="2">Окружность</button>
+                        <button class="btn quiz" data-q="0" data-a="3">Гипербола</button>
+                        <div class="result" id="qr0"></div>
                     </div>
-                    <div class="step-content">
-                        <p>Знаменатель должен быть > 0:</p>
-                        <p>(<span class="math">a</span> − <span class="math">x</span> + 8)(<span class="math">a</span> + <span class="math">x</span> − 3) > 0.</p>
-                        <p>Преобразуем в стандартный вид (по <span class="math">x</span>):</p>
-                        <p>(<span class="math">x</span> − (<span class="math">a</span> + 8))(<span class="math">x</span> − (3 − <span class="math">a</span>)) < 0.</p>
-                        <p>Корни знаменателя: <span class="math">x</span><sub>A</sub> = <span class="math">a</span> + 8, <span class="math">x</span><sub>B</sub> = 3 − <span class="math">a</span>.</p>
-                        <p>Интервал ОДЗ лежит строго между этими точками.</p>
+                    <div class="problem">
+                        <strong>2.</strong> Почему точки на прямых <span class="formula">a = x − 8</span> и <span class="formula">a = −x + 3</span> нельзя включать в ответ?<br>
+                        <button class="btn quiz" data-q="1" data-a="1">Потому что там числитель не ноль</button>
+                        <button class="btn quiz" data-q="1" data-a="2">Потому что там знаменатель равен нулю</button>
+                        <button class="btn quiz" data-q="1" data-a="3">Потому что x выходит из отрезка</button>
+                        <div class="result" id="qr1"></div>
                     </div>
-                </div>
-
-                <div class="step-panel" onclick="setStep(3)">
-                    <div class="step-header">
-                        <div class="step-number">3</div>
-                        Анализ отрезка [2; 6]
-                    </div>
-                    <div class="step-content">
-                        <p>Нам нужно, чтобы ровно один из корней <span class="math">x</span><sub>1</sub>, <span class="math">x</sub><sub>2</sub> попал в пересечение отрезка [2; 6] и ОДЗ.</p>
-                        <p><strong>Ключевые точки:</strong></p>
-                        <ul>
-                            <li>Центр параболы <span class="math">x</span>=5. Отрезок [2; 6] симметричен относительно 4, но корни симметричны относительно 5.</li>
-                            <li><span class="math">x</span><sub>1</sub> ∈ [2; 5], <span class="math">x</sub><sub>2</sub> ∈ [5; 8] (при D≥0).</li>
-                        </ul>
-                        <p>Используем визуализацию справа для поиска критических значений <span class="math">a</span>.</p>
+                    <div class="problem">
+                        <strong>3.</strong> Что происходит при <span class="formula">a = 5</span>?<br>
+                        <button class="btn quiz" data-q="2" data-a="1">Два разных корня</button>
+                        <button class="btn quiz" data-q="2" data-a="2">Корней нет</button>
+                        <button class="btn quiz" data-q="2" data-a="3">Один двойной корень x = 5</button>
+                        <div class="result" id="qr2"></div>
                     </div>
                 </div>
+            </section>
 
-                <div class="step-panel" onclick="setStep(4)">
-                    <div class="step-header">
-                        <div class="step-number">4</div>
-                        Решение и Ответ
-                    </div>
-                    <div class="step-content">
-                        <p>Проведя анализ (см. графику), получаем решение:</p>
-                        <div class="card" style="background:var(--secondary); color:white; margin-top:1rem;">
-                            <h3>Ответ:</h3>
-                            <p style="font-family: monospace; font-size: 1.2rem; margin-top:0.5rem;">
-                                [−5; (-3−√41)/2) ∪ [(-2−√46)/2; −4] ∪ {4; 5}
-                            </p>
-                        </div>
-                    </div>
+            <section class="card section" id="mode-generator" hidden>
+                <h2>Генератор похожих задач</h2>
+                <div class="genBox">
+                    <p class="muted">Генератор сохраняет ту же логику: окружность из числителя, две прямые из знаменателя, отбор по отрезку и поиск тех параметров, при которых остаётся ровно один корень.</p>
+                    <button class="btn" id="genBtn">Сгенерировать задачу</button>
+                    <div class="problem" id="genProblem">Нажмите кнопку, чтобы получить новую корректную задачу.</div>
+                    <div class="answer" id="genAnswer" hidden></div>
                 </div>
-            </div>
+            </section>
 
-            <!-- MODE: MISTAKES -->
-            <div id="mode-mistakes" class="mode-content hidden">
-                <h2 style="margin-bottom:1rem;">Типичные ошибки</h2>
-                <div class="card" style="border-left: 4px solid var(--accent);">
-                    <h3>1. Забываем ОДЗ</h3>
-                    <p>Самая частая ошибка — решать числитель и проверять корни только по отрезку [2; 6], игнорируя, что знаменатель должен быть строгo больше нуля. Корень может попасть в [2; 6], но "выколоться" знаменателем.</p>
+            <section class="card section" id="mode-memo" hidden>
+                <h2>Памятка</h2>
+                <div class="noteGrid">
+                    <div class="mini"><strong>Что дано.</strong><br>Дробь равна нулю.</div>
+                    <div class="mini"><strong>Первый шаг.</strong><br>Числитель приравнять к нулю.</div>
+                    <div class="mini"><strong>Второй шаг.</strong><br>ОДЗ для знаменателя выписать отдельно.</div>
+                    <div class="mini"><strong>Третий шаг.</strong><br>Перейти к плоскости <span class="formula">(x, a)</span>.</div>
+                    <div class="mini"><strong>Четвёртый шаг.</strong><br>Оставить только нужную полосу по <span class="formula">x</span>.</div>
+                    <div class="mini"><strong>Пятый шаг.</strong><br>По горизонталям считать число допустимых точек.</div>
                 </div>
-                <div class="card" style="border-left: 4px solid var(--accent);">
-                    <h3>2. Неправильный порядок корней ОДЗ</h3>
-                    <p>При <span class="math">a</span> = −3 точки <span class="math">a</span>+8 и 3−<span class="math">a</span> равны. При переходе через −2.5 они меняются местами. Нужно внимательно следить, какая точка левая, а какая правая.</p>
-                </div>
-                <div class="card" style="border-left: 4px solid var(--accent);">
-                    <h3>3. Граничные точки</h3>
-                    <p>Неясно, включаются ли концы отрезка [2; 6]. В данном случае, если корень равен 2 или 6, он "считается", если он не выколот ОДЗ.</p>
-                </div>
-            </div>
-
-            <!-- MODE: QUIZ -->
-            <div id="mode-quiz" class="mode-content hidden">
-                <h2 style="margin-bottom:1rem;">Самопроверка</h2>
-                <div class="card">
-                    <p><strong>Вопрос 1:</strong> При каких значениях <span class="math">a</span> уравнение <span class="math">x</span><sup>2</sup> − 10<span class="math">x</span> + <span class="math">a</span><sup>2</sup> = 0 имеет корни?</p>
-                    <div style="margin-top:0.5rem;">
-                        <button class="btn btn-small" onclick="checkQuiz(1, true)">|a| ≤ 5</button>
-                        <button class="btn btn-small" onclick="checkQuiz(1, false)">|a| ≥ 5</button>
-                        <button class="btn btn-small" onclick="checkQuiz(1, false)">Любое a</button>
-                    </div>
-                    <div id="quiz-1-fb" style="margin-top:0.5rem; font-weight:bold;"></div>
-                </div>
-                <div class="card">
-                    <p><strong>Вопрос 2:</strong> Где находится ось симметрии параболы <span class="math">y</span> = <span class="math">x</span><sup>2</sup> − 10<span class="math">x</span> + ...?</p>
-                    <div style="margin-top:0.5rem;">
-                        <button class="btn btn-small" onclick="checkQuiz(2, false)">x = 0</button>
-                        <button class="btn btn-small" onclick="checkQuiz(2, true)">x = 5</button>
-                        <button class="btn btn-small" onclick="checkQuiz(2, false)">x = 10</button>
-                    </div>
-                    <div id="quiz-2-fb" style="margin-top:0.5rem; font-weight:bold;"></div>
-                </div>
-                <div class="card">
-                    <p><strong>Вопрос 3:</strong> Корни знаменателя (<span class="math">x</span> − (<span class="math">a</span>+8))(<span class="math">x</span> − (3−<span class="math">a</span>)) = 0 это:</p>
-                    <div style="margin-top:0.5rem;">
-                        <button class="btn btn-small" onclick="checkQuiz(3, true)">a+8 и 3-a</button>
-                        <button class="btn btn-small" onclick="checkQuiz(3, false)">8-a и a-3</button>
-                        <button class="btn btn-small" onclick="checkQuiz(3, false)">a и 3</button>
-                    </div>
-                    <div id="quiz-3-fb" style="margin-top:0.5rem; font-weight:bold;"></div>
-                </div>
-            </div>
-
-            <!-- MODE: GENERATOR -->
-            <div id="mode-generator" class="mode-content hidden">
-                <h2 style="margin-bottom:1rem;">Генератор похожих задач</h2>
-                <p>Измените параметры, чтобы получить новую задачу. Визуализация обновится автоматически.</p>
-
-                <div class="card">
-                    <div class="generator-form">
-                        <div class="input-group">
-                            <label>Коэф. при x (B)</label>
-                            <input type="number" id="gen-B" value="10" onchange="updateGenerator()">
-                        </div>
-                        <div class="input-group">
-                            <label>Левая граница (L)</label>
-                            <input type="number" id="gen-L" value="2" onchange="updateGenerator()">
-                        </div>
-                        <div class="input-group">
-                            <label>Правая граница (R)</label>
-                            <input type="number" id="gen-R" value="6" onchange="updateGenerator()">
-                        </div>
-                        <div class="input-group">
-                            <label>Слагаемое 1 (C1)</label>
-                            <input type="number" id="gen-C1" value="8" onchange="updateGenerator()">
-                        </div>
-                        <div class="input-group">
-                            <label>Слагаемое 2 (C2)</label>
-                            <input type="number" id="gen-C2" value="-3" onchange="updateGenerator()">
-                        </div>
-                    </div>
-                    <div style="text-align:center;">
-                        <button class="btn" onclick="randomizeGen()">🎲 Случайные параметры</button>
-                    </div>
-                </div>
-
-                <div class="card" id="gen-result" style="display:none;">
-                    <h3>Ваше условие:</h3>
-                    <p id="gen-text" style="font-size:1.1rem; margin:1rem 0;"></p>
-                    <button class="btn btn-accent" onclick="applyGen()">Применить к уроку</button>
-                </div>
-            </div>
-
-            <!-- MODE: CHEATSHEET -->
-            <div id="mode-cheatsheet" class="mode-content hidden">
-                <h2 style="margin-bottom:1rem;">Краткий итог (Шпаргалка)</h2>
-                <table class="cheat-table">
-                    <tr>
-                        <th>Условие</th>
-                        <th>Решение</th>
-                    </tr>
-                    <tr>
-                        <td>Дробь = 0</td>
-                        <td>Числитель = 0, Знаменатель ≠ 0</td>
-                    </tr>
-                    <tr>
-                        <td>√(...) в знаменателе</td>
-                        <td>Подкоренное выражение &gt; 0</td>
-                    </tr>
-                    <tr>
-                        <td>Квадратное ур-е</td>
-                        <td>Проверять D ≥ 0</td>
-                    </tr>
-                    <tr>
-                        <td>Один корень на отрезке</td>
-                        <td>Проверять попадание и ОДЗ</td>
-                    </tr>
-                </table>
-                <div class="card" style="margin-top:1rem;">
-                    <h3>Важно помнить</h3>
-                    <p>В задачах с параметром <strong>всегда</strong> рисуйте эскиз. Движение корней часто нагляднее аналитики.</p>
-                </div>
-            </div>
-
+            </section>
         </div>
 
-        <!-- RIGHT: VISUALIZATION -->
-        <div class="right-col">
-            <div class="viz-container">
-                <h3 style="margin-bottom:0.5rem;">Интерактивная модель</h3>
-                <div class="viz-controls">
-                    <label for="param-a" style="font-weight:bold; font-size:0.9rem;">Параметр a:</label>
-                    <input type="range" id="param-a" min="-5" max="5" step="0.1" value="0" style="flex-grow:1; cursor:pointer;">
-                    <span id="val-a" style="font-family:monospace; font-weight:bold; width:40px; text-align:right;">0</span>
-                </div>
-                <div class="viz-controls" style="justify-content:space-between;">
-                    <button class="btn btn-small" onclick="setA(-5)">Min</button>
-                    <button class="btn btn-small" onclick="setA(0)">0</button>
-                    <button class="btn btn-small" onclick="setA(5)">Max</button>
+        <aside class="rightCol">
+            <section class="card viz">
+                <div class="vizHead">
+                    <div>
+                        <div class="vizTitle">Интерактивная модель</div>
+                        <div class="vizMeta">Щёлкните по шагу слева, чтобы подсветить нужный объект. По клику на график откроется увеличенный режим.</div>
+                    </div>
+                    <button class="btn" id="openModal">Открыть крупно</button>
                 </div>
 
-                <div class="viz-svg-wrapper" style="position:relative; width:100%; height:400px;">
-                    <svg id="main-svg" class="viz-svg" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet">
-                        <!-- Grid -->
-                        <g id="grid-group"></g>
-                        <!-- Axis -->
-                        <line id="axis-x" class="svg-axis" x1="0" y1="300" x2="600" y2="300" />
-
-                        <!-- Segment [L, R] -->
-                        <line id="seg-line" class="svg-segment" x1="0" y1="300" x2="0" y2="300" />
-                        <text id="text-L" class="svg-text" x="0" y="330" style="font-weight:bold;">L</text>
-                        <text id="text-R" class="svg-text" x="0" y="330" style="font-weight:bold;">R</text>
-
-                        <!-- ODZ Zone -->
-                        <line id="odz-line" class="svg-od-zone" x1="0" y1="350" x2="0" y2="350" />
-                        <text id="text-odz-l" class="svg-text" x="0" y="370" style="fill:#4CAF50;">ODZ start</text>
-                        <text id="text-odz-r" class="svg-text" x="0" y="370" style="fill:#4CAF50;">ODZ end</text>
-
-                        <!-- Roots -->
-                        <circle id="root-1" class="svg-point" cx="0" cy="300" r="6" />
-                        <text id="text-root-1" class="svg-text" x="0" y="280">x1</text>
-
-                        <circle id="root-2" class="svg-point" cx="0" cy="300" r="6" />
-                        <text id="text-root-2" class="svg-text" x="0" y="280">x2</text>
-
-                        <!-- Status Text -->
-                        <text id="status-text" class="svg-text-left" x="20" y="40" style="font-size:16px; font-weight:bold; fill:var(--accent);">Status</text>
-                    </svg>
+                <div class="toolbar">
+                    <button class="btn" id="zoomIn">+</button>
+                    <button class="btn" id="zoomOut">−</button>
+                    <button class="btn" id="resetView">Сброс</button>
+                    <button class="btn active toggle" data-toggle="circle">Окружность</button>
+                    <button class="btn active toggle" data-toggle="lines">Прямые</button>
+                    <button class="btn active toggle" data-toggle="strip">Полоса [2;6]</button>
+                    <button class="btn active toggle" data-toggle="valid">Допустимые дуги</button>
+                    <div class="rangeWrap">Зум <input type="range" min="0.7" max="2.5" step="0.01" value="1" id="zoomRange"></div>
                 </div>
 
-                <div style="margin-top:1rem; font-size:0.9rem; opacity:0.8;">
-                    <p>🔴 Точки корней (x1, x2). Если серые — корней нет (D<0).</p>
-                    <p>🟢 Штриховая линия на оси — допустимая область (ОДЗ).</p>
-                    <p style="margin-top:0.5rem; color:var(--accent); font-weight:bold;">Цель: ровно одна красная точка внутри отрезка [L, R] И внутри зеленой зоны.</p>
+                <div class="canvasWrap">
+                    <canvas id="plot"></canvas>
                 </div>
-            </div>
+
+                <div class="legend">
+                    <div><span class="sw" style="border-color:#98a9b7"></span> окружность числителя</div>
+                    <div><span class="sw" style="border-color:#ffd166;border-style:dashed"></span> границы ОДЗ</div>
+                    <div><span class="sw" style="border-color:#4dd0e1"></span> допустимые части графика</div>
+                    <div><span class="sw" style="border-color:#7ee787"></span> активная подсветка</div>
+                </div>
+
+                <div class="status" id="statusBox">
+                    Сейчас показан полный рисунок. <strong>Ключевой вывод:</strong> ответ состоит из одного отрицательного интервала, одного полуинтервала справа и двух отдельных точек <span class="formula">a = ±5</span>.
+                </div>
+            </section>
+        </aside>
+    </main>
+
+    <div class="footer">Наглядная математика · один автономный HTML · локальная работа без внешних библиотек</div>
+</div>
+
+<div class="modal" id="modal">
+    <div class="modalCard">
+        <div class="modalTop">
+            <div><strong>Увеличенная визуализация</strong><div class="muted">Состояние синхронизировано с основным окном</div></div>
+            <button class="btn close" id="closeModal">×</button>
         </div>
-
+        <canvas id="plotModal"></canvas>
     </div>
-</main>
+</div>
 
-<!-- FOOTER -->
-<footer>
-    <div class="container">
-        <p>МАТЕМАТИКА. НАГЛЯДНО. &copy; 2024</p>
-    </div>
-</footer>
-
-<!-- JAVASCRIPT -->
 <script>
-    // --- STATE ---
     const state = {
-        theme: localStorage.getItem('theme') || 'light',
         mode: 'razbor',
-        step: 1,
-        a: 0,
-        // Generator defaults
-        gen: { B: 10, L: 2, R: 6, C1: 8, C2: -3 }
+        step: 0,
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        dragging: false,
+        dragStart: null,
+        show: { circle:true, lines:true, strip:true, valid:true }
     };
 
-    // --- INIT ---
-    document.addEventListener('DOMContentLoaded', () => {
-        applyTheme();
-        renderScene();
+    const plot = document.getElementById('plot');
+    const modalPlot = document.getElementById('plotModal');
+    const ctx = plot.getContext('2d');
+    const ctxM = modalPlot.getContext('2d');
+    const statusBox = document.getElementById('statusBox');
 
-        // Slider listener
-        const slider = document.getElementById('param-a');
-        slider.addEventListener('input', (e) => {
-            state.a = parseFloat(e.target.value);
-            document.getElementById('val-a').textContent = state.a.toFixed(1);
-            renderScene();
+    function resizeCanvas(canvas){
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(rect.width * dpr);
+        canvas.height = Math.round(rect.height * dpr);
+        const c = canvas.getContext('2d');
+        c.setTransform(dpr,0,0,dpr,0,0);
+    }
+
+    function worldToScreen(x,a,w,h,view){
+        const xMin = 0.6, xMax = 9.2, aMin = -5.6, aMax = 5.6;
+        const cx = (xMin + xMax)/2 + view.panX;
+        const cy = (aMin + aMax)/2 + view.panY;
+        const hw = (xMax - xMin)/(2*view.zoom);
+        const hh = (aMax - aMin)/(2*view.zoom);
+        const sx = (x - (cx - hw)) / (2*hw) * w;
+        const sy = h - (a - (cy - hh)) / (2*hh) * h;
+        return [sx,sy];
+    }
+
+    function screenDeltaToWorld(dx,dy,w,h,view){
+        const xMin = 0.6, xMax = 9.2, aMin = -5.6, aMax = 5.6;
+        const hw = (xMax - xMin)/(2*view.zoom);
+        const hh = (aMax - aMin)/(2*view.zoom);
+        return { dx: -dx / w * 2 * hw, dy: dy / h * 2 * hh };
+    }
+
+    function drawScene(c, canvas, modal=false){
+        const w = canvas.getBoundingClientRect().width;
+        const h = canvas.getBoundingClientRect().height;
+        c.clearRect(0,0,w,h);
+        c.fillStyle = '#101826';
+        c.fillRect(0,0,w,h);
+
+        const view = { zoom:state.zoom, panX:state.panX, panY:state.panY };
+
+        // grid
+        c.strokeStyle = 'rgba(255,255,255,.06)';
+        c.lineWidth = 1;
+        for(let x=1;x<=9;x++){
+            const [sx1,sy1] = worldToScreen(x,-6,w,h,view);
+            const [sx2,sy2] = worldToScreen(x,6,w,h,view);
+            c.beginPath(); c.moveTo(sx1,sy1); c.lineTo(sx2,sy2); c.stroke();
+        }
+        for(let a=-5;a<=5;a++){
+            const [sx1,sy1] = worldToScreen(0,a,w,h,view);
+            const [sx2,sy2] = worldToScreen(10,a,w,h,view);
+            c.beginPath(); c.moveTo(sx1,sy1); c.lineTo(sx2,sy2); c.stroke();
+        }
+
+        // axes
+        c.strokeStyle = 'rgba(255,255,255,.25)';
+        c.lineWidth = 1.4;
+        let p1 = worldToScreen(0.6,0,w,h,view), p2 = worldToScreen(9.2,0,w,h,view);
+        c.beginPath(); c.moveTo(...p1); c.lineTo(...p2); c.stroke();
+        p1 = worldToScreen(0,-5.6,w,h,view); p2 = worldToScreen(0,5.6,w,h,view);
+        c.beginPath(); c.moveTo(...p1); c.lineTo(...p2); c.stroke();
+
+        // strip
+        if(state.show.strip){
+            c.fillStyle = 'rgba(255,255,255,.035)';
+            const [sxL,syT] = worldToScreen(2,5.6,w,h,view);
+            const [sxR,syB] = worldToScreen(6,-5.6,w,h,view);
+            c.fillRect(sxL,syT,sxR-sxL,syB-syT);
+            c.setLineDash([6,6]);
+            c.strokeStyle = 'rgba(255,255,255,.35)';
+            c.beginPath(); c.moveTo(sxL,syT); c.lineTo(sxL,syB); c.moveTo(sxR,syT); c.lineTo(sxR,syB); c.stroke();
+            c.setLineDash([]);
+        }
+
+        // helper functions
+        function drawPath(fn, color, dashed=false, xStart=0.6, xEnd=9.2, width=2, highlight=false){
+            c.beginPath();
+            let started=false;
+            for(let x=xStart;x<=xEnd;x+=0.02){
+                const a = fn(x);
+                if(Number.isFinite(a)){
+                    const [sx,sy]=worldToScreen(x,a,w,h,view);
+                    if(!started){c.moveTo(sx,sy);started=true;} else c.lineTo(sx,sy);
+                }
+            }
+            c.lineWidth = width;
+            c.strokeStyle = color;
+            c.setLineDash(dashed?[7,7]:[]);
+            c.stroke();
+            c.setLineDash([]);
+            if(highlight){
+                c.strokeStyle = '#7ee787';
+                c.lineWidth = width+1;
+                c.stroke();
+            }
+        }
+
+        // lines
+        const hlLines = state.step===2;
+        if(state.show.lines){
+            drawPath(x=>x-8,'#ffd166',true,0.6,9.2,2,hlLines);
+            drawPath(x=>-x+3,'#ffd166',true,0.6,9.2,2,hlLines);
+        }
+
+        // circle full
+        const hlCircle = state.step===1 || state.step===4;
+        if(state.show.circle){
+            c.beginPath();
+            let started=false;
+            for(let t=0;t<=Math.PI*2+0.01;t+=0.01){
+                const x=5+5*Math.cos(t), a=5*Math.sin(t);
+                const [sx,sy]=worldToScreen(x,a,w,h,view);
+                if(!started){c.moveTo(sx,sy);started=true;} else c.lineTo(sx,sy);
+            }
+            c.lineWidth=2.1;
+            c.strokeStyle='#9fb3c8';
+            c.stroke();
+            if(hlCircle){ c.lineWidth=3.5; c.strokeStyle='#7ee787'; c.stroke(); }
+        }
+
+        // valid arcs
+        if(state.show.valid){
+            const segments = [
+                [2,6, x=> Math.sqrt(25-(x-5)*(x-5))],
+                [2,4.898979486, x=> -Math.sqrt(25-(x-5)*(x-5))],
+                [5,5, x=> -5]
+            ];
+            const hlValid = state.step>=5;
+            segments.forEach(seg=>{
+                const [xs,xe,fn]=seg;
+                c.beginPath();
+                let started=false;
+                for(let x=xs;x<=xe+1e-9;x+=0.01){
+                    const a=fn(x);
+                    const [sx,sy]=worldToScreen(x,a,w,h,view);
+                    if(!started){c.moveTo(sx,sy);started=true;} else c.lineTo(sx,sy);
+                }
+                c.lineWidth=3.3;
+                c.strokeStyle='#4dd0e1';
+                c.stroke();
+                if(hlValid){ c.lineWidth=5; c.strokeStyle='rgba(126,231,135,.75)'; c.stroke(); }
+            });
+        }
+
+        // special points
+        const points = [
+            {x:2,a:4,label:'A(2, 4)', show: state.step>=3},
+            {x:6,a:Math.sqrt(24),label:'B(6, 2√6)', show: state.step>=5},
+            {x:6,a:-Math.sqrt(24),label:'D(6, -2√6)', show: state.step>=5},
+            {x:(13-Math.sqrt(41))/2,a:-(3+Math.sqrt(41))/2,label:'C', open:true, show: state.step>=5},
+            {x:5,a:-5,label:'E(5, -5)', show: state.step>=6},
+            {x:5,a:5,label:'F(5, 5)', show: state.step>=6}
+        ];
+        c.font='13px Inter, Arial';
+        points.forEach(p=>{
+            if(!p.show) return;
+            const [sx,sy]=worldToScreen(p.x,p.a,w,h,view);
+            c.beginPath();
+            c.arc(sx,sy,4,0,Math.PI*2);
+            c.fillStyle = p.open ? '#101826' : '#4dd0e1';
+            c.fill();
+            c.lineWidth=1.5; c.strokeStyle='#4dd0e1'; c.stroke();
+            c.fillStyle='#dce7f1';
+            c.fillText(p.label,sx+8,sy-8);
+        });
+
+        // labels x and a
+        c.fillStyle='rgba(255,255,255,.8)';
+        c.fillText('x', w-16, worldToScreen(0,0,w,h,view)[1]-8);
+        const yAxis = worldToScreen(0,5.3,w,h,view); c.fillText('a', yAxis[0]+8, yAxis[1]);
+    }
+
+    function redraw(){ drawScene(ctx, plot, false); drawScene(ctxM, modalPlot, true); }
+
+    function syncStatus(){
+        const msgs = [
+            'Сейчас выделено условие задачи. Нужно искать уровни параметра <strong>a</strong>, при которых допустимая точка внутри полосы <span class="formula">[2;6]</span> ровно одна.',
+            'Подсвечена окружность <span class="formula">(x − 5)² + a² = 25</span>. Именно она описывает все кандидаты на корни числителя.',
+            'Подсвечены прямые <span class="formula">a = x − 8</span> и <span class="formula">a = −x + 3</span>. Это границы ОДЗ, на них точки запрещены.',
+            'Подсвечена полоса <span class="formula">2 ≤ x ≤ 6</span>. Всё вне неё не участвует в подсчёте корней.',
+            'Теперь важно смотреть на формулы <span class="formula">x = 5 ± √(25 − a²)</span> и понимать, какие ветви попадают в полосу.',
+            'Подсвечены допустимые дуги: верхняя целиком внутри полосы и подходящая нижняя часть вместе с особой точкой <span class="formula">(5, -5)</span>.',
+            'Финальный ответ: <strong>(−2√6; −(3+√41)/2) ∪ [4; 2√6) ∪ {−5, 5}</strong>.'
+        ];
+        statusBox.innerHTML = msgs[state.step];
+    }
+
+    function activateStep(n){
+        state.step = n;
+        document.querySelectorAll('.step').forEach(el=>el.classList.toggle('active', +el.dataset.step===n));
+        syncStatus(); redraw();
+    }
+
+    document.querySelectorAll('.step').forEach(el=>{
+        el.addEventListener('click', ()=>activateStep(+el.dataset.step));
+    });
+
+    document.querySelectorAll('[data-mode]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+            state.mode = btn.dataset.mode;
+            document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active', b===btn));
+            ['razbor','errors','quiz','generator','memo'].forEach(id=>{
+                document.getElementById('mode-'+id).hidden = id!==state.mode;
+            });
         });
     });
 
-    // --- THEME ---
-    function toggleTheme() {
-        state.theme = state.theme === 'light' ? 'dark' : 'light';
-        localStorage.setItem('theme', state.theme);
-        applyTheme();
-    }
-
-    function applyTheme() {
-        document.body.setAttribute('data-theme', state.theme);
-        document.querySelector('.theme-toggle').textContent = state.theme === 'light' ? '☀' : '☾';
-    }
-
-    // --- NAVIGATION ---
-    function setMode(modeName) {
-        state.mode = modeName;
-
-        // Update nav buttons
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        // Simple matching based on onclick attribute text or index would be brittle,
-        // better to select by index or iterate. Here we rely on the DOM order matching the list in HTML roughly or just re-query.
-        const btns = document.querySelectorAll('.nav-btn');
-        const modes = ['razbor', 'viz', 'mistakes', 'quiz', 'generator', 'cheatsheet'];
-        const idx = modes.indexOf(modeName);
-        if (idx >= 0 && btns[idx]) btns[idx].classList.add('active');
-
-        // Hide all modes
-        document.querySelectorAll('.mode-content').forEach(el => el.classList.add('hidden'));
-
-        // Show selected
-        const target = document.getElementById('mode-' + modeName);
-        if (target) target.classList.remove('hidden');
-
-        // Special logic for 'viz' mode: maybe highlight viz container?
-        if (modeName === 'viz') {
-            document.querySelector('.right-col').scrollIntoView({behavior: 'smooth'});
-        }
-    }
-
-    // --- STEPS ---
-    function setStep(stepNum) {
-        state.step = stepNum;
-        document.querySelectorAll('.step-panel').forEach(panel => {
-            panel.classList.remove('active');
+    document.querySelectorAll('.toggle').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+            const key = btn.dataset.toggle;
+            state.show[key]=!state.show[key];
+            btn.classList.toggle('active', state.show[key]);
+            redraw();
         });
-        // Activate current and previous steps (accordion style: open current, close others? No, request said "show all" or "step panels". Let's make it toggle/active logic)
-        // Logic: Clicking a step opens it.
-        const panels = document.querySelectorAll('.step-panel');
-        panels.forEach((p, i) => {
-            if (i === stepNum - 1) p.classList.add('active');
+    });
+
+    document.getElementById('zoomIn').addEventListener('click', ()=>{ state.zoom=Math.min(2.5,state.zoom*1.15); document.getElementById('zoomRange').value=state.zoom; redraw(); });
+    document.getElementById('zoomOut').addEventListener('click', ()=>{ state.zoom=Math.max(.7,state.zoom/1.15); document.getElementById('zoomRange').value=state.zoom; redraw(); });
+    document.getElementById('resetView').addEventListener('click', ()=>{ state.zoom=1; state.panX=0; state.panY=0; document.getElementById('zoomRange').value=1; redraw(); });
+    document.getElementById('zoomRange').addEventListener('input', e=>{ state.zoom=+e.target.value; redraw(); });
+
+    function bindPan(canvas){
+        canvas.addEventListener('mousedown', e=>{ state.dragging=true; state.dragStart={x:e.clientX,y:e.clientY}; });
+        window.addEventListener('mouseup', ()=> state.dragging=false);
+        canvas.addEventListener('mousemove', e=>{
+            if(!state.dragging) return;
+            const rect=canvas.getBoundingClientRect();
+            const dd = screenDeltaToWorld(e.clientX-state.dragStart.x,e.clientY-state.dragStart.y,rect.width,rect.height,{zoom:state.zoom});
+            state.panX += dd.dx; state.panY += dd.dy; state.dragStart={x:e.clientX,y:e.clientY}; redraw();
         });
-
-        // Sync visualization to step context
-        updateVizContext(stepNum);
+        canvas.addEventListener('wheel', e=>{
+            e.preventDefault();
+            const factor = e.deltaY<0 ? 1.08 : 1/1.08;
+            state.zoom = Math.max(.7, Math.min(2.5, state.zoom*factor));
+            document.getElementById('zoomRange').value=state.zoom;
+            redraw();
+        }, {passive:false});
     }
+    bindPan(plot); bindPan(modalPlot);
 
-    function updateVizContext(step) {
-        // Highlight specific elements in SVG based on step
-        // e.g. Step 1: highlight roots. Step 2: highlight ODZ.
-        const roots = document.querySelectorAll('.svg-point');
-        const odz = document.getElementById('odz-line');
+    const modal = document.getElementById('modal');
+    document.getElementById('openModal').addEventListener('click', ()=>modal.classList.add('open'));
+    plot.addEventListener('click', ()=>modal.classList.add('open'));
+    document.getElementById('closeModal').addEventListener('click', ()=>modal.classList.remove('open'));
+    modal.addEventListener('click', e=>{ if(e.target===modal) modal.classList.remove('open'); });
+    window.addEventListener('keydown', e=>{ if(e.key==='Escape') modal.classList.remove('open'); });
 
-        // Reset styles
-        roots.forEach(r => r.style.opacity = 1);
-        odz.style.opacity = 0.3;
+    // detail level
+    document.getElementById('detailLevel').addEventListener('change', e=>{
+        const level = e.target.value;
+        document.querySelectorAll('.sub').forEach(s=>{
+            s.style.display = level==='short' ? 'none' : 'block';
+            s.style.fontSize = level==='mid' ? '14px' : '15px';
+        });
+        if(level==='short') statusBox.innerHTML = 'Краткий режим: держим в голове только три вещи — числитель даёт окружность, знаменатель даёт строгую ОДЗ, ответ считаем по горизонталям.';
+        else syncStatus();
+    });
 
-        if (step === 1) {
-            roots.forEach(r => r.style.opacity = 1);
-            odz.style.opacity = 0.1;
-        } else if (step === 2) {
-            odz.style.opacity = 1;
-        } else {
-            roots.forEach(r => r.style.opacity = 1);
-            odz.style.opacity = 1;
+    // quiz
+    const correct = [2,2,3];
+    document.querySelectorAll('.quiz').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+            const q = +btn.dataset.q, a = +btn.dataset.a;
+            const out = document.getElementById('qr'+q);
+            out.className = a===correct[q] ? 'answer' : 'warn';
+            out.textContent = a===correct[q] ? 'Верно.' : 'Пока нет. Проверь ещё раз.';
+        });
+    });
+
+    // generator
+    function solveVariant(c,b1,b2,L,R){
+        const center = c/2;
+        const rad = Math.sqrt(center*center);
+        const samples = [];
+        function rootsForA(a){
+            const disc = c*c/4 - a*a;
+            if(disc < -1e-9) return [];
+            const t = Math.sqrt(Math.max(0,disc));
+            const xs = [center - t, center + t];
+            const uniq = [];
+            xs.forEach(x=>{ if(!uniq.some(v=>Math.abs(v-x)<1e-8)) uniq.push(x); });
+            return uniq.filter(x=> x>=L-1e-8 && x<=R+1e-8 && ((a - x + b1)*(a + x - b2) > 1e-9));
         }
-    }
-
-    // --- GENERATOR ---
-    function updateGenerator() {
-        state.gen.B = parseFloat(document.getElementById('gen-B').value) || 10;
-        state.gen.L = parseFloat(document.getElementById('gen-L').value) || 2;
-        state.gen.R = parseFloat(document.getElementById('gen-R').value) || 6;
-        state.gen.C1 = parseFloat(document.getElementById('gen-C1').value) || 8;
-        state.gen.C2 = parseFloat(document.getElementById('gen-C2').value) || -3;
-
-        const { B, L, R, C1, C2 } = state.gen;
-        // Construct text: (x^2 - Bx + a^2) / sqrt((a - x + C1)(a + x + C2)) = 0 on [L, R]
-        // Note: C2 in original was -3, so (a+x-3). The input is "term", so if term is -3, it's (a+x-3).
-        const c2Sign = C2 >= 0 ? '+' : '';
-        const text = `Уравнение: <span class="frac"><span class="num">x² − ${B}x + a²</span><span class="den">√((a − x + ${C1})(a + x ${c2Sign}${C2}))</span></span> = 0 имеет один корень на [${L}; ${R}].`;
-
-        document.getElementById('gen-text').innerHTML = text;
-        document.getElementById('gen-result').style.display = 'block';
-    }
-
-    function randomizeGen() {
-        const rInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-        document.getElementById('gen-B').value = rInt(4, 12);
-        document.getElementById('gen-L').value = rInt(0, 4);
-        document.getElementById('gen-R').value = rInt(5, 10);
-        document.getElementById('gen-C1').value = rInt(2, 10);
-        document.getElementById('gen-C2').value = rInt(-10, -1);
-        updateGenerator();
-    }
-
-    function applyGen() {
-        // Apply generator values to main state and visualization
-        const { B, L, R, C1, C2 } = state.gen;
-
-        // Update global variables used in renderScene
-        window.taskParams = { B, L, R, C1, C2 };
-
-        // Update text in "Razbor" mode to reflect new task (simplified approach: just alert or switch to Viz)
-        // For this demo, we'll just update the visualization and switch to Viz mode.
-        renderScene();
-        setMode('viz');
-
-        // Update Slider range based on D condition roughly (B/2)
-        // D = B^2 - 4a^2 >= 0 => a^2 <= B^2/4 => |a| <= B/2
-        const maxA = B / 2;
-        const slider = document.getElementById('param-a');
-        slider.min = -maxA;
-        slider.max = maxA;
-        slider.value = 0;
-        state.a = 0;
-        document.getElementById('val-a').textContent = "0";
-    }
-
-    // --- QUIZ ---
-    function checkQuiz(qNum, isCorrect) {
-        const fb = document.getElementById(`quiz-${qNum}-fb`);
-        if (isCorrect) {
-            fb.textContent = "✅ Верно!";
-            fb.style.color = "green";
-        } else {
-            fb.textContent = "❌ Неверно. Попробуйте ещё раз.";
-            fb.style.color = "red";
+        for(let a=-rad;a<=rad;a+=0.0025){
+            const roots = rootsForA(a);
+            if(roots.length===1) samples.push(a);
         }
-    }
-
-    // --- VISUALIZATION ENGINE ---
-    // Coordinate mapping: x in [-10, 20] -> px in [0, 600]
-    const X_MIN = -2;
-    const X_MAX = 16;
-    const SVG_W = 600;
-    const SVG_H = 400;
-    const AXIS_Y = 300;
-    const PADDING_X = 40;
-    const SCALE_X = (SVG_W - 2 * PADDING_X) / (X_MAX - X_MIN);
-
-    function toSvgX(xVal) {
-        return PADDING_X + (xVal - X_MIN) * SCALE_X;
-    }
-
-    function renderScene() {
-        // Use taskParams if set by generator, else defaults
-        const p = window.taskParams || { B: 10, L: 2, R: 6, C1: 8, C2: -3 };
-
-        const { B, L, R, C1, C2 } = p;
-        const a = state.a;
-
-        // 1. Clear / Reset
-        // (We update elements directly to keep it simple)
-
-        // 2. Draw Grid & Axis
-        const gridG = document.getElementById('grid-group');
-        gridG.innerHTML = '';
-        for (let i = Math.ceil(X_MIN); i <= Math.floor(X_MAX); i++) {
-            const x = toSvgX(i);
-            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            line.setAttribute("x1", x); line.setAttribute("y1", 0);
-            line.setAttribute("x2", x); line.setAttribute("y2", SVG_H);
-            line.setAttribute("class", "svg-grid");
-            gridG.appendChild(line);
-
-            // Number
-            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            text.setAttribute("x", x); text.setAttribute("y", AXIS_Y + 15);
-            text.setAttribute("class", "svg-text");
-            text.textContent = i;
-            gridG.appendChild(text);
+        // compress to intervals and points
+        const merged=[];
+        let s=null, prev=null;
+        for(const a of samples){
+            if(s===null){ s=a; prev=a; }
+            else if(a-prev<0.0055){ prev=a; }
+            else { merged.push([s,prev]); s=a; prev=a; }
         }
-
-        // 3. Draw Segment [L, R]
-        const segLine = document.getElementById('seg-line');
-        segLine.setAttribute("x1", toSvgX(L));
-        segLine.setAttribute("x2", toSvgX(R));
-        segLine.setAttribute("y1", AXIS_Y);
-        segLine.setAttribute("y2", AXIS_Y);
-
-        document.getElementById('text-L').setAttribute("x", toSvgX(L));
-        document.getElementById('text-L').textContent = L;
-        document.getElementById('text-R').setAttribute("x", toSvgX(R));
-        document.getElementById('text-R').textContent = R;
-
-        // 4. Calculate ODZ: (x - (a + C1))(x - (C2 - a)) < 0  => roots are a+C1 and C2-a
-        // Note: Original problem C2 was -3, term was (a+x-3) -> x - (3-a) -> root 3-a.
-        // Here C2 is -3, so root is -C2 - a? No.
-        // Term is (a + x + C2). Root: x = -a - C2.
-        // Term 1: (a - x + C1) -> -(x - (a + C1)). Root: x = a + C1.
-        // Inequality: -(x - (a+C1))(x - (-a-C2)) > 0  => (x - (a+C1))(x - (-a-C2)) < 0.
-        // Roots: rA = a + C1, rB = -a - C2.
-
-        const rA = a + C1;
-        const rB = -a - C2;
-
-        const odzStart = Math.min(rA, rB);
-        const odzEnd = Math.max(rA, rB);
-
-        const odzLine = document.getElementById('odz-line');
-        odzLine.setAttribute("x1", toSvgX(odzStart));
-        odzLine.setAttribute("x2", toSvgX(odzEnd));
-        odzLine.setAttribute("y1", 350);
-        odzLine.setAttribute("y2", 350);
-
-        document.getElementById('text-odz-l').setAttribute("x", toSvgX(odzStart));
-        document.getElementById('text-odz-l').textContent = `ODZ (${odzStart.toFixed(1)})`;
-        document.getElementById('text-odz-r').setAttribute("x", toSvgX(odzEnd));
-        document.getElementById('text-odz-r').textContent = `(${odzEnd.toFixed(1)})`;
-
-        // 5. Calculate Roots of Numerator: x^2 - Bx + a^2 = 0
-        // D = B^2 - 4a^2
-        const D = B*B - 4*a*a;
-
-        const root1El = document.getElementById('root-1');
-        const root2El = document.getElementById('root-2');
-        const t1 = document.getElementById('text-root-1');
-        const t2 = document.getElementById('text-root-2');
-        const statusText = document.getElementById('status-text');
-
-        if (D < 0) {
-            // No real roots
-            root1El.setAttribute("r", 0);
-            root2El.setAttribute("r", 0);
-            t1.textContent = "";
-            t2.textContent = "";
-            statusText.textContent = "Нет корней (D < 0)";
-            statusText.setAttribute("fill", "gray");
-        } else {
-            const x1 = (B - Math.sqrt(D)) / 2;
-            const x2 = (B + Math.sqrt(D)) / 2;
-
-            // Draw Root 1
-            root1El.setAttribute("cx", toSvgX(x1));
-            root1El.setAttribute("cy", AXIS_Y);
-            root1El.setAttribute("r", 6);
-            // Check if in ODZ
-            const valid1 = (x1 > odzStart && x1 < odzEnd);
-            root1El.setAttribute("fill", valid1 ? "#D72638" : "#999"); // Red if valid, gray if invalid (ODZ cut)
-            t1.setAttribute("x", toSvgX(x1));
-            t1.textContent = `x1=${x1.toFixed(2)}`;
-
-            // Draw Root 2
-            root2El.setAttribute("cx", toSvgX(x2));
-            root2El.setAttribute("cy", AXIS_Y);
-            root2El.setAttribute("r", 6);
-            const valid2 = (x2 > odzStart && x2 < odzEnd);
-            root2El.setAttribute("fill", valid2 ? "#D72638" : "#999");
-            t2.setAttribute("x", toSvgX(x2));
-            t2.textContent = `x2=${x2.toFixed(2)}`;
-
-            // Check condition: Exactly one root in [L, R] AND valid
-            let count = 0;
-            if (valid1 && x1 >= L && x1 <= R) count++;
-            if (valid2 && x2 >= L && x2 <= R) count++;
-            // If x1 == x2 (D=0), it's one root, but count logic handles it (count=1)
-
-            if (count === 1) {
-                statusText.textContent = "✅ УСЛОВИЕ ВЫПОЛНЕНО";
-                statusText.setAttribute("fill", "green");
-            } else {
-                statusText.textContent = `❌ Корней на отрезке: ${count}`;
-                statusText.setAttribute("fill", "#D72638");
-            }
-        }
+        if(s!==null) merged.push([s,prev]);
+        return merged;
     }
 
-    function setA(val) {
-        state.a = val;
-        document.getElementById('param-a').value = val;
-        document.getElementById('val-a').textContent = val.toFixed(1);
-        renderScene();
-    }
+    document.getElementById('genBtn').addEventListener('click', ()=>{
+        const variants = [
+            {c:8,b1:7,b2:2,L:2,R:4},
+            {c:12,b1:9,b2:4,L:3,R:7},
+            {c:10,b1:8,b2:3,L:2,R:5}
+        ];
+        const v = variants[Math.floor(Math.random()*variants.length)];
+        const merged = solveVariant(v.c,v.b1,v.b2,v.L,v.R);
+        const prob = document.getElementById('genProblem');
+        const ans = document.getElementById('genAnswer');
+        prob.innerHTML = 'Найдите все значения параметра <span class="formula">a</span>, при каждом из которых уравнение <span class="formula">(x² − '+v.c+'x + a²) / √((a − x + '+v.b1+')(a + x − '+v.b2+')) = 0</span> имеет ровно один корень на отрезке <span class="formula">['+v.L+'; '+v.R+']</span>.';
+        const nice = merged.map(([l,r])=> Math.abs(l-r)<0.01 ? '{'+l.toFixed(2)+'}' : '('+l.toFixed(2)+'; '+r.toFixed(2)+')').join(' ∪ ');
+        ans.hidden = false;
+        ans.innerHTML = '<strong>Проверенный численный ориентир для ответа:</strong> '+(nice||'решений нет')+'.<br><span class="muted">Это генератор школьных вариаций той же структуры. Для точного аналитического ответа здесь нужно повторить тот же графо-аналитический алгоритм.</span>';
+    });
 
+    window.addEventListener('resize', ()=>{ resizeCanvas(plot); resizeCanvas(modalPlot); redraw(); });
+    resizeCanvas(plot); resizeCanvas(modalPlot); syncStatus(); redraw();
 </script>
 </body>
 </html>

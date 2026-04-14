@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Трапеция: интерактивный чек-лист</title>
+    <style>
+        :root {
+            --accent: #008080;
+            --dark-accent: #004D4D;
+            --text-gray: #333;
+            --light-bg: #F0F7F7;
+            --card-bg: #FAFCFC;
+            --border: #D0E0E0;
+            --success: #2E8B57;
+            --error: #C0392B;
+            --warning-bg: #FFF8E1;
+            --radius: 8px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: var(--text-gray);
+            background: #F5F8F8;
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        math { font-size: 1.15em; vertical-align: middle; }
+
+        /* ---- HERO ---- */
+        .hero {
+            background: linear-gradient(135deg, var(--dark-accent) 0%, var(--accent) 100%);
+            color: #fff;
+            text-align: center;
+            padding: 5rem 1.5rem 3.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero h1 { font-size: 2.4rem; font-weight: 700; letter-spacing: -0.5px; }
+        .hero p  { font-size: 1.1rem; opacity: .85; margin-top: .6rem; }
+        .hero .bezier {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 60px;
+        }
+
+        /* ---- NAV ---- */
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            background: #fff; border-bottom: 2px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+            display: flex; justify-content: center; flex-wrap: wrap; gap: .3rem;
+            padding: .5rem 1rem;
+        }
+        nav a {
+            text-decoration: none; color: var(--dark-accent); font-weight: 600;
+            font-size: .88rem; padding: .4rem .9rem; border-radius: 20px;
+            transition: background .2s, color .2s;
+        }
+        nav a:hover, nav a.active {
+            background: var(--accent); color: #fff;
+        }
+
+        /* ---- SECTIONS ---- */
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.2rem 4rem; }
+
+        section { margin-bottom: 3rem; scroll-margin-top: 80px; }
+
+        h2 {
+            font-size: 1.5rem; color: var(--dark-accent);
+            border-bottom: 2.5px solid var(--accent); padding-bottom: .35rem;
+            margin-bottom: 1.2rem;
+        }
+        h3 { font-size: 1.15rem; color: var(--accent); margin: 1.4rem 0 .6rem; }
+
+        .card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 1.3rem 1.5rem;
+            margin-bottom: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        }
+
+        .formula-box {
+            background: var(--light-bg); border-left: 4px solid var(--accent);
+            padding: .8rem 1.2rem; border-radius: 0 var(--radius) var(--radius) 0;
+            margin: .6rem 0; font-weight: 500;
+        }
+
+        .tip {
+            background: var(--warning-bg); border-left: 4px solid #F9A825;
+            padding: .7rem 1rem; border-radius: 0 var(--radius) var(--radius) 0;
+            font-size: .95rem; margin: .8rem 0;
+        }
+
+        ul, ol { padding-left: 1.4rem; }
+        li { margin-bottom: .35rem; }
+
+        /* ---- INTERACTIVE SVG ---- */
+        .svg-wrap {
+            text-align: center; margin: 1rem 0;
+            background: #fff; border: 1px solid var(--border);
+            border-radius: var(--radius); padding: .8rem;
+            overflow: hidden;
+        }
+        .svg-wrap svg { max-width: 100%; height: auto; }
+        .svg-wrap svg text { font-family: inherit; font-size: 14px; fill: #333; }
+
+        .controls {
+            display: flex; flex-wrap: wrap; gap: .6rem; align-items: center;
+            justify-content: center; margin-top: .6rem;
+        }
+        .controls label { font-size: .9rem; font-weight: 600; }
+        .controls input[type="range"] { width: 160px; accent-color: var(--accent); }
+        .controls .val { font-weight: 700; color: var(--accent); min-width: 36px; }
+
+        button.btn {
+            background: var(--accent); color: #fff; border: none;
+            padding: .55rem 1.3rem; border-radius: 20px; cursor: pointer;
+            font-size: .92rem; font-weight: 600; transition: background .2s, opacity .2s;
+        }
+        button.btn:hover { background: var(--dark-accent); }
+        button.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* ---- CALCULATOR ---- */
+        .calc-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: .8rem;
+            margin: .8rem 0;
+        }
+        .calc-grid .field { display: flex; flex-direction: column; }
+        .calc-grid label { font-size: .85rem; font-weight: 600; margin-bottom: .2rem; }
+        .calc-grid input {
+            padding: .45rem .7rem; border: 1px solid var(--border);
+            border-radius: 6px; font-size: 1rem; outline: none;
+            transition: border-color .2s;
+        }
+        .calc-grid input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(0,128,128,.15); }
+        .calc-result {
+            margin-top: .8rem; padding: .7rem 1rem;
+            background: var(--light-bg); border-radius: 6px;
+            font-weight: 600; font-size: 1.05rem; display: none;
+        }
+        .calc-result.show { display: block; }
+
+        /* ---- QUIZ ---- */
+        .quiz-item {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 1.1rem 1.4rem;
+            margin-bottom: .8rem; transition: box-shadow .2s;
+        }
+        .quiz-item .q { font-weight: 600; margin-bottom: .5rem; line-height: 1.5; }
+        .quiz-item .input-row {
+            display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+        }
+        .quiz-item input {
+            width: 120px; padding: .4rem .6rem; border: 2px solid var(--border);
+            border-radius: 6px; font-size: 1rem; outline: none; transition: border-color .2s;
+        }
+        .quiz-item input:focus { border-color: var(--accent); }
+        .quiz-item input.correct { border-color: var(--success); background: #E8F5E9; }
+        .quiz-item input.wrong   { border-color: var(--error); background: #FDEDED; }
+        .quiz-item .feedback { font-size: .9rem; margin-top: .35rem; font-weight: 600; min-height: 1.4em; }
+        .quiz-item .feedback.ok  { color: var(--success); }
+        .quiz-item .feedback.no  { color: var(--error); }
+
+        .quiz-check { margin-top: 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: .8rem; }
+        .btn-outline {
+            background: transparent; border: 2px solid var(--border); color: var(--text-gray);
+            padding: .5rem 1.2rem; border-radius: 20px; cursor: pointer; font-weight: 600;
+            transition: all .2s;
+        }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ---- TABS ---- */
+        .tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 2px solid var(--border); }
+        .tabs button {
+            background: none; border: none; padding: .6rem 1.2rem;
+            font-size: .92rem; font-weight: 600; cursor: pointer;
+            color: var(--text-gray); border-bottom: 3px solid transparent;
+            margin-bottom: -2px; transition: color .2s, border-color .2s;
+        }
+        .tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .tab-panel { display: none; padding: 1rem 0; }
+        .tab-panel.active { display: block; animation: fadeIn .3s ease; }
+
+        /* ---- PROGRESS ---- */
+        .progress-bar {
+            position: fixed; top: 0; left: 0; height: 3px; background: var(--accent);
+            z-index: 200; transition: width .15s;
+        }
+
+        /* ---- FOOTER ---- */
+        footer {
+            text-align: center; padding: 2rem 1rem; color: #888; font-size: .85rem;
+            border-top: 1px solid var(--border); background: #fff;
+        }
+
+        /* ---- RESPONSIVE ---- */
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 1.7rem; }
+            .calc-grid { grid-template-columns: 1fr; }
+            nav a { font-size: .8rem; padding: .35rem .6rem; }
+            .svg-wrap svg { width: 100%; }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- HERO -->
+<header class="hero">
+    <h1>Трапеция</h1>
+    <p>Свойства · Площади · Дополнительные построения</p>
+    <svg class="bezier" viewBox="0 0 800 60" preserveAspectRatio="none">
+        <path d="M0 55 C 150 -10, 350 70, 500 30 S 650 50, 800 20"
+              fill="none" stroke="rgba(255,255,255,.25)" stroke-width="3"/>
+        <path d="M0 40 C 200 80, 400 0, 600 45 S 700 10, 800 30"
+              fill="none" stroke="rgba(255,255,255,.15)" stroke-width="2"/>
+    </svg>
+</header>
+
+<!-- NAV -->
+<nav id="mainNav">
+    <a href="#defs">Определения</a>
+    <a href="#constructions">Построения</a>
+    <a href="#segment">Отрезок через O</a>
+    <a href="#area">Площадь</a>
+    <a href="#calc">Калькулятор</a>
+    <a href="#quiz">Тренажёр</a>
+</nav>
+
+<!-- CONTENT -->
+<div class="container">
+
+    <!-- ===== ОПРЕДЕЛЕНИЯ ===== -->
+    <section id="defs">
+        <h2>Определения и базовые элементы</h2>
+        <div class="card">
+            <ul>
+                <li><strong>Трапеция</strong> — четырёхугольник, у которого две стороны параллельны (<em>основания</em>), а две другие — нет (<em>боковые стороны</em>).</li>
+                <li><strong>Средняя линия</strong> соединяет середины боковых сторон.</li>
+                <li><strong>Высота</strong> — перпендикуляр от одного основания к другому.</li>
+            </ul>
+            <div class="formula-box">
+                <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>m</mi><mo>=</mo><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mn>2</mn></mfrac></math> — средняя линия равна полусумме оснований.
+            </div>
+        </div>
+
+        <div class="svg-wrap">
+            <svg viewBox="0 0 500 260" width="500" height="260">
+                <defs>
+                    <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+                        <path d="M0 0 L6 3 L0 6Z" fill="#333"/>
+                    </marker>
+                </defs>
+                <polygon points="60,200 440,200 340,60 140,60" fill="rgba(0,128,128,.07)" stroke="#333" stroke-width="2"/>
+                <line x1="60" y1="200" x2="440" y2="200" stroke="#008080" stroke-width="2.5"/>
+                <line x1="140" y1="60" x2="340" y2="60" stroke="#008080" stroke-width="2.5"/>
+                <line x1="100" y1="130" x2="390" y2="130" stroke="#C0392B" stroke-width="2" stroke-dasharray="6 4"/>
+                <line x1="250" y1="200" x2="250" y2="60" stroke="#333" stroke-width="1.5" stroke-dasharray="4 3"/>
+                <text x="258" y="138" font-size="14" fill="#333">h</text>
+                <text x="240" y="218" text-anchor="middle" font-size="14" font-weight="600" fill="#008080">a (нижнее)</text>
+                <text x="235" y="52" text-anchor="middle" font-size="14" font-weight="600" fill="#008080">b (верхнее)</text>
+                <text x="240" y="125" text-anchor="middle" font-size="14" font-weight="600" fill="#C0392B">m</text>
+                <circle cx="60" cy="200" r="3" fill="#333"/><text x="48" y="218" font-size="13">A</text>
+                <circle cx="440" cy="200" r="3" fill="#333"/><text x="448" y="218" font-size="13">D</text>
+                <circle cx="340" cy="60" r="3" fill="#333"/><text x="348" y="55" font-size="13">C</text>
+                <circle cx="140" cy="60" r="3" fill="#333"/><text x="125" y="55" font-size="13">B</text>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ===== ПОСТРОЕНИЯ ===== -->
+    <section id="constructions">
+        <h2>Ключевые дополнительные построения</h2>
+
+        <div class="tabs">
+            <button class="active" onclick="showTab(event,'tabSide')">Перенос боковой</button>
+            <button onclick="showTab(event,'tabDiag')">Перенос диагонали</button>
+        </div>
+
+        <div id="tabSide" class="tab-panel active">
+            <div class="card">
+                <p>Через вершину меньшего основания проводим прямую, <strong>параллельную боковой стороне</strong>.</p>
+                <div class="tip">💡 Образуется треугольник со сторонами <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><msub><mi>l</mi><mn>1</mn></msub></math>, <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><msub><mi>l</mi><mn>2</mn></msub></math> и основанием <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mo>|</mo><mi>a</mi><mo>−</mo><mi>b</mi><mo>|</mo></math>. Его высота совпадает с высотой трапеции.</div>
+                <div class="svg-wrap">
+                    <svg viewBox="0 0 520 280" width="520" height="280">
+                        <polygon points="40,220 480,220 360,60 120,60" fill="rgba(0,128,128,.05)" stroke="#333" stroke-width="1.8"/>
+                        <line x1="120" y1="60" x2="240" y2="220" stroke="#C0392B" stroke-width="2.5"/>
+                        <polygon points="240,220 480,220 360,60" fill="rgba(192,57,43,.08)" stroke="#C0392B" stroke-width="1.5" stroke-dasharray="5 3"/>
+                        <text x="350" y="240" text-anchor="middle" font-size="13" fill="#333">|a − b|</text>
+                        <text x="290" y="140" font-size="13" fill="#C0392B" font-weight="600">l₁</text>
+                        <text x="420" y="140" font-size="13" fill="#C0392B" font-weight="600">l₂</text>
+                        <text x="60" y="240" font-size="13" fill="#333">A</text>
+                        <text x="490" y="240" font-size="13" fill="#333">D</text>
+                        <text x="110" y="55" font-size="13" fill="#333">B</text>
+                        <text x="370" y="55" font-size="13" fill="#333">C</text>
+                        <text x="248" y="238" font-size="12" fill="#C0392B">F</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div id="tabDiag" class="tab-panel">
+            <div class="card">
+                <p>Через вершину большего основания проводим прямую, <strong>параллельную диагонали</strong>, до пересечения с продолжением основания.</p>
+                <div class="tip">💡 Образуется треугольник со сторонами <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><msub><mi>d</mi><mn>1</mn></msub></math>, <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><msub><mi>d</mi><mn>2</mn></msub></math> и основанием <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>a</mi><mo>+</mo><mi>b</mi></math>. Если <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><msub><mi>d</mi><mn>1</mn></msub><mo>⊥</mo><msub><mi>d</mi><mn>2</mn></msub></math> — он прямоугольный.</div>
+                <div class="svg-wrap">
+                    <svg viewBox="0 0 560 280" width="560" height="280">
+                        <polygon points="40,220 480,220 360,60 120,60" fill="rgba(0,128,128,.05)" stroke="#333" stroke-width="1.8"/>
+                        <line x1="40" y1="220" x2="360" y2="60" stroke="#999" stroke-width="1.5" stroke-dasharray="4 3"/>
+                        <line x1="480" y1="220" x2="120" y2="60" stroke="#999" stroke-width="1.5" stroke-dasharray="4 3"/>
+                        <line x1="360" y1="60" x2="520" y2="220" stroke="#C0392B" stroke-width="2.5"/>
+                        <polygon points="40,220 520,220 360,60" fill="rgba(192,57,43,.06)" stroke="#C0392B" stroke-width="1.5" stroke-dasharray="5 3"/>
+                        <text x="270" y="240" text-anchor="middle" font-size="13" fill="#333" font-weight="600">a + b</text>
+                        <text x="190" y="150" font-size="13" fill="#C0392B" font-weight="600">d₁</text>
+                        <text x="445" y="150" font-size="13" fill="#C0392B" font-weight="600">d₂</text>
+                        <text x="528" y="235" font-size="13" fill="#C0392B">E</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ОТРЕЗОК ЧЕРЕЗ O ===== -->
+    <section id="segment">
+        <h2>Отрезок через точку пересечения диагоналей</h2>
+        <div class="card">
+            <p>Прямая, параллельная основаниям и проходящая через точку пересечения диагоналей <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>O</mi></math>, отсекает отрезок между боковыми сторонами.</p>
+            <div class="formula-box">
+                <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>l</mi><mo>=</mo><mfrac><mrow><mn>2</mn><mi>a</mi><mi>b</mi></mrow><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow></mfrac></math> — длина всего отрезка.
+            </div>
+            <p>Точка <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>O</mi></math> делит этот отрезок пополам: каждая часть равна <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mfrac><mrow><mi>a</mi><mi>b</mi></mrow><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow></mfrac></math>.</p>
+            <div class="tip">💡 Вывод: из подобия <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mtext>△AOD</mtext><mo>∼</mo><mtext>△COB</mtext></math> (<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>k</mi><mo>=</mo><mfrac><mi>a</mi><mi>b</mi></mfrac></math>) и подобия меньших треугольников к большим.</div>
+        </div>
+
+        <div class="svg-wrap">
+            <svg viewBox="0 0 500 280" width="500" height="280">
+                <polygon points="50,230 450,230 330,50 150,50" fill="rgba(0,128,128,.06)" stroke="#333" stroke-width="2"/>
+                <line x1="50" y1="230" x2="330" y2="50" stroke="#555" stroke-width="1.5"/>
+                <line x1="450" y1="230" x2="150" y2="50" stroke="#555" stroke-width="1.5"/>
+                <circle cx="258" cy="152" r="4" fill="#008080"/>
+                <text x="268" y="148" font-size="14" fill="#008080" font-weight="700">O</text>
+                <line x1="110" y1="152" x2="406" y2="152" stroke="#C0392B" stroke-width="2.5"/>
+                <text x="245" y="248" text-anchor="middle" font-size="14" font-weight="600" fill="#008080">a</text>
+                <text x="235" y="44" text-anchor="middle" font-size="14" font-weight="600" fill="#008080">b</text>
+                <text x="258" y="145" text-anchor="middle" font-size="13" font-weight="700" fill="#C0392B">l</text>
+                <circle cx="110" cy="152" r="3" fill="#C0392B"/>
+                <circle cx="406" cy="152" r="3" fill="#C0392B"/>
+            </svg>
+        </div>
+
+        <div class="card">
+            <h3>🧮 Калькулятор отрезка</h3>
+            <div class="calc-grid">
+                <div class="field"><label>a (нижнее основание)</label><input type="number" id="segA" value="9" min="1" step="any" aria-label="Нижнее основание"></div>
+                <div class="field"><label>b (верхнее основание)</label><input type="number" id="segB" value="3" min="1" step="any" aria-label="Верхнее основание"></div>
+            </div>
+            <div style="text-align:center;margin-top:.6rem">
+                <button class="btn" onclick="calcSeg()">Вычислить</button>
+            </div>
+            <div class="calc-result" id="segResult"></div>
+        </div>
+    </section>
+
+    <!-- ===== ПЛОЩАДЬ ===== -->
+    <section id="area">
+        <h2>Площадь трапеции</h2>
+        <div class="card">
+            <h3>Общая формула</h3>
+            <div class="formula-box">
+                <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>S</mi><mo>=</mo><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mn>2</mn></mfrac><mo>⋅</mo><mi>h</mi><mo>=</mo><mi>m</mi><mo>⋅</mo><mi>h</mi></math>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Равнобедренная трапеция с перпендикулярными диагоналями</h3>
+            <p>Если диагонали равны и перпендикулярны (<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><msub><mi>d</mi><mn>1</mn></msub><mo>=</mo><msub><mi>d</mi><mn>2</mn></msub></math>, <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><msub><mi>d</mi><mn>1</mn></msub><mo>⊥</mo><msub><mi>d</mi><mn>2</mn></msub></math>):</p>
+            <div class="formula-box">
+                <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>S</mi><mo>=</mo><msup><mi>h</mi><mn>2</mn></msup><mo>=</mo><msup><mi>m</mi><mn>2</mn></msup><mo>=</mo><msup><mrow><mo>(</mo><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mn>2</mn></mfrac><mo>)</mo></mrow><mn>2</mn></msup></math>
+            </div>
+            <div class="tip">💡 Высота численно равна средней линии: <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>h</mi><mo>=</mo><mi>m</mi><mo>=</mo><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mn>2</mn></mfrac></math>.</div>
+        </div>
+
+        <div class="card">
+            <h3>Площадь через диагонали и угол между ними</h3>
+            <div class="formula-box">
+                <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>S</mi><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>⋅</mo><msub><mi>d</mi><mn>1</mn></msub><mo>⋅</mo><msub><mi>d</mi><mn>2</mn></msub><mo>⋅</mo><mi>sin</mi><mi>φ</mi></math>
+            </div>
+            <p>где <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>φ</mi></math> — угол между диагоналями.</p>
+        </div>
+
+        <div class="card">
+            <h3>🧮 Калькулятор площади</h3>
+            <div class="tabs" style="margin-bottom:.5rem">
+                <button class="active" onclick="showTab(event,'calcBase')">По основаниям и высоте</button>
+                <button onclick="showTab(event,'calcDiag')">По диагоналям</button>
+            </div>
+            <div id="calcBase" class="tab-panel active">
+                <div class="calc-grid">
+                    <div class="field"><label>a</label><input type="number" id="areaA" value="10" min="0" step="any" aria-label="Основание a"></div>
+                    <div class="field"><label>b</label><input type="number" id="areaB" value="6" min="0" step="any" aria-label="Основание b"></div>
+                    <div class="field"><label>h</label><input type="number" id="areaH" value="5" min="0" step="0.1" aria-label="Высота h"></div>
+                </div>
+                <div style="text-align:center;margin-top:.5rem">
+                    <button class="btn" onclick="calcArea1()">Вычислить S</button>
+                </div>
+                <div class="calc-result" id="areaResult1"></div>
+            </div>
+            <div id="calcDiag" class="tab-panel">
+                <div class="calc-grid">
+                    <div class="field"><label>d₁</label><input type="number" id="areaD1" value="12" min="0" step="0.1" aria-label="Диагональ d1"></div>
+                    <div class="field"><label>d₂</label><input type="number" id="areaD2" value="9" min="0" step="0.1" aria-label="Диагональ d2"></div>
+                    <div class="field"><label>φ (°)</label><input type="number" id="areaPhi" value="90" min="0" max="180" step="any" aria-label="Угол между диагоналями"></div>
+                </div>
+                <div style="text-align:center;margin-top:.5rem">
+                    <button class="btn" onclick="calcArea2()">Вычислить S</button>
+                </div>
+                <div class="calc-result" id="areaResult2"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== УНИВЕРСАЛЬНЫЙ КАЛЬКУЛЯТОР ===== -->
+    <section id="calc">
+        <h2>Универсальный калькулятор</h2>
+        <div class="card">
+            <div class="calc-grid">
+                <div class="field"><label>a (нижнее)</label><input type="number" id="uA" value="12" min="0" step="any"></div>
+                <div class="field"><label>b (верхнее)</label><input type="number" id="uB" value="8" min="0" step="any"></div>
+                <div class="field"><label>h (высота)</label><input type="number" id="uH" value="6" min="0" step="0.1"></div>
+                <div class="field"><label>d₁</label><input type="number" id="uD1" value="" min="0" step="0.1" placeholder="необязательно"></div>
+                <div class="field"><label>d₂</label><input type="number" id="uD2" value="" min="0" step="0.1" placeholder="необязательно"></div>
+                <div class="field"><label>φ (°)</label><input type="number" id="uPhi" value="" min="0" max="180" step="any" placeholder="необязательно"></div>
+            </div>
+            <div style="text-align:center;margin-top:.6rem">
+                <button class="btn" onclick="calcUniversal()">Рассчитать всё</button>
+            </div>
+            <div class="calc-result" id="universalResult"></div>
+        </div>
+    </section>
+
+    <!-- ===== ТРЕНАЖЁР ===== -->
+    <section id="quiz">
+        <h2>Тренажёр задач</h2>
+        <p style="margin-bottom:1rem">Решите задачи и проверьте себя. Ответы — числа или отношения (например, <code>9:1</code> или <code>9</code>).</p>
+
+        <div class="quiz-item" data-answer="8">
+            <div class="q">1. Основания трапеции равны 6 и 10. Найдите длину средней линии.</div>
+            <div class="input-row">
+                <input type="text" id="q1" placeholder="Ответ" aria-label="Ответ на задачу 1">
+                <button class="btn" onclick="checkAnswer(1)">Проверить</button>
+            </div>
+            <div class="feedback" id="fb1"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="32">
+            <div class="q">2. Равнобедренная трапеция: основания 5 и 11, высота 4. Найдите площадь.</div>
+            <div class="input-row">
+                <input type="text" id="q2" placeholder="Ответ" aria-label="Ответ на задачу 2">
+                <button class="btn" onclick="checkAnswer(2)">Проверить</button>
+            </div>
+            <div class="feedback" id="fb2"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="3.2">
+            <div class="q">3. Основания 2 и 8. Через точку пересечения диагоналей проведена прямая, параллельная основаниям. Найдите длину отрезка.</div>
+            <div class="input-row">
+                <input type="text" id="q3" placeholder="Ответ" aria-label="Ответ на задачу 3">
+                <button class="btn" onclick="checkAnswer(3)">Проверить</button>
+            </div>
+            <div class="feedback" id="fb3"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="180">
+            <div class="q">4. Равнобедренная трапеция: основания 10 и 20, боковые стороны 13. Найдите площадь.</div>
+            <div class="input-row">
+                <input type="text" id="q4" placeholder="Ответ" aria-label="Ответ на задачу 4">
+                <button class="btn" onclick="checkAnswer(4)">Проверить</button>
+            </div>
+            <div class="feedback" id="fb4"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="9:1" data-alt="9">
+            <div class="q">5. Основания 4 и 12. Диагонали пересекаются в O. Найдите отношение площадей <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mtext>△AOD</mtext><mo>:</mo><mtext>△BOC</mtext></math>.</div>
+            <div class="input-row">
+                <input type="text" id="q5" placeholder="Ответ" aria-label="Ответ на задачу 5">
+                <button class="btn" onclick="checkAnswer(5)">Проверить</button>
+            </div>
+            <div class="feedback" id="fb5"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="12">
+            <div class="q">6. Площадь равнобедренной трапеции с перпендикулярными диагоналями равна 144. Найдите высоту.</div>
+            <div class="input-row">
+                <input type="text" id="q6" placeholder="Ответ" aria-label="Ответ на задачу 6">
+                <button class="btn" onclick="checkAnswer(6)">Проверить</button>
+            </div>
+            <div class="feedback" id="fb6"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="72">
+            <div class="q">7. Основания 10 и 20, боковые стороны 6 и 8. Найдите площадь.</div>
+            <div class="input-row">
+                <input type="text" id="q7" placeholder="Ответ" aria-label="Ответ на задачу 7">
+                <button class="btn" onclick="checkAnswer(7)">Проверить</button>
+            </div>
+            <div class="feedback" id="fb7"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="13">
+            <div class="q">8. Отрезок, соединяющий середины диагоналей, равен 4. Меньшее основание 5. Найдите большее.</div>
+            <div class="input-row">
+                <input type="text" id="q8" placeholder="Ответ" aria-label="Ответ на задачу 8">
+                <button class="btn" onclick="checkAnswer(8)">Проверить</button>
+            </div>
+            <div class="feedback" id="fb8"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="36">
+            <div class="q">9. Основания 15 и 3. Площадь <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mtext>△AOD</mtext><mo>=</mo><mn>25</mn></math>, площадь <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mtext>△BOC</mtext><mo>=</mo><mn>1</mn></math>. Найдите площадь трапеции.</div>
+            <div class="input-row">
+                <input type="text" id="q9" placeholder="Ответ" aria-label="Ответ на задачу 9">
+                <button class="btn" onclick="checkAnswer(9)">Проверить</button>
+            </div>
+            <div class="feedback" id="fb9"></div>
+        </div>
+
+        <div class="quiz-check">
+            <button class="btn" onclick="checkAll()" style="font-size:1.05rem;padding:.7rem 2.5rem">Проверить всё</button>
+            <button class="btn-outline" onclick="resetQuiz()">Сбросить ответы</button>
+            <div id="totalScore" style="margin-top:.5rem;font-size:1.1rem;font-weight:700"></div>
+        </div>
+    </section>
+
+</div>
+
+<footer>
+    Лёвин Артём Александрович · Интерактивный чек-лист · ОГЭ Геометрия
+</footer>
+
+<script>
+    // ===== TABS =====
+    function showTab(e, id) {
+        const parent = e.target.closest('section') || e.target.closest('.card');
+        parent.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+        parent.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        e.target.classList.add('active');
+        document.getElementById(id).classList.add('active');
+    }
+
+    // ===== SCROLL PROGRESS & NAV =====
+    window.addEventListener('scroll', () => {
+        const h = document.documentElement;
+        const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+        document.getElementById('progressBar').style.width = pct + '%';
+
+        let current = '';
+        document.querySelectorAll('section').forEach(s => {
+            if (window.scrollY >= s.offsetTop - 100) current = s.id;
+        });
+        document.querySelectorAll('#mainNav a').forEach(a => {
+            a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+        });
+    });
+
+    // ===== FORMATTER =====
+    function formatNum(n) {
+        if (!isFinite(n)) return "—";
+        const str = parseFloat(n.toFixed(4)).toString();
+        return str.replace('.', ',');
+    }
+
+    // ===== CALCULATORS =====
+    function calcSeg() {
+        const a = +document.getElementById('segA').value;
+        const b = +document.getElementById('segB').value;
+        const el = document.getElementById('segResult');
+        if (a <= 0 || b <= 0) {
+            el.innerHTML = `<span style="color:var(--error)">⚠ Введите положительные числа</span>`;
+            el.classList.add('show'); return;
+        }
+        const l = 2 * a * b / (a + b);
+        const half = l / 2;
+        el.innerHTML = `Полный отрезок: <strong>l = ${formatNum(l)}</strong><br>Каждая часть (от O до стороны): <strong>${formatNum(half)}</strong>`;
+        el.classList.add('show');
+    }
+
+    function calcArea1() {
+        const a = +document.getElementById('areaA').value;
+        const b = +document.getElementById('areaB').value;
+        const h = +document.getElementById('areaH').value;
+        const el = document.getElementById('areaResult1');
+        if (a <= 0 || b <= 0 || h <= 0) {
+            el.innerHTML = `<span style="color:var(--error)">⚠ Введите положительные числа</span>`;
+            el.classList.add('show'); return;
+        }
+        const s = (a + b) / 2 * h;
+        const m = (a + b) / 2;
+        el.innerHTML = `<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>m</mi><mo>=</mo><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mn>2</mn></mfrac><mo>=</mo><mn>${formatNum(m)}</mn></math>, <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>S</mi><mo>=</mo><mi>m</mi><mo>⋅</mo><mi>h</mi><mo>=</mo><mn>${formatNum(s)}</mn></math>`;
+        el.classList.add('show');
+    }
+
+    function calcArea2() {
+        const d1 = +document.getElementById('areaD1').value;
+        const d2 = +document.getElementById('areaD2').value;
+        const phi = +document.getElementById('areaPhi').value;
+        const el = document.getElementById('areaResult2');
+        if (d1 <= 0 || d2 <= 0 || phi < 0 || phi > 180) {
+            el.innerHTML = `<span style="color:var(--error)">⚠ Проверьте значения диагоналей и угла</span>`;
+            el.classList.add('show'); return;
+        }
+        const s = 0.5 * d1 * d2 * Math.sin(phi * Math.PI / 180);
+        el.innerHTML = `<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>S</mi><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>⋅</mo><msub><mi>d</mi><mn>1</mn></msub><mo>⋅</mo><msub><mi>d</mi><mn>2</mn></msub><mo>⋅</mo><mi>sin</mi><mi>φ</mi><mo>=</mo><mn>${formatNum(s)}</mn></math>`;
+        el.classList.add('show');
+    }
+
+    function calcUniversal() {
+        const a = +document.getElementById('uA').value;
+        const b = +document.getElementById('uB').value;
+        const h = +document.getElementById('uH').value;
+        const d1 = +document.getElementById('uD1').value;
+        const d2 = +document.getElementById('uD2').value;
+        const phi = +document.getElementById('uPhi').value;
+        const el = document.getElementById('universalResult');
+
+        let lines = [];
+        const m = (a + b) / 2;
+        lines.push(`<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>m</mi><mo>=</mo><mn>${formatNum(m)}</mn></math>`);
+        const seg = 2 * a * b / (a + b);
+        lines.push(`<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>l</mi><mo>=</mo><mn>${formatNum(seg)}</mn></math>`);
+
+        if (h > 0) {
+            const s1 = m * h;
+            lines.push(`<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>S</mi><mo>=</mo><mn>${formatNum(s1)}</mn></math>`);
+            if (Math.abs(h - m) < 0.01 && h > 0) {
+                lines.push(`<div class="tip" style="margin-top:.5rem">✨ Высота = средней линии! Трапеция с перпендикулярными диагоналями. <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>S</mi><mo>=</mo><msup><mi>m</mi><mn>2</mn></msup><mo>=</mo><mn>${formatNum(m*m)}</mn></math></div>`);
+            }
+        }
+        if (d1 > 0 && d2 > 0 && phi > 0 && phi <= 180) {
+            const s2 = 0.5 * d1 * d2 * Math.sin(phi * Math.PI / 180);
+            lines.push(`<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>S</mi><mo>=</mo><mn>${formatNum(s2)}</mn></math> (по диагоналям)`);
+        }
+
+        el.innerHTML = lines.join('<br>');
+        el.classList.add('show');
+    }
+
+    // ===== QUIZ =====
+    function normalizeAnswer(s) {
+        if (!s) return "";
+        return s.trim().replace(/\s+/g, '').replace(',', '.').toLowerCase();
+    }
+
+    function checkAnswer(n) {
+        const items = document.querySelectorAll('.quiz-item');
+        const item = items[n - 1];
+        const input = document.getElementById('q' + n);
+        const fb = document.getElementById('fb' + n);
+        const correct = item.dataset.answer;
+        const alt = item.dataset.alt || '';
+        const user = normalizeAnswer(input.value);
+
+        if (!user) {
+            fb.textContent = 'Введите ответ';
+            fb.className = 'feedback';
+            input.className = '';
+            return;
+        }
+
+        if (user === normalizeAnswer(correct) || (alt && user === normalizeAnswer(alt))) {
+            fb.textContent = '✓ Верно!';
+            fb.className = 'feedback ok';
+            input.className = 'correct';
+        } else {
+            fb.textContent = `✗ Неверно. Правильный ответ: ${correct.replace('.', ',')}`;
+            fb.className = 'feedback no';
+            input.className = 'wrong';
+        }
+    }
+
+    function checkAll() {
+        let score = 0;
+        const items = document.querySelectorAll('.quiz-item');
+        items.forEach((_, i) => {
+            checkAnswer(i + 1);
+            const input = document.getElementById('q' + (i + 1));
+            if (input.classList.contains('correct')) score++;
+        });
+        const el = document.getElementById('totalScore');
+        el.textContent = `Результат: ${score} из ${items.length}`;
+        el.style.color = score === items.length ? 'var(--success)' : score >= items.length * 0.7 ? 'var(--accent)' : 'var(--error)';
+    }
+
+    function resetQuiz() {
+        document.querySelectorAll('.quiz-item').forEach((_, i) => {
+            document.getElementById('q' + (i + 1)).value = '';
+            document.getElementById('fb' + (i + 1)).textContent = '';
+            document.getElementById('q' + (i + 1)).className = '';
+        });
+        document.getElementById('totalScore').textContent = '';
+    }
+
+    // Enter key support
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target.matches('.quiz-item input')) {
+            const idx = Array.from(document.querySelectorAll('.quiz-item input')).indexOf(e.target) + 1;
+            if (idx > 0) checkAnswer(idx);
+        }
+    });
+
+    // Smooth scroll
+    document.querySelectorAll('#mainNav a').forEach(a => {
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            const target = document.querySelector(a.getAttribute('href'));
+            if (target) target.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+</script>
+</body>
+</html>
