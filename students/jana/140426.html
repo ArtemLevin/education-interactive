@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Наглядная математика — Пирамиды</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --bg2:#0b1120;
+      --panel:#111827;
+      --panel2:#0d1424;
+      --soft:#182338;
+      --soft2:#0f1a2f;
+      --line:#24314a;
+      --text:#e5eefc;
+      --muted:#9fb0d1;
+      --accent:#60a5fa;
+      --accent2:#22d3ee;
+      --good:#34d399;
+      --warn:#fbbf24;
+      --bad:#f87171;
+      --shadow:0 12px 32px rgba(0,0,0,.35);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:linear-gradient(180deg,var(--bg2),var(--bg));color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;scroll-behavior:smooth}
+    body{min-height:100vh}
+    .wrap{max-width:1500px;margin:0 auto;padding:20px}
+    .hero{background:radial-gradient(circle at top right, rgba(96,165,250,.18), transparent 28%),radial-gradient(circle at left, rgba(34,211,238,.12), transparent 30%),linear-gradient(180deg,#121b31 0%, #0f172a 100%);border:1px solid var(--line);border-radius:28px;padding:28px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+    .hero h1{margin:0 0 10px;font-size:clamp(28px,4vw,52px);line-height:1.05;letter-spacing:.02em}
+    .hero p{margin:8px 0;color:var(--muted);font-size:18px;max-width:980px}
+    .badge-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .badge{padding:10px 14px;border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:999px;color:#d8e7ff;font-size:14px}
+    .controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:20px}
+    .control{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:18px;padding:14px}
+    .control label{display:block;color:var(--muted);font-size:13px;margin-bottom:8px}
+    select,input[type="range"],button{width:100%}
+    select,button,.tiny-btn{background:var(--soft);color:var(--text);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font:inherit}
+    button{cursor:pointer;transition:.18s transform,.18s border-color,.18s background}
+    button:hover,.tiny-btn:hover{transform:translateY(-1px);border-color:#3a5487}
+    .workspace{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(380px,.96fr);gap:18px;margin-top:18px;align-items:start}
+    .left,.right{display:flex;flex-direction:column;gap:18px}
+    .card{background:linear-gradient(180deg,var(--panel) 0%, var(--panel2) 100%);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .head h2,.head h3{margin:0;font-size:20px}
+    .body{padding:18px 20px}
+    .sticky{position:sticky;top:18px}
+    .step-nav{display:flex;flex-wrap:wrap;gap:10px}
+    .step-btn{padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:#12203b;color:var(--text);cursor:pointer}
+    .step-btn.active{background:linear-gradient(90deg,rgba(96,165,250,.25),rgba(34,211,238,.2));border-color:#4f79c8;box-shadow:0 0 0 1px rgba(96,165,250,.15) inset}
+    .step{border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px;background:rgba(255,255,255,.02)}
+    .step.active{outline:2px solid rgba(96,165,250,.35);background:rgba(96,165,250,.05)}
+    .step h4{margin:0 0 10px;font-size:18px}
+    .muted{color:var(--muted)}
+    .note{padding:14px 16px;border-left:4px solid var(--accent);background:#0e162b;border-radius:14px;color:#d9e7ff}
+    ul.clean{margin:10px 0 0;padding-left:18px}
+    ul.clean li{margin:8px 0}
+    .formula-card{padding:14px 16px;border-radius:16px;background:#0d1528;border:1px solid var(--line);overflow:auto}
+    math{font-size:1.1rem;color:#eff6ff}
+    .formula-inline math{font-size:1rem}
+    .viz-wrap{padding:14px}
+    .canvas-shell{position:relative;background:radial-gradient(circle at top, rgba(96,165,250,.08), transparent 34%), linear-gradient(180deg,#0a1120,#08101d);border:1px solid var(--line);border-radius:20px;overflow:hidden;min-height:620px}
+    canvas{display:block;width:100%;height:620px;cursor:grab}
+    canvas:active{cursor:grabbing}
+    .statusbar,.legend,.kpi{display:grid;gap:10px;margin-top:12px}
+    .statusbar{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .legend{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .kpi{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .pill,.legend-item,.box,.answer{padding:12px 14px;border-radius:14px;background:#0f182c;border:1px solid var(--line)}
+    .legend-item{display:flex;align-items:center;gap:10px;font-size:14px}
+    .box{min-height:78px}
+    .dot{width:12px;height:12px;border-radius:50%}
+    .toggle-row,.zoom-row,.quiz-row,.gen-row{display:flex;gap:10px;flex-wrap:wrap}
+    .tiny-btn{width:auto;padding:10px 14px}
+    .errors li{margin:10px 0}
+    .show-all{margin-top:12px}
+    details{border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:rgba(255,255,255,.02)}
+    details+details{margin-top:10px}
+    summary{cursor:pointer;font-weight:700}
+    .footer{margin:18px 0 10px;color:var(--muted);text-align:center}
+    .overlay{position:fixed;inset:0;background:rgba(3,8,20,.84);display:none;align-items:center;justify-content:center;padding:20px;z-index:1000}
+    .overlay.open{display:flex}
+    .overlay-card{width:min(1240px,96vw);background:#08111f;border:1px solid var(--line);border-radius:24px;padding:14px;box-shadow:var(--shadow)}
+    .overlay-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+    .overlay canvas{width:100%;height:78vh;background:#08111f;border-radius:18px;border:1px solid var(--line)}
+    .hint{position:fixed;right:16px;bottom:16px;max-width:340px;background:linear-gradient(180deg,#10213e,#0d1830);border:1px solid #3e5f99;border-radius:18px;padding:14px 16px;box-shadow:var(--shadow);display:none;z-index:1100;animation:hintBounce 2.2s infinite}
+    .hint.show{display:block}
+    .hint strong{display:block;margin-bottom:6px}
+    .hint .close{float:right;cursor:pointer;font-weight:700;color:#cfe0ff}
+    @keyframes hintBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+    @media (max-width:1080px){
+      .controls{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .workspace{grid-template-columns:1fr}
+      .sticky{position:static}
+      .statusbar,.legend,.kpi{grid-template-columns:1fr}
+      canvas{height:460px}
+      .canvas-shell{min-height:460px}
+    }
+    @media print{
+      body{background:#fff;color:#000}
+      .hero,.card,.step,.formula-card,.answer,details{box-shadow:none;background:#fff;color:#000;border-color:#bbb}
+      .right .card:not(.print-keep), .controls, .overlay, .hint, .footer{display:none!important}
+      .workspace{grid-template-columns:1fr}
+      .sticky{position:static}
+      math{color:#000}
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>Наглядная математика: пирамиды</h1>
+    <p>Разбираем правильные треугольные и четырёхугольные пирамиды: где находится высота, что такое апофема, как считать объём, боковую поверхность и полную площадь. </p>
+    <div class="badge-row">
+      <div class="badge">Тема: стереометрия</div>
+      <div class="badge">Фокус: пирамида</div>
+      <div class="badge">Формат: пошаговое объяснение + интерактив</div>
+      <div class="badge">MathML: включён</div>
+    </div>
+    <div class="controls">
+      <div class="control">
+        <label for="pyramidType">Тип пирамиды</label>
+        <select id="pyramidType">
+          <option value="tri">Правильная треугольная</option>
+          <option value="quad">Правильная четырёхугольная</option>
+        </select>
+      </div>
+      <div class="control">
+        <label for="detailLevel">Уровень подробности</label>
+        <select id="detailLevel">
+          <option value="full">Подробно</option>
+          <option value="mid">Средне</option>
+          <option value="short">Кратко</option>
+        </select>
+      </div>
+      <div class="control">
+        <label for="zoomRange">Масштаб чертежа</label>
+        <input id="zoomRange" type="range" min="0.7" max="2.3" step="0.01" value="1" />
+      </div>
+      <div class="control">
+        <label>&nbsp;</label>
+        <button id="showAllBtn">Показать все шаги</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="workspace">
+    <div class="left">
+      <section class="card">
+        <div class="head"><h2>Схема решения</h2><div class="muted">дано → смысл → идея → решение → проверка → вывод</div></div>
+        <div class="body">
+          <div class="step-nav" id="stepNav"></div>
+          <div class="show-all"><button class="tiny-btn" id="nextStepBtn">Следующий шаг</button></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="head"><h2>Пошаговый разбор</h2><div class="muted" id="activeModeText">Правильная треугольная пирамида</div></div>
+        <div class="body" id="stepsContainer"></div>
+      </section>
+
+      <section class="card">
+        <div class="head"><h2>Идея решения</h2></div>
+        <div class="body">
+          <div class="note">Главная мысль почти всех задач на пирамиды одна и та же: <b>ищите прямоугольные треугольники</b>. Через них находятся высота пирамиды, апофема и нужные расстояния внутри основания.</div>
+          <ul class="clean">
+            <li>Для объёма нужна формула <span class="formula-inline"><math display="inline"><mrow><mi>V</mi><mo>=</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><msub><mi>S</mi><mtext>осн</mtext></msub><mi>h</mi></mrow></math></span>.</li>
+            <li>Для боковой поверхности правильной пирамиды нужна формула <span class="formula-inline"><math display="inline"><mrow><msub><mi>S</mi><mtext>бок</mtext></msub><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mi>P</mi><mtext>осн</mtext></msub><mi>l</mi></mrow></math></span>.</li>
+            <li>Для полной поверхности складываем: <span class="formula-inline"><math display="inline"><mrow><msub><mi>S</mi><mtext>полн</mtext></msub><mo>=</mo><msub><mi>S</mi><mtext>осн</mtext></msub><mo>+</mo><msub><mi>S</mi><mtext>бок</mtext></msub></mrow></math></span>.</li>
+            <li>Высота пирамиды и апофема — это разные отрезки. Их нельзя путать.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="head"><h2>Типичные ошибки</h2></div>
+        <div class="body">
+          <ul class="clean errors">
+            <li><b>Путают высоту и апофему.</b> Высота идёт к плоскости основания, апофема — к стороне основания внутри боковой грани.</li>
+            <li><b>Подставляют боковое ребро вместо высоты</b> в формулу объёма.</li>
+            <li><b>Забывают, куда падает высота.</b> В правильной пирамиде — в центр основания.</li>
+            <li><b>Для равностороннего треугольника неверно берут расстояние от вершины до центра:</b> нужно <span class="formula-inline"><math display="inline"><mfrac><mrow><mi>a</mi><msqrt><mn>3</mn></msqrt></mrow><mn>3</mn></mfrac></math></span>, а не <span class="formula-inline"><math display="inline"><mfrac><mrow><mi>a</mi><msqrt><mn>3</mn></msqrt></mrow><mn>2</mn></mfrac></math></span>.</li>
+            <li><b>Для квадрата не используют диагональ напрямую</b>, хотя площадь можно найти по формуле <span class="formula-inline"><math display="inline"><mrow><msub><mi>S</mi><mo>□</mo></msub><mo>=</mo><mfrac><msup><mi>d</mi><mn>2</mn></msup><mn>2</mn></mfrac></mrow></math></span>.</li>
+            <li><b>Теряют деление на 2</b> в формуле площади боковой поверхности.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="head"><h2>Самопроверка</h2></div>
+        <div class="body">
+          <div class="quiz-row">
+            <button class="tiny-btn" data-q="0">Вопрос 1</button>
+            <button class="tiny-btn" data-q="1">Вопрос 2</button>
+            <button class="tiny-btn" data-q="2">Вопрос 3</button>
+          </div>
+          <div class="answer" id="quizBox">Выберите вопрос.</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="head"><h2>Генератор похожих задач</h2><div class="muted">без вырожденных случаев</div></div>
+        <div class="body">
+          <div class="gen-row">
+            <button class="tiny-btn" id="genTaskBtn">Сгенерировать задачу</button>
+            <button class="tiny-btn" id="showGenAnswerBtn">Показать ответ</button>
+            <button class="tiny-btn" id="applyGenBtn">Применить к модели</button>
+          </div>
+          <div class="answer" id="genTaskBox">Нажмите «Сгенерировать задачу».</div>
+        </div>
+      </section>
+
+      <section class="card print-keep">
+        <div class="head"><h2>Памятка</h2></div>
+        <div class="body">
+          <details open>
+            <summary>Правильная треугольная пирамида</summary>
+            <div class="formula-card">
+              <math display="block">
+                <mrow>
+                  <msub><mi>S</mi><mtext>осн</mtext></msub><mo>=</mo><mfrac><mrow><msqrt><mn>3</mn></msqrt><msup><mi>a</mi><mn>2</mn></msup></mrow><mn>4</mn></mfrac><mo>,</mo>
+                  <mspace width="1em"/>
+                  <mi>h</mi><mo>=</mo><msqrt><mrow><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mfrac><msup><mi>a</mi><mn>2</mn></msup><mn>3</mn></mfrac></mrow></msqrt><mo>,</mo>
+                  <mspace width="1em"/>
+                  <mi>l</mi><mo>=</mo><msqrt><mrow><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><msup><mrow><mo>(</mo><mfrac><mi>a</mi><mn>2</mn></mfrac><mo>)</mo></mrow><mn>2</mn></msup></mrow></msqrt>
+                </mrow>
+              </math>
+              <math display="block">
+                <mrow>
+                  <msub><mi>S</mi><mtext>бок</mtext></msub><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>·</mo><mo>(</mo><mn>3</mn><mi>a</mi><mo>)</mo><mo>·</mo><mi>l</mi><mo>=</mo><mfrac><mrow><mn>3</mn><mi>a</mi><mi>l</mi></mrow><mn>2</mn></mfrac><mo>,</mo>
+                  <mspace width="1em"/>
+                  <mi>V</mi><mo>=</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><msub><mi>S</mi><mtext>осн</mtext></msub><mi>h</mi>
+                </mrow>
+              </math>
+            </div>
+          </details>
+          <details>
+            <summary>Правильная четырёхугольная пирамида</summary>
+            <div class="formula-card">
+              <math display="block">
+                <mrow>
+                  <msub><mi>S</mi><mtext>осн</mtext></msub><mo>=</mo><msup><mi>a</mi><mn>2</mn></msup><mo>=</mo><mfrac><msup><mi>d</mi><mn>2</mn></msup><mn>2</mn></mfrac><mo>,</mo>
+                  <mspace width="1em"/>
+                  <mi>h</mi><mo>=</mo><msqrt><mrow><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><msup><mrow><mo>(</mo><mfrac><mi>d</mi><mn>2</mn></mfrac><mo>)</mo></mrow><mn>2</mn></msup></mrow></msqrt>
+                </mrow>
+              </math>
+              <math display="block">
+                <mrow>
+                  <mi>l</mi><mo>=</mo><msqrt><mrow><msup><mi>h</mi><mn>2</mn></msup><mo>+</mo><msup><mrow><mo>(</mo><mfrac><mi>a</mi><mn>2</mn></mfrac><mo>)</mo></mrow><mn>2</mn></msup></mrow></msqrt><mo>,</mo>
+                  <mspace width="1em"/>
+                  <msub><mi>S</mi><mtext>бок</mtext></msub><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>·</mo><mo>(</mo><mn>4</mn><mi>a</mi><mo>)</mo><mo>·</mo><mi>l</mi><mo>=</mo><mn>2</mn><mi>a</mi><mi>l</mi><mo>,</mo>
+                  <mspace width="1em"/>
+                  <mi>V</mi><mo>=</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><msub><mi>S</mi><mtext>осн</mtext></msub><mi>h</mi>
+                </mrow>
+              </math>
+            </div>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <div class="right">
+      <section class="card sticky print-keep">
+        <div class="head"><h2>Визуализация</h2><div class="muted">клик по чертежу — увеличить</div></div>
+        <div class="viz-wrap">
+          <div class="toggle-row">
+            <button class="tiny-btn" id="toggleHeightBtn">Высота: вкл</button>
+            <button class="tiny-btn" id="toggleApothemBtn">Апофема: вкл</button>
+            <button class="tiny-btn" id="toggleLabelsBtn">Подписи: вкл</button>
+          </div>
+          <div class="zoom-row" style="margin-top:10px">
+            <button class="tiny-btn" id="zoomInBtn">+</button>
+            <button class="tiny-btn" id="zoomOutBtn">−</button>
+            <button class="tiny-btn" id="resetViewBtn">Сброс вида</button>
+          </div>
+          <div class="canvas-shell" id="canvasShell">
+            <canvas id="scene"></canvas>
+          </div>
+          <div class="statusbar">
+            <div class="pill" id="statusMain">Тип: треугольная</div>
+            <div class="pill" id="statusStep">Активный шаг: Дано</div>
+          </div>
+          <div class="legend">
+            <div class="legend-item"><span class="dot" style="background:#60a5fa"></span> основание</div>
+            <div class="legend-item"><span class="dot" style="background:#34d399"></span> высота</div>
+            <div class="legend-item"><span class="dot" style="background:#fbbf24"></span> апофема</div>
+            <div class="legend-item"><span class="dot" style="background:#f87171"></span> боковые рёбра</div>
+          </div>
+          <div class="kpi">
+            <div class="box">
+              <div class="muted">Формула объёма</div>
+              <math display="block"><mrow><mi>V</mi><mo>=</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><msub><mi>S</mi><mtext>осн</mtext></msub><mi>h</mi></mrow></math>
+            </div>
+            <div class="box">
+              <div class="muted">Формула боковой поверхности</div>
+              <math display="block"><mrow><msub><mi>S</mi><mtext>бок</mtext></msub><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mi>P</mi><mtext>осн</mtext></msub><mi>l</mi></mrow></math>
+            </div>
+            <div class="box"><div class="muted">Ключевая мысль</div><div>ищите прямоугольные треугольники</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="footer">Наглядная математика · пирамиды · исправленная изометрия + MathML</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-card">
+    <div class="overlay-top">
+      <strong>Увеличенная визуализация</strong>
+      <button class="tiny-btn" id="closeOverlayBtn" style="width:auto">Закрыть</button>
+    </div>
+    <canvas id="overlayScene"></canvas>
+  </div>
+</div>
+
+<div class="hint" id="hint" role="tooltip" aria-live="polite">
+  <span class="close" id="hintClose">×</span>
+  <strong>Подсказка</strong>
+  Потяните модель мышкой, крутите колесо для масштаба и переключайте шаги сверху — чертёж синхронизирован с объяснением.
+</div>
+
+<script>
+  const state = {
+    type:'tri', detail:'full', step:0,
+    showHeight:true, showApothem:true, showLabels:true,
+    zoom:1, panX:0, panY:0,
+    yaw:-0.72, pitch:0.55,
+    dragging:false, rotating:false, lastX:0, lastY:0,
+    modalOpen:false, generated:null
+  };
+
+  const triSteps = [
+    {title:'Дано', full:'Перед нами правильная треугольная пирамида. В основании лежит равносторонний треугольник со стороной a. Все боковые рёбра равны b. Высота пирамиды падает в центр основания — точку пересечения медиан.', mid:'Основание — равносторонний треугольник, боковые рёбра равны, высота падает в центр основания.', short:'Основание: правильный треугольник. Высота идёт в центр.'},
+    {title:'Что дано и что найти', full:'Обычно в задачах известны сторона основания a, боковое ребро b, иногда апофема l или высота h. Нужно уметь находить объём V, площадь боковой поверхности Sбок и полную площадь Sполн.', mid:'Чаще всего ищем V, Sбок и Sполн по a, b, h или l.', short:'Ищем V, Sбок, Sполн.'},
+    {title:'Смысл условий', full:'Так как основание — равносторонний треугольник, его площадь считается по формуле ниже. Центр основания делит медиану в отношении 2:1, поэтому расстояние от вершины основания до центра равно a√3/3.', mid:'Нужно помнить две вещи: формулу площади основания и расстояние от вершины треугольника до центра.', short:'Используем формулу площади и AO = a√3/3.'},
+    {title:'Идея', full:'Чтобы найти высоту пирамиды, рассматриваем прямоугольный треугольник, где гипотенуза — боковое ребро, а один катет — расстояние от центра основания до вершины основания. Чтобы найти апофему, рассматриваем прямоугольный треугольник боковой грани.', mid:'Высоту и апофему ищем через прямоугольные треугольники.', short:'Главный инструмент — прямоугольный треугольник.'},
+    {title:'Пошаговое решение', full:'Сначала найдите высоту h и апофему l, затем площадь основания, объём, боковую и полную поверхность.', mid:'Сначала h и l, потом подстановка в формулы.', short:'Найдите h, l и подставьте в формулы.'},
+    {title:'Проверка', full:'Проверьте, что подкоренные выражения не отрицательны. Высота не может совпадать с боковым ребром, а апофема не может быть меньше половины стороны основания.', mid:'Проверяем подкоренные выражения и смысл найденных длин.', short:'Проверка: длины должны быть реальными и разумными.'},
+    {title:'Вывод', full:'В задачах на правильную треугольную пирамиду всё обычно сводится к трём формулам: площадь основания, формула высоты и формула апофемы.', mid:'Запомните три ключевые формулы — и решение становится стандартным.', short:'Три формулы закрывают почти все задачи.'}
+  ];
+
+  const quadSteps = [
+    {title:'Дано', full:'Перед нами правильная четырёхугольная пирамида. Основание — квадрат. Высота падает в точку пересечения диагоналей квадрата.', mid:'Основание — квадрат, высота идёт в центр квадрата.', short:'Основание: квадрат. Высота — в центр.'},
+    {title:'Что дано и что найти', full:'В задачах могут быть известны сторона квадрата a, диагональ d, боковое ребро b, апофема l или высота h. Обычно просят найти объём, боковую поверхность или полную поверхность.', mid:'Работаем с a, d, b, l, h и ищем V, Sбок, Sполн.', short:'Ищем V, Sбок, Sполн.'},
+    {title:'Смысл условий', full:'Если известна диагональ квадрата d, то площадь основания можно сразу найти по формуле ниже. Расстояние от центра квадрата до его вершины равно d/2.', mid:'Если дана диагональ, используйте формулу площади основания и AO = d/2.', short:'Если дана диагональ: Sосн = d²/2, AO = d/2.'},
+    {title:'Идея', full:'Высоту пирамиды ищем из прямоугольного треугольника: гипотенуза — боковое ребро, катет — половина диагонали основания. Апофему ищем через высоту и половину стороны квадрата.', mid:'Сначала h через боковое ребро и половину диагонали, затем l.', short:'Ищем h, потом l.'},
+    {title:'Пошаговое решение', full:'Найдите высоту, затем апофему, а после этого объём и площади.', mid:'Найдите h, затем l, затем объём и площади.', short:'h → l → V и площади.'},
+    {title:'Проверка', full:'Проверьте, что b больше, чем d/2, иначе высота не существует. Убедитесь, что вы не перепутали половину диагонали и половину стороны квадрата.', mid:'Нужно отличать d/2 и a/2.', short:'Проверка: не путайте d/2 и a/2.'},
+    {title:'Вывод', full:'В правильной четырёхугольной пирамиде задача часто решается особенно быстро, если дана диагональ квадрата: площадь основания находится сразу, а высота — через один прямоугольный треугольник.', mid:'Если дана диагональ, решение становится очень коротким.', short:'Диагональ квадрата часто сильно упрощает задачу.'}
+  ];
+
+  const quiz = [
+    {q:'Что подставляется в формулу объёма пирамиды вместе с площадью основания?', a:'Подставляется именно <b>высота пирамиды</b>, а не боковое ребро и не апофема.'},
+    {q:'Куда падает высота правильной треугольной пирамиды?', a:'В <b>центр основания</b>, то есть в точку пересечения медиан равностороннего треугольника.'},
+    {q:'Для квадрата со стороной a и диагональю d что верно: d/2 = a/2?', a:'Нет. Это <b>разные</b> отрезки. Половина диагонали равна d/2, половина стороны равна a/2.'}
+  ];
+
+  const scene = document.getElementById('scene');
+  const overlayScene = document.getElementById('overlayScene');
+  const ctx = scene.getContext('2d');
+  const octx = overlayScene.getContext('2d');
+
+  function resizeCanvas(canvas){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    const c = canvas.getContext('2d');
+    c.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  function rotY(p,a){ const c=Math.cos(a), s=Math.sin(a); return {x:p.x*c+p.z*s,y:p.y,z:-p.x*s+p.z*c}; }
+  function rotX(p,a){ const c=Math.cos(a), s=Math.sin(a); return {x:p.x,y:p.y*c-p.z*s,z:p.y*s+p.z*c}; }
+  function transform3D(p){ return rotX(rotY(p,state.yaw), state.pitch); }
+
+  function makeTriGeometry(){
+    const r = 145;
+    const A = {x: r*Math.cos(-Math.PI/2), y:0, z:r*Math.sin(-Math.PI/2)};
+    const B = {x: r*Math.cos(-Math.PI/2 + 2*Math.PI/3), y:0, z:r*Math.sin(-Math.PI/2 + 2*Math.PI/3)};
+    const C = {x: r*Math.cos(-Math.PI/2 + 4*Math.PI/3), y:0, z:r*Math.sin(-Math.PI/2 + 4*Math.PI/3)};
+    const O = {x:0,y:0,z:0};
+    const S = {x:0,y:210,z:0};
+    const K = {x:(A.x+B.x)/2,y:0,z:(A.z+B.z)/2};
+    return {points:{A,B,C,O,S,K}, faces:[['A','B','C'],['S','A','B'],['S','B','C'],['S','C','A']], edges:[['A','B'],['B','C'],['C','A'],['S','A'],['S','B'],['S','C']]};
+  }
+
+  function makeQuadGeometry(){
+    const a = 230;
+    const A={x:-a/2,y:0,z:-a/2}, B={x:a/2,y:0,z:-a/2}, C={x:a/2,y:0,z:a/2}, D={x:-a/2,y:0,z:a/2};
+    const O={x:0,y:0,z:0};
+    const S={x:0,y:240,z:0};
+    const K={x:0,y:0,z:-a/2};
+    return {points:{A,B,C,D,O,S,K}, faces:[['A','B','C','D'],['S','A','B'],['S','B','C'],['S','C','D'],['S','D','A']], edges:[['A','B'],['B','C'],['C','D'],['D','A'],['S','A'],['S','B'],['S','C'],['S','D']]};
+  }
+
+  function getGeometry(){ return state.type==='tri' ? makeTriGeometry() : makeQuadGeometry(); }
+
+  function projectPoint(p,w,h){
+    const t = transform3D(p);
+    const scale = 1.05 * state.zoom;
+    return {
+      x: w/2 + t.x*scale + state.panX,
+      y: h/2 + 95 - t.y*scale + t.z*0.16 + state.panY,
+      z: t.z,
+      y3: t.y
+    };
+  }
+
+  function drawLine(c,a,b,color,width=2,dashed=false,alpha=1){
+    c.save();
+    c.globalAlpha = alpha;
+    c.beginPath();
+    c.setLineDash(dashed ? [7,7] : []);
+    c.moveTo(a.x,a.y); c.lineTo(b.x,b.y);
+    c.strokeStyle = color; c.lineWidth = width; c.lineCap='round'; c.lineJoin='round'; c.stroke();
+    c.restore();
+  }
+
+  function drawPoint(c,p,label,color){
+    c.beginPath(); c.arc(p.x,p.y,4.5,0,Math.PI*2); c.fillStyle=color; c.fill();
+    if(state.showLabels){ c.fillStyle='#dbeafe'; c.font='14px system-ui'; c.fillText(label,p.x+8,p.y-8); }
+  }
+
+  function fillFace(c, pts, fill, stroke='rgba(255,255,255,.04)'){
+    c.beginPath(); pts.forEach((p,i)=> i ? c.lineTo(p.x,p.y) : c.moveTo(p.x,p.y)); c.closePath();
+    c.fillStyle = fill; c.fill(); c.strokeStyle = stroke; c.lineWidth = 1; c.stroke();
+  }
+
+  function faceDepth(face, pts){ return face.reduce((s,k)=>s+pts[k].z,0)/face.length; }
+
+  function renderScene(c, canvas){
+    const w = canvas.getBoundingClientRect().width;
+    const h = canvas.getBoundingClientRect().height;
+    c.clearRect(0,0,w,h);
+    c.fillStyle='#08101d'; c.fillRect(0,0,w,h);
+
+    const geom = getGeometry();
+    const pts = {};
+    Object.entries(geom.points).forEach(([k,p])=> pts[k]=projectPoint(p,w,h));
+
+    c.save();
+    const grd = c.createLinearGradient(0,0,0,h);
+    grd.addColorStop(0,'rgba(96,165,250,.06)');
+    grd.addColorStop(1,'rgba(34,211,238,.01)');
+    c.fillStyle = grd;
+    c.fillRect(0,0,w,h);
+    c.restore();
+
+    const sortedFaces = [...geom.faces].sort((f1,f2)=> faceDepth(f1,pts)-faceDepth(f2,pts));
+    sortedFaces.forEach((face, idx)=>{
+      const poly = face.map(k=>pts[k]);
+      const isBase = idx===0 || (face.length===4 && face.includes('A') && face.includes('B') && face.includes('C'));
+      const fill = face.includes('S')
+      ? 'rgba(96,165,250,' + (0.08 + 0.03*idx) + ')'
+      : 'rgba(34,211,238,.08)';
+      fillFace(c, poly, fill);
+    });
+
+    // hidden/helper logic
+    const hiddenThreshold = 8;
+    const baseEdges = state.type==='tri' ? [['A','B'],['B','C'],['C','A']] : [['A','B'],['B','C'],['C','D'],['D','A']];
+    const sideEdges = geom.edges.filter(([u,v]) => u==='S' || v==='S');
+
+    baseEdges.forEach(([u,v])=>{
+      const hidden = ((pts[u].z + pts[v].z)/2) > hiddenThreshold;
+      drawLine(c, pts[u], pts[v], '#78b7ff', 2.6, hidden, hidden ? 0.5 : 1);
+    });
+
+    sideEdges.forEach(([u,v])=>{
+      const hidden = ((pts[u].z + pts[v].z)/2) > hiddenThreshold;
+      drawLine(c, pts[u], pts[v], '#f88989', 2.4, hidden, hidden ? 0.55 : 1);
+    });
+
+    // helpers
+    if(state.showHeight){
+      drawLine(c, pts.S, pts.O, '#34d399', 3.3, false, 1);
+    }
+    if(state.showApothem){
+      drawLine(c, pts.S, pts.K, '#fbbf24', 3.3, false, 1);
+    }
+
+    if(state.type==='tri'){
+      drawLine(c, pts.O, pts.C, state.step>=2 ? '#d8b4fe' : 'rgba(255,255,255,.22)', state.step>=2 ? 2.4 : 1.5, state.step<2, .95);
+      drawLine(c, pts.A, pts.K, 'rgba(255,255,255,.22)', 1.5, true, .8);
+    } else {
+      drawLine(c, pts.A, pts.O, state.step>=2 ? '#d8b4fe' : 'rgba(255,255,255,.22)', state.step>=2 ? 2.4 : 1.5, state.step<2, .95);
+      drawLine(c, pts.O, pts.K, 'rgba(255,255,255,.22)', 1.5, true, .8);
+    }
+
+    Object.entries(pts).forEach(([k,p])=> drawPoint(c,p,k, k==='S' ? '#fda4af' : '#eff6ff'));
+
+    c.fillStyle='rgba(255,255,255,.95)'; c.font='16px system-ui';
+    c.fillText(state.type==='tri' ? 'Правильная треугольная пирамида' : 'Правильная четырёхугольная пирамида', 16, 28);
+    c.fillStyle='#9fb0d1'; c.font='14px system-ui';
+    c.fillText('зелёный — высота, жёлтый — апофема, красный — боковые рёбра', 16, 50);
+  }
+
+  function textFor(step){ return state.detail==='full' ? step.full : state.detail==='mid' ? step.mid : step.short; }
+
+  function triFormulaHTML(){
+    return `
+      <div class="formula-card">
+        <math display="block"><mrow><msub><mi>S</mi><mtext>осн</mtext></msub><mo>=</mo><mfrac><mrow><msqrt><mn>3</mn></msqrt><msup><mi>a</mi><mn>2</mn></msup></mrow><mn>4</mn></mfrac></mrow></math>
+        <math display="block"><mrow><mi>h</mi><mo>=</mo><msqrt><mrow><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mfrac><msup><mi>a</mi><mn>2</mn></msup><mn>3</mn></mfrac></mrow></msqrt></mrow></math>
+        <math display="block"><mrow><mi>l</mi><mo>=</mo><msqrt><mrow><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><msup><mrow><mo>(</mo><mfrac><mi>a</mi><mn>2</mn></mfrac><mo>)</mo></mrow><mn>2</mn></msup></mrow></msqrt></mrow></math>
+        <math display="block"><mrow><mi>V</mi><mo>=</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><msub><mi>S</mi><mtext>осн</mtext></msub><mi>h</mi><mo>,</mo><mspace width="1em"/><msub><mi>S</mi><mtext>бок</mtext></msub><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>(</mo><mn>3</mn><mi>a</mi><mo>)</mo><mi>l</mi></mrow></math>
+      </div>`;
+  }
+
+  function quadFormulaHTML(){
+    return `
+      <div class="formula-card">
+        <math display="block"><mrow><msub><mi>S</mi><mtext>осн</mtext></msub><mo>=</mo><msup><mi>a</mi><mn>2</mn></msup><mo>=</mo><mfrac><msup><mi>d</mi><mn>2</mn></msup><mn>2</mn></mfrac></mrow></math>
+        <math display="block"><mrow><mi>h</mi><mo>=</mo><msqrt><mrow><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><msup><mrow><mo>(</mo><mfrac><mi>d</mi><mn>2</mn></mfrac><mo>)</mo></mrow><mn>2</mn></msup></mrow></msqrt></mrow></math>
+        <math display="block"><mrow><mi>l</mi><mo>=</mo><msqrt><mrow><msup><mi>h</mi><mn>2</mn></msup><mo>+</mo><msup><mrow><mo>(</mo><mfrac><mi>a</mi><mn>2</mn></mfrac><mo>)</mo></mrow><mn>2</mn></msup></mrow></msqrt></mrow></math>
+        <math display="block"><mrow><mi>V</mi><mo>=</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><msub><mi>S</mi><mtext>осн</mtext></msub><mi>h</mi><mo>,</mo><mspace width="1em"/><msub><mi>S</mi><mtext>бок</mtext></msub><mo>=</mo><mn>2</mn><mi>a</mi><mi>l</mi></mrow></math>
+      </div>`;
+  }
+
+  function renderSteps(){
+    const steps = state.type==='tri' ? triSteps : quadSteps;
+    const nav = document.getElementById('stepNav');
+    const box = document.getElementById('stepsContainer');
+    nav.innerHTML=''; box.innerHTML='';
+    steps.forEach((s,i)=>{
+      const btn=document.createElement('button');
+      btn.className='step-btn'+(i===state.step?' active':'');
+      btn.textContent=(i+1)+'. '+s.title;
+      btn.onclick=()=>{ state.step=i; renderSteps(); render(); };
+      nav.appendChild(btn);
+
+      const sec=document.createElement('section');
+      sec.className='step'+(i===state.step?' active':'');
+      sec.innerHTML = `<h4>${i+1}. ${s.title}</h4><p>${textFor(s)}</p>${i===4 ? (state.type==='tri' ? triFormulaHTML() : quadFormulaHTML()) : ''}`;
+      box.appendChild(sec);
+    });
+    document.getElementById('activeModeText').textContent = state.type==='tri' ? 'Правильная треугольная пирамида' : 'Правильная четырёхугольная пирамида';
+  }
+
+  function resizeAll(){ resizeCanvas(scene); if(state.modalOpen) resizeCanvas(overlayScene); }
+  function render(){ resizeAll(); renderScene(ctx, scene); if(state.modalOpen) renderScene(octx, overlayScene); updateStatus(); }
+  function updateStatus(){
+    const steps = state.type==='tri' ? triSteps : quadSteps;
+    document.getElementById('statusMain').textContent = 'Тип: ' + (state.type==='tri' ? 'треугольная' : 'четырёхугольная');
+    document.getElementById('statusStep').textContent = 'Активный шаг: ' + steps[state.step].title;
+  }
+  function nextStep(){ const steps = state.type==='tri' ? triSteps : quadSteps; state.step=(state.step+1)%steps.length; renderSteps(); render(); }
+
+  function randint(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+  function generateTask(){
+    if(state.type==='tri'){
+      const a=[2,4,6,8][randint(0,3)], b=[5,6,8,10][randint(0,3)];
+      const h2=b*b-a*a/3; if(h2<=0) return generateTask();
+      const l2=b*b-(a/2)*(a/2), Sbase=Math.sqrt(3)/4*a*a, h=Math.sqrt(h2), l=Math.sqrt(l2), V=Sbase*h/3, Sb=3*a*l/2;
+      state.generated={
+        task:`В правильной треугольной пирамиде сторона основания равна ${a}, боковое ребро равно ${b}. Найдите объём, площадь боковой поверхности и полную площадь.`,
+        answer:`Sосн = (√3/4)·${a}² = ${(a*a/4)}√3. h = √(${b*b} − ${a*a}/3). l = √(${b*b} − ${(a/2)*(a/2)}). V ≈ ${V.toFixed(3)}. Sбок ≈ ${Sb.toFixed(3)}. Sполн ≈ ${(Sb+Sbase).toFixed(3)}.`
+      };
+    } else {
+      const d=[6,8,10,12][randint(0,3)], b=[5,8,10,13][randint(0,3)];
+      const h2=b*b-(d/2)*(d/2); if(h2<=0) return generateTask();
+      const a=d/Math.sqrt(2), h=Math.sqrt(h2), l=Math.sqrt(h*h+(a/2)*(a/2)), Sbase=d*d/2, V=Sbase*h/3, Sb=2*a*l;
+      state.generated={
+        task:`В правильной четырёхугольной пирамиде диагональ основания равна ${d}, боковое ребро равно ${b}. Найдите объём, площадь боковой поверхности и полную площадь.`,
+        answer:`Sосн = ${d}²/2 = ${Sbase}. h = √(${b*b} − ${(d/2)*(d/2)}) = ${h.toFixed(3)}. a = ${d}/√2 ≈ ${a.toFixed(3)}. l ≈ ${l.toFixed(3)}. V ≈ ${V.toFixed(3)}. Sбок ≈ ${Sb.toFixed(3)}. Sполн ≈ ${(Sb+Sbase).toFixed(3)}.`
+      };
+    }
+    document.getElementById('genTaskBox').innerHTML = '<b>Задача.</b><br>'+state.generated.task;
+  }
+  function showGenAnswer(){
+    const box=document.getElementById('genTaskBox');
+    if(!state.generated){ box.textContent='Сначала сгенерируйте задачу.'; return; }
+    box.innerHTML='<b>Задача.</b><br>'+state.generated.task+'<hr style="border-color:#24314a"><b>Ответ и идея.</b><br>'+state.generated.answer;
+  }
+  function applyGenerated(){ if(!state.generated){ document.getElementById('genTaskBox').textContent='Сначала сгенерируйте задачу.'; return; } state.step=4; renderSteps(); render(); }
+
+  function bindScene(canvas){
+    canvas.addEventListener('pointerdown',e=>{
+      state.dragging = e.button===0;
+      state.rotating = e.button===2 || e.shiftKey;
+      state.lastX=e.clientX; state.lastY=e.clientY;
+    });
+    canvas.addEventListener('contextmenu',e=>e.preventDefault());
+    window.addEventListener('pointerup',()=>{ state.dragging=false; state.rotating=false; });
+    window.addEventListener('pointermove',e=>{
+      const dx=e.clientX-state.lastX, dy=e.clientY-state.lastY;
+      if(state.dragging){ state.panX += dx; state.panY += dy; render(); }
+      if(state.rotating){ state.yaw += dx*0.008; state.pitch += dy*0.006; state.pitch=Math.max(0.18,Math.min(1.25,state.pitch)); render(); }
+      state.lastX=e.clientX; state.lastY=e.clientY;
+    });
+    canvas.addEventListener('wheel',e=>{
+      e.preventDefault();
+      state.zoom *= e.deltaY<0 ? 1.08 : 0.92;
+      state.zoom=Math.min(2.3,Math.max(0.7,state.zoom));
+      document.getElementById('zoomRange').value=state.zoom.toFixed(2);
+      render();
+    },{passive:false});
+  }
+
+  document.getElementById('pyramidType').onchange = e=>{ state.type=e.target.value; state.step=0; renderSteps(); render(); };
+  document.getElementById('detailLevel').onchange = e=>{ state.detail=e.target.value; renderSteps(); };
+  document.getElementById('zoomRange').oninput = e=>{ state.zoom=parseFloat(e.target.value); render(); };
+  document.getElementById('showAllBtn').onclick = ()=>{ state.step=(state.type==='tri'?triSteps:quadSteps).length-1; renderSteps(); render(); };
+  document.getElementById('nextStepBtn').onclick = nextStep;
+  document.getElementById('toggleHeightBtn').onclick = ()=>{ state.showHeight=!state.showHeight; document.getElementById('toggleHeightBtn').textContent='Высота: '+(state.showHeight?'вкл':'выкл'); render(); };
+  document.getElementById('toggleApothemBtn').onclick = ()=>{ state.showApothem=!state.showApothem; document.getElementById('toggleApothemBtn').textContent='Апофема: '+(state.showApothem?'вкл':'выкл'); render(); };
+  document.getElementById('toggleLabelsBtn').onclick = ()=>{ state.showLabels=!state.showLabels; document.getElementById('toggleLabelsBtn').textContent='Подписи: '+(state.showLabels?'вкл':'выкл'); render(); };
+  document.getElementById('zoomInBtn').onclick = ()=>{ state.zoom=Math.min(2.3,state.zoom*1.12); document.getElementById('zoomRange').value=state.zoom.toFixed(2); render(); };
+  document.getElementById('zoomOutBtn').onclick = ()=>{ state.zoom=Math.max(0.7,state.zoom*0.9); document.getElementById('zoomRange').value=state.zoom.toFixed(2); render(); };
+  document.getElementById('resetViewBtn').onclick = ()=>{ state.zoom=1; state.panX=0; state.panY=0; state.yaw=-0.72; state.pitch=0.55; document.getElementById('zoomRange').value='1'; render(); };
+  document.getElementById('genTaskBtn').onclick = generateTask;
+  document.getElementById('showGenAnswerBtn').onclick = showGenAnswer;
+  document.getElementById('applyGenBtn').onclick = applyGenerated;
+  document.querySelectorAll('[data-q]').forEach(btn=> btn.onclick = ()=>{ const q=quiz[+btn.dataset.q]; document.getElementById('quizBox').innerHTML='<b>'+q.q+'</b><div style="margin-top:10px">'+q.a+'</div>'; });
+
+  const overlay=document.getElementById('overlay');
+  document.getElementById('canvasShell').onclick = ()=>{ state.modalOpen=true; overlay.classList.add('open'); render(); };
+  document.getElementById('closeOverlayBtn').onclick = ()=>{ state.modalOpen=false; overlay.classList.remove('open'); };
+  overlay.addEventListener('click',e=>{ if(e.target===overlay){ state.modalOpen=false; overlay.classList.remove('open'); } });
+  window.addEventListener('keydown',e=>{ if(e.key==='Escape'){ state.modalOpen=false; overlay.classList.remove('open'); document.getElementById('hint').classList.remove('show'); } });
+
+  bindScene(scene); bindScene(overlayScene);
+
+  document.getElementById('hintClose').onclick = ()=> document.getElementById('hint').classList.remove('show');
+  setTimeout(()=>{
+    if(!sessionStorage.getItem('pyramidsHintSeenV2')){
+      document.getElementById('hint').classList.add('show');
+      sessionStorage.setItem('pyramidsHintSeenV2','1');
+      setTimeout(()=>document.getElementById('hint').classList.remove('show'),15000);
+    }
+  },3000);
+
+  renderSteps();
+  render();
+  window.addEventListener('resize', render);
+</script>
+</body>
+</html>

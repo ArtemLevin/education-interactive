@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Векторное произведение: Интерактивный курс</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --surface-hover: #2c2c2c;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent-color: #00bcd4; /* Cyan */
+            --accent-glow: rgba(0, 188, 212, 0.4);
+            --vector-a: #ff5252;
+            --vector-b: #448aff;
+            --vector-c: #69f0ae;
+            --grid-line: #333;
+            --border-color: #333;
+            --modal-overlay: rgba(0, 0, 0, 0.85);
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f5f5f5;
+            --surface-color: #ffffff;
+            --surface-hover: #f0f0f0;
+            --text-primary: #212121;
+            --text-secondary: #555555;
+            --accent-color: #00838f;
+            --accent-glow: rgba(0, 131, 143, 0.3);
+            --grid-line: #ddd;
+            --border-color: #ccc;
+            --modal-overlay: rgba(255, 255, 255, 0.9);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-primary); line-height: 1.6; overflow-x: hidden; }
+
+        /* Layout */
+        .app-container { display: grid; grid-template-columns: 1fr 400px; gap: 20px; max-width: 1600px; margin: 0 auto; padding: 20px; height: 100vh; }
+        @media (max-width: 900px) { .app-container { grid-template-columns: 1fr; height: auto; } }
+
+        /* Navigation */
+        .nav-panel { position: fixed; top: 0; left: 0; right: 0; background: var(--surface-color); border-bottom: 1px solid var(--border-color); z-index: 100; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-buttons { display: flex; gap: 10px; }
+        .nav-btn { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .nav-btn.active { background: var(--accent-color); color: var(--bg-color); }
+        .theme-toggle { background: none; border: none; color: var(--text-primary); cursor: pointer; font-size: 1.2rem; }
+
+        /* Main Content Area */
+        .main-content { grid-column: 1; overflow-y: auto; padding-top: 60px; padding-right: 20px; scroll-behavior: smooth; }
+        .content-section { display: none; animation: fadeIn 0.5s ease; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Sticky Visualization Panel */
+        .viz-panel { grid-column: 2; position: sticky; top: 80px; height: calc(100vh - 100px); background: var(--surface-color); border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .viz-header { padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--surface-hover); }
+        .viz-canvas-container { flex-grow: 1; position: relative; cursor: move; background: radial-gradient(circle at center, var(--surface-color) 0%, var(--bg-color) 100%); }
+        canvas { width: 100%; height: 100%; display: block; }
+        .viz-controls { padding: 15px; border-top: 1px solid var(--border-color); background: var(--surface-color); display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
+
+        /* Controls & UI Elements */
+        .control-group { display: flex; flex-direction: column; gap: 5px; }
+        .control-label { font-size: 0.8rem; color: var(--text-secondary); display: flex; justify-content: space-between; }
+        input[type="range"] { width: 100%; accent-color: var(--accent-color); }
+        .btn { background: var(--accent-color); color: var(--bg-color); border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; }
+        .btn:hover { filter: brightness(1.1); }
+        .btn-outline { background: transparent; border: 1px solid var(--text-secondary); color: var(--text-primary); }
+
+        /* MathML Styling */
+        math { font-family: 'Latin Modern Math', 'Cambria Math', serif; font-size: 1.1em; }
+        .math-block { margin: 15px 0; padding: 15px; background: var(--surface-hover); border-radius: 8px; border-left: 4px solid var(--accent-color); overflow-x: auto; }
+
+        /* Hints & Tooltips */
+        .hint-trigger { position: relative; display: inline-block; cursor: help; color: var(--accent-color); animation: hintPulse 2s infinite; }
+        @keyframes hintPulse { 0% { text-shadow: 0 0 0 var(--accent-glow); } 50% { text-shadow: 0 0 10px var(--accent-glow); } 100% { text-shadow: 0 0 0 var(--accent-glow); } }
+
+        .tooltip { position: absolute; background: #222; color: #fff; padding: 10px; border-radius: 6px; font-size: 0.85rem; width: 200px; z-index: 1000; pointer-events: none; opacity: 0; transform: translateY(5px); transition: opacity 0.3s, transform 0.3s; border: 1px solid var(--accent-color); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .tooltip.visible { opacity: 1; transform: translateY(0); }
+        .tooltip::after { content: ''; position: absolute; top: -5px; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: transparent transparent var(--accent-color) transparent; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--surface-color); padding: 20px; border-radius: 12px; width: 90%; max-width: 800px; height: 80vh; position: relative; display: flex; flex-direction: column; border: 1px solid var(--accent-color); }
+        .modal-close { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary); }
+        .modal-canvas-wrapper { flex-grow: 1; background: var(--bg-color); border-radius: 8px; overflow: hidden; position: relative; }
+
+        /* Typography & Steps */
+        h1, h2, h3 { color: var(--accent-color); margin-bottom: 15px; }
+        .step-card { background: var(--surface-color); padding: 20px; margin-bottom: 20px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-weight: bold; color: var(--text-primary); }
+        .step-number { background: var(--accent-color); color: var(--bg-color); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        .collapsed-content { display: none; }
+        .step-card.expanded .collapsed-content { display: block; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Quiz & Generator */
+        .quiz-option { display: block; width: 100%; padding: 10px; margin: 5px 0; background: var(--surface-hover); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; text-align: left; }
+        .quiz-option:hover { border-color: var(--accent-color); }
+        .quiz-option.correct { background: rgba(105, 240, 174, 0.2); border-color: var(--vector-c); }
+        .quiz-option.wrong { background: rgba(255, 82, 82, 0.2); border-color: var(--vector-a); }
+
+        /* Print */
+        @media print {
+            .nav-panel, .viz-panel, .btn, .hint-trigger, .modal-overlay { display: none !important; }
+            .app-container { display: block; height: auto; }
+            body { background: white; color: black; }
+            .step-card { break-inside: avoid; border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+<!-- Navigation -->
+<nav class="nav-panel">
+    <div style="font-weight: bold; font-size: 1.2rem;">Векторное Произведение</div>
+    <div class="nav-buttons">
+        <button class="nav-btn active" onclick="switchTab('theory')">Теория</button>
+        <button class="nav-btn" onclick="switchTab('practice')">Практика</button>
+        <button class="nav-btn" onclick="switchTab('quiz')">Квиз</button>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Переключить тему">◑</button>
+</nav>
+
+<div class="app-container">
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Section 1: Theory -->
+        <section id="theory" class="content-section active">
+            <h1>1. Определение и Геометрический смысл</h1>
+
+            <div class="step-card">
+                <div class="step-header"><span class="step-number">1</span>Что дано?</div>
+                <p>Рассмотрим два некомпланарных вектора <math><mi>a</mi></math> и <math><mi>b</mi></math>. Мы хотим найти третий вектор <math><mi>c</mi></math>, который является результатом их векторного произведения.</p>
+            </div>
+
+            <div class="step-card">
+                <div class="step-header"><span class="step-number">2</span>Определение</div>
+                <p><strong>Векторным произведением</strong> <math><mrow><mi>a</mi><mo>×</mo><mi>b</mi></mrow></math> называется вектор <math><mi>c</mi></math>, удовлетворяющий трем условиям:</p>
+                <ul style="margin: 10px 20px; color: var(--text-secondary);">
+                    <li><math><mrow><mi>c</mi><mo>⊥</mo><mi>a</mi></mrow></math> и <math><mrow><mi>c</mi><mo>⊥</mo><mi>b</mi></mrow></math> (перпендикулярен плоскости параллелограмма);</li>
+                    <li><math><mrow><mo>|</mo><mi>c</mi><mo>|</mo><mo>=</mo><mo>|</mo><mi>a</mi><mo>|</mo><mo>⋅</mo><mo>|</mo><mi>b</mi><mo>|</mo><mo>⋅</mo><mi>sin</mi><mo stretchy="false">(</mo><mi>φ</mi><mo stretchy="false">)</mo></mrow></math> (длина равна площади параллелограмма);</li>
+                    <li>Тройка <math><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>,</mo><mi>c</mi><mo stretchy="false">)</mo></mrow></math> — <strong>правая</strong>.</li>
+                </ul>
+                <div class="hint-trigger" data-hint="Правая тройка означает, что если вращать винт от a к b по кратчайшему пути, он будет ввинчиваться в направлении c.">ℹ️ Как определить направление?</div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-header"><span class="step-number">3</span>Координатная формула</div>
+                <p>Если векторы заданы координатами <math><mrow><mi>a</mi><mo>=</mo><mo stretchy="false">{</mo><msub><mi>a</mi><mi>x</mi></msub><mo>,</mo><msub><mi>a</mi><mi>y</mi></msub><mo>,</mo><msub><mi>a</mi><mi>z</mi></msub><mo stretchy="false">}</mo></mrow></math> и <math><mrow><mi>b</mi><mo>=</mo><mo stretchy="false">{</mo><msub><mi>b</mi><mi>x</mi></msub><mo>,</mo><msub><mi>b</mi><mi>y</mi></msub><mo>,</mo><msub><mi>b</mi><mi>z</mi></msub><mo stretchy="false">}</mo></mrow></math>, то:</p>
+                <div class="math-block">
+                    <math display="block">
+                        <mrow>
+                            <mi>a</mi><mo>×</mo><mi>b</mi><mo>=</mo>
+                            <mtable columnalign="center">
+                                <mtr><mtd><mo>|</mo></mtd><mtd><mi>i</mi></mtd><mtd><mi>j</mi></mtd><mtd><mi>k</mi></mtd><mtd><mo>|</mo></mtd></mtr>
+                                <mtr><mtd><mo>|</mo></mtd><mtd><msub><mi>a</mi><mi>x</mi></msub></mtd><mtd><msub><mi>a</mi><mi>y</mi></msub></mtd><mtd><msub><mi>a</mi><mi>z</mi></msub></mtd><mtd><mo>|</mo></mtd></mtr>
+                                <mtr><mtd><mo>|</mo></mtd><mtd><msub><mi>b</mi><mi>x</mi></msub></mtd><mtd><msub><mi>b</mi><mi>y</mi></msub></mtd><mtd><msub><mi>b</mi><mi>z</mi></msub></mtd><mtd><mo>|</mo></mtd></mtr>
+                            </mtable>
+                        </mrow>
+                    </math>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Practice -->
+        <section id="practice" class="content-section">
+            <h1>2. Решение задачи</h1>
+            <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
+                <button class="btn" onclick="generateProblem()">🔄 Сгенерировать новую задачу</button>
+                <span style="font-size: 0.9rem; color: var(--text-secondary);">Нажмите, чтобы изменить коэффициенты</span>
+            </div>
+
+            <div id="problem-container">
+                <!-- Dynamic Content Injected Here -->
+            </div>
+        </section>
+
+        <!-- Section 3: Quiz -->
+        <section id="quiz" class="content-section">
+            <h1>3. Мини-Квиз</h1>
+            <div class="step-card">
+                <h3>Вопрос 1</h3>
+                <p>Чему равен модуль векторного произведения двух коллинеарных векторов?</p>
+                <button class="quiz-option" onclick="checkQuiz(this, false)">Равен произведению длин</button>
+                <button class="quiz-option" onclick="checkQuiz(this, true)">Равен нулю</button>
+                <button class="quiz-option" onclick="checkQuiz(this, false)">Равен 1</button>
+            </div>
+            <div class="step-card">
+                <h3>Вопрос 2</h3>
+                <p>Как направлены векторы <math><mrow><mi>a</mi><mo>×</mo><mi>b</mi></mrow></math> и <math><mrow><mi>b</mi><mo>×</mo><mi>a</mi></mrow></math>?</p>
+                <button class="quiz-option" onclick="checkQuiz(this, false)">Одинаково</button>
+                <button class="quiz-option" onclick="checkQuiz(this, true)">Противоположно</button>
+                <button class="quiz-option" onclick="checkQuiz(this, false)">Перпендикулярно</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Sticky Visualization Panel -->
+    <aside class="viz-panel">
+        <div class="viz-header">
+            <span>3D Модель</span>
+            <div class="hint-trigger" data-hint="Крутите мышкой для вращения. Кликните для увеличения.">ℹ️ Управление</div>
+        </div>
+        <div class="viz-canvas-container" id="mainCanvasContainer">
+            <canvas id="mainCanvas"></canvas>
+        </div>
+        <div class="viz-controls">
+            <div class="control-group">
+                <div class="control-label"><span>Масштаб</span> <span id="zoomVal">100%</span></div>
+                <input type="range" id="zoomSlider" min="0.5" max="2" step="0.1" value="1">
+            </div>
+            <div style="display: flex; gap: 5px;">
+                <button class="btn btn-outline" onclick="resetView()" title="Сброс">⟲</button>
+                <button class="btn" onclick="openModal()" title="Развернуть">⛶</button>
+            </div>
+        </div>
+        <div style="padding: 10px 15px; font-size: 0.8rem; color: var(--text-secondary); border-top: 1px solid var(--border-color);">
+            <div style="display:flex; align-items:center; gap:5px; margin-bottom:5px;"><span style="width:10px; height:10px; background:var(--vector-a); display:inline-block;"></span> Вектор a</div>
+            <div style="display:flex; align-items:center; gap:5px; margin-bottom:5px;"><span style="width:10px; height:10px; background:var(--vector-b); display:inline-block;"></span> Вектор b</div>
+            <div style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:var(--vector-c); display:inline-block;"></span> Вектор c (a × b)</div>
+        </div>
+    </aside>
+</div>
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-close" onclick="closeModal()">&times;</div>
+        <div class="viz-header" style="background: transparent; border: none; padding-left: 0;">
+            <h3>Детальный просмотр</h3>
+        </div>
+        <div class="modal-canvas-wrapper">
+            <canvas id="modalCanvas"></canvas>
+        </div>
+        <div style="padding: 10px; text-align: center; color: var(--text-secondary);">
+            Используйте колесо мыши для зума, левую кнопку для вращения.
+        </div>
+    </div>
+</div>
+
+<!-- Tooltip Element -->
+<div id="tooltip" class="tooltip" role="tooltip" aria-hidden="true"></div>
+
+<script>
+    // --- State Management ---
+    const state = {
+        theme: 'dark',
+        zoom: 1,
+        rotation: { x: 0.5, y: 0.5 }, // Radians
+        isDragging: false,
+        lastMouse: { x: 0, y: 0 },
+        vectors: {
+            a: { x: 3, y: 0, z: 0 },
+            b: { x: 0, y: 3, z: 0 },
+            c: { x: 0, y: 0, z: 9 } // Pre-calculated for demo
+        },
+        problem: null
+    };
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+        initCanvas('mainCanvas');
+        initCanvas('modalCanvas');
+        generateProblem();
+        setupInteractions();
+
+        // Initial Hint
+        setTimeout(() => showHint(document.querySelector('.hint-trigger')), 3000);
+    });
+
+    // --- Canvas Engine (No Libraries) ---
+    let ctxMain, ctxModal;
+    let width, height;
+
+    function initCanvas(id) {
+        const canvas = document.getElementById(id);
+        const container = canvas.parentElement;
+
+        const resize = () => {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            width = canvas.width;
+            height = canvas.height;
+            draw(id);
+        };
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        if (id === 'mainCanvas') ctxMain = canvas.getContext('2d');
+        if (id === 'modalCanvas') ctxModal = canvas.getContext('2d');
+
+        // Mouse Events for Rotation
+        canvas.addEventListener('mousedown', e => {
+            state.isDragging = true;
+            state.lastMouse = { x: e.clientX, y: e.clientY };
+        });
+        window.addEventListener('mouseup', () => state.isDragging = false);
+        window.addEventListener('mousemove', e => {
+            if (!state.isDragging) return;
+            const dx = e.clientX - state.lastMouse.x;
+            const dy = e.clientY - state.lastMouse.y;
+            state.rotation.y += dx * 0.01;
+            state.rotation.x += dy * 0.01;
+            state.lastMouse = { x: e.clientX, y: e.clientY };
+            draw('mainCanvas');
+            draw('modalCanvas');
+        });
+
+        // Zoom Wheel
+        canvas.addEventListener('wheel', e => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            state.zoom = Math.max(0.5, Math.min(2, state.zoom * delta));
+            document.getElementById('zoomSlider').value = state.zoom;
+            document.getElementById('zoomVal').innerText = Math.round(state.zoom * 100) + '%';
+            draw('mainCanvas');
+            draw('modalCanvas');
+        });
+    }
+
+    // --- 3D Projection Logic ---
+    function project(x, y, z) {
+        // Simple Isometric-like rotation
+        const cosX = Math.cos(state.rotation.x);
+        const sinX = Math.sin(state.rotation.x);
+        const cosY = Math.cos(state.rotation.y);
+        const sinY = Math.sin(state.rotation.y);
+
+        // Rotate Y
+        let x1 = x * cosY - z * sinY;
+        let z1 = z * cosY + x * sinY;
+        // Rotate X
+        let y1 = y * cosX - z1 * sinX;
+        let z2 = z1 * cosX + y * sinX;
+
+        const scale = 40 * state.zoom;
+        return {
+            x: width / 2 + x1 * scale,
+            y: height / 2 - y1 * scale, // Invert Y for canvas
+            z: z2 // Depth for sorting
+        };
+    }
+
+    function drawVector(ctx, start, end, color, label, dashed = false) {
+        const p1 = project(start.x, start.y, start.z);
+        const p2 = project(end.x, end.y, end.z);
+
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+        if (dashed) ctx.setLineDash([5, 5]);
+        else ctx.setLineDash([]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Arrowhead
+        const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+        ctx.beginPath();
+        ctx.moveTo(p2.x, p2.y);
+        ctx.lineTo(p2.x - 10 * Math.cos(angle - Math.PI / 6), p2.y - 10 * Math.sin(angle - Math.PI / 6));
+        ctx.lineTo(p2.x - 10 * Math.cos(angle + Math.PI / 6), p2.y - 10 * Math.sin(angle + Math.PI / 6));
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        // Label
+        ctx.fillStyle = color;
+        ctx.font = 'bold 14px Arial';
+        ctx.fillText(label, p2.x + 10, p2.y);
+
+        return { p1, p2, z: (p1.z + p2.z)/2 }; // Return avg depth for sorting
+    }
+
+    function drawParallelogram(ctx, a, b, color) {
+        const o = {x:0, y:0, z:0};
+        const sum = {x: a.x+b.x, y: a.y+b.y, z: a.z+b.z};
+
+        const pO = project(o.x, o.y, o.z);
+        const pA = project(a.x, a.y, a.z);
+        const pB = project(b.x, b.y, b.z);
+        const pS = project(sum.x, sum.y, sum.z);
+
+        ctx.beginPath();
+        ctx.moveTo(pO.x, pO.y);
+        ctx.lineTo(pA.x, pA.y);
+        ctx.lineTo(pS.x, pS.y);
+        ctx.lineTo(pB.x, pB.y);
+        ctx.closePath();
+
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.2;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2, 2]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    function draw(canvasId) {
+        const ctx = canvasId === 'mainCanvas' ? ctxMain : ctxModal;
+        if (!ctx) return;
+
+        ctx.clearRect(0, 0, width, height);
+
+        // Grid (Floor)
+        ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--grid-line');
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for(let i=-5; i<=5; i++) {
+            let p1 = project(i, -5, 0);
+            let p2 = project(i, 5, 0);
+            ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+            p1 = project(-5, i, 0);
+            p2 = project(5, i, 0);
+            ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+        }
+        ctx.stroke();
+
+        const { a, b, c } = state.vectors;
+        const vars = getComputedStyle(document.body);
+        const colA = vars.getPropertyValue('--vector-a').trim();
+        const colB = vars.getPropertyValue('--vector-b').trim();
+        const colC = vars.getPropertyValue('--vector-c').trim();
+        const colFill = vars.getPropertyValue('--accent-color').trim();
+
+        // Draw Parallelogram (behind vectors usually)
+        drawParallelogram(ctx, a, b, colFill);
+
+        // Simple Z-sorting for vectors (Painter's algo simplified)
+        // We draw vectors based on their endpoint Z depth
+        const vecs = [
+            { v: a, color: colA, label: 'a' },
+            { v: b, color: colB, label: 'b' },
+            { v: c, color: colC, label: 'c' }
+        ];
+
+        vecs.sort((v1, v2) => {
+            const p1 = project(v1.v.x, v1.v.y, v1.v.z);
+            const p2 = project(v2.v.x, v2.v.y, v2.v.z);
+            return p1.z - p2.z;
+        });
+
+        vecs.forEach(item => {
+            drawVector(ctx, {x:0,y:0,z:0}, item.v, item.color, item.label);
+        });
+    }
+
+    // --- UI Logic ---
+    function switchTab(tabId) {
+        document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.target.classList.add('active');
+
+        // Redraw canvas in case size changed
+        setTimeout(() => {
+            draw('mainCanvas');
+            draw('modalCanvas');
+        }, 100);
+    }
+
+    function toggleTheme() {
+        state.theme = state.theme === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', state.theme);
+        draw('mainCanvas');
+        draw('modalCanvas');
+    }
+
+    function setupInteractions() {
+        // Zoom Slider
+        document.getElementById('zoomSlider').addEventListener('input', (e) => {
+            state.zoom = parseFloat(e.target.value);
+            document.getElementById('zoomVal').innerText = Math.round(state.zoom * 100) + '%';
+            draw('mainCanvas');
+            draw('modalCanvas');
+        });
+
+        // Hints
+        document.querySelectorAll('.hint-trigger').forEach(trigger => {
+            trigger.addEventListener('mouseenter', () => showHint(trigger));
+            trigger.addEventListener('mouseleave', hideHint);
+            trigger.addEventListener('focus', () => showHint(trigger));
+            trigger.addEventListener('blur', hideHint);
+        });
+    }
+
+    function showHint(element) {
+        const tooltip = document.getElementById('tooltip');
+        const text = element.getAttribute('data-hint');
+        if (!text) return;
+
+        tooltip.innerHTML = text;
+        tooltip.classList.add('visible');
+        tooltip.setAttribute('aria-hidden', 'false');
+
+        const rect = element.getBoundingClientRect();
+        tooltip.style.top = (rect.bottom + 10) + 'px';
+        tooltip.style.left = (rect.left + rect.width/2 - 100) + 'px';
+    }
+
+    function hideHint() {
+        const tooltip = document.getElementById('tooltip');
+        tooltip.classList.remove('visible');
+        tooltip.setAttribute('aria-hidden', 'true');
+    }
+
+    // --- Modal Logic ---
+    function openModal() {
+        document.getElementById('modalOverlay').style.display = 'flex';
+        setTimeout(() => draw('modalCanvas'), 100);
+    }
+
+    function closeModal(e) {
+        if (!e || e.target.id === 'modalOverlay') {
+            document.getElementById('modalOverlay').style.display = 'none';
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+    });
+
+    function resetView() {
+        state.rotation = { x: 0.5, y: 0.5 };
+        state.zoom = 1;
+        document.getElementById('zoomSlider').value = 1;
+        document.getElementById('zoomVal').innerText = '100%';
+        draw('mainCanvas');
+        draw('modalCanvas');
+    }
+
+    // --- Problem Generator ---
+    function generateProblem() {
+        // Generate random integer vectors
+        const rand = () => Math.floor(Math.random() * 6) - 3; // -3 to 3
+        let ax = rand(), ay = rand(), az = rand();
+        let bx = rand(), by = rand(), bz = rand();
+
+        // Avoid zero vectors or collinear simple cases for demo
+        if (ax===0 && ay===0 && az===0) ax=1;
+        if (bx===0 && by===0 && bz===0) bx=1;
+
+        // Calculate Cross Product
+        const cx = ay*bz - az*by;
+        const cy = az*bx - ax*bz;
+        const cz = ax*by - ay*bx;
+
+        state.vectors = {
+            a: { x: ax, y: ay, z: az },
+            b: { x: bx, y: by, z: bz },
+            c: { x: cx, y: cy, z: cz }
+        };
+
+        draw('mainCanvas');
+        draw('modalCanvas');
+
+        const container = document.getElementById('problem-container');
+        container.innerHTML = `
+                <div class="step-card">
+                    <div class="step-header"><span class="step-number">?</span>Условие</div>
+                    <p>Даны векторы:</p>
+                    <div class="math-block">
+                        <math display="block">
+                            <mrow>
+                                <mi>a</mi><mo>=</mo><mo stretchy="false">{</mo><mn>${ax}</mn><mo>,</mo><mn>${ay}</mn><mo>,</mo><mn>${az}</mn><mo stretchy="false">}</mo><mo>,</mo>
+                                <mspace width="1em"/>
+                                <mi>b</mi><mo>=</mo><mo stretchy="false">{</mo><mn>${bx}</mn><mo>,</mo><mn>${by}</mn><mo>,</mo><mn>${bz}</mn><mo stretchy="false">}</mo>
+                            </mrow>
+                        </math>
+                    </div>
+                    <p><strong>Задание:</strong> Найти векторное произведение <math><mrow><mi>c</mi><mo>=</mo><mi>a</mi><mo>×</mo><mi>b</mi></mrow></math> и его модуль <math><mrow><mo>|</mo><mi>c</mi><mo>|</mo></mrow></math>.</p>
+                </div>
+
+                <div class="step-card" id="solution-steps">
+                    <div class="step-header">
+                        <span class="step-number">!</span>Идея решения
+                        <button class="btn btn-outline" style="margin-left:auto; font-size:0.8rem;" onclick="toggleStep('step1')">Показать разбор</button>
+                    </div>
+                    <div id="step1" class="collapsed-content">
+                        <p>Используем определитель третьего порядка или формулу через координаты. Визуально результат показан на правой панели (зеленый вектор).</p>
+
+                        <div style="margin-top:15px; border-top:1px solid var(--border-color); padding-top:15px;">
+                            <strong>1. Вычисляем координаты:</strong>
+                            <div class="math-block" style="font-size:0.9em;">
+                                <math display="block">
+                                    <mtable columnspacing="1em">
+                                        <mtr><mtd><msub><mi>c</mi><mi>x</mi></msub></mtd><mtd><mo>=</mo></mtd><mtd><msub><mi>a</mi><mi>y</mi></msub><msub><mi>b</mi><mi>z</mi></msub><mo>-</mo><msub><mi>a</mi><mi>z</mi></msub><msub><mi>b</mi><mi>y</mi></msub></mtd><mtd><mo>=</mo></mtd><mtd><mn>${ay}</mn><mo>⋅</mo><mn>${bz}</mn><mo>-</mo><mn>${az}</mn><mo>⋅</mo><mn>${by}</mn><mo>=</mo><mn>${cx}</mn></mtd></mtr>
+                                        <mtr><mtd><msub><mi>c</mi><mi>y</mi></msub></mtd><mtd><mo>=</mo></mtd><mtd><msub><mi>a</mi><mi>z</mi></msub><msub><mi>b</mi><mi>x</mi></msub><mo>-</mo><msub><mi>a</mi><mi>x</mi></msub><msub><mi>b</mi><mi>z</mi></msub></mtd><mtd><mo>=</mo></mtd><mtd><mn>${az}</mn><mo>⋅</mo><mn>${bx}</mn><mo>-</mo><mn>${ax}</mn><mo>⋅</mo><mn>${bz}</mn><mo>=</mo><mn>${cy}</mn></mtd></mtr>
+                                        <mtr><mtd><msub><mi>c</mi><mi>z</mi></msub></mtd><mtd><mo>=</mo></mtd><mtd><msub><mi>a</mi><mi>x</mi></msub><msub><mi>b</mi><mi>y</mi></msub><mo>-</mo><msub><mi>a</mi><mi>y</mi></msub><msub><mi>b</mi><mi>x</mi></msub></mtd><mtd><mo>=</mo></mtd><mtd><mn>${ax}</mn><mo>⋅</mo><mn>${by}</mn><mo>-</mo><mn>${ay}</mn><mo>⋅</mo><mn>${bx}</mn><mo>=</mo><mn>${cz}</mn></mtd></mtr>
+                                    </mtable>
+                                </math>
+                            </div>
+                            <p><strong>Ответ (вектор):</strong> <math><mrow><mi>c</mi><mo>=</mo><mo stretchy="false">{</mo><mn>${cx}</mn><mo>,</mo><mn>${cy}</mn><mo>,</mo><mn>${cz}</mn><mo stretchy="false">}</mo></mrow></math></p>
+
+                            <p><strong>2. Находим длину (Площадь параллелограмма):</strong></p>
+                            <div class="math-block">
+                                <math display="block">
+                                    <mrow>
+                                        <mo>|</mo><mi>c</mi><mo>|</mo><mo>=</mo><msqrt><mrow><msup><mn>${cx}</mn><mn>2</mn></msup><mo>+</mo><msup><mn>${cy}</mn><mn>2</mn></msup><mo>+</mo><msup><mn>${cz}</mn><mn>2</mn></msup></mrow></msqrt><mo>=</mo><msqrt><mn>${cx*cx + cy*cy + cz*cz}</mn></msqrt><mo>≈</mo><mn>${Math.sqrt(cx*cx + cy*cy + cz*cz).toFixed(2)}</mn>
+                                    </mrow>
+                                </math>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card" style="border-left-color: var(--vector-a);">
+                    <div class="step-header"><span style="color:var(--vector-a)">⚠</span>Типичные ошибки</div>
+                    <ul style="margin-left:20px; font-size:0.9rem; color:var(--text-secondary);">
+                        <li>Перепутать порядок вычитания в формуле (знак минус важен!).</li>
+                        <li>Забыть, что результат — это вектор, а не число (скалярное произведение).</li>
+                        <li>Неверно определить знак компоненты Y (в определителе перед ней стоит минус).</li>
+                    </ul>
+                </div>
+            `;
+    }
+
+    function toggleStep(id) {
+        const el = document.getElementById(id);
+        if (el.style.display === 'block') {
+            el.style.display = 'none';
+            el.parentElement.classList.remove('expanded');
+        } else {
+            el.style.display = 'block';
+            el.parentElement.classList.add('expanded');
+        }
+    }
+
+    // --- Quiz Logic ---
+    function checkQuiz(btn, isCorrect) {
+        const parent = btn.parentElement;
+        const options = parent.querySelectorAll('.quiz-option');
+        options.forEach(opt => {
+            opt.classList.remove('correct', 'wrong');
+            opt.disabled = true;
+        });
+
+        if (isCorrect) {
+            btn.classList.add('correct');
+            btn.innerHTML += ' ✅ Верно!';
+        } else {
+            btn.classList.add('wrong');
+            btn.innerHTML += ' ❌ Ошибка';
+            // Highlight correct one
+            // (Simplified for demo, in real app would find the correct one)
+        }
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Стереометрия — Координатный метод: расстояние между прямыми</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface2: #242836;
+            --border: #2e3345;
+            --text: #e2e4ed;
+            --text-dim: #8b8fa3;
+            --accent: #6c8cff;
+            --accent2: #ff6c9d;
+            --accent3: #5ce0b8;
+            --accent4: #ffd76c;
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a1d27 0%, #2a1f3d 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: .4rem;
+        }
+
+        header p {
+            color: var(--text-dim);
+            font-size: 1.05rem;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 460px;
+            gap: 0;
+            max-width: 1440px;
+            margin: 0 auto;
+            min-height: calc(100vh - 120px);
+        }
+
+        .content {
+            padding: 2rem 2.5rem 4rem;
+            overflow-y: auto;
+        }
+
+        .sticky-panel {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            flex-shrink: 0;
+        }
+
+        .panel-header svg { width: 20px; height: 20px; }
+
+        #canvas-container {
+            flex: 1;
+            position: relative;
+            min-height: 0;
+        }
+
+        #canvas-container canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .panel-info {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+            background: var(--surface2);
+        }
+
+        .panel-info .dist-display {
+            font-size: 1.6rem;
+            font-weight: 700;
+            text-align: center;
+            padding: .6rem 0;
+        }
+
+        .dist-label {
+            font-size: .85rem;
+            color: var(--text-dim);
+            text-align: center;
+        }
+
+        .controls-bar {
+            padding: .8rem 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: .5rem;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+            background: var(--surface);
+        }
+
+        .controls-bar button {
+            padding: .45rem .9rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface2);
+            color: var(--text);
+            cursor: pointer;
+            font-size: .8rem;
+            transition: all .2s;
+        }
+
+        .controls-bar button:hover {
+            border-color: var(--accent);
+            background: rgba(108, 140, 255, .1);
+        }
+
+        .controls-bar button.active {
+            border-color: var(--accent);
+            background: rgba(108, 140, 255, .2);
+            color: var(--accent);
+        }
+
+        section {
+            margin-bottom: 2.5rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        h2 .num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(108, 140, 255, .15);
+            color: var(--accent);
+            font-size: .95rem;
+            flex-shrink: 0;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            margin: 1.2rem 0 .6rem;
+            color: var(--accent3);
+        }
+
+        p, li {
+            color: var(--text);
+            margin-bottom: .6rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card.highlight {
+            border-color: var(--accent);
+            background: rgba(108, 140, 255, .04);
+        }
+
+        .formula-box {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.2rem 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+            overflow-x: auto;
+        }
+
+        .formula-box main-math {
+            font-size: 1.1rem;
+        }
+
+        math {
+            font-size: 1.1rem;
+            color: var(--text);
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: .85rem;
+            color: var(--text-dim);
+            margin-bottom: .3rem;
+        }
+
+        .input-row {
+            display: flex;
+            gap: .5rem;
+            align-items: center;
+        }
+
+        .input-row span {
+            color: var(--text-dim);
+            font-size: .85rem;
+            min-width: 20px;
+        }
+
+        .input-row input {
+            flex: 1;
+            padding: .55rem .8rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface2);
+            color: var(--text);
+            font-size: .9rem;
+            text-align: center;
+            width: 60px;
+            transition: border-color .2s;
+        }
+
+        .input-row input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .line-section {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .line-section.l1 { border-left: 3px solid var(--accent); background: rgba(108,140,255,.03); }
+        .line-section.l2 { border-left: 3px solid var(--accent2); background: rgba(255,108,157,.03); }
+
+        .line-section h4 {
+            font-size: .95rem;
+            margin-bottom: .6rem;
+        }
+
+        .line-section.l1 h4 { color: var(--accent); }
+        .line-section.l2 h4 { color: var(--accent2); }
+
+        .btn {
+            padding: .7rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: .95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #8b6cff);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(108, 140, 255, .3);
+        }
+
+        .btn-secondary {
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: .6rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .steps {
+            margin-top: 1.5rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+            padding: 1rem;
+            border-radius: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            animation: fadeIn .4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-num {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .85rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content .step-title {
+            font-weight: 600;
+            margin-bottom: .3rem;
+            color: var(--text);
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, rgba(92, 224, 184, .08), rgba(108, 140, 255, .08));
+            border: 1px solid var(--accent3);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .result-box .result-label {
+            font-size: .9rem;
+            color: var(--text-dim);
+            margin-bottom: .3rem;
+        }
+
+        .result-box .result-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent3);
+        }
+
+        .note {
+            background: rgba(255, 215, 108, .06);
+            border: 1px solid rgba(255, 215, 108, .2);
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+            margin: 1rem 0;
+            font-size: .9rem;
+            color: var(--text);
+        }
+
+        .note strong {
+            color: var(--accent4);
+        }
+
+        ul {
+            padding-left: 1.5rem;
+        }
+
+        ul li {
+            margin-bottom: .3rem;
+        }
+
+        .example-presets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .5rem;
+            margin: 1rem 0;
+        }
+
+        .example-btn {
+            padding: .6rem .8rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+            font-size: .8rem;
+            text-align: left;
+            transition: all .2s;
+        }
+
+        .example-btn:hover {
+            border-color: var(--accent3);
+            background: rgba(92, 224, 184, .05);
+        }
+
+        .example-btn .ex-title {
+            font-weight: 600;
+            color: var(--accent3);
+            display: block;
+            margin-bottom: .15rem;
+        }
+
+        .example-btn .ex-desc {
+            color: var(--text-dim);
+            font-size: .75rem;
+        }
+
+        math mfrac { margin: 0 .1rem; }
+
+        .legend {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: .5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: .3rem;
+            font-size: .8rem;
+            color: var(--text-dim);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 1024px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+            .sticky-panel {
+                position: relative;
+                height: 50vh;
+                border-left: none;
+                border-top: 1px solid var(--border);
+            }
+        }
+
+        .toggle-steps {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: .85rem;
+            text-decoration: underline;
+            margin-top: .5rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Стереометрия: расстояние между скрещивающимися прямыми</h1>
+    <p>Координатный метод — пошаговое решение с 3D-визуализацией</p>
+</header>
+
+<div class="layout">
+    <div class="content">
+
+        <!-- ТЕОРИЯ -->
+        <section>
+            <h2><span class="num">1</span> Теоретические основы</h2>
+
+            <div class="card">
+                <p>В пространстве две прямые могут быть <strong>параллельными</strong>, <strong>пересекающимися</strong> или <strong>скрещивающимися</strong>. Скрещивающиеся прямые не лежат в одной плоскости — они не пересекаются и не параллельны.</p>
+
+                <p>Пусть прямые заданы каноническими уравнениями:</p>
+
+                <div class="formula-box">
+                    <math display="block">
+                        <mtable columnalign="left">
+                            <mtr><mtd>
+                                <msub><mi>L</mi><mn>1</mn></msub>
+                                <mo>:</mo>
+                                <mfrac>
+                                    <mrow><mi>x</mi><mo>−</mo><msub><mi>x</mi><mn>1</mn></msub></mrow>
+                                    <msub><mi>l</mi><mn>1</mn></msub>
+                                </mfrac>
+                                <mo>=</mo>
+                                <mfrac>
+                                    <mrow><mi>y</mi><mo>−</mo><msub><mi>y</mi><mn>1</mn></msub></mrow>
+                                    <msub><mi>m</mi><mn>1</mn></msub>
+                                </mfrac>
+                                <mo>=</mo>
+                                <mfrac>
+                                    <mrow><mi>z</mi><mo>−</mo><msub><mi>z</mi><mn>1</mn></msub></mrow>
+                                    <msub><mi>n</mi><mn>1</mn></msub>
+                                </mfrac>
+                            </mtd></mtr>
+                            <mtr><mtd>
+                                <msub><mi>L</mi><mn>2</mn></msub>
+                                <mo>:</mo>
+                                <mfrac>
+                                    <mrow><mi>x</mi><mo>−</mo><msub><mi>x</mi><mn>2</mn></msub></mrow>
+                                    <msub><mi>l</mi><mn>2</mn></msub>
+                                </mfrac>
+                                <mo>=</mo>
+                                <mfrac>
+                                    <mrow><mi>y</mi><mo>−</mo><msub><mi>y</mi><mn>2</mn></msub></mrow>
+                                    <msub><mi>m</mi><mn>2</mn></msub>
+                                </mfrac>
+                                <mo>=</mo>
+                                <mfrac>
+                                    <mrow><mi>z</mi><mo>−</mo><msub><mi>z</mi><mn>2</mn></msub></mrow>
+                                    <msub><mi>n</mi><mn>2</mn></msub>
+                                </mfrac>
+                            </mtd></mtr>
+                        </mtable>
+                    </math>
+                </div>
+
+                <p>где <minline><msub><mi>M</mi><mn>1</mn></msub><mo stretchy="false">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>z</mi><mn>1</mn></msub><mo stretchy="false">)</mo></minline> — точка на <minline><msub><mi>L</mi><mn>1</mn></msub></minline>, а <minline><msub><mi>M</mi><mn>2</mn></msub><mo stretchy="false">(</mo><msub><mi>x</mi><mn>2</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo>,</mo><msub><mi>z</mi><mn>2</mn></msub><mo stretchy="false">)</mo></minline> — точка на <minline><msub><mi>L</mi><mn>2</mn></msub></minline>.</p>
+
+                <p>Направляющие векторы:</p>
+
+                <div class="formula-box">
+                    <math display="block">
+                        <mrow>
+                            <msub><mover><mi>q</mi><mo>→</mo></mover><mn>1</mn></msub>
+                            <mo>=</mo>
+                            <mo stretchy="false">(</mo>
+                            <msub><mi>l</mi><mn>1</mn></msub>
+                            <mo>,</mo>
+                            <msub><mi>m</mi><mn>1</mn></msub>
+                            <mo>,</mo>
+                            <msub><mi>n</mi><mn>1</mn></msub>
+                            <mo stretchy="false">)</mo>
+                        </mrow>
+                        <mo>,</mo>
+                        <mrow>
+                            <msub><mover><mi>q</mi><mo>→</mo></mover><mn>2</mn></msub>
+                            <mo>=</mo>
+                            <mo stretchy="false">(</mo>
+                            <msub><mi>l</mi><mn>2</mn></msub>
+                            <mo>,</mo>
+                            <msub><mi>m</mi><mn>2</mn></msub>
+                            <mo>,</mo>
+                            <msub><mi>n</mi><mn>2</mn></msub>
+                            <mo stretchy="false">)</mo>
+                        </mrow>
+                    </math>
+                </div>
+            </div>
+
+            <div class="card highlight">
+                <h3>Формула расстояния</h3>
+                <p>Расстояние между скрещивающимися прямыми равно модулю проекции вектора <minline><mover><mrow><msub><mi>M</mi><mn>1</mn></msub><msub><mi>M</mi><mn>2</mn></msub></mrow><mo>→</mo></mover></minline> на направление, перпендикулярное обеим прямым:</p>
+
+                <div class="formula-box">
+                    <math display="block">
+                        <mi>d</mi>
+                        <mo>=</mo>
+                        <mfrac>
+                            <mrow>
+                                <mo>|</mo>
+                                <mo stretchy="false">(</mo>
+                                <mover><mrow><msub><mi>M</mi><mn>1</mn></msub><msub><mi>M</mi><mn>2</mn></msub></mrow><mo>→</mo></mover>
+                                <mo>,</mo>
+                                <msub><mover><mi>q</mi><mo>→</mo></mover><mn>1</mn></msub>
+                                <mo>,</mo>
+                                <msub><mover><mi>q</mi><mo>→</mo></mover><mn>2</mn></msub>
+                                <mo stretchy="false">)</mo>
+                                <mo>|</mo>
+                            </mrow>
+                            <mrow>
+                                <mo>|</mo>
+                                <msub><mover><mi>q</mi><mo>→</mo></mover><mn>1</mn></msub>
+                                <mo>×</mo>
+                                <msub><mover><mi>q</mi><mo>→</mo></mover><mn>2</mn></msub>
+                                <mo>|</mo>
+                            </mrow>
+                        </mfrac>
+                    </math>
+                </div>
+
+                <p>Числитель — <strong>смешанное произведение</strong> трёх векторов (объём параллелепипеда). Знаменатель — <strong>модуль векторного произведения</strong> направляющих векторов (площадь основания).</p>
+
+                <div class="formula-box">
+                    <math display="block">
+                        <mi>d</mi>
+                        <mo>=</mo>
+                        <mfrac>
+                            <mrow>
+                                <mo>|</mo>
+                                <mtable columnspacing=".8em">
+                                    <mtr>
+                                        <mtd><msub><mi>x</mi><mn>2</mn></msub><mo>−</mo><msub><mi>x</mi><mn>1</mn></msub></mtd>
+                                        <mtd><msub><mi>y</mi><mn>2</mn></msub><mo>−</mo><msub><mi>y</mi><mn>1</mn></msub></mtd>
+                                        <mtd><msub><mi>z</mi><mn>2</mn></msub><mo>−</mo><msub><mi>z</mi><mn>1</mn></msub></mtd>
+                                    </mtr>
+                                    <mtr>
+                                        <mtd><msub><mi>l</mi><mn>1</mn></msub></mtd>
+                                        <mtd><msub><mi>m</mi><mn>1</mn></msub></mtd>
+                                        <mtd><msub><mi>n</mi><mn>1</mn></msub></mtd>
+                                    </mtr>
+                                    <mtr>
+                                        <mtd><msub><mi>l</mi><mn>2</mn></msub></mtd>
+                                        <mtd><msub><mi>m</mi><mn>2</mn></msub></mtd>
+                                        <mtd><msub><mi>n</mi><mn>2</mn></msub></mtd>
+                                    </mtr>
+                                </mtable>
+                                <mo>|</mo>
+                            </mrow>
+                            <mrow>
+                                <mo>|</mo>
+                                <msub><mover><mi>q</mi><mo>→</mo></mover><mn>1</mn></msub>
+                                <mo>×</mo>
+                                <msub><mover><mi>q</mi><mo>→</mo></mover><mn>2</mn></msub>
+                                <mo>|</mo>
+                            </mrow>
+                        </mfrac>
+                    </math>
+                </div>
+            </div>
+
+            <div class="note">
+                <strong>⚠ Важно:</strong> Если знаменатель равен нулю (векторное произведение нулевое), то прямые параллельны — используется другая формула. Если числитель равен нулю (при ненулевом знаменателе), прямые пересекаются и расстояние равно 0.
+            </div>
+        </section>
+
+        <!-- КАЛЬКУЛЯТОР -->
+        <section>
+            <h2><span class="num">2</span> Интерактивный калькулятор</h2>
+
+            <div class="card">
+                <div class="line-section l1">
+                    <h4>Прямая L₁ (синяя)</h4>
+                    <div class="input-group">
+                        <label>Точка M₁ на прямой:</label>
+                        <div class="input-row">
+                            <span>x =</span><input type="number" id="l1x" value="0" step="0.5">
+                            <span>y =</span><input type="number" id="l1y" value="0" step="0.5">
+                            <span>z =</span><input type="number" id="l1z" value="0" step="0.5">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Направляющий вектор q₁:</label>
+                        <div class="input-row">
+                            <span>l =</span><input type="number" id="l1l" value="1" step="0.5">
+                            <span>m =</span><input type="number" id="l1m" value="0" step="0.5">
+                            <span>n =</span><input type="number" id="l1n" value="1" step="0.5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="line-section l2">
+                    <h4>Прямая L₂ (розовая)</h4>
+                    <div class="input-group">
+                        <label>Точка M₂ на прямой:</label>
+                        <div class="input-row">
+                            <span>x =</span><input type="number" id="l2x" value="0" step="0.5">
+                            <span>y =</span><input type="number" id="l2y" value="2" step="0.5">
+                            <span>z =</span><input type="number" id="l2z" value="0" step="0.5">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Направляющий вектор q₂:</label>
+                        <div class="input-row">
+                            <span>l =</span><input type="number" id="l2l" value="0" step="0.5">
+                            <span>m =</span><input type="number" id="l2m" value="1" step="0.5">
+                            <span>n =</span><input type="number" id="l2n" value="1" step="0.5">
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Готовые примеры</h3>
+                <div class="example-presets">
+                    <button class="example-btn" onclick="setExample(1)">
+                        <span class="ex-title">Пример 1</span>
+                        <span class="ex-desc">Перпендикулярные скрещивающиеся</span>
+                    </button>
+                    <button class="example-btn" onclick="setExample(2)">
+                        <span class="ex-title">Пример 2</span>
+                        <span class="ex-desc">Общий случай</span>
+                    </button>
+                    <button class="example-btn" onclick="setExample(3)">
+                        <span class="ex-title">Пример 3</span>
+                        <span class="ex-desc">Пересекающиеся (d = 0)</span>
+                    </button>
+                    <button class="example-btn" onclick="setExample(4)">
+                        <span class="ex-title">Пример 4</span>
+                        <span class="ex-desc">Параллельные прямые</span>
+                    </button>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="calculate()">Рассчитать</button>
+                    <button class="btn btn-secondary" onclick="resetAll()">Сбросить</button>
+                </div>
+            </div>
+
+            <div id="steps-container"></div>
+        </section>
+
+        <!-- АЛГОРИТМ -->
+        <section>
+            <h2><span class="num">3</span> Алгоритм решения</h2>
+
+            <div class="card">
+                <ul>
+                    <li><strong>Шаг 1.</strong> Записать координаты точек <minline><msub><mi>M</mi><mn>1</mn></msub></minline>, <minline><msub><mi>M</mi><mn>2</mn></msub></minline> и направляющих векторов <minline><msub><mover><mi>q</mi><mo>→</mo></mover><mn>1</mn></msub></minline>, <minline><msub><mover><mi>q</mi><mo>→</mo></mover><mn>2</mn></msub></minline>.</li>
+                    <li><strong>Шаг 2.</strong> Найти вектор <minline><mover><mrow><msub><mi>M</mi><mn>1</mn></msub><msub><mi>M</mi><mn>2</mn></msub></mrow><mo>→</mo></mover><mo>=</mo><mo stretchy="false">(</mo><msub><mi>x</mi><mn>2</mn></msub><mo>−</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo>−</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>z</mi><mn>2</mn></msub><mo>−</mo><msub><mi>z</mi><mn>1</mn></msub><mo stretchy="false">)</mo></minline>.</li>
+                    <li><strong>Шаг 3.</strong> Вычислить векторное произведение <minline><msub><mover><mi>q</mi><mo>→</mo></mover><mn>1</mn></msub><mo>×</mo><msub><mover><mi>q</mi><mo>→</mo></mover><mn>2</mn></msub></minline> по формуле:</li>
+                </ul>
+
+                <div class="formula-box">
+                    <math display="block">
+                        <msub><mover><mi>q</mi><mo>→</mo></mover><mn>1</mn></msub>
+                        <mo>×</mo>
+                        <msub><mover><mi>q</mi><mo>→</mo></mover><mn>2</mn></msub>
+                        <mo>=</mo>
+                        <mtable columnspacing=".6em">
+                            <mtr><mtd><mrow><msub><mi>m</mi><mn>1</mn></msub><msub><mi>n</mi><mn>2</mn></msub><mo>−</mo><msub><mi>n</mi><mn>1</mn></msub><msub><mi>m</mi><mn>2</mn></msub></mrow></mtd></mtr>
+                            <mtr><mtd><mrow><msub><mi>n</mi><mn>1</mn></msub><msub><mi>l</mi><mn>2</mn></msub><mo>−</mo><msub><mi>l</mi><mn>1</mn></msub><msub><mi>n</mi><mn>2</mn></msub></mrow></mtd></mtr>
+                            <mtr><mtd><mrow><msub><mi>l</mi><mn>1</mn></msub><msub><mi>m</mi><mn>2</mn></msub><mo>−</mo><msub><mi>m</mi><mn>1</mn></msub><msub><mi>l</mi><mn>2</mn></msub></mrow></mtd></mtr>
+                        </mtable>
+                    </math>
+                </div>
+
+                <ul>
+                    <li><strong>Шаг 4.</strong> Найти смешанное произведение через определитель 3×3.</li>
+                    <li><strong>Шаг 5.</strong> Подставить в формулу расстояния.</li>
+                </ul>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- STICKY 3D PANEL -->
+    <div class="sticky-panel">
+        <div class="panel-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+            </svg>
+            3D-визуализация
+        </div>
+        <div id="canvas-container"></div>
+        <div class="panel-info">
+            <div class="dist-label">Расстояние между прямыми:</div>
+            <div class="dist-display" id="dist-display">—</div>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color" style="background:#6c8cff"></div>L₁</div>
+                <div class="legend-item"><div class="legend-color" style="background:#ff6c9d"></div>L₂</div>
+                <div class="legend-item"><div class="legend-color" style="background:#5ce0b8"></div>d (расстояние)</div>
+                <div class="legend-item"><div class="legend-color" style="background:#ffd76c"></div>q₁×q₂</div>
+            </div>
+        </div>
+        <div class="controls-bar">
+            <button class="active" onclick="toggleAxes(this, 'grid')">Сетка</button>
+            <button class="active" onclick="toggleAxes(this, 'labels')">Метки</button>
+            <button onclick="resetCamera()">Сброс вида</button>
+            <button onclick="toggleRotation(this)">Вращение</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============ THREE.JS SCENE ============
+    let scene, camera, renderer, controls;
+    let line1Group, line2Group, distLine, crossProdLine;
+    let autoRotate = false;
+    let showGrid = true;
+    let showLabels = true;
+    let gridHelper, axisLabels = [];
+
+    function init3D() {
+        const container = document.getElementById('canvas-container');
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1d27);
+
+        camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 1000);
+        camera.position.set(6, 5, 8);
+        camera.lookAt(0, 1, 0);
+
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(w, h);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // Lights
+        const amb = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(amb);
+        const dir = new THREE.DirectionalLight(0xffffff, 0.4);
+        dir.position.set(5, 10, 7);
+        scene.add(dir);
+
+        // Grid
+        gridHelper = new THREE.GridHelper(20, 20, 0x2e3345, 0x222635);
+        scene.add(gridHelper);
+
+        // Axes
+        const axLen = 8;
+        const axColor = 0x444466;
+        [
+            { dir: [axLen,0,0], col: 0xff4444 },
+            { dir: [0,axLen,0], col: 0x44ff44 },
+            { dir: [0,0,axLen], col: 0x4488ff }
+        ].forEach(a => {
+            const geo = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0,0,0), new THREE.Vector3(...a.dir)
+            ]);
+            const mat = new THREE.LineBasicMaterial({ color: a.col, transparent: true, opacity: 0.4 });
+            scene.add(new THREE.Line(geo, mat));
+        });
+
+        // Axes labels (simple sprites)
+        if (showLabels) {
+            addLabel('X', axLen + 0.5, 0, 0, '#ff4444');
+            addLabel('Y', 0, axLen + 0.5, 0, '#44ff44');
+            addLabel('Z', 0, 0, axLen + 0.5, '#4488ff');
+        }
+
+        // Groups for lines
+        line1Group = new THREE.Group();
+        line2Group = new THREE.Group();
+        scene.add(line1Group);
+        scene.add(line2Group);
+
+        // Mouse orbit (simple)
+        setupOrbitControls(container);
+
+        window.addEventListener('resize', () => {
+            const w2 = container.clientWidth;
+            const h2 = container.clientHeight;
+            camera.aspect = w2 / h2;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w2, h2);
+        });
+
+        animate();
+    }
+
+    function addLabel(text, x, y, z, color) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 64; canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = color;
+        ctx.font = 'bold 40px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, 32, 32);
+        const tex = new THREE.CanvasTexture(canvas);
+        const mat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+        const sprite = new THREE.Sprite(mat);
+        sprite.position.set(x, y, z);
+        sprite.scale.set(0.8, 0.8, 0.8);
+        scene.add(sprite);
+        axisLabels.push(sprite);
+    }
+
+    let isDragging = false, prevMouse = { x: 0, y: 0 };
+    let spherical = { theta: 0.8, phi: 1.0, radius: 12 };
+
+    function setupOrbitControls(container) {
+        const el = renderer.domElement;
+
+        el.addEventListener('mousedown', e => {
+            isDragging = true;
+            prevMouse = { x: e.clientX, y: e.clientY };
+        });
+
+        el.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            const dx = e.clientX - prevMouse.x;
+            const dy = e.clientY - prevMouse.y;
+            spherical.theta -= dx * 0.008;
+            spherical.phi = Math.max(0.2, Math.min(Math.PI - 0.2, spherical.phi - dy * 0.008));
+            prevMouse = { x: e.clientX, y: e.clientY };
+            updateCamera();
+        });
+
+        el.addEventListener('mouseup', () => isDragging = false);
+        el.addEventListener('mouseleave', () => isDragging = false);
+
+        el.addEventListener('wheel', e => {
+            spherical.radius = Math.max(4, Math.min(30, spherical.radius + e.deltaY * 0.01));
+            updateCamera();
+            e.preventDefault();
+        }, { passive: false });
+
+        // Touch
+        el.addEventListener('touchstart', e => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+        });
+        el.addEventListener('touchmove', e => {
+            if (!isDragging || e.touches.length !== 1) return;
+            const dx = e.touches[0].clientX - prevMouse.x;
+            const dy = e.touches[0].clientY - prevMouse.y;
+            spherical.theta -= dx * 0.008;
+            spherical.phi = Math.max(0.2, Math.min(Math.PI - 0.2, spherical.phi - dy * 0.008));
+            prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            updateCamera();
+        });
+        el.addEventListener('touchend', () => isDragging = false);
+
+        updateCamera();
+    }
+
+    function updateCamera() {
+        camera.position.x = spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta);
+        camera.position.y = spherical.radius * Math.cos(spherical.phi);
+        camera.position.z = spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta);
+        camera.lookAt(0, 0, 0);
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        if (autoRotate && !isDragging) {
+            spherical.theta += 0.005;
+            updateCamera();
+        }
+        renderer.render(scene, camera);
+    }
+
+    function clearGroup(g) {
+        while (g.children.length) {
+            const c = g.children[0];
+            g.remove(c);
+            if (c.geometry) c.geometry.dispose();
+            if (c.material) {
+                if (c.material.map) c.material.map.dispose();
+                c.material.dispose();
+            }
+        }
+    }
+
+    function drawLine(group, p1, p2, color, dash = false) {
+        const geo = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(p1[0], p1[1], p1[2]),
+            new THREE.Vector3(p2[0], p2[1], p2[2])
+        ]);
+        const mat = new THREE.LineBasicMaterial({
+            color: color,
+            linewidth: 2,
+            transparent: true,
+            opacity: 0.9
+        });
+        if (dash) mat.setValues({ dashSize: 0.3, gapSize: 0.15 });
+        const line = new THREE.Line(geo, mat);
+        group.add(line);
+        return line;
+    }
+
+    function drawDashedLine(group, p1, p2, color) {
+        const points = [];
+        const segments = 40;
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const x = p1[0] + (p2[0]-p1[0])*t;
+            const y = p1[1] + (p2[1]-p1[1])*t;
+            const z = p1[2] + (p2[2]-p1[2])*t;
+            if (Math.floor(t * segments * 2) % 2 === 0) {
+                points.push(new THREE.Vector3(x, y, z));
+                if (i < segments) {
+                    const t2 = Math.min(1, (i + 1) / segments);
+                    points.push(new THREE.Vector3(
+                        p1[0] + (p2[0]-p1[0])*t2,
+                        p1[1] + (p2[1]-p1[1])*t2,
+                        p1[2] + (p2[2]-p1[2])*t2
+                    ));
+                }
+            }
+        }
+        if (points.length >= 2) {
+            const geo = new THREE.BufferGeometry().setFromPoints(points);
+            const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.8 });
+            const line = new THREE.Line(geo, mat);
+            group.add(line);
+        }
+    }
+
+    function addPoint(group, p, color, label) {
+        const geo = new THREE.SphereGeometry(0.12, 16, 16);
+        const mat = new THREE.MeshBasicMaterial({ color });
+        const sphere = new THREE.Mesh(geo, mat);
+        sphere.position.set(p[0], p[1], p[2]);
+        group.add(sphere);
+
+        if (label) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128; canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#' + new THREE.Color(color).getHexString();
+            ctx.font = 'bold 36px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, 64, 32);
+            const tex = new THREE.CanvasTexture(canvas);
+            const mat2 = new THREE.SpriteMaterial({ map: tex, transparent: true });
+            const sprite = new THREE.Sprite(mat2);
+            sprite.position.set(p[0], p[1] + 0.4, p[2]);
+            sprite.scale.set(0.8, 0.4, 0.4);
+            group.add(sprite);
+        }
+    }
+
+    function updateVisualization(data) {
+        clearGroup(line1Group);
+        clearGroup(line2Group);
+
+        if (!data) return;
+
+        const { M1, q1, M2, q2, d, distLineData, crossProd, mixed, crossProdLen } = data;
+
+        // Draw L1
+        const t = 5;
+        const l1start = [M1[0]-q1[0]*t, M1[1]-q1[1]*t, M1[2]-q1[2]*t];
+        const l1end = [M1[0]+q1[0]*t, M1[1]+q1[1]*t, M1[2]+q1[2]*t];
+        drawLine(line1Group, l1start, l1end, 0x6c8cff);
+        addPoint(line1Group, M1, 0x6c8cff, 'M₁');
+
+        // Draw L2
+        const l2start = [M2[0]-q2[0]*t, M2[1]-q2[1]*t, M2[2]-q2[2]*t];
+        const l2end = [M2[0]+q2[0]*t, M2[1]+q2[1]*t, M2[2]+q2[2]*t];
+        drawLine(line2Group, l2start, l2end, 0xff6c9d);
+        addPoint(line2Group, M2, 0xff6c9d, 'M₂');
+
+        // Distance line
+        if (distLineData && d > 0.001) {
+            drawDashedLine(line1Group, distLineData.p1, distLineData.p2, 0x5ce0b8);
+            // Arrowhead spheres
+            addPoint(line1Group, distLineData.p1, 0x5ce0b8, null);
+            addPoint(line1Group, distLineData.p2, 0x5ce0b8, null);
+        }
+
+        // Cross product vector (from M1)
+        if (crossProdLen > 0.001) {
+            const scale = 2 / crossProdLen;
+            const cp = [crossProd[0]*scale + M1[0], crossProd[1]*scale + M1[1], crossProd[2]*scale + M1[2]];
+            drawLine(line2Group, M1, cp, 0xffd76c);
+        }
+
+        // Update distance display
+        document.getElementById('dist-display').textContent =
+        d > 0.001 ? `d ≈ ${d.toFixed(4)}` : 'd = 0 (пересекаются)';
+    }
+
+    function toggleAxes(btn, type) {
+        btn.classList.toggle('active');
+        if (type === 'grid') {
+            gridHelper.visible = btn.classList.contains('active');
+        }
+        if (type === 'labels') {
+            axisLabels.forEach(l => l.visible = btn.classList.contains('active'));
+        }
+    }
+
+    function resetCamera() {
+        spherical = { theta: 0.8, phi: 1.0, radius: 12 };
+        updateCamera();
+    }
+
+    function toggleRotation(btn) {
+        autoRotate = !autoRotate;
+        btn.classList.toggle('active');
+    }
+
+    // ============ MATH CALCULATIONS ============
+    function getVal(id) {
+        return parseFloat(document.getElementById(id).value) || 0;
+    }
+
+    function calculate() {
+        const M1 = [getVal('l1x'), getVal('l1y'), getVal('l1z')];
+        const q1 = [getVal('l1l'), getVal('l1m'), getVal('l1n')];
+        const M2 = [getVal('l2x'), getVal('l2y'), getVal('l2z')];
+        const q2 = [getVal('l2l'), getVal('l2m'), getVal('l2n')];
+
+        const steps = [];
+
+        // Step 1
+        steps.push({
+            title: 'Записываем данные',
+            math: `M₁(${M1.join(', ')}), q₁ = (${q1.join(', ')}), M₂(${M2.join(', ')}), q₂ = (${q2.join(', ')})`
+        });
+
+        // Step 2: vector M1M2
+        const M1M2 = [M2[0]-M1[0], M2[1]-M1[1], M2[2]-M1[2]];
+        steps.push({
+            title: 'Находим вектор M₁M₂',
+            math: `M₁M₂ = (${M2[0]}−${M1[0]}, ${M2[1]}−${M1[1]}, ${M2[2]}−${M1[1] > 0 ? M1[1] : '('+M1[1]+')'}) = (${M1M2.join(', ')})`
+        });
+
+        // Step 3: cross product
+        const cp = [
+            q1[1]*q2[2] - q1[2]*q2[1],
+            q1[2]*q2[0] - q1[0]*q2[2],
+            q1[0]*q2[1] - q1[1]*q2[0]
+        ];
+        const cpLen = Math.sqrt(cp[0]*cp[0] + cp[1]*cp[1] + cp[2]*cp[2]);
+
+        steps.push({
+            title: 'Вычисляем векторное произведение q₁ × q₂',
+            math: `q₁ × q₂ = (${cp[0]}, ${cp[1]}, ${cp[2]})`
+        });
+        steps.push({
+            title: 'Модуль векторного произведения',
+            math: `|q₁ × q₂| = √(${cp[0]}² + ${cp[1]}² + ${cp[2]}²) = ${cpLen.toFixed(4)}`
+        });
+
+        if (cpLen < 1e-10) {
+            steps.push({
+                title: 'Результат',
+                math: 'Прямые параллельны (q₁ × q₂ = 0). Используйте формулу расстояния от точки до прямой.',
+                isNote: true
+            });
+            renderSteps(steps);
+            updateVisualization(null);
+            document.getElementById('dist-display').textContent = 'Параллельные';
+            return;
+        }
+
+        // Step 4: mixed product (determinant)
+        const mixed = M1M2[0]*(q1[1]*q2[2]-q1[2]*q2[1]) - M1M2[1]*(q1[0]*q2[2]-q1[2]*q2[0]) + M1M2[2]*(q1[0]*q2[1]-q1[1]*q2[0]);
+        const mixedAbs = Math.abs(mixed);
+
+        steps.push({
+            title: 'Вычисляем смешанное произведение (определитель)',
+            math: `det = ${M1M2[0]}·${cp[0]} + ${M1M2[1]}·(${cp[1]}) + ${M1M2[2]}·(${cp[2]}) = ${mixed.toFixed(4)}`
+        });
+
+        // Step 5: distance
+        const d = mixedAbs / cpLen;
+
+        steps.push({
+            title: 'Подставляем в формулу расстояния',
+            math: `d = |${mixed}| / ${cpLen.toFixed(4)} = ${d.toFixed(4)}`
+        });
+
+        if (d < 1e-10) {
+            steps.push({
+                title: 'Вывод',
+                math: 'd ≈ 0 — прямые пересекаются',
+                isNote: true
+            });
+        }
+
+        renderSteps(steps);
+
+        // Find closest points for visualization
+        let distLineData = null;
+        if (d > 0.001) {
+            // Common perpendicular endpoints
+            // Using parametric approach
+            const a = q1[0], b = q1[1], c = q1[2];
+            const e = q2[0], f = q2[1], g = q2[2];
+            const dx = M2[0]-M1[0], dy = M2[1]-M1[1], dz = M2[2]-M1[2];
+
+            const denom = (a*e + b*f + c*g);
+            const q1sq = a*a+b*b+c*c;
+            const q2sq = e*e+f*f+g*g;
+            const delta = q1sq*q2sq - denom*denom;
+
+            let t, s;
+            if (Math.abs(delta) > 1e-10) {
+                t = ((a*e+b*f+c*g)*(dx*e+dy*f+dz*g) - q2sq*(dx*a+dy*b+dz*c)) / delta;
+                s = (q1sq*(dx*e+dy*f+dz*g) - (a*e+b*f+c*g)*(dx*a+dy*b+dz*c)) / delta;
+            } else {
+                t = 0; s = 0;
+            }
+
+            const p1 = [M1[0]+t*a, M1[1]+t*b, M1[2]+t*c];
+            const p2 = [M2[0]+s*e, M2[1]+s*f, M2[2]+s*g];
+            distLineData = { p1, p2 };
+        }
+
+        updateVisualization({
+            M1, q1, M2, q2, d, distLineData,
+            crossProd: cp,
+            mixed,
+            crossProdLen: cpLen
+        });
+    }
+
+    function renderSteps(steps) {
+        const container = document.getElementById('steps-container');
+        let html = '<div class="steps">';
+        steps.forEach((s, i) => {
+            if (s.isNote) {
+                html += `<div class="note">${s.math}</div>`;
+            } else {
+                html += `
+                <div class="step">
+                    <div class="step-num">${i+1}</div>
+                    <div class="step-content">
+                        <div class="step-title">${s.title}</div>
+                        <div style="font-family: 'Courier New', monospace; color: var(--accent3); font-size: .9rem;">${s.math}</div>
+                    </div>
+                </div>
+            `;
+            }
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    function setExample(n) {
+        const examples = {
+            1: { l1x:0, l1y:0, l1z:0, l1l:1, l1m:0, l1n:1, l2x:0, l2y:2, l2z:0, l2l:0, l2m:1, l2n:1 },
+            2: { l1x:1, l1y:0, l1z:0, l1l:1, l1m:2, l1n:1, l2x:0, l2y:1, l2z:1, l2l:2, l2m:-1, l2n:1 },
+            3: { l1x:0, l1y:0, l1z:0, l1l:1, l1m:0, l1n:0, l2x:0, l2y:1, l2z:0, l2l:0, l2m:1, l2n:1 },
+            4: { l1x:0, l1y:0, l1z:0, l1l:1, l1m:1, l1n:0, l2x:0, l2y:0, l2z:3, l2l:1, l2m:1, l2n:0 }
+        };
+        const ex = examples[n];
+        Object.keys(ex).forEach(id => document.getElementById(id).value = ex[id]);
+        calculate();
+    }
+
+    function resetAll() {
+        ['l1x','l1y','l1z','l2x','l2y','l2z'].forEach(id => document.getElementById(id).value = 0);
+        ['l1l','l1m','l1n'].forEach(id => document.getElementById(id).value = 1);
+        ['l2l','l2m','l2n'].forEach((id, i) => {
+            document.getElementById(id).value = i === 1 ? 1 : 0;
+        });
+        document.getElementById('steps-container').innerHTML = '';
+        document.getElementById('dist-display').textContent = '—';
+        clearGroup(line1Group);
+        clearGroup(line2Group);
+        updateVisualization(null);
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+        init3D();
+    });
+</script>
+
+</body>
+</html>
