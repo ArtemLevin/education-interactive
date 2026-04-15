@@ -1,0 +1,1546 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Интерактивная модель: шайба внутри вращающейся сферы</title>
+    <style>
+        :root{
+            --bg:#0b1020;
+            --bg2:#111827;
+            --panel:#0f172a;
+            --panel2:#162033;
+            --card:#101827;
+            --text:#e5eefc;
+            --muted:#9fb0c9;
+            --line:#26354f;
+            --accent:#60a5fa;
+            --accent2:#22c55e;
+            --warn:#f59e0b;
+            --danger:#ef4444;
+            --softBlue:rgba(96,165,250,.10);
+            --softGreen:rgba(34,197,94,.10);
+            --softRed:rgba(239,68,68,.10);
+            --softAmber:rgba(245,158,11,.10);
+        }
+
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0}
+        body{
+            min-height:100vh;
+            color:var(--text);
+            font-family:Arial,Helvetica,sans-serif;
+            background:
+            radial-gradient(circle at 20% 10%, rgba(96,165,250,.12), transparent 28%),
+            radial-gradient(circle at 80% 0%, rgba(34,197,94,.10), transparent 22%),
+            linear-gradient(180deg, #09101d, #0f172a 38%, #111827);
+        }
+
+        .wrap{
+            max-width:1480px;
+            margin:0 auto;
+            padding:18px;
+        }
+
+        .hero,.panel{
+            border:1px solid var(--line);
+            border-radius:18px;
+            background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+            box-shadow:0 14px 40px rgba(0,0,0,.24);
+            backdrop-filter:blur(8px);
+        }
+
+        .hero{
+            padding:22px;
+            margin-bottom:18px;
+        }
+
+        .hero h1{
+            margin:0 0 10px 0;
+            font-size:clamp(28px,4vw,42px);
+            line-height:1.1;
+        }
+
+        .hero p{
+            margin:8px 0;
+            color:var(--muted);
+            max-width:1100px;
+            line-height:1.55;
+        }
+
+        .hero .banner{
+            margin-top:14px;
+            display:inline-flex;
+            gap:10px;
+            align-items:center;
+            padding:10px 14px;
+            border-radius:999px;
+            border:1px solid #31517b;
+            background:rgba(96,165,250,.10);
+            color:#dbeafe;
+            font-weight:700;
+        }
+
+        .layout{
+            display:grid;
+            grid-template-columns:430px 1fr;
+            gap:18px;
+            align-items:start;
+        }
+
+        .sticky{
+            position:sticky;
+            top:16px;
+        }
+
+        .panel{
+            padding:16px;
+        }
+
+        .panel h2{
+            margin:0 0 14px 0;
+            font-size:20px;
+        }
+
+        .control{
+            border:1px solid var(--line);
+            background:rgba(255,255,255,.02);
+            border-radius:16px;
+            padding:12px;
+            margin-bottom:14px;
+        }
+
+        .row{
+            display:flex;
+            justify-content:space-between;
+            gap:10px;
+            align-items:center;
+            flex-wrap:wrap;
+            margin-bottom:8px;
+        }
+
+        .label{
+            font-weight:700;
+        }
+
+        .value{
+            color:var(--accent);
+            font-weight:800;
+            font-variant-numeric:tabular-nums;
+        }
+
+        input[type="range"]{
+            width:100%;
+            accent-color:var(--accent);
+            cursor:pointer;
+        }
+
+        input[type="checkbox"]{
+            accent-color:var(--accent2);
+            transform:translateY(1px);
+        }
+
+        .small{
+            font-size:13px;
+            line-height:1.48;
+            color:var(--muted);
+        }
+
+        .checkGrid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:8px 12px;
+            margin-top:6px;
+        }
+
+        .checkGrid label{
+            font-size:14px;
+            color:#d7e3f8;
+        }
+
+        .btns{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+            margin-top:8px;
+        }
+
+        button{
+            border:1px solid #355176;
+            background:#142238;
+            color:var(--text);
+            padding:10px 12px;
+            border-radius:12px;
+            cursor:pointer;
+            font-weight:800;
+            transition:.15s ease;
+        }
+
+        button:hover{transform:translateY(-1px);filter:brightness(1.08)}
+        button:active{transform:translateY(0)}
+
+        .stats{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:12px;
+            margin-top:12px;
+        }
+
+        .stat{
+            border:1px solid var(--line);
+            border-radius:15px;
+            padding:12px;
+            background:rgba(255,255,255,.02);
+        }
+
+        .stat .k{
+            font-size:13px;
+            color:var(--muted);
+            margin-bottom:6px;
+        }
+
+        .stat .v{
+            font-size:20px;
+            font-weight:900;
+            line-height:1.2;
+            word-break:break-word;
+        }
+
+        .good{color:var(--accent2)}
+        .bad{color:var(--danger)}
+        .mid{color:var(--warn)}
+
+        .status{
+            margin-top:12px;
+            border:1px solid var(--line);
+            border-radius:15px;
+            padding:14px;
+            background:rgba(255,255,255,.02);
+            line-height:1.55;
+        }
+
+        .status strong{
+            display:block;
+            margin-bottom:6px;
+            font-size:18px;
+        }
+
+        .formulaBox{
+            margin-top:12px;
+            border:1px solid var(--line);
+            border-radius:15px;
+            padding:12px;
+            background:#0d1525;
+            overflow:auto;
+        }
+
+        .formulaTitle{
+            font-weight:800;
+            margin-bottom:8px;
+            color:#dbeafe;
+        }
+
+        .formulaLine{
+            padding:8px 0;
+            border-top:1px solid rgba(255,255,255,.05);
+        }
+
+        .formulaLine:first-of-type{border-top:none}
+
+        math{
+            color:#f8fbff;
+            font-size:1rem;
+        }
+
+        .mathBlock{
+            display:block;
+            overflow:auto;
+            padding:6px 0;
+        }
+
+        .canvasPanel{
+            padding:0;
+            overflow:hidden;
+        }
+
+        .canvasHead{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:10px;
+            flex-wrap:wrap;
+            padding:14px 16px;
+            border-bottom:1px solid var(--line);
+            background:rgba(255,255,255,.02);
+        }
+
+        .canvasHead .title{
+            font-size:20px;
+            font-weight:900;
+        }
+
+        .tools{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+        }
+
+        .sceneWrap{
+            position:relative;
+            min-height:820px;
+            background:
+            radial-gradient(circle at 50% 38%, rgba(96,165,250,.12), transparent 24%),
+            linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+        }
+
+        canvas{
+            width:100%;
+            height:min(82vh,920px);
+            display:block;
+            cursor:grab;
+            touch-action:none;
+            user-select:none;
+            -webkit-user-select:none;
+        }
+
+        canvas.dragging{cursor:grabbing}
+
+        .overlay{
+            position:absolute;
+            inset:14px 14px auto auto;
+            width:min(360px,calc(100% - 28px));
+            border:1px solid var(--line);
+            border-radius:16px;
+            background:rgba(10,16,28,.88);
+            backdrop-filter:blur(10px);
+            padding:12px;
+            box-shadow:0 12px 32px rgba(0,0,0,.22);
+        }
+
+        .overlay h3{
+            margin:0 0 8px 0;
+            font-size:15px;
+        }
+
+        .legendItem{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            font-size:13px;
+            color:var(--muted);
+            margin:6px 0;
+        }
+
+        .sw{
+            width:18px;
+            height:3px;
+            border-radius:99px;
+            flex:none;
+        }
+
+        .miniStatus{
+            margin-top:10px;
+            padding-top:10px;
+            border-top:1px solid rgba(255,255,255,.06);
+            font-size:13px;
+            line-height:1.5;
+            color:#dce8fb;
+        }
+
+        .tabs{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+            margin-bottom:12px;
+        }
+
+        .tab{
+            padding:8px 12px;
+            border-radius:999px;
+            border:1px solid #355176;
+            background:#102036;
+            color:var(--text);
+            font-size:14px;
+            font-weight:800;
+            cursor:pointer;
+        }
+
+        .tab.active{
+            background:#183353;
+            color:#eaf3ff;
+            border-color:#4b78ae;
+        }
+
+        .section{display:none}
+        .section.active{display:block}
+
+        .list{
+            margin:8px 0 0 18px;
+            color:var(--muted);
+            line-height:1.55;
+        }
+
+        .hint{
+            margin-top:12px;
+            border-left:3px solid var(--accent);
+            background:var(--softBlue);
+            color:#dbeafe;
+            padding:12px;
+            border-radius:12px;
+            line-height:1.55;
+        }
+
+        @media (max-width:1100px){
+            .layout{grid-template-columns:1fr}
+            .sticky{position:static}
+            .sceneWrap{min-height:auto}
+            canvas{height:72vh}
+        }
+
+        @media (max-width:720px){
+            .wrap{padding:12px}
+            .hero,.panel{border-radius:14px}
+            .stats{grid-template-columns:1fr}
+            .checkGrid{grid-template-columns:1fr}
+            canvas{height:62vh}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <h1>Интерактивная модель: шайба на внутренней поверхности вращающейся сферы</h1>
+    </section>
+
+    <div class="layout">
+        <aside class="panel sticky">
+            <h2>Параметры и режимы</h2>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="controls">Управление</button>
+                <button class="tab" data-tab="theory">Физика</button>
+                <button class="tab" data-tab="tips">Подсказки</button>
+            </div>
+
+            <div class="section active" id="section-controls">
+                <div class="control">
+                    <div class="row">
+                        <div class="label">Радиус сферы <math><mi>R</mi></math></div>
+                        <div class="value"><span id="RVal"></span> м</div>
+                    </div>
+                    <input id="R" type="range" min="0.5" max="5" step="0.1" value="2" />
+                </div>
+
+                <div class="control">
+                    <div class="row">
+                        <div class="label">Коэффициент трения <math><mi>&mu;</mi></math></div>
+                        <div class="value"><span id="muVal"></span></div>
+                    </div>
+                    <input id="mu" type="range" min="0" max="1.2" step="0.01" value="0.25" />
+                </div>
+
+                <div class="control">
+                    <div class="row">
+                        <div class="label">Угол <math><mi>&alpha;</mi></math></div>
+                        <div class="value"><span id="alphaVal"></span>°</div>
+                    </div>
+                    <input id="alpha" type="range" min="8" max="80" step="1" value="35" />
+                    <div class="small">
+                        Угол отсчитывается от нижней вертикали до радиуса, проведённого к шайбе.
+                    </div>
+                </div>
+
+                <div class="control">
+                    <div class="row">
+                        <div class="label">Угловая скорость <math><mi>&omega;</mi></math></div>
+                        <div class="value"><span id="omegaVal"></span> рад/с</div>
+                    </div>
+                    <input id="omega" type="range" min="0" max="10" step="0.01" value="2.7" />
+                </div>
+
+                <div class="control">
+                    <div class="row">
+                        <div class="label">Вращение сферы</div>
+                        <div class="value"><span id="spinVal"></span></div>
+                    </div>
+                    <input id="spin" type="range" min="0" max="2.5" step="0.01" value="1.0" />
+                    <div class="small">Это скорость анимации рисунка. Она не меняет физический расчёт.</div>
+                </div>
+
+                <div class="control">
+                    <div class="row">
+                        <div class="label">Наклон обзора</div>
+                        <div class="value"><span id="tiltVal"></span>°</div>
+                    </div>
+                    <input id="tilt" type="range" min="8" max="36" step="1" value="20" />
+                </div>
+
+                <div class="control">
+                    <div class="checkGrid">
+                        <label><input id="showGravity" type="checkbox" checked /> сила тяжести</label>
+                        <label><input id="showNormal" type="checkbox" checked /> реакция опоры</label>
+                        <label><input id="showCentrifugal" type="checkbox" checked /> центробежная сила</label>
+                        <label><input id="showFriction" type="checkbox" checked /> сила трения</label>
+                        <label><input id="showTangent" type="checkbox" checked /> касательная</label>
+                        <label><input id="showSection" type="checkbox" checked /> сечение сферы</label>
+                        <label><input id="showMeridians" type="checkbox" checked /> меридианы</label>
+                        <label><input id="showLabels" type="checkbox" checked /> подписи</label>
+                        <label><input id="showFormulas" type="checkbox" checked /> вычисления</label>
+                        <label><input id="animateSphere" type="checkbox" checked /> анимация</label>
+                    </div>
+
+                    <div class="btns">
+                        <button id="setMinOmega">Поставить <math><msub><mi>&omega;</mi><mi>min</mi></msub></math></button>
+                        <button id="resetView">Сбросить вид</button>
+                        <button id="togglePlay">Пауза</button>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat">
+                        <div class="k"><math><msub><mi>&omega;</mi><mi>min</mi></msub></math></div>
+                        <div class="v" id="omegaMinBox">—</div>
+                    </div>
+                    <div class="stat">
+                        <div class="k">Удержание</div>
+                        <div class="v" id="holdBox">—</div>
+                    </div>
+                    <div class="stat">
+                        <div class="k"><math><mfrac><mi>N</mi><mi>m</mi></mfrac></math></div>
+                        <div class="v" id="NBox">—</div>
+                    </div>
+                    <div class="stat">
+                        <div class="k"><math><mfrac><msub><mi>F</mi><mi>нужн</mi></msub><mi>m</mi></mfrac></math></div>
+                        <div class="v" id="FneedBox">—</div>
+                    </div>
+                </div>
+
+                <div class="status" id="statusBox">
+                    <strong>Статус</strong>
+                    <div id="statusText">—</div>
+                </div>
+
+                <div class="formulaBox" id="formulaBox">
+                    <div class="formulaTitle">Текущие вычисления</div>
+                    <div id="formulaContent"></div>
+                </div>
+
+                <div class="hint">
+                    В модели используется условие удержания:
+                    <math display="block" class="mathBlock">
+                        <mrow>
+                            <mo>|</mo>
+                            <msub><mi>F</mi><mi>нужн</mi></msub>
+                            <mo>|</mo>
+                            <mo>&le;</mo>
+                            <mi>&mu;</mi>
+                            <mi>N</mi>
+                        </mrow>
+                    </math>
+                    Для минимальной угловой скорости берётся предельный случай равенства.
+                </div>
+            </div>
+
+            <div class="section" id="section-theory">
+                <div class="control">
+                    <div class="label">Главные формулы</div>
+                    <div class="formulaLine">
+                        <math display="block" class="mathBlock">
+                            <mrow>
+                                <mi>&rho;</mi>
+                                <mo>=</mo>
+                                <mi>R</mi>
+                                <mi>sin</mi>
+                                <mi>&alpha;</mi>
+                            </mrow>
+                        </math>
+                    </div>
+                    <div class="formulaLine">
+                        <math display="block" class="mathBlock">
+                            <mrow>
+                                <msub><mi>F</mi><mi>цб</mi></msub>
+                                <mo>=</mo>
+                                <mi>m</mi>
+                                <msup><mi>&omega;</mi><mn>2</mn></msup>
+                                <mi>R</mi>
+                                <mi>sin</mi>
+                                <mi>&alpha;</mi>
+                            </mrow>
+                        </math>
+                    </div>
+                    <div class="formulaLine">
+                        <math display="block" class="mathBlock">
+                            <mrow>
+                                <mfrac><mi>N</mi><mi>m</mi></mfrac>
+                                <mo>=</mo>
+                                <mi>g</mi>
+                                <mi>cos</mi>
+                                <mi>&alpha;</mi>
+                                <mo>+</mo>
+                                <msup><mi>&omega;</mi><mn>2</mn></msup>
+                                <mi>R</mi>
+                                <msup>
+                                    <mrow><mi>sin</mi><mi>&alpha;</mi></mrow>
+                                    <mn>2</mn>
+                                </msup>
+                            </mrow>
+                        </math>
+                    </div>
+                    <div class="formulaLine">
+                        <math display="block" class="mathBlock">
+                            <mrow>
+                                <mfrac><msub><mi>F</mi><mi>нужн</mi></msub><mi>m</mi></mfrac>
+                                <mo>=</mo>
+                                <mi>g</mi>
+                                <mi>sin</mi>
+                                <mi>&alpha;</mi>
+                                <mo>−</mo>
+                                <msup><mi>&omega;</mi><mn>2</mn></msup>
+                                <mi>R</mi>
+                                <mi>sin</mi>
+                                <mi>&alpha;</mi>
+                                <mi>cos</mi>
+                                <mi>&alpha;</mi>
+                            </mrow>
+                        </math>
+                    </div>
+                </div>
+
+                <div class="control">
+                    <div class="label">Формула для минимальной скорости</div>
+                    <math display="block" class="mathBlock">
+                        <mrow>
+                            <msubsup><mi>&omega;</mi><mi>min</mi><mn>2</mn></msubsup>
+                            <mo>=</mo>
+                            <mfrac>
+                                <mrow>
+                                    <mi>g</mi>
+                                    <mo>(</mo>
+                                    <mi>sin</mi><mi>&alpha;</mi>
+                                    <mo>−</mo>
+                                    <mi>&mu;</mi><mi>cos</mi><mi>&alpha;</mi>
+                                    <mo>)</mo>
+                                </mrow>
+                                <mrow>
+                                    <mi>R</mi><mi>sin</mi><mi>&alpha;</mi>
+                                    <mo>(</mo>
+                                    <mi>cos</mi><mi>&alpha;</mi>
+                                    <mo>+</mo>
+                                    <mi>&mu;</mi><mi>sin</mi><mi>&alpha;</mi>
+                                    <mo>)</mo>
+                                </mrow>
+                            </mfrac>
+                        </mrow>
+                    </math>
+                </div>
+
+                <div class="control">
+                    <div class="label">Что показывает анимация</div>
+                    <ul class="list">
+                        <li>Экватор и меридианы вращаются, как у настоящей сферы.</li>
+                        <li>Передняя и дальняя полусферы различаются по яркости.</li>
+                        <li>Шайба привязана к точке на внутренней поверхности.</li>
+                        <li>Силы рисуются в проекции на плоскость экрана, но считаются по формулам задачи.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section" id="section-tips">
+                <div class="control">
+                    <div class="label">Что полезно наблюдать</div>
+                    <ul class="list">
+                        <li>При росте <math><mi>&omega;</mi></math> центробежная сила усиливается.</li>
+                        <li>Её касательная составляющая помогает удержанию.</li>
+                        <li>Если <math><mi>&mu;</mi><mo>=</mo><mn>0</mn></math>, удержание возможно только за счёт вращения.</li>
+                        <li>Когда <math><mi>&omega;</mi><mo>=</mo><msub><mi>&omega;</mi><mi>min</mi></msub></math>, система находится на границе срыва.</li>
+                    </ul>
+                </div>
+
+                <div class="control">
+                    <div class="label">Типичные ошибки</div>
+                    <ul class="list">
+                        <li>Путают угол от нижней вертикали и угол от горизонтали.</li>
+                        <li>Берут расстояние до оси как <math><mi>R</mi></math> вместо <math><mi>R</mi><mi>sin</mi><mi>&alpha;</mi></math>.</li>
+                        <li>Забывают, что сила трения здесь направлена вверх вдоль поверхности.</li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+        <main class="panel canvasPanel">
+            <div class="canvasHead">
+                <div class="title">Псевдо-3D сцена сферы и сил</div>
+                <div class="tools">
+                    <button id="zoomIn">+</button>
+                    <button id="zoomOut">−</button>
+                    <button id="centerBtn">Центр</button>
+                </div>
+            </div>
+
+            <div class="sceneWrap">
+                <canvas id="scene" width="1200" height="900"></canvas>
+
+                <div class="overlay">
+                    <h3>Обозначения</h3>
+                    <div class="legendItem"><span class="sw" style="background:#ef4444"></span> сила тяжести</div>
+                    <div class="legendItem"><span class="sw" style="background:#22c55e"></span> реакция опоры</div>
+                    <div class="legendItem"><span class="sw" style="background:#60a5fa"></span> центробежная сила</div>
+                    <div class="legendItem"><span class="sw" style="background:#f59e0b"></span> сила трения</div>
+                    <div class="legendItem"><span class="sw" style="background:#93a7c6"></span> касательная к поверхности</div>
+                    <div class="miniStatus" id="miniSceneStatus">Сфера вращается, можно поворачивать сцену мышью.</div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    // =========================
+    // БАЗОВАЯ ФИЗИКА
+    // =========================
+
+    const g = 9.8;
+
+    function num(v, d = 3){
+        return Number(v).toFixed(d).replace(/\.?0+$/,'');
+    }
+
+    function clamp(v,a,b){
+        return Math.max(a, Math.min(b, v));
+    }
+
+    function rad(deg){
+        return deg * Math.PI / 180;
+    }
+
+    function lerp(a,b,t){
+        return a + (b - a) * t;
+    }
+
+    function vec3(x,y,z){ return {x,y,z}; }
+
+    function add(a,b){ return vec3(a.x+b.x,a.y+b.y,a.z+b.z); }
+    function sub(a,b){ return vec3(a.x-b.x,a.y-b.y,a.z-b.z); }
+    function mul(a,k){ return vec3(a.x*k,a.y*k,a.z*k); }
+    function dot(a,b){ return a.x*b.x + a.y*b.y + a.z*b.z; }
+    function len(a){ return Math.hypot(a.x,a.y,a.z); }
+    function norm(a){
+        const L = len(a) || 1;
+        return vec3(a.x/L,a.y/L,a.z/L);
+    }
+
+    // =========================
+    // ЭЛЕМЕНТЫ UI
+    // =========================
+
+    const $ = id => document.getElementById(id);
+
+    const ui = {
+        R:$('R'),
+        mu:$('mu'),
+        alpha:$('alpha'),
+        omega:$('omega'),
+        spin:$('spin'),
+        tilt:$('tilt'),
+
+        showGravity:$('showGravity'),
+        showNormal:$('showNormal'),
+        showCentrifugal:$('showCentrifugal'),
+        showFriction:$('showFriction'),
+        showTangent:$('showTangent'),
+        showSection:$('showSection'),
+        showMeridians:$('showMeridians'),
+        showLabels:$('showLabels'),
+        showFormulas:$('showFormulas'),
+        animateSphere:$('animateSphere'),
+
+        RVal:$('RVal'),
+        muVal:$('muVal'),
+        alphaVal:$('alphaVal'),
+        omegaVal:$('omegaVal'),
+        spinVal:$('spinVal'),
+        tiltVal:$('tiltVal'),
+
+        omegaMinBox:$('omegaMinBox'),
+        holdBox:$('holdBox'),
+        NBox:$('NBox'),
+        FneedBox:$('FneedBox'),
+
+        statusBox:$('statusBox'),
+        statusText:$('statusText'),
+        formulaBox:$('formulaBox'),
+        formulaContent:$('formulaContent'),
+        miniSceneStatus:$('miniSceneStatus'),
+
+        setMinOmega:$('setMinOmega'),
+        resetView:$('resetView'),
+        togglePlay:$('togglePlay'),
+        zoomIn:$('zoomIn'),
+        zoomOut:$('zoomOut'),
+        centerBtn:$('centerBtn')
+    };
+
+    document.querySelectorAll('.tab').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+            document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+            btn.classList.add('active');
+            $('section-' + btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    // =========================
+    // CANVAS И СЦЕНА
+    // =========================
+
+    const canvas = $('scene');
+    const ctx = canvas.getContext('2d');
+
+    const camera = {
+        zoom:1,
+        panX:0,
+        panY:0,
+        rotX:rad(18),
+        rotY:rad(-24)
+    };
+
+    const anim = {
+        t:0,
+        playing:true,
+        spinPhase:0
+    };
+
+    const scene = {
+        cx:600,
+        cy:455,
+        radiusPx:260
+    };
+
+    function resetView(){
+        camera.zoom = 1;
+        camera.panX = 0;
+        camera.panY = 0;
+        camera.rotX = rad(Number(ui.tilt.value));
+        camera.rotY = rad(-24);
+    }
+
+    resetView();
+
+    function project(p){
+        // Вращение сцены
+        let x = p.x, y = p.y, z = p.z;
+
+        // rotY
+        {
+            const c = Math.cos(camera.rotY), s = Math.sin(camera.rotY);
+            const nx = x*c + z*s;
+            const nz = -x*s + z*c;
+            x = nx; z = nz;
+        }
+
+        // rotX
+        {
+            const c = Math.cos(camera.rotX), s = Math.sin(camera.rotX);
+            const ny = y*c - z*s;
+            const nz = y*s + z*c;
+            y = ny; z = nz;
+        }
+
+        const scale = camera.zoom;
+        return {
+            x: scene.cx + camera.panX + x * scale,
+            y: scene.cy + camera.panY + y * scale,
+            z
+        };
+    }
+
+    function drawArrow(x1,y1,x2,y2,color,label,showLabel=true){
+        const dx = x2-x1, dy = y2-y1;
+        const L = Math.hypot(dx,dy);
+        if(L < 1) return;
+        const ux = dx/L, uy = dy/L;
+        const px = -uy, py = ux;
+        const head = clamp(12, 8, L*0.35);
+
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(x1,y1);
+        ctx.lineTo(x2,y2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(x2,y2);
+        ctx.lineTo(x2 - ux*head + px*5, y2 - uy*head + py*5);
+        ctx.lineTo(x2 - ux*head - px*5, y2 - uy*head - py*5);
+        ctx.closePath();
+        ctx.fill();
+
+        if(showLabel){
+            ctx.font = '700 22px Arial';
+            ctx.fillStyle = color;
+            ctx.fillText(label, x2 + 8, y2 - 8);
+        }
+        ctx.restore();
+    }
+
+    function computePhysics(){
+        const R = Number(ui.R.value);
+        const mu = Number(ui.mu.value);
+        const alphaDeg = Number(ui.alpha.value);
+        const omega = Number(ui.omega.value);
+
+        const a = rad(alphaDeg);
+        const sin = Math.sin(a);
+        const cos = Math.cos(a);
+
+        const rho = R * sin;
+        const NperM = g*cos + omega*omega*R*sin*sin;
+        const FneedPerM = g*sin - omega*omega*R*sin*cos;
+        const FmaxPerM = mu * NperM;
+        const holds = FneedPerM <= FmaxPerM + 1e-9;
+
+        const nume = g*(sin - mu*cos);
+        const deno = R*sin*(cos + mu*sin);
+        let omegaMin = NaN;
+
+        if(deno > 0 && nume >= 0){
+            omegaMin = Math.sqrt(nume / deno);
+        }else if(nume < 0){
+            omegaMin = 0;
+        }
+
+        return {R,mu,alphaDeg,omega,a,sin,cos,rho,NperM,FneedPerM,FmaxPerM,holds,omegaMin};
+    }
+
+    function updateUI(P){
+        ui.RVal.textContent = num(P.R,1);
+        ui.muVal.textContent = num(P.mu,2);
+        ui.alphaVal.textContent = String(Math.round(P.alphaDeg));
+        ui.omegaVal.textContent = num(P.omega,2);
+        ui.spinVal.textContent = num(Number(ui.spin.value),2);
+        ui.tiltVal.textContent = String(Math.round(Number(ui.tilt.value)));
+
+        ui.omegaMinBox.textContent = Number.isFinite(P.omegaMin) ? num(P.omegaMin,3) + ' рад/с' : '—';
+        ui.NBox.textContent = num(P.NperM,3) + ' Н/кг';
+        ui.FneedBox.textContent = num(P.FneedPerM,3) + ' Н/кг';
+
+        if(P.holds){
+            ui.holdBox.textContent = 'да';
+            ui.holdBox.className = 'v good';
+            ui.statusBox.style.background = 'var(--softGreen)';
+            ui.statusBox.style.borderColor = '#24553b';
+            ui.statusText.innerHTML =
+            'При текущем значении <math><mi>&omega;</mi></math> шайба <strong>удерживается</strong>. ' +
+            'Требуемая сила трения не превосходит максимально возможную.';
+        }else{
+            ui.holdBox.textContent = 'нет';
+            ui.holdBox.className = 'v bad';
+            ui.statusBox.style.background = 'var(--softRed)';
+            ui.statusBox.style.borderColor = '#6a2727';
+            ui.statusText.innerHTML =
+            'При текущем значении <math><mi>&omega;</mi></math> шайба <strong>соскользнёт вниз</strong>. ' +
+            'Требуемая сила трения слишком велика.';
+        }
+
+        ui.formulaBox.style.display = ui.showFormulas.checked ? '' : 'none';
+
+        ui.formulaContent.innerHTML = `
+        <div class="formulaLine">
+          <math display="block" class="mathBlock">
+            <mrow>
+              <mi>sin</mi><mi>&alpha;</mi>
+              <mo>=</mo>
+              <mn>${num(P.sin,4)}</mn>
+              <mo>,</mo>
+              <mspace width="1em"></mspace>
+              <mi>cos</mi><mi>&alpha;</mi>
+              <mo>=</mo>
+              <mn>${num(P.cos,4)}</mn>
+            </mrow>
+          </math>
+        </div>
+
+        <div class="formulaLine">
+          <math display="block" class="mathBlock">
+            <mrow>
+              <mi>&rho;</mi>
+              <mo>=</mo>
+              <mi>R</mi><mi>sin</mi><mi>&alpha;</mi>
+              <mo>=</mo>
+              <mn>${num(P.R,3)}</mn>
+              <mo>&#x22C5;</mo>
+              <mn>${num(P.sin,4)}</mn>
+              <mo>=</mo>
+              <mn>${num(P.rho,4)}</mn>
+            </mrow>
+          </math>
+        </div>
+
+        <div class="formulaLine">
+          <math display="block" class="mathBlock">
+            <mrow>
+              <mfrac><mi>N</mi><mi>m</mi></mfrac>
+              <mo>=</mo>
+              <mi>g</mi><mi>cos</mi><mi>&alpha;</mi>
+              <mo>+</mo>
+              <msup><mi>&omega;</mi><mn>2</mn></msup>
+              <mi>R</mi>
+              <msup><mrow><mi>sin</mi><mi>&alpha;</mi></mrow><mn>2</mn></msup>
+              <mo>=</mo>
+              <mn>${num(P.NperM,4)}</mn>
+            </mrow>
+          </math>
+        </div>
+
+        <div class="formulaLine">
+          <math display="block" class="mathBlock">
+            <mrow>
+              <mfrac><msub><mi>F</mi><mi>нужн</mi></msub><mi>m</mi></mfrac>
+              <mo>=</mo>
+              <mi>g</mi><mi>sin</mi><mi>&alpha;</mi>
+              <mo>−</mo>
+              <msup><mi>&omega;</mi><mn>2</mn></msup>
+              <mi>R</mi><mi>sin</mi><mi>&alpha;</mi><mi>cos</mi><mi>&alpha;</mi>
+              <mo>=</mo>
+              <mn>${num(P.FneedPerM,4)}</mn>
+            </mrow>
+          </math>
+        </div>
+
+        <div class="formulaLine">
+          <math display="block" class="mathBlock">
+            <mrow>
+              <mfrac><msub><mi>F</mi><mi>max</mi></msub><mi>m</mi></mfrac>
+              <mo>=</mo>
+              <mi>&mu;</mi>
+              <mfrac><mi>N</mi><mi>m</mi></mfrac>
+              <mo>=</mo>
+              <mn>${num(P.FmaxPerM,4)}</mn>
+            </mrow>
+          </math>
+        </div>
+
+        <div class="formulaLine">
+          <math display="block" class="mathBlock">
+            <mrow>
+              <msubsup><mi>&omega;</mi><mi>min</mi><mn>2</mn></msubsup>
+              <mo>=</mo>
+              <mfrac>
+                <mrow><mi>g</mi><mo>(</mo><mi>sin</mi><mi>&alpha;</mi><mo>−</mo><mi>&mu;</mi><mi>cos</mi><mi>&alpha;</mi><mo>)</mo></mrow>
+                <mrow><mi>R</mi><mi>sin</mi><mi>&alpha;</mi><mo>(</mo><mi>cos</mi><mi>&alpha;</mi><mo>+</mo><mi>&mu;</mi><mi>sin</mi><mi>&alpha;</mi><mo>)</mo></mrow>
+              </mfrac>
+            </mrow>
+          </math>
+          <math display="block" class="mathBlock">
+            <mrow>
+              <msub><mi>&omega;</mi><mi>min</mi></msub>
+              <mo>=</mo>
+              <mn>${Number.isFinite(P.omegaMin) ? num(P.omegaMin,4) : '—'}</mn>
+            </mrow>
+          </math>
+        </div>
+      `;
+
+        ui.miniSceneStatus.innerHTML = P.holds
+        ? 'Сейчас шайба удерживается. Можно нажать кнопку с <math><msub><mi>&omega;</mi><mi>min</mi></msub></math> и посмотреть граничный случай.'
+        : 'Сейчас шайба соскальзывает вниз. Увеличьте <math><mi>&omega;</mi></math> или <math><mi>&mu;</mi></math>.';
+    }
+
+    // =========================
+    // 3D-ГЕОМЕТРИЯ СФЕРЫ
+    // =========================
+
+    function spherePoint(theta, phi, r){
+        // theta — долгота, phi — широта
+        return vec3(
+            r * Math.cos(phi) * Math.sin(theta),
+            r * Math.sin(phi),
+            r * Math.cos(phi) * Math.cos(theta)
+        );
+    }
+
+    function drawBackground(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+
+        const g1 = ctx.createLinearGradient(0,0,0,canvas.height);
+        g1.addColorStop(0,'rgba(255,255,255,.02)');
+        g1.addColorStop(1,'rgba(255,255,255,0)');
+        ctx.fillStyle = g1;
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        ctx.save();
+        ctx.translate(scene.cx + camera.panX, scene.cy + camera.panY);
+        ctx.scale(camera.zoom,camera.zoom);
+
+        for(let x=-600;x<=600;x+=60){
+            ctx.beginPath();
+            ctx.moveTo(x,-460);
+            ctx.lineTo(x,460);
+            ctx.strokeStyle='rgba(148,163,184,.06)';
+            ctx.lineWidth=1;
+            ctx.stroke();
+        }
+        for(let y=-460;y<=460;y+=60){
+            ctx.beginPath();
+            ctx.moveTo(-600,y);
+            ctx.lineTo(600,y);
+            ctx.strokeStyle='rgba(148,163,184,.06)';
+            ctx.lineWidth=1;
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    function drawSphereBody(r){
+        // Базовая сфера
+        const grad = ctx.createRadialGradient(
+            scene.cx - r*0.32 + camera.panX,
+            scene.cy - r*0.38 + camera.panY,
+            r*0.08*camera.zoom,
+            scene.cx + camera.panX,
+            scene.cy + camera.panY,
+            r*1.12*camera.zoom
+        );
+
+        grad.addColorStop(0,'rgba(226,241,255,.96)');
+        grad.addColorStop(.18,'rgba(145,190,255,.62)');
+        grad.addColorStop(.45,'rgba(66,111,168,.34)');
+        grad.addColorStop(1,'rgba(20,35,58,.98)');
+
+        ctx.beginPath();
+        ctx.arc(scene.cx + camera.panX, scene.cy + camera.panY, r*camera.zoom, 0, Math.PI*2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Затемнение дальней полусферы
+        const shade = ctx.createLinearGradient(
+            scene.cx - r*camera.zoom,
+            scene.cy,
+            scene.cx + r*camera.zoom,
+            scene.cy
+        );
+        shade.addColorStop(0,'rgba(0,0,0,.18)');
+        shade.addColorStop(.55,'rgba(0,0,0,0)');
+        shade.addColorStop(1,'rgba(255,255,255,.04)');
+        ctx.beginPath();
+        ctx.arc(scene.cx + camera.panX, scene.cy + camera.panY, r*camera.zoom, 0, Math.PI*2);
+        ctx.fillStyle = shade;
+        ctx.fill();
+
+        // Контур
+        ctx.beginPath();
+        ctx.arc(scene.cx + camera.panX, scene.cy + camera.panY, r*camera.zoom, 0, Math.PI*2);
+        ctx.strokeStyle = 'rgba(184,214,255,.9)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Блик
+        ctx.beginPath();
+        ctx.arc(
+            scene.cx - r*0.28*camera.zoom + camera.panX,
+            scene.cy - r*0.34*camera.zoom + camera.panY,
+            r*0.12*camera.zoom,
+            0, Math.PI*2
+        );
+        ctx.fillStyle = 'rgba(255,255,255,.14)';
+        ctx.fill();
+    }
+
+    function drawParamLine(points, color, width, dash = null, alpha = 1){
+        if(points.length < 2) return;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for(let i=1;i<points.length;i++) ctx.lineTo(points[i].x, points[i].y);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        if(dash) ctx.setLineDash(dash);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function splitFrontBack(points){
+        const front = [];
+        const back = [];
+        let currentFront = [];
+        let currentBack = [];
+
+        for(let i=0;i<points.length;i++){
+            const p = points[i];
+            if(p.z >= 0){
+                currentFront.push(p);
+                if(currentBack.length > 1){ back.push(currentBack); currentBack = []; }
+            }else{
+                currentBack.push(p);
+                if(currentFront.length > 1){ front.push(currentFront); currentFront = []; }
+            }
+        }
+        if(currentFront.length > 1) front.push(currentFront);
+        if(currentBack.length > 1) back.push(currentBack);
+
+        return {front, back};
+    }
+
+    function drawMeridiansAndEquator(r, spinPhase){
+        if(!ui.showMeridians.checked) return;
+
+        const meridianCount = 12;
+        const latitudes = [-50,-25,0,25,50].map(rad);
+
+        // Меридианы
+        for(let i=0;i<meridianCount;i++){
+            const theta0 = (i/meridianCount) * Math.PI*2 + spinPhase;
+            const pts = [];
+            for(let k=0;k<=80;k++){
+                const phi = lerp(-Math.PI/2, Math.PI/2, k/80);
+                const p = spherePoint(theta0, phi, r);
+                pts.push(project(p));
+            }
+            const {front, back} = splitFrontBack(pts);
+            back.forEach(seg => drawParamLine(seg, 'rgba(166,194,230,.16)', 1.2, [5,5], 1));
+            front.forEach(seg => drawParamLine(seg, 'rgba(196,225,255,.36)', 1.5, null, 1));
+        }
+
+        // Параллели
+        latitudes.forEach(phi=>{
+            const pts = [];
+            for(let k=0;k<=120;k++){
+                const theta = lerp(0, Math.PI*2, k/120) + spinPhase;
+                const p = spherePoint(theta, phi, r);
+                pts.push(project(p));
+            }
+            const {front, back} = splitFrontBack(pts);
+            back.forEach(seg => drawParamLine(seg, 'rgba(166,194,230,.10)', 1.0, [4,6], 1));
+            front.forEach(seg => drawParamLine(seg, phi === 0 ? 'rgba(220,240,255,.58)' : 'rgba(170,205,245,.24)', phi === 0 ? 2.2 : 1.2));
+        });
+    }
+
+    function drawAxis(r){
+        const top = project(vec3(0,-r*1.24,0));
+        const bottom = project(vec3(0,r*1.24,0));
+        ctx.save();
+        ctx.strokeStyle = 'rgba(203,213,225,.52)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([8,7]);
+        ctx.beginPath();
+        ctx.moveTo(top.x, top.y);
+        ctx.lineTo(bottom.x, bottom.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#dbeafe';
+        ctx.font = '700 22px Arial';
+        ctx.fillText('ось вращения', top.x + 14, top.y + 6);
+
+        // стрелка вращения
+        const x = top.x + 95, y = top.y + 45;
+        ctx.strokeStyle = '#dbeafe';
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.arc(x, y, 34, rad(15), rad(300));
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x + 18, y - 27);
+        ctx.lineTo(x + 30, y - 18);
+        ctx.lineTo(x + 16, y - 14);
+        ctx.closePath();
+        ctx.fillStyle = '#dbeafe';
+        ctx.fill();
+        ctx.fillText('ω', x + 45, y + 6);
+        ctx.restore();
+    }
+
+    function puck3DPoint(r, alphaDeg, spinPhase){
+        // Шайба в нижней левой части.
+        // Берём широту ниже экватора и долготу так, чтобы точка была левее.
+        const phi = rad(-(90 - alphaDeg));
+        const theta = rad(-90) + spinPhase;
+        return spherePoint(theta, phi, r);
+    }
+
+    function tangentAndNormalAtPuck(p, spinPhase){
+        // Нормаль к внутренней поверхности, направленная к центру
+        const normalInner = norm(mul(p, -1));
+
+        // Касательная вверх по поверхности в меридиональном сечении
+        const eps = 0.0001;
+        const phi = Math.asin(p.y / len(p));
+        const theta = Math.atan2(p.x, p.z);
+
+        const p2 = spherePoint(theta, phi + eps, len(p));
+        const tangentUp = norm(sub(p2, p));
+
+        return {normalInner, tangentUp};
+    }
+
+    function drawSectionCircle(r, spinPhase){
+        if(!ui.showSection.checked) return;
+
+        // Вертикальное сечение плоскостью yOz после внутреннего вращения текстуры.
+        // Для наглядности рисуем круг сечения как отдельный объект.
+        const pts = [];
+        for(let k=0;k<=180;k++){
+            const t = (k/180) * Math.PI*2;
+            const p = vec3(0, r*Math.sin(t), r*Math.cos(t));
+            pts.push(project(p));
+        }
+        const {front, back} = splitFrontBack(pts);
+        back.forEach(seg => drawParamLine(seg, 'rgba(255,255,255,.12)', 1.3, [5,6]));
+        front.forEach(seg => drawParamLine(seg, 'rgba(255,255,255,.52)', 1.8));
+    }
+
+    function drawAngleArc2D(centerX, centerY, radius, alphaDeg){
+        const start = Math.PI/2;
+        const end = Math.PI/2 + rad(alphaDeg);
+
+        ctx.save();
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, start, end);
+        ctx.stroke();
+
+        if(ui.showLabels.checked){
+            ctx.fillStyle = '#fde68a';
+            ctx.font = '700 24px Arial';
+            const mid = (start + end)/2;
+            ctx.fillText('α', centerX + Math.cos(mid)*radius*1.2 - 6, centerY + Math.sin(mid)*radius*1.2 + 8);
+        }
+        ctx.restore();
+    }
+
+    function drawScene(P){
+        drawBackground();
+
+        const baseR = scene.radiusPx * (0.82 + 0.06*P.R);
+        const spinSpeed = Number(ui.spin.value);
+        const spinPhase = anim.spinPhase;
+
+        drawSphereBody(baseR);
+        drawMeridiansAndEquator(baseR, spinPhase);
+        drawSectionCircle(baseR, spinPhase);
+        drawAxis(baseR);
+
+        const p3 = puck3DPoint(baseR, P.alphaDeg, spinPhase);
+        const p2 = project(p3);
+
+        const {normalInner, tangentUp} = tangentAndNormalAtPuck(p3, spinPhase);
+        const n2a = project(add(p3, mul(normalInner, 70)));
+        const t2a = project(add(p3, mul(tangentUp, 100)));
+
+        // Радиус к шайбе
+        const center2 = project(vec3(0,0,0));
+        ctx.save();
+        ctx.strokeStyle = 'rgba(235,245,255,.85)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(center2.x, center2.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+        ctx.restore();
+
+        // Угол alpha
+        drawAngleArc2D(center2.x, center2.y, 64*camera.zoom, P.alphaDeg);
+
+        // Касательная
+        if(ui.showTangent.checked){
+            const dir = {x:t2a.x - p2.x, y:t2a.y - p2.y};
+            const L = Math.hypot(dir.x,dir.y) || 1;
+            const ux = dir.x / L, uy = dir.y / L;
+            ctx.save();
+            ctx.strokeStyle = 'rgba(147,167,198,.72)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([8,7]);
+            ctx.beginPath();
+            ctx.moveTo(p2.x - ux*180, p2.y - uy*180);
+            ctx.lineTo(p2.x + ux*180, p2.y + uy*180);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // rho до оси
+        const axisFoot = project(vec3(0, p3.y, 0));
+        ctx.save();
+        ctx.strokeStyle = 'rgba(203,213,225,.48)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6,6]);
+        ctx.beginPath();
+        ctx.moveTo(p2.x, p2.y);
+        ctx.lineTo(axisFoot.x, axisFoot.y);
+        ctx.stroke();
+        ctx.restore();
+
+        if(ui.showLabels.checked){
+            ctx.fillStyle = '#dbeafe';
+            ctx.font = '700 22px Arial';
+            ctx.fillText('ρ', (p2.x + axisFoot.x)/2 - 8, (p2.y + axisFoot.y)/2 - 10);
+        }
+
+        // Шайба
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(p2.x, p2.y, 12, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,.10)';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(p2.x, p2.y, 8, 0, Math.PI*2);
+        ctx.fillStyle = '#f8fbff';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#0f172a';
+        ctx.stroke();
+
+        if(ui.showLabels.checked){
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '700 22px Arial';
+            ctx.fillText('A', p2.x - 22, p2.y - 16);
+        }
+        ctx.restore();
+
+        // Силы
+        const gravLen = 120;
+        const Nlen = clamp(P.NperM * 7.0, 40, 170);
+        const CenLen = clamp((P.omega*P.omega*P.rho) * 7.8, 18, 180);
+
+        const gravEnd = {x:p2.x, y:p2.y + gravLen};
+
+        // Нормаль — по внутренней нормали
+        const Ndir = {x:n2a.x - p2.x, y:n2a.y - p2.y};
+        const NL = Math.hypot(Ndir.x,Ndir.y) || 1;
+        const Nend = {x:p2.x + Ndir.x / NL * Nlen, y:p2.y + Ndir.y / NL * Nlen};
+
+        // Центробежная — от оси наружу по горизонтали в экранной проекции
+        const cOutWorld = norm(vec3(p3.x, 0, p3.z));
+        const cOutP = project(add(p3, mul(cOutWorld, 70)));
+        const Cdir = {x:cOutP.x - p2.x, y:cOutP.y - p2.y};
+        const CL = Math.hypot(Cdir.x,Cdir.y) || 1;
+        const Cend = {x:p2.x + Cdir.x / CL * CenLen, y:p2.y + Cdir.y / CL * CenLen};
+
+        // Трение — вверх по касательной
+        const Tdir = {x:t2a.x - p2.x, y:t2a.y - p2.y};
+        const TL = Math.hypot(Tdir.x,Tdir.y) || 1;
+        const frictionNeed = Math.max(0, Math.min(P.FneedPerM, P.FmaxPerM));
+        const Flen = clamp(frictionNeed * 8.5, 0, 150);
+        const Fend = {x:p2.x + Tdir.x / TL * Flen, y:p2.y + Tdir.y / TL * Flen};
+
+        if(ui.showGravity.checked) drawArrow(p2.x,p2.y,gravEnd.x,gravEnd.y,'#ef4444','mg',ui.showLabels.checked);
+        if(ui.showNormal.checked) drawArrow(p2.x,p2.y,Nend.x,Nend.y,'#22c55e','N',ui.showLabels.checked);
+        if(ui.showCentrifugal.checked) drawArrow(p2.x,p2.y,Cend.x,Cend.y,'#60a5fa','Fцб',ui.showLabels.checked);
+        if(ui.showFriction.checked && Flen > 2) drawArrow(p2.x,p2.y,Fend.x,Fend.y,'#f59e0b','Fтр',ui.showLabels.checked);
+
+        // Подпись формулы на сцене
+        ctx.save();
+        ctx.fillStyle = 'rgba(219,234,254,.96)';
+        ctx.font = '700 18px Arial';
+        ctx.fillText('Сечение + псевдо-3D сфера', 28, 42);
+        ctx.restore();
+    }
+
+    // =========================
+    // УПРАВЛЕНИЕ СЦЕНОЙ
+    // =========================
+
+    let dragging = false;
+    let mode = 'rotate';
+    let last = {x:0,y:0};
+
+    canvas.addEventListener('pointerdown', e=>{
+        dragging = true;
+        canvas.classList.add('dragging');
+        last.x = e.clientX;
+        last.y = e.clientY;
+        mode = e.shiftKey ? 'pan' : 'rotate';
+        canvas.setPointerCapture(e.pointerId);
+    });
+
+    canvas.addEventListener('pointermove', e=>{
+        if(!dragging) return;
+        const dx = e.clientX - last.x;
+        const dy = e.clientY - last.y;
+        last.x = e.clientX;
+        last.y = e.clientY;
+
+        if(mode === 'rotate'){
+            camera.rotY += dx * 0.008;
+            camera.rotX += dy * 0.006;
+            camera.rotX = clamp(camera.rotX, rad(-65), rad(65));
+        }else{
+            camera.panX += dx;
+            camera.panY += dy;
+        }
+    });
+
+    canvas.addEventListener('pointerup', ()=>{
+        dragging = false;
+        canvas.classList.remove('dragging');
+    });
+
+    canvas.addEventListener('pointercancel', ()=>{
+        dragging = false;
+        canvas.classList.remove('dragging');
+    });
+
+    canvas.addEventListener('wheel', e=>{
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? 1.08 : 0.92;
+        camera.zoom = clamp(camera.zoom * factor, 0.55, 2.8);
+    }, {passive:false});
+
+    ui.zoomIn.addEventListener('click', ()=> camera.zoom = clamp(camera.zoom*1.1, 0.55, 2.8));
+    ui.zoomOut.addEventListener('click', ()=> camera.zoom = clamp(camera.zoom*0.9, 0.55, 2.8));
+    ui.centerBtn.addEventListener('click', resetView);
+    ui.resetView.addEventListener('click', resetView);
+
+    ui.togglePlay.addEventListener('click', ()=>{
+        anim.playing = !anim.playing;
+        ui.togglePlay.textContent = anim.playing ? 'Пауза' : 'Пуск';
+    });
+
+    ui.setMinOmega.addEventListener('click', ()=>{
+        const P = computePhysics();
+        if(Number.isFinite(P.omegaMin)){
+            ui.omega.value = String(clamp(P.omegaMin, Number(ui.omega.min), Number(ui.omega.max)));
+        }
+    });
+
+    [
+        ui.R, ui.mu, ui.alpha, ui.omega, ui.spin, ui.tilt,
+        ui.showGravity, ui.showNormal, ui.showCentrifugal, ui.showFriction,
+        ui.showTangent, ui.showSection, ui.showMeridians, ui.showLabels,
+        ui.showFormulas, ui.animateSphere
+    ].forEach(el=>{
+        el.addEventListener('input', ()=>{
+            if(el === ui.tilt){
+                camera.rotX = rad(Number(ui.tilt.value));
+            }
+        });
+    });
+
+    // =========================
+    // АНИМАЦИЯ
+    // =========================
+
+    let lastTime = performance.now();
+
+    function frame(now){
+        const dt = Math.min(0.05, (now - lastTime)/1000);
+        lastTime = now;
+
+        if(anim.playing && ui.animateSphere.checked){
+            anim.spinPhase += dt * Number(ui.spin.value) * 0.9;
+        }
+
+        const P = computePhysics();
+        updateUI(P);
+        drawScene(P);
+
+        requestAnimationFrame(frame);
+    }
+
+    requestAnimationFrame(frame);
+</script>
+</body>
+</html>
