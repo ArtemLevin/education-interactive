@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — Параллелепипед, куб и призма</title>
+    <style>
+        :root{
+            --bg:#0b1020;
+            --bg2:#111831;
+            --panel:#151d39;
+            --panel2:#1a2446;
+            --text:#edf2ff;
+            --muted:#aab7d8;
+            --accent:#71e5d1;
+            --accent2:#8ab4ff;
+            --danger:#ff8f8f;
+            --warn:#ffd580;
+            --ok:#9ef0a8;
+            --line:rgba(255,255,255,.09);
+            --shadow:0 16px 40px rgba(0,0,0,.35);
+            --radius:22px;
+            --stepGlow:0 0 0 1px rgba(113,229,209,.35), 0 8px 30px rgba(113,229,209,.08);
+            --heroGrad:radial-gradient(circle at 20% 20%, rgba(113,229,209,.18), transparent 35%), radial-gradient(circle at 80% 0%, rgba(138,180,255,.18), transparent 32%), linear-gradient(180deg, #121935 0%, #0b1020 100%);
+        }
+
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;scroll-behavior:smooth}
+        body{min-height:100vh}
+        button,input,select{font:inherit}
+        .app{max-width:1500px;margin:0 auto;padding:18px}
+        .hero{
+            background:var(--heroGrad);
+            border:1px solid var(--line);
+            border-radius:30px;
+            padding:28px;
+            box-shadow:var(--shadow);
+            position:relative;
+            overflow:hidden;
+        }
+        .hero::after{
+            content:"";
+            position:absolute;inset:auto -120px -120px auto;width:320px;height:320px;border-radius:50%;
+            background:radial-gradient(circle, rgba(113,229,209,.18), transparent 65%);
+            pointer-events:none;
+        }
+        .eyebrow{display:inline-flex;gap:10px;align-items:center;padding:8px 12px;border:1px solid var(--line);border-radius:999px;color:var(--accent);background:rgba(255,255,255,.03);font-size:14px}
+        h1{font-size:clamp(32px,5vw,58px);line-height:1.02;margin:14px 0 10px}
+        .subtitle{max-width:980px;font-size:18px;line-height:1.55;color:var(--muted)}
+        .hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:start;margin-top:22px}
+        .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+        .card{
+            background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+            border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)
+        }
+        .card h3,.panel h3{margin:0 0 10px;font-size:18px}
+        .tiny{font-size:13px;color:var(--muted)}
+        .row{display:flex;gap:12px;flex-wrap:wrap}
+        .pill{padding:8px 11px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:14px;color:var(--muted)}
+        .toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+        .btn{
+            appearance:none;border:none;border-radius:16px;padding:11px 14px;cursor:pointer;
+            background:linear-gradient(180deg, var(--accent), #4dcbb5);color:#071018;font-weight:700;
+            box-shadow:0 8px 20px rgba(113,229,209,.25);
+            transition:transform .18s ease, filter .18s ease;
+        }
+        .btn:hover{transform:translateY(-1px);filter:brightness(1.02)}
+        .btn.secondary{background:#202b54;color:var(--text);box-shadow:none;border:1px solid var(--line)}
+        .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(113,229,209,.35);box-shadow:none}
+
+        .controls{margin:18px 0 0;padding:14px 16px;border-radius:20px;border:1px solid var(--line);background:rgba(255,255,255,.025);display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+        .controls label{font-size:14px;color:var(--muted);display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.03);padding:8px 10px;border-radius:14px;border:1px solid var(--line)}
+        .controls select,.controls input[type="range"]{accent-color:var(--accent)}
+
+        .layout{display:grid;grid-template-columns:minmax(0, 1.1fr) minmax(380px, .9fr);gap:18px;margin-top:18px;align-items:start}
+        .left-col{display:flex;flex-direction:column;gap:18px}
+        .right-col{position:sticky;top:16px;align-self:start}
+        .panel{background:var(--panel);border:1px solid var(--line);border-radius:26px;padding:20px;box-shadow:var(--shadow)}
+        .section-title{font-size:28px;margin:0 0 6px}
+        .section-sub{color:var(--muted);margin:0 0 18px}
+        .idea{border-left:4px solid var(--accent);padding:14px 16px;background:rgba(113,229,209,.06);border-radius:14px}
+        .grid-2{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:14px}
+
+        .step-list{display:flex;flex-direction:column;gap:12px}
+        .step{
+            border:1px solid var(--line);border-radius:18px;padding:14px;background:rgba(255,255,255,.02);
+            transition:background .18s ease, transform .18s ease, box-shadow .18s ease;
+        }
+        .step:hover{transform:translateY(-1px)}
+        .step.active{background:rgba(113,229,209,.08);box-shadow:var(--stepGlow);border-color:rgba(113,229,209,.3)}
+        .step-head{display:flex;justify-content:space-between;gap:10px;align-items:center;cursor:pointer}
+        .step-num{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#22315e;color:var(--accent);font-weight:800}
+        .step-title{display:flex;gap:12px;align-items:center;font-weight:700}
+        .step-body{max-height:0;overflow:hidden;transition:max-height .25s ease;margin-top:0}
+        .step.open .step-body{max-height:800px;margin-top:12px}
+        .math{font-family:Cambria, "Times New Roman", serif;font-size:1.07em;background:rgba(255,255,255,.035);padding:3px 7px;border-radius:10px;border:1px solid var(--line);display:inline-block}
+        .formula-block{padding:14px;border-radius:18px;background:rgba(138,180,255,.08);border:1px solid rgba(138,180,255,.2);font-family:Cambria, "Times New Roman", serif;font-size:21px;line-height:1.6;overflow:auto}
+        .note{color:var(--muted);font-size:15px;line-height:1.55}
+        .warn{color:var(--warn)}
+        .ok{color:var(--ok)}
+        .danger{color:var(--danger)}
+        ul.clean{margin:10px 0 0;padding-left:20px;line-height:1.7}
+
+        .visual-wrap{display:flex;flex-direction:column;gap:12px}
+        .visual-top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+        .badge{padding:7px 10px;border-radius:999px;background:rgba(113,229,209,.08);color:var(--accent);border:1px solid rgba(113,229,209,.22);font-size:13px}
+        .canvas-shell{position:relative;border-radius:24px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(180deg, #0c1228, #0d1530)}
+        canvas{display:block;width:100%;height:auto;cursor:grab}
+        canvas:active{cursor:grabbing}
+        .legend{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:10px}
+        .legend .item{padding:11px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line);font-size:14px;color:var(--muted)}
+        .legend b{color:var(--text)}
+        .viz-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+        .zoom-box{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.03);border:1px solid var(--line);padding:8px 10px;border-radius:14px}
+        .status{padding:13px 14px;border-radius:16px;background:rgba(138,180,255,.08);border:1px solid rgba(138,180,255,.22);color:#dce8ff;font-size:14px;line-height:1.5}
+        .hint{position:relative;padding:12px 14px;border-radius:14px;background:rgba(255,213,128,.08);border:1px solid rgba(255,213,128,.25);font-size:14px;color:#ffefc7;animation:hintPulse 2.1s infinite}
+        @keyframes hintPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,213,128,.0)}50%{box-shadow:0 0 0 8px rgba(255,213,128,.03)}}
+
+        .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+        .tab{padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);cursor:pointer;color:var(--muted);font-weight:600}
+        .tab.active{background:rgba(113,229,209,.08);color:var(--text);border-color:rgba(113,229,209,.25)}
+        .tabpanel{display:none}
+        .tabpanel.active{display:block}
+
+        .qa{display:grid;gap:12px}
+        .quiz-q{padding:14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.02)}
+        .quiz-q button{margin:6px 6px 0 0}
+        .answer{font-size:14px;margin-top:8px;color:var(--muted)}
+
+        .exercise{padding:14px;border-radius:16px;background:rgba(255,255,255,.02);border:1px solid var(--line);margin-bottom:12px}
+        .exercise h4{margin:0 0 8px}
+        .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+        .print-sheet{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+        .overlay{position:fixed;inset:0;background:rgba(5,8,18,.78);display:none;align-items:center;justify-content:center;padding:20px;z-index:40}
+        .overlay.open{display:flex}
+        .modal{width:min(1180px,100%);background:#0d1430;border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);padding:18px;position:relative}
+        .modal-close{position:absolute;right:14px;top:14px;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#19234a;color:var(--text);cursor:pointer}
+        .modal canvas{max-height:74vh}
+
+        .footer{margin:22px 0 40px;padding:22px;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.02);color:var(--muted)}
+
+        @media (max-width: 1080px){
+            .hero-grid,.layout,.grid-2,.print-sheet{grid-template-columns:1fr}
+            .right-col{position:relative;top:auto}
+        }
+        @media (max-width: 700px){
+            .app{padding:10px}
+            .hero,.panel{padding:16px}
+            .legend{grid-template-columns:1fr}
+            .controls{padding:10px}
+            .step-title{font-size:15px}
+            h1{font-size:34px}
+        }
+
+        @media print{
+            body{background:white;color:black}
+            .hero,.panel,.footer,.card{box-shadow:none;background:white;color:black}
+            .right-col{position:static}
+            .controls,.toolbar,.viz-controls,.overlay,.hint,.tiny,.quiz-controls{display:none !important}
+            .layout{grid-template-columns:1fr}
+            .canvas-shell{border:1px solid #bbb}
+            .formula-block,.idea,.status,.exercise,.quiz-q,.step{background:#fff !important;color:#000 !important;border-color:#ccc !important}
+            .badge,.pill{color:#000;border-color:#ccc;background:#fff}
+            .step-body{max-height:none !important;margin-top:12px}
+            .tabpanel{display:block !important}
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <section class="hero">
+        <div class="eyebrow">Наглядная математика • Стереометрия • ЕГЭ</div>
+        <h1>Параллелепипед, куб и призма</h1>
+        <p class="subtitle">
+            Большой интерактивный разбор по мотивам пособия: что такое объём и площадь поверхности,
+            как не путать диагонали, как переводить текст задачи в формулы и как быстро добираться до ответа
+            через опорные конструкции <span class="math">S<sub>осн</sub> · h</span>, <span class="math">2(ab+ac+bc)</span>,
+            <span class="math">d² = a²+b²+c²</span> и <span class="math">S<sub>бок</sub> = P<sub>осн</sub> · h</span>.
+        </p>
+        <div class="hero-grid">
+            <div class="card">
+                <h3>Что Вы здесь получите</h3>
+                <div class="row">
+                    <span class="pill">пошаговый алгоритм</span>
+                    <span class="pill">связка текст ↔ рисунок</span>
+                    <span class="pill">генератор похожих задач</span>
+                    <span class="pill">мини-квиз</span>
+                    <span class="pill">самопроверка</span>
+                    <span class="pill">печать-конспект</span>
+                </div>
+                <div class="toolbar">
+                    <button class="btn" onclick="scrollToId('workshop')">Перейти к разбору</button>
+                    <button class="btn secondary" onclick="scrollToId('generator')">Сгенерировать задачу</button>
+                    <button class="btn ghost" onclick="window.print()">Печать</button>
+                </div>
+            </div>
+            <div class="stat-grid">
+                <div class="card"><h3>Главная идея</h3><div class="formula-block">V = S<sub>осн</sub> · h</div></div>
+                <div class="card"><h3>Куб</h3><div class="formula-block">V = a³<br>S = 6a²</div></div>
+                <div class="card"><h3>Параллелепипед</h3><div class="formula-block">S = 2(ab+ac+bc)</div></div>
+                <div class="card"><h3>Диагональ</h3><div class="formula-block">d² = a²+b²+c²</div></div>
+            </div>
+        </div>
+        <div class="controls">
+            <label>Режим фигуры
+                <select id="shapeSelect">
+                    <option value="parallelepiped">Прямоугольный параллелепипед</option>
+                    <option value="cube">Куб</option>
+                    <option value="prismTri">Правильная треугольная призма</option>
+                    <option value="prismRhombus">Призма с ромбом в основании</option>
+                </select>
+            </label>
+            <label>Уровень подробности
+                <select id="detailSelect">
+                    <option value="full">Максимальный</option>
+                    <option value="mid">Средний</option>
+                    <option value="brief">Краткий</option>
+                </select>
+            </label>
+            <label>Подсветка шага
+                <select id="focusSelect">
+                    <option value="volume">Объём</option>
+                    <option value="surface">Площадь поверхности</option>
+                    <option value="diagonal">Диагонали</option>
+                    <option value="all">Всё сразу</option>
+                </select>
+            </label>
+            <label>Масштаб рисунка <input id="zoomSlider" type="range" min="0.7" max="1.8" step="0.01" value="1"></label>
+        </div>
+    </section>
+
+    <main id="workshop" class="layout">
+        <div class="left-col">
+            <section class="panel">
+                <h2 class="section-title">Идея решения</h2>
+                <p class="section-sub">Сначала не вычисления, а смысл: что дано, что нужно найти, какая формульная величина управляет задачей.</p>
+                <div class="idea">
+                    В большинстве базовых задач по стереометрии путь один и тот же: <b>заметить формулу ответа</b>,
+                    понять, <b>какой величины не хватает</b>, а затем дойти до неё через диагональ, площадь основания,
+                    периметр или теорему Пифагора. Не стартуйте с хаотичных вычислений — стартуйте с вопроса
+                    <span class="math">«от чего зависит ответ?»</span>.
+                </div>
+                <div class="grid-2" style="margin-top:14px">
+                    <div class="card">
+                        <h3>Схема разбора</h3>
+                        <ul class="clean">
+                            <li>Что дано?</li>
+                            <li>Что нужно найти?</li>
+                            <li>Какая формула отвечает за искомое?</li>
+                            <li>Чего в ней не хватает?</li>
+                            <li>Где эта недостающая величина вычисляется?</li>
+                            <li>Проверка ответа на смысл.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Частая ловушка</h3>
+                        <p class="note">Не путайте <b>пространственную диагональ</b> и <b>диагональ грани</b>. Для куба это разные формулы:</p>
+                        <div class="formula-block">d<sub>грани</sub>² = 2a²<br>d<sub>куба</sub>² = 3a²</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="tabs" id="mainTabs">
+                    <button class="tab active" data-tab="tab-terms">Разбор</button>
+                    <button class="tab" data-tab="tab-mistakes">Ошибки</button>
+                    <button class="tab" data-tab="tab-check">Самопроверка</button>
+                    <button class="tab" data-tab="tab-quiz">Квиз</button>
+                    <button class="tab" data-tab="tab-memo">Памятка</button>
+                </div>
+
+                <div class="tabpanel active" id="tab-terms">
+                    <h2 class="section-title">Пошаговый разбор темы</h2>
+                    <p class="section-sub">Каждый шаг связан с подсветкой на рисунке справа. Нажимайте на шаги и сравнивайте текст с моделью.</p>
+                    <div class="row" style="margin-bottom:10px">
+                        <button class="btn secondary" onclick="openAllSteps()">Открыть всё</button>
+                        <button class="btn secondary" onclick="closeAllSteps()">Свернуть всё</button>
+                    </div>
+                    <div class="step-list" id="stepList">
+                        <article class="step open active" data-step="given">
+                            <div class="step-head" onclick="toggleStep(this.parentElement, 'given')">
+                                <div class="step-title"><div class="step-num">1</div><span>Что дано: фигура, основание, высота, рёбра</span></div>
+                                <div class="tiny">смысл условий</div>
+                            </div>
+                            <div class="step-body">
+                                <p>Для прямоугольного параллелепипеда обычно есть три ребра <span class="math">a, b, c</span>, выходящие из одной вершины. Для куба все они равны. Для призмы нужно отдельно распознать: <b>что лежит в основании</b> и <b>чему равна высота</b>.</p>
+                                <div class="formula-block">Прямая призма: боковое ребро = высота</div>
+                                <p class="note">В задачах ЕГЭ формулировка часто специально проверяет понимание этих ролей. Например, «найдите площадь грани, перпендикулярной этому ребру» — значит, это ребро играет роль высоты в формуле объёма.</p>
+                            </div>
+                        </article>
+
+                        <article class="step" data-step="volume">
+                            <div class="step-head" onclick="toggleStep(this.parentElement, 'volume')">
+                                <div class="step-title"><div class="step-num">2</div><span>Объём: от основания к высоте</span></div>
+                                <div class="tiny">главная формула</div>
+                            </div>
+                            <div class="step-body">
+                                <div class="formula-block">V = S<sub>осн</sub> · h</div>
+                                <p>Это главная универсальная формула. Для параллелепипеда получается <span class="math">V = abc</span>, потому что можно взять в основание прямоугольник со сторонами <span class="math">a</span> и <span class="math">b</span>, а высотой будет <span class="math">c</span>.</p>
+                                <div class="formula-block">S<sub>осн</sub> = ab &nbsp;⇒&nbsp; V = ab · c = abc</div>
+                                <p class="note">Если дан объём и одно ребро, то площадь перпендикулярной ему грани ищется так: <span class="math">S = V / h</span>.</p>
+                            </div>
+                        </article>
+
+                        <article class="step" data-step="surface">
+                            <div class="step-head" onclick="toggleStep(this.parentElement, 'surface')">
+                                <div class="step-title"><div class="step-num">3</div><span>Площадь поверхности: всё, к чему можно «дотянуться рукой»</span></div>
+                                <div class="tiny">все грани</div>
+                            </div>
+                            <div class="step-body">
+                                <p>Площадь полной поверхности — это сумма площадей всех граней фигуры.</p>
+                                <div class="formula-block">Для параллелепипеда: S = 2(ab + ac + bc)</div>
+                                <div class="formula-block">Для куба: S = 6a²</div>
+                                <div class="formula-block">Для прямой призмы: S = 2S<sub>осн</sub> + P<sub>осн</sub> · h</div>
+                                <p class="note">В призме особенно важно не забыть, что боковая поверхность считается через <b>периметр основания</b>, а не через площадь основания.</p>
+                            </div>
+                        </article>
+
+                        <article class="step" data-step="diagonal">
+                            <div class="step-head" onclick="toggleStep(this.parentElement, 'diagonal')">
+                                <div class="step-title"><div class="step-num">4</div><span>Диагонали: где Пифагор работает в пространстве</span></div>
+                                <div class="tiny">главная ловушка темы</div>
+                            </div>
+                            <div class="step-body">
+                                <div class="formula-block">d² = a² + b² + c²</div>
+                                <p>Это формула пространственной диагонали прямоугольного параллелепипеда. Она получается в два шага: сначала диагональ основания, потом ещё раз Пифагор уже в пространстве.</p>
+                                <div class="formula-block">d<sub>осн</sub>² = a² + b², &nbsp;&nbsp; d² = d<sub>осн</sub>² + c²</div>
+                                <p>Для куба отсюда сразу следует:</p>
+                                <div class="formula-block">d<sub>куба</sub>² = 3a², &nbsp;&nbsp; d<sub>грани</sub>² = 2a²</div>
+                                <p class="note warn">Если задача просит площадь поверхности куба, а дана диагональ, часто достаточно найти <span class="math">a²</span>, а не само <span class="math">a</span>.</p>
+                            </div>
+                        </article>
+
+                        <article class="step" data-step="prism">
+                            <div class="step-head" onclick="toggleStep(this.parentElement, 'prism')">
+                                <div class="step-title"><div class="step-num">5</div><span>Призма: сначала распознать основание</span></div>
+                                <div class="tiny">связка со знакомыми площадями</div>
+                            </div>
+                            <div class="step-body">
+                                <p>В задачах на призмы почти всё сводится к площадям знакомых плоских фигур:</p>
+                                <ul class="clean">
+                                    <li>равносторонний треугольник: <span class="math">S = (√3/4)a²</span>;</li>
+                                    <li>прямоугольный треугольник: <span class="math">S = ab/2</span>;</li>
+                                    <li>ромб: <span class="math">S = d₁d₂/2</span>;</li>
+                                    <li>правильный шестиугольник: <span class="math">S = (3√3/2)a²</span>.</li>
+                                </ul>
+                                <p>Дальше остаётся подставить площадь основания и высоту в формулу объёма или площади поверхности.</p>
+                            </div>
+                        </article>
+
+                        <article class="step" data-step="algorithm">
+                            <div class="step-head" onclick="toggleStep(this.parentElement, 'algorithm')">
+                                <div class="step-title"><div class="step-num">6</div><span>Универсальный алгоритм решения задачи</span></div>
+                                <div class="tiny">что делать на экзамене</div>
+                            </div>
+                            <div class="step-body">
+                                <ol class="clean">
+                                    <li>Запишите, что нужно найти.</li>
+                                    <li>Сразу выпишите формулу именно для этой величины.</li>
+                                    <li>Отметьте неизвестную часть формулы.</li>
+                                    <li>Найдите, в какой другой формуле она появляется.</li>
+                                    <li>Дойдите до чисел через Пифагора, площадь основания или периметр.</li>
+                                    <li>Подставьте и обязательно проверьте здравый смысл ответа.</li>
+                                </ol>
+                                <p class="note ok">Именно этот алгоритм проходил через всё пособие: не начинать с вычислений вслепую, а раскручивать зависимости между формульными величинами.</p>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="tabpanel" id="tab-mistakes">
+                    <h2 class="section-title">Типичные ошибки</h2>
+                    <div class="grid-2">
+                        <div class="exercise">
+                            <h4>Ошибка 1. Перепутали диагонали</h4>
+                            <p>Для куба по диагонали грани записали <span class="math">3a²</span> вместо <span class="math">2a²</span>.</p>
+                            <p class="answer">Верно: <span class="math">d² = 2a²</span> только для диагонали квадрата-граня. Пространственная диагональ даёт <span class="math">3a²</span>.</p>
+                        </div>
+                        <div class="exercise">
+                            <h4>Ошибка 2. Неверная высота</h4>
+                            <p>В объёме взяли ребро, которое не перпендикулярно выбранному основанию.</p>
+                            <p class="answer">Высота всегда перпендикулярна основанию. Основание можно менять, но вместе с ним меняется и высота.</p>
+                        </div>
+                        <div class="exercise">
+                            <h4>Ошибка 3. Для призмы забыли периметр</h4>
+                            <p>Вместо <span class="math">P<sub>осн</sub>·h</span> для боковой поверхности использовали <span class="math">S<sub>осн</sub>·h</span>.</p>
+                            <p class="answer">Это разные формулы: объём через площадь основания, боковая поверхность прямой призмы — через периметр основания.</p>
+                        </div>
+                        <div class="exercise">
+                            <h4>Ошибка 4. Ищут a, хотя нужен a²</h4>
+                            <p>Например, при вопросе о площади поверхности куба.</p>
+                            <p class="answer">Если ответ зависит от <span class="math">a²</span>, можно остановиться на нём и не тащить лишний корень.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tabpanel" id="tab-check">
+                    <h2 class="section-title">Самопроверка</h2>
+                    <div class="qa">
+                        <div class="exercise"><b>1.</b> Могу ли я объяснить, почему <span class="math">V = abc</span> — это частный случай формулы <span class="math">S<sub>осн</sub>·h</span>?</div>
+                        <div class="exercise"><b>2.</b> Отличаю ли я диагональ грани от пространственной диагонали без подсказки?</div>
+                        <div class="exercise"><b>3.</b> Умею ли я быстро находить боковую поверхность прямой призмы через периметр основания?</div>
+                        <div class="exercise"><b>4.</b> Помню ли я хотя бы три площади оснований: прямоугольник, равносторонний треугольник, ромб?</div>
+                        <div class="exercise"><b>5.</b> Умею ли я из текста «объём увеличился на 19 при увеличении ребра на 1» составить уравнение?</div>
+                    </div>
+                </div>
+
+                <div class="tabpanel" id="tab-quiz">
+                    <h2 class="section-title">Мини-квиз</h2>
+                    <div class="qa" id="quizBox"></div>
+                </div>
+
+                <div class="tabpanel" id="tab-memo">
+                    <h2 class="section-title">Короткая памятка</h2>
+                    <div class="print-sheet">
+                        <div class="exercise">
+                            <h4>Параллелепипед</h4>
+                            <div class="formula-block">V = abc<br>S = 2(ab+ac+bc)<br>d² = a²+b²+c²</div>
+                        </div>
+                        <div class="exercise">
+                            <h4>Куб</h4>
+                            <div class="formula-block">V = a³<br>S = 6a²<br>d<sub>грани</sub>² = 2a²<br>d<sub>куба</sub>² = 3a²</div>
+                        </div>
+                        <div class="exercise">
+                            <h4>Прямая призма</h4>
+                            <div class="formula-block">V = S<sub>осн</sub>·h<br>S = 2S<sub>осн</sub> + P<sub>осн</sub>·h</div>
+                        </div>
+                        <div class="exercise">
+                            <h4>Площади оснований</h4>
+                            <div class="formula-block">Равносторонний треугольник: (√3/4)a²<br>Ромб: d₁d₂/2<br>Прямоугольный треугольник: ab/2</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel" id="generator">
+                <h2 class="section-title">Генератор похожих задач</h2>
+                <p class="section-sub">Параметры подбираются так, чтобы задачи были корректными и решаемыми без вырожденных случаев.</p>
+                <div class="controls" style="margin-top:0">
+                    <label>Тип задачи
+                        <select id="genType">
+                            <option value="faceAreaFromVolume">Объём + ребро → площадь грани</option>
+                            <option value="volumeFromDiagonal">2 ребра + диагональ → объём</option>
+                            <option value="cubeFromFaceDiagonal">Диагональ грани куба → объём</option>
+                            <option value="cubeSurfaceFromSpaceDiagonal">Диагональ куба → площадь поверхности</option>
+                            <option value="prismEquiVolume">Правильная треугольная призма → объём</option>
+                            <option value="rhombusPrismSurface">Призма с ромбом → площадь поверхности</option>
+                        </select>
+                    </label>
+                    <button class="btn" onclick="generateTask()">Сгенерировать</button>
+                    <button class="btn secondary" onclick="generateTask(true)">С новой визуализацией</button>
+                </div>
+                <div class="exercise" id="generatedTask"></div>
+            </section>
+        </div>
+
+        <aside class="right-col">
+            <section class="panel visual-wrap">
+                <div class="visual-top">
+                    <div>
+                        <h2 class="section-title" style="margin-bottom:4px">Интерактивная модель</h2>
+                        <div class="section-sub" style="margin:0">Клик по рисунку открывает увеличенный режим. Можно тянуть, вращать и приближать.</div>
+                    </div>
+                    <div class="badge" id="activeShapeLabel">Прямоугольный параллелепипед</div>
+                </div>
+
+                <div class="viz-controls">
+                    <button class="btn secondary" onclick="zoomBy(1.12)">+</button>
+                    <button class="btn secondary" onclick="zoomBy(0.9)">−</button>
+                    <button class="btn secondary" onclick="resetView()">Сброс вида</button>
+                    <button class="btn ghost" onclick="openModal()">Увеличить</button>
+                </div>
+
+                <div class="canvas-shell">
+                    <canvas id="mainCanvas" width="760" height="560" aria-label="Интерактивная стереометрическая модель"></canvas>
+                </div>
+
+                <div class="status" id="statusBox">Сейчас подсвечена идея объёма: основание и высота. Переключайте режимы сверху и следите, как меняется модель.</div>
+                <div class="hint" id="hintBox">Подсказка: начните не с вычислений, а с формулы ответа. На рисунке справа это сразу показывает, какие элементы важны.</div>
+
+                <div class="legend">
+                    <div class="item"><b>Бирюзовые рёбра</b><br>активные размеры и высота</div>
+                    <div class="item"><b>Голубая диагональ</b><br>пространственная или диагональ грани</div>
+                    <div class="item"><b>Полупрозрачная грань</b><br>основание или рабочая грань</div>
+                    <div class="item"><b>Пунктир</b><br>скрытые или вспомогательные линии</div>
+                </div>
+            </section>
+        </aside>
+    </main>
+
+    <footer class="footer">
+        <b style="color:var(--accent)">Итог.</b> Здесь важно не количество формул, а ясная навигация между ними:
+        <span class="math">что ищем → какая формула → чего не хватает → где это добрать</span>.
+        Как только эта цепочка становится привычной, базовая стереометрия резко упрощается.
+    </footer>
+</div>
+
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <h3 style="margin:4px 0 12px">Увеличенная визуализация</h3>
+        <canvas id="modalCanvas" width="1100" height="700"></canvas>
+    </div>
+</div>
+
+<script>
+    const state = {
+        shape: 'parallelepiped',
+        detail: 'full',
+        focus: 'volume',
+        activeStep: 'given',
+        zoom: 1,
+        rotX: -0.42,
+        rotY: 0.62,
+        panX: 0,
+        panY: 0,
+        drag: false,
+        lastX: 0,
+        lastY: 0,
+        showModal: false,
+        quiz: [],
+        generated: null,
+        labels: true,
+        highlightFace: true,
+        showDiagonal: true,
+        showDashed: true
+    };
+
+    const mainCanvas = document.getElementById('mainCanvas');
+    const mainCtx = mainCanvas.getContext('2d');
+    const modalCanvas = document.getElementById('modalCanvas');
+    const modalCtx = modalCanvas.getContext('2d');
+    const overlay = document.getElementById('overlay');
+
+    const shapeSelect = document.getElementById('shapeSelect');
+    const detailSelect = document.getElementById('detailSelect');
+    const focusSelect = document.getElementById('focusSelect');
+    const zoomSlider = document.getElementById('zoomSlider');
+    const activeShapeLabel = document.getElementById('activeShapeLabel');
+    const statusBox = document.getElementById('statusBox');
+    const hintBox = document.getElementById('hintBox');
+
+    shapeSelect.addEventListener('change', e => { state.shape = e.target.value; syncFocusByShape(); renderAll(); });
+    detailSelect.addEventListener('change', e => { state.detail = e.target.value; updateDetail(); renderAll(); });
+    focusSelect.addEventListener('change', e => { state.focus = e.target.value; updateStatus(); renderAll(); });
+    zoomSlider.addEventListener('input', e => { state.zoom = +e.target.value; renderAll(); });
+
+    function scrollToId(id){ document.getElementById(id)?.scrollIntoView({behavior:'smooth', block:'start'}); }
+    function syncFocusByShape(){
+        activeShapeLabel.textContent = {
+            parallelepiped:'Прямоугольный параллелепипед',
+            cube:'Куб',
+            prismTri:'Правильная треугольная призма',
+            prismRhombus:'Призма с ромбом в основании'
+        }[state.shape];
+        updateStatus();
+    }
+
+    function updateDetail(){
+        const bodies = document.querySelectorAll('.step-body');
+        bodies.forEach(body=>{
+            body.style.fontSize = state.detail === 'brief' ? '14px' : state.detail === 'mid' ? '15px' : '16px';
+        });
+        hintBox.style.display = state.detail === 'brief' ? 'none' : 'block';
+    }
+
+    function updateStatus(){
+        const map = {
+            volume:'Сейчас подсвечена идея объёма: основание и высота. Это ключ к формуле V = Sосн · h.',
+            surface:'Сейчас подсвечены рабочие грани. Смотрите, какие площади складываются в полной поверхности.',
+            diagonal:'Сейчас выделена диагональ. Сравните её с диагональю грани и не перепутайте формулы.',
+            all:'Показаны сразу объём, грани и диагонали. Это удобно для общего повторения.'
+        };
+        statusBox.textContent = map[state.focus] || map.volume;
+    }
+
+    function toggleStep(el, key){
+        el.classList.toggle('open');
+        document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+        el.classList.add('active');
+        state.activeStep = key;
+        const focusMap = {given:'all',volume:'volume',surface:'surface',diagonal:'diagonal',prism:'surface',algorithm:'all'};
+        state.focus = focusMap[key] || 'all';
+        focusSelect.value = state.focus;
+        updateStatus();
+        renderAll();
+    }
+    function openAllSteps(){ document.querySelectorAll('.step').forEach(s=>s.classList.add('open')); }
+    function closeAllSteps(){ document.querySelectorAll('.step').forEach(s=>s.classList.remove('open')); }
+
+    document.querySelectorAll('.tab').forEach(tab=>{
+        tab.addEventListener('click', ()=>{
+            document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+            document.querySelectorAll('.tabpanel').forEach(p=>p.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.tab).classList.add('active');
+        });
+    });
+
+    function projectPoint([x,y,z], cfg){
+        let {rotX, rotY, zoom, panX, panY, cx, cy, scale} = cfg;
+        let cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+        let x1 = x*cosY + z*sinY;
+        let z1 = -x*sinY + z*cosY;
+        let cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+        let y1 = y*cosX - z1*sinX;
+        let z2 = y*sinX + z1*cosX;
+        const persp = 1 / (1 + z2/900);
+        return [cx + x1 * scale * zoom * persp + panX, cy - y1 * scale * zoom * persp + panY, z2];
+    }
+
+    function shapeModel(){
+        if(state.shape === 'cube'){
+            return boxModel(170,170,170, ['a','a','a']);
+        }
+        if(state.shape === 'prismTri'){
+            return triangularPrismModel(210, 180);
+        }
+        if(state.shape === 'prismRhombus'){
+            return rhombusPrismModel(220, 140, 220);
+        }
+        return boxModel(220,140,180, ['a','b','c']);
+    }
+
+    function boxModel(w,h,d, labels=['a','b','c']){
+        const pts = [
+            [-w/2,-h/2,-d/2],[w/2,-h/2,-d/2],[w/2,h/2,-d/2],[-w/2,h/2,-d/2],
+            [-w/2,-h/2,d/2],[w/2,-h/2,d/2],[w/2,h/2,d/2],[-w/2,h/2,d/2]
+        ];
+        const edges = [[0,1,'a'],[1,2,'c'],[2,3,'a'],[3,0,'c'],[4,5,'a'],[5,6,'c'],[6,7,'a'],[7,4,'c'],[0,4,'b'],[1,5,'b'],[2,6,'b'],[3,7,'b']];
+        const faces = [[0,1,2,3,'back'],[4,5,6,7,'front'],[0,1,5,4,'bottom'],[3,2,6,7,'top'],[0,3,7,4,'left'],[1,2,6,5,'right']];
+        return {type:'box', pts, edges, faces, labels};
+    }
+
+    function triangularPrismModel(side, height){
+        const triH = side * Math.sqrt(3)/2;
+        const A = [-side/2, triH/3, -height/2];
+        const B = [ side/2, triH/3, -height/2];
+        const C = [0, -2*triH/3, -height/2];
+        const A2 = [-side/2, triH/3, height/2];
+        const B2 = [ side/2, triH/3, height/2];
+        const C2 = [0, -2*triH/3, height/2];
+        return {
+            type:'triPrism',
+            pts:[A,B,C,A2,B2,C2],
+            edges:[[0,1,'a'],[1,2,'a'],[2,0,'a'],[3,4,'a'],[4,5,'a'],[5,3,'a'],[0,3,'h'],[1,4,'h'],[2,5,'h']],
+            faces:[[0,1,2,'base1'],[3,4,5,'base2'],[0,1,4,3,'r1'],[1,2,5,4,'r2'],[2,0,3,5,'r3']]
+        };
+    }
+
+    function rhombusPrismModel(d1,d2,h){
+        const A = [0, d2/2, -h/2], B = [d1/2,0,-h/2], C = [0,-d2/2,-h/2], D = [-d1/2,0,-h/2];
+        const A2 = [0, d2/2, h/2], B2=[d1/2,0,h/2], C2=[0,-d2/2,h/2], D2=[-d1/2,0,h/2];
+        return {
+            type:'rhombPrism',
+            pts:[A,B,C,D,A2,B2,C2,D2],
+            edges:[[0,1,'s'],[1,2,'s'],[2,3,'s'],[3,0,'s'],[4,5,'s'],[5,6,'s'],[6,7,'s'],[7,4,'s'],[0,4,'h'],[1,5,'h'],[2,6,'h'],[3,7,'h']],
+            faces:[[0,1,2,3,'base1'],[4,5,6,7,'base2'],[0,1,5,4,'r1'],[1,2,6,5,'r2'],[2,3,7,6,'r3'],[3,0,4,7,'r4']],
+            diagonals:[[0,2,'d2'],[1,3,'d1']]
+        };
+    }
+
+    function renderScene(ctx, canvas){
+        const cfg = {rotX:state.rotX, rotY:state.rotY, zoom:state.zoom*(canvas===modalCanvas?1.18:1), panX:state.panX*(canvas===modalCanvas?1.3:1), panY:state.panY*(canvas===modalCanvas?1.3:1), cx:canvas.width/2, cy:canvas.height/2+18, scale:1};
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        drawGrid(ctx, canvas);
+        const model = shapeModel();
+        const scale = Math.min(canvas.width, canvas.height) / 3.3;
+        cfg.scale = scale / 220;
+
+        const projected = model.pts.map(p=>projectPoint(p,cfg));
+
+        // sort faces by average depth
+        const faces = (model.faces||[]).map(face=>{
+            const idxs = face.slice(0,-1);
+            const name = face[face.length-1];
+            const avgZ = idxs.reduce((s,i)=>s+projected[i][2],0)/idxs.length;
+            return {idxs, name, avgZ};
+        }).sort((a,b)=>a.avgZ-b.avgZ);
+
+        for(const face of faces){
+            const isBase = /base|bottom/.test(face.name);
+            const highlightVolume = state.focus==='volume' && (isBase || state.shape==='parallelepiped' && /bottom/.test(face.name));
+            const highlightSurface = state.focus==='surface' && !/back/.test(face.name);
+            const fill = highlightVolume ? 'rgba(113,229,209,.16)' : highlightSurface ? 'rgba(138,180,255,.13)' : 'rgba(255,255,255,.04)';
+            const stroke = highlightVolume ? 'rgba(113,229,209,.65)' : highlightSurface ? 'rgba(138,180,255,.4)' : 'rgba(255,255,255,.10)';
+            pathPolygon(ctx, face.idxs.map(i=>projected[i]));
+            ctx.fillStyle = fill;
+            ctx.fill();
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+        }
+
+        // diagonals
+        if(state.focus==='diagonal' || state.focus==='all'){
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#8ab4ff';
+            if(model.type==='box'){
+                drawLine(ctx, projected[0], projected[6], false);
+                if(state.shape==='cube') drawLine(ctx, projected[0], projected[2], true);
+            } else if(model.type==='rhombPrism'){
+                for(const [a,b] of model.diagonals){ drawLine(ctx, projected[a], projected[b], true); }
+            }
+        }
+
+        // edges with visibility hint
+        for(const [a,b,label] of model.edges){
+            const hidden = (projected[a][2]+projected[b][2])<0;
+            const active = isActiveEdge(label);
+            ctx.lineWidth = active ? 3 : 2;
+            ctx.strokeStyle = active ? '#71e5d1' : hidden ? 'rgba(255,255,255,.28)' : 'rgba(255,255,255,.75)';
+            drawLine(ctx, projected[a], projected[b], hidden && state.showDashed);
+        }
+
+        // height arrow
+        if(state.focus==='volume' || state.focus==='all') drawHeightIndicator(ctx, projected, model);
+
+        // labels
+        if(state.labels) drawLabels(ctx, projected, model);
+    }
+
+    function isActiveEdge(label){
+        if(state.focus==='all') return true;
+        if(state.focus==='volume') return ['c','h','a','b'].includes(label);
+        if(state.focus==='surface') return ['a','b','c','h','s'].includes(label);
+        if(state.focus==='diagonal') return false;
+        return false;
+    }
+
+    function drawGrid(ctx, canvas){
+        const g = ctx.createLinearGradient(0,0,0,canvas.height);
+        g.addColorStop(0,'#101733'); g.addColorStop(1,'#0a1026');
+        ctx.fillStyle = g; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255,255,255,.05)';
+        ctx.lineWidth = 1;
+        for(let x=0;x<canvas.width;x+=40){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
+        for(let y=0;y<canvas.height;y+=40){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+        ctx.restore();
+    }
+
+    function pathPolygon(ctx, pts){
+        ctx.beginPath();
+        ctx.moveTo(pts[0][0], pts[0][1]);
+        for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0], pts[i][1]);
+        ctx.closePath();
+    }
+    function drawLine(ctx, p1, p2, dashed=false){
+        ctx.save();
+        ctx.setLineDash(dashed ? [8,8] : []);
+        ctx.beginPath(); ctx.moveTo(p1[0],p1[1]); ctx.lineTo(p2[0],p2[1]); ctx.stroke();
+        ctx.restore();
+    }
+    function mid(p1,p2){ return [(p1[0]+p2[0])/2, (p1[1]+p2[1])/2]; }
+    function drawLabel(ctx, p, text, color='#edf2ff'){
+        ctx.save();
+        ctx.font = 'bold 16px Inter, Arial';
+        const pad = 6;
+        const w = ctx.measureText(text).width + pad*2;
+        ctx.fillStyle = 'rgba(8,12,25,.75)';
+        roundRect(ctx,p[0]-w/2,p[1]-16,w,24,10,true,false);
+        ctx.strokeStyle = 'rgba(255,255,255,.12)';
+        roundRect(ctx,p[0]-w/2,p[1]-16,w,24,10,false,true);
+        ctx.fillStyle = color;
+        ctx.fillText(text,p[0]-w/2+pad,p[1]);
+        ctx.restore();
+    }
+    function roundRect(ctx,x,y,w,h,r,fill,stroke){
+        ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); if(fill)ctx.fill(); if(stroke)ctx.stroke();
+    }
+    function drawLabels(ctx, projected, model){
+        if(model.type==='box'){
+            drawLabel(ctx, mid(projected[0],projected[1]), state.shape==='cube'?'a':'a', '#71e5d1');
+            drawLabel(ctx, mid(projected[0],projected[4]), state.shape==='cube'?'a':'b', '#71e5d1');
+            drawLabel(ctx, mid(projected[1],projected[2]), state.shape==='cube'?'a':'c', '#71e5d1');
+            if(state.focus==='diagonal' || state.focus==='all') drawLabel(ctx, mid(projected[0],projected[6]), 'd', '#8ab4ff');
+        } else if(model.type==='triPrism'){
+            drawLabel(ctx, mid(projected[0],projected[1]), 'a', '#71e5d1');
+            drawLabel(ctx, mid(projected[0],projected[3]), 'h', '#71e5d1');
+        } else if(model.type==='rhombPrism'){
+            drawLabel(ctx, mid(projected[0],projected[1]), 's', '#71e5d1');
+            drawLabel(ctx, mid(projected[0],projected[4]), 'h', '#71e5d1');
+            if(state.focus==='diagonal' || state.focus==='all'){
+                drawLabel(ctx, mid(projected[1],projected[3]), 'd₁', '#8ab4ff');
+                drawLabel(ctx, mid(projected[0],projected[2]), 'd₂', '#8ab4ff');
+            }
+        }
+    }
+
+    function drawHeightIndicator(ctx, projected, model){
+        ctx.save();
+        ctx.strokeStyle = '#71e5d1'; ctx.fillStyle = '#71e5d1'; ctx.lineWidth = 2.5;
+        let a,b;
+        if(model.type==='box'){ a=projected[1]; b=projected[2]; }
+        else if(model.type==='triPrism'){ a=projected[1]; b=projected[4]; }
+        else { a=projected[1]; b=projected[5]; }
+        drawArrow(ctx, a[0]+18, a[1], b[0]+18, b[1]);
+        drawLabel(ctx, [(a[0]+b[0])/2+42, (a[1]+b[1])/2], 'высота', '#71e5d1');
+        ctx.restore();
+    }
+    function drawArrow(ctx,x1,y1,x2,y2){
+        const ang=Math.atan2(y2-y1,x2-x1), head=10;
+        ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-head*Math.cos(ang-Math.PI/6), y2-head*Math.sin(ang-Math.PI/6)); ctx.lineTo(x2-head*Math.cos(ang+Math.PI/6), y2-head*Math.sin(ang+Math.PI/6)); ctx.closePath(); ctx.fill();
+    }
+
+    function renderAll(){ renderScene(mainCtx, mainCanvas); if(state.showModal) renderScene(modalCtx, modalCanvas); }
+    function zoomBy(k){ state.zoom = Math.max(.7, Math.min(1.8, state.zoom*k)); zoomSlider.value = state.zoom; renderAll(); }
+    function resetView(){ state.zoom = 1; state.rotX = -0.42; state.rotY = 0.62; state.panX = 0; state.panY = 0; zoomSlider.value = 1; renderAll(); }
+    function openModal(){ state.showModal = true; overlay.classList.add('open'); renderAll(); }
+    function closeModal(){ state.showModal = false; overlay.classList.remove('open'); }
+    function overlayClick(e){ if(e.target === overlay) closeModal(); }
+    window.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+    function attachCanvasControls(canvas){
+        canvas.addEventListener('mousedown', e=>{ state.drag = true; state.lastX = e.clientX; state.lastY = e.clientY; });
+        window.addEventListener('mouseup', ()=> state.drag = false);
+        window.addEventListener('mousemove', e=>{
+            if(!state.drag) return;
+            const dx = e.clientX - state.lastX, dy = e.clientY - state.lastY;
+            if(e.shiftKey){ state.panX += dx; state.panY += dy; }
+            else { state.rotY += dx*0.01; state.rotX += dy*0.01; }
+            state.lastX = e.clientX; state.lastY = e.clientY; renderAll();
+        });
+        canvas.addEventListener('wheel', e=>{ e.preventDefault(); const factor = e.deltaY < 0 ? 1.06 : 0.94; zoomBy(factor); }, {passive:false});
+        canvas.addEventListener('dblclick', openModal);
+    }
+    attachCanvasControls(mainCanvas); attachCanvasControls(modalCanvas);
+
+    function buildQuiz(){
+        state.quiz = [
+            {q:'Какая формула объёма универсальна для параллелепипеда и призмы?', a:['V = P·h','V = Sосн·h','V = 2Sосн + P·h'], c:1, e:'Объём — это площадь основания, умноженная на высоту.'},
+            {q:'Для куба с ребром a чему равно d² пространственной диагонали?', a:['2a²','3a²','6a²'], c:1, e:'Пространственная диагональ куба подчиняется формуле d² = a²+a²+a² = 3a².'},
+            {q:'Как найти боковую поверхность прямой призмы?', a:['Pосн·h','2Sосн','Sосн·h'], c:0, e:'Именно периметр основания, умноженный на высоту.'},
+            {q:'Если дана диагональ куба и спрашивают площадь поверхности, что часто удобно искать?', a:['сразу a²','обязательно только a','периметр грани'], c:0, e:'Площадь поверхности зависит от a², значит можно не извлекать лишний корень.'}
+        ];
+        const box = document.getElementById('quizBox');
+        box.innerHTML = '';
+        state.quiz.forEach((item, idx)=>{
+            const div = document.createElement('div'); div.className = 'quiz-q';
+            div.innerHTML = `<b>${idx+1}. ${item.q}</b><div class="quiz-controls">${item.a.map((opt,i)=>`<button class="btn secondary" onclick="checkQuiz(${idx},${i}, this)">${opt}</button>`).join('')}</div><div class="answer" id="quizAns${idx}"></div>`;
+            box.appendChild(div);
+        });
+    }
+    function checkQuiz(qi, ai, btn){
+        const item = state.quiz[qi];
+        const ans = document.getElementById('quizAns'+qi);
+        ans.innerHTML = ai===item.c ? `<span class="ok">Верно.</span> ${item.e}` : `<span class="danger">Пока нет.</span> ${item.e}`;
+        btn.parentElement.querySelectorAll('button').forEach(b=>b.disabled=true);
+    }
+    window.checkQuiz = checkQuiz;
+
+    function randInt(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
+    function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    function generateTask(applyVisual=false){
+        const type = document.getElementById('genType').value;
+        const out = document.getElementById('generatedTask');
+        let task='', answer='', idea='', shape='parallelepiped';
+
+        if(type==='faceAreaFromVolume'){
+            const h = randInt(2,9), s = randInt(6,20), V = h*s;
+            task = `Объём прямоугольного параллелепипеда равен <b>${V}</b>. Одно из его рёбер равно <b>${h}</b>. Найдите площадь грани, перпендикулярной этому ребру.`;
+            answer = `${s}`;
+            idea = `Используйте <span class="math">V = S<sub>осн</sub>·h</span>, значит искомая площадь равна <span class="math">${V}/${h} = ${s}</span>.`;
+            shape='parallelepiped';
+        }
+        if(type==='volumeFromDiagonal'){
+            const a = pick([2,3,4]), b = pick([4,5,6]);
+            const c = pick([3,4,5]);
+            const d2 = a*a+b*b+c*c;
+            const d = Number.isInteger(Math.sqrt(d2)) ? Math.sqrt(d2) : `√${d2}`;
+            task = `Два ребра прямоугольного параллелепипеда, выходящие из одной вершины, равны <b>${a}</b> и <b>${b}</b>. Пространственная диагональ равна <b>${d}</b>. Найдите объём параллелепипеда.`;
+            answer = `${a*b*c}`;
+            idea = `Сначала по формуле <span class="math">d²=a²+b²+c²</span> находится третье ребро: <span class="math">c=${c}</span>. Затем <span class="math">V=abc=${a*b*c}</span>.`;
+            shape='parallelepiped';
+        }
+        if(type==='cubeFromFaceDiagonal'){
+            const a = pick([2,3,4,5]);
+            const d2 = 2*a*a;
+            task = `Диагональ грани куба равна <b>√${d2}</b>. Найдите объём куба.`;
+            answer = `${a*a*a}`;
+            idea = `Для диагонали грани: <span class="math">d²=2a²</span>, значит <span class="math">a²=${d2}/2=${a*a}</span>, откуда <span class="math">a=${a}</span> и <span class="math">V=a³=${a*a*a}</span>.`;
+            shape='cube';
+        }
+        if(type==='cubeSurfaceFromSpaceDiagonal'){
+            const a = pick([1,2,3,4]);
+            const d2 = 3*a*a;
+            task = `Пространственная диагональ куба равна <b>√${d2}</b>. Найдите площадь его полной поверхности.`;
+            answer = `${6*a*a}`;
+            idea = `Используйте <span class="math">d²=3a²</span>. Сразу находим <span class="math">a²=${d2}/3=${a*a}</span>, тогда <span class="math">S=6a²=${6*a*a}</span>.`;
+            shape='cube';
+        }
+        if(type==='prismEquiVolume'){
+            const a = pick([2,4,6]);
+            const display = a===2?'2':a===4?'4':'6';
+            task = `Найдите объём правильной треугольной призмы, все рёбра которой равны <b>${display}</b>.`;
+            const vol = (Math.sqrt(3)/4*a*a*a).toFixed(2).replace('.',',');
+            answer = a===2 ? '2√3' : a===4 ? '16√3' : '54√3';
+            idea = `Основание — равносторонний треугольник: <span class="math">S=(√3/4)a²</span>. Высота призмы равна ребру <span class="math">a</span>. Тогда <span class="math">V=(√3/4)a³</span>.`;
+            shape='prismTri';
+        }
+        if(type==='rhombusPrismSurface'){
+            const d1 = pick([4,6,8]), d2 = pick([6,8,10]), h = pick([3,4,5]);
+            const s = Math.sqrt((d1/2)**2 + (d2/2)**2);
+            if(!Number.isInteger(s)) return generateTask(applyVisual);
+            const area = d1*d2/2;
+            const total = 2*area + 4*s*h;
+            task = `Найдите площадь полной поверхности прямой призмы, в основании которой лежит ромб с диагоналями <b>${d1}</b> и <b>${d2}</b>, если боковое ребро равно <b>${h}</b>.`;
+            answer = `${total}`;
+            idea = `Основание: <span class="math">S<sub>осн</sub>=d₁d₂/2=${area}</span>. Сторона ромба по Пифагору: <span class="math">s=${s}</span>. Периметр: <span class="math">4s=${4*s}</span>. Тогда <span class="math">S=2S<sub>осн</sub>+P·h=${total}</span>.`;
+            shape='prismRhombus';
+        }
+
+        out.innerHTML = `<h4>Новая задача</h4><p>${task}</p><p><b>Идея:</b> ${idea}</p><p><b>Ответ:</b> <span class="math">${answer}</span></p>`;
+        if(applyVisual){ state.shape = shape; shapeSelect.value = shape; syncFocusByShape(); renderAll(); }
+    }
+
+    // hint auto hide
+    setTimeout(()=>{ hintBox.style.opacity='.25'; }, 15000);
+
+    buildQuiz();
+    syncFocusByShape();
+    updateDetail();
+    generateTask();
+    renderAll();
+</script>
+</body>
+</html>
