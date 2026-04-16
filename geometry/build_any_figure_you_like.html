@@ -650,6 +650,7 @@
     document.getElementById('exportSvgBtn').addEventListener('click', exportSVG);
     document.getElementById('exportPngBtn').addEventListener('click', exportPNG);
     document.getElementById('copySvgBtn').addEventListener('click', copySVGToClipboard);
+    document.getElementById('copyParamsBtn').addEventListener('click', copyParamsToClipboard);
 
     svg.addEventListener('wheel', e => {
         e.preventDefault();
@@ -1337,9 +1338,8 @@
         clone.setAttribute('xmlns', NS);
         clone.style.background = 'transparent';
         const svgText = new XMLSerializer().serializeToString(clone);
-        try {
-            if (navigator.clipboard && window.ClipboardItem) {
-
+        if (navigator.clipboard && window.ClipboardItem) {
+            try {
                 const blob = new Blob([svgText], { type: 'image/svg+xml' });
                 const item = new ClipboardItem({ 'image/svg+xml': blob });
                 await navigator.clipboard.write([item]);
@@ -1349,17 +1349,56 @@
                 // Fallback to text copy below if binary clipboard write is blocked.
             }
         }
+        const copied = await copyTextToClipboard(svgText);
+        alert(copied ? 'SVG-код скопирован в буфер обмена.' : 'Не удалось скопировать SVG в буфер обмена.');
+    }
+
+    async function copyParamsToClipboard() {
+        const shape = selectedShape();
+        const payload = {
+            shape: shape.id,
+            shapeName: shape.name,
+            family: shape.family,
+            controls: {
+                scale: controls.scale.value,
+                sides: shape.fixedSides || controls.sides.value,
+                rotation: controls.rotation.value,
+                height: controls.height.value
+            },
+            toggles: {
+                labels: toggles.labels.checked,
+                axes: toggles.axes.checked,
+                fill: toggles.fill.checked,
+                circum: toggles.circum.checked,
+                incircle: toggles.incircle.checked,
+                altitude: toggles.altitude.checked,
+                median: toggles.median.checked,
+                bisector: toggles.bisector.checked
+            },
+            view: {
+                zoom: round(view.zoom),
+                panX: round(view.panX),
+                panY: round(view.panY),
+                orbitY: round(view.orbitY),
+                orbitX: round(view.orbitX)
+            }
+        };
+        const text = JSON.stringify(payload, null, 2);
+        const copied = await copyTextToClipboard(text);
+        alert(copied ? 'Параметры скопированы в буфер обмена.' : 'Не удалось скопировать параметры.');
+    }
+
+    async function copyTextToClipboard(text) {
         if (navigator.clipboard?.writeText) {
             try {
-                await navigator.clipboard.writeText(svgText);
-                alert('SVG-код скопирован в буфер обмена.');
-                return;
+                await navigator.clipboard.writeText(text);
+                return true;
             } catch {
                 // Fallback to legacy copy below.
             }
         }
         const ta = document.createElement('textarea');
-        ta.value = svgText;
+        ta.value = text;
         ta.setAttribute('readonly', '');
         ta.style.position = 'fixed';
         ta.style.left = '-9999px';
@@ -1368,14 +1407,7 @@
         ta.setSelectionRange(0, ta.value.length);
         const ok = document.execCommand('copy');
         ta.remove();
-        alert(ok ? 'SVG-код скопирован в буфер обмена.' : 'Не удалось скопировать SVG в буфер обмена.');
-            }
-            await navigator.clipboard.writeText(svgText);
-            alert('SVG-код скопирован в буфер обмена.');
-        } catch {
-            alert('Не удалось скопировать SVG в буфер обмена.');
-        }
-
+        return ok;
     }
 
     function download(url, filename) {
