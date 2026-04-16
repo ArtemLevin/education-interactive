@@ -496,8 +496,13 @@
         const range = document.getElementById(rangeId);
         const number = document.getElementById(numberId);
         const sync = value => {
-            range.value = value;
-            number.value = value;
+            const raw = Number(value);
+            if (!Number.isFinite(raw)) return;
+            const min = Number(range.min);
+            const max = Number(range.max);
+            const normalized = clamp(raw, Number.isFinite(min) ? min : raw, Number.isFinite(max) ? max : raw);
+            range.value = normalized;
+            number.value = normalized;
             render();
         };
         range.addEventListener('input', e => sync(e.target.value));
@@ -1298,6 +1303,11 @@
             canvas.width = 1400;
             canvas.height = 1064;
             const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                alert('Не удалось получить контекст canvas для экспорта PNG.');
+                URL.revokeObjectURL(url);
+                return;
+            }
             ctx.fillStyle = '#0b1020';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
@@ -1314,6 +1324,10 @@
                     URL.revokeObjectURL(url);
                 }, 1200);
             });
+        };
+        img.onerror = () => {
+            alert('Не удалось подготовить изображение для экспорта PNG.');
+            URL.revokeObjectURL(url);
         };
         img.src = url;
     }
