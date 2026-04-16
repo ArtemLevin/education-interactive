@@ -38,7 +38,7 @@
             padding: 22px;
             min-height: 100vh;
             display: grid;
-            grid-template-columns: 400px 1fr;
+            grid-template-columns: minmax(320px, 400px) minmax(0, 1fr);
             gap: 22px;
         }
 
@@ -53,6 +53,7 @@
 
         .controls {
             min-height: calc(100vh - 44px);
+            min-width: 0;
             display: flex;
             flex-direction: column;
         }
@@ -79,7 +80,7 @@
             padding: 18px 22px 22px;
             display: grid;
             gap: 14px;
-            overflow: auto;
+            overflow: visible;
         }
 
         .field {
@@ -383,7 +384,7 @@
             <div class="button-row four">
                 <button id="exportSvgBtn" type="button">Экспорт SVG</button>
                 <button id="exportPngBtn" type="button">Экспорт PNG</button>
-                <button id="copySvgBtn" type="button">Копия SVG</button>
+                <button id="copySvgBtn" type="button">Копия PNG</button>
                 <button id="copyParamsBtn" type="button">Копировать</button>
             </div>
 
@@ -649,7 +650,8 @@
 
     document.getElementById('exportSvgBtn').addEventListener('click', exportSVG);
     document.getElementById('exportPngBtn').addEventListener('click', exportPNG);
-    document.getElementById('copySvgBtn').addEventListener('click', copySVGToClipboard);
+    document.getElementById('copySvgBtn').addEventListener('click', copyPNGToClipboard);
+    document.getElementById('copyParamsBtn').addEventListener('click', copyParamsToClipboard);
 
     svg.addEventListener('wheel', e => {
         e.preventDefault();
@@ -1292,74 +1294,110 @@
         setTimeout(() => URL.revokeObjectURL(url), 1200);
     }
 
-    function exportPNG() {
-        const clone = svg.cloneNode(true);
-        clone.setAttribute('xmlns', NS);
-        const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = 1400;
-            canvas.height = 1064;
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-                alert('Не удалось получить контекст canvas для экспорта PNG.');
-                URL.revokeObjectURL(url);
-                return;
-            }
-            ctx.fillStyle = '#0b1020';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            canvas.toBlob(pngBlob => {
-                if (!pngBlob) {
-                    alert('Не удалось экспортировать PNG.');
-                    URL.revokeObjectURL(url);
-                    return;
-                }
-                const pngUrl = URL.createObjectURL(pngBlob);
-                download(pngUrl, `geometry-${selectedShape().id}.png`);
-                setTimeout(() => {
-                    URL.revokeObjectURL(pngUrl);
-                    URL.revokeObjectURL(url);
-                }, 1200);
-            });
-        };
-        img.onerror = () => {
-            alert('Не удалось подготовить изображение для экспорта PNG.');
-            URL.revokeObjectURL(url);
-        };
-        img.src = url;
+    async function exportPNG() {
+        const pngBlob = await renderPNGBlobFromSvg();
+        if (!pngBlob) return;
+        const pngUrl = URL.createObjectURL(pngBlob);
+        download(pngUrl, `geometry-${selectedShape().id}.png`);
+        setTimeout(() => URL.revokeObjectURL(pngUrl), 1200);
     }
 
-    async function copySVGToClipboard() {
-        const clone = svg.cloneNode(true);
-        clone.setAttribute('xmlns', NS);
-        clone.style.background = 'transparent';
-        const svgText = new XMLSerializer().serializeToString(clone);
-        try {
-            if (navigator.clipboard && window.ClipboardItem) {
+    function renderPNGBlobFromSvg() {
+        return new Promise(resolve => {
+            const clone = svg.cloneNode(true);
+            clone.setAttribute('xmlns', NS);
+            const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1400;
+                canvas.height = 1064;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    alert('Не удалось получить контекст canvas для PNG.');
+                    URL.revokeObjectURL(url);
+                    resolve(null);
+                    return;
+                }
+                ctx.fillStyle = '#0b1020';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(pngBlob => {
+                    URL.revokeObjectURL(url);
+                    resolve(pngBlob || null);
+                }, 'image/png');
+            };
+            img.onerror = () => {
+                alert('Не удалось подготовить изображение PNG.');
+                URL.revokeObjectURL(url);
+                resolve(null);
+            };
+            img.src = url;
+        });
+    }
 
-                const blob = new Blob([svgText], { type: 'image/svg+xml' });
-                const item = new ClipboardItem({ 'image/svg+xml': blob });
-                await navigator.clipboard.write([item]);
-                alert('SVG-изображение скопировано в буфер обмена.');
-                return;
-            } catch {
-                // Fallback to text copy below if binary clipboard write is blocked.
-            }
+    async function copyPNGToClipboard() {
+        const pngBlob = await renderPNGBlobFromSvg();
+        if (!pngBlob) return;
+        if (!(navigator.clipboard && window.ClipboardItem)) {
+            alert('Копирование PNG в буфер обмена не поддерживается в этом браузере.');
+            return;
         }
+        try {
+            await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]);
+            alert('PNG-изображение скопировано в буфер обмена.');
+        } catch {
+            alert('Не удалось скопировать PNG в буфер обмена.');
+        }
+    }
+
+    async function copyParamsToClipboard() {
+        const shape = selectedShape();
+        const payload = {
+            shape: shape.id,
+            shapeName: shape.name,
+            family: shape.family,
+            controls: {
+                scale: controls.scale.value,
+                sides: shape.fixedSides || controls.sides.value,
+                rotation: controls.rotation.value,
+                height: controls.height.value
+            },
+            toggles: {
+                labels: toggles.labels.checked,
+                axes: toggles.axes.checked,
+                fill: toggles.fill.checked,
+                circum: toggles.circum.checked,
+                incircle: toggles.incircle.checked,
+                altitude: toggles.altitude.checked,
+                median: toggles.median.checked,
+                bisector: toggles.bisector.checked
+            },
+            view: {
+                zoom: round(view.zoom),
+                panX: round(view.panX),
+                panY: round(view.panY),
+                orbitY: round(view.orbitY),
+                orbitX: round(view.orbitX)
+            }
+        };
+        const text = JSON.stringify(payload, null, 2);
+        const copied = await copyTextToClipboard(text);
+        alert(copied ? 'Параметры скопированы в буфер обмена.' : 'Не удалось скопировать параметры.');
+    }
+
+    async function copyTextToClipboard(text) {
         if (navigator.clipboard?.writeText) {
             try {
-                await navigator.clipboard.writeText(svgText);
-                alert('SVG-код скопирован в буфер обмена.');
-                return;
+                await navigator.clipboard.writeText(text);
+                return true;
             } catch {
                 // Fallback to legacy copy below.
             }
         }
         const ta = document.createElement('textarea');
-        ta.value = svgText;
+        ta.value = text;
         ta.setAttribute('readonly', '');
         ta.style.position = 'fixed';
         ta.style.left = '-9999px';
@@ -1368,14 +1406,7 @@
         ta.setSelectionRange(0, ta.value.length);
         const ok = document.execCommand('copy');
         ta.remove();
-        alert(ok ? 'SVG-код скопирован в буфер обмена.' : 'Не удалось скопировать SVG в буфер обмена.');
-            }
-            await navigator.clipboard.writeText(svgText);
-            alert('SVG-код скопирован в буфер обмена.');
-        } catch {
-            alert('Не удалось скопировать SVG в буфер обмена.');
-        }
-
+        return ok;
     }
 
     function download(url, filename) {
