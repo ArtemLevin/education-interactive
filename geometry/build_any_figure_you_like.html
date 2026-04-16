@@ -153,7 +153,6 @@
         .button-row.three {
             grid-template-columns: repeat(3, 1fr);
         }
-
         button {
             background: linear-gradient(135deg, rgba(56,189,248,.18), rgba(34,197,94,.14));
             color: var(--text);
@@ -380,7 +379,7 @@
             <div class="button-row three">
                 <button id="exportSvgBtn" type="button">Экспорт SVG</button>
                 <button id="exportPngBtn" type="button">Экспорт PNG</button>
-                <button id="copyParamsBtn" type="button">Копировать</button>
+                <button id="copySvgBtn" type="button">Копия SVG</button>
             </div>
 
             <div class="card">
@@ -492,8 +491,13 @@
         const range = document.getElementById(rangeId);
         const number = document.getElementById(numberId);
         const sync = value => {
-            range.value = value;
-            number.value = value;
+            const raw = Number(value);
+            if (!Number.isFinite(raw)) return;
+            const min = Number(range.min);
+            const max = Number(range.max);
+            const normalized = clamp(raw, Number.isFinite(min) ? min : raw, Number.isFinite(max) ? max : raw);
+            range.value = normalized;
+            number.value = normalized;
             render();
         };
         range.addEventListener('input', e => sync(e.target.value));
@@ -638,26 +642,9 @@
         render();
     });
 
-    document.getElementById('copyParamsBtn').addEventListener('click', async () => {
-        const shape = selectedShape();
-        const text = [
-            `Фигура: ${shape.name}`,
-            `Тип: ${shape.family}`,
-            `Размер: ${controls.scale.value}`,
-            `Стороны: ${shape.fixedSides || controls.sides.value}`,
-            `Поворот: ${controls.rotation.value}`,
-            `Высота/глубина: ${controls.height.value}`
-        ].join('\n');
-        try {
-            await navigator.clipboard.writeText(text);
-            alert('Параметры скопированы.');
-        } catch {
-            alert(text);
-        }
-    });
-
     document.getElementById('exportSvgBtn').addEventListener('click', exportSVG);
     document.getElementById('exportPngBtn').addEventListener('click', exportPNG);
+    document.getElementById('copySvgBtn').addEventListener('click', copySVGToClipboard);
 
     svg.addEventListener('wheel', e => {
         e.preventDefault();
@@ -1081,17 +1068,50 @@
         const g = make('g');
         const rotated = vertices.map(v => rotate3D(v, view.orbitY + state.rotation, view.orbitX));
         const projected = rotated.map(v => project3D(v, { x: state.cx, y: state.cy }));
+        const modelCenter = rotated.reduce((acc, p) => ({
+            x: acc.x + p.x,
+            y: acc.y + p.y,
+            z: acc.z + p.z
+        }), { x: 0, y: 0, z: 0 });
+        modelCenter.x /= rotated.length || 1;
+        modelCenter.y /= rotated.length || 1;
+        modelCenter.z /= rotated.length || 1;
+        const cameraPos = { x: 0, y: 0, z: -1300 };
 
         const faceData = faces.map((face, idx) => {
             const pts3 = face.map(i => rotated[i]);
             const pts2 = face.map(i => projected[i]);
-            const n = faceNormal3D(pts3[0], pts3[1], pts3[2]);
-            const visible = n.z < 0;
+            const faceCenter = pts3.reduce((acc, p) => ({
+                x: acc.x + p.x,
+                y: acc.y + p.y,
+                z: acc.z + p.z
+            }), { x: 0, y: 0, z: 0 });
+            faceCenter.x /= pts3.length || 1;
+            faceCenter.y /= pts3.length || 1;
+            faceCenter.z /= pts3.length || 1;
+
+            let n = faceNormal3D(pts3[0], pts3[1], pts3[2]);
+            const outwardRef = {
+                x: faceCenter.x - modelCenter.x,
+                y: faceCenter.y - modelCenter.y,
+                z: faceCenter.z - modelCenter.z
+            };
+            if ((n.x * outwardRef.x + n.y * outwardRef.y + n.z * outwardRef.z) < 0) {
+                n = { x: -n.x, y: -n.y, z: -n.z };
+            }
+
+            const toCamera = {
+                x: cameraPos.x - faceCenter.x,
+                y: cameraPos.y - faceCenter.y,
+                z: cameraPos.z - faceCenter.z
+            };
+            const visible = (n.x * toCamera.x + n.y * toCamera.y + n.z * toCamera.z) > 0;
             const avgZ = pts3.reduce((s, p) => s + p.z, 0) / pts3.length;
             return { idx, pts2, visible, avgZ };
         });
 
-        faceData.sort((a, b) => a.avgZ - b.avgZ).forEach(face => {
+        const sortedFaces = [...faceData].sort((a, b) => a.avgZ - b.avgZ);
+        sortedFaces.forEach(face => {
             if (!state.fill) return;
             add(make('polygon', {
                 points: pointsToString(face.pts2),
@@ -1278,10 +1298,20 @@
             canvas.width = 1400;
             canvas.height = 1064;
             const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                alert('Не удалось получить контекст canvas для экспорта PNG.');
+                URL.revokeObjectURL(url);
+                return;
+            }
             ctx.fillStyle = '#0b1020';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             canvas.toBlob(pngBlob => {
+                if (!pngBlob) {
+                    alert('Не удалось экспортировать PNG.');
+                    URL.revokeObjectURL(url);
+                    return;
+                }
                 const pngUrl = URL.createObjectURL(pngBlob);
                 download(pngUrl, `geometry-${selectedShape().id}.png`);
                 setTimeout(() => {
@@ -1290,7 +1320,49 @@
                 }, 1200);
             });
         };
+        img.onerror = () => {
+            alert('Не удалось подготовить изображение для экспорта PNG.');
+            URL.revokeObjectURL(url);
+        };
         img.src = url;
+    }
+
+    async function copySVGToClipboard() {
+        const clone = svg.cloneNode(true);
+        clone.setAttribute('xmlns', NS);
+        clone.style.background = 'transparent';
+        const svgText = new XMLSerializer().serializeToString(clone);
+        if (navigator.clipboard && window.ClipboardItem) {
+            try {
+                const blob = new Blob([svgText], { type: 'image/svg+xml' });
+                const item = new ClipboardItem({ 'image/svg+xml': blob });
+                await navigator.clipboard.write([item]);
+                alert('SVG-изображение скопировано в буфер обмена.');
+                return;
+            } catch {
+                // Fallback to text copy below if binary clipboard write is blocked.
+            }
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+                await navigator.clipboard.writeText(svgText);
+                alert('SVG-код скопирован в буфер обмена.');
+                return;
+            } catch {
+                // Fallback to legacy copy below.
+            }
+        }
+        const ta = document.createElement('textarea');
+        ta.value = svgText;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
+        const ok = document.execCommand('copy');
+        ta.remove();
+        alert(ok ? 'SVG-код скопирован в буфер обмена.' : 'Не удалось скопировать SVG в буфер обмена.');
     }
 
     function download(url, filename) {
