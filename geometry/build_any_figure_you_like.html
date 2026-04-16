@@ -388,7 +388,7 @@
             <div class="button-row four">
                 <button id="exportSvgBtn" type="button">Экспорт SVG</button>
                 <button id="exportPngBtn" type="button">Экспорт PNG</button>
-                <button id="copySvgBtn" type="button">Копия SVG</button>
+                <button id="copySvgBtn" type="button">Копия PNG</button>
                 <button id="copyParamsBtn" type="button">Копировать</button>
             </div>
 
@@ -1298,44 +1298,47 @@
         setTimeout(() => URL.revokeObjectURL(url), 1200);
     }
 
-    function exportPNG() {
-        const clone = svg.cloneNode(true);
-        clone.setAttribute('xmlns', NS);
-        const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = 1400;
-            canvas.height = 1064;
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-                alert('Не удалось получить контекст canvas для экспорта PNG.');
-                URL.revokeObjectURL(url);
-                return;
-            }
-            ctx.fillStyle = '#0b1020';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            canvas.toBlob(pngBlob => {
-                if (!pngBlob) {
-                    alert('Не удалось экспортировать PNG.');
+    async function exportPNG() {
+        const pngBlob = await renderPNGBlobFromSvg();
+        if (!pngBlob) return;
+        const pngUrl = URL.createObjectURL(pngBlob);
+        download(pngUrl, `geometry-${selectedShape().id}.png`);
+        setTimeout(() => URL.revokeObjectURL(pngUrl), 1200);
+    }
+
+    function renderPNGBlobFromSvg() {
+        return new Promise(resolve => {
+            const clone = svg.cloneNode(true);
+            clone.setAttribute('xmlns', NS);
+            const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1400;
+                canvas.height = 1064;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    alert('Не удалось получить контекст canvas для PNG.');
                     URL.revokeObjectURL(url);
+                    resolve(null);
                     return;
                 }
-                const pngUrl = URL.createObjectURL(pngBlob);
-                download(pngUrl, `geometry-${selectedShape().id}.png`);
-                setTimeout(() => {
-                    URL.revokeObjectURL(pngUrl);
+                ctx.fillStyle = '#0b1020';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(pngBlob => {
                     URL.revokeObjectURL(url);
-                }, 1200);
-            });
-        };
-        img.onerror = () => {
-            alert('Не удалось подготовить изображение для экспорта PNG.');
-            URL.revokeObjectURL(url);
-        };
-        img.src = url;
+                    resolve(pngBlob || null);
+                }, 'image/png');
+            };
+            img.onerror = () => {
+                alert('Не удалось подготовить изображение PNG.');
+                URL.revokeObjectURL(url);
+                resolve(null);
+            };
+            img.src = url;
+        });
     }
 
     async function copySVGToClipboard() {
