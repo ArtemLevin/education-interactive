@@ -1091,7 +1091,8 @@
             return { idx, pts2, visible, avgZ };
         });
 
-        faceData.sort((a, b) => a.avgZ - b.avgZ).forEach(face => {
+        const sortedFaces = [...faceData].sort((a, b) => a.avgZ - b.avgZ);
+        sortedFaces.forEach(face => {
             if (!state.fill) return;
             add(make('polygon', {
                 points: pointsToString(face.pts2),
@@ -1282,6 +1283,11 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             canvas.toBlob(pngBlob => {
+                if (!pngBlob) {
+                    alert('Не удалось экспортировать PNG.');
+                    URL.revokeObjectURL(url);
+                    return;
+                }
                 const pngUrl = URL.createObjectURL(pngBlob);
                 download(pngUrl, `geometry-${selectedShape().id}.png`);
                 setTimeout(() => {
