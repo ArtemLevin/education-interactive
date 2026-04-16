@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — параметр и модуль</title>
+    <style>
+        :root{
+            --bg:#0b1020;
+            --panel:#121933;
+            --panel-2:#192347;
+            --card:#0f1530;
+            --text:#edf2ff;
+            --muted:#aab6df;
+            --accent:#7cc7ff;
+            --accent-2:#8dffcf;
+            --danger:#ff9c9c;
+            --warn:#ffd98a;
+            --line:rgba(255,255,255,.11);
+            --shadow:0 18px 50px rgba(0,0,0,.35);
+            --radius:20px;
+            --stickyTop:18px;
+            --gridStep:40;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:radial-gradient(circle at top,#162049 0%, #0b1020 48%, #090d1a 100%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;scroll-behavior:smooth}
+        body{line-height:1.55}
+        .wrap{max-width:1440px;margin:0 auto;padding:20px}
+        .hero{
+            background:linear-gradient(135deg,rgba(124,199,255,.16),rgba(141,255,207,.08));
+            border:1px solid var(--line);
+            border-radius:28px;
+            box-shadow:var(--shadow);
+            padding:28px;
+            display:grid;
+            grid-template-columns:1.5fr 1fr;
+            gap:22px;
+            align-items:center;
+        }
+        .kicker{display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border-radius:999px;background:rgba(124,199,255,.12);color:var(--accent);font-size:13px;font-weight:700;letter-spacing:.02em}
+        h1{font-size:clamp(30px,4vw,52px);line-height:1.06;margin:14px 0 14px}
+        .lead{font-size:18px;color:var(--muted);max-width:850px}
+        .hero-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+        .meta-card,.chip-card,.panel,.step,.mini,.quiz-card,.mistake,.summary-card,.legend-item,.control-box{
+            background:rgba(15,21,48,.82);
+            border:1px solid var(--line);
+            border-radius:18px;
+            box-shadow:var(--shadow);
+        }
+        .meta-card{padding:14px 16px}
+        .meta-card .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+        .meta-card .value{font-size:17px;font-weight:700;margin-top:4px}
+        .toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+        button,.btn,select,input[type="range"]{font:inherit}
+        .btn{
+            border:none;cursor:pointer;padding:11px 14px;border-radius:14px;font-weight:700;
+            background:linear-gradient(180deg,rgba(124,199,255,.22),rgba(124,199,255,.14));color:var(--text);
+            border:1px solid rgba(124,199,255,.28);transition:.22s transform,.22s opacity,.22s background;
+        }
+        .btn:hover{transform:translateY(-1px)}
+        .btn.ghost{background:rgba(255,255,255,.04);border-color:var(--line)}
+        .btn.good{background:linear-gradient(180deg,rgba(141,255,207,.18),rgba(141,255,207,.1));border-color:rgba(141,255,207,.2)}
+        .btn.warn{background:linear-gradient(180deg,rgba(255,217,138,.18),rgba(255,217,138,.08));border-color:rgba(255,217,138,.22)}
+        .banner{margin:18px 0;padding:14px 18px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--line);display:flex;gap:12px;align-items:flex-start}
+        .main{display:grid;grid-template-columns:minmax(380px,1.1fr) minmax(420px,.9fr);gap:20px;align-items:start}
+        .left-col{min-width:0}
+        .right-col{min-width:0;position:relative}
+        .panel{padding:18px 18px 16px}
+        .panel h2,.panel h3{margin:0 0 12px}
+        .idea{border-left:4px solid var(--accent);padding:12px 14px;background:rgba(124,199,255,.08);border-radius:0 14px 14px 0;margin:8px 0 12px}
+        .section-nav{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}
+        .section-nav .btn.active{outline:2px solid rgba(124,199,255,.48)}
+        .step-list{display:grid;gap:14px}
+        .step{padding:16px 16px 14px;position:relative;overflow:hidden}
+        .step.active{outline:2px solid rgba(124,199,255,.45);background:linear-gradient(180deg,rgba(124,199,255,.10),rgba(255,255,255,.02))}
+        .step-num{position:absolute;right:12px;top:10px;color:rgba(255,255,255,.12);font-size:38px;font-weight:800;pointer-events:none}
+        .step h4{margin:0 0 10px;font-size:20px}
+        .math{font-family:"Cambria Math","DejaVu Serif",serif;background:rgba(255,255,255,.04);padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.07);overflow:auto}
+        .math.inline{display:inline-block;padding:2px 8px;border-radius:10px}
+        .muted{color:var(--muted)}
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .sticky{
+            position:sticky;top:var(--stickyTop);
+            display:grid;gap:14px;
+        }
+        .viz-card{padding:14px;border-radius:22px;background:linear-gradient(180deg,rgba(18,25,51,.95),rgba(13,18,36,.95));border:1px solid var(--line);box-shadow:var(--shadow)}
+        .viz-head{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}
+        .viz-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .control-box{padding:10px 12px}
+        .control-box label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+        .control-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+        .canvas-wrap{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(180deg,#091022,#0b132c);min-height:500px;cursor:zoom-in}
+        canvas{display:block;width:100%;height:520px}
+        .statusbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+        .mini{padding:10px 12px}
+        .mini .t{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+        .mini .v{font-size:18px;font-weight:800;margin-top:4px}
+        .legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+        .legend-item{padding:9px 12px;display:flex;gap:10px;align-items:center}
+        .swatch{width:14px;height:14px;border-radius:999px}
+        .helper{font-size:13px;color:var(--muted)}
+        .mistakes{display:grid;gap:12px}
+        .mistake{padding:14px}
+        .mistake strong{color:var(--warn)}
+        .summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+        .summary-card{padding:14px}
+        .quiz-grid{display:grid;gap:12px}
+        .quiz-card{padding:14px}
+        .quiz-card.correct{outline:2px solid rgba(141,255,207,.45)}
+        .quiz-card.wrong{outline:2px solid rgba(255,156,156,.4)}
+        .footer{margin:24px 0 40px;padding:18px;color:var(--muted);text-align:center}
+        .highlight{color:var(--accent-2);font-weight:700}
+        .generator-output{margin-top:10px;padding:12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+        .print-only{display:none}
+        .modal{position:fixed;inset:0;background:rgba(3,6,16,.86);display:none;align-items:center;justify-content:center;padding:20px;z-index:999}
+        .modal.open{display:flex}
+        .modal-card{width:min(96vw,1300px);max-height:92vh;background:#0b1020;border:1px solid var(--line);border-radius:22px;padding:14px;box-shadow:var(--shadow);display:grid;grid-template-rows:auto 1fr;gap:12px}
+        .modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+        .modal .canvas-wrap{min-height:65vh}
+        .modal canvas{height:68vh}
+        .hint{
+            position:fixed;right:22px;bottom:22px;max-width:330px;padding:14px 16px;border-radius:18px;
+            background:linear-gradient(135deg,rgba(124,199,255,.18),rgba(141,255,207,.12));
+            border:1px solid rgba(124,199,255,.28);box-shadow:var(--shadow);display:none;z-index:990;
+            animation:hintPulse 2.2s infinite;
+        }
+        .hint.show{display:block}
+        @keyframes hintPulse{
+            0%{transform:translateY(0);box-shadow:var(--shadow)}
+            50%{transform:translateY(-3px);box-shadow:0 22px 54px rgba(0,0,0,.4)}
+            100%{transform:translateY(0);box-shadow:var(--shadow)}
+        }
+        @media (max-width: 1100px){
+            .hero,.main{grid-template-columns:1fr}
+            .sticky{position:relative;top:auto}
+            .summary-grid,.grid-2,.viz-controls,.statusbar{grid-template-columns:1fr}
+            canvas{height:420px}
+        }
+        @media print{
+            body{background:white;color:black}
+            .wrap{max-width:none;padding:0}
+            .hero,.panel,.viz-card,.step,.mini,.quiz-card,.mistake,.summary-card,.legend-item,.control-box,.banner{box-shadow:none;background:white;color:black;border:1px solid #bbb}
+            .toolbar,.section-nav,.viz-controls,.legend,.hint,.modal,.footer .screen-only{display:none !important}
+            .main{grid-template-columns:1fr}
+            .sticky{position:static}
+            .canvas-wrap{cursor:default}
+            canvas{height:400px}
+            .print-only{display:block}
+            a{color:black;text-decoration:none}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div>
+            <div class="kicker">Наглядная математика · ЕГЭ профиль</div>
+            <h1>Параметр и модуль: когда уравнение имеет ровно один корень</h1>
+            <p class="lead">Разбираем задачу графо-аналитическим методом: аккуратно упрощаем уравнение, переходим к зависимости <span class="math inline">a = f(x)</span>, строим график на нужном интервале и считаем точки пересечения с горизонтальной прямой.</p>
+            <div class="toolbar">
+                <a class="btn" href="#razbor">Перейти к разбору</a>
+                <a class="btn ghost" href="#generator">Похожая задача</a>
+                <button class="btn good" id="showAllBtn">Показать все шаги</button>
+                <button class="btn warn" id="printBtn">Печать / PDF</button>
+            </div>
+        </div>
+        <div class="hero-meta">
+            <div class="meta-card"><div class="label">Ученик</div><div class="value">Роман Логинов</div></div>
+            <div class="meta-card"><div class="label">Тема</div><div class="value">Модуль, параметр, график</div></div>
+            <div class="meta-card"><div class="label">Ключевая идея</div><div class="value">Горизонтальные сечения</div></div>
+            <div class="meta-card"><div class="label">Формат</div><div class="value">Пошагово + визуализация</div></div>
+        </div>
+    </section>
+
+    <div class="banner">
+        <div>📌</div>
+        <div>
+            <strong>Главная мысль.</strong> После преобразований задача сводится к вопросу: <span class="highlight">при каких значениях параметра a горизонтальная прямая пересекает график функции <span class="math inline">a = 2|x| - x</span> ровно один раз на интервале <span class="math inline">(-1;1)</span>?</span>
+        </div>
+    </div>
+
+    <main class="main" id="razbor">
+        <section class="left-col">
+            <div class="panel">
+                <div class="section-nav" id="modeNav">
+                    <button class="btn active" data-mode="solution">Разбор</button>
+                    <button class="btn ghost" data-mode="mistakes">Ошибки</button>
+                    <button class="btn ghost" data-mode="quiz">Самопроверка</button>
+                    <button class="btn ghost" data-mode="summary">Итог</button>
+                </div>
+
+                <div class="idea">
+                    <strong>Идея решения.</strong> Сначала превратим исходное уравнение в квадрат выражения, затем получим связь <span class="math inline">a = 2|x| - x</span>. После этого число корней исходного уравнения будет равно числу пересечений графика этой функции с горизонтальной прямой <span class="math inline">a = const</span> на интервале <span class="math inline">-1 &lt; x &lt; 1</span>.
+                </div>
+
+                <div id="mode-solution" class="mode-block">
+                    <div class="step-list">
+                        <article class="step active" data-step="1">
+                            <div class="step-num">1</div>
+                            <h4>Что дано и что нужно найти</h4>
+                            <p>Нужно найти все значения параметра <span class="math inline">a</span>, при которых уравнение</p>
+                            <div class="math">(2|x| + x + a)<sup>2</sup> = 8x<sup>2</sup> + 2(x + a)<sup>2</sup></div>
+                            <p>имеет <strong>единственный</strong> корень на интервале <span class="math inline">(-1;1)</span>.</p>
+                            <p class="muted">То есть нас интересует не просто существование корня, а точное число корней: ровно один.</p>
+                        </article>
+
+                        <article class="step" data-step="2">
+                            <div class="step-num">2</div>
+                            <h4>Преобразуем уравнение</h4>
+                            <p>Перенесём всё в одну сторону и заметим полный квадрат:</p>
+                            <div class="math">
+                                (2|x| + x + a)<sup>2</sup> = 4x<sup>2</sup> + 4|x|(x+a) + (x+a)<sup>2</sup>
+                                <br><br>
+                                4x<sup>2</sup> + 4|x|(x+a) + (x+a)<sup>2</sup> = 8x<sup>2</sup> + 2(x+a)<sup>2</sup>
+                                <br><br>
+                                (2|x| - x - a)<sup>2</sup> = 0
+                            </div>
+                            <p>Отсюда следует:</p>
+                            <div class="math">2|x| - x - a = 0, &nbsp; то есть &nbsp; a = 2|x| - x.</div>
+                        </article>
+
+                        <article class="step" data-step="3">
+                            <div class="step-num">3</div>
+                            <h4>Разбираем модуль по случаям</h4>
+                            <div class="grid-2">
+                                <div class="summary-card" data-branch="right">
+                                    <strong>Случай 1: <span class="math inline">x ≥ 0</span></strong>
+                                    <p>Тогда <span class="math inline">|x| = x</span>, значит</p>
+                                    <div class="math">a = 2x - x = x</div>
+                                    <p>На этом участке получается правая ветвь: <span class="math inline">a = x</span>.</p>
+                                </div>
+                                <div class="summary-card" data-branch="left">
+                                    <strong>Случай 2: <span class="math inline">x &lt; 0</span></strong>
+                                    <p>Тогда <span class="math inline">|x| = -x</span>, значит</p>
+                                    <div class="math">a = 2(-x) - x = -3x</div>
+                                    <p>На этом участке получается левая ветвь: <span class="math inline">a = -3x</span>.</p>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="step" data-step="4">
+                            <div class="step-num">4</div>
+                            <h4>Смотрим только на интервал <span class="math inline">(-1;1)</span></h4>
+                            <p>Это очень важно. Мы не исследуем весь график на всей оси. Нас интересуют только точки с координатами <span class="math inline">-1 &lt; x &lt; 1</span>.</p>
+                            <p>Поэтому:</p>
+                            <ul>
+                                <li>ветвь <span class="math inline">a = x</span> работает при <span class="math inline">0 ≤ x &lt; 1</span> и даёт значения <span class="math inline">a ∈ [0;1)</span>;</li>
+                                <li>ветвь <span class="math inline">a = -3x</span> работает при <span class="math inline">-1 &lt; x &lt; 0</span> и даёт значения <span class="math inline">a ∈ (0;3)</span>.</li>
+                            </ul>
+                        </article>
+
+                        <article class="step" data-step="5">
+                            <div class="step-num">5</div>
+                            <h4>Геометрический смысл</h4>
+                            <p>Для фиксированного значения <span class="math inline">a</span> нужно провести горизонтальную прямую <span class="math inline">a = const</span>.</p>
+                            <p>Число корней исходного уравнения равно числу точек пересечения этой прямой с графиком функции <span class="math inline">a = 2|x| - x</span> на заданном интервале.</p>
+                        </article>
+
+                        <article class="step" data-step="6">
+                            <div class="step-num">6</div>
+                            <h4>Разбираем значения параметра</h4>
+                            <div class="summary-grid">
+                                <div class="summary-card"><strong>Если <span class="math inline">a &lt; 0</span></strong><br>Пересечений нет.</div>
+                                <div class="summary-card"><strong>Если <span class="math inline">a = 0</span></strong><br>Обе ветви сходятся в точке <span class="math inline">(0,0)</span>. Это одна точка, значит один корень.</div>
+                                <div class="summary-card"><strong>Если <span class="math inline">0 &lt; a &lt; 1</span></strong><br>Горизонтальная прямая пересекает обе ветви. Получаются два корня.</div>
+                                <div class="summary-card"><strong>Если <span class="math inline">a = 1</span></strong><br>Правая ветвь дала бы <span class="math inline">x = 1</span>, но это не входит в интервал. Левая даёт один допустимый корень.</div>
+                                <div class="summary-card"><strong>Если <span class="math inline">1 &lt; a &lt; 3</span></strong><br>Есть только одно пересечение с левой ветвью.</div>
+                                <div class="summary-card"><strong>Если <span class="math inline">a ≥ 3</span></strong><br>При <span class="math inline">a = 3</span> получаем <span class="math inline">x = -1</span>, это край интервала и он не входит. При больших a пересечений нет.</div>
+                            </div>
+                        </article>
+
+                        <article class="step" data-step="7">
+                            <div class="step-num">7</div>
+                            <h4>Ответ и проверка</h4>
+                            <div class="math">a = 0 &nbsp; или &nbsp; 1 ≤ a &lt; 3</div>
+                            <p>Итак, все подходящие значения параметра:</p>
+                            <div class="math"><strong>a ∈ {0} ∪ [1;3)</strong></div>
+                            <p class="muted">Быстрая проверка: при <span class="math inline">a = 2</span> есть один корень <span class="math inline">x = -2/3</span>; при <span class="math inline">a = 1/2</span> корней уже два.</p>
+                        </article>
+                    </div>
+                </div>
+
+                <div id="mode-mistakes" class="mode-block" hidden>
+                    <div class="mistakes">
+                        <div class="mistake"><strong>Ошибка 1.</strong> Считать, что при <span class="math inline">a = 0</span> есть два корня. На самом деле ветви сходятся в одной и той же точке <span class="math inline">x = 0</span>.</div>
+                        <div class="mistake"><strong>Ошибка 2.</strong> Включать в ответ <span class="math inline">a = 3</span>. Тогда получается <span class="math inline">x = -1</span>, а это не принадлежит открытому интервалу <span class="math inline">(-1;1)</span>.</div>
+                        <div class="mistake"><strong>Ошибка 3.</strong> Не разбирать модуль. Без перехода к двум ветвям <span class="math inline">a=x</span> и <span class="math inline">a=-3x</span> невозможно корректно посчитать число решений.</div>
+                        <div class="mistake"><strong>Ошибка 4.</strong> Исследовать график на всей оси, а не только на нужном промежутке.</div>
+                    </div>
+                </div>
+
+                <div id="mode-quiz" class="mode-block" hidden>
+                    <div class="quiz-grid">
+                        <div class="quiz-card" data-q="0">
+                            <strong>1. Что означает горизонтальная прямая <span class="math inline">a = const</span>?</strong>
+                            <div class="toolbar">
+                                <button class="btn ghost quiz-btn" data-q="0" data-a="0">Фиксированное значение x</button>
+                                <button class="btn ghost quiz-btn" data-q="0" data-a="1">Фиксированное значение параметра a</button>
+                                <button class="btn ghost quiz-btn" data-q="0" data-a="2">Границу области определения</button>
+                            </div>
+                            <div class="helper quiz-result"></div>
+                        </div>
+                        <div class="quiz-card" data-q="1">
+                            <strong>2. Почему <span class="math inline">a = 1</span> входит в ответ?</strong>
+                            <div class="toolbar">
+                                <button class="btn ghost quiz-btn" data-q="1" data-a="0">Потому что есть два пересечения</button>
+                                <button class="btn ghost quiz-btn" data-q="1" data-a="1">Потому что одно пересечение попадает в x = 1 и не учитывается</button>
+                                <button class="btn ghost quiz-btn" data-q="1" data-a="2">Потому что график не определён в нуле</button>
+                            </div>
+                            <div class="helper quiz-result"></div>
+                        </div>
+                        <div class="quiz-card" data-q="2">
+                            <strong>3. Что происходит при <span class="math inline">0 &lt; a &lt; 1</span>?</strong>
+                            <div class="toolbar">
+                                <button class="btn ghost quiz-btn" data-q="2" data-a="0">Нет корней</button>
+                                <button class="btn ghost quiz-btn" data-q="2" data-a="1">Один корень</button>
+                                <button class="btn ghost quiz-btn" data-q="2" data-a="2">Два корня</button>
+                            </div>
+                            <div class="helper quiz-result"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="mode-summary" class="mode-block" hidden>
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <h3>Ключевая формула</h3>
+                            <div class="math">(2|x| - x - a)<sup>2</sup> = 0 &nbsp; ⇔ &nbsp; a = 2|x| - x</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Ветви графика</h3>
+                            <div class="math">a = x, &nbsp; x ≥ 0; &nbsp;&nbsp; a = -3x, &nbsp; x &lt; 0</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Решающая идея</h3>
+                            <p>Считаем пересечения с горизонтальными прямыми и обязательно учитываем открытость интервала.</p>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Итоговый ответ</h3>
+                            <div class="math"><strong>a ∈ {0} ∪ [1;3)</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" id="generator">
+                <h2>Генератор похожей задачи</h2>
+                <p>Ниже создаётся задача той же логики: после преобразований снова получится ломаная вида <span class="math inline">a = k|x| - x</span>, а дальше нужно исследовать число пересечений на интервале.</p>
+                <div class="toolbar">
+                    <button class="btn" id="genBtn">Сгенерировать</button>
+                    <button class="btn ghost" id="revealGenBtn">Показать ответ</button>
+                </div>
+                <div class="generator-output" id="genOut">
+                    Нажмите «Сгенерировать», чтобы получить новую задачу с корректным ответом.
+                </div>
+            </div>
+        </section>
+
+        <aside class="right-col">
+            <div class="sticky">
+                <div class="viz-card">
+                    <div class="viz-head">
+                        <div>
+                            <h2 style="margin:0">Интерактивная модель</h2>
+                            <div class="helper">Кликните по графику, чтобы открыть увеличенный режим. Колёсико мыши меняет масштаб.</div>
+                        </div>
+                        <div class="toolbar" style="margin:0">
+                            <button class="btn ghost" id="zoomOutBtn">−</button>
+                            <button class="btn ghost" id="zoomResetBtn">Сброс</button>
+                            <button class="btn ghost" id="zoomInBtn">+</button>
+                        </div>
+                    </div>
+
+                    <div class="viz-controls">
+                        <div class="control-box">
+                            <label for="aSlider">Параметр a</label>
+                            <div class="control-row">
+                                <input id="aSlider" type="range" min="-0.5" max="3.2" step="0.01" value="1" style="width:100%">
+                                <strong id="aValue">1.00</strong>
+                            </div>
+                        </div>
+                        <div class="control-box">
+                            <label for="detailSelect">Подробность подсказок</label>
+                            <div class="control-row">
+                                <select id="detailSelect" class="btn ghost" style="padding:10px 12px;width:100%">
+                                    <option value="short">Коротко</option>
+                                    <option value="full" selected>Подробно</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="canvas-wrap" id="canvasWrap" aria-label="Интерактивный график">
+                        <canvas id="plot"></canvas>
+                    </div>
+
+                    <div class="statusbar">
+                        <div class="mini">
+                            <div class="t">Число пересечений</div>
+                            <div class="v" id="intersectionsCount">1</div>
+                        </div>
+                        <div class="mini">
+                            <div class="t">Статус</div>
+                            <div class="v" id="statusText">подходит</div>
+                        </div>
+                        <div class="mini">
+                            <div class="t">Точки</div>
+                            <div class="v" id="pointsText">x = -1/3</div>
+                        </div>
+                    </div>
+
+                    <div class="legend">
+                        <div class="legend-item"><span class="swatch" style="background:#7cc7ff"></span> правая ветвь <span class="math inline">a = x</span></div>
+                        <div class="legend-item"><span class="swatch" style="background:#8dffcf"></span> левая ветвь <span class="math inline">a = -3x</span></div>
+                        <div class="legend-item"><span class="swatch" style="background:#ff9c9c"></span> горизонтальная прямая <span class="math inline">a = const</span></div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h3>Типичные выводы по картинке</h3>
+                    <ul>
+                        <li>при <span class="math inline">a = 0</span> ровно одна общая точка в вершине;</li>
+                        <li>при <span class="math inline">0 &lt; a &lt; 1</span> две точки пересечения;</li>
+                        <li>при <span class="math inline">1 ≤ a &lt; 3</span> остаётся одна допустимая точка;</li>
+                        <li>при <span class="math inline">a = 3</span> пересечение уходит в край <span class="math inline">x = -1</span>, который не входит в интервал.</li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <div class="footer">Материал оформлен в формате «Наглядная математика»: текст → формула → график → проверка → итог.</div>
+</div>
+
+<div class="modal" id="modal">
+    <div class="modal-card">
+        <div class="modal-head">
+            <strong>Увеличенная визуализация</strong>
+            <button class="btn ghost" id="closeModalBtn">Закрыть</button>
+        </div>
+        <div class="canvas-wrap" id="modalCanvasWrap">
+            <canvas id="modalPlot"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="hint" id="hintBox" role="tooltip" aria-live="polite">
+    <strong>Подсказка.</strong> Подвигайте ползунок <span class="math inline">a</span> и посмотрите, когда горизонтальная прямая пересекает график один раз, а когда два раза.
+    <div class="toolbar" style="margin-top:10px"><button class="btn ghost" id="hideHintBtn">Понятно</button></div>
+</div>
+
+<script>
+    const state = {
+        a: 1,
+        zoom: 1,
+        activeStep: 1,
+        detail: 'full',
+        modalOpen: false,
+        generated: null
+    };
+
+    const plot = document.getElementById('plot');
+    const modalPlot = document.getElementById('modalPlot');
+    const ctx = plot.getContext('2d');
+    const mctx = modalPlot.getContext('2d');
+
+    const aSlider = document.getElementById('aSlider');
+    const aValue = document.getElementById('aValue');
+    const intersectionsCount = document.getElementById('intersectionsCount');
+    const statusText = document.getElementById('statusText');
+    const pointsText = document.getElementById('pointsText');
+    const detailSelect = document.getElementById('detailSelect');
+
+    function resizeCanvas(canvas){
+        const ratio = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * ratio;
+        canvas.height = rect.height * ratio;
+        const c = canvas.getContext('2d');
+        c.setTransform(ratio,0,0,ratio,0,0);
+    }
+
+    function fmt(n){
+        return (Math.abs(n) < 1e-9 ? 0 : n).toFixed(2);
+    }
+
+    function fracText(x){
+        const candidates = [1,2,3,4,5,6,8,10,12];
+        for (const d of candidates){
+            const n = Math.round(x*d);
+            if (Math.abs(x - n/d) < 1e-8){
+                if (d === 1) return String(n);
+                return `${n}/${d}`;
+            }
+        }
+        return x.toFixed(2);
+    }
+
+    function analyzeA(a){
+        const pts = [];
+        if (Math.abs(a) < 1e-9){
+            pts.push({x:0,y:0,branch:'vertex'});
+        } else {
+            if (a >= 0 && a < 1) pts.push({x:a,y:a,branch:'right'});
+            if (a > 0 && a < 3) pts.push({x:-a/3,y:a,branch:'left'});
+        }
+        return pts.filter(p => p.x > -1 && p.x < 1);
+    }
+
+    function getConclusion(a, pts){
+        if (pts.length === 1) return 'подходит';
+        if (pts.length === 2) return 'два корня';
+        return 'нет корней';
+    }
+
+    function drawScene(c, canvas){
+        const rect = canvas.getBoundingClientRect();
+        const w = rect.width;
+        const h = rect.height;
+        c.clearRect(0,0,w,h);
+
+        const left = -1.4, right = 1.4, bottom = -0.35, top = 3.4;
+        const zoom = state.zoom;
+        const cx = (left+right)/2;
+        const cy = (bottom+top)/2;
+        const vw = (right-left)/zoom;
+        const vh = (top-bottom)/zoom;
+        const X0 = cx - vw/2, X1 = cx + vw/2, Y0 = cy - vh/2, Y1 = cy + vh/2;
+
+        const xToPx = x => (x - X0) / (X1 - X0) * w;
+        const yToPx = y => h - (y - Y0) / (Y1 - Y0) * h;
+
+        c.fillStyle = '#091022';
+        c.fillRect(0,0,w,h);
+
+        c.strokeStyle = 'rgba(255,255,255,.06)';
+        c.lineWidth = 1;
+        for(let x=Math.ceil(X0*2)/2; x<=X1; x+=0.5){
+            const px = xToPx(x);
+            c.beginPath(); c.moveTo(px,0); c.lineTo(px,h); c.stroke();
+        }
+        for(let y=Math.ceil(Y0*2)/2; y<=Y1; y+=0.5){
+            const py = yToPx(y);
+            c.beginPath(); c.moveTo(0,py); c.lineTo(w,py); c.stroke();
+        }
+
+        c.strokeStyle = 'rgba(255,255,255,.45)';
+        c.lineWidth = 1.2;
+        c.beginPath(); c.moveTo(xToPx(X0), yToPx(0)); c.lineTo(xToPx(X1), yToPx(0)); c.stroke();
+        c.beginPath(); c.moveTo(xToPx(0), yToPx(Y0)); c.lineTo(xToPx(0), yToPx(Y1)); c.stroke();
+
+        c.fillStyle = 'rgba(255,255,255,.8)';
+        c.font = '13px Inter, Arial';
+        c.fillText('x', xToPx(X1)-14, yToPx(0)-8);
+        c.fillText('a', xToPx(0)+8, yToPx(Y1)+16);
+
+        c.setLineDash([5,5]);
+        c.strokeStyle = 'rgba(255,255,255,.25)';
+        c.lineWidth = 1;
+        c.beginPath(); c.moveTo(xToPx(-1), yToPx(0)); c.lineTo(xToPx(-1), yToPx(3.2)); c.stroke();
+        c.beginPath(); c.moveTo(xToPx(1), yToPx(0)); c.lineTo(xToPx(1), yToPx(3.2)); c.stroke();
+        c.setLineDash([]);
+
+        // branches
+        c.lineWidth = 3;
+        c.strokeStyle = '#8dffcf';
+        c.beginPath();
+        let first = true;
+        for(let x=-0.999; x<0; x+=0.01){
+            const y = -3*x;
+            if(first){ c.moveTo(xToPx(x), yToPx(y)); first=false; }
+            else c.lineTo(xToPx(x), yToPx(y));
+        }
+        c.stroke();
+
+        c.strokeStyle = '#7cc7ff';
+        c.beginPath();
+        first = true;
+        for(let x=0; x<0.999; x+=0.01){
+            const y = x;
+            if(first){ c.moveTo(xToPx(x), yToPx(y)); first=false; }
+            else c.lineTo(xToPx(x), yToPx(y));
+        }
+        c.stroke();
+
+        // horizontal line a = const
+        c.strokeStyle = '#ff9c9c';
+        c.lineWidth = 2.5;
+        c.beginPath(); c.moveTo(xToPx(X0), yToPx(state.a)); c.lineTo(xToPx(X1), yToPx(state.a)); c.stroke();
+
+        // special labels
+        c.fillStyle = 'rgba(255,255,255,.8)';
+        [[-1,'-1'],[1,'1']].forEach(([x,t])=>c.fillText(t,xToPx(x)-8,yToPx(0)+18));
+        [[1,'1'],[3,'3']].forEach(([y,t])=>c.fillText(t,xToPx(0)-18,yToPx(y)+4));
+
+        const pts = analyzeA(state.a);
+        pts.forEach(p=>{
+            c.fillStyle = '#fff';
+            c.beginPath(); c.arc(xToPx(p.x), yToPx(p.y), 5.2, 0, Math.PI*2); c.fill();
+            c.fillStyle = p.branch === 'right' ? '#7cc7ff' : (p.branch === 'left' ? '#8dffcf' : '#fff');
+            c.beginPath(); c.arc(xToPx(p.x), yToPx(p.y), 3.5, 0, Math.PI*2); c.fill();
+        });
+
+        if(state.activeStep >= 3){
+            c.fillStyle = '#7cc7ff';
+            c.fillText('a = x', xToPx(0.42), yToPx(0.42)-10);
+            c.fillStyle = '#8dffcf';
+            c.fillText('a = -3x', xToPx(-0.78), yToPx(2.35)-8);
+        }
+
+        if(state.activeStep >= 5){
+            c.fillStyle = '#ffbcbc';
+            c.fillText(`a = ${fmt(state.a)}`, xToPx(0.78), yToPx(state.a)-10);
+        }
+    }
+
+    function updateInfo(){
+        aValue.textContent = Number(state.a).toFixed(2);
+        const pts = analyzeA(state.a);
+        intersectionsCount.textContent = String(pts.length);
+        statusText.textContent = getConclusion(state.a, pts);
+        if(!pts.length){
+            pointsText.textContent = 'нет';
+        } else {
+            pointsText.textContent = pts.map(p => `x = ${fracText(p.x)}`).join(', ');
+        }
+    }
+
+    function render(){
+        resizeCanvas(plot);
+        resizeCanvas(modalPlot);
+        drawScene(ctx, plot);
+        drawScene(mctx, modalPlot);
+        updateInfo();
+    }
+
+    aSlider.addEventListener('input', e => {
+        state.a = Number(e.target.value);
+        render();
+    });
+
+    detailSelect.addEventListener('change', e => state.detail = e.target.value);
+    document.getElementById('zoomInBtn').addEventListener('click', ()=>{state.zoom=Math.min(2.6,state.zoom+0.18);render();});
+    document.getElementById('zoomOutBtn').addEventListener('click', ()=>{state.zoom=Math.max(0.8,state.zoom-0.18);render();});
+    document.getElementById('zoomResetBtn').addEventListener('click', ()=>{state.zoom=1;render();});
+
+    function wheelZoom(e){
+        e.preventDefault();
+        state.zoom += e.deltaY < 0 ? 0.1 : -0.1;
+        state.zoom = Math.max(0.8, Math.min(2.6, state.zoom));
+        render();
+    }
+    plot.addEventListener('wheel', wheelZoom, {passive:false});
+    modalPlot.addEventListener('wheel', wheelZoom, {passive:false});
+
+    document.getElementById('canvasWrap').addEventListener('click', ()=>{
+        state.modalOpen = true;
+        document.getElementById('modal').classList.add('open');
+        render();
+    });
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    document.getElementById('modal').addEventListener('click', (e)=>{
+        if(e.target.id === 'modal') closeModal();
+    });
+    function closeModal(){
+        state.modalOpen = false;
+        document.getElementById('modal').classList.remove('open');
+    }
+    window.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+    document.getElementById('showAllBtn').addEventListener('click', ()=>{
+        state.activeStep = 7;
+        updateStepUI();
+        render();
+        document.querySelector('[data-step="7"]').scrollIntoView({behavior:'smooth', block:'center'});
+    });
+    document.getElementById('printBtn').addEventListener('click', ()=>window.print());
+
+    function updateStepUI(){
+        document.querySelectorAll('.step').forEach(step => {
+            const n = Number(step.dataset.step);
+            step.classList.toggle('active', n === state.activeStep);
+        });
+    }
+    document.querySelectorAll('.step').forEach(step => {
+        step.addEventListener('mouseenter', ()=>{
+            state.activeStep = Number(step.dataset.step);
+            updateStepUI();
+            render();
+        });
+        step.addEventListener('click', ()=>{
+            state.activeStep = Number(step.dataset.step);
+            updateStepUI();
+            render();
+        });
+    });
+
+    document.querySelectorAll('#modeNav [data-mode]').forEach(btn => {
+        btn.addEventListener('click', ()=>{
+            const mode = btn.dataset.mode;
+            document.querySelectorAll('#modeNav .btn').forEach(b=>b.classList.remove('active'));
+            document.querySelectorAll('#modeNav .btn').forEach(b=>b.classList.add('ghost'));
+            btn.classList.add('active');
+            btn.classList.remove('ghost');
+            document.querySelectorAll('.mode-block').forEach(block=>block.hidden = true);
+            document.getElementById('mode-' + mode).hidden = false;
+        });
+    });
+
+    const quizAnswers = [1,1,2];
+    document.querySelectorAll('.quiz-btn').forEach(btn => {
+        btn.addEventListener('click', ()=>{
+            const q = Number(btn.dataset.q);
+            const a = Number(btn.dataset.a);
+            const card = document.querySelector(`.quiz-card[data-q="${q}"]`);
+            const result = card.querySelector('.quiz-result');
+            if(a === quizAnswers[q]){
+                card.classList.add('correct');
+                card.classList.remove('wrong');
+                result.textContent = 'Верно.';
+            } else {
+                card.classList.add('wrong');
+                card.classList.remove('correct');
+                result.textContent = 'Пока нет. Пересмотрите геометрический смысл горизонтальной прямой.';
+            }
+        });
+    });
+
+    function randomInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+    function buildGeneratedTask(){
+        const k = [3,4,5][randomInt(0,2)];
+        const leftCoef = k + 1;
+        const intervalLeft = -randomInt(2,4);
+        const intervalRight = randomInt(1,2);
+        const maxA = Math.abs(intervalLeft) * k;
+        const rightStart = intervalRight;
+        const task = `Найдите все значения параметра a, при каждом из которых уравнение<br><br>
+      <span class="math">(${leftCoef}|x| + x + a)<sup>2</sup> = ${2*(k+1)}x<sup>2</sup> + 2(x+a)<sup>2</sup></span><br><br>
+      имеет единственный корень на интервале (${intervalLeft}; ${intervalRight}).`;
+        const answer = `После преобразований получаем <span class="math inline">a = ${k}|x| - x</span>.<br>
+      Тогда ветви: <span class="math inline">a = (${k}-1)x</span> при <span class="math inline">x ≥ 0</span> и <span class="math inline">a = -(${k}+1)x</span> при <span class="math inline">x &lt; 0</span>.<br>
+      На интервале (${intervalLeft}; ${intervalRight}) правая ветвь даёт значения <span class="math inline">a ∈ [0; ${(k-1)*intervalRight})</span>, левая — <span class="math inline">a ∈ (0; ${maxA})</span>.<br>
+      Поэтому единственный корень получается при <span class="math inline">a = 0</span> и при <span class="math inline">${(k-1)*intervalRight} ≤ a &lt; ${maxA}</span>.</span><br><br>
+      <strong>Ответ:</strong> <span class="math inline">a ∈ {0} ∪ [${(k-1)*intervalRight}; ${maxA})</span>.`;
+        return {task, answer};
+    }
+
+    document.getElementById('genBtn').addEventListener('click', ()=>{
+        state.generated = buildGeneratedTask();
+        document.getElementById('genOut').innerHTML = `<strong>Новая задача.</strong><br><br>${state.generated.task}`;
+    });
+    document.getElementById('revealGenBtn').addEventListener('click', ()=>{
+        if(!state.generated) state.generated = buildGeneratedTask();
+        document.getElementById('genOut').innerHTML = `<strong>Новая задача.</strong><br><br>${state.generated.task}<hr style="border-color:rgba(255,255,255,.08)"><strong>Ответ и идея.</strong><br><br>${state.generated.answer}`;
+    });
+
+    const hintBox = document.getElementById('hintBox');
+    if(!sessionStorage.getItem('nm_hint_shown')){
+        setTimeout(()=>{
+            hintBox.classList.add('show');
+            sessionStorage.setItem('nm_hint_shown','1');
+            setTimeout(()=>hintBox.classList.remove('show'),15000);
+        },3000);
+    }
+    document.getElementById('hideHintBtn').addEventListener('click', ()=>hintBox.classList.remove('show'));
+
+    window.addEventListener('resize', render);
+    render();
+</script>
+</body>
+</html>
