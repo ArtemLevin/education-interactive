@@ -36,7 +36,7 @@
             max-width: 1520px;
             margin: 0 auto;
             padding: 22px;
-            min-height: 100vh;
+            height: 100vh;
             display: grid;
             grid-template-columns: minmax(320px, 400px) minmax(0, 1fr);
             gap: 22px;
@@ -52,8 +52,8 @@
         }
 
         .controls {
-            min-height: calc(100vh - 44px);
-            min-width: 0;
+            height: calc(100vh - 44px);
+            min-height: 0;
             display: flex;
             flex-direction: column;
         }
@@ -80,7 +80,9 @@
             padding: 18px 22px 22px;
             display: grid;
             gap: 14px;
-            overflow: visible;
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
         }
 
         .field {
@@ -195,7 +197,8 @@
         .card ul { padding-left: 18px; }
 
         .stage-wrap {
-            min-height: calc(100vh - 44px);
+            height: calc(100vh - 44px);
+            min-height: 0;
             display: grid;
             grid-template-rows: auto 1fr auto;
         }
@@ -294,7 +297,8 @@
 
         @media (max-width: 1180px) {
             .app { grid-template-columns: 1fr; }
-            .controls, .stage-wrap { min-height: auto; }
+            .app { height: auto; min-height: 100vh; }
+            .controls, .stage-wrap { height: auto; min-height: auto; }
         }
 
         @media (max-width: 760px) {
@@ -650,7 +654,7 @@
 
     document.getElementById('exportSvgBtn').addEventListener('click', exportSVG);
     document.getElementById('exportPngBtn').addEventListener('click', exportPNG);
-    document.getElementById('copySvgBtn').addEventListener('click', copyPNGToClipboard);
+    document.getElementById('copySvgBtn').addEventListener('click', copySVGToClipboard);
     document.getElementById('copyParamsBtn').addEventListener('click', copyParamsToClipboard);
 
     svg.addEventListener('wheel', e => {
@@ -1337,19 +1341,24 @@
         });
     }
 
-    async function copyPNGToClipboard() {
-        const pngBlob = await renderPNGBlobFromSvg();
-        if (!pngBlob) return;
-        if (!(navigator.clipboard && window.ClipboardItem)) {
-            alert('Копирование PNG в буфер обмена не поддерживается в этом браузере.');
-            return;
+    async function copySVGToClipboard() {
+        const clone = svg.cloneNode(true);
+        clone.setAttribute('xmlns', NS);
+        clone.style.background = 'transparent';
+        const svgText = new XMLSerializer().serializeToString(clone);
+        if (navigator.clipboard && window.ClipboardItem) {
+            try {
+                const blob = new Blob([svgText], { type: 'image/svg+xml' });
+                const item = new ClipboardItem({ 'image/svg+xml': blob });
+                await navigator.clipboard.write([item]);
+                alert('SVG-изображение скопировано в буфер обмена.');
+                return;
+            } catch {
+                // Fallback to text copy below if binary clipboard write is blocked.
+            }
         }
-        try {
-            await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]);
-            alert('PNG-изображение скопировано в буфер обмена.');
-        } catch {
-            alert('Не удалось скопировать PNG в буфер обмена.');
-        }
+        const copied = await copyTextToClipboard(svgText);
+        alert(copied ? 'SVG-код скопирован в буфер обмена.' : 'Не удалось скопировать SVG в буфер обмена.');
     }
 
     async function copyParamsToClipboard() {
