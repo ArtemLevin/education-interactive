@@ -153,6 +153,9 @@
         .button-row.three {
             grid-template-columns: repeat(3, 1fr);
         }
+        .button-row.four {
+            grid-template-columns: repeat(4, 1fr);
+        }
 
         button {
             background: linear-gradient(135deg, rgba(56,189,248,.18), rgba(34,197,94,.14));
@@ -296,7 +299,7 @@
         @media (max-width: 760px) {
             .app { padding: 12px; gap: 14px; }
             .panel-header, .controls-body, .toolbar, .legend { padding-left: 14px; padding-right: 14px; }
-            .legend, .mini-grid, .button-row, .button-row.three { grid-template-columns: 1fr; }
+            .legend, .mini-grid, .button-row, .button-row.three, .button-row.four { grid-template-columns: 1fr; }
             .range-row { grid-template-columns: 1fr 64px; }
             #svg { height: 58vh; }
             h1 { font-size: 1.35rem; }
@@ -377,9 +380,10 @@
                 <button id="resetBtn" type="button">Сброс</button>
             </div>
 
-            <div class="button-row three">
+            <div class="button-row four">
                 <button id="exportSvgBtn" type="button">Экспорт SVG</button>
                 <button id="exportPngBtn" type="button">Экспорт PNG</button>
+                <button id="copySvgBtn" type="button">Копия SVG</button>
                 <button id="copyParamsBtn" type="button">Копировать</button>
             </div>
 
@@ -658,6 +662,7 @@
 
     document.getElementById('exportSvgBtn').addEventListener('click', exportSVG);
     document.getElementById('exportPngBtn').addEventListener('click', exportPNG);
+    document.getElementById('copySvgBtn').addEventListener('click', copySVGToClipboard);
 
     svg.addEventListener('wheel', e => {
         e.preventDefault();
@@ -1329,6 +1334,26 @@
             });
         };
         img.src = url;
+    }
+
+    async function copySVGToClipboard() {
+        const clone = svg.cloneNode(true);
+        clone.setAttribute('xmlns', NS);
+        clone.style.background = 'transparent';
+        const svgText = new XMLSerializer().serializeToString(clone);
+        try {
+            if (navigator.clipboard && window.ClipboardItem) {
+                const blob = new Blob([svgText], { type: 'image/svg+xml' });
+                const item = new ClipboardItem({ 'image/svg+xml': blob });
+                await navigator.clipboard.write([item]);
+                alert('SVG-изображение скопировано в буфер обмена.');
+                return;
+            }
+            await navigator.clipboard.writeText(svgText);
+            alert('SVG-код скопирован в буфер обмена.');
+        } catch {
+            alert('Не удалось скопировать SVG в буфер обмена.');
+        }
     }
 
     function download(url, filename) {
