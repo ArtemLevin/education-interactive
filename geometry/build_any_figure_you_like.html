@@ -1081,17 +1081,50 @@
         const g = make('g');
         const rotated = vertices.map(v => rotate3D(v, view.orbitY + state.rotation, view.orbitX));
         const projected = rotated.map(v => project3D(v, { x: state.cx, y: state.cy }));
+        const modelCenter = rotated.reduce((acc, p) => ({
+            x: acc.x + p.x,
+            y: acc.y + p.y,
+            z: acc.z + p.z
+        }), { x: 0, y: 0, z: 0 });
+        modelCenter.x /= rotated.length || 1;
+        modelCenter.y /= rotated.length || 1;
+        modelCenter.z /= rotated.length || 1;
+        const cameraPos = { x: 0, y: 0, z: -1300 };
 
         const faceData = faces.map((face, idx) => {
             const pts3 = face.map(i => rotated[i]);
             const pts2 = face.map(i => projected[i]);
-            const n = faceNormal3D(pts3[0], pts3[1], pts3[2]);
-            const visible = n.z < 0;
+            const faceCenter = pts3.reduce((acc, p) => ({
+                x: acc.x + p.x,
+                y: acc.y + p.y,
+                z: acc.z + p.z
+            }), { x: 0, y: 0, z: 0 });
+            faceCenter.x /= pts3.length || 1;
+            faceCenter.y /= pts3.length || 1;
+            faceCenter.z /= pts3.length || 1;
+
+            let n = faceNormal3D(pts3[0], pts3[1], pts3[2]);
+            const outwardRef = {
+                x: faceCenter.x - modelCenter.x,
+                y: faceCenter.y - modelCenter.y,
+                z: faceCenter.z - modelCenter.z
+            };
+            if ((n.x * outwardRef.x + n.y * outwardRef.y + n.z * outwardRef.z) < 0) {
+                n = { x: -n.x, y: -n.y, z: -n.z };
+            }
+
+            const toCamera = {
+                x: cameraPos.x - faceCenter.x,
+                y: cameraPos.y - faceCenter.y,
+                z: cameraPos.z - faceCenter.z
+            };
+            const visible = (n.x * toCamera.x + n.y * toCamera.y + n.z * toCamera.z) > 0;
             const avgZ = pts3.reduce((s, p) => s + p.z, 0) / pts3.length;
             return { idx, pts2, visible, avgZ };
         });
 
-        faceData.sort((a, b) => a.avgZ - b.avgZ).forEach(face => {
+        const sortedFaces = [...faceData].sort((a, b) => a.avgZ - b.avgZ);
+        sortedFaces.forEach(face => {
             if (!state.fill) return;
             add(make('polygon', {
                 points: pointsToString(face.pts2),
@@ -1282,6 +1315,11 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             canvas.toBlob(pngBlob => {
+                if (!pngBlob) {
+                    alert('Не удалось экспортировать PNG.');
+                    URL.revokeObjectURL(url);
+                    return;
+                }
                 const pngUrl = URL.createObjectURL(pngBlob);
                 download(pngUrl, `geometry-${selectedShape().id}.png`);
                 setTimeout(() => {
