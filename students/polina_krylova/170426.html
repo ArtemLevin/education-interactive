@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная химия — ОВР и ионный обмен</title>
+    <style>
+        :root {
+            --bg: #071018;
+            --panel: #0d1822;
+            --panel-2: #112231;
+            --text: #e8f1f6;
+            --muted: #96a9b8;
+            --accent: #63e6d2;
+            --accent-2: #7aa9ff;
+            --warn: #ffd166;
+            --danger: #ff7b7b;
+            --good: #8ce99a;
+            --border: rgba(255,255,255,0.08);
+            --shadow: 0 18px 40px rgba(0,0,0,0.35);
+            --radius: 20px;
+            --stickyTop: 18px;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; background: radial-gradient(circle at top, #122536 0%, var(--bg) 52%); color: var(--text); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+        body { min-height: 100vh; }
+        button, input, select { font: inherit; }
+
+        .wrap {
+            width: min(1500px, calc(100vw - 24px));
+            margin: 0 auto;
+            padding: 18px 0 60px;
+        }
+
+        .hero {
+            display: grid;
+            gap: 18px;
+            grid-template-columns: 1.2fr 0.8fr;
+            align-items: stretch;
+            margin-bottom: 18px;
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px);
+        }
+
+        .heroMain { padding: 28px; position: relative; overflow: hidden; }
+        .heroMain::after {
+            content: "";
+            position: absolute;
+            inset: auto -100px -120px auto;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99,230,210,0.18), rgba(99,230,210,0));
+            pointer-events: none;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(99,230,210,0.10);
+            color: var(--accent);
+            font-size: 13px;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        h1, h2, h3 { margin: 0 0 10px; line-height: 1.12; }
+        h1 { font-size: clamp(30px, 4vw, 54px); }
+        h2 { font-size: clamp(22px, 2.4vw, 32px); }
+        h3 { font-size: 18px; }
+        p { color: var(--muted); line-height: 1.6; margin: 0 0 10px; }
+
+        .heroGrid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .mini {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 14px;
+        }
+
+        .mini strong { display: block; margin-bottom: 6px; color: var(--text); }
+        .heroSide { padding: 22px; display: grid; gap: 14px; }
+
+        .controls {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+        }
+
+        .control {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 12px;
+        }
+
+        .control label {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        select, button, .ghostBtn, input[type="range"] {
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #10202d;
+            color: var(--text);
+            padding: 11px 12px;
+        }
+
+        button {
+            cursor: pointer;
+            transition: transform .15s ease, border-color .2s ease, background .2s ease;
+        }
+
+        button:hover, .ghostBtn:hover { transform: translateY(-1px); border-color: rgba(99,230,210,0.45); }
+        .primary { background: linear-gradient(135deg, rgba(99,230,210,0.18), rgba(122,169,255,0.16)); }
+
+        .banner {
+            margin: 10px 0 18px;
+            padding: 14px 18px;
+            border-radius: 18px;
+            background: linear-gradient(90deg, rgba(255,209,102,0.14), rgba(255,255,255,0.03));
+            border: 1px solid rgba(255,209,102,0.18);
+            color: #ffe9ad;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(0, 0.96fr) minmax(430px, 0.92fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .leftCol { display: grid; gap: 18px; }
+        .rightCol { position: sticky; top: var(--stickyTop); }
+
+        .section { padding: 22px; }
+
+        .idea {
+            border-left: 4px solid var(--accent);
+            background: linear-gradient(90deg, rgba(99,230,210,0.08), rgba(255,255,255,0.02));
+            padding: 16px 18px;
+            border-radius: 16px;
+            margin-top: 10px;
+        }
+
+        .steps { display: grid; gap: 12px; margin-top: 14px; }
+        .step {
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: rgba(255,255,255,0.025);
+            overflow: hidden;
+            transition: border-color .25s ease, transform .2s ease, background .2s ease;
+        }
+        .step.active {
+            border-color: rgba(99,230,210,0.55);
+            background: rgba(99,230,210,0.06);
+            transform: translateY(-1px);
+        }
+        .stepHeader {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            padding: 14px 16px;
+            cursor: pointer;
+        }
+        .stepNum {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: rgba(99,230,210,0.14);
+            color: var(--accent);
+            font-weight: 700;
+            flex: 0 0 auto;
+        }
+        .stepTitle { font-weight: 700; }
+        .stepBody {
+            padding: 0 16px 16px 64px;
+            color: var(--muted);
+            display: none;
+        }
+        .step.active .stepBody { display: block; }
+
+        .chipRow { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .chip {
+            padding: 8px 10px;
+            border-radius: 999px;
+            background: rgba(122,169,255,0.10);
+            color: #c8dbff;
+            border: 1px solid rgba(122,169,255,0.2);
+            font-size: 13px;
+        }
+        .chip.warn { background: rgba(255,209,102,0.10); color: #ffe3a1; border-color: rgba(255,209,102,0.2); }
+        .chip.good { background: rgba(140,233,154,0.10); color: #c8f8cf; border-color: rgba(140,233,154,0.18); }
+        .chip.danger { background: rgba(255,123,123,0.10); color: #ffc2c2; border-color: rgba(255,123,123,0.18); }
+
+        .visPanel { padding: 18px; }
+        .visHead { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 12px; }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toolbar button { width: auto; padding: 10px 12px; }
+
+        .canvasWrap {
+            position: relative;
+            background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.12));
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 12px;
+            min-height: 560px;
+        }
+
+        .canvasHint {
+            position: absolute;
+            right: 14px;
+            top: 14px;
+            background: rgba(7,16,24,0.82);
+            border: 1px solid rgba(99,230,210,0.18);
+            color: var(--muted);
+            padding: 8px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            z-index: 4;
+        }
+
+        svg { width: 100%; height: 540px; display: block; cursor: zoom-in; }
+        .legend { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 12px; }
+        .legend .mini { padding: 12px; }
+
+        .formulaBox {
+            background: #0a141d;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 14px;
+            margin-top: 12px;
+            overflow: auto;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #d7edf4;
+        }
+
+        .grid2 { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+
+        .mistakes li, .checklist li, .exerciseList li { margin-bottom: 8px; color: var(--muted); }
+        .exerciseCard {
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.025);
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .exerciseCard strong { color: var(--text); display: block; margin-bottom: 8px; }
+        .answer {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: rgba(140,233,154,0.08);
+            border: 1px solid rgba(140,233,154,0.16);
+            display: none;
+            color: #d6f8dc;
+        }
+        .exerciseCard.show .answer { display: block; }
+
+        .quizQuestion { margin-bottom: 14px; padding: 14px; border-radius: 16px; background: rgba(255,255,255,0.025); border: 1px solid var(--border); }
+        .quizOption { margin-top: 8px; display: block; padding: 10px 12px; border-radius: 12px; background: #10202d; border: 1px solid var(--border); cursor: pointer; }
+        .quizOption.correct { border-color: rgba(140,233,154,0.45); background: rgba(140,233,154,0.08); }
+        .quizOption.wrong { border-color: rgba(255,123,123,0.45); background: rgba(255,123,123,0.08); }
+
+        .footer {
+            margin-top: 20px;
+            padding: 16px 18px 30px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(3,8,12,0.84);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 80;
+        }
+        .overlay.open { display: flex; }
+        .modal {
+            width: min(1200px, 96vw);
+            background: #08131b;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.45);
+            padding: 18px;
+            position: relative;
+        }
+        .closeBtn {
+            position: absolute;
+            right: 14px;
+            top: 14px;
+            width: auto;
+            padding: 9px 12px;
+            border-radius: 12px;
+        }
+        .modal svg { height: min(76vh, 760px); cursor: grab; }
+
+        .hintBubble {
+            position: fixed;
+            left: 18px;
+            bottom: 18px;
+            max-width: 360px;
+            background: linear-gradient(135deg, rgba(99,230,210,0.16), rgba(122,169,255,0.12));
+            color: #eafcff;
+            border: 1px solid rgba(99,230,210,0.28);
+            border-radius: 18px;
+            padding: 14px 16px;
+            box-shadow: var(--shadow);
+            z-index: 90;
+            display: none;
+            animation: hintPulse 2.4s ease-in-out infinite;
+        }
+        .hintBubble.show { display: block; }
+        .hintBubble .closeMini { width: auto; margin-top: 10px; padding: 8px 10px; }
+
+        @keyframes hintPulse {
+            0%, 100% { transform: translateY(0); box-shadow: 0 18px 40px rgba(0,0,0,0.35); }
+            50% { transform: translateY(-3px); box-shadow: 0 22px 50px rgba(0,0,0,0.45); }
+        }
+
+        @media (max-width: 1100px) {
+            .hero, .workspace { grid-template-columns: 1fr; }
+            .rightCol { position: relative; top: 0; }
+        }
+
+        @media (max-width: 760px) {
+            .wrap { width: min(100vw - 12px, 100%); }
+            .heroGrid, .controls, .grid2, .legend { grid-template-columns: 1fr; }
+            .section, .heroMain, .heroSide, .visPanel { padding: 16px; }
+            .stepBody { padding-left: 16px; }
+            svg { height: 420px; }
+        }
+
+        @media print {
+            body { background: #fff; color: #111; }
+            .wrap { width: 100%; padding: 0; }
+            .card, .mini, .exerciseCard, .formulaBox, .section, .canvasWrap {
+                box-shadow: none !important;
+                background: #fff !important;
+                color: #111 !important;
+                border: 1px solid #ccc !important;
+            }
+            .rightCol, .overlay, .hintBubble, .toolbar, .controls, .banner { display: none !important; }
+            .workspace { grid-template-columns: 1fr; }
+            .answer { display: block !important; }
+            p, li, .stepBody, .mini, .formulaBox, .chip { color: #222 !important; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div class="heroMain card">
+            <div class="eyebrow">Наглядная химия · ЕГЭ · Полина Крылова</div>
+            <h1>ОВР и ионный обмен: как быстро увидеть, что именно происходит</h1>
+            <p>Эта страница превращает конспект по теме в наглядный интерактивный разбор. Слева — пошаговая логика решения, справа — визуальная модель: электронный баланс, тип реакции, признаки, схема превращения и проверка ответа.</p>
+            <div class="heroGrid">
+                <div class="mini"><strong>Главная цель</strong><span>Отличать ОВР от ионного обмена и безошибочно выбирать продукты реакции.</span></div>
+                <div class="mini"><strong>Ключевая идея</strong><span>Сначала ищем изменение степеней окисления, потом — движущую силу реакции.</span></div>
+                <div class="mini"><strong>Фокус урока</strong><span>Cu²⁺/I⁻, MnO₂ в кислой среде, карбонаты, кислые соли, цепочки превращений.</span></div>
+            </div>
+        </div>
+        <div class="heroSide card">
+            <h3>Панель управления</h3>
+            <div class="controls">
+                <div class="control">
+                    <label for="reactionSelect">Сцена</label>
+                    <select id="reactionSelect"></select>
+                </div>
+                <div class="control">
+                    <label for="detailSelect">Подробность</label>
+                    <select id="detailSelect">
+                        <option value="brief">Коротко</option>
+                        <option value="full" selected>Подробно</option>
+                        <option value="exam">Экзамен</option>
+                    </select>
+                </div>
+                <div class="control">
+                    <label for="zoomRange">Масштаб схемы</label>
+                    <input id="zoomRange" type="range" min="75" max="170" value="100" />
+                </div>
+                <div class="control">
+                    <label>Быстрые действия</label>
+                    <button id="showAllBtn" class="primary">Показать все шаги</button>
+                </div>
+            </div>
+            <button id="generateBtn" class="primary">Сгенерировать похожую задачу</button>
+            <button id="resetBtn">Сбросить вид и шаги</button>
+            <div class="mini">
+                <strong>Что проверяем первым?</strong>
+                <div class="chipRow">
+                    <span class="chip">Степени окисления</span>
+                    <span class="chip warn">Осадок / газ / H₂O</span>
+                    <span class="chip good">Среду реакции</span>
+                    <span class="chip danger">Таблицу растворимости</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="banner card">Сильная стратегия для ЕГЭ: сначала определите, есть ли изменение степеней окисления. Если нет — ищите движущую силу обмена: осадок, газ или слабый электролит.</div>
+
+    <section class="workspace">
+        <div class="leftCol">
+            <article class="section card">
+                <h2>Идея решения</h2>
+                <div class="idea" id="ideaBox"></div>
+                <div class="steps" id="stepsContainer"></div>
+            </article>
+
+            <article class="section card">
+                <h2>Схема решения</h2>
+                <ul class="checklist">
+                    <li><strong>Что дано:</strong> набор реагентов, условия среды, указание на признак реакции.</li>
+                    <li><strong>Что найти:</strong> реагирующую пару, продукты, тип реакции, электронный баланс или ионное уравнение.</li>
+                    <li><strong>Смысл условия:</strong> слова «белый осадок», «без видимых признаков», «гетерогенная», «твердофазная» сразу отсекают лишние варианты.</li>
+                    <li><strong>Ключевая химическая идея:</strong> ОВР требует пары окислитель–восстановитель; обмен идёт до конца при образовании осадка, газа или воды.</li>
+                    <li><strong>Проверка:</strong> совпадают ли заряд, коэффициенты, признак реакции и школьно-типичный продукт.</li>
+                    <li><strong>Вывод:</strong> формулируем ответ в том виде, как требуется на экзамене.</li>
+                </ul>
+            </article>
+
+            <article class="section card">
+                <h2>Типичные ошибки</h2>
+                <ul class="mistakes" id="mistakeList"></ul>
+            </article>
+
+            <article class="section card">
+                <h2>Самопроверка</h2>
+                <div class="grid2" id="selfCheckGrid"></div>
+            </article>
+
+            <article class="section card">
+                <h2>Мини-квиз</h2>
+                <div id="quizBox"></div>
+            </article>
+
+            <article class="section card">
+                <h2>Генератор похожих задач</h2>
+                <p>Генератор создаёт близкие по логике задания без вырожденных случаев: с понятной движущей силой реакции и проверяемым ответом.</p>
+                <div class="exerciseCard" id="generatedTaskCard">
+                    <strong id="generatedTaskTitle">Нажмите кнопку «Сгенерировать похожую задачу».</strong>
+                    <div id="generatedTaskText" style="color: var(--muted);"></div>
+                    <div class="answer" id="generatedAnswer"></div>
+                    <button id="showGeneratedAnswer" style="margin-top: 10px;">Показать ответ</button>
+                </div>
+            </article>
+        </div>
+
+        <div class="rightCol">
+            <article class="visPanel card">
+                <div class="visHead">
+                    <div>
+                        <h2 id="visTitle">Визуализация реакции</h2>
+                        <p id="visSubtitle">Электронный баланс, продукты, признак реакции и связи между идеей и формулами.</p>
+                    </div>
+                    <div class="toolbar">
+                        <button id="zoomInBtn">+</button>
+                        <button id="zoomOutBtn">−</button>
+                        <button id="resetZoomBtn">Сброс</button>
+                    </div>
+                </div>
+                <div class="canvasWrap">
+                    <div class="canvasHint">Клик по схеме — увеличить</div>
+                    <svg id="mainSvg" viewBox="0 0 900 560" aria-label="Интерактивная схема реакции"></svg>
+                </div>
+                <div class="legend">
+                    <div class="mini"><strong>Бирюзовый</strong><span>Окисление / отдача электронов / ключевой шаг.</span></div>
+                    <div class="mini"><strong>Синий</strong><span>Восстановление / принятие электронов / среда реакции.</span></div>
+                    <div class="mini"><strong>Жёлтый</strong><span>Признак реакции: газ, осадок, изменение окраски.</span></div>
+                    <div class="mini"><strong>Красный</strong><span>Типичные ловушки и неправильные продукты.</span></div>
+                </div>
+                <div class="formulaBox" id="formulaBox"></div>
+            </article>
+        </div>
+    </section>
+
+    <footer class="footer">Артём Александрович Лёвин эксклюзивно для Полины Крыловой</footer>
+</div>
+
+<div class="overlay" id="overlay">
+    <div class="modal">
+        <button class="closeBtn" id="closeOverlay">Закрыть ✕</button>
+        <svg id="modalSvg" viewBox="0 0 900 560" aria-label="Увеличенная схема"></svg>
+    </div>
+</div>
+
+<div class="hintBubble" id="hintBubble" role="tooltip" aria-live="polite">
+    <strong>Подсказка:</strong> сначала проверьте, меняются ли степени окисления. Это сразу делит задачу на две большие группы.
+    <div><button class="closeMini" id="closeHint">Понятно</button></div>
+</div>
+
+<script>
+    const reactions = [
+        {
+            id: 'cu_i',
+            title: 'Cu(NO₃)₂ + NaI → CuI↓ + I₂',
+            subtitle: 'Классическая ОВР с белым осадком бинарного соединения',
+            type: 'ОВР',
+            sign: 'Белый осадок CuI и выделение I₂',
+            idea: 'Если в наборе есть Cu²⁺ и I⁻, это сильная подсказка на ОВР: иодид отдаёт электроны, а медь(II) принимает их и превращается в Cu⁺. В результате образуется белый осадок CuI — именно этот признак делает выбор пары почти однозначным.',
+            equation: '2Cu(NO₃)₂ + 4NaI → 2CuI↓ + I₂ + 4NaNO₃',
+            shortEq: '2Cu²⁺ + 4I⁻ → 2CuI↓ + I₂',
+            oxidation: '2I⁻ − 2e⁻ → I₂',
+            reduction: '2Cu²⁺ + 2e⁻ → 2Cu⁺',
+            steps: [
+                { title: 'Определяем тип задачи', body: 'В условии сказано, что образуется белый осадок бинарного соединения. Это очень сильный намёк на CuI: соединение бинарное, нерастворимое, белое.' },
+                { title: 'Ищем окислитель и восстановитель', body: 'I⁻ легко отдаёт электроны: он работает как восстановитель. Cu²⁺ может принять электрон и перейти в Cu⁺, значит это окислитель.' },
+                { title: 'Пишем полуреакции', body: 'Окисление: 2I⁻ − 2e⁻ → I₂. Восстановление: 2Cu²⁺ + 2e⁻ → 2Cu⁺. Дальше Cu⁺ сразу связывается с I⁻ и выпадает в виде CuI.' },
+                { title: 'Проверяем признак реакции', body: 'Белый осадок CuI согласуется с условием. Это финальная проверка: не просто «реакция идёт», а именно тот продукт, который описан в задаче.' }
+            ],
+            mistakes: [
+                'Пишут CuI₂, хотя медь(II) в иодидной системе не сохраняется.',
+                'Забывают, что Cu²⁺ окисляет I⁻ до I₂.',
+                'Путают белый осадок CuI с цветом выделяющегося иода.',
+                'Не замечают, что именно осадок CuI является ключевым продуктом.'
+            ],
+            checks: [
+                ['Кто окислитель?', 'Cu²⁺'],
+                ['Кто восстановитель?', 'I⁻'],
+                ['Какой осадок образуется?', 'CuI, белый'],
+                ['Краткое ионное уравнение?', '2Cu²⁺ + 4I⁻ → 2CuI↓ + I₂']
+            ]
+        },
+        {
+            id: 'phosphate',
+            title: 'NaH₂PO₄ + Na₃PO₄ → 2Na₂HPO₄',
+            subtitle: 'Ионный обмен без видимых признаков',
+            type: 'Ионный обмен',
+            sign: 'Видимых признаков нет',
+            idea: 'Если в задаче нет осадка, газа и окрашивания, нужно искать образование нового слабее диссоциирующего участника системы. Для фосфатов это часто перенос протона между кислой и средней солью.',
+            equation: 'NaH₂PO₄ + Na₃PO₄ → 2Na₂HPO₄',
+            shortEq: 'H₂PO₄⁻ + PO₄³⁻ → 2HPO₄²⁻',
+            oxidation: 'Степени окисления не меняются',
+            reduction: 'Это не ОВР',
+            steps: [
+                { title: 'Проверяем степени окисления', body: 'Ни у натрия, ни у фосфора, ни у кислорода изменения нет. Значит, это не ОВР.' },
+                { title: 'Ищем движущую силу', body: 'Осадок не образуется, газ не выделяется. Остаётся кислотно-основное взаимодействие между H₂PO₄⁻ и PO₄³⁻.' },
+                { title: 'Пишем суть процесса', body: 'Один ион отдаёт протон, другой его принимает. Поэтому образуется HPO₄²⁻ с обеих сторон по два экземпляра.' },
+                { title: 'Проверяем условие', body: 'Видимых признаков действительно нет: ни пузырьков, ни осадка, ни изменения окраски.' }
+            ],
+            mistakes: [
+                'Пытаются искать ОВР там, где степеней окисления никто не меняет.',
+                'Неверно записывают формулы кислых солей фосфорной кислоты.',
+                'Не сокращают ионы-наблюдатели.',
+                'Думают, что если нет осадка и газа, то реакции вообще нет.'
+            ],
+            checks: [
+                ['Это ОВР?', 'Нет'],
+                ['Что является движущей силой?', 'Перенос протона'],
+                ['Есть ли видимый признак?', 'Нет'],
+                ['Краткое ионное уравнение?', 'H₂PO₄⁻ + PO₄³⁻ → 2HPO₄²⁻']
+            ]
+        },
+        {
+            id: 'mno2_br',
+            title: 'MnO₂ + NaBr + H₂SO₄ → Br₂',
+            subtitle: 'ОВР в кислой среде с выделением брома',
+            type: 'ОВР',
+            sign: 'Появление Br₂ и исчезновение чёрного MnO₂',
+            idea: 'MnO₂ без кислой среды часто «не запускается» так, как нужно в задачах ЕГЭ. Именно кислота помогает перевести марганец из +4 в +2, а бромид окисляется до Br₂.',
+            equation: 'MnO₂ + 2NaBr + 2H₂SO₄ → Br₂ + MnSO₄ + Na₂SO₄ + 2H₂O',
+            shortEq: 'MnO₂ + 4H⁺ + 2Br⁻ → Mn²⁺ + Br₂ + 2H₂O',
+            oxidation: '2Br⁻ − 2e⁻ → Br₂',
+            reduction: 'MnO₂ + 4H⁺ + 2e⁻ → Mn²⁺ + 2H₂O',
+            steps: [
+                { title: 'Смотрим на твёрдую фазу', body: 'В наборе именно MnO₂ — твёрдое вещество, поэтому реакция будет гетерогенной: твёрдое + раствор.' },
+                { title: 'Определяем роли', body: 'Mn в MnO₂ имеет степень +4 и может восстановиться до +2. Br⁻, наоборот, отдаёт электроны и превращается в Br₂.' },
+                { title: 'Почему нужна кислота?', body: 'Для полуреакции восстановления MnO₂ нужны H⁺: без кислой среды уравнение не замкнётся по водороду и кислороду.' },
+                { title: 'Проверяем признак', body: 'Br₂ даёт характерную бурую окраску, а чёрный MnO₂ постепенно расходуется.' }
+            ],
+            mistakes: [
+                'Забывают добавить кислоту как источник H⁺.',
+                'Путают продукты марганца и пишут MnO₄²⁻ или MnO₄⁻.',
+                'Не замечают, что это гетерогенная реакция.',
+                'Неверно уравнивают воду в полуреакции.'
+            ],
+            checks: [
+                ['Кто окислитель?', 'MnO₂'],
+                ['Кто восстановитель?', 'Br⁻'],
+                ['Почему нужна H₂SO₄?', 'Чтобы дать H⁺'],
+                ['Краткое ионное уравнение?', 'MnO₂ + 4H⁺ + 2Br⁻ → Mn²⁺ + Br₂ + 2H₂O']
+            ]
+        },
+        {
+            id: 'carbonate',
+            title: 'K₂CO₃ + H₂SO₄ → CO₂↑ + H₂O',
+            subtitle: 'Самая типовая реакция ионного обмена с газом',
+            type: 'Ионный обмен',
+            sign: 'Выделение CO₂',
+            idea: 'Карбонат + кислота — это почти мгновенный триггер на выделение углекислого газа. Здесь нет ОВР: степени окисления остаются прежними.',
+            equation: 'K₂CO₃ + H₂SO₄ → K₂SO₄ + CO₂↑ + H₂O',
+            shortEq: 'CO₃²⁻ + 2H⁺ → CO₂↑ + H₂O',
+            oxidation: 'Степени окисления не меняются',
+            reduction: 'Это не ОВР',
+            steps: [
+                { title: 'Проверяем тип реакции', body: 'У углерода в карбонате +4 и в CO₂ тоже +4. Значит, это не ОВР.' },
+                { title: 'Определяем движущую силу', body: 'Образуется газ CO₂ и вода — этого более чем достаточно, чтобы реакция шла до конца.' },
+                { title: 'Пишем краткое ионное уравнение', body: 'CO₃²⁻ + 2H⁺ → CO₂↑ + H₂O. Это и есть «химическое ядро» процесса.' },
+                { title: 'Финальная проверка', body: 'Калий и сульфат — ионы-наблюдатели, они в сокращённое ионное уравнение не входят.' }
+            ],
+            mistakes: [
+                'Пытаются искать изменение степени окисления у углерода.',
+                'Забывают, что вода входит в продукты.',
+                'Не сокращают K⁺ и SO₄²⁻.',
+                'Пишут H₂CO₃ как конечный продукт, хотя она распадается на CO₂ и H₂O.'
+            ],
+            checks: [
+                ['Это ОВР?', 'Нет'],
+                ['Признак реакции?', 'Выделение CO₂'],
+                ['Краткое ионное уравнение?', 'CO₃²⁻ + 2H⁺ → CO₂↑ + H₂O'],
+                ['Почему реакция идёт до конца?', 'Газ + вода']
+            ]
+        },
+        {
+            id: 'cr_solid',
+            title: 'Cr₂O₃ + KClO₃ + KOH → K₂CrO₄',
+            subtitle: 'Твердофазная ОВР с изменением цвета',
+            type: 'ОВР',
+            sign: 'Зелёный Cr₂O₃ → жёлтый K₂CrO₄',
+            idea: 'Когда в условии есть «твердофазная ОВР» и «изменение цвета», смотрим на оксид переходного металла и сильный окислитель вроде хлората. Для хрома это почти всегда переход Cr(III) → Cr(VI).',
+            equation: 'Cr₂O₃ + KClO₃ + 4KOH → 2K₂CrO₄ + KCl + 2H₂O',
+            shortEq: 'Твердофазная реакция; сокращённое ионное обычно не пишут',
+            oxidation: '2Cr³⁺ − 6e⁻ → 2Cr⁶⁺',
+            reduction: 'Cl⁵⁺ + 6e⁻ → Cl⁻',
+            steps: [
+                { title: 'Выделяем основные реагенты', body: 'Cr₂O₃ — зелёный оксид хрома(III), KClO₃ — сильный окислитель, KOH помогает получить хромат калия.' },
+                { title: 'Определяем изменения степеней окисления', body: 'Cr: +3 → +6, то есть хром окисляется. Cl: +5 → -1, то есть хлор восстанавливается.' },
+                { title: 'Понимаем, зачем KOH', body: 'В щелочной среде продуктом становится именно хромат K₂CrO₄, а не другая соль хрома(VI).' },
+                { title: 'Проверяем визуальный признак', body: 'Зелёный исходный оксид сменяется жёлтым хроматом — это точное попадание в условие.' }
+            ],
+            mistakes: [
+                'Путают хромат и дихромат.',
+                'Не учитывают роль KOH в образовании соли хрома(VI).',
+                'Игнорируют изменение цвета как критерий выбора реакции.',
+                'Пишут реакцию как ионный обмен, хотя это ОВР.'
+            ],
+            checks: [
+                ['Кто восстановитель?', 'Cr₂O₃'],
+                ['Кто окислитель?', 'KClO₃'],
+                ['Какой признак реакции?', 'Зелёный → жёлтый'],
+                ['Какой продукт хрома?', 'K₂CrO₄']
+            ]
+        }
+    ];
+
+    const quizData = [
+        {
+            q: 'Какой первый вопрос нужно задать себе в задаче на подбор реагентов?',
+            options: ['Есть ли изменение степеней окисления?', 'Какого цвета раствор?', 'Какая масса осадка?', 'Сколько атомов кислорода в реагентах?'],
+            correct: 0,
+            explain: 'Это главный разворот задачи: ОВР или ионный обмен.'
+        },
+        {
+            q: 'Какая пара даёт белый осадок CuI?',
+            options: ['Cu²⁺ и I⁻', 'Na⁺ и Cl⁻', 'K⁺ и SO₄²⁻', 'Zn²⁺ и NO₃⁻'],
+            correct: 0,
+            explain: 'Именно иодид восстанавливает Cu²⁺ до Cu⁺ с образованием CuI.'
+        },
+        {
+            q: 'Что является движущей силой реакции K₂CO₃ + H₂SO₄?',
+            options: ['Изменение цвета', 'Образование газа и воды', 'Получение сильного электролита', 'Нагревание'],
+            correct: 1,
+            explain: 'Образуется CO₂ и H₂O, поэтому реакция идёт до конца.'
+        }
+    ];
+
+    const generatedTemplates = [
+        {
+            title: 'Похожая задача: FeCl₃ и KI',
+            text: 'Из веществ FeCl₃, KI, Na₂SO₄ и KNO₃ выберите пару, между которой идёт ОВР. Укажите окислитель, восстановитель и молекулярное уравнение.',
+            answer: 'Fe³⁺ окисляет I⁻ до I₂. Уравнение: 2FeCl₃ + 2KI → 2FeCl₂ + I₂ + 2KCl. Окислитель: Fe³⁺, восстановитель: I⁻.'
+        },
+        {
+            title: 'Похожая задача: карбонат и кислота',
+            text: 'Напишите молекулярное, полное и сокращённое ионные уравнения реакции между Na₂CO₃ и HCl.',
+            answer: 'Na₂CO₃ + 2HCl → 2NaCl + CO₂↑ + H₂O; полное ионное: 2Na⁺ + CO₃²⁻ + 2H⁺ + 2Cl⁻ → 2Na⁺ + 2Cl⁻ + CO₂↑ + H₂O; сокращённое: CO₃²⁻ + 2H⁺ → CO₂↑ + H₂O.'
+        },
+        {
+            title: 'Похожая задача: кислые соли фосфата',
+            text: 'Объясните, пойдёт ли реакция между KH₂PO₄ и K₃PO₄, и запишите её сокращённое ионное уравнение.',
+            answer: 'Да, пойдёт за счёт переноса протона: H₂PO₄⁻ + PO₄³⁻ → 2HPO₄²⁻. Видимых признаков нет.'
+        },
+        {
+            title: 'Похожая задача: MnO₂ и HCl',
+            text: 'Подберите коэффициенты в реакции MnO₂ + HCl → MnCl₂ + Cl₂ + H₂O и укажите окислитель и восстановитель.',
+            answer: 'MnO₂ + 4HCl → MnCl₂ + Cl₂ + 2H₂O. Окислитель: MnO₂, восстановитель: Cl⁻ из HCl.'
+        }
+    ];
+
+    const reactionSelect = document.getElementById('reactionSelect');
+    const detailSelect = document.getElementById('detailSelect');
+    const ideaBox = document.getElementById('ideaBox');
+    const stepsContainer = document.getElementById('stepsContainer');
+    const mistakeList = document.getElementById('mistakeList');
+    const selfCheckGrid = document.getElementById('selfCheckGrid');
+    const formulaBox = document.getElementById('formulaBox');
+    const visTitle = document.getElementById('visTitle');
+    const visSubtitle = document.getElementById('visSubtitle');
+    const mainSvg = document.getElementById('mainSvg');
+    const modalSvg = document.getElementById('modalSvg');
+    const overlay = document.getElementById('overlay');
+    const closeOverlay = document.getElementById('closeOverlay');
+    const zoomRange = document.getElementById('zoomRange');
+    const showAllBtn = document.getElementById('showAllBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    const resetZoomBtn = document.getElementById('resetZoomBtn');
+    const generateBtn = document.getElementById('generateBtn');
+    const generatedTaskTitle = document.getElementById('generatedTaskTitle');
+    const generatedTaskText = document.getElementById('generatedTaskText');
+    const generatedAnswer = document.getElementById('generatedAnswer');
+    const showGeneratedAnswer = document.getElementById('showGeneratedAnswer');
+    const generatedTaskCard = document.getElementById('generatedTaskCard');
+    const quizBox = document.getElementById('quizBox');
+    const hintBubble = document.getElementById('hintBubble');
+    const closeHint = document.getElementById('closeHint');
+
+    const state = {
+        reactionId: reactions[0].id,
+        activeStep: 0,
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        isDragging: false,
+        lastX: 0,
+        lastY: 0,
+        modalOpen: false
+    };
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>\"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+    }
+
+    function currentReaction() {
+        return reactions.find(r => r.id === state.reactionId) || reactions[0];
+    }
+
+    function populateSelect() {
+        reactions.forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r.id;
+            opt.textContent = r.title;
+            reactionSelect.appendChild(opt);
+        });
+    }
+
+    function renderSteps() {
+        const rx = currentReaction();
+        stepsContainer.innerHTML = '';
+        rx.steps.forEach((step, idx) => {
+            const el = document.createElement('div');
+            el.className = 'step' + (idx === state.activeStep ? ' active' : '');
+            el.innerHTML = `
+          <div class="stepHeader" data-step="${idx}">
+            <div class="stepNum">${idx + 1}</div>
+            <div>
+              <div class="stepTitle">${escapeHtml(step.title)}</div>
+              <div style="color: var(--muted); font-size: 13px; margin-top: 4px;">Шаг ${idx + 1} из ${rx.steps.length}</div>
+            </div>
+          </div>
+          <div class="stepBody">${escapeHtml(step.body)}</div>
+        `;
+            stepsContainer.appendChild(el);
+        });
+
+        stepsContainer.querySelectorAll('.stepHeader').forEach(head => {
+            head.addEventListener('click', () => {
+                state.activeStep = Number(head.dataset.step);
+                renderAll();
+            });
+        });
+    }
+
+    function renderMistakes() {
+        const rx = currentReaction();
+        mistakeList.innerHTML = rx.mistakes.map(m => `<li>${escapeHtml(m)}</li>`).join('');
+    }
+
+    function renderChecks() {
+        const rx = currentReaction();
+        selfCheckGrid.innerHTML = rx.checks.map(([q, a]) => `
+        <div class="mini">
+          <strong>${escapeHtml(q)}</strong>
+          <span>${escapeHtml(a)}</span>
+        </div>
+      `).join('');
+    }
+
+    function detailMarkup(rx) {
+        const mode = detailSelect.value;
+        if (mode === 'brief') {
+            return `<strong>Тип:</strong> ${rx.type}<br><strong>Признак:</strong> ${rx.sign}<br><strong>Уравнение:</strong> ${rx.equation}`;
+        }
+        if (mode === 'exam') {
+            return `<strong>Тип:</strong> ${rx.type}<br><strong>Молекулярное уравнение:</strong> ${rx.equation}<br><strong>Сокращённое ионное:</strong> ${rx.shortEq}<br><strong>Окисление:</strong> ${rx.oxidation}<br><strong>Восстановление:</strong> ${rx.reduction}<br><strong>Что проверить в ответе:</strong> коэффициенты, заряд, признак реакции.`;
+        }
+        return `<strong>Тип реакции:</strong> ${rx.type}<br><strong>Признак:</strong> ${rx.sign}<br><strong>Молекулярное уравнение:</strong> ${rx.equation}<br><strong>Сокращённое ионное / суть:</strong> ${rx.shortEq}<br><strong>Окисление:</strong> ${rx.oxidation}<br><strong>Восстановление:</strong> ${rx.reduction}`;
+    }
+
+    function renderFormula() {
+        const rx = currentReaction();
+        formulaBox.innerHTML = detailMarkup(rx);
+    }
+
+    function box(x, y, w, h, label, fill, stroke, extra='') {
+        return `<g ${extra}><rect x="${x}" y="${y}" rx="18" ry="18" width="${w}" height="${h}" fill="${fill}" stroke="${stroke}" stroke-width="2"></rect><text x="${x + w/2}" y="${y + h/2 + 6}" text-anchor="middle" fill="#eef8ff" font-size="20" font-weight="700">${label}</text></g>`;
+    }
+
+    function smallText(x, y, text, color='#96a9b8', size=16, anchor='start') {
+        return `<text x="${x}" y="${y}" fill="${color}" font-size="${size}" text-anchor="${anchor}">${text}</text>`;
+    }
+
+    function arrow(x1, y1, x2, y2, color='#7aa9ff', width=4, dash='') {
+        return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}" ${dash ? `stroke-dasharray="${dash}"` : ''} marker-end="url(#arrowHead)"></line>`;
+    }
+
+    function renderSvg(target) {
+        const rx = currentReaction();
+        const step = state.activeStep;
+        const zoom = state.zoom;
+        const tx = state.panX;
+        const ty = state.panY;
+
+        const bgGrid = Array.from({length: 18}, (_,i)=>`<line x1="${i*60}" y1="0" x2="${i*60}" y2="560" stroke="rgba(255,255,255,0.05)"/>`).join('') +
+        Array.from({length: 11}, (_,i)=>`<line x1="0" y1="${i*56}" x2="900" y2="${i*56}" stroke="rgba(255,255,255,0.05)"/>`).join('');
+
+        let center = '';
+        if (rx.id === 'cu_i') {
+            center = `
+          ${box(60, 70, 240, 80, 'Cu²⁺', 'rgba(122,169,255,0.16)', '#7aa9ff', step===1||step===2? 'class="pulse"':'' )}
+          ${box(60, 190, 240, 80, 'I⁻', 'rgba(99,230,210,0.14)', '#63e6d2')}
+          ${arrow(310, 110, 430, 110, '#7aa9ff')}
+          ${arrow(310, 230, 430, 230, '#63e6d2')}
+          ${box(450, 70, 200, 80, 'Cu⁺', 'rgba(122,169,255,0.10)', '#7aa9ff')}
+          ${box(450, 190, 200, 80, 'I₂', 'rgba(99,230,210,0.10)', '#63e6d2')}
+          ${arrow(660, 110, 790, 110, '#7aa9ff')}
+          ${box(770, 70, 110, 80, 'CuI↓', 'rgba(255,209,102,0.14)', '#ffd166')}
+          ${smallText(180, 55, 'окислитель', '#cbe0ff', 15, 'middle')}
+          ${smallText(180, 175, 'восстановитель', '#c9fff3', 15, 'middle')}
+          ${smallText(550, 55, 'после приёма e⁻', '#96a9b8', 14, 'middle')}
+          ${smallText(550, 175, 'после отдачи e⁻', '#96a9b8', 14, 'middle')}
+          ${smallText(825, 55, 'белый осадок', '#ffe3a1', 14, 'middle')}
+          ${smallText(450, 330, 'Электронный баланс: 2I⁻ − 2e⁻ → I₂; 2Cu²⁺ + 2e⁻ → 2Cu⁺', '#e2edf5', 18)}
+          ${smallText(450, 370, 'Ключевая проверка: продукт CuI согласуется с признаком «белый осадок бинарного соединения».', '#96a9b8', 16)}
+        `;
+        } else if (rx.id === 'phosphate') {
+            center = `
+          ${box(70, 110, 260, 90, 'H₂PO₄⁻', 'rgba(122,169,255,0.14)', '#7aa9ff')}
+          ${box(70, 250, 260, 90, 'PO₄³⁻', 'rgba(99,230,210,0.14)', '#63e6d2')}
+          ${arrow(350, 155, 510, 155, '#ffd166')}
+          ${arrow(350, 295, 510, 295, '#ffd166')}
+          ${box(530, 180, 260, 90, '2HPO₄²⁻', 'rgba(255,209,102,0.14)', '#ffd166')}
+          ${smallText(200, 95, 'кислая соль', '#cbe0ff', 15, 'middle')}
+          ${smallText(200, 235, 'средняя соль', '#c9fff3', 15, 'middle')}
+          ${smallText(660, 165, 'перенос протона', '#ffe3a1', 15, 'middle')}
+          ${smallText(450, 380, 'Степени окисления не меняются → это не ОВР.', '#e2edf5', 18)}
+          ${smallText(450, 414, 'Признак реакции отсутствует, но новый анион образуется и система сдвигается.', '#96a9b8', 16)}
+        `;
+        } else if (rx.id === 'mno2_br') {
+            center = `
+          ${box(70, 80, 220, 80, 'MnO₂', 'rgba(122,169,255,0.14)', '#7aa9ff')}
+          ${box(70, 210, 220, 80, 'Br⁻', 'rgba(99,230,210,0.14)', '#63e6d2')}
+          ${box(70, 340, 220, 80, 'H⁺', 'rgba(122,169,255,0.08)', '#7aa9ff')}
+          ${arrow(300, 120, 450, 120, '#7aa9ff')}
+          ${arrow(300, 250, 450, 250, '#63e6d2')}
+          ${arrow(300, 380, 450, 380, '#7aa9ff', 4, '9 6')}
+          ${box(470, 80, 180, 80, 'Mn²⁺', 'rgba(122,169,255,0.14)', '#7aa9ff')}
+          ${box(470, 210, 180, 80, 'Br₂', 'rgba(255,209,102,0.18)', '#ffd166')}
+          ${box(470, 340, 180, 80, 'H₂O', 'rgba(255,255,255,0.06)', '#d3dce3')}
+          ${smallText(560, 65, 'восстановление Mn(+4 → +2)', '#cbe0ff', 14, 'middle')}
+          ${smallText(560, 195, 'окисление Br(−1 → 0)', '#ffe3a1', 14, 'middle')}
+          ${smallText(560, 325, 'роль кислой среды', '#cbe0ff', 14, 'middle')}
+          ${smallText(450, 470, 'Без H⁺ полуреакция восстановления MnO₂ не замыкается корректно.', '#e2edf5', 18)}
+        `;
+        } else if (rx.id === 'carbonate') {
+            center = `
+          ${box(80, 160, 220, 90, 'CO₃²⁻', 'rgba(122,169,255,0.14)', '#7aa9ff')}
+          ${box(80, 290, 220, 90, '2H⁺', 'rgba(99,230,210,0.14)', '#63e6d2')}
+          ${arrow(320, 205, 500, 205, '#ffd166')}
+          ${arrow(320, 335, 500, 335, '#ffd166')}
+          ${box(530, 140, 180, 90, 'CO₂↑', 'rgba(255,209,102,0.16)', '#ffd166')}
+          ${box(530, 280, 180, 90, 'H₂O', 'rgba(255,255,255,0.06)', '#d3dce3')}
+          ${smallText(190, 145, 'карбонат-ион', '#cbe0ff', 14, 'middle')}
+          ${smallText(190, 275, 'кислая среда', '#c9fff3', 14, 'middle')}
+          ${smallText(620, 125, 'газ', '#ffe3a1', 14, 'middle')}
+          ${smallText(620, 265, 'слабый электролит', '#dce8f0', 14, 'middle')}
+          ${smallText(450, 460, 'Движущая сила обмена: одновременно образуются CO₂ и H₂O.', '#e2edf5', 18)}
+        `;
+        } else {
+            center = `
+          ${box(70, 100, 220, 90, 'Cr₂O₃', 'rgba(99,230,210,0.12)', '#63e6d2')}
+          ${box(70, 250, 220, 90, 'KClO₃', 'rgba(122,169,255,0.12)', '#7aa9ff')}
+          ${box(70, 400, 220, 70, 'KOH', 'rgba(255,255,255,0.06)', '#d3dce3')}
+          ${arrow(310, 145, 500, 145, '#63e6d2')}
+          ${arrow(310, 295, 500, 295, '#7aa9ff')}
+          ${arrow(310, 435, 500, 435, '#d3dce3', 4, '9 6')}
+          ${box(530, 90, 210, 90, 'K₂CrO₄', 'rgba(255,209,102,0.16)', '#ffd166')}
+          ${box(530, 250, 210, 90, 'KCl', 'rgba(122,169,255,0.08)', '#7aa9ff')}
+          ${box(530, 400, 210, 70, 'H₂O', 'rgba(255,255,255,0.06)', '#d3dce3')}
+          ${smallText(635, 74, 'жёлтый хромат', '#ffe3a1', 14, 'middle')}
+          ${smallText(635, 234, 'восстановленный хлор', '#cbe0ff', 14, 'middle')}
+          ${smallText(450, 510, 'Зелёный Cr₂O₃ → жёлтый K₂CrO₄: признак помогает проверить правильность выбора пары.', '#e2edf5', 18)}
+        `;
+        }
+
+        target.innerHTML = `
+        <defs>
+          <marker id="arrowHead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#9fd4ff"></path>
+          </marker>
+        </defs>
+        <g transform="translate(${tx}, ${ty}) scale(${zoom})">
+          <rect x="0" y="0" width="900" height="560" rx="24" fill="url(#bgGrad)"></rect>
+          <defs>
+            <linearGradient id="bgGrad" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#10202d"></stop>
+              <stop offset="100%" stop-color="#0a141d"></stop>
+            </linearGradient>
+          </defs>
+          ${bgGrid}
+          ${smallText(40, 40, rx.title, '#eef8ff', 26)}
+          ${smallText(40, 66, rx.subtitle, '#96a9b8', 15)}
+          ${center}
+        </g>
+      `;
+    }
+
+    function renderQuiz() {
+        quizBox.innerHTML = '';
+        quizData.forEach((item, idx) => {
+            const q = document.createElement('div');
+            q.className = 'quizQuestion';
+            q.innerHTML = `<strong>${idx + 1}. ${escapeHtml(item.q)}</strong>`;
+            item.options.forEach((opt, optIdx) => {
+                const b = document.createElement('button');
+                b.className = 'quizOption';
+                b.textContent = opt;
+                b.addEventListener('click', () => {
+                    q.querySelectorAll('.quizOption').forEach((btn, i) => {
+                        btn.classList.remove('correct', 'wrong');
+                        if (i === item.correct) btn.classList.add('correct');
+                    });
+                    if (optIdx !== item.correct) b.classList.add('wrong');
+                    if (!q.querySelector('.quizExplain')) {
+                        const ex = document.createElement('div');
+                        ex.className = 'answer quizExplain';
+                        ex.style.display = 'block';
+                        ex.textContent = item.explain;
+                        q.appendChild(ex);
+                    }
+                });
+                q.appendChild(b);
+            });
+            quizBox.appendChild(q);
+        });
+    }
+
+    function renderAll() {
+        const rx = currentReaction();
+        reactionSelect.value = rx.id;
+        ideaBox.textContent = rx.idea;
+        visTitle.textContent = rx.title;
+        visSubtitle.textContent = `${rx.type} · ${rx.sign}`;
+        renderSteps();
+        renderMistakes();
+        renderChecks();
+        renderFormula();
+        renderSvg(mainSvg);
+        renderSvg(modalSvg);
+    }
+
+    function resetView() {
+        state.activeStep = 0;
+        state.zoom = 1;
+        state.panX = 0;
+        state.panY = 0;
+        zoomRange.value = 100;
+        renderAll();
+    }
+
+    function bindPan(svgEl) {
+        svgEl.addEventListener('mousedown', (e) => {
+            state.isDragging = true;
+            state.lastX = e.clientX;
+            state.lastY = e.clientY;
+        });
+        window.addEventListener('mouseup', () => state.isDragging = false);
+        window.addEventListener('mousemove', (e) => {
+            if (!state.isDragging || (!overlay.classList.contains('open') && svgEl === modalSvg)) return;
+            if (svgEl === mainSvg || svgEl === modalSvg) {
+                state.panX += e.clientX - state.lastX;
+                state.panY += e.clientY - state.lastY;
+                state.lastX = e.clientX;
+                state.lastY = e.clientY;
+                renderSvg(mainSvg);
+                renderSvg(modalSvg);
+            }
+        });
+        svgEl.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 0.08 : -0.08;
+            state.zoom = Math.min(2.2, Math.max(0.7, state.zoom + delta));
+            zoomRange.value = String(Math.round(state.zoom * 100));
+            renderSvg(mainSvg);
+            renderSvg(modalSvg);
+        }, { passive: false });
+    }
+
+    reactionSelect.addEventListener('change', () => {
+        state.reactionId = reactionSelect.value;
+        state.activeStep = 0;
+        renderAll();
+    });
+
+    detailSelect.addEventListener('change', renderFormula);
+    zoomRange.addEventListener('input', () => {
+        state.zoom = Number(zoomRange.value) / 100;
+        renderSvg(mainSvg);
+        renderSvg(modalSvg);
+    });
+
+    showAllBtn.addEventListener('click', () => {
+        const total = currentReaction().steps.length;
+        stepsContainer.querySelectorAll('.step').forEach((s) => s.classList.add('active'));
+        state.activeStep = Math.max(0, total - 1);
+    });
+
+    resetBtn.addEventListener('click', resetView);
+    zoomInBtn.addEventListener('click', () => { state.zoom = Math.min(2.2, state.zoom + 0.1); zoomRange.value = Math.round(state.zoom * 100); renderSvg(mainSvg); renderSvg(modalSvg); });
+    zoomOutBtn.addEventListener('click', () => { state.zoom = Math.max(0.7, state.zoom - 0.1); zoomRange.value = Math.round(state.zoom * 100); renderSvg(mainSvg); renderSvg(modalSvg); });
+    resetZoomBtn.addEventListener('click', () => { state.zoom = 1; state.panX = 0; state.panY = 0; zoomRange.value = 100; renderSvg(mainSvg); renderSvg(modalSvg); });
+
+    mainSvg.addEventListener('click', () => overlay.classList.add('open'));
+    closeOverlay.addEventListener('click', () => overlay.classList.remove('open'));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            overlay.classList.remove('open');
+            hintBubble.classList.remove('show');
+        }
+    });
+
+    generateBtn.addEventListener('click', () => {
+        const item = generatedTemplates[Math.floor(Math.random() * generatedTemplates.length)];
+        generatedTaskTitle.textContent = item.title;
+        generatedTaskText.textContent = item.text;
+        generatedAnswer.textContent = item.answer;
+        generatedTaskCard.classList.remove('show');
+    });
+
+    showGeneratedAnswer.addEventListener('click', () => {
+        generatedTaskCard.classList.toggle('show');
+    });
+
+    closeHint.addEventListener('click', () => {
+        hintBubble.classList.remove('show');
+        sessionStorage.setItem('chemHintSeen', '1');
+    });
+
+    bindPan(mainSvg);
+    bindPan(modalSvg);
+
+    populateSelect();
+    renderQuiz();
+    renderAll();
+
+    if (!sessionStorage.getItem('chemHintSeen')) {
+        setTimeout(() => hintBubble.classList.add('show'), 3000);
+        setTimeout(() => {
+            hintBubble.classList.remove('show');
+            sessionStorage.setItem('chemHintSeen', '1');
+        }, 18000);
+    }
+</script>
+</body>
+</html>
