@@ -6,15 +6,44 @@
     <title>Генератор графиков функций и производных</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: #e0e0e0; min-height: 100vh; padding: 20px; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
         .container { max-width: 1400px; margin: 0 auto; }
-        header { text-align: center; padding: 30px 0; }
-        header h1 { font-size: 2.5em; background: linear-gradient(45deg, #00d2ff, #3a7bd5, #f953c6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; }
-        header p { font-size: 1.1em; color: #a0a0b0; }
-        .controls { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border-radius: 20px; padding: 25px; margin-bottom: 30px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        header { text-align: center; padding: 30px 0 10px; }
+        header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5, #f953c6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+        header p { font-size: 1em; color: #a0a0b0; margin-bottom: 8px; }
+        .hint { font-size: 0.85em; color: #7eb8f7; margin-bottom: 20px; opacity: 0.8; }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
         .input-group { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
         .input-group label { font-size: 1.1em; font-weight: 600; color: #7eb8f7; }
-        .function-input { flex: 1; min-width: 300px; padding: 12px 20px; font-size: 1.2em; border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; background: rgba(0, 0, 0, 0.3); color: #ffffff; font-family: 'Courier New', monospace; transition: border-color 0.3s, box-shadow 0.3s; }
+        .function-input {
+            flex: 1; min-width: 300px; padding: 12px 20px; font-size: 1.2em;
+            border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3); color: #ffffff;
+            font-family: 'Courier New', monospace;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
         .function-input:focus { outline: none; border-color: #00d2ff; box-shadow: 0 0 15px rgba(0, 210, 255, 0.3); }
         .btn { padding: 12px 30px; font-size: 1.1em; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; }
         .btn-primary { background: linear-gradient(45deg, #00d2ff, #3a7bd5); color: white; }
@@ -25,12 +54,15 @@
         .presets { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
         .preset-btn { padding: 8px 16px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #e0e0e0; cursor: pointer; font-family: 'Courier New', monospace; transition: all 0.3s; }
         .preset-btn:hover { background: rgba(0, 210, 255, 0.2); border-color: #00d2ff; }
+
         .canvas-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 15px; }
         .canvas-container.vertical { grid-template-columns: 1fr; }
         .canvas-container.vertical canvas { height: 450px; }
         .graph-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1); position: relative; }
         .graph-panel h3 { text-align: center; margin-bottom: 15px; color: #7eb8f7; font-size: 1.2em; }
-        canvas { width: 100%; height: 500px; background: rgba(0, 0, 0, 0.4); border-radius: 12px; cursor: crosshair; }
+        canvas { width: 100%; height: 500px; background: rgba(0, 0, 0, 0.4); border-radius: 12px; cursor: grab; transition: background 0.2s; }
+        canvas:active { cursor: grabbing; }
+
         .tooltip { position: absolute; background: rgba(0, 0, 0, 0.85); color: #ffffff; padding: 8px 12px; border-radius: 8px; font-size: 0.9em; pointer-events: none; z-index: 100; display: none; border: 1px solid rgba(0, 210, 255, 0.5); font-family: 'Courier New', monospace; }
         .error-message { background: rgba(255, 82, 82, 0.2); border: 1px solid rgba(255, 82, 82, 0.5); color: #ff5252; padding: 12px 20px; border-radius: 12px; margin-top: 15px; display: none; }
         .zoom-controls { display: flex; gap: 10px; margin: 0 auto 30px; justify-content: center; flex-wrap: wrap; }
@@ -39,7 +71,8 @@
         .toggle-switch.active { background: #00d2ff; }
         .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: transform 0.3s; }
         .toggle-switch.active::after { transform: translateX(24px); }
-        @media (max-width: 900px) { .canvas-container { grid-template-columns: 1fr; } .canvas-container canvas { height: 400px; } header h1 { font-size: 1.8em; } }
+
+        @media (max-width: 900px) { .canvas-container { grid-template-columns: 1fr; } canvas { height: 400px; } header h1 { font-size: 1.8em; } }
     </style>
 </head>
 <body>
@@ -47,6 +80,7 @@
     <header>
         <h1>📈 Генератор графиков функций и производных</h1>
         <p>Введите функцию — получите график, производную и её визуализацию</p>
+        <div class="hint">🖱️ Зажмите ЛКМ для перемещения | Колесико мыши для масштабирования</div>
     </header>
     <div class="controls">
         <div class="input-group">
@@ -100,6 +134,8 @@
     let xMin = -10, xMax = 10, yMin = -10, yMax = 10;
     let currentFunction = null;
     let showSecondDerivative = false;
+    let isDragging = false;
+    let dragStartX, dragStartY;
 
     function initCanvas(canvasId) {
         const canvas = document.getElementById(canvasId);
@@ -227,21 +263,101 @@
     function zoomOut() { const cx = (xMin + xMax) / 2, cy = (yMin + yMax) / 2, xRange = (xMax - xMin) * 0.75, yRange = (yMax - yMin) * 0.75; xMin = cx - xRange; xMax = cx + xRange; yMin = cy - yRange; yMax = cy + yRange; if (currentFunction) plotAll(); }
     function resetView() { xMin = -10; xMax = 10; yMin = -10; yMax = 10; if (currentFunction) plotAll(); }
 
-    function setupTooltip(canvasId, tooltipId, isDerivative = false) {
-        const canvas = document.getElementById(canvasId), tooltip = document.getElementById(tooltipId);
-        canvas.addEventListener('mousemove', (e) => {
-            if (!currentFunction) return; const rect = canvas.getBoundingClientRect(); const mouseX = e.clientX - rect.left, mouseY = e.clientY - rect.top;
-            const x = xMin + (mouseX / rect.width) * (xMax - xMin), y = isDerivative ? derivative(currentFunction, x) : currentFunction(x);
+    function setupInteraction(canvasId, tooltipId, isDerivative = false) {
+        const canvas = document.getElementById(canvasId);
+        const tooltip = document.getElementById(tooltipId);
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (e.button === 0) {
+                isDragging = true;
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+                canvas.style.cursor = 'grabbing';
+                e.preventDefault();
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            // Обработка перетаскивания
+            if (isDragging) {
+                const deltaX = e.clientX - dragStartX;
+                const deltaY = e.clientY - dragStartY;
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+
+                const xRange = xMax - xMin;
+                const yRange = yMax - yMin;
+                // Используем размеры одного из canvas (они синхронизированы по сетке)
+                const w = funcWidth, h = funcHeight;
+
+                xMin -= (deltaX / w) * xRange;
+                xMax -= (deltaX / w) * xRange;
+                yMin -= (deltaY / h) * yRange;
+                yMax -= (deltaY / h) * yRange;
+                plotAll();
+                tooltip.style.display = 'none';
+                return;
+            }
+
+            // Обработка тултипа (только если не перетаскиваем)
+            if (!currentFunction) return;
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left, mouseY = e.clientY - rect.top;
+            if (mouseX < 0 || mouseY < 0 || mouseX > rect.width || mouseY > rect.height) { tooltip.style.display = 'none'; return; }
+
+            const x = xMin + (mouseX / rect.width) * (xMax - xMin);
+            const y = isDerivative ? derivative(currentFunction, x) : currentFunction(x);
             if (isNaN(y) || !isFinite(y)) { tooltip.style.display = 'none'; return; }
-            tooltip.innerHTML = `x = ${x.toFixed(4)}<br>${isDerivative ? "f'(x)" : "f(x)"} = ${y.toFixed(6)}`; tooltip.style.display = 'block'; tooltip.style.left = (mouseX + 15) + 'px'; tooltip.style.top = (mouseY - 40) + 'px';
-            plotAll(); const ctx = isDerivative ? derivCtx : funcCtx, w = isDerivative ? derivWidth : funcWidth, h = isDerivative ? derivHeight : funcHeight;
-            const px = (x - xMin) / (xMax - xMin) * w, py = h - (y - yMin) / (yMax - yMin) * h;
+
+            tooltip.innerHTML = `x = ${x.toFixed(4)}<br>${isDerivative ? "f'(x)" : "f(x)"} = ${y.toFixed(6)}`;
+            tooltip.style.display = 'block';
+            tooltip.style.left = (mouseX + 15) + 'px';
+            tooltip.style.top = (mouseY - 40) + 'px';
+
+            plotAll();
+            const ctx = isDerivative ? derivCtx : funcCtx;
+            const w = isDerivative ? derivWidth : funcWidth;
+            const h = isDerivative ? derivHeight : funcHeight;
+            const px = (x - xMin) / (xMax - xMin) * w;
+            const py = h - (y - yMin) / (yMax - yMin) * h;
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'; ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
-            ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, h); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(w, py); ctx.stroke(); ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, h); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(w, py); ctx.stroke(); ctx.setLineDash([]);
             ctx.fillStyle = isDerivative ? '#f953c6' : '#00d2ff'; ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill();
             ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.stroke();
         });
-        canvas.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; plotAll(); });
+
+        window.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                canvas.style.cursor = 'grab';
+            }
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const xRange = xMax - xMin;
+            const yRange = yMax - yMin;
+
+            // Координаты курсора в мире
+            const mouseWorldX = xMin + (mouseX / rect.width) * xRange;
+            const mouseWorldY = yMax - (mouseY / rect.height) * yRange;
+
+            const factor = e.deltaY > 0 ? 1.15 : 0.87;
+
+            xMin = mouseWorldX - (mouseWorldX - xMin) * factor;
+            xMax = mouseWorldX + (xMax - mouseWorldX) * factor;
+            yMin = mouseWorldY - (mouseWorldY - yMin) * factor;
+            yMax = mouseWorldY + (yMax - mouseWorldY) * factor;
+
+            plotAll();
+        }, { passive: false });
+
+        canvas.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
     }
 
     function setPreset(expr) { document.getElementById('functionInput').value = expr; plotAll(); }
@@ -253,7 +369,12 @@
     const layoutToggleBtn = document.getElementById('layoutToggleBtn'), canvasContainer = document.getElementById('canvasContainer');
     layoutToggleBtn.addEventListener('click', () => { canvasContainer.classList.toggle('vertical'); layoutToggleBtn.textContent = canvasContainer.classList.contains('vertical') ? '⬅️ Горизонтально' : '⬇️ Вертикально'; setTimeout(() => { initAllCanvases(); if (currentFunction) plotAll(); }, 10); });
 
-    window.addEventListener('load', () => { initAllCanvases(); setupTooltip('functionCanvas', 'functionTooltip', false); setupTooltip('derivativeCanvas', 'derivativeTooltip', true); plotAll(); });
+    window.addEventListener('load', () => {
+        initAllCanvases();
+        setupInteraction('functionCanvas', 'functionTooltip', false);
+        setupInteraction('derivativeCanvas', 'derivativeTooltip', true);
+        plotAll();
+    });
 </script>
 </body>
 </html>
