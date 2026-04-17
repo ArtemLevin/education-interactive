@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Задача 2. Последовательное соединение: 2 Ом, 5 Ом и 8 Ом</title>
+<style>
+:root{
+  --bg:#0f1720;
+  --panel:#16212c;
+  --panel2:#1b2a38;
+  --text:#e9f1f7;
+  --muted:#9fb3c8;
+  --accent:#5eead4;
+  --accent2:#2dd4bf;
+  --line:#294154;
+  --warn:#fbbf24;
+  --ok:#86efac;
+  --shadow: 0 18px 50px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:radial-gradient(circle at top,#16222f 0,#0f1720 42%,#0b1118 100%);color:var(--text);font:16px/1.55 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+a{color:inherit}
+.page{max-width:1440px;margin:0 auto;padding:24px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:start}
+.hero-card,.viz-card,.section,.sidebar-card,.nav-card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+.hero-card{padding:28px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:6px 12px;border:1px solid var(--line);border-radius:999px;color:var(--accent);font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+h1{font-size:clamp(28px,4vw,48px);line-height:1.05;margin:14px 0 14px}
+.lead{color:var(--muted);font-size:18px;max-width:70ch}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:20px}
+.meta .chip{padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:24px;margin-top:24px;align-items:start}
+.sidebar{position:sticky;top:16px;display:grid;gap:16px}
+.viz-card,.sidebar-card,.section{padding:22px}
+.section{margin-bottom:18px}
+.section h2,.sidebar-card h3,.viz-card h3{margin:0 0 12px;font-size:24px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.kv, .formula-list, .check-list, .mistakes-list {margin:0;padding-left:18px}
+.kv li,.formula-list li,.check-list li,.mistakes-list li{margin:8px 0}
+.steps{display:grid;gap:12px}
+.step{padding:16px 16px 16px 18px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.025);position:relative}
+.step.active{outline:2px solid rgba(94,234,212,.55);transform:translateY(-1px)}
+.step-num{position:absolute;left:-10px;top:14px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#062022;font-weight:800}
+.step h4{margin:0 0 6px 18px;font-size:18px}
+.step p{margin:0 0 0 18px;color:var(--muted)}
+.controls{display:grid;gap:12px}
+label{display:grid;gap:6px;font-size:14px;color:var(--muted)}
+input[type="range"]{width:100%}
+.output{display:grid;gap:10px;margin-top:8px}
+.out-box{padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
+.big{font-size:24px;font-weight:800;color:var(--accent)}
+.circuit-wrap{background:linear-gradient(180deg,#101a24,#13202d);border:1px solid var(--line);border-radius:20px;padding:12px;overflow:auto}
+.circuit-svg{width:100%;height:auto;display:block}
+.wire{stroke:#b9d6ea;stroke-width:4;stroke-linecap:round}
+.resistor{fill:none;stroke:var(--accent);stroke-width:4;stroke-linejoin:round;stroke-linecap:round}
+.svg-label{fill:#e7f7ff;font-size:18px;font-weight:700;text-anchor:middle}
+.note{padding:14px 16px;border-left:4px solid var(--warn);background:rgba(251,191,36,.08);border-radius:12px;color:#fce7a7}
+.answer{padding:16px 18px;border-radius:18px;background:rgba(134,239,172,.08);border:1px solid rgba(134,239,172,.22)}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+button{cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);padding:10px 14px;border-radius:14px;font-weight:700}
+button:hover{border-color:var(--accent2)}
+.quiz{display:grid;gap:10px}
+.quiz button.option{text-align:left}
+.footer-nav{display:flex;justify-content:space-between;gap:12px;margin-top:20px;flex-wrap:wrap}
+.footer-nav a{padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);text-decoration:none}
+.small{font-size:14px;color:var(--muted)}
+.tagline{color:var(--muted);font-size:14px}
+.banner{margin-top:16px;padding:14px 16px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(90deg,rgba(94,234,212,.1),rgba(45,212,191,.05));}
+.card-list{display:grid;gap:12px}
+.hidden{display:none}
+@media (max-width: 1100px){
+ .hero,.workspace{grid-template-columns:1fr}
+ .sidebar{position:static}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="hero">
+    <div class="hero-card">
+      <div class="eyebrow">Наглядная физика · автономная страница</div>
+      <h1>Задача 2. Последовательное соединение: 2 Ом, 5 Ом и 8 Ом</h1>
+      <p class="lead">Три резистора 2 Ом, 5 Ом и 8 Ом соединены последовательно. Найдите общее сопротивление.</p>
+      <div class="banner">
+        <strong>Цель:</strong> Найти суммарное сопротивление трёх последовательно соединённых резисторов.<br>
+        <span class="tagline">Формат: разбор → визуализация → интерактив → мини-квиз → краткая проверка ответа.</span>
+      </div>
+      <div class="meta">
+        <div class="chip"><strong>Тема</strong><br>Последовательное соединение резисторов</div>
+        <div class="chip"><strong>Ключевая идея</strong><br>При последовательном соединении все сопротивления просто складываются.</div>
+        <div class="chip"><strong>Итог</strong><br>Rобщ = 15 Ом</div>
+      </div>
+    </div>
+    <div class="viz-card">
+      <h3>Схема задачи</h3>
+      <div class="circuit-wrap"><svg viewBox="0 0 500 150" class="circuit-svg" aria-label="Схема последовательного соединения"><line x1="10" y1="75" x2="40" y2="75" class="wire"/><polyline points="40,75 60,55 80,95 100,55 120,95 140,75" class="resistor"/><text x="90" y="35" class="svg-label">R1 = 2 Ω</text><line x1="140" y1="75" x2="180" y2="75" class="wire"/><polyline points="180,75 200,55 220,95 240,55 260,95 280,75" class="resistor"/><text x="230" y="35" class="svg-label">R2 = 5 Ω</text><line x1="280" y1="75" x2="320" y2="75" class="wire"/><polyline points="320,75 340,55 360,95 380,55 400,95 420,75" class="resistor"/><text x="370" y="35" class="svg-label">R3 = 8 Ω</text><line x1="420" y1="75" x2="490" y2="75" class="wire"/></svg></div>
+      <p class="small">Подсказка: наведите взглядом на тип соединения и сразу решите, какая величина одинакова: при последовательном — ток, при параллельном — напряжение.</p>
+    </div>
+  </section>
+
+  <section class="workspace">
+    <main>
+      <section class="section">
+        <h2>Что дано</h2>
+        <ul class="kv"><li>R₁ = 2 Ом</li><li>R₂ = 5 Ом</li><li>R₃ = 8 Ом</li><li>Соединение последовательное</li></ul>
+      </section>
+
+      <section class="section">
+        <h2>Идея решения</h2>
+        <p>При последовательном соединении все сопротивления просто складываются.</p>
+        <ul class="formula-list"><li>Rобщ = R₁ + R₂ + R₃</li></ul>
+      </section>
+
+      <section class="section">
+        <h2>Пошаговый разбор</h2>
+        <div class="btns">
+          <button id="showAll">Показать все шаги</button>
+          <button id="hideAll">Свернуть шаги</button>
+        </div>
+        <div class="steps"><article class="step" data-step="1"><div class="step-num">1</div><h4>Определяем тип соединения</h4><p>Это последовательное соединение.</p></article><article class="step" data-step="2"><div class="step-num">2</div><h4>Используем правило</h4><p>Rобщ = R₁ + R₂ + R₃.</p></article><article class="step" data-step="3"><div class="step-num">3</div><h4>Считаем</h4><p>Rобщ = 2 + 5 + 8 = 15 Ом.</p></article><article class="step" data-step="4"><div class="step-num">4</div><h4>Проверяем</h4><p>Ответ больше каждого из сопротивлений по отдельности — это верно для последовательного соединения.</p></article></div>
+      </section>
+
+      <section class="section">
+        <h2>Типичные ошибки</h2>
+        <ul class="mistakes-list"><li>Для параллельного соединения нельзя складывать сопротивления напрямую.</li><li>Для последовательного соединения нельзя считать, что напряжение на всех резисторах одинаково.</li><li>При расчётах не округляйте слишком рано: дробь часто удобнее десятичной записи.</li><li>Проверяйте ответ на здравый смысл: последовательное соединение увеличивает Rобщ, параллельное уменьшает.</li></ul>
+      </section>
+
+      <section class="section">
+        <h2>Ответ</h2>
+        <div class="answer"><strong>Rобщ = 15 Ом</strong></div>
+      </section>
+    </main>
+
+    <aside class="sidebar">
+      <section class="sidebar-card">
+        <h3>Интерактивный калькулятор</h3>
+        <div class="controls">
+          
+        <label>R₁, Ом <input id="r1" type="range" min="1" max="20" value="2" step="1"></label>
+        <label>R₂, Ом <input id="r2" type="range" min="1" max="20" value="5" step="1"></label>
+        <label>R₃, Ом <input id="r3" type="range" min="1" max="20" value="8" step="1"></label>
+        
+        </div>
+        <div class="output">
+          <div class="out-box"><div class="small">Результат 1</div><div id="ov1" class="big"></div></div>
+          <div class="out-box"><div class="small">Результат 2</div><div id="ov2"></div></div>
+          <div class="out-box"><div class="small">Результат 3</div><div id="ov3"></div></div>
+        </div>
+      </section>
+
+      <section class="sidebar-card">
+        <h3>Самопроверка</h3>
+        <div class="note" id="senseCheck">Проверьте здравый смысл: итог должен соответствовать типу соединения.</div>
+      </section>
+
+      <section class="sidebar-card">
+        <h3>Мини-квиз</h3>
+        <div class="quiz">
+          <div><strong>Что одинаково во всех элементах при последовательном соединении?</strong></div>
+          <button class="option" data-idx="0">Напряжение</button><button class="option" data-idx="1">Сила тока</button><button class="option" data-idx="2">Сопротивление</button><button class="option" data-idx="3">Проводимость</button>
+          <div id="quizResult" class="small"></div>
+        </div>
+      </section>
+    </aside>
+  </section>
+
+  <nav class="footer-nav">
+    <a href="index.html">← К странице-дистрибутору</a>
+    <a href="task01_series_resistance_6_9.html">← Предыдущая задача</a>
+    <a href="task03_series_voltage_4_7_i3.html">Следующая задача →</a>
+  </nav>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const fmt = n => {
+  if (Math.abs(n - Math.round(n)) < 1e-9) return String(Math.round(n));
+  return n.toFixed(2).replace('.', ',').replace(/,00$/, '');
+};
+
+function update() {
+  
+        const r1 = +$('#r1').value, r2 = +$('#r2').value, r3 = +$('#r3').value;
+        $('#ov1').textContent = [r1,r2,r3].join(' Ом, ') + ' Ом';
+        $('#ov2').textContent = (r1+r2+r3).toFixed(0) + ' Ом';
+        $('#ov3').textContent = 'Последовательное соединение всегда увеличивает сопротивление';
+        
+}
+
+$$('input').forEach(el => el.addEventListener('input', update));
+update();
+
+const steps = $$('.step');
+$('#showAll').addEventListener('click', () => steps.forEach(s => s.classList.add('active')));
+$('#hideAll').addEventListener('click', () => steps.forEach((s,i) => s.classList.toggle('active', i===0)));
+steps.forEach((step, idx) => step.addEventListener('click', () => {
+  steps.forEach(s => s.classList.remove('active'));
+  step.classList.add('active');
+}));
+if (steps[0]) steps[0].classList.add('active');
+
+const correct = 1;
+const explain = "При последовательном соединении через все элементы проходит один и тот же ток.";
+$$('.option').forEach(btn => btn.addEventListener('click', () => {
+  const idx = +btn.dataset.idx;
+  const ok = idx === correct;
+  $('#quizResult').textContent = ok ? 'Верно. ' + explain : 'Пока нет. ' + explain;
+  $('#quizResult').style.color = ok ? '#86efac' : '#fbbf24';
+}));
+</script>
+</body>
+</html>

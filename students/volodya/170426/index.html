@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Наглядная физика — дистрибутор задач</title>
+<style>
+:root{
+  --bg:#0f1720;
+  --panel:#16212c;
+  --panel2:#1b2a38;
+  --text:#e9f1f7;
+  --muted:#9fb3c8;
+  --accent:#5eead4;
+  --accent2:#2dd4bf;
+  --line:#294154;
+  --warn:#fbbf24;
+  --ok:#86efac;
+  --shadow: 0 18px 50px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:radial-gradient(circle at top,#16222f 0,#0f1720 42%,#0b1118 100%);color:var(--text);font:16px/1.55 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+a{color:inherit}
+.page{max-width:1440px;margin:0 auto;padding:24px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:start}
+.hero-card,.viz-card,.section,.sidebar-card,.nav-card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+.hero-card{padding:28px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:6px 12px;border:1px solid var(--line);border-radius:999px;color:var(--accent);font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+h1{font-size:clamp(28px,4vw,48px);line-height:1.05;margin:14px 0 14px}
+.lead{color:var(--muted);font-size:18px;max-width:70ch}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:20px}
+.meta .chip{padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:24px;margin-top:24px;align-items:start}
+.sidebar{position:sticky;top:16px;display:grid;gap:16px}
+.viz-card,.sidebar-card,.section{padding:22px}
+.section{margin-bottom:18px}
+.section h2,.sidebar-card h3,.viz-card h3{margin:0 0 12px;font-size:24px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.kv, .formula-list, .check-list, .mistakes-list {margin:0;padding-left:18px}
+.kv li,.formula-list li,.check-list li,.mistakes-list li{margin:8px 0}
+.steps{display:grid;gap:12px}
+.step{padding:16px 16px 16px 18px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.025);position:relative}
+.step.active{outline:2px solid rgba(94,234,212,.55);transform:translateY(-1px)}
+.step-num{position:absolute;left:-10px;top:14px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#062022;font-weight:800}
+.step h4{margin:0 0 6px 18px;font-size:18px}
+.step p{margin:0 0 0 18px;color:var(--muted)}
+.controls{display:grid;gap:12px}
+label{display:grid;gap:6px;font-size:14px;color:var(--muted)}
+input[type="range"]{width:100%}
+.output{display:grid;gap:10px;margin-top:8px}
+.out-box{padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
+.big{font-size:24px;font-weight:800;color:var(--accent)}
+.circuit-wrap{background:linear-gradient(180deg,#101a24,#13202d);border:1px solid var(--line);border-radius:20px;padding:12px;overflow:auto}
+.circuit-svg{width:100%;height:auto;display:block}
+.wire{stroke:#b9d6ea;stroke-width:4;stroke-linecap:round}
+.resistor{fill:none;stroke:var(--accent);stroke-width:4;stroke-linejoin:round;stroke-linecap:round}
+.svg-label{fill:#e7f7ff;font-size:18px;font-weight:700;text-anchor:middle}
+.note{padding:14px 16px;border-left:4px solid var(--warn);background:rgba(251,191,36,.08);border-radius:12px;color:#fce7a7}
+.answer{padding:16px 18px;border-radius:18px;background:rgba(134,239,172,.08);border:1px solid rgba(134,239,172,.22)}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+button{cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);padding:10px 14px;border-radius:14px;font-weight:700}
+button:hover{border-color:var(--accent2)}
+.quiz{display:grid;gap:10px}
+.quiz button.option{text-align:left}
+.footer-nav{display:flex;justify-content:space-between;gap:12px;margin-top:20px;flex-wrap:wrap}
+.footer-nav a{padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);text-decoration:none}
+.small{font-size:14px;color:var(--muted)}
+.tagline{color:var(--muted);font-size:14px}
+.banner{margin-top:16px;padding:14px 16px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(90deg,rgba(94,234,212,.1),rgba(45,212,191,.05));}
+.card-list{display:grid;gap:12px}
+.hidden{display:none}
+@media (max-width: 1100px){
+ .hero,.workspace{grid-template-columns:1fr}
+ .sidebar{position:static}
+}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:24px}
+.nav-card:hover{transform:translateY(-2px);border-color:var(--accent2)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="hero">
+    <div class="hero-card">
+      <div class="eyebrow">Наглядная физика · страница-дистрибутор</div>
+      <h1>Комплект автономных страниц по задачам о соединении резисторов</h1>
+      <p class="lead">Здесь собраны все 10 задач из тренировочного блока. Каждая карточка открывает отдельную web-страницу с визуальной схемой, пошаговым разбором, интерактивным калькулятором и мини-квизом.</p>
+      <div class="stats">
+        <div class="chip"><strong>Страниц</strong><br>11 HTML-файлов</div>
+        <div class="chip"><strong>Темы</strong><br>Последовательное и параллельное соединение</div>
+        <div class="chip"><strong>Формат</strong><br>Полностью автономные страницы, без внешних зависимостей</div>
+      </div>
+      <div class="banner">
+        Рекомендуемый маршрут: сначала задачи 1–3 на последовательное соединение, затем 4–10 на параллельное.
+      </div>
+    </div>
+    <div class="viz-card">
+      <h3>Как пользоваться комплектом</h3>
+      <ul class="check-list">
+        <li>Открывайте задачу по номеру.</li>
+        <li>Сначала просмотрите схему и идею решения.</li>
+        <li>Потом раскройте шаги и проверьте себя интерактивом.</li>
+        <li>В конце пройдите мини-квиз на ключевое свойство соединения.</li>
+      </ul>
+      <div class="note">Критическая проверка: для последовательного соединения общее сопротивление растёт, для параллельного — уменьшается.</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Каталог задач</h2>
+    <div class="cards">
+      
+    <a class="nav-card" href="task01_series_resistance_6_9.html" style="display:block;padding:20px;text-decoration:none">
+      <div class="eyebrow">Задача 1</div>
+      <h3 style="margin:12px 0 8px;font-size:24px">Задача 1. Последовательное соединение: 6 Ом и 9 Ом</h3>
+      <p style="color:var(--muted);margin:0 0 14px">Два резистора 6 Ом и 9 Ом соединены последовательно. Найдите общее сопротивление цепи.</p>
+      <div class="small">Тема: Последовательное соединение резисторов</div>
+      <div class="small">Ответ: Rобщ = 15 Ом</div>
+    </a>
+    
+    <a class="nav-card" href="task02_series_resistance_2_5_8.html" style="display:block;padding:20px;text-decoration:none">
+      <div class="eyebrow">Задача 2</div>
+      <h3 style="margin:12px 0 8px;font-size:24px">Задача 2. Последовательное соединение: 2 Ом, 5 Ом и 8 Ом</h3>
+      <p style="color:var(--muted);margin:0 0 14px">Три резистора 2 Ом, 5 Ом и 8 Ом соединены последовательно. Найдите общее сопротивление.</p>
+      <div class="small">Тема: Последовательное соединение резисторов</div>
+      <div class="small">Ответ: Rобщ = 15 Ом</div>
+    </a>
+    
+    <a class="nav-card" href="task03_series_voltage_4_7_i3.html" style="display:block;padding:20px;text-decoration:none">
+      <div class="eyebrow">Задача 3</div>
+      <h3 style="margin:12px 0 8px;font-size:24px">Задача 3. Напряжения при последовательном соединении</h3>
+      <p style="color:var(--muted);margin:0 0 14px">Два резистора 4 Ом и 7 Ом соединены последовательно. Через цепь идёт ток 3 А. Найдите напряжение на каждом резисторе и общее напряжение.</p>
+      <div class="small">Тема: Закон Ома и последовательное соединение</div>
+      <div class="small">Ответ: U₁ = 12 В, U₂ = 21 В, Uобщ = 33 В</div>
+    </a>
+    
+    <a class="nav-card" href="task04_parallel_resistance_3_6.html" style="display:block;padding:20px;text-decoration:none">
+      <div class="eyebrow">Задача 4</div>
+      <h3 style="margin:12px 0 8px;font-size:24px">Задача 4. Параллельное соединение: 3 Ом и 6 Ом</h3>
+      <p style="color:var(--muted);margin:0 0 14px">Два резистора 3 Ом и 6 Ом соединены параллельно. Найдите общее сопротивление цепи.</p>
+      <div class="small">Тема: Параллельное соединение резисторов</div>
+      <div class="small">Ответ: Rобщ = 2 Ом</div>
+    </a>
+    
+    <a class="nav-card" href="task05_parallel_resistance_5_8_4.html" style="display:block;padding:20px;text-decoration:none">
+      <div class="eyebrow">Задача 5</div>
+      <h3 style="margin:12px 0 8px;font-size:24px">Задача 5. Параллельное соединение: 5 Ом, 8 Ом и 4 Ом</h3>
+      <p style="color:var(--muted);margin:0 0 14px">Три резистора 5 Ом, 8 Ом и 4 Ом соединены параллельно. Найдите общее сопротивление.</p>
+      <div class="small">Тема: Параллельное соединение резисторов</div>
+      <div class="small">Ответ: Rобщ = 40/23 Ом ≈ 1,74 Ом</div>
+    </a>
+    
+    <a class="nav-card" href="task06_parallel_currents_2_4_u12.html" style="display:block;padding:20px;text-decoration:none">
+      <div class="eyebrow">Задача 6</div>
+      <h3 style="margin:12px 0 8px;font-size:24px">Задача 6. Токи в параллельных ветвях</h3>
+      <p style="color:var(--muted);margin:0 0 14px">Два резистора 2 Ом и 4 Ом соединены параллельно. Напряжение на участке цепи равно 12 В. Найдите силу тока в каждой ветви и общую силу тока.</p>
+      <div class="small">Тема: Закон Ома в параллельной цепи</div>
+      <div class="small">Ответ: I₁ = 6 А, I₂ = 3 А, Iобщ = 9 А</div>
+    </a>
+    
+    <a class="nav-card" href="task07_parallel_equal_9_9_9.html" style="display:block;padding:20px;text-decoration:none">
+      <div class="eyebrow">Задача 7</div>
+      <h3 style="margin:12px 0 8px;font-size:24px">Задача 7. Три одинаковых резистора по 9 Ом параллельно</h3>
+      <p style="color:var(--muted);margin:0 0 14px">Три одинаковых резистора по 9 Ом соединены параллельно. Найдите общее сопротивление.</p>
+      <div class="small">Тема: Одинаковые резисторы при параллельном соединении</div>
+      <div class="small">Ответ: Rобщ = 3 Ом</div>
+    </a>
+    
+    <a class="nav-card" href="task08_parallel_equal_5x15_u30.html" style="display:block;padding:20px;text-decoration:none">
+      <div class="eyebrow">Задача 8</div>
+      <h3 style="margin:12px 0 8px;font-size:24px">Задача 8. Пять одинаковых резисторов по 15 Ом</h3>
+      <p style="color:var(--muted);margin:0 0 14px">Пять одинаковых резисторов по 15 Ом соединены параллельно. Напряжение на участке цепи равно 30 В. Найдите сопротивление всей цепи, ток через один резистор и общий ток.</p>
+      <div class="small">Тема: Параллельная цепь с одинаковыми ветвями</div>
+      <div class="small">Ответ: Rобщ = 3 Ом, Iветви = 2 А, Iобщ = 10 А</div>
+    </a>
+    
+    <a class="nav-card" href="task09_parallel_currents_6_12_u24.html" style="display:block;padding:20px;text-decoration:none">
+      <div class="eyebrow">Задача 9</div>
+      <h3 style="margin:12px 0 8px;font-size:24px">Задача 9. Параллельно: 6 Ом и 12 Ом, напряжение 24 В</h3>
+      <p style="color:var(--muted);margin:0 0 14px">К параллельно соединённым резисторам 6 Ом и 12 Ом приложено напряжение 24 В. Найдите ток в каждой ветви, общий ток и общее сопротивление.</p>
+      <div class="small">Тема: Токи и эквивалентное сопротивление в параллельной цепи</div>
+      <div class="small">Ответ: I₁ = 4 А, I₂ = 2 А, Iобщ = 6 А, Rобщ = 4 Ом</div>
+    </a>
+    
+    <a class="nav-card" href="task10_parallel_x_8_4_less2.html" style="display:block;padding:20px;text-decoration:none">
+      <div class="eyebrow">Задача 10</div>
+      <h3 style="margin:12px 0 8px;font-size:24px">Задача 10. Подбор x в параллельной цепи</h3>
+      <p style="color:var(--muted);margin:0 0 14px">Три резистора соединены параллельно. Их сопротивления равны x, 8 Ом и 4 Ом. Подберите наименьшее целое значение x, при котором общее сопротивление цепи будет меньше 2 Ом.</p>
+      <div class="small">Тема: Неравенство для эквивалентного сопротивления</div>
+      <div class="small">Ответ: Наименьшее целое значение: x = 1 Ом</div>
+    </a>
+    
+    </div>
+  </section>
+</div>
+</body>
+</html>

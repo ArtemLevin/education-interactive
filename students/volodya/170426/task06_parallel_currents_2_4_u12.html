@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Задача 6. Токи в параллельных ветвях</title>
+<style>
+:root{
+  --bg:#0f1720;
+  --panel:#16212c;
+  --panel2:#1b2a38;
+  --text:#e9f1f7;
+  --muted:#9fb3c8;
+  --accent:#5eead4;
+  --accent2:#2dd4bf;
+  --line:#294154;
+  --warn:#fbbf24;
+  --ok:#86efac;
+  --shadow: 0 18px 50px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:radial-gradient(circle at top,#16222f 0,#0f1720 42%,#0b1118 100%);color:var(--text);font:16px/1.55 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+a{color:inherit}
+.page{max-width:1440px;margin:0 auto;padding:24px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:start}
+.hero-card,.viz-card,.section,.sidebar-card,.nav-card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+.hero-card{padding:28px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:6px 12px;border:1px solid var(--line);border-radius:999px;color:var(--accent);font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+h1{font-size:clamp(28px,4vw,48px);line-height:1.05;margin:14px 0 14px}
+.lead{color:var(--muted);font-size:18px;max-width:70ch}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:20px}
+.meta .chip{padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:24px;margin-top:24px;align-items:start}
+.sidebar{position:sticky;top:16px;display:grid;gap:16px}
+.viz-card,.sidebar-card,.section{padding:22px}
+.section{margin-bottom:18px}
+.section h2,.sidebar-card h3,.viz-card h3{margin:0 0 12px;font-size:24px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.kv, .formula-list, .check-list, .mistakes-list {margin:0;padding-left:18px}
+.kv li,.formula-list li,.check-list li,.mistakes-list li{margin:8px 0}
+.steps{display:grid;gap:12px}
+.step{padding:16px 16px 16px 18px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.025);position:relative}
+.step.active{outline:2px solid rgba(94,234,212,.55);transform:translateY(-1px)}
+.step-num{position:absolute;left:-10px;top:14px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#062022;font-weight:800}
+.step h4{margin:0 0 6px 18px;font-size:18px}
+.step p{margin:0 0 0 18px;color:var(--muted)}
+.controls{display:grid;gap:12px}
+label{display:grid;gap:6px;font-size:14px;color:var(--muted)}
+input[type="range"]{width:100%}
+.output{display:grid;gap:10px;margin-top:8px}
+.out-box{padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
+.big{font-size:24px;font-weight:800;color:var(--accent)}
+.circuit-wrap{background:linear-gradient(180deg,#101a24,#13202d);border:1px solid var(--line);border-radius:20px;padding:12px;overflow:auto}
+.circuit-svg{width:100%;height:auto;display:block}
+.wire{stroke:#b9d6ea;stroke-width:4;stroke-linecap:round}
+.resistor{fill:none;stroke:var(--accent);stroke-width:4;stroke-linejoin:round;stroke-linecap:round}
+.svg-label{fill:#e7f7ff;font-size:18px;font-weight:700;text-anchor:middle}
+.note{padding:14px 16px;border-left:4px solid var(--warn);background:rgba(251,191,36,.08);border-radius:12px;color:#fce7a7}
+.answer{padding:16px 18px;border-radius:18px;background:rgba(134,239,172,.08);border:1px solid rgba(134,239,172,.22)}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+button{cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);padding:10px 14px;border-radius:14px;font-weight:700}
+button:hover{border-color:var(--accent2)}
+.quiz{display:grid;gap:10px}
+.quiz button.option{text-align:left}
+.footer-nav{display:flex;justify-content:space-between;gap:12px;margin-top:20px;flex-wrap:wrap}
+.footer-nav a{padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);text-decoration:none}
+.small{font-size:14px;color:var(--muted)}
+.tagline{color:var(--muted);font-size:14px}
+.banner{margin-top:16px;padding:14px 16px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(90deg,rgba(94,234,212,.1),rgba(45,212,191,.05));}
+.card-list{display:grid;gap:12px}
+.hidden{display:none}
+@media (max-width: 1100px){
+ .hero,.workspace{grid-template-columns:1fr}
+ .sidebar{position:static}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="hero">
+    <div class="hero-card">
+      <div class="eyebrow">Наглядная физика · автономная страница</div>
+      <h1>Задача 6. Токи в параллельных ветвях</h1>
+      <p class="lead">Два резистора 2 Ом и 4 Ом соединены параллельно. Напряжение на участке цепи равно 12 В. Найдите силу тока в каждой ветви и общую силу тока.</p>
+      <div class="banner">
+        <strong>Цель:</strong> Найти токи I₁, I₂ и Iобщ.<br>
+        <span class="tagline">Формат: разбор → визуализация → интерактив → мини-квиз → краткая проверка ответа.</span>
+      </div>
+      <div class="meta">
+        <div class="chip"><strong>Тема</strong><br>Закон Ома в параллельной цепи</div>
+        <div class="chip"><strong>Ключевая идея</strong><br>При параллельном соединении напряжение на каждой ветви одинаково: U₁ = U₂ = 12 В. Потом по закону Ома находим токи и складываем их.</div>
+        <div class="chip"><strong>Итог</strong><br>I₁ = 6 А, I₂ = 3 А, Iобщ = 9 А</div>
+      </div>
+    </div>
+    <div class="viz-card">
+      <h3>Схема задачи</h3>
+      <div class="circuit-wrap"><svg viewBox="0 0 520 180" class="circuit-svg" aria-label="Схема параллельного соединения"><line x1="80" y1="20" x2="80" y2="160" class="wire"/><line x1="440" y1="20" x2="440" y2="160" class="wire"/><line x1="80" y1="40.0" x2="150" y2="40.0" class="wire"/><polyline points="150,40.0 170,20.0 190,60.0 210,20.0 230,60.0 250,40.0" class="resistor"/><line x1="250" y1="40.0" x2="440" y2="40.0" class="wire"/><text x="200" y="12.0" class="svg-label">R1 = 2 Ω</text><line x1="80" y1="140.0" x2="150" y2="140.0" class="wire"/><polyline points="150,140.0 170,120.0 190,160.0 210,120.0 230,160.0 250,140.0" class="resistor"/><line x1="250" y1="140.0" x2="440" y2="140.0" class="wire"/><text x="200" y="112.0" class="svg-label">R2 = 4 Ω</text></svg></div>
+      <p class="small">Подсказка: наведите взглядом на тип соединения и сразу решите, какая величина одинакова: при последовательном — ток, при параллельном — напряжение.</p>
+    </div>
+  </section>
+
+  <section class="workspace">
+    <main>
+      <section class="section">
+        <h2>Что дано</h2>
+        <ul class="kv"><li>R₁ = 2 Ом</li><li>R₂ = 4 Ом</li><li>U = 12 В</li><li>Соединение параллельное</li></ul>
+      </section>
+
+      <section class="section">
+        <h2>Идея решения</h2>
+        <p>При параллельном соединении напряжение на каждой ветви одинаково: U₁ = U₂ = 12 В. Потом по закону Ома находим токи и складываем их.</p>
+        <ul class="formula-list"><li>I₁ = U/R₁</li><li>I₂ = U/R₂</li><li>Iобщ = I₁ + I₂</li></ul>
+      </section>
+
+      <section class="section">
+        <h2>Пошаговый разбор</h2>
+        <div class="btns">
+          <button id="showAll">Показать все шаги</button>
+          <button id="hideAll">Свернуть шаги</button>
+        </div>
+        <div class="steps"><article class="step" data-step="1"><div class="step-num">1</div><h4>Используем свойство параллельного соединения</h4><p>На каждой ветви одно и то же напряжение: 12 В.</p></article><article class="step" data-step="2"><div class="step-num">2</div><h4>Находим ток в первой ветви</h4><p>I₁ = 12/2 = 6 А.</p></article><article class="step" data-step="3"><div class="step-num">3</div><h4>Находим ток во второй ветви</h4><p>I₂ = 12/4 = 3 А.</p></article><article class="step" data-step="4"><div class="step-num">4</div><h4>Находим общий ток</h4><p>Iобщ = 6 + 3 = 9 А.</p></article><article class="step" data-step="5"><div class="step-num">5</div><h4>Проверяем</h4><p>В ветви с меньшим сопротивлением ток больше: 6 А > 3 А. Это верно.</p></article></div>
+      </section>
+
+      <section class="section">
+        <h2>Типичные ошибки</h2>
+        <ul class="mistakes-list"><li>Для параллельного соединения нельзя складывать сопротивления напрямую.</li><li>Для последовательного соединения нельзя считать, что напряжение на всех резисторах одинаково.</li><li>При расчётах не округляйте слишком рано: дробь часто удобнее десятичной записи.</li><li>Проверяйте ответ на здравый смысл: последовательное соединение увеличивает Rобщ, параллельное уменьшает.</li></ul>
+      </section>
+
+      <section class="section">
+        <h2>Ответ</h2>
+        <div class="answer"><strong>I₁ = 6 А, I₂ = 3 А, Iобщ = 9 А</strong></div>
+      </section>
+    </main>
+
+    <aside class="sidebar">
+      <section class="sidebar-card">
+        <h3>Интерактивный калькулятор</h3>
+        <div class="controls">
+          
+        <label>R₁, Ом <input id="r1" type="range" min="1" max="30" value="2" step="1"></label>
+        <label>R₂, Ом <input id="r2" type="range" min="1" max="30" value="4" step="1"></label>
+        <label>U, В <input id="u" type="range" min="1" max="60" value="12" step="1"></label>
+        
+        </div>
+        <div class="output">
+          <div class="out-box"><div class="small">Результат 1</div><div id="ov1" class="big"></div></div>
+          <div class="out-box"><div class="small">Результат 2</div><div id="ov2"></div></div>
+          <div class="out-box"><div class="small">Результат 3</div><div id="ov3"></div></div>
+        </div>
+      </section>
+
+      <section class="sidebar-card">
+        <h3>Самопроверка</h3>
+        <div class="note" id="senseCheck">Проверьте здравый смысл: итог должен соответствовать типу соединения.</div>
+      </section>
+
+      <section class="sidebar-card">
+        <h3>Мини-квиз</h3>
+        <div class="quiz">
+          <div><strong>Какое утверждение верно для параллельного соединения?</strong></div>
+          <button class="option" data-idx="0">Общий ток равен току одной ветви</button><button class="option" data-idx="1">Напряжение в ветвях одинаково</button><button class="option" data-idx="2">Сопротивления складываются напрямую</button><button class="option" data-idx="3">Ток во всех ветвях одинаков всегда</button>
+          <div id="quizResult" class="small"></div>
+        </div>
+      </section>
+    </aside>
+  </section>
+
+  <nav class="footer-nav">
+    <a href="index.html">← К странице-дистрибутору</a>
+    <a href="task05_parallel_resistance_5_8_4.html">← Предыдущая задача</a>
+    <a href="task07_parallel_equal_9_9_9.html">Следующая задача →</a>
+  </nav>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const fmt = n => {
+  if (Math.abs(n - Math.round(n)) < 1e-9) return String(Math.round(n));
+  return n.toFixed(2).replace('.', ',').replace(/,00$/, '');
+};
+
+function update() {
+  
+        const r1 = +$('#r1').value, r2 = +$('#r2').value, u = +$('#u').value;
+        const i1 = u/r1, i2 = u/r2, it = i1+i2, req = u/it;
+        $('#ov1').textContent = `I₁ = ${fmt(i1)} А, I₂ = ${fmt(i2)} А`;
+        $('#ov2').textContent = `Iобщ = ${fmt(it)} А`;
+        $('#ov3').textContent = `Rобщ = ${fmt(req)} Ом`;
+        
+}
+
+$$('input').forEach(el => el.addEventListener('input', update));
+update();
+
+const steps = $$('.step');
+$('#showAll').addEventListener('click', () => steps.forEach(s => s.classList.add('active')));
+$('#hideAll').addEventListener('click', () => steps.forEach((s,i) => s.classList.toggle('active', i===0)));
+steps.forEach((step, idx) => step.addEventListener('click', () => {
+  steps.forEach(s => s.classList.remove('active'));
+  step.classList.add('active');
+}));
+if (steps[0]) steps[0].classList.add('active');
+
+const correct = 1;
+const explain = "При параллельном соединении напряжение на всех ветвях одинаково.";
+$$('.option').forEach(btn => btn.addEventListener('click', () => {
+  const idx = +btn.dataset.idx;
+  const ok = idx === correct;
+  $('#quizResult').textContent = ok ? 'Верно. ' + explain : 'Пока нет. ' + explain;
+  $('#quizResult').style.color = ok ? '#86efac' : '#fbbf24';
+}));
+</script>
+</body>
+</html>
