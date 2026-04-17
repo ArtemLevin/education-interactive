@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор графиков функций и производных</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: #e0e0e0; min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        header { text-align: center; padding: 30px 0; }
+        header h1 { font-size: 2.5em; background: linear-gradient(45deg, #00d2ff, #3a7bd5, #f953c6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; }
+        header p { font-size: 1.1em; color: #a0a0b0; }
+        .controls { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border-radius: 20px; padding: 25px; margin-bottom: 30px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .input-group { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
+        .input-group label { font-size: 1.1em; font-weight: 600; color: #7eb8f7; }
+        .function-input { flex: 1; min-width: 300px; padding: 12px 20px; font-size: 1.2em; border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; background: rgba(0, 0, 0, 0.3); color: #ffffff; font-family: 'Courier New', monospace; transition: border-color 0.3s, box-shadow 0.3s; }
+        .function-input:focus { outline: none; border-color: #00d2ff; box-shadow: 0 0 15px rgba(0, 210, 255, 0.3); }
+        .btn { padding: 12px 30px; font-size: 1.1em; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-primary { background: linear-gradient(45deg, #00d2ff, #3a7bd5); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 210, 255, 0.4); }
+        .btn-secondary { background: linear-gradient(45deg, #f953c6, #b91d73); color: white; }
+        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(249, 83, 198, 0.4); }
+        .btn-small { padding: 8px 16px; font-size: 0.9em; }
+        .presets { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .preset-btn { padding: 8px 16px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #e0e0e0; cursor: pointer; font-family: 'Courier New', monospace; transition: all 0.3s; }
+        .preset-btn:hover { background: rgba(0, 210, 255, 0.2); border-color: #00d2ff; }
+        .canvas-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 15px; }
+        .canvas-container.vertical { grid-template-columns: 1fr; }
+        .canvas-container.vertical canvas { height: 450px; }
+        .graph-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1); position: relative; }
+        .graph-panel h3 { text-align: center; margin-bottom: 15px; color: #7eb8f7; font-size: 1.2em; }
+        canvas { width: 100%; height: 500px; background: rgba(0, 0, 0, 0.4); border-radius: 12px; cursor: crosshair; }
+        .tooltip { position: absolute; background: rgba(0, 0, 0, 0.85); color: #ffffff; padding: 8px 12px; border-radius: 8px; font-size: 0.9em; pointer-events: none; z-index: 100; display: none; border: 1px solid rgba(0, 210, 255, 0.5); font-family: 'Courier New', monospace; }
+        .error-message { background: rgba(255, 82, 82, 0.2); border: 1px solid rgba(255, 82, 82, 0.5); color: #ff5252; padding: 12px 20px; border-radius: 12px; margin-top: 15px; display: none; }
+        .zoom-controls { display: flex; gap: 10px; margin: 0 auto 30px; justify-content: center; flex-wrap: wrap; }
+        .second-deriv-toggle { display: flex; align-items: center; gap: 10px; margin-top: 15px; }
+        .toggle-switch { position: relative; width: 50px; height: 26px; background: rgba(255, 255, 255, 0.2); border-radius: 13px; cursor: pointer; transition: background 0.3s; }
+        .toggle-switch.active { background: #00d2ff; }
+        .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: transform 0.3s; }
+        .toggle-switch.active::after { transform: translateX(24px); }
+        @media (max-width: 900px) { .canvas-container { grid-template-columns: 1fr; } .canvas-container canvas { height: 400px; } header h1 { font-size: 1.8em; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>📈 Генератор графиков функций и производных</h1>
+        <p>Введите функцию — получите график, производную и её визуализацию</p>
+    </header>
+    <div class="controls">
+        <div class="input-group">
+            <label>f(x) =</label>
+            <input type="text" class="function-input" id="functionInput" placeholder="например: sin(x) * x^2" value="sin(x) * x">
+            <button class="btn btn-primary" id="plotBtn">Построить</button>
+            <button class="btn btn-secondary" id="clearBtn">Очистить</button>
+        </div>
+        <div class="presets">
+            <span style="color: #a0a0b0; margin-right: 10px;">Примеры:</span>
+            <button class="preset-btn" onclick="setPreset('sin(x)')">sin(x)</button>
+            <button class="preset-btn" onclick="setPreset('cos(x)')">cos(x)</button>
+            <button class="preset-btn" onclick="setPreset('x^2')">x²</button>
+            <button class="preset-btn" onclick="setPreset('x^3 - 3*x')">x³ - 3x</button>
+            <button class="preset-btn" onclick="setPreset('exp(x)')">eˣ</button>
+            <button class="preset-btn" onclick="setPreset('log(x)')">ln(x)</button>
+            <button class="preset-btn" onclick="setPreset('tan(x)')">tan(x)</button>
+            <button class="preset-btn" onclick="setPreset('sin(x)/x')">sin(x)/x</button>
+            <button class="preset-btn" onclick="setPreset('x*sin(x)')">x·sin(x)</button>
+            <button class="preset-btn" onclick="setPreset('exp(-x^2)')">e^(-x²)</button>
+            <button class="preset-btn" onclick="setPreset('abs(x)')">|x|</button>
+            <button class="preset-btn" onclick="setPreset('sqrt(x)')">√x</button>
+        </div>
+        <div class="second-deriv-toggle">
+            <div class="toggle-switch" id="secondDerivToggle"></div>
+            <span style="color: #a0a0b0;">Показать вторую производную f''(x)</span>
+        </div>
+        <div class="error-message" id="errorMsg"></div>
+    </div>
+    <div class="canvas-container" id="canvasContainer">
+        <div class="graph-panel">
+            <h3>📊 График функции f(x)</h3>
+            <canvas id="functionCanvas"></canvas>
+            <div class="tooltip" id="functionTooltip"></div>
+        </div>
+        <div class="graph-panel">
+            <h3>📉 График производной f'(x)</h3>
+            <canvas id="derivativeCanvas"></canvas>
+            <div class="tooltip" id="derivativeTooltip"></div>
+        </div>
+    </div>
+    <div class="zoom-controls">
+        <button class="btn btn-small btn-primary" onclick="zoomIn()">➕ Приблизить</button>
+        <button class="btn btn-small btn-primary" onclick="zoomOut()">➖ Отдалить</button>
+        <button class="btn btn-small btn-secondary" onclick="resetView()">🔄 Сброс</button>
+        <button class="btn btn-small btn-primary" id="layoutToggleBtn">⬇️ Вертикально</button>
+    </div>
+</div>
+
+<script>
+    let xMin = -10, xMax = 10, yMin = -10, yMax = 10;
+    let currentFunction = null;
+    let showSecondDerivative = false;
+
+    function initCanvas(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+        return { canvas, ctx, width: rect.width, height: rect.height };
+    }
+
+    let funcCanvas, funcCtx, funcWidth, funcHeight;
+    let derivCanvas, derivCtx, derivWidth, derivHeight;
+
+    function initAllCanvases() {
+        const func = initCanvas('functionCanvas');
+        funcCanvas = func.canvas; funcCtx = func.ctx; funcWidth = func.width; funcHeight = func.height;
+        const deriv = initCanvas('derivativeCanvas');
+        derivCanvas = deriv.canvas; derivCtx = deriv.ctx; derivWidth = deriv.width; derivHeight = deriv.height;
+    }
+
+    window.addEventListener('resize', () => { initAllCanvases(); if (currentFunction) plotAll(); });
+
+    function parseFunction(expr) {
+        let processed = expr.replace(/\^/g, '**').replace(/PI/g, 'Math.PI').replace(/(?<![a-zA-Z])E(?![a-zA-Z])/g, 'Math.E')
+            .replace(/sin\(/g, 'Math.sin(').replace(/cos\(/g, 'Math.cos(').replace(/tan\(/g, 'Math.tan(')
+            .replace(/asin\(/g, 'Math.asin(').replace(/acos\(/g, 'Math.acos(').replace(/atan\(/g, 'Math.atan(')
+            .replace(/exp\(/g, 'Math.exp(').replace(/log\(/g, 'Math.log(').replace(/ln\(/g, 'Math.log(')
+            .replace(/sqrt\(/g, 'Math.sqrt(').replace(/abs\(/g, 'Math.abs(').replace(/floor\(/g, 'Math.floor(')
+            .replace(/ceil\(/g, 'Math.ceil(').replace(/round\(/g, 'Math.round(').replace(/sign\(/g, 'Math.sign(');
+        processed = processed.replace(/(\d)([a-zA-Z(])/g, '$1*$2').replace(/(\))(\()/g, '$1*$2');
+        return function(x) { try { return eval(processed); } catch (e) { return NaN; } };
+    }
+
+    function derivative(f, x, h = 1e-7) {
+        const y1 = f(x + h), y2 = f(x - h);
+        if (isNaN(y1) || isNaN(y2) || !isFinite(y1) || !isFinite(y2)) return NaN;
+        return (y1 - y2) / (2 * h);
+    }
+
+    function secondDerivative(f, x, h = 1e-5) {
+        const y0 = f(x), y1 = f(x + h), y2 = f(x - h);
+        if (isNaN(y0) || isNaN(y1) || isNaN(y2) || !isFinite(y0) || !isFinite(y1) || !isFinite(y2)) return NaN;
+        return (y1 - 2 * y0 + y2) / (h * h);
+    }
+
+    function drawGrid(ctx, width, height, xMin, xMax, yMin, yMax) {
+        ctx.clearRect(0, 0, width, height); ctx.fillStyle = 'rgba(0, 0, 0, 0.4)'; ctx.fillRect(0, 0, width, height);
+        const xRange = xMax - xMin, yRange = yMax - yMin;
+        function getStep(range) { const rough = range / 10, mag = Math.pow(10, Math.floor(Math.log10(rough))); const residual = rough / mag; if (residual <= 1.5) return mag; if (residual <= 3.5) return 2 * mag; if (residual <= 7.5) return 5 * mag; return 10 * mag; }
+        const stepX = getStep(xRange), stepY = getStep(yRange);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'; ctx.lineWidth = 1;
+        const startX = Math.floor(xMin / stepX) * stepX;
+        for (let x = startX; x <= xMax; x += stepX) { const px = (x - xMin) / xRange * width; ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, height); ctx.stroke(); }
+        const startY = Math.floor(yMin / stepY) * stepY;
+        for (let y = startY; y <= yMax; y += stepY) { const py = height - (y - yMin) / yRange * height; ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(width, py); ctx.stroke(); }
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'; ctx.lineWidth = 2;
+        const yAxisY = height - (0 - yMin) / yRange * height;
+        if (yAxisY >= 0 && yAxisY <= height) { ctx.beginPath(); ctx.moveTo(0, yAxisY); ctx.lineTo(width, yAxisY); ctx.stroke(); }
+        const xAxisX = (0 - xMin) / xRange * width;
+        if (xAxisX >= 0 && xAxisX <= width) { ctx.beginPath(); ctx.moveTo(xAxisX, 0); ctx.lineTo(xAxisX, height); ctx.stroke(); }
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; ctx.font = '11px Segoe UI'; ctx.textAlign = 'center';
+        for (let x = startX; x <= xMax; x += stepX) { if (Math.abs(x) < stepX * 0.01) continue; const px = (x - xMin) / xRange * width; const labelY = Math.min(Math.max(yAxisY + 15, 15), height - 5); ctx.fillText(formatNumber(x), px, labelY); }
+        ctx.textAlign = 'right';
+        for (let y = startY; y <= yMax; y += stepY) { if (Math.abs(y) < stepY * 0.01) continue; const py = height - (y - yMin) / yRange * height; const labelX = Math.min(Math.max(xAxisX - 8, 35), width - 5); ctx.fillText(formatNumber(y), labelX, py + 4); }
+        if (xAxisX >= 0 && xAxisX <= width && yAxisY >= 0 && yAxisY <= height) ctx.fillText('0', xAxisX - 8, yAxisY + 15);
+    }
+
+    function formatNumber(n) { if (Math.abs(n) >= 1000) return n.toExponential(0); if (Math.abs(n) < 0.01 && n !== 0) return n.toExponential(1); return parseFloat(n.toPrecision(4)).toString(); }
+
+    function drawGraph(ctx, width, height, f, xMin, xMax, yMin, yMax, color, lineWidth = 2.5) {
+        const xRange = xMax - xMin, yRange = yMax - yMin; const steps = width * 2, dx = xRange / steps;
+        ctx.strokeStyle = color; ctx.lineWidth = lineWidth; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
+        let started = false, prevY = null;
+        for (let i = 0; i <= steps; i++) {
+            const x = xMin + i * dx, y = f(x);
+            if (isNaN(y) || !isFinite(y)) { started = false; prevY = null; continue; }
+            if (prevY !== null && Math.abs(y - prevY) > yRange * 5) started = false;
+            const px = (x - xMin) / xRange * width, py = height - (y - yMin) / yRange * height;
+            if (!started) { ctx.moveTo(px, py); started = true; } else { ctx.lineTo(px, py); }
+            prevY = y;
+        }
+        ctx.stroke();
+    }
+
+    function findKeyPoints(f, xMin, xMax) {
+        const points = { zeros: [], extrema: [], inflection: [] }; const steps = 1000, dx = (xMax - xMin) / steps, h = 1e-7;
+        for (let i = 0; i < steps; i++) {
+            const x = xMin + i * dx, y = f(x); const dy = derivative(f, x, h), d2y = secondDerivative(f, x, 1e-5);
+            if (isNaN(y) || isNaN(dy) || isNaN(d2y) || !isFinite(y) || !isFinite(dy) || !isFinite(d2y)) continue;
+            if (i > 0) { const prevY = f(x - dx); if (!isNaN(prevY) && isFinite(prevY) && prevY * y < 0) { let a = x - dx, b = x; for (let j = 0; j < 30; j++) { const mid = (a + b) / 2; if (f(a) * f(mid) <= 0) b = mid; else a = mid; } points.zeros.push({ x: (a + b) / 2, y: 0 }); } }
+            if (i > 0) { const prevDy = derivative(f, x - dx, h); if (!isNaN(prevDy) && isFinite(prevDy) && prevDy * dy < 0 && Math.abs(dy) < 1) points.extrema.push({ x, y }); }
+            if (i > 0) { const prevD2y = secondDerivative(f, x - dx, 1e-5); if (!isNaN(prevD2y) && isFinite(prevD2y) && prevD2y * d2y < 0) points.inflection.push({ x, y }); }
+        }
+        return points;
+    }
+
+    function drawKeyPoints(ctx, width, height, points, xMin, xMax, yMin, yMax) {
+        const xRange = xMax - xMin, yRange = yMax - yMin;
+        points.zeros.forEach(p => { const px = (p.x - xMin) / xRange * width, py = height - (p.y - yMin) / yRange * height; ctx.fillStyle = '#00ff88'; ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = 'rgba(0, 255, 136, 0.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(px, py, 8, 0, Math.PI * 2); ctx.stroke(); });
+        points.extrema.forEach(p => { const px = (p.x - xMin) / xRange * width, py = height - (p.y - yMin) / yRange * height; ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = 'rgba(255, 215, 0, 0.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(px, py, 8, 0, Math.PI * 2); ctx.stroke(); });
+        points.inflection.forEach(p => { const px = (p.x - xMin) / xRange * width, py = height - (p.y - yMin) / yRange * height; ctx.fillStyle = '#b91d73'; ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill(); });
+    }
+
+    function plotAll() {
+        const input = document.getElementById('functionInput').value.trim(); const errorMsg = document.getElementById('errorMsg');
+        if (!input) { errorMsg.textContent = 'Введите функцию'; errorMsg.style.display = 'block'; return; }
+        try { currentFunction = parseFunction(input); } catch (e) { errorMsg.textContent = 'Ошибка в синтаксисе функции: ' + e.message; errorMsg.style.display = 'block'; return; }
+        errorMsg.style.display = 'none'; autoScale(currentFunction); plotFunctionGraph(); plotDerivativeGraph();
+    }
+
+    function autoScale(f) {
+        const testX = [-10, -5, -2, -1, -0.5, 0, 0.5, 1, 2, 5, 10]; let yValues = [];
+        testX.forEach(x => { const y = f(x); if (!isNaN(y) && isFinite(y) && Math.abs(y) < 1000) yValues.push(y); });
+        if (yValues.length === 0) { xMin = -10; xMax = 10; yMin = -10; yMax = 10; return; }
+        const minY = Math.min(...yValues), maxY = Math.max(...yValues), padding = Math.max((maxY - minY) * 0.2, 2);
+        yMin = minY - padding; yMax = maxY + padding; if (yMax - yMin > 100) { yMin = Math.max(yMin, -50); yMax = Math.min(yMax, 50); }
+    }
+
+    function plotFunctionGraph() { drawGrid(funcCtx, funcWidth, funcHeight, xMin, xMax, yMin, yMax); if (currentFunction) { drawGraph(funcCtx, funcWidth, funcHeight, currentFunction, xMin, xMax, yMin, yMax, '#00d2ff', 3); drawKeyPoints(funcCtx, funcWidth, funcHeight, findKeyPoints(currentFunction, xMin, xMax), xMin, xMax, yMin, yMax); } }
+    function plotDerivativeGraph() { drawGrid(derivCtx, derivWidth, derivHeight, xMin, xMax, yMin, yMax); if (currentFunction) { const deriv = x => derivative(currentFunction, x); drawGraph(derivCtx, derivWidth, derivHeight, deriv, xMin, xMax, yMin, yMax, '#f953c6', 2.5); if (showSecondDerivative) drawGraph(derivCtx, derivWidth, derivHeight, x => secondDerivative(currentFunction, x), xMin, xMax, yMin, yMax, '#ffd700', 2); drawKeyPoints(derivCtx, derivWidth, derivHeight, findKeyPoints(x => derivative(currentFunction, x), xMin, xMax), xMin, xMax, yMin, yMax); } }
+
+    function zoomIn() { const cx = (xMin + xMax) / 2, cy = (yMin + yMax) / 2, xRange = (xMax - xMin) * 0.35, yRange = (yMax - yMin) * 0.35; xMin = cx - xRange; xMax = cx + xRange; yMin = cy - yRange; yMax = cy + yRange; if (currentFunction) plotAll(); }
+    function zoomOut() { const cx = (xMin + xMax) / 2, cy = (yMin + yMax) / 2, xRange = (xMax - xMin) * 0.75, yRange = (yMax - yMin) * 0.75; xMin = cx - xRange; xMax = cx + xRange; yMin = cy - yRange; yMax = cy + yRange; if (currentFunction) plotAll(); }
+    function resetView() { xMin = -10; xMax = 10; yMin = -10; yMax = 10; if (currentFunction) plotAll(); }
+
+    function setupTooltip(canvasId, tooltipId, isDerivative = false) {
+        const canvas = document.getElementById(canvasId), tooltip = document.getElementById(tooltipId);
+        canvas.addEventListener('mousemove', (e) => {
+            if (!currentFunction) return; const rect = canvas.getBoundingClientRect(); const mouseX = e.clientX - rect.left, mouseY = e.clientY - rect.top;
+            const x = xMin + (mouseX / rect.width) * (xMax - xMin), y = isDerivative ? derivative(currentFunction, x) : currentFunction(x);
+            if (isNaN(y) || !isFinite(y)) { tooltip.style.display = 'none'; return; }
+            tooltip.innerHTML = `x = ${x.toFixed(4)}<br>${isDerivative ? "f'(x)" : "f(x)"} = ${y.toFixed(6)}`; tooltip.style.display = 'block'; tooltip.style.left = (mouseX + 15) + 'px'; tooltip.style.top = (mouseY - 40) + 'px';
+            plotAll(); const ctx = isDerivative ? derivCtx : funcCtx, w = isDerivative ? derivWidth : funcWidth, h = isDerivative ? derivHeight : funcHeight;
+            const px = (x - xMin) / (xMax - xMin) * w, py = h - (y - yMin) / (yMax - yMin) * h;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'; ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
+            ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, h); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(w, py); ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle = isDerivative ? '#f953c6' : '#00d2ff'; ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.stroke();
+        });
+        canvas.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; plotAll(); });
+    }
+
+    function setPreset(expr) { document.getElementById('functionInput').value = expr; plotAll(); }
+
+    document.getElementById('plotBtn').addEventListener('click', plotAll);
+    document.getElementById('functionInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') plotAll(); });
+    document.getElementById('clearBtn').addEventListener('click', () => { document.getElementById('functionInput').value = ''; currentFunction = null; document.getElementById('errorMsg').style.display = 'none'; resetView(); drawGrid(funcCtx, funcWidth, funcHeight, xMin, xMax, yMin, yMax); drawGrid(derivCtx, derivWidth, derivHeight, xMin, xMax, yMin, yMax); });
+    document.getElementById('secondDerivToggle').addEventListener('click', function() { showSecondDerivative = !showSecondDerivative; this.classList.toggle('active'); if (currentFunction) plotDerivativeGraph(); });
+    const layoutToggleBtn = document.getElementById('layoutToggleBtn'), canvasContainer = document.getElementById('canvasContainer');
+    layoutToggleBtn.addEventListener('click', () => { canvasContainer.classList.toggle('vertical'); layoutToggleBtn.textContent = canvasContainer.classList.contains('vertical') ? '⬅️ Горизонтально' : '⬇️ Вертикально'; setTimeout(() => { initAllCanvases(); if (currentFunction) plotAll(); }, 10); });
+
+    window.addEventListener('load', () => { initAllCanvases(); setupTooltip('functionCanvas', 'functionTooltip', false); setupTooltip('derivativeCanvas', 'derivativeTooltip', true); plotAll(); });
+</script>
+</body>
+</html>
