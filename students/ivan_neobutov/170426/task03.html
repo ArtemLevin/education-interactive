@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Задание 3. Распределение 20 рабочих по двум объектам</title>
+<style>
+:root{
+  --bg:#0b1020;
+  --bg-soft:#121936;
+  --panel:#11172b;
+  --panel-2:#16203f;
+  --text:#ecf3ff;
+  --muted:#9fb0d0;
+  --accent:#67e8f9;
+  --accent-2:#a78bfa;
+  --good:#34d399;
+  --warn:#fbbf24;
+  --bad:#f87171;
+  --line:rgba(255,255,255,.08);
+  --shadow:0 18px 50px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:
+ radial-gradient(1200px 600px at 10% -10%, rgba(103,232,249,.12), transparent 55%),
+ radial-gradient(900px 500px at 90% 0%, rgba(167,139,250,.12), transparent 50%),
+ linear-gradient(180deg,#0a0f1c,#0e1428 45%,#0b1020 100%);
+color:var(--text);font:16px/1.55 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{width:min(1380px,94vw);margin:0 auto}
+.topbar{position:sticky;top:0;z-index:50;backdrop-filter: blur(12px);background:rgba(8,12,24,.65);border-bottom:1px solid var(--line)}
+.topbar-inner{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:14px 0}
+.brand{font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.brand small{display:block;color:var(--muted);font-weight:600;letter-spacing:.02em;text-transform:none}
+.nav{display:flex;gap:10px;flex-wrap:wrap}
+.nav a,.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));box-shadow:var(--shadow)}
+.hero{padding:56px 0 28px}
+.kicker{display:inline-block;padding:7px 12px;border:1px solid rgba(103,232,249,.35);border-radius:999px;background:rgba(103,232,249,.08);color:var(--accent);font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:12px}
+h1{font-size:clamp(2rem,4vw,4rem);line-height:1.06;margin:18px 0 14px}
+.lead{max-width:960px;color:var(--muted);font-size:1.08rem}
+.grid{display:grid;grid-template-columns: minmax(0,1.1fr) minmax(360px,.9fr);gap:24px;align-items:start}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+.card.pad{padding:22px}
+.sticky{position:sticky;top:92px}
+.section{margin:22px 0}
+.section h2{font-size:1.3rem;margin:0 0 10px;color:#f6fbff}
+.section p{margin:8px 0}
+.pill{display:inline-flex;padding:6px 10px;border-radius:999px;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.2);color:#ddd6fe;font-size:.92rem;font-weight:700}
+.list{display:grid;gap:10px;padding:0;margin:0}
+.list li{list-style:none;padding:14px 14px 14px 16px;border-left:3px solid rgba(103,232,249,.45);background:rgba(255,255,255,.03);border-radius:14px}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.note{padding:14px 16px;border-radius:16px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2)}
+.warn{padding:14px 16px;border-radius:16px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.22)}
+.bad{padding:14px 16px;border-radius:16px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.22)}
+.math{font-family:"Cambria Math","STIX Two Text","Times New Roman",serif;font-size:1.08rem}
+.step{padding:16px 16px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.steps{display:grid;gap:12px}
+.step strong{display:block;margin-bottom:6px;color:var(--accent)}
+canvas{width:100%;height:100%;display:block}
+.plot-wrap{height:420px;border-radius:20px;overflow:hidden;background:radial-gradient(circle at 20% 10%, rgba(103,232,249,.08), transparent 28%),linear-gradient(180deg,#0e1631,#0c1327)}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.controls button{cursor:pointer}
+.mini{font-size:.92rem;color:var(--muted)}
+.quiz{display:grid;gap:12px}
+.quiz button.choice{justify-content:flex-start;text-align:left;width:100%;cursor:pointer}
+.result{padding:10px 12px;border-radius:12px;display:none}
+.result.ok{display:block;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.22);color:#d1fae5}
+.result.no{display:block;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.22);color:#fee2e2}
+.footer{padding:36px 0 60px;color:var(--muted)}
+.index-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:24px}
+.task-card{padding:18px;border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--line);min-height:220px;display:flex;flex-direction:column}
+.task-card h3{margin:8px 0 8px;font-size:1.15rem}
+.task-card p{color:var(--muted);flex:1}
+.badge-row{display:flex;gap:8px;flex-wrap:wrap}
+.badge{font-size:.82rem;padding:5px 8px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+.overlay{position:fixed;inset:0;background:rgba(2,6,23,.78);display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
+.overlay.open{display:flex}
+.overlay .modal{width:min(1200px,96vw);height:min(88vh,860px)}
+.close{position:absolute;right:18px;top:18px}
+.table-like{display:grid;gap:10px}
+.row{display:grid;grid-template-columns:180px 1fr;gap:12px;padding:12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.row .label{color:var(--muted);font-weight:700}
+@media (max-width:1080px){.grid{grid-template-columns:1fr}.sticky{position:relative;top:auto}.plot-wrap{height:360px}}
+@media (max-width:720px){.twocol{grid-template-columns:1fr}.row{grid-template-columns:1fr} h1{font-size:2rem}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="container topbar-inner">
+    <div class="brand">Наглядная математика<small>многостраничный разбор заданий из пособия</small></div>
+    <nav class="nav">
+      <a href="index.html">Все задания</a>
+      <a href="task02.html">← Предыдущее</a>
+      <a href="task04.html">Следующее →</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <span class="kicker">разбор задания</span>
+    <h1>Задание 3. Распределение 20 рабочих по двум объектам</h1>
+    <p class="lead">Бригада из 20 рабочих распределяется по двум объектам. Если на первом объекте работает x человек, то каждый получает 150x рублей в сутки. Если на втором объекте работает 20−x человек, то каждый получает 60(20−x)+180 рублей в сутки. Как нужно распределить рабочих, чтобы суммарная суточная выплата была наименьшей?</p>
+  </div>
+</section>
+
+<main class="container grid">
+  <section>
+    <div class="card pad section">
+      <span class="pill">идея решения</span>
+      <p>Составляем суммарную функцию выплаты S(x), находим непрерывный минимум, затем учитываем, что x — целое число.</p>
+    </div>
+
+    <div class="section twocol">
+      <div class="card pad">
+        <h2>Что дано</h2>
+        <ul class="list"><li>На первом объекте: x человек, каждый по 150x руб.</li><li>На втором объекте: 20−x человек, каждый по 60(20−x)+180 руб.</li><li>x — целое, 0≤x≤20</li></ul>
+      </div>
+      <div class="card pad">
+        <h2>Что найти</h2>
+        <div class="note"><strong>Как распределить рабочих.</strong></div>
+        <p class="mini">Ключевой фокус: отвечаем именно на вопрос задачи, даже если в ходе решения сначала находим другую величину.</p>
+      </div>
+    </div>
+
+    <div class="card pad section">
+      <h2>Пошаговый разбор</h2>
+      <div class="steps"><div class="step"><strong>Шаг 1</strong><div class="math">Суммарная выплата на первом объекте: 150x².</div></div><div class="step"><strong>Шаг 2</strong><div class="math">Суммарная выплата на втором объекте: (20−x)(60(20−x)+180).</div></div><div class="step"><strong>Шаг 3</strong><div class="math">Итак, S(x)=150x²+(20−x)(60(20−x)+180).</div></div><div class="step"><strong>Шаг 4</strong><div class="math">Раскрываем скобки: S(x)=210x²−2580x+27600.</div></div><div class="step"><strong>Шаг 5</strong><div class="math">Производная: S'(x)=420x−2580.</div></div><div class="step"><strong>Шаг 6</strong><div class="math">Из S'(x)=0 получаем x=2580/420=43/7≈6,14.</div></div><div class="step"><strong>Шаг 7</strong><div class="math">Так как x — целое, проверяем соседние значения x=6 и x=7.</div></div><div class="step"><strong>Шаг 8</strong><div class="math">S(6)=19680, S(7)=19740, значит минимум при x=6.</div></div></div>
+    </div>
+
+    <div class="section twocol">
+      <div class="card pad">
+        <h2>Проверка</h2>
+        <div class="warn">Точка минимума около 6,14, поэтому действительно достаточно проверить только ближайшие целые 6 и 7.</div>
+      </div>
+      <div class="card pad">
+        <h2>Ответ</h2>
+        <div class="note"><strong>На первый объект — 6 человек, на второй — 14 человек.</strong></div>
+      </div>
+    </div>
+
+    <div class="card pad section">
+      <h2>Типичные ошибки</h2>
+      <ul class="list"><li>Не умножить зарплату одного рабочего на число рабочих.</li><li>Забыть, что x должно быть целым.</li><li>Проверять далёкие значения вместо ближайших к 6,14.</li></ul>
+    </div>
+
+    <div class="card pad section">
+      <h2>Самопроверка</h2>
+      <div class="quiz">
+        <div>Почему после нахождения непрерывного минимума нужно проверять соседние целые?</div>
+        <button class="btn choice">Потому что число людей должно быть целым</button>
+        <button class="btn choice">Потому что производная запрещена</button>
+        <button class="btn choice">Потому что функция всегда линейна</button>
+        <div id="quizResult" class="result"></div>
+        <div class="mini">Да: число работников — дискретная величина, поэтому финальный минимум ищется среди целых.</div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="sticky">
+    <div class="card pad">
+      <h2>Интерактивная модель</h2>
+      <p class="mini">Нажмите на схему, чтобы открыть увеличенный режим. На графических страницах доступны кнопки зума; на инвестиционных страницах показана временная траектория капитала.</p>
+      <div class="plot-wrap"><canvas id="plot"></canvas></div>
+      <div class="controls">
+        <button class="btn" id="zoomIn">＋ увеличить</button>
+        <button class="btn" id="zoomOut">－ уменьшить</button>
+        <button class="btn" id="resetView">сброс</button>
+        <button class="btn" id="openModal">открыть крупно</button>
+      </div>
+    </div>
+
+    <div class="card pad section">
+      <h2>Памятка по методу</h2>
+      <div class="table-like">
+        <div class="row"><div class="label">1. Переменная</div><div>Определите, что обозначает x или t, и выпишите ограничения по смыслу.</div></div>
+        <div class="row"><div class="label">2. Функция</div><div>Соберите одну функцию одной переменной: прибыль, цену, суммарную выплату или капитал.</div></div>
+        <div class="row"><div class="label">3. Оптимум</div><div>Найдите минимум или максимум с учётом производной, границ и целочисленности.</div></div>
+        <div class="row"><div class="label">4. Ответ</div><div>Вернитесь к вопросу задачи и запишите нужную величину, а не промежуточную.</div></div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div class="overlay" id="overlay">
+  <button class="btn close" id="closeModal">закрыть ×</button>
+  <div class="modal card pad">
+    <div class="plot-wrap" style="height:100%"><canvas id="plotBig"></canvas></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div>Страница сайта по формату «Наглядная математика». Все вычисления и логика адаптированы под школьный разбор, с акцентом на смысл ограничений, производную и финальную проверку.</div>
+  </div>
+</footer>
+
+<script>
+
+const expr = x => 210*x*x - 2580*x + 27600;
+const xStar = 43/7;
+const yStar = 210*(43/7)*(43/7)-2580*(43/7)+27600;
+const bounds = {xmin:0, xmax:20, ymin:19000, ymax:28000};
+const ylabel = "S(x)";
+function drawPlot(canvas, view){
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width*dpr; canvas.height = rect.height*dpr; ctx.scale(dpr,dpr);
+  const w = rect.width, h = rect.height;
+  ctx.clearRect(0,0,w,h);
+  const left=62, right=20, top=24, bottom=48;
+  const xmin=view.xmin, xmax=view.xmax, ymin=view.ymin, ymax=view.ymax;
+  function X(x){ return left + (x-xmin)/(xmax-xmin)*(w-left-right); }
+  function Y(y){ return h-bottom - (y-ymin)/(ymax-ymin)*(h-top-bottom); }
+  ctx.fillStyle='rgba(255,255,255,.02)'; ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle='rgba(255,255,255,.1)'; ctx.lineWidth=1;
+  for(let i=0;i<=6;i++){ let gx=left+(w-left-right)*i/6; ctx.beginPath(); ctx.moveTo(gx,top); ctx.lineTo(gx,h-bottom); ctx.stroke(); }
+  for(let i=0;i<=5;i++){ let gy=top+(h-top-bottom)*i/5; ctx.beginPath(); ctx.moveTo(left,gy); ctx.lineTo(w-right,gy); ctx.stroke(); }
+  ctx.strokeStyle='rgba(255,255,255,.25)'; ctx.beginPath(); ctx.moveTo(left,top); ctx.lineTo(left,h-bottom); ctx.lineTo(w-right,h-bottom); ctx.stroke();
+  ctx.strokeStyle='rgba(103,232,249,.95)'; ctx.lineWidth=3; ctx.beginPath();
+  let started=false;
+  for(let i=0;i<800;i++){ let x=xmin+(xmax-xmin)*i/799; let y=expr(x); if(!isFinite(y)) continue; let cx=X(x), cy=Y(y); if(!started){ctx.moveTo(cx,cy); started=true;} else ctx.lineTo(cx,cy); }
+  ctx.stroke();
+  if(xStar>=xmin && xStar<=xmax && yStar>=ymin && yStar<=ymax){
+    const cx=X(xStar), cy=Y(yStar);
+    ctx.fillStyle='rgba(167,139,250,.95)'; ctx.beginPath(); ctx.arc(cx,cy,5.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#eaf2ff'; ctx.font='12px system-ui'; ctx.fillText('оптимум', cx+10, cy-10);
+  }
+  ctx.fillStyle='rgba(255,255,255,.8)'; ctx.font='12px system-ui';
+  ctx.fillText(ylabel, 10, 16);
+  ctx.fillText('x', w-right-8, h-bottom+26);
+}
+let view = {...bounds};
+function shrink(ratio){
+  const cx=(view.xmin+view.xmax)/2, cy=(view.ymin+view.ymax)/2;
+  const w=(view.xmax-view.xmin)*ratio, h=(view.ymax-view.ymin)*ratio;
+  view={xmin:cx-w/2,xmax:cx+w/2,ymin:cy-h/2,ymax:cy+h/2};
+  renderAll();
+}
+function renderAll(){
+  drawPlot(document.getElementById('plot'), view);
+  drawPlot(document.getElementById('plotBig'), view);
+}
+window.addEventListener('resize', renderAll);
+document.getElementById('zoomIn').addEventListener('click',()=>shrink(0.82));
+document.getElementById('zoomOut').addEventListener('click',()=>shrink(1.22));
+document.getElementById('resetView').addEventListener('click',()=>{ view={...bounds}; renderAll(); });
+
+document.getElementById('openModal').addEventListener('click',()=>document.getElementById('overlay').classList.add('open'));
+document.getElementById('plot').addEventListener('click',()=>document.getElementById('overlay').classList.add('open'));
+document.getElementById('closeModal').addEventListener('click',()=>document.getElementById('overlay').classList.remove('open'));
+document.getElementById('overlay').addEventListener('click',(e)=>{ if(e.target.id==='overlay') document.getElementById('overlay').classList.remove('open'); });
+window.addEventListener('keydown',(e)=>{ if(e.key==='Escape') document.getElementById('overlay').classList.remove('open'); });
+document.querySelectorAll('.choice').forEach((btn,idx)=>btn.addEventListener('click',()=>{
+  const res=document.getElementById('quizResult');
+  const ok = idx===0;
+  res.className='result '+(ok?'ok':'no');
+  res.textContent = ok ? 'Верно.' : 'Пока нет. Сверьтесь с ключевой идеей решения на странице.';
+}));
+renderAll();
+</script>
+</body>
+</html>

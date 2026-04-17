@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Задание 8. Оптимальная стратегия на 4 года</title>
+<style>
+:root{
+  --bg:#0b1020;
+  --bg-soft:#121936;
+  --panel:#11172b;
+  --panel-2:#16203f;
+  --text:#ecf3ff;
+  --muted:#9fb0d0;
+  --accent:#67e8f9;
+  --accent-2:#a78bfa;
+  --good:#34d399;
+  --warn:#fbbf24;
+  --bad:#f87171;
+  --line:rgba(255,255,255,.08);
+  --shadow:0 18px 50px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:
+ radial-gradient(1200px 600px at 10% -10%, rgba(103,232,249,.12), transparent 55%),
+ radial-gradient(900px 500px at 90% 0%, rgba(167,139,250,.12), transparent 50%),
+ linear-gradient(180deg,#0a0f1c,#0e1428 45%,#0b1020 100%);
+color:var(--text);font:16px/1.55 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{width:min(1380px,94vw);margin:0 auto}
+.topbar{position:sticky;top:0;z-index:50;backdrop-filter: blur(12px);background:rgba(8,12,24,.65);border-bottom:1px solid var(--line)}
+.topbar-inner{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:14px 0}
+.brand{font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.brand small{display:block;color:var(--muted);font-weight:600;letter-spacing:.02em;text-transform:none}
+.nav{display:flex;gap:10px;flex-wrap:wrap}
+.nav a,.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));box-shadow:var(--shadow)}
+.hero{padding:56px 0 28px}
+.kicker{display:inline-block;padding:7px 12px;border:1px solid rgba(103,232,249,.35);border-radius:999px;background:rgba(103,232,249,.08);color:var(--accent);font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:12px}
+h1{font-size:clamp(2rem,4vw,4rem);line-height:1.06;margin:18px 0 14px}
+.lead{max-width:960px;color:var(--muted);font-size:1.08rem}
+.grid{display:grid;grid-template-columns: minmax(0,1.1fr) minmax(360px,.9fr);gap:24px;align-items:start}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+.card.pad{padding:22px}
+.sticky{position:sticky;top:92px}
+.section{margin:22px 0}
+.section h2{font-size:1.3rem;margin:0 0 10px;color:#f6fbff}
+.section p{margin:8px 0}
+.pill{display:inline-flex;padding:6px 10px;border-radius:999px;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.2);color:#ddd6fe;font-size:.92rem;font-weight:700}
+.list{display:grid;gap:10px;padding:0;margin:0}
+.list li{list-style:none;padding:14px 14px 14px 16px;border-left:3px solid rgba(103,232,249,.45);background:rgba(255,255,255,.03);border-radius:14px}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.note{padding:14px 16px;border-radius:16px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2)}
+.warn{padding:14px 16px;border-radius:16px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.22)}
+.bad{padding:14px 16px;border-radius:16px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.22)}
+.math{font-family:"Cambria Math","STIX Two Text","Times New Roman",serif;font-size:1.08rem}
+.step{padding:16px 16px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.steps{display:grid;gap:12px}
+.step strong{display:block;margin-bottom:6px;color:var(--accent)}
+canvas{width:100%;height:100%;display:block}
+.plot-wrap{height:420px;border-radius:20px;overflow:hidden;background:radial-gradient(circle at 20% 10%, rgba(103,232,249,.08), transparent 28%),linear-gradient(180deg,#0e1631,#0c1327)}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.controls button{cursor:pointer}
+.mini{font-size:.92rem;color:var(--muted)}
+.quiz{display:grid;gap:12px}
+.quiz button.choice{justify-content:flex-start;text-align:left;width:100%;cursor:pointer}
+.result{padding:10px 12px;border-radius:12px;display:none}
+.result.ok{display:block;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.22);color:#d1fae5}
+.result.no{display:block;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.22);color:#fee2e2}
+.footer{padding:36px 0 60px;color:var(--muted)}
+.index-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:24px}
+.task-card{padding:18px;border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--line);min-height:220px;display:flex;flex-direction:column}
+.task-card h3{margin:8px 0 8px;font-size:1.15rem}
+.task-card p{color:var(--muted);flex:1}
+.badge-row{display:flex;gap:8px;flex-wrap:wrap}
+.badge{font-size:.82rem;padding:5px 8px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+.overlay{position:fixed;inset:0;background:rgba(2,6,23,.78);display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
+.overlay.open{display:flex}
+.overlay .modal{width:min(1200px,96vw);height:min(88vh,860px)}
+.close{position:absolute;right:18px;top:18px}
+.table-like{display:grid;gap:10px}
+.row{display:grid;grid-template-columns:180px 1fr;gap:12px;padding:12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.row .label{color:var(--muted);font-weight:700}
+@media (max-width:1080px){.grid{grid-template-columns:1fr}.sticky{position:relative;top:auto}.plot-wrap{height:360px}}
+@media (max-width:720px){.twocol{grid-template-columns:1fr}.row{grid-template-columns:1fr} h1{font-size:2rem}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="container topbar-inner">
+    <div class="brand">Наглядная математика<small>многостраничный разбор заданий из пособия</small></div>
+    <nav class="nav">
+      <a href="index.html">Все задания</a>
+      <a href="task07.html">← Предыдущее</a>
+      <a href="task09.html">Следующее →</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <span class="kicker">разбор задания</span>
+    <h1>Задание 8. Оптимальная стратегия на 4 года</h1>
+    <p class="lead">В начале года у инвестора есть 70000 руб. Он может купить ценную бумагу, цена которой к концу года меняется по правилу S=1,15S₀+1000, или положить деньги на счёт, где сумма за год увеличивается на 16%. В начале каждого года разрешается менять стратегию. Какая наибольшая сумма может быть у инвестора через 4 года?</p>
+  </div>
+</section>
+
+<main class="container grid">
+  <section>
+    <div class="card pad section">
+      <span class="pill">идея решения</span>
+      <p>Опять ищем порог: пока сумма меньше порога, ценная бумага выгоднее, после превышения порога — вклад.</p>
+    </div>
+
+    <div class="section twocol">
+      <div class="card pad">
+        <h2>Что дано</h2>
+        <ul class="list"><li>Старт: 70000 руб.</li><li>Ценная бумага: S=1,15S₀+1000</li><li>Банк: S=1,16S₀</li><li>Горизонт: 4 года</li></ul>
+      </div>
+      <div class="card pad">
+        <h2>Что найти</h2>
+        <div class="note"><strong>Максимальную сумму через 4 года.</strong></div>
+        <p class="mini">Ключевой фокус: отвечаем именно на вопрос задачи, даже если в ходе решения сначала находим другую величину.</p>
+      </div>
+    </div>
+
+    <div class="card pad section">
+      <h2>Пошаговый разбор</h2>
+      <div class="steps"><div class="step"><strong>Шаг 1</strong><div class="math">Сравниваем: 1,16S₀ ? 1,15S₀+1000.</div></div><div class="step"><strong>Шаг 2</strong><div class="math">Вклад выгоднее, если 0,01S₀>1000, то есть S₀>100000.</div></div><div class="step"><strong>Шаг 3</strong><div class="math">Стартовые 70000 меньше порога, поэтому сначала выбираем ценную бумагу.</div></div><div class="step"><strong>Шаг 4</strong><div class="math">После 1-го года: 1,15·70000+1000 = 81500 руб.</div></div><div class="step"><strong>Шаг 5</strong><div class="math">После 2-го года: 1,15·81500+1000 = 94725 руб.</div></div><div class="step"><strong>Шаг 6</strong><div class="math">Сумма всё ещё меньше 100000, значит третий год тоже держим ценную бумагу.</div></div><div class="step"><strong>Шаг 7</strong><div class="math">После 3-го года: 1,15·94725+1000 = 109933,75 руб.</div></div><div class="step"><strong>Шаг 8</strong><div class="math">Теперь сумма выше порога, значит последний год выгоднее вклад.</div></div><div class="step"><strong>Шаг 9</strong><div class="math">После 4-го года: 1,16·109933,75 = 127523,15 руб.</div></div></div>
+    </div>
+
+    <div class="section twocol">
+      <div class="card pad">
+        <h2>Проверка</h2>
+        <div class="warn">Если четвёртый год снова держать ценную бумагу, получится 1,15·109933,75+1000 = 127423,81 руб., что чуть меньше вклада.</div>
+      </div>
+      <div class="card pad">
+        <h2>Ответ</h2>
+        <div class="note"><strong>Максимальная сумма через 4 года: 127523,15 руб.</strong></div>
+      </div>
+    </div>
+
+    <div class="card pad section">
+      <h2>Типичные ошибки</h2>
+      <ul class="list"><li>Перейти во вклад слишком рано.</li><li>Не сравнить оба варианта на последнем шаге.</li><li>Округлять промежуточные значения слишком грубо.</li></ul>
+    </div>
+
+    <div class="card pad section">
+      <h2>Самопроверка</h2>
+      <div class="quiz">
+        <div>Что нужно сделать в первую очередь в инвестиционной задаче такого типа?</div>
+        <button class="btn choice">Найти производную</button>
+        <button class="btn choice">Сравнить две годовые модели и найти порог</button>
+        <button class="btn choice">Всегда выбрать банк</button>
+        <div id="quizResult" class="result"></div>
+        <div class="mini">Сначала сравнивают два способа изменения капитала за год и ищут порог переключения.</div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="sticky">
+    <div class="card pad">
+      <h2>Интерактивная модель</h2>
+      <p class="mini">Нажмите на схему, чтобы открыть увеличенный режим. На графических страницах доступны кнопки зума; на инвестиционных страницах показана временная траектория капитала.</p>
+      <div class="plot-wrap"><canvas id="plot"></canvas></div>
+      <div class="controls">
+        <button class="btn" id="zoomIn">＋ увеличить</button>
+        <button class="btn" id="zoomOut">－ уменьшить</button>
+        <button class="btn" id="resetView">сброс</button>
+        <button class="btn" id="openModal">открыть крупно</button>
+      </div>
+    </div>
+
+    <div class="card pad section">
+      <h2>Памятка по методу</h2>
+      <div class="table-like">
+        <div class="row"><div class="label">1. Переменная</div><div>Определите, что обозначает x или t, и выпишите ограничения по смыслу.</div></div>
+        <div class="row"><div class="label">2. Функция</div><div>Соберите одну функцию одной переменной: прибыль, цену, суммарную выплату или капитал.</div></div>
+        <div class="row"><div class="label">3. Оптимум</div><div>Найдите минимум или максимум с учётом производной, границ и целочисленности.</div></div>
+        <div class="row"><div class="label">4. Ответ</div><div>Вернитесь к вопросу задачи и запишите нужную величину, а не промежуточную.</div></div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div class="overlay" id="overlay">
+  <button class="btn close" id="closeModal">закрыть ×</button>
+  <div class="modal card pad">
+    <div class="plot-wrap" style="height:100%"><canvas id="plotBig"></canvas></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div>Страница сайта по формату «Наглядная математика». Все вычисления и логика адаптированы под школьный разбор, с акцентом на смысл ограничений, производную и финальную проверку.</div>
+  </div>
+</footer>
+
+<script>
+
+const vizData = {"timeline": [70000, 81500, 94725, 109933.75, 127523.15], "labels": ["старт", "1 год", "2 года", "3 года", "4 года"], "strategy": ["ценная бумага", "ценная бумага", "ценная бумага", "вклад"]};
+function drawInvestment(canvas){
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width*dpr; canvas.height = rect.height*dpr; ctx.scale(dpr,dpr);
+  const w = rect.width, h = rect.height;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='rgba(255,255,255,.02)'; ctx.fillRect(0,0,w,h);
+  const values = vizData.timeline;
+  const max = Math.max(...values)*1.12;
+  const min = Math.min(...values)*0.92;
+  const left=58,right=20,top=30,bottom=48;
+  ctx.strokeStyle='rgba(255,255,255,.16)'; ctx.lineWidth=1;
+  for(let i=0;i<5;i++){ let y=top+(h-top-bottom)*i/4; ctx.beginPath(); ctx.moveTo(left,y); ctx.lineTo(w-right,y); ctx.stroke(); }
+  ctx.strokeStyle='rgba(255,255,255,.25)'; ctx.beginPath(); ctx.moveTo(left,top); ctx.lineTo(left,h-bottom); ctx.lineTo(w-right,h-bottom); ctx.stroke();
+  function X(i){ return left + (w-left-right)*(i/(values.length-1||1)); }
+  function Y(v){ return h-bottom - (v-min)/(max-min)*(h-top-bottom); }
+  ctx.lineWidth=3;
+  ctx.strokeStyle='rgba(103,232,249,.95)';
+  ctx.beginPath();
+  values.forEach((v,i)=>{ const x=X(i), y=Y(v); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+  ctx.stroke();
+  values.forEach((v,i)=>{
+    const x=X(i), y=Y(v);
+    ctx.fillStyle='rgba(167,139,250,.95)'; ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#eaf2ff'; ctx.font='12px system-ui'; ctx.fillText(v.toFixed(2).replace('.',','), x-22, y-12);
+    ctx.fillStyle='rgba(255,255,255,.75)'; ctx.fillText(vizData.labels[i], x-22, h-18);
+  });
+  ctx.fillStyle='rgba(255,255,255,.8)'; ctx.font='13px system-ui';
+  ctx.fillText('рост капитала по оптимальной стратегии', left, 18);
+}
+function renderAll(){
+  drawInvestment(document.getElementById('plot'));
+  drawInvestment(document.getElementById('plotBig'));
+}
+window.addEventListener('resize', renderAll);
+document.getElementById('zoomIn').addEventListener('click',()=>renderAll());
+document.getElementById('zoomOut').addEventListener('click',()=>renderAll());
+document.getElementById('resetView').addEventListener('click',()=>renderAll());
+
+document.getElementById('openModal').addEventListener('click',()=>document.getElementById('overlay').classList.add('open'));
+document.getElementById('plot').addEventListener('click',()=>document.getElementById('overlay').classList.add('open'));
+document.getElementById('closeModal').addEventListener('click',()=>document.getElementById('overlay').classList.remove('open'));
+document.getElementById('overlay').addEventListener('click',(e)=>{ if(e.target.id==='overlay') document.getElementById('overlay').classList.remove('open'); });
+window.addEventListener('keydown',(e)=>{ if(e.key==='Escape') document.getElementById('overlay').classList.remove('open'); });
+document.querySelectorAll('.choice').forEach((btn,idx)=>btn.addEventListener('click',()=>{
+  const res=document.getElementById('quizResult');
+  const ok = idx===1;
+  res.className='result '+(ok?'ok':'no');
+  res.textContent = ok ? 'Верно.' : 'Пока нет. Сверьтесь с ключевой идеей решения на странице.';
+}));
+renderAll();
+</script>
+</body>
+</html>
