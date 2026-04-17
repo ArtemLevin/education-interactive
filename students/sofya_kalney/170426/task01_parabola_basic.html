@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Задание 1. Чтение коэффициентов квадратной функции</title>
+<style>
+:root{
+  --bg:#0b1020; --bg2:#121935; --panel:#11182d; --panel2:#0f1530; --text:#e8eefc; --muted:#97a5d6;
+  --accent:#5eead4; --accent2:#60a5fa; --danger:#fda4af; --ok:#86efac; --line:#243055; --shadow:0 12px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:radial-gradient(circle at top,#152046 0%,#0b1020 58%);color:var(--text);font:16px/1.6 Inter,Segoe UI,Arial,sans-serif}
+a{color:var(--accent)}
+.wrap{max-width:1440px;margin:0 auto;padding:24px}
+.hero{padding:22px 24px;border:1px solid var(--line);background:linear-gradient(135deg,rgba(94,234,212,.08),rgba(96,165,250,.06));border-radius:24px;box-shadow:var(--shadow);margin-bottom:22px}
+.hero h1{margin:0 0 8px;font-size:clamp(28px,4vw,44px);line-height:1.1}
+.hero p{margin:8px 0 0;color:var(--muted);max-width:1000px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.btn,button{background:#162142;color:var(--text);border:1px solid var(--line);border-radius:14px;padding:10px 14px;cursor:pointer}
+.btn:hover,button:hover{border-color:var(--accent2);transform:translateY(-1px)}
+.layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(360px,.9fr);gap:18px}
+.card{background:linear-gradient(180deg,rgba(17,24,45,.95),rgba(10,16,33,.97));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+.left.card{padding:22px}
+.right.card{padding:18px;position:sticky;top:14px;height:fit-content}
+h2{font-size:clamp(21px,2.2vw,28px);margin:22px 0 10px}
+h3{font-size:18px;margin:18px 0 8px;color:#d8e6ff}
+p,li{color:#e5ecff}
+small,.muted{color:var(--muted)}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:16px 0}
+.kpi .mini{padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02)}
+.math{font-family:"Cambria Math","DejaVu Sans",serif}
+.step{border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin:12px 0;background:rgba(255,255,255,.02)}
+.step.active{border-color:var(--accent);box-shadow:0 0 0 1px rgba(94,234,212,.22) inset}
+.step .tag{display:inline-block;padding:3px 8px;border-radius:999px;background:rgba(96,165,250,.16);color:#d8ecff;font-size:12px;margin-bottom:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.note{padding:12px 14px;border-left:3px solid var(--accent);background:rgba(94,234,212,.07);border-radius:0 14px 14px 0}
+.warn{padding:12px 14px;border-left:3px solid var(--danger);background:rgba(253,164,175,.08);border-radius:0 14px 14px 0}
+svg.scene{width:100%;height:auto;display:block;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,#08101f,#0c1427)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 12px}
+.range{width:100%}
+.legend{display:grid;gap:8px;margin-top:10px}
+.legend div{padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.02)}
+.quiz{margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02)}
+.footer{padding:18px 0 6px;text-align:center;color:var(--muted)}
+.grid-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.tile{padding:16px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(180deg,rgba(17,24,45,.95),rgba(10,16,33,.97));text-decoration:none;color:var(--text);box-shadow:var(--shadow)}
+.tile h3{margin:0 0 8px}
+.tile p{margin:0;color:var(--muted)}
+.badge{display:inline-block;font-size:12px;padding:3px 8px;border-radius:999px;background:rgba(134,239,172,.12);color:var(--ok);border:1px solid rgba(134,239,172,.18)}
+.modal{position:fixed;inset:0;background:rgba(3,7,18,.78);display:none;align-items:center;justify-content:center;padding:20px;z-index:999}
+.modal.open{display:flex}
+.modal-card{width:min(1100px,95vw);max-height:92vh;overflow:auto;padding:18px;border:1px solid var(--line);border-radius:24px;background:#091121;box-shadow:var(--shadow)}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:rgba(255,255,255,.04);padding:2px 6px;border-radius:8px}
+@media (max-width: 980px){.layout{grid-template-columns:1fr}.right.card{position:relative;top:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="badge">Наглядная математика</div>
+    <h1>Задание 1. Чтение коэффициентов квадратной функции</h1>
+    <p>Разбираем функцию y = x² − 4x + 1: как по формуле быстро понять знак коэффициентов и положение вершины.</p>
+    <div class="toolbar">
+      <a class="btn" href="index.html">← Ко всем заданиям</a>
+      <button data-open-modal>Открыть увеличенную модель</button>
+      <button onclick="document.querySelector('.left').scrollIntoView({behavior:'smooth'})">К разбору</button>
+    </div>
+  </section>
+  <div class="layout">
+    <article class="left card">
+      
+<h2>Что дано</h2>
+<div class="note math">Функция: y = x² − 4x + 1</div>
+<div class="kpi">
+  <div class="mini"><b>Найти</b><br>знак a, знак b, значение c, положение вершины</div>
+  <div class="mini"><b>Ключ</b><br><span class="math">y = ax² + bx + c</span></div>
+  <div class="mini"><b>Формула вершины</b><br><span class="math">x<sub>в</sub> = −b/(2a)</span></div>
+</div>
+
+<h2>Идея решения</h2>
+<p>У квадратной функции каждый коэффициент отвечает за конкретную геометрическую характеристику графика. Мы просто «считываем» формулу слева направо.</p>
+
+<div class="step"><div class="tag">Шаг 1</div><div>Сравниваем <span class='math'>y = x² − 4x + 1</span> со стандартным видом <span class='math'>y = ax² + bx + c</span>. Получаем: <span class='math'>a = 1</span>, <span class='math'>b = -4</span>, <span class='math'>c = 1</span>.</div></div>
+<div class="step"><div class="tag">Шаг 2</div><div>Так как <span class='math'>a = 1 &gt; 0</span>, ветви параболы направлены вверх.</div></div>
+<div class="step"><div class="tag">Шаг 3</div><div>Коэффициент <span class='math'>b = -4</span> отрицательный. Это уже отвечает на второй вопрос.</div></div>
+<div class="step"><div class="tag">Шаг 4</div><div>Коэффициент <span class='math'>c = 1</span> — это ордината точки пересечения с осью <span class='math'>Oy</span>. Значит, график проходит через точку <span class='math'>(0;1)</span>.</div></div>
+<div class="step"><div class="tag">Шаг 5</div><div>Находим абсциссу вершины: <span class='math'>x<sub>в</sub> = -(-4)/(2·1) = 2</span>. Число положительное, значит вершина расположена правее оси <span class='math'>Oy</span>.</div></div>
+<div class="step"><div class="tag">Проверка</div><div>Все ответы согласованы: ветви вверх, вершина справа, точка пересечения с <span class='math'>Oy</span> имеет ординату 1.</div></div>
+
+
+<h2>Вывод</h2>
+<ul>
+  <li><span class="math">a &gt; 0</span>;</li>
+  <li><span class="math">b &lt; 0</span>;</li>
+  <li><span class="math">c = 1</span>;</li>
+  <li>вершина правее оси <span class="math">Oy</span>.</li>
+</ul>
+
+<h2>Типичные ошибки</h2>
+<div class="warn">
+  Часто путают: <span class="math">c</span> — это не координата вершины, а значение функции при <span class="math">x=0</span>. Ещё одна ошибка — определять положение вершины «на глаз», не используя формулу <span class="math">x<sub>в</sub> = -b/(2a)</span>.
+</div>
+
+<h2>Самопроверка</h2>
+<div class="quiz">
+  <p><b>Вопрос.</b> У функции <span class="math">y=x²+6x-2</span> вершина левее или правее оси <span class="math">Oy</span>?</p>
+  <div class="controls">
+    <button onclick="setQuiz('q1', false, 'Нет. Здесь x<sub>в</sub> = -6/2 = -3, вершина левее оси Oy.')">Правее</button>
+    <button onclick="setQuiz('q1', true, 'Да. Абсцисса вершины отрицательная: x<sub>в</sub> = -3.')">Левее</button>
+  </div>
+  <div id="q1"></div>
+</div>
+
+    </article>
+    <aside class="right card">
+      
+<h2>Интерактивная модель</h2>
+<p class="muted">Ползунок меняет коэффициент <span class="math">b</span> и показывает, как двигается вершина. Базовое задание подсвечено отдельно.</p>
+<div class="controls">
+  <button onclick="quadZoom(1.15)">+</button>
+  <button onclick="quadZoom(1/1.15)">−</button>
+  <button onclick="quadReset()">Сброс</button>
+</div>
+<input class="range" id="bSlider" type="range" min="-8" max="8" value="-4" step="1">
+<div class="muted">Текущее значение: <span id="bVal">-4</span></div>
+<svg class="scene" id="quadScene" viewBox="0 0 520 420" data-scene></svg>
+<div class="legend">
+  <div><b>Сейчас:</b> <span class="math" id="quadFormula">y = x² − 4x + 1</span></div>
+  <div><b>Подсказка:</b> знак <span class="math">b</span> сам по себе не говорит, где вершина, пока не учтён знак <span class="math">a</span>. Но здесь <span class="math">a=1&gt;0</span>, поэтому всё читается просто.</div>
+</div>
+<h2>Генератор похожего</h2>
+<button onclick="genQuad1()">Сгенерировать</button>
+<div id="gen1" class="note" style="margin-top:10px">Нажмите, чтобы получить новое похожее задание.</div>
+
+    </aside>
+  </div>
+  <div class="footer">Автономная страница • без внешних библиотек • работает локально</div>
+</div>
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="topline">
+      <h2 style="margin:0">Увеличенная визуализация</h2>
+      <button data-close-modal>Закрыть</button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+<script>
+function $(s,root=document){return root.querySelector(s)}
+function $all(s,root=document){return [...root.querySelectorAll(s)]}
+function bindCommon(){
+  const modal = $('#modal');
+  const openers = $all('[data-open-modal]');
+  const closers = $all('[data-close-modal]');
+  openers.forEach(el=>el.addEventListener('click',()=>modal.classList.add('open')));
+  closers.forEach(el=>el.addEventListener('click',()=>modal.classList.remove('open')));
+  modal?.addEventListener('click',(e)=>{ if(e.target===modal) modal.classList.remove('open'); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') modal?.classList.remove('open'); });
+  $all('.step').forEach((step,idx)=>{
+    step.addEventListener('mouseenter',()=>highlightStep(idx+1));
+  });
+}
+function highlightStep(n){
+  $all('.step').forEach((el,i)=>el.classList.toggle('active', i===n-1));
+  const scene = document.querySelector('[data-scene]');
+  if(scene) scene.setAttribute('data-active-step', String(n));
+}
+function setQuiz(id, ok, msg){
+  const box = document.getElementById(id);
+  if(!box) return;
+  box.innerHTML = '<b>'+ (ok ? 'Верно.' : 'Пока нет.') + '</b> ' + msg;
+  box.style.color = ok ? 'var(--ok)' : 'var(--danger)';
+}
+
+let quadState={scale:1,b:-4};
+function quadFormulaText(b){ return 'y = x² ' + (b<0?'− '+Math.abs(b):'+ '+b) + 'x + 1'; }
+function drawQuad(targetId, b, scale=1){
+  const svg=document.getElementById(targetId);
+  const w=520,h=420,cx=260,cy=210,u=40*scale;
+  function X(x){return cx+x*u} function Y(y){return cy-y*u}
+  let d=''; 
+  for(let px=-5;px<=5;px+=0.05){
+    const y=px*px+b*px+1;
+    const cmd = (px===-5?'M':'L') + X(px).toFixed(2)+' '+Y(y).toFixed(2)+' ';
+    d += cmd;
+  }
+  const xv=-b/2, yv=xv*xv+b*xv+1;
+  svg.innerHTML = `
+    <rect x="0" y="0" width="${w}" height="${h}" fill="transparent"/>
+    <g stroke="#213058" stroke-width="1">
+      ${Array.from({length:11},(_,i)=>`<line x1="${X(i-5)}" y1="0" x2="${X(i-5)}" y2="${h}"/>`).join('')}
+      ${Array.from({length:11},(_,i)=>`<line x1="0" y1="${Y(i-5)}" x2="${w}" y2="${Y(i-5)}"/>`).join('')}
+    </g>
+    <g stroke="#8aa2df" stroke-width="1.4">
+      <line x1="0" y1="${cy}" x2="${w}" y2="${cy}"/>
+      <line x1="${cx}" y1="0" x2="${cx}" y2="${h}"/>
+    </g>
+    <path d="${d}" fill="none" stroke="#5eead4" stroke-width="3"/>
+    <circle cx="${X(xv)}" cy="${Y(yv)}" r="6" fill="#fda4af"/>
+    <text x="${X(xv)+10}" y="${Y(yv)-10}" fill="#fda4af" font-size="14">вершина (${xv.toFixed(1)}; ${yv.toFixed(1)})</text>
+    <circle cx="${X(0)}" cy="${Y(1)}" r="5" fill="#60a5fa"/>
+    <text x="${X(0)+10}" y="${Y(1)-10}" fill="#60a5fa" font-size="14">(0;1)</text>
+  `;
+}
+function syncQuad(){
+  const b=quadState.b;
+  document.getElementById('bVal').textContent=b;
+  document.getElementById('quadFormula').textContent=quadFormulaText(b);
+  drawQuad('quadScene', b, quadState.scale);
+  document.getElementById('modalContent').innerHTML='<svg class="scene" id="quadSceneModal" viewBox="0 0 520 420"></svg>';
+  drawQuad('quadSceneModal', b, quadState.scale*1.25);
+}
+function quadZoom(k){ quadState.scale*=k; syncQuad(); }
+function quadReset(){ quadState={scale:1,b:-4}; document.getElementById('bSlider').value=-4; syncQuad(); }
+document.getElementById('bSlider').addEventListener('input',e=>{ quadState.b=+e.target.value; syncQuad(); });
+function genQuad1(){
+  const b=[-7,-6,-5,-3,2,4,6][Math.floor(Math.random()*7)];
+  const c=[-2,-1,0,1,3][Math.floor(Math.random()*5)];
+  const xv=(-b/2).toFixed(1);
+  document.getElementById('gen1').innerHTML = `<b>Новое задание.</b> Для функции <span class="math">y = x² ${b<0?'− '+Math.abs(b):'+ '+b}x ${c<0?'− '+Math.abs(c):'+ '+c}</span> определите знак коэффициентов <span class="math">a,b,c</span> и положение вершины. <br><b>Подсказка:</b> <span class="math">x<sub>в</sub> = ${xv}</span>.`;
+}
+syncQuad();
+bindCommon();</script>
+</body>
+</html>

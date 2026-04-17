@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Задание 2. В каких четвертях лежит гипербола</title>
+<style>
+:root{
+  --bg:#0b1020; --bg2:#121935; --panel:#11182d; --panel2:#0f1530; --text:#e8eefc; --muted:#97a5d6;
+  --accent:#5eead4; --accent2:#60a5fa; --danger:#fda4af; --ok:#86efac; --line:#243055; --shadow:0 12px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:radial-gradient(circle at top,#152046 0%,#0b1020 58%);color:var(--text);font:16px/1.6 Inter,Segoe UI,Arial,sans-serif}
+a{color:var(--accent)}
+.wrap{max-width:1440px;margin:0 auto;padding:24px}
+.hero{padding:22px 24px;border:1px solid var(--line);background:linear-gradient(135deg,rgba(94,234,212,.08),rgba(96,165,250,.06));border-radius:24px;box-shadow:var(--shadow);margin-bottom:22px}
+.hero h1{margin:0 0 8px;font-size:clamp(28px,4vw,44px);line-height:1.1}
+.hero p{margin:8px 0 0;color:var(--muted);max-width:1000px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.btn,button{background:#162142;color:var(--text);border:1px solid var(--line);border-radius:14px;padding:10px 14px;cursor:pointer}
+.btn:hover,button:hover{border-color:var(--accent2);transform:translateY(-1px)}
+.layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(360px,.9fr);gap:18px}
+.card{background:linear-gradient(180deg,rgba(17,24,45,.95),rgba(10,16,33,.97));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+.left.card{padding:22px}
+.right.card{padding:18px;position:sticky;top:14px;height:fit-content}
+h2{font-size:clamp(21px,2.2vw,28px);margin:22px 0 10px}
+h3{font-size:18px;margin:18px 0 8px;color:#d8e6ff}
+p,li{color:#e5ecff}
+small,.muted{color:var(--muted)}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:16px 0}
+.kpi .mini{padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02)}
+.math{font-family:"Cambria Math","DejaVu Sans",serif}
+.step{border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin:12px 0;background:rgba(255,255,255,.02)}
+.step.active{border-color:var(--accent);box-shadow:0 0 0 1px rgba(94,234,212,.22) inset}
+.step .tag{display:inline-block;padding:3px 8px;border-radius:999px;background:rgba(96,165,250,.16);color:#d8ecff;font-size:12px;margin-bottom:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.note{padding:12px 14px;border-left:3px solid var(--accent);background:rgba(94,234,212,.07);border-radius:0 14px 14px 0}
+.warn{padding:12px 14px;border-left:3px solid var(--danger);background:rgba(253,164,175,.08);border-radius:0 14px 14px 0}
+svg.scene{width:100%;height:auto;display:block;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,#08101f,#0c1427)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 12px}
+.range{width:100%}
+.legend{display:grid;gap:8px;margin-top:10px}
+.legend div{padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.02)}
+.quiz{margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02)}
+.footer{padding:18px 0 6px;text-align:center;color:var(--muted)}
+.grid-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.tile{padding:16px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(180deg,rgba(17,24,45,.95),rgba(10,16,33,.97));text-decoration:none;color:var(--text);box-shadow:var(--shadow)}
+.tile h3{margin:0 0 8px}
+.tile p{margin:0;color:var(--muted)}
+.badge{display:inline-block;font-size:12px;padding:3px 8px;border-radius:999px;background:rgba(134,239,172,.12);color:var(--ok);border:1px solid rgba(134,239,172,.18)}
+.modal{position:fixed;inset:0;background:rgba(3,7,18,.78);display:none;align-items:center;justify-content:center;padding:20px;z-index:999}
+.modal.open{display:flex}
+.modal-card{width:min(1100px,95vw);max-height:92vh;overflow:auto;padding:18px;border:1px solid var(--line);border-radius:24px;background:#091121;box-shadow:var(--shadow)}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:rgba(255,255,255,.04);padding:2px 6px;border-radius:8px}
+@media (max-width: 980px){.layout{grid-template-columns:1fr}.right.card{position:relative;top:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="badge">Наглядная математика</div>
+    <h1>Задание 2. В каких четвертях лежит гипербола</h1>
+    <p>Разбор функции y = −3/x: учимся мгновенно определять четверти по знаку коэффициента.</p>
+    <div class="toolbar">
+      <a class="btn" href="index.html">← Ко всем заданиям</a>
+      <button data-open-modal>Открыть увеличенную модель</button>
+      <button onclick="document.querySelector('.left').scrollIntoView({behavior:'smooth'})">К разбору</button>
+    </div>
+  </section>
+  <div class="layout">
+    <article class="left card">
+      
+<h2>Что дано</h2>
+<div class="note math">Функция: y = -3/x</div>
+<h2>Идея решения</h2>
+<p>Для гиперболы вида <span class="math">y = k/x</span> знак коэффициента <span class="math">k</span> определяет четверти.</p>
+<div class="step"><div class="tag">Шаг 1</div><div>Смотрим на коэффициент: <span class='math'>k=-3&lt;0</span>.</div></div>
+<div class="step"><div class="tag">Шаг 2</div><div>Если <span class='math'>k&lt;0</span>, то значения <span class='math'>x</span> и <span class='math'>y</span> имеют разные знаки.</div></div>
+<div class="step"><div class="tag">Шаг 3</div><div>При <span class='math'>x&gt;0</span> получаем <span class='math'>y&lt;0</span> — это IV четверть.</div></div>
+<div class="step"><div class="tag">Шаг 4</div><div>При <span class='math'>x&lt;0</span> получаем <span class='math'>y&gt;0</span> — это II четверть.</div></div>
+<div class="step"><div class="tag">Вывод</div><div>График расположен во II и IV четвертях.</div></div>
+
+<h2>Почему не I и III?</h2>
+<div class="warn">I и III четверти соответствуют случаю <span class="math">k&gt;0</span>, когда <span class="math">x</span> и <span class="math">y</span> одного знака.</div>
+<h2>Памятка</h2>
+<ul>
+<li><span class="math">y = k/x</span>, <span class="math">k&gt;0</span> → I и III;</li>
+<li><span class="math">y = k/x</span>, <span class="math">k&lt;0</span> → II и IV.</li>
+</ul>
+<div class="quiz">
+<p><b>Вопрос.</b> Где расположен график <span class="math">y=5/x</span>?</p>
+<div class="controls">
+<button onclick="setQuiz('q2', true, 'Верно. При k&gt;0 — I и III четверти.')">I и III</button>
+<button onclick="setQuiz('q2', false, 'Нет. Это было бы при отрицательном коэффициенте.')">II и IV</button>
+</div><div id="q2"></div></div>
+
+    </article>
+    <aside class="right card">
+      
+<h2>Интерактивная модель</h2>
+<p class="muted">Меняйте знак коэффициента и сразу смотрите, в каких четвертях оказываются ветви.</p>
+<div class="controls">
+  <button onclick="setHypK(-3)">k = -3</button>
+  <button onclick="setHypK(3)">k = 3</button>
+  <button onclick="hypZoom(1.15)">+</button>
+  <button onclick="hypZoom(1/1.15)">−</button>
+</div>
+<svg class="scene" id="hypScene" viewBox="0 0 520 420" data-scene></svg>
+<div class="legend">
+<div><b>Текущее уравнение:</b> <span class="math" id="hypLabel">y = -3/x</span></div>
+<div><b>Правило:</b> знак коэффициента определяет набор четвертей.</div>
+</div>
+<h2>Генератор похожего</h2>
+<button onclick="genHyp2()">Сгенерировать</button>
+<div id="gen2" class="note" style="margin-top:10px">Нажмите, чтобы получить похожий вопрос.</div>
+
+    </aside>
+  </div>
+  <div class="footer">Автономная страница • без внешних библиотек • работает локально</div>
+</div>
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="topline">
+      <h2 style="margin:0">Увеличенная визуализация</h2>
+      <button data-close-modal>Закрыть</button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+<script>
+function $(s,root=document){return root.querySelector(s)}
+function $all(s,root=document){return [...root.querySelectorAll(s)]}
+function bindCommon(){
+  const modal = $('#modal');
+  const openers = $all('[data-open-modal]');
+  const closers = $all('[data-close-modal]');
+  openers.forEach(el=>el.addEventListener('click',()=>modal.classList.add('open')));
+  closers.forEach(el=>el.addEventListener('click',()=>modal.classList.remove('open')));
+  modal?.addEventListener('click',(e)=>{ if(e.target===modal) modal.classList.remove('open'); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') modal?.classList.remove('open'); });
+  $all('.step').forEach((step,idx)=>{
+    step.addEventListener('mouseenter',()=>highlightStep(idx+1));
+  });
+}
+function highlightStep(n){
+  $all('.step').forEach((el,i)=>el.classList.toggle('active', i===n-1));
+  const scene = document.querySelector('[data-scene]');
+  if(scene) scene.setAttribute('data-active-step', String(n));
+}
+function setQuiz(id, ok, msg){
+  const box = document.getElementById(id);
+  if(!box) return;
+  box.innerHTML = '<b>'+ (ok ? 'Верно.' : 'Пока нет.') + '</b> ' + msg;
+  box.style.color = ok ? 'var(--ok)' : 'var(--danger)';
+}
+
+let hypState={k:-3,scale:1};
+function drawHyp(id,k,scale=1){
+ const svg=document.getElementById(id), w=520,h=420,cx=260,cy=210,u=42*scale;
+ const X=x=>cx+x*u, Y=y=>cy-y*u;
+ function path(a,b){let d='';for(let x=a;x<=b;x+=0.03){const y=k/x; d+=(x===a?'M':'L')+X(x)+' '+Y(y)+' ';} return d;}
+ svg.innerHTML=`
+  <g stroke="#22335b" stroke-width="1">
+   ${Array.from({length:11},(_,i)=>`<line x1="${X(i-5)}" y1="0" x2="${X(i-5)}" y2="${h}"/>`).join('')}
+   ${Array.from({length:11},(_,i)=>`<line x1="0" y1="${Y(i-5)}" x2="${w}" y2="${Y(i-5)}"/>`).join('')}
+  </g>
+  <g stroke="#8aa2df" stroke-width="1.4"><line x1="0" y1="${cy}" x2="${w}" y2="${cy}"/><line x1="${cx}" y1="0" x2="${cx}" y2="${h}"/></g>
+  <path d="${path(-5,-0.4)}" fill="none" stroke="#5eead4" stroke-width="3"/>
+  <path d="${path(0.4,5)}" fill="none" stroke="#5eead4" stroke-width="3"/>
+ `;
+}
+function syncHyp(){
+ document.getElementById('hypLabel').textContent='y = '+hypState.k+'/x';
+ drawHyp('hypScene',hypState.k,hypState.scale);
+ document.getElementById('modalContent').innerHTML='<svg class="scene" id="hypSceneModal" viewBox="0 0 520 420"></svg>';
+ drawHyp('hypSceneModal',hypState.k,hypState.scale*1.25);
+}
+function setHypK(k){hypState.k=k;syncHyp();}
+function hypZoom(k){hypState.scale*=k;syncHyp();}
+function genHyp2(){const arr=[-7,-4,-1,2,6];const k=arr[Math.floor(Math.random()*arr.length)];document.getElementById('gen2').innerHTML=`<b>Новое задание.</b> Определите четверти графика <span class="math">y=${k}/x</span>. <br><b>Ответ-ориентир:</b> ${k>0?'I и III':'II и IV'}.`;}
+syncHyp();
+bindCommon();</script>
+</body>
+</html>

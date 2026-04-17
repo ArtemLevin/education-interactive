@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Задание 7. Скорость по течению и против течения</title>
+<style>
+:root{
+  --bg:#0b1020; --bg2:#121935; --panel:#11182d; --panel2:#0f1530; --text:#e8eefc; --muted:#97a5d6;
+  --accent:#5eead4; --accent2:#60a5fa; --danger:#fda4af; --ok:#86efac; --line:#243055; --shadow:0 12px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:radial-gradient(circle at top,#152046 0%,#0b1020 58%);color:var(--text);font:16px/1.6 Inter,Segoe UI,Arial,sans-serif}
+a{color:var(--accent)}
+.wrap{max-width:1440px;margin:0 auto;padding:24px}
+.hero{padding:22px 24px;border:1px solid var(--line);background:linear-gradient(135deg,rgba(94,234,212,.08),rgba(96,165,250,.06));border-radius:24px;box-shadow:var(--shadow);margin-bottom:22px}
+.hero h1{margin:0 0 8px;font-size:clamp(28px,4vw,44px);line-height:1.1}
+.hero p{margin:8px 0 0;color:var(--muted);max-width:1000px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.btn,button{background:#162142;color:var(--text);border:1px solid var(--line);border-radius:14px;padding:10px 14px;cursor:pointer}
+.btn:hover,button:hover{border-color:var(--accent2);transform:translateY(-1px)}
+.layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(360px,.9fr);gap:18px}
+.card{background:linear-gradient(180deg,rgba(17,24,45,.95),rgba(10,16,33,.97));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+.left.card{padding:22px}
+.right.card{padding:18px;position:sticky;top:14px;height:fit-content}
+h2{font-size:clamp(21px,2.2vw,28px);margin:22px 0 10px}
+h3{font-size:18px;margin:18px 0 8px;color:#d8e6ff}
+p,li{color:#e5ecff}
+small,.muted{color:var(--muted)}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:16px 0}
+.kpi .mini{padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02)}
+.math{font-family:"Cambria Math","DejaVu Sans",serif}
+.step{border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin:12px 0;background:rgba(255,255,255,.02)}
+.step.active{border-color:var(--accent);box-shadow:0 0 0 1px rgba(94,234,212,.22) inset}
+.step .tag{display:inline-block;padding:3px 8px;border-radius:999px;background:rgba(96,165,250,.16);color:#d8ecff;font-size:12px;margin-bottom:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.note{padding:12px 14px;border-left:3px solid var(--accent);background:rgba(94,234,212,.07);border-radius:0 14px 14px 0}
+.warn{padding:12px 14px;border-left:3px solid var(--danger);background:rgba(253,164,175,.08);border-radius:0 14px 14px 0}
+svg.scene{width:100%;height:auto;display:block;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,#08101f,#0c1427)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 12px}
+.range{width:100%}
+.legend{display:grid;gap:8px;margin-top:10px}
+.legend div{padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.02)}
+.quiz{margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02)}
+.footer{padding:18px 0 6px;text-align:center;color:var(--muted)}
+.grid-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.tile{padding:16px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(180deg,rgba(17,24,45,.95),rgba(10,16,33,.97));text-decoration:none;color:var(--text);box-shadow:var(--shadow)}
+.tile h3{margin:0 0 8px}
+.tile p{margin:0;color:var(--muted)}
+.badge{display:inline-block;font-size:12px;padding:3px 8px;border-radius:999px;background:rgba(134,239,172,.12);color:var(--ok);border:1px solid rgba(134,239,172,.18)}
+.modal{position:fixed;inset:0;background:rgba(3,7,18,.78);display:none;align-items:center;justify-content:center;padding:20px;z-index:999}
+.modal.open{display:flex}
+.modal-card{width:min(1100px,95vw);max-height:92vh;overflow:auto;padding:18px;border:1px solid var(--line);border-radius:24px;background:#091121;box-shadow:var(--shadow)}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:rgba(255,255,255,.04);padding:2px 6px;border-radius:8px}
+@media (max-width: 980px){.layout{grid-template-columns:1fr}.right.card{position:relative;top:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="badge">Наглядная математика</div>
+    <h1>Задание 7. Скорость по течению и против течения</h1>
+    <p>Классический шаблон для речных задач: собственная скорость, течение и путь за заданное время.</p>
+    <div class="toolbar">
+      <a class="btn" href="index.html">← Ко всем заданиям</a>
+      <button data-open-modal>Открыть увеличенную модель</button>
+      <button onclick="document.querySelector('.left').scrollIntoView({behavior:'smooth'})">К разбору</button>
+    </div>
+  </section>
+  <div class="layout">
+    <article class="left card">
+      
+<h2>Условие</h2>
+<div class="note">Собственная скорость катера 18 км/ч, скорость течения 2 км/ч. Найдите скорость по течению, против течения и путь по течению за 1,5 часа.</div>
+<h2>Идея</h2>
+<p>Для лодки и катера всегда держим в голове три скорости: собственная, по течению и против течения.</p>
+<div class="step"><div class="tag">Шаг 1</div><div>Собственная скорость: <span class='math'>v = 18</span> км/ч. Скорость течения: <span class='math'>u = 2</span> км/ч.</div></div>
+<div class="step"><div class="tag">Шаг 2</div><div>По течению: <span class='math'>v+u = 18+2 = 20</span> км/ч.</div></div>
+<div class="step"><div class="tag">Шаг 3</div><div>Против течения: <span class='math'>v-u = 18-2 = 16</span> км/ч.</div></div>
+<div class="step"><div class="tag">Шаг 4</div><div>Путь по течению за <span class='math'>1{,}5</span> часа: <span class='math'>S = 20·1{,}5 = 30</span> км.</div></div>
+<div class="step"><div class="tag">Вывод</div><div>Ответ: <span class='math'>20</span> км/ч, <span class='math'>16</span> км/ч, <span class='math'>30</span> км.</div></div>
+
+<h2>Типичные ошибки</h2>
+<div class="warn">Нельзя прибавлять течение в обе стороны. Против течения скорость уменьшается, а не увеличивается.</div>
+
+    </article>
+    <aside class="right card">
+      
+<h2>Интерактивная схема</h2>
+<div class="controls">
+<button onclick="boatT=1.5;sync7()">t = 1,5 ч</button>
+<button onclick="boatT=2;sync7()">t = 2 ч</button>
+<button onclick="boatT=0.5;sync7()">t = 0,5 ч</button>
+</div>
+<svg class="scene" id="boat7" viewBox="0 0 520 340" data-scene></svg>
+<div class="legend">
+<div>По течению: <span class="math" id="down7">20</span> км/ч</div>
+<div>Против течения: <span class="math" id="up7">16</span> км/ч</div>
+<div>Путь по течению за <span class="math" id="t7">1,5</span> ч: <span class="math" id="s7">30</span> км</div>
+</div>
+<h2>Генератор похожего</h2>
+<button onclick="gen7()">Сгенерировать</button>
+<div id="gen7" class="note" style="margin-top:10px"></div>
+
+    </aside>
+  </div>
+  <div class="footer">Автономная страница • без внешних библиотек • работает локально</div>
+</div>
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="topline">
+      <h2 style="margin:0">Увеличенная визуализация</h2>
+      <button data-close-modal>Закрыть</button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+<script>
+function $(s,root=document){return root.querySelector(s)}
+function $all(s,root=document){return [...root.querySelectorAll(s)]}
+function bindCommon(){
+  const modal = $('#modal');
+  const openers = $all('[data-open-modal]');
+  const closers = $all('[data-close-modal]');
+  openers.forEach(el=>el.addEventListener('click',()=>modal.classList.add('open')));
+  closers.forEach(el=>el.addEventListener('click',()=>modal.classList.remove('open')));
+  modal?.addEventListener('click',(e)=>{ if(e.target===modal) modal.classList.remove('open'); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') modal?.classList.remove('open'); });
+  $all('.step').forEach((step,idx)=>{
+    step.addEventListener('mouseenter',()=>highlightStep(idx+1));
+  });
+}
+function highlightStep(n){
+  $all('.step').forEach((el,i)=>el.classList.toggle('active', i===n-1));
+  const scene = document.querySelector('[data-scene]');
+  if(scene) scene.setAttribute('data-active-step', String(n));
+}
+function setQuiz(id, ok, msg){
+  const box = document.getElementById(id);
+  if(!box) return;
+  box.innerHTML = '<b>'+ (ok ? 'Верно.' : 'Пока нет.') + '</b> ' + msg;
+  box.style.color = ok ? 'var(--ok)' : 'var(--danger)';
+}
+
+let boatT=1.5;
+function sync7(){
+ const v=18,u=2,down=v+u,up=v-u,s=down*boatT;
+ document.getElementById('down7').textContent=down; document.getElementById('up7').textContent=up; document.getElementById('t7').textContent=String(boatT).replace('.',','); document.getElementById('s7').textContent=String(s).replace('.',',');
+ const svg=document.getElementById('boat7');
+ svg.innerHTML=`<rect x="30" y="100" width="460" height="130" rx="18" fill="#102341" stroke="#243055"/>
+ <text x="50" y="85" fill="#5eead4" font-size="16">течение → 2 км/ч</text>
+ <path d="M45 145 C95 130,130 160,180 145 S270 130,330 145 S420 160,475 145" fill="none" stroke="#5eead4" stroke-width="3"/>
+ <path d="M100 175 h150" stroke="#fda4af" stroke-width="4"/><polygon points="250,175 234,167 234,183" fill="#fda4af"/>
+ <text x="110" y="162" fill="#fda4af" font-size="16">по течению: ${down}</text>
+ <path d="M360 205 h-150" stroke="#60a5fa" stroke-width="4"/><polygon points="210,205 226,197 226,213" fill="#60a5fa"/>
+ <text x="280" y="223" fill="#60a5fa" font-size="16">против: ${up}</text>`;
+ document.getElementById('modalContent').innerHTML='<svg class="scene" id="boat7m" viewBox="0 0 520 340"></svg>';
+ document.getElementById('boat7m').innerHTML=svg.innerHTML;
+}
+function gen7(){const v=[12,15,21][Math.floor(Math.random()*3)],u=[1,2,3][Math.floor(Math.random()*3)],t=[1.5,2,2.5][Math.floor(Math.random()*3)]; document.getElementById('gen7').innerHTML=`<b>Новое задание.</b> Собственная скорость ${v} км/ч, течение ${u} км/ч. Найдите скорости по/против течения и путь по течению за ${String(t).replace('.',',')} ч. <br><b>Ответ:</b> ${v+u}, ${v-u}, ${((v+u)*t).toFixed(1).replace('.',',')}.`; }
+sync7();
+bindCommon();</script>
+</body>
+</html>
