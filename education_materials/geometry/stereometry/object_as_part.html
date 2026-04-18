@@ -12,6 +12,7 @@
             --panel-bg: #2f3640;
             --text: #dcdde1;
             --success: #2ecc71;
+            --warning: #f39c12;
         }
 
         body {
@@ -59,20 +60,21 @@
 
         .controls {
             flex: 1;
-            min-width: 350px;
-            max-width: 450px;
+            min-width: 380px;
+            max-width: 480px;
             background: var(--panel-bg);
-            padding: 2rem;
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.2rem;
             overflow-y: auto;
             border-left: 1px solid #444;
         }
 
-        h2 { margin-top: 0; color: var(--primary); }
+        h2 { margin: 0; color: var(--primary); font-size: 1.3rem; }
+        h3 { margin: 0; color: var(--warning); font-size: 1.1rem; }
 
-        .task-box {
+        .section {
             background: rgba(0,0,0,0.2);
             padding: 1rem;
             border-radius: 8px;
@@ -84,32 +86,48 @@
             font-size: 1.2rem;
             color: var(--highlight);
             min-height: 1.5rem;
+            margin-top: 0.5rem;
         }
 
         .btn-group {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         button {
-            padding: 12px 20px;
+            padding: 10px 16px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: bold;
-            transition: transform 0.1s;
+            transition: transform 0.1s, opacity 0.2s;
+            flex: 1;
         }
         button:active { transform: scale(0.98); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .btn-check { background: var(--success); color: white; flex: 1; }
+        .btn-check { background: var(--success); color: white; }
         .btn-clear { background: #e74c3c; color: white; }
+        .btn-analyze { background: var(--warning); color: white; }
         .btn-next { background: var(--primary); color: white; }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 2px solid #555;
+            background: #111;
+            color: white;
+            cursor: pointer;
+        }
 
         input[type="number"] {
             width: 100%;
-            padding: 12px;
-            font-size: 1.2rem;
+            padding: 10px;
+            font-size: 1.1rem;
             border-radius: 6px;
             border: 2px solid #555;
             background: #111;
@@ -123,25 +141,45 @@
             text-align: center;
             font-weight: bold;
             display: none;
+            margin-top: 10px;
         }
         .feedback.ok { background: rgba(46, 204, 113, 0.2); color: var(--success); display: block; }
         .feedback.err { background: rgba(231, 76, 60, 0.2); color: var(--error); display: block; }
 
         .hint-text {
-            font-size: 0.9rem;
-            color: #aaa;
+            font-size: 0.85rem;
+            color: #888;
             margin-top: auto;
+            line-height: 1.4;
         }
 
-        /* Стили для решения */
         .solution {
             background: #222;
-            padding: 10px;
+            padding: 12px;
             border-radius: 6px;
             font-size: 0.9rem;
-            line-height: 1.4;
+            line-height: 1.5;
             display: none;
+            border-left: 3px solid var(--success);
         }
+
+        .figure-info {
+            font-size: 0.9rem;
+            color: #bbb;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .mode-indicator {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .mode-list { background: var(--primary); color: white; }
+        .mode-manual { background: var(--warning); color: white; }
     </style>
 </head>
 <body>
@@ -159,35 +197,51 @@
     </div>
 
     <div class="controls">
-        <h2>Задание</h2>
-        <div class="task-box">
-            <p id="taskText">Загрузка...</p>
+        <div class="section">
+            <h2>📐 Выбор фигуры <span class="mode-indicator mode-list" id="modeBadge">Список</span></h2>
+            <select id="figureSelect" onchange="handleFigureSelect()">
+                <option value="">-- Выберите фигуру для анализа --</option>
+                <option value="pyramid_side">Пирамида A₁-BCC₁B₁ (как в задаче Т6.2)</option>
+                <option value="prism_half">Треугольная призма ABC-A₁B₁C₁</option>
+                <option value="tetrahedron_corner">Тетраэдр D-ACD₁ (угол)</option>
+                <option value="pyramid_base">Пирамида C₁-ABCD (основание ABCD)</option>
+                <option value="wedge">Клин A₁B₁C-ABC (треугольная пирамида)</option>
+                <option value="manual">️ Ручной выбор вершин</option>
+            </select>
+            <div class="figure-info" id="figureInfo">Выберите фигуру из списка выше</div>
         </div>
 
-        <div>
+        <div class="section" id="taskSection" style="display: none;">
+            <h3>📝 Задание</h3>
+            <p id="taskText" style="margin: 0.5rem 0; line-height: 1.4;"></p>
+        </div>
+
+        <div class="section">
             <label>Выбранные вершины:</label>
             <div class="selected-points-list" id="selectedList">-</div>
         </div>
 
         <div class="btn-group">
             <button class="btn-clear" onclick="clearSelection()">Сбросить</button>
-            <button class="btn-check" onclick="checkSelection()">Проверить выбор</button>
+            <button class="btn-analyze" id="btnAnalyze" onclick="analyzeFigure()" disabled>Анализировать</button>
         </div>
 
-        <div id="volumeSection" style="display: none; margin-top: 1rem; border-top: 1px solid #444; padding-top: 1rem;">
-            <label>Найдите объем выбранного многогранника:</label>
+        <div id="volumeSection" style="display: none; margin-top: 0.5rem; border-top: 1px solid #444; padding-top: 1rem;">
+            <h3>🔢 Найдите объем</h3>
             <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <input type="number" id="volumeInput" placeholder="Объем" step="any">
-                <button class="btn-next" onclick="checkVolume()">OK</button>
+                <input type="number" id="volumeInput" placeholder="Введите объем" step="any">
+                <button class="btn-check" onclick="checkVolume()">Проверить</button>
             </div>
             <div class="feedback" id="feedback"></div>
             <div class="solution" id="solutionBox"></div>
         </div>
 
-        <button class="btn-next" onclick="nextTask()" style="margin-top: auto;">Следующая задача</button>
+        <button class="btn-next" onclick="randomizeDims()"> Новые размеры</button>
 
         <div class="hint-text">
-            Подсказка: Сначала выберите правильные вершины кликами, затем вычислите объем.
+            💡 <b>Режим списка:</b> Выберите фигуру, она подсветится автоматически.<br>
+            💡 <b>Ручной режим:</b> Кликайте по вершинам на фигуре, чтобы выделить их.<br>
+            🖱️ Вращайте фигуру мышкой, чтобы лучше рассмотреть.
         </div>
     </div>
 </div>
@@ -198,16 +252,16 @@
 
     // Состояние приложения
     let width, height;
-    let vertices = {}; // { 'A': {x,y,z}, ... }
-    let edges = []; // Пары вершин ['A', 'B']
-    let selectedVertices = []; // Массив имен выбранных вершин
-    let targetVertices = []; // Массив имен вершин для текущей задачи
+    let vertices = {};
+    let edges = [];
+    let selectedVertices = [];
+    let currentMode = 'list'; // 'list' или 'manual'
 
     // Камера
     let camera = {
         rotX: -0.5,
-        rotY: 0.5,
-        zoom: 1,
+        rotY: 0.6,
+        zoom: 1.2,
         isDragging: false,
         lastX: 0,
         lastY: 0
@@ -215,8 +269,80 @@
 
     // Параметры текущего параллелепипеда
     let dims = { a: 4, b: 3, c: 4 };
-    let currentVolume = 0;
+    let currentFigure = null;
     let solutionHTML = "";
+
+    // База данных фигур
+    const figuresDB = {
+        pyramid_side: {
+            name: "Пирамида A₁-BCC₁B₁",
+            vertices: ['A1', 'B', 'C', 'C1', 'B1'],
+            desc: "Четырехугольная пирамида с основанием BCC₁B₁",
+            calc: (a,b,c) => {
+                // Основание BCC1B1 (площадь b*c), высота a (A1B1)
+                return (1/3) * (b*c) * a;
+            },
+            sol: (a,b,c) => `
+                <b>Решение:</b><br>
+                1. Основание — прямоугольник BCC₁B₁ со сторонами BC=${b}, CC₁=${c}.<br>
+                2. S_осн = ${b} × ${c} = ${b*c}.<br>
+                3. Высота пирамиды — перпендикуляр от A₁ к плоскости BCC₁B₁. Это ребро A₁B₁ = AB = ${a}.<br>
+                4. V = ⅓ × S_осн × h = ⅓ × ${b*c} × ${a} = <b>${(b*c*a)/3}</b>
+            `
+        },
+        prism_half: {
+            name: "Треугольная призма ABC-A₁B₁C₁",
+            vertices: ['A', 'B', 'C', 'A1', 'B1', 'C1'],
+            desc: "Половина параллелепипеда, разрезанная по диагонали",
+            calc: (a,b,c) => 0.5 * a * b * c,
+            sol: (a,b,c) => `
+                <b>Решение:</b><br>
+                1. Это треугольная призма с основаниями ABC и A₁B₁C₁.<br>
+                2. S_осн = S_ABC = ½ × AB × BC = ½ × ${a} × ${b} = ${0.5*a*b}.<br>
+                3. Высота h = AA₁ = ${c}.<br>
+                4. V = S_осн × h = ${0.5*a*b} × ${c} = <b>${0.5*a*b*c}</b>
+            `
+        },
+        tetrahedron_corner: {
+            name: "Тетраэдр D-ACD₁",
+            vertices: ['D', 'A', 'C', 'D1'],
+            desc: "Треугольная пирамида (тетраэдр) в углу параллелепипеда",
+            calc: (a,b,c) => (a*b*c)/6,
+            sol: (a,b,c) => `
+                <b>Решение:</b><br>
+                1. Примем за основание треугольник ADC (часть нижнего основания).<br>
+                2. S_осн = ½ × AD × DC = ½ × ${b} × ${a} = ${0.5*a*b}.<br>
+                3. Высота — ребро D₁D = ${c} (перпендикулярно основанию).<br>
+                4. V = ⅓ × S_осн × h = ⅓ × ${0.5*a*b} × ${c} = <b>${(a*b*c)/6}</b>
+            `
+        },
+        pyramid_base: {
+            name: "Пирамида C₁-ABCD",
+            vertices: ['C1', 'A', 'B', 'C', 'D'],
+            desc: "Пирамида с основанием ABCD и вершиной C₁",
+            calc: (a,b,c) => (a*b*c)/3,
+            sol: (a,b,c) => `
+                <b>Решение:</b><br>
+                1. Основание — прямоугольник ABCD со сторонами ${a} и ${b}.<br>
+                2. S_осн = ${a} × ${b} = ${a*b}.<br>
+                3. Высота — перпендикуляр от C₁ к ABCD, это ребро C₁C = ${c}.<br>
+                4. V = ⅓ × ${a*b} × ${c} = <b>${(a*b*c)/3}</b>
+            `
+        },
+        wedge: {
+            name: "Клин A₁B₁C-ABC",
+            vertices: ['A1', 'B1', 'C', 'A', 'B'],
+            desc: "Треугольная пирамида с основанием A₁B₁C",
+            calc: (a,b,c) => (a*b*c)/3,
+            sol: (a,b,c) => `
+                <b>Решение:</b><br>
+                1. Рассмотрим как пирамиду с основанием A₁B₁C (треугольник в верхней грани? Нет, это сечение).<br>
+                2. Лучше: основание ABC (низ), вершина... нет.<br>
+                3. Правильнее: основание A₁B₁BA (передняя грань, площадь a×c), высота от C до этой грани = b.<br>
+                4. V = ⅓ × (a×c) × b = ⅓ × ${a*c} × ${b} = <b>${(a*b*c)/3}</b>
+            `
+        }
+    };
 
     // Инициализация
     function resize() {
@@ -232,27 +358,19 @@
     // --- Математика 3D ---
 
     function project(x, y, z) {
-        // Вращение вокруг Y
         let x1 = x * Math.cos(camera.rotY) - z * Math.sin(camera.rotY);
         let z1 = x * Math.sin(camera.rotY) + z * Math.cos(camera.rotY);
-
-        // Вращение вокруг X
         let y1 = y * Math.cos(camera.rotX) - z1 * Math.sin(camera.rotX);
         let z2 = y * Math.sin(camera.rotX) + z1 * Math.cos(camera.rotX);
-
-        // Перспектива (слабая, чтобы не искажать сильно)
         const perspective = 1 / (1 + z2 * 0.002);
-
         return {
             x: width / 2 + x1 * camera.zoom * perspective,
             y: height / 2 + y1 * camera.zoom * perspective,
-            z: z2 // глубина для сортировки
+            z: z2
         };
     }
 
     function initGeometry(a, b, c) {
-        // A(0,0,0), B(a,0,0), C(a,b,0), D(0,b,0)
-        // A1(0,0,c)...
         vertices = {
             'A': {x: 0, y: 0, z: 0},
             'B': {x: a, y: 0, z: 0},
@@ -265,9 +383,9 @@
         };
 
         edges = [
-            ['A','B'], ['B','C'], ['C','D'], ['D','A'], // Низ
-            ['A1','B1'], ['B1','C1'], ['C1','D1'], ['D1','A1'], // Верх
-            ['A','A1'], ['B','B1'], ['C','C1'], ['D','D1'] // Вертикали
+            ['A','B'], ['B','C'], ['C','D'], ['D','A'],
+            ['A1','B1'], ['B1','C1'], ['C1','D1'], ['D1','A1'],
+            ['A','A1'], ['B','B1'], ['C','C1'], ['D','D1']
         ];
     }
 
@@ -276,8 +394,20 @@
     function draw() {
         ctx.clearRect(0, 0, width, height);
 
-        // 1. Рисуем ребра параллелепипеда
-        ctx.strokeStyle = '#555';
+        // Сетка на полу для ориентации
+        ctx.strokeStyle = '#222';
+        ctx.lineWidth = 1;
+        for(let i=-2; i<6; i++) {
+            const p1 = project(i*2, 0, 0);
+            const p2 = project(i*2, 10, 0);
+            ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+            const p3 = project(0, i*2, 0);
+            const p4 = project(10, i*2, 0);
+            ctx.beginPath(); ctx.moveTo(p3.x, p3.y); ctx.lineTo(p4.x, p4.y); ctx.stroke();
+        }
+
+        // Ребра параллелепипеда
+        ctx.strokeStyle = '#666';
         ctx.lineWidth = 2;
         ctx.beginPath();
         edges.forEach(([v1, v2]) => {
@@ -288,44 +418,13 @@
         });
         ctx.stroke();
 
-        // 2. Рисуем вершины
-        Object.keys(vertices).forEach(key => {
-            const v = vertices[key];
-            const p = project(v.x, v.y, v.z);
-
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
-            ctx.fillStyle = '#fff';
-            ctx.fill();
-
-            // Подсветка если выбрана
-            if (selectedVertices.includes(key)) {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255, 107, 107, 0.5)';
-                ctx.fill();
-                ctx.strokeStyle = '#ff6b6b';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-            }
-
-            // Текст
-            ctx.fillStyle = '#aaa';
-            ctx.font = '16px Arial';
-            ctx.fillText(key, p.x + 10, p.y - 10);
-        });
-
-        // 3. Рисуем выбранные грани (заполнение)
+        // Выбранные грани (заполнение)
         if (selectedVertices.length >= 3) {
-            // Это упрощенная триангуляция. Для выпуклых фигур можно просто соединить все точки.
-            // Но лучше нарисовать полигон "по порядку" если пользователь выбрал их подряд,
-            // или просто все треугольники от первой точки ко всем остальным (веер).
+            ctx.fillStyle = 'rgba(74, 144, 226, 0.25)';
+            ctx.strokeStyle = 'rgba(74, 144, 226, 0.6)';
+            ctx.lineWidth = 2;
 
-            ctx.fillStyle = 'rgba(74, 144, 226, 0.3)';
-            ctx.strokeStyle = '#4a90e2';
-            ctx.lineWidth = 3;
-
-            // Веерная триангуляция от первой точки
+            // Сортировка по глубине для правильного наложения (простая)
             const p0 = project(vertices[selectedVertices[0]].x, vertices[selectedVertices[0]].y, vertices[selectedVertices[0]].z);
 
             for (let i = 1; i < selectedVertices.length - 1; i++) {
@@ -342,7 +441,7 @@
             }
         }
 
-        // 4. Рисуем линии соединения (скелет выбранного)
+        // Линии соединения выбранных
         if (selectedVertices.length > 1) {
             ctx.strokeStyle = '#ff6b6b';
             ctx.lineWidth = 3;
@@ -355,10 +454,29 @@
                 ctx.moveTo(p1.x, p1.y);
                 ctx.lineTo(p2.x, p2.y);
             }
-            // Замыкаем? Нет, обычно это путь. Но для объема можно замкнуть.
-            // Оставим просто линии между последовательными кликами.
             ctx.stroke();
         }
+
+        // Вершины
+        Object.keys(vertices).forEach(key => {
+            const v = vertices[key];
+            const p = project(v.x, v.y, v.z);
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+            ctx.fillStyle = selectedVertices.includes(key) ? '#ff6b6b' : '#fff';
+            ctx.fill();
+
+            if (selectedVertices.includes(key)) {
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            ctx.fillStyle = '#ccc';
+            ctx.font = 'bold 15px Arial';
+            ctx.fillText(key, p.x + 12, p.y - 8);
+        });
     }
 
     // --- Интерактив ---
@@ -386,136 +504,172 @@
     canvas.addEventListener('wheel', e => {
         e.preventDefault();
         camera.zoom *= e.deltaY > 0 ? 0.9 : 1.1;
+        camera.zoom = Math.max(0.3, Math.min(3, camera.zoom));
         draw();
     });
 
     canvas.addEventListener('click', e => {
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
+        if (currentMode === 'manual') {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
 
-        // Поиск ближайшей вершины
-        let closest = null;
-        let minDist = 20; // Радиус клика в пикселях
+            let closest = null;
+            let minDist = 25;
 
-        Object.keys(vertices).forEach(key => {
-            const v = vertices[key];
-            const p = project(v.x, v.y, v.z);
-            const dist = Math.hypot(p.x - mouseX, p.y - mouseY);
-            if (dist < minDist) {
-                minDist = dist;
-                closest = key;
+            Object.keys(vertices).forEach(key => {
+                const v = vertices[key];
+                const p = project(v.x, v.y, v.z);
+                const dist = Math.hypot(p.x - mouseX, p.y - mouseY);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closest = key;
+                }
+            });
+
+            if (closest) {
+                if (selectedVertices.length > 0 && selectedVertices[selectedVertices.length-1] === closest) return;
+                selectedVertices.push(closest);
+                updateUI();
+                draw();
             }
-        });
-
-        if (closest) {
-            // Если уже выбрана, убираем? Нет, добавляем в список.
-            // Если кликнули по той же самой последней - игнор
-            if (selectedVertices.length > 0 && selectedVertices[selectedVertices.length-1] === closest) return;
-
-            selectedVertices.push(closest);
-            updateUI();
-            draw();
         }
     });
 
     function updateUI() {
-        document.getElementById('selectedList').textContent = selectedVertices.join(', ');
+        document.getElementById('selectedList').textContent = selectedVertices.length ? selectedVertices.join(', ') : '-';
         document.getElementById('volumeSection').style.display = 'none';
         document.getElementById('feedback').className = 'feedback';
+        document.getElementById('btnAnalyze').disabled = selectedVertices.length === 0;
     }
 
     function clearSelection() {
         selectedVertices = [];
+        document.getElementById('figureSelect').value = "";
+        currentFigure = null;
+        document.getElementById('figureInfo').textContent = "Выберите фигуру из списка выше";
+        document.getElementById('taskSection').style.display = 'none';
         updateUI();
         draw();
     }
 
-    // --- Логика задачи ---
+    // --- Логика выбора фигуры ---
 
-    function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function handleFigureSelect() {
+        const val = document.getElementById('figureSelect').value;
 
-    const taskTemplates = [
-        {
-            name: "Пирамида (как в примере)",
-            vertices: ['A1', 'B', 'C', 'C1', 'B1'],
-            calc: (a,b,c) => {
-                // Основание BCC1B1 (площадь b*c), высота a
-                return (1/3) * (b*c) * a;
-            },
-            sol: (a,b,c) => `Это четырехугольная пирамида. Основание — грань BCC1B1 (прямоугольник b×c). Высота — ребро A1B1 (равно a).<br>V = 1/3 × S_осн × h = 1/3 × (${b}×${c}) × ${a} = ${(b*c*a)/3}`
-        },
-        {
-            name: "Треугольная призма",
-            vertices: ['A', 'B', 'C', 'A1', 'B1', 'C1'],
-            calc: (a,b,c) => 0.5 * a * b * c,
-            sol: (a,b,c) => `Это треугольная призма. Основание — треугольник ABC (половина прямоугольника). Высота — c.<br>V = S_осн × h = (1/2 × ${a} × ${b}) × ${c} = ${0.5*a*b*c}`
-        },
-        {
-            name: "Тетраэдр (угол)",
-            vertices: ['D', 'A', 'C', 'D1'],
-            calc: (a,b,c) => (a*b*c)/6,
-            sol: (a,b,c) => `Это треугольная пирамида (тетраэдр). Основание — ADC (1/2 от низа). Высота — DD1.<br>V = 1/3 × (1/2 × ${a} × ${b}) × ${c} = ${(a*b*c)/6}`
+        if (val === 'manual') {
+            currentMode = 'manual';
+            selectedVertices = [];
+            currentFigure = null;
+            document.getElementById('modeBadge').textContent = 'Ручной';
+            document.getElementById('modeBadge').className = 'mode-indicator mode-manual';
+            document.getElementById('figureInfo').textContent = "Кликайте по вершинам на фигуре для выделения";
+            document.getElementById('taskSection').style.display = 'none';
+            updateUI();
+            draw();
+            return;
         }
-    ];
 
-    let currentTask = null;
+        if (!val) {
+            clearSelection();
+            return;
+        }
 
-    function nextTask() {
-        dims = { a: rand(3, 8), b: rand(3, 8), c: rand(3, 8) };
-        initGeometry(dims.a, dims.b, dims.c);
+        currentMode = 'list';
+        currentFigure = figuresDB[val];
+        selectedVertices = [...currentFigure.vertices];
 
-        // Случайный шаблон
-        const template = taskTemplates[rand(0, taskTemplates.length - 1)];
-        currentTask = {
-            ...template,
-            volume: template.calc(dims.a, dims.b, dims.c)
-        };
+        document.getElementById('modeBadge').textContent = 'Список';
+        document.getElementById('modeBadge').className = 'mode-indicator mode-list';
+        document.getElementById('figureInfo').textContent = currentFigure.desc;
 
-        // Текст задания
+        // Показываем задание
+        document.getElementById('taskSection').style.display = 'block';
         document.getElementById('taskText').innerHTML = `
-            Найдите объем многогранника, вершинами которого являются точки
-            <b>${template.vertices.join(', ')}</b>
-            прямоугольного параллелепипеда.<br>
-            Дано: AB=${dims.a}, AD=${dims.b}, AA1=${dims.c}.
+            Найдите объем многогранника <b>${currentFigure.name}</b>.<br>
+            Вершины: <span style="color:var(--highlight)">${selectedVertices.join(', ')}</span><br>
+            Дано: AB=${dims.a}, AD=${dims.b}, AA₁=${dims.c}.
         `;
 
-        solutionHTML = template.sol(dims.a, dims.b, dims.c);
+        solutionHTML = currentFigure.sol(dims.a, dims.b, dims.c);
 
-        // Сброс
-        selectedVertices = [];
         updateUI();
         draw();
+
+        // Автоматически предлагаем анализ
+        setTimeout(() => analyzeFigure(), 300);
     }
 
-    function checkSelection() {
-        // Проверка совпадения множеств
-        const sortedSelected = [...selectedVertices].sort();
-        const sortedTarget = [...currentTask.vertices].sort();
-
-        if (JSON.stringify(sortedSelected) === JSON.stringify(sortedTarget)) {
-            document.getElementById('feedback').className = 'feedback ok';
-            document.getElementById('feedback').textContent = 'Верный выбор вершин! Теперь найдите объем.';
-            document.getElementById('volumeSection').style.display = 'block';
-            document.getElementById('volumeInput').value = '';
-            document.getElementById('volumeInput').focus();
-        } else {
-            document.getElementById('feedback').className = 'feedback err';
-            document.getElementById('feedback').textContent = 'Неверный набор вершин. Попробуйте еще раз.';
-            document.getElementById('volumeSection').style.display = 'none';
+    function analyzeFigure() {
+        if (!currentFigure && currentMode === 'manual') {
+            // В ручном режиме просто проверяем, что выбрано что-то
+            if (selectedVertices.length < 3) {
+                alert("Выберите хотя бы 3 вершины для построения фигуры!");
+                return;
+            }
+            document.getElementById('taskSection').style.display = 'block';
+            document.getElementById('taskText').innerHTML = `
+                Вы выбрали вершины: <span style="color:var(--highlight)">${selectedVertices.join(', ')}</span><br>
+                Попробуйте вычислить объем получившегося многогранника.<br>
+                Дано: AB=${dims.a}, AD=${dims.b}, AA₁=${dims.c}.
+            `;
+            // Для ручного режима решение не показываем автоматически
+            solutionHTML = "Решение зависит от выбранной конфигурации вершин.";
         }
+
+        document.getElementById('volumeSection').style.display = 'block';
+        document.getElementById('volumeInput').value = '';
+        document.getElementById('volumeInput').focus();
+        document.getElementById('solutionBox').style.display = 'none';
+        document.getElementById('feedback').className = 'feedback';
+    }
+
+    function randomizeDims() {
+        dims = { a: Math.floor(Math.random() * 6) + 2, b: Math.floor(Math.random() * 6) + 2, c: Math.floor(Math.random() * 6) + 2 };
+        initGeometry(dims.a, dims.b, dims.c);
+
+        // Если была выбрана фигура, обновляем задание
+        const selectVal = document.getElementById('figureSelect').value;
+        if (selectVal && selectVal !== 'manual') {
+            handleFigureSelect();
+        } else {
+            document.getElementById('taskText').innerHTML = `
+                Дано: AB=${dims.a}, AD=${dims.b}, AA₁=${dims.c}.<br>
+                Выберите фигуру для анализа.
+            `;
+        }
+        draw();
     }
 
     function checkVolume() {
         const val = parseFloat(document.getElementById('volumeInput').value);
-        if (Math.abs(val - currentTask.volume) < 0.01) {
+        if (isNaN(val)) {
+            document.getElementById('feedback').className = 'feedback err';
+            document.getElementById('feedback').textContent = 'Введите число!';
+            return;
+        }
+
+        let correctVal;
+        if (currentFigure) {
+            correctVal = currentFigure.calc(dims.a, dims.b, dims.c);
+        } else {
+            // В ручном режиме не проверяем точно, просто хвалим за попытку
             document.getElementById('feedback').className = 'feedback ok';
-            document.getElementById('feedback').textContent = 'Отлично! Объем найден верно.';
+            document.getElementById('feedback').textContent = 'В ручном режиме точная проверка недоступна. Продолжайте практиковаться!';
+            document.getElementById('solutionBox').style.display = 'block';
+            document.getElementById('solutionBox').innerHTML = "💡 Совет: разбейте сложную фигуру на простые пирамиды и призмы.";
+            return;
+        }
+
+        if (Math.abs(val - correctVal) < 0.01) {
+            document.getElementById('feedback').className = 'feedback ok';
+            document.getElementById('feedback').textContent = '✅ Отлично! Объем найден верно.';
             document.getElementById('solutionBox').style.display = 'block';
             document.getElementById('solutionBox').innerHTML = solutionHTML;
         } else {
             document.getElementById('feedback').className = 'feedback err';
-            document.getElementById('feedback').textContent = `Ошибка. Правильный ответ: ${currentTask.volume}`;
+            document.getElementById('feedback').textContent = `❌ Неверно. Правильный ответ: ${correctVal}`;
             document.getElementById('solutionBox').style.display = 'block';
             document.getElementById('solutionBox').innerHTML = solutionHTML;
         }
@@ -523,7 +677,8 @@
 
     // Старт
     resize();
-    nextTask();
+    initGeometry(dims.a, dims.b, dims.c);
+    draw();
 
 </script>
 
