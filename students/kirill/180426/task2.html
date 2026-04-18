@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Задание 2. Построение точек по координатам</title>
+<style>
+:root {
+  --bg:#0e141b; --panel:#16212c; --panel2:#0f1b24; --text:#ecf3f8; --muted:#a7bccb;
+  --accent:#50d3c8; --accent2:#89a7ff; --line:#274150; --shadow:0 20px 50px rgba(0,0,0,.35); --radius:22px; --stickyTop:18px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:radial-gradient(circle at top,#172737 0,#0d141b 52%,#091017 100%);color:var(--text);font:16px/1.55 Inter,Segoe UI,Arial,sans-serif;scroll-behavior:smooth}
+body{min-height:100vh}
+a{color:var(--accent)}
+.shell{max-width:1500px;margin:0 auto;padding:24px}
+.hero{background:linear-gradient(135deg,rgba(80,211,200,.12),rgba(137,167,255,.07));border:1px solid var(--line);border-radius:28px;padding:24px 24px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;inset:auto -10% -40% auto;width:420px;height:420px;background:radial-gradient(circle,rgba(80,211,200,.16),transparent 70%);pointer-events:none}
+.kicker{display:inline-flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:6px 12px;color:var(--muted);background:rgba(255,255,255,.02)}
+.title{font-size:clamp(28px,4vw,46px);line-height:1.08;margin:16px 0 10px;font-weight:800;letter-spacing:.01em}
+.subtitle{max-width:980px;color:var(--muted);font-size:17px}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+.btn,.chip{border:1px solid var(--line);background:#11202a;color:var(--text);border-radius:14px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn:hover,.chip:hover{border-color:var(--accent);transform:translateY(-1px)}
+.layout{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(380px,.88fr);gap:22px;margin-top:22px}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.left{padding:24px}
+.right{position:sticky;top:var(--stickyTop);height:fit-content;padding:18px}
+.section-title{font-size:20px;font-weight:750;margin:0 0 14px}
+.problem{padding:18px;border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:18px;margin:16px 0}
+.keyline{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+.mini{border:1px solid var(--line);border-radius:16px;padding:14px;background:var(--panel2)}
+.mini b{display:block;font-size:13px;color:var(--muted);font-weight:600;margin-bottom:5px}
+.step{border:1px solid var(--line);border-radius:18px;background:#12202a;margin:14px 0;overflow:hidden}
+.step-head{width:100%;background:none;border:0;color:var(--text);text-align:left;padding:16px 18px;display:flex;gap:14px;align-items:center;font-size:16px;font-weight:700;cursor:pointer}
+.step-index{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#071016;font-weight:800;flex:0 0 auto}
+.step-body{padding:0 18px 18px 62px;color:var(--muted);display:none}
+.step.active .step-body{display:block}
+.step.active{border-color:var(--accent)}
+.inline-note{padding:14px 16px;border-left:4px solid var(--accent);background:rgba(80,211,200,.08);border-radius:10px;margin:18px 0;color:#d7fbf6}
+.list{padding-left:20px;color:var(--muted)}
+.plane-wrap{background:#0a1218;border:1px solid var(--line);border-radius:18px;padding:14px;position:relative}
+.canvasBox{position:relative;border-radius:16px;overflow:hidden;background:linear-gradient(180deg,#081117,#0d1a23)}
+canvas{display:block;width:100%;height:auto;cursor:grab}
+canvas.dragging{cursor:grabbing}
+.controls{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;margin-top:12px}
+.controls input[type=range]{width:100%}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.legend span{display:inline-flex;align-items:center;gap:8px;background:#11202a;border:1px solid var(--line);padding:8px 10px;border-radius:999px;font-size:13px;color:var(--muted)}
+.swatch{width:12px;height:12px;border-radius:50%;display:inline-block;background:var(--accent)}
+.toggleRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.quiz{margin-top:18px;padding:16px;border:1px solid var(--line);border-radius:18px;background:#101c25}
+.quiz button{margin-top:10px}
+.footerNav{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.footerNav a{text-align:center}
+.generator{margin-top:18px;padding:16px;border:1px solid var(--line);border-radius:18px;background:#101c25}
+.modal{position:fixed;inset:0;background:rgba(4,8,11,.72);display:none;align-items:center;justify-content:center;padding:24px;z-index:50}
+.modal.open{display:flex}
+.modal-card{width:min(1200px,100%);background:#0d161d;border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
+.modal-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
+.close{border:1px solid var(--line);background:#11202a;color:var(--text);border-radius:12px;padding:8px 12px;cursor:pointer}
+.toc{margin-top:18px;padding:16px;border:1px solid var(--line);border-radius:18px;background:#101c25}
+.toc ul{margin:10px 0 0;padding-left:18px;color:var(--muted)}
+.print-note{display:none}
+@media (max-width: 1100px) {
+  .layout{grid-template-columns:1fr}
+  .right{position:relative;top:auto}
+}
+@media (max-width: 700px) {
+  .shell{padding:14px}
+  .left,.right{padding:16px}
+  .controls{grid-template-columns:1fr 1fr}
+  .keyline{grid-template-columns:1fr}
+}
+@media print {
+  body{background:#fff;color:#000}
+  .hero,.card,.step,.mini,.problem,.quiz,.generator,.toc,.plane-wrap{box-shadow:none;background:#fff;border-color:#bbb}
+  .toolbar,.controls,.toggleRow,.footerNav,.modal{display:none !important}
+  .layout{display:block}
+  .right{position:static;padding:0;margin-top:18px}
+  .print-note{display:block;color:#444;margin-top:8px}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="hero">
+    <div class="kicker">Наглядная математика · Координатная плоскость</div>
+    <h1 class="title">Задание 2. Построение точек по координатам</h1>
+    <div class="subtitle">Как ставить точки на координатной плоскости по готовым координатам. На странице есть полный разбор, интерактивная модель, самопроверка и генератор похожих заданий.</div>
+    <div class="toolbar">
+      <a class="btn" href="index.html">← Ко всем страницам</a>
+      <button class="btn" id="openModal">Увеличить чертёж</button>
+      <button class="btn" id="showAll">Показать все шаги</button>
+      <button class="btn" id="printBtn">Печать</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card left">
+      <h2 class="section-title">Разбор задания</h2>
+      <div class="problem"><b>Условие.</b> Постройте на координатной плоскости точки M(4;2), N(-3;1), P(2;-4).</div>
+
+      <div class="keyline">
+        <div class="mini"><b>Ключевая идея</b>Сначала определяем роль каждой координаты, затем аккуратно отслеживаем знак и направление.</div>
+        <div class="mini"><b>Быстрый ориентир</b>Первая координата — движение по горизонтали, вторая — по вертикали.</div>
+        <div class="mini"><b>Ответ</b>M — I четверть, N — II четверть, P — IV четверть.</div>
+      </div>
+
+      <div class="inline-note">Главное правило этой темы: сначала работаем с <b>x</b>, потом с <b>y</b>. Ошибки почти всегда связаны либо с перепутанным порядком, либо со знаком.</div>
+
+      <h3 class="section-title">Пошаговое решение</h3>
+      <article class="step" data-step="0">
+            <button class="step-head" type="button">
+              <span class="step-index">1</span>
+              <span>Шаг 1. Точка M(4;2)</span>
+            </button>
+            <div class="step-body"><p>Сначала идём по оси Ox на 4 вправо, затем на 2 вверх. Получаем точку M в I четверти.</p></div>
+        </article><article class="step" data-step="1">
+            <button class="step-head" type="button">
+              <span class="step-index">2</span>
+              <span>Шаг 2. Точка N(-3;1)</span>
+            </button>
+            <div class="step-body"><p>Сначала идём на 3 влево, затем на 1 вверх. Получаем точку N во II четверти.</p></div>
+        </article><article class="step" data-step="2">
+            <button class="step-head" type="button">
+              <span class="step-index">3</span>
+              <span>Шаг 3. Точка P(2;-4)</span>
+            </button>
+            <div class="step-body"><p>Сначала идём на 2 вправо, затем на 4 вниз. Получаем точку P в IV четверти.</p></div>
+        </article><article class="step" data-step="3">
+            <button class="step-head" type="button">
+              <span class="step-index">4</span>
+              <span>Шаг 4. Быстрая самопроверка по знакам</span>
+            </button>
+            <div class="step-body"><p>У M обе координаты положительные; у N x отрицателен, y положителен; у P x положителен, y отрицателен.</p></div>
+        </article>
+
+      <h3 class="section-title">Типичные ошибки</h3>
+      <ul class="list"><li>Сначала двигаться по y, а не по x.</li><li>Путать II и IV четверти.</li><li>Не учитывать знак минус у координаты y точки P.</li></ul>
+
+      <div class="quiz">
+        <h3 class="section-title">Самопроверка</h3>
+        <p id="quizPrompt">Какое правило здесь было самым важным?</p>
+        <div>
+          <label><input type="radio" name="quiz" value="0"> Сначала выбираем цвет точки, потом четверть.</label><br>
+          <label><input type="radio" name="quiz" value="1"> Сначала двигаемся по оси Ox, потом по оси Oy.</label><br>
+          <label><input type="radio" name="quiz" value="2"> Всегда меняем обе координаты на противоположные.</label>
+        </div>
+        <button class="btn" id="checkQuiz">Проверить</button>
+        <div id="quizResult" class="inline-note" style="display:none"></div>
+      </div>
+
+      <div class="generator">
+        <h3 class="section-title">Похожее задание</h3>
+        <p id="genText">Нажмите кнопку, чтобы получить новый вариант по той же логике.</p>
+        <button class="btn" id="genBtn">Сгенерировать</button>
+        <div id="genAnswer" class="inline-note" style="display:none"></div>
+      </div>
+
+      <div class="toc">
+        <h3 class="section-title">Другие страницы пособия</h3>
+        <ul><li><a href="task1.html">Задание 1. Запись координат по описанию</a></li><li><a href="task2.html">Задание 2. Построение точек по координатам</a></li><li><a href="task3.html">Задание 3. Определение четверти по знакам координат</a></li><li><a href="task4.html">Задание 4. Симметричные точки для C(7;-3)</a></li><li><a href="task5.html">Задание 5. Четыре точки и все виды симметрии</a></li><li><a href="task6.html">Задание 6. Точка во II четверти с ординатой 6</a></li><li><a href="task7.html">Задание 7. Все симметричные точки для A(-5;8)</a></li><li><a href="task8.html">Задание 8. Точка на оси ординат ниже начала координат</a></li><li><a href="task9.html">Задание 9. Координаты и нестандартный масштаб</a></li><li><a href="task10.html">Задание 10. Прямоугольник из точек A, B, C, D</a></li></ul>
+      </div>
+    </section>
+
+    <aside class="card right">
+      <h2 class="section-title">Интерактивная модель</h2>
+      <div class="plane-wrap">
+        <div class="canvasBox">
+          <canvas id="plane" width="760" height="660" aria-label="Координатная плоскость"></canvas>
+        </div>
+        <div class="controls">
+          <input id="zoom" type="range" min="0.7" max="2.6" step="0.01" value="1">
+          <button class="btn" id="zoomOut">−</button>
+          <button class="btn" id="zoomIn">+</button>
+          <button class="btn" id="reset">Сброс</button>
+        </div>
+        <div class="toggleRow">
+          <label class="chip"><input id="showGrid" type="checkbox" checked> сетка</label>
+          <label class="chip"><input id="showProj" type="checkbox" checked> проекции</label>
+          <label class="chip"><input id="showLabels" type="checkbox" checked> подписи</label>
+        </div>
+        <div class="legend"><span><i class="swatch"></i> Точки текущего задания</span><span>Колесо мыши — зум, перетаскивание — панорама</span></div>
+        <p class="print-note">На печати сохраняется статический чертёж с точками задания.</p>
+      </div>
+
+      <div class="mini" style="margin-top:16px">
+        <b>Что видно на схеме</b>
+        Координатная плоскость, отмеченные точки задания, пунктирные проекции к осям и подписи координат.
+      </div>
+
+      <div class="mini" style="margin-top:12px">
+        <b>Мини-памятка</b>
+        I: (+,+), II: (-,+), III: (-,-), IV: (+,-).
+      </div>
+
+      <div class="footerNav">
+        <a class="btn" href="index.html">На главную</a>
+        <a class="btn" href="task3.html">Следующая страница →</a>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="modal-top">
+      <div><b>Увеличенная модель</b><div style="color:var(--muted);font-size:14px">Состояние синхронизировано с основной моделью</div></div>
+      <button class="close" id="closeModal">Закрыть ✕</button>
+    </div>
+    <div class="canvasBox">
+      <canvas id="planeModal" width="1180" height="860"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+const TASK = {"slug": "task2", "title": "Задание 2. Построение точек по координатам", "topic": "Как ставить точки на координатной плоскости по готовым координатам", "exercise": "Постройте на координатной плоскости точки M(4;2), N(-3;1), P(2;-4).", "answer": "M — I четверть, N — II четверть, P — IV четверть.", "points": [{"name": "M", "x": 4, "y": 2}, {"name": "N", "x": -3, "y": 1}, {"name": "P", "x": 2, "y": -4}], "steps": [{"title": "Шаг 1. Точка M(4;2)", "body": "Сначала идём по оси Ox на 4 вправо, затем на 2 вверх. Получаем точку M в I четверти."}, {"title": "Шаг 2. Точка N(-3;1)", "body": "Сначала идём на 3 влево, затем на 1 вверх. Получаем точку N во II четверти."}, {"title": "Шаг 3. Точка P(2;-4)", "body": "Сначала идём на 2 вправо, затем на 4 вниз. Получаем точку P в IV четверти."}, {"title": "Шаг 4. Быстрая самопроверка по знакам", "body": "У M обе координаты положительные; у N x отрицателен, y положителен; у P x положителен, y отрицателен."}], "mistakes": ["Сначала двигаться по y, а не по x.", "Путать II и IV четверти.", "Не учитывать знак минус у координаты y точки P."]};
+const POINTS = [{"name": "M", "x": 4, "y": 2}, {"name": "N", "x": -3, "y": 1}, {"name": "P", "x": 2, "y": -4}];
+const state = {
+  zoom: 1,
+  panX: 0,
+  panY: 0,
+  showGrid: true,
+  showProj: true,
+  showLabels: true,
+  dragging: false,
+  lastX: 0,
+  lastY: 0
+};
+
+const canvases = [document.getElementById('plane'), document.getElementById('planeModal')].filter(Boolean);
+
+function drawScene(canvas) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0,0,w,h);
+
+  const bg = ctx.createLinearGradient(0,0,0,h);
+  bg.addColorStop(0,'#091219');
+  bg.addColorStop(1,'#0e1b25');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,w,h);
+
+  const unit = 44 * state.zoom;
+  const ox = w/2 + state.panX;
+  const oy = h/2 + state.panY;
+
+  if(state.showGrid){
+    ctx.strokeStyle = 'rgba(140,180,205,.14)';
+    ctx.lineWidth = 1;
+    for(let x=ox%unit; x<w; x+=unit) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+    for(let y=oy%unit; y<h; y+=unit) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+  }
+
+  ctx.strokeStyle = '#d9eef9';
+  ctx.lineWidth = 2.2;
+  ctx.beginPath(); ctx.moveTo(0,oy); ctx.lineTo(w,oy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ox,h); ctx.lineTo(ox,0); ctx.stroke();
+
+  drawArrow(ctx,w-16,oy,w,oy);
+  drawArrow(ctx,ox,16,ox,0);
+
+  ctx.fillStyle = '#d9eef9';
+  ctx.font = '16px Inter, Arial';
+  ctx.fillText('x', w-24, oy-10);
+  ctx.fillText('y', ox+10, 22);
+  ctx.fillText('O', ox+8, oy+18);
+
+  ctx.font = '12px Inter, Arial';
+  ctx.fillStyle = 'rgba(220,239,247,.8)';
+  for(let i=-8;i<=8;i++) {
+    if(i===0) continue;
+    let x = ox + i*unit;
+    let y = oy - i*unit;
+    if(x>0 && x<w){
+      ctx.beginPath(); ctx.moveTo(x,oy-5); ctx.lineTo(x,oy+5); ctx.strokeStyle='rgba(220,239,247,.55)'; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.fillText(String(i), x-4, oy+18);
+    }
+    if(y>0 && y<h){
+      ctx.beginPath(); ctx.moveTo(ox-5,y); ctx.lineTo(ox+5,y); ctx.stroke();
+      ctx.fillText(String(i), ox+10, y+4);
+    }
+  }
+
+  POINTS.forEach((p, idx) => {
+    const px = ox + p.x * unit;
+    const py = oy - p.y * unit;
+    if(state.showProj){
+      ctx.strokeStyle = idx===0 ? 'rgba(80,211,200,.8)' : 'rgba(137,167,255,.55)';
+      ctx.setLineDash([7,7]);
+      ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, oy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(ox, py); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.beginPath();
+    ctx.fillStyle = idx===0 ? '#50d3c8' : '#89a7ff';
+    ctx.arc(px, py, 7, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = '#071016';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    if(state.showLabels){
+      ctx.fillStyle = '#eef7fb';
+      ctx.font = 'bold 14px Inter, Arial';
+      ctx.fillText(`${p.name}(${p.x};${p.y})`, px+10, py-10);
+    }
+  });
+
+  ctx.fillStyle='rgba(255,255,255,.2)';
+  ctx.font='bold 28px Inter, Arial';
+  ctx.fillText('I', ox+2.3*unit, oy-2.3*unit);
+  ctx.fillText('II', ox-3.4*unit, oy-2.3*unit);
+  ctx.fillText('III', ox-3.9*unit, oy+2.7*unit);
+  ctx.fillText('IV', ox+2.3*unit, oy+2.7*unit);
+}
+
+function drawArrow(ctx,x1,y1,x2,y2){
+  const ang = Math.atan2(y2-y1,x2-x1);
+  const len = 10;
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-len*Math.cos(ang-Math.PI/6), y2-len*Math.sin(ang-Math.PI/6));
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-len*Math.cos(ang+Math.PI/6), y2-len*Math.sin(ang+Math.PI/6));
+  ctx.stroke();
+}
+
+function redrawAll(){ canvases.forEach(drawScene); }
+
+function setupCanvas(canvas){
+  canvas.addEventListener('mousedown', e=>{ state.dragging=true; state.lastX=e.offsetX; state.lastY=e.offsetY; canvas.classList.add('dragging'); });
+  window.addEventListener('mouseup', ()=>{ state.dragging=false; canvases.forEach(c=>c.classList.remove('dragging')); });
+  canvas.addEventListener('mousemove', e=>{
+    if(!state.dragging) return;
+    state.panX += e.offsetX - state.lastX;
+    state.panY += e.offsetY - state.lastY;
+    state.lastX = e.offsetX; state.lastY = e.offsetY;
+    redrawAll();
+  });
+  canvas.addEventListener('wheel', e=>{
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 1.08 : 0.92;
+    state.zoom = Math.max(0.7, Math.min(2.6, state.zoom * delta));
+    document.getElementById('zoom').value = state.zoom.toFixed(2);
+    redrawAll();
+  }, {passive:false});
+  canvas.addEventListener('dblclick', ()=>{ document.getElementById('modal').classList.add('open'); redrawAll(); });
+}
+
+canvases.forEach(setupCanvas);
+
+document.getElementById('zoom').addEventListener('input', e=>{ state.zoom=+e.target.value; redrawAll(); });
+document.getElementById('zoomIn').addEventListener('click', ()=>{ state.zoom=Math.min(2.6,state.zoom+0.1); document.getElementById('zoom').value=state.zoom.toFixed(2); redrawAll(); });
+document.getElementById('zoomOut').addEventListener('click', ()=>{ state.zoom=Math.max(0.7,state.zoom-0.1); document.getElementById('zoom').value=state.zoom.toFixed(2); redrawAll(); });
+document.getElementById('reset').addEventListener('click', ()=>{ state.zoom=1; state.panX=0; state.panY=0; document.getElementById('zoom').value='1'; redrawAll(); });
+document.getElementById('showGrid').addEventListener('change', e=>{ state.showGrid=e.target.checked; redrawAll(); });
+document.getElementById('showProj').addEventListener('change', e=>{ state.showProj=e.target.checked; redrawAll(); });
+document.getElementById('showLabels').addEventListener('change', e=>{ state.showLabels=e.target.checked; redrawAll(); });
+
+document.querySelectorAll('.step').forEach((step, idx)=>{
+  const btn = step.querySelector('.step-head');
+  btn.addEventListener('click', ()=>{ step.classList.toggle('active'); });
+  if(idx===0) step.classList.add('active');
+});
+document.getElementById('showAll').addEventListener('click', ()=>{ document.querySelectorAll('.step').forEach(s=>s.classList.add('active')); });
+
+document.getElementById('checkQuiz').addEventListener('click', ()=>{
+  const pick = document.querySelector('input[name="quiz"]:checked');
+  const box = document.getElementById('quizResult');
+  box.style.display='block';
+  if(!pick) {
+    box.textContent='Сначала выберите вариант.';
+    return;
+  }
+  if(pick.value==='1') {
+    box.innerHTML='Верно. В координатной плоскости почти всё держится на порядке: <b>сначала x, потом y</b>.';
+  } else {
+    box.textContent='Пока нет. Ключевое правило здесь: сначала двигаемся по оси Ox, затем по оси Oy.';
+  }
+});
+
+function randNZ() { let n=0; while(n===0) n=Math.floor(Math.random()*11)-5; return n; }
+function quarter(x,y) {
+  if(x>0&&y>0) return 'I четверть';
+  if(x<0&&y>0) return 'II четверть';
+  if(x<0&&y<0) return 'III четверть';
+  if(x>0&&y<0) return 'IV четверть';
+  return 'точка лежит на оси';
+}
+
+const generators = {
+  task1: ()=> {
+    const x = [1,2,3,4,5][Math.floor(Math.random()*5)] * (Math.random()<0.5?1:-1);
+    const y = [1,2,3,4,5][Math.floor(Math.random()*5)] * (Math.random()<0.5?1:-1);
+    return {q:`Запишите координаты точки: ${Math.abs(x)} клеток ${x>0?'вправо':'влево'} и ${Math.abs(y)} клеток ${y>0?'вверх':'вниз'}.`, a:`Ответ: (${x};${y}).`};
+  },
+  task2: ()=> {
+    const x = Math.floor(Math.random()*9)-4 || 3;
+    const y = Math.floor(Math.random()*9)-4 || -2;
+    return {q:`Постройте точку P(${x};${y}). В какой она четверти?`, a:`Ответ: ${quarter(x,y)}.`};
+  },
+  task3: ()=> {
+    const x = randNZ(), y = randNZ();
+    return {q:`Определите четверть точки A(${x};${y}).`, a:`Ответ: ${quarter(x,y)}.`};
+  },
+  task4: ()=> {
+    const x = randNZ(), y = randNZ();
+    return {q:`Для точки M(${x};${y}) найдите симметричные точки относительно Ox, Oy и начала координат.`, a:`Ox: (${x};${-y}), Oy: (${-x};${y}), O: (${-x};${-y}).`};
+  },
+  task5: ()=> {
+    const x = randNZ(), y = randNZ();
+    return {q:`Для точки P(${x};${y}) укажите все три симметричные точки: относительно Ox, Oy и начала координат.`, a:`Ox: (${x};${-y}), Oy: (${-x};${y}), O: (${-x};${-y}).`};
+  },
+  task6: ()=> {
+    const q = ['I','II','III','IV'][Math.floor(Math.random()*4)];
+    const y = q==='I'||q==='II' ? Math.floor(Math.random()*6)+1 : -(Math.floor(Math.random()*6)+1);
+    const hint = q==='I'||q==='IV' ? 'положительные' : 'отрицательные';
+    return {q:`Точка S лежит в ${q} четверти, её ордината равна ${y}. Какие абсциссы подходят?`, a:`Подойдут любые ${hint} числа.`};
+  },
+  task7: ()=> {
+    const x = randNZ(), y = randNZ();
+    return {q:`Для точки A(${x};${y}) найдите три симметричные точки.`, a:`Ox: (${x};${-y}), Oy: (${-x};${y}), O: (${-x};${-y}).`};
+  },
+  task8: ()=> {
+    const k = randNZ();
+    return {q:`Точка лежит на оси ординат и имеет ординату ${k}. Запишите её координаты и симметричную относительно Ox точку.`, a:`Ответ: (0;${k}) и (0;${-k}).`};
+  },
+  task9: ()=> {
+    const x = randNZ(), y = randNZ(), scale = [2,3][Math.floor(Math.random()*2)];
+    return {q:`При масштабе ${scale} клетки = 1 единица постройте точку D(${x};${y}). Сколько клеток нужно отложить?`, a:`По x: ${Math.abs(x)*scale} клеток ${x>0?'вправо':'влево'}; по y: ${Math.abs(y)*scale} клеток ${y>0?'вверх':'вниз'}.`};
+  },
+  task10: ()=> {
+    const a = Math.floor(Math.random()*4)+1, b = Math.floor(Math.random()*5)+2;
+    return {q:`Рассмотрите точки A(${a};${b}), B(${-a};${b}), C(${-a};${-b}), D(${a};${-b}). Какая фигура получится?`, a:`Прямоугольник. Пары симметрии определяются по смене знаков координат.`};
+  }
+};
+
+document.getElementById('genBtn').addEventListener('click', ()=>{
+  const gen = generators[TASK.slug] ? generators[TASK.slug]() : generators.task4();
+  document.getElementById('genText').textContent = gen.q;
+  const ans = document.getElementById('genAnswer');
+  ans.style.display='block';
+  ans.textContent = gen.a;
+});
+
+document.getElementById('openModal').addEventListener('click', ()=>{ document.getElementById('modal').classList.add('open'); redrawAll(); });
+document.getElementById('closeModal').addEventListener('click', ()=>document.getElementById('modal').classList.remove('open'));
+document.getElementById('modal').addEventListener('click', e=>{ if(e.target.id==='modal') e.currentTarget.classList.remove('open'); });
+window.addEventListener('keydown', e=>{ if(e.key==='Escape') document.getElementById('modal').classList.remove('open'); });
+document.getElementById('printBtn').addEventListener('click', ()=>window.print());
+
+redrawAll();
+</script>
+</body>
+</html>
