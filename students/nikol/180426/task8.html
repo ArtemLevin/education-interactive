@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Задание 8. Ещё один отбор корней на промежутке</title>
+<meta name="description" content="Отберите корни x = π + 2πn из промежутка [π, 5π].">
+<style>
+:root{
+  --bg:#0b1020;
+  --panel:#121a31;
+  --panel2:#0f1730;
+  --text:#eef2ff;
+  --muted:#a9b4d0;
+  --accent:#4fd1c5;
+  --accent2:#8be9dd;
+  --line:#273253;
+  --warn:#ffd166;
+  --bad:#ff8c8c;
+  --good:#8ee6a2;
+  --shadow:0 18px 40px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:radial-gradient(circle at top,#152144 0%,#0b1020 52%,#070b16 100%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
+body{line-height:1.55}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+header.hero{padding:32px 24px 18px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0))}
+.badge{display:inline-block;padding:8px 12px;border:1px solid var(--line);border-radius:999px;color:var(--accent2);font-size:13px;letter-spacing:.04em;text-transform:uppercase;background:rgba(79,209,197,.08)}
+h1{margin:16px 0 10px;font-size:clamp(28px,4vw,44px);line-height:1.12}
+p.lead{max-width:1000px;color:var(--muted);font-size:18px;margin:0}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.toolbar button,.toolbar a.btn,.control button,.control input[type=range]{appearance:none}
+.toolbar .btn, .control button, .mini-btn{
+  background:linear-gradient(180deg,#1a2650,#121a31);
+  color:var(--text);border:1px solid var(--line);padding:10px 14px;border-radius:14px;cursor:pointer;
+  box-shadow:var(--shadow);font-weight:600
+}
+main.layout{display:grid;grid-template-columns:minmax(320px,1.2fr) minmax(320px,.95fr);gap:22px;padding:22px;max-width:1500px;margin:0 auto}
+@media (max-width: 1050px){main.layout{grid-template-columns:1fr}}
+.left-col{display:grid;gap:18px}
+.card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:24px;padding:18px 18px 20px;box-shadow:var(--shadow)}
+.card h2{margin:0 0 12px;font-size:24px}
+.card h3{margin:14px 0 8px;font-size:18px;color:var(--accent2)}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.meta{padding:12px 14px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02)}
+.formula{font-family:"Times New Roman",serif;background:#0b1228;border:1px solid var(--line);padding:10px 12px;border-radius:14px;overflow:auto}
+.step{border-left:3px solid var(--accent);padding:8px 0 8px 14px;margin:12px 0}
+.step-title{font-weight:700;color:var(--accent2);margin-bottom:5px}
+ul.clean{margin:0;padding-left:18px}
+.right-col{position:relative}
+.sticky{position:sticky;top:16px;display:grid;gap:16px}
+.stage{min-height:480px;padding:16px}
+.canvas-wrap{position:relative;background:linear-gradient(180deg,#0d1530,#0a1124);border:1px solid var(--line);border-radius:22px;padding:10px}
+canvas, svg.viz{display:block;width:100%;height:auto;max-width:100%;border-radius:18px;background:radial-gradient(circle at center,rgba(79,209,197,.06),transparent 62%)}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.legend span{font-size:13px;padding:7px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.control{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+.range{display:flex;gap:10px;align-items:center;flex:1;min-width:220px}
+input[type=range]{width:100%}
+.small{font-size:14px;color:var(--muted)}
+.twocol{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.note-good,.note-warn,.note-bad{padding:12px 14px;border-radius:16px;border:1px solid var(--line)}
+.note-good{background:rgba(142,230,162,.08);color:#d9ffe2}
+.note-warn{background:rgba(255,209,102,.08);color:#fff2c8}
+.note-bad{background:rgba(255,140,140,.08);color:#ffd8d8}
+.task-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.task-link{display:block;padding:16px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(180deg,var(--panel),var(--panel2));box-shadow:var(--shadow)}
+.task-link strong{display:block;font-size:18px;margin-bottom:6px}
+.footer{max-width:1500px;margin:0 auto;padding:0 22px 28px;color:var(--muted)}
+.quiz-option{display:block;width:100%;text-align:left;margin:8px 0;padding:12px 14px;background:#0b1228;border:1px solid var(--line);border-radius:14px;color:var(--text);cursor:pointer}
+.quiz-option.correct{border-color:var(--good);background:rgba(142,230,162,.08)}
+.quiz-option.wrong{border-color:var(--bad);background:rgba(255,140,140,.08)}
+.print-hint{font-size:13px;color:var(--muted)}
+@media print{
+  .toolbar,.control,.footer,.generator,.quizbox{display:none !important}
+  body{background:#fff;color:#000}
+  .card,.canvas-wrap,.task-link{box-shadow:none;background:#fff;border:1px solid #bbb}
+  main.layout{display:block;padding:0}
+  .sticky{position:static}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="badge">Наглядная математика · автономная страница</div>
+  <h1>Задание 8. Ещё один отбор корней на промежутке</h1>
+  <p class="lead">Отберите корни x = π + 2πn из промежутка [π, 5π].</p>
+  <div class="toolbar">
+    <a class="btn" href="task7.html">← Предыдущее</a>
+    <a class="btn" href="index.html">Все задания</a>
+    <a class="btn" href="task9.html">Следующее →</a>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="left-col">
+    <article class="card">
+      <h2>Что дано</h2>
+      <div class="formula">x = π + 2πn,   x ∈ [π, 5π]</div>
+      <div class="meta-grid" style="margin-top:14px">
+        <div class="meta"><strong>Главная идея</strong><br>Здесь шаг равен 2π, поэтому удобно отбирать через двойное неравенство или прямую подстановку целых n.</div>
+        <div class="meta"><strong>Финальный ответ</strong><br>x = π, 3π, 5π.</div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Пошаговый разбор</h2>
+      <div class="step"><div class="step-title">1. Двойное неравенство</div><div>π ≤ π + 2πn ≤ 5π.</div></div>
+<div class="step"><div class="step-title">2. Упрощение</div><div>0 ≤ 2πn ≤ 4π ⟹ 0 ≤ n ≤ 2.</div></div>
+<div class="step"><div class="step-title">3. Выбор целых n</div><div>n = 0, 1, 2.</div></div>
+<div class="step"><div class="step-title">4. Подстановка</div><div>x = π, 3π, 5π.</div></div>
+    </article>
+
+    <article class="card">
+      <h2>Идея решения</h2>
+      <div class="twocol">
+        <div class="note-good"><strong>Ключевой приём</strong><br>Здесь шаг равен 2π, поэтому удобно отбирать через двойное неравенство или прямую подстановку целых n.</div>
+        <div class="note-warn"><strong>Что контролировать</strong><br>Единый аргумент, знак после формул приведения, ограничения и корректность общего ответа.</div>
+      </div>
+      <h3>Что полезно проверить после каждого шага</h3>
+      <ul class="clean">
+        <li>Можно ли вынести общий множитель?</li>
+        <li>Можно ли свести углы к одному и тому же аргументу?</li>
+        <li>Не пропало ли ОДЗ?</li>
+        <li>Не появился ли лишний корень после преобразования?</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <h2>Типичные ошибки</h2>
+      <ul class="clean"><li>Потерять крайние точки отрезка при квадратных скобках.</li><li>Перепутать шаг 2π с шагом π.</li></ul>
+    </article>
+
+    <article class="card generator">
+      <h2>Генератор похожей задачи</h2>
+      <p>Генерируются семейства вида x = α + 2πn и разные замкнутые/полуоткрытые интервалы.</p>
+      <div class="control">
+        <button id="genBtn">Сгенерировать</button>
+        <button id="toggleAnswer">Показать ответ</button>
+      </div>
+      <div class="formula" id="genTask" style="margin-top:12px">Нажмите «Сгенерировать».</div>
+      <div class="formula" id="genAnswer" style="margin-top:12px;display:none">Ответ пока скрыт.</div>
+    </article>
+
+    <article class="card quizbox">
+      <h2>Самопроверка</h2>
+      <p><strong>Сколько корней попадает в [π, 5π]?</strong></p>
+      <button class="quiz-option" data-i="0">1</button><button class="quiz-option" data-i="1">2</button><button class="quiz-option" data-i="2">3</button><button class="quiz-option" data-i="3">4</button>
+      <p class="small" id="quizFeedback">Выберите вариант.</p>
+    </article>
+  </section>
+
+  <aside class="right-col">
+    <div class="sticky">
+      <article class="card stage">
+        <h2>Интерактивная модель</h2>
+        <div class="canvas-wrap">
+          <canvas id="viz" width="720" height="720" aria-label="Визуализация решения"></canvas>
+        </div>
+        <div class="control">
+          <div class="range">
+            <span class="small">Масштаб</span>
+            <input type="range" id="zoom" min="70" max="170" value="100">
+          </div>
+          <button id="togglePts">Скрыть/показать точки</button>
+          <button id="resetView">Сброс</button>
+        </div>
+        <div class="legend"><span>на этом задании корней нет</span></div>
+        <p class="print-hint">На окружности подсвечены базовые точки одного периода. Для отбора корней на промежутке справа строится числовая ось.</p>
+      </article>
+
+      <article class="card">
+        <h2>Краткая памятка</h2>
+        <div class="formula">sin 2α = 2sin α cos α<br>cos 2α = 2cos² α − 1 = 1 − 2sin² α</div>
+        <div class="formula" style="margin-top:10px">Если A(x)·B(x)=0, то A(x)=0 или B(x)=0.</div>
+        <div class="formula" style="margin-top:10px">Если P(x)/Q(x)=0, то P(x)=0 и Q(x) ≠ 0.</div>
+      </article>
+    </div>
+  </aside>
+</main>
+
+<div class="footer">
+  Страница входит в статический учебный сайт по теме «Тригонометрические уравнения повышенной сложности».
+</div>
+
+<script>
+const DATA = {"viz": "interval", "solutions": [], "interval": {"a": 3.141592653589793, "b": 15.707963267948966, "leftOpen": false, "rightOpen": false}, "points": [{"value": "π", "x": 3.141592653589793}, {"value": "3π", "x": 9.42477796076938}, {"value": "5π", "x": 15.707963267948966}], "quizAnswer": 2, "title": "Задание 8. Ещё один отбор корней на промежутке"};
+const canvas = document.getElementById('viz');
+const ctx = canvas.getContext('2d');
+let zoom = 1;
+let showPts = true;
+
+function clear(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+function drawCircleViz(){
+  clear();
+  const w = canvas.width, h = canvas.height;
+  const cx = w/2, cy = h/2;
+  const R = Math.min(w,h)*0.34*zoom;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.strokeStyle = '#33406a';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(0,0,R,0,Math.PI*2); ctx.stroke();
+
+  ctx.strokeStyle = '#5e6b96';
+  ctx.beginPath(); ctx.moveTo(-R-35,0); ctx.lineTo(R+35,0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,-R-35); ctx.lineTo(0,R+35); ctx.stroke();
+  ctx.fillStyle = '#a9b4d0';
+  ctx.font = '16px Arial';
+  ctx.fillText('1', R+12, -8);
+  ctx.fillText('−1', -R-26, -8);
+  ctx.fillText('1', 8, -R-12);
+  ctx.fillText('−1', 8, R+20);
+
+  for(let i=0;i<12;i++){
+    const a = i*Math.PI/6;
+    const x1 = Math.cos(a)*(R-10), y1 = Math.sin(a)*(R-10);
+    const x2 = Math.cos(a)*(R+10), y2 = Math.sin(a)*(R+10);
+    ctx.strokeStyle = 'rgba(169,180,208,.35)';
+    ctx.beginPath(); ctx.moveTo(x1,-y1); ctx.lineTo(x2,-y2); ctx.stroke();
+  }
+
+  if(showPts){
+    const sols = DATA.solutions || [];
+    sols.forEach((s,idx)=>{
+      const a = s.rad;
+      const x = Math.cos(a)*R;
+      const y = -Math.sin(a)*R;
+      ctx.fillStyle = idx % 2 ? '#ffd166' : '#4fd1c5';
+      ctx.beginPath(); ctx.arc(x,y,10,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#0b1020'; ctx.lineWidth=3; ctx.stroke();
+      ctx.fillStyle = '#eef2ff'; ctx.font='18px Arial';
+      ctx.fillText(s.value, x+14, y-10);
+      ctx.strokeStyle = 'rgba(79,209,197,.65)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(x,y); ctx.stroke();
+    });
+  } else {
+    ctx.fillStyle = '#a9b4d0';
+    ctx.font='18px Arial';
+    ctx.fillText('Точки решения скрыты', -80, -R-18);
+  }
+
+  ctx.restore();
+}
+
+function drawIntervalViz(){
+  clear();
+  const w = canvas.width, h = canvas.height;
+  const left = 70, right = w-70, y = h/2;
+  const a = DATA.interval.a, b = DATA.interval.b;
+  function map(v){ return left + (v-a)/(b-a)*(right-left); }
+
+  ctx.strokeStyle='#5e6b96'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(left,y); ctx.lineTo(right,y); ctx.stroke();
+
+  const totalTicks = 8;
+  const step = (b-a)/totalTicks;
+  ctx.font='18px Arial';
+  ctx.fillStyle='#a9b4d0';
+  for(let i=0;i<=totalTicks;i++){
+    const val = a + step*i;
+    const x = map(val);
+    ctx.beginPath(); ctx.moveTo(x,y-10); ctx.lineTo(x,y+10); ctx.strokeStyle='#5e6b96'; ctx.stroke();
+    const k = Math.round(val/Math.PI*100)/100;
+    ctx.fillText((k===0?'0':k+'π').replace('.14',''), x-18, y+34);
+  }
+
+  // interval segment
+  ctx.strokeStyle='#4fd1c5'; ctx.lineWidth=8;
+  ctx.beginPath(); ctx.moveTo(left,y); ctx.lineTo(right,y); ctx.stroke();
+
+  function endpoint(x, open){
+    ctx.fillStyle = open ? '#0b1020' : '#4fd1c5';
+    ctx.strokeStyle='#eef2ff'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.arc(x,y,11,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  }
+  endpoint(left, !!DATA.interval.leftOpen);
+  endpoint(right, !!DATA.interval.rightOpen);
+
+  (DATA.points||[]).forEach((p,idx)=>{
+    const x = map(p.x);
+    ctx.fillStyle = '#ffd166';
+    ctx.beginPath(); ctx.arc(x,y,10,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#0b1020'; ctx.lineWidth=3; ctx.stroke();
+    ctx.fillStyle='#eef2ff';
+    ctx.fillText(p.value, x-20, y-22);
+  });
+
+  ctx.fillStyle='#eef2ff';
+  ctx.font='20px Arial';
+  ctx.fillText('Отбор корней на промежутке', left, y-70);
+}
+
+function render(){
+  if(DATA.viz === 'interval') drawIntervalViz();
+  else drawCircleViz();
+}
+
+document.getElementById('zoom').addEventListener('input', e=>{
+  zoom = e.target.value/100;
+  render();
+});
+document.getElementById('togglePts').addEventListener('click', ()=>{ showPts = !showPts; render(); });
+document.getElementById('resetView').addEventListener('click', ()=>{ zoom = 1; showPts = true; document.getElementById('zoom').value = 100; render(); });
+render();
+
+const quizAnswer = DATA.quizAnswer;
+document.querySelectorAll('.quiz-option').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const i = Number(btn.dataset.i);
+    document.querySelectorAll('.quiz-option').forEach((b,idx)=>{
+      b.classList.remove('correct','wrong');
+      if(idx === quizAnswer) b.classList.add('correct');
+    });
+    if(i !== quizAnswer) btn.classList.add('wrong');
+    document.getElementById('quizFeedback').textContent = i === quizAnswer ? 'Верно. Отлично!' : 'Не совсем. Правильный вариант уже подсвечен.';
+  });
+});
+
+function randChoice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function makeGenerator(){
+  const box = document.getElementById('genTask');
+  const ans = document.getElementById('genAnswer');
+  const taskName = DATA.title;
+  let generated = null;
+
+  function setGen(q,a){ generated = {q,a}; box.textContent = q; ans.textContent = 'Ответ: ' + a; ans.style.display='none'; }
+
+  document.getElementById('genBtn').addEventListener('click', ()=>{
+    if(taskName.includes('Формула приведения')) {
+      const variants = [
+        ['sin(x + π/2) = 1/2', 'cos x = 1/2 ⟹ x = ±π/3 + 2πn'],
+        ['cos(x + 3π/2) = 1/2', 'sin x = 1/2 ⟹ x = π/6 + 2πn или 5π/6 + 2πn'],
+        ['sin(x − π) = −1/2', 'sin x = 1/2 ⟹ x = π/6 + 2πn или 5π/6 + 2πn']
+      ];
+      const v = randChoice(variants); setGen(v[0],v[1]);
+    } else if(taskName.includes('Связь квадратов')) {
+      const variants = [
+        ['cos²(x/2) − sin²(x/2) = 0', 'cos x = 0 ⟹ x = π/2 + πn'],
+        ['sin²x − cos²x = 0', '−cos 2x = 0 ⟹ x = π/4 + πn/2']
+      ];
+      const v = randChoice(variants); setGen(v[0],v[1]);
+    } else if(taskName.includes('Отбор корней')) {
+      const variants = [
+        ['x = π/3 + 2πn,   x ∈ [0, 4π]', 'n = 0,1 ⟹ x = π/3, 7π/3'],
+        ['x = 5π/2 + 2πn,   x ∈ (−2π, 3π]', 'n = −2,−1,0 ⟹ x = −3π/2, π/2, 5π/2']
+      ];
+      const v = randChoice(variants); setGen(v[0],v[1]);
+    } else if(taskName.includes('без решений')) {
+      const variants = [
+        ['(2sin²x−1)/sin x = 0 при условии sin x ≠ 0', 'sin²x = 1/2 ⟹ решения есть; это не пример без решений'],
+        ['(cos x − 1)/sin x = 0 при условии sin x ≠ 0', 'cos x = 1 ⟹ sin x = 0, все кандидаты запрещены, решений нет']
+      ];
+      const v = randChoice(variants); setGen(v[0],v[1]);
+    } else {
+      const variants = [
+        ['2sin x cos x + cos x = 0', 'cos x(2sin x + 1)=0'],
+        ['2cos²(x/2) − 3cos(x/2) + 1 = 0', 't = cos(x/2): 2t² − 3t + 1 = 0'],
+        ['sin⁴(x/4) − cos⁴(x/4) = cos(x/2)', '−cos(x/2) = cos(x/2) ⟹ cos(x/2)=0']
+      ];
+      const v = randChoice(variants); setGen(v[0],v[1]);
+    }
+  });
+  document.getElementById('toggleAnswer').addEventListener('click', ()=>{
+    if(!generated) return;
+    ans.style.display = ans.style.display === 'none' ? 'block' : 'none';
+  });
+}
+makeGenerator();
+</script>
+</body>
+</html>

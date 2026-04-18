@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Наглядная математика — тригонометрические уравнения</title>
+<style>
+:root{
+  --bg:#0b1020;
+  --panel:#121a31;
+  --panel2:#0f1730;
+  --text:#eef2ff;
+  --muted:#a9b4d0;
+  --accent:#4fd1c5;
+  --accent2:#8be9dd;
+  --line:#273253;
+  --warn:#ffd166;
+  --bad:#ff8c8c;
+  --good:#8ee6a2;
+  --shadow:0 18px 40px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:radial-gradient(circle at top,#152144 0%,#0b1020 52%,#070b16 100%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
+body{line-height:1.55}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+header.hero{padding:32px 24px 18px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0))}
+.badge{display:inline-block;padding:8px 12px;border:1px solid var(--line);border-radius:999px;color:var(--accent2);font-size:13px;letter-spacing:.04em;text-transform:uppercase;background:rgba(79,209,197,.08)}
+h1{margin:16px 0 10px;font-size:clamp(28px,4vw,44px);line-height:1.12}
+p.lead{max-width:1000px;color:var(--muted);font-size:18px;margin:0}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.toolbar button,.toolbar a.btn,.control button,.control input[type=range]{appearance:none}
+.toolbar .btn, .control button, .mini-btn{
+  background:linear-gradient(180deg,#1a2650,#121a31);
+  color:var(--text);border:1px solid var(--line);padding:10px 14px;border-radius:14px;cursor:pointer;
+  box-shadow:var(--shadow);font-weight:600
+}
+main.layout{display:grid;grid-template-columns:minmax(320px,1.2fr) minmax(320px,.95fr);gap:22px;padding:22px;max-width:1500px;margin:0 auto}
+@media (max-width: 1050px){main.layout{grid-template-columns:1fr}}
+.left-col{display:grid;gap:18px}
+.card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:24px;padding:18px 18px 20px;box-shadow:var(--shadow)}
+.card h2{margin:0 0 12px;font-size:24px}
+.card h3{margin:14px 0 8px;font-size:18px;color:var(--accent2)}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.meta{padding:12px 14px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02)}
+.formula{font-family:"Times New Roman",serif;background:#0b1228;border:1px solid var(--line);padding:10px 12px;border-radius:14px;overflow:auto}
+.step{border-left:3px solid var(--accent);padding:8px 0 8px 14px;margin:12px 0}
+.step-title{font-weight:700;color:var(--accent2);margin-bottom:5px}
+ul.clean{margin:0;padding-left:18px}
+.right-col{position:relative}
+.sticky{position:sticky;top:16px;display:grid;gap:16px}
+.stage{min-height:480px;padding:16px}
+.canvas-wrap{position:relative;background:linear-gradient(180deg,#0d1530,#0a1124);border:1px solid var(--line);border-radius:22px;padding:10px}
+canvas, svg.viz{display:block;width:100%;height:auto;max-width:100%;border-radius:18px;background:radial-gradient(circle at center,rgba(79,209,197,.06),transparent 62%)}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.legend span{font-size:13px;padding:7px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.control{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+.range{display:flex;gap:10px;align-items:center;flex:1;min-width:220px}
+input[type=range]{width:100%}
+.small{font-size:14px;color:var(--muted)}
+.twocol{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.note-good,.note-warn,.note-bad{padding:12px 14px;border-radius:16px;border:1px solid var(--line)}
+.note-good{background:rgba(142,230,162,.08);color:#d9ffe2}
+.note-warn{background:rgba(255,209,102,.08);color:#fff2c8}
+.note-bad{background:rgba(255,140,140,.08);color:#ffd8d8}
+.task-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.task-link{display:block;padding:16px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(180deg,var(--panel),var(--panel2));box-shadow:var(--shadow)}
+.task-link strong{display:block;font-size:18px;margin-bottom:6px}
+.footer{max-width:1500px;margin:0 auto;padding:0 22px 28px;color:var(--muted)}
+.quiz-option{display:block;width:100%;text-align:left;margin:8px 0;padding:12px 14px;background:#0b1228;border:1px solid var(--line);border-radius:14px;color:var(--text);cursor:pointer}
+.quiz-option.correct{border-color:var(--good);background:rgba(142,230,162,.08)}
+.quiz-option.wrong{border-color:var(--bad);background:rgba(255,140,140,.08)}
+.print-hint{font-size:13px;color:var(--muted)}
+@media print{
+  .toolbar,.control,.footer,.generator,.quizbox{display:none !important}
+  body{background:#fff;color:#000}
+  .card,.canvas-wrap,.task-link{box-shadow:none;background:#fff;border:1px solid #bbb}
+  main.layout{display:block;padding:0}
+  .sticky{position:static}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="badge">Наглядная математика · многостраничный статический сайт</div>
+  <h1>Наглядная математика — тригонометрические уравнения</h1>
+  <p class="lead">Каждая страница посвящена одному уникальному заданию из пособия. Все страницы автономны: внутри уже есть стили, логика, пошаговый разбор, интерактивная модель, генератор похожих задач и блок самопроверки.</p>
+  <div class="toolbar">
+    <a class="btn" href="task1.html">Начать с первого задания</a>
+    <a class="btn" href="task9.html">Перейти к дробным уравнениям</a>
+    <a class="btn" href="task7.html">Перейти к отбору корней</a>
+  </div>
+</header>
+
+<main class="layout" style="grid-template-columns:1fr">
+  <section class="left-col">
+    <article class="card">
+      <h2>Как устроен сайт</h2>
+      <div class="twocol">
+        <div class="meta"><strong>Левая колонка</strong><br>Что дано, идея, подробное решение, типичные ошибки, генератор похожих заданий и самопроверка.</div>
+        <div class="meta"><strong>Правая колонка</strong><br>Sticky-визуализация: единичная окружность или числовая ось, масштабирование, показ/скрытие ключевых точек и быстрый сброс вида.</div>
+      </div>
+      <h3>Тематические блоки</h3>
+      <ul class="clean">
+        <li>формулы приведения;</li>
+        <li>двойной угол и переход к одинаковым аргументам;</li>
+        <li>факторизация;</li>
+        <li>замена переменной;</li>
+        <li>ОДЗ в дробных уравнениях;</li>
+        <li>отбор корней на промежутке.</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <h2>Страницы сайта</h2>
+      <div class="task-list">
+        <a class="task-link" href="task1.html"><strong>Задание 1. Формула приведения и простейшее уравнение</strong><div>Решите уравнение cos(x − 3π/2) = −1/2.</div></a>
+<a class="task-link" href="task2.html"><strong>Задание 2. Связь квадратов синуса и косинуса</strong><div>Решите уравнение sin²(x/2) − cos²(x/2) = 0.</div></a>
+<a class="task-link" href="task3.html"><strong>Задание 3. Замена t = cos(x/2)</strong><div>Решите уравнение cos(x/2) + cos x = 0.</div></a>
+<a class="task-link" href="task4.html"><strong>Задание 4. Разность четвёртых степеней и факторизация</strong><div>Решите уравнение sin⁴(x/4) − cos⁴(x/4) = −sin x.</div></a>
+<a class="task-link" href="task5.html"><strong>Задание 5. Прямая факторизация</strong><div>Решите уравнение 2sin x cos x − cos x = 0.</div></a>
+<a class="task-link" href="task6.html"><strong>Задание 6. Квадратное уравнение после замены</strong><div>Решите уравнение 2cos²(x/2) + cos(x/2) − 1 = 0.</div></a>
+<a class="task-link" href="task7.html"><strong>Задание 7. Отбор корней по двойному неравенству</strong><div>Отберите корни x = 5π/3 + 4πn из промежутка (−4π, −π].</div></a>
+<a class="task-link" href="task8.html"><strong>Задание 8. Ещё один отбор корней на промежутке</strong><div>Отберите корни x = π + 2πn из промежутка [π, 5π].</div></a>
+<a class="task-link" href="task9.html"><strong>Задание 9. Дробное тригонометрическое уравнение</strong><div>Решите уравнение (4sin³x − 2sin x) / sin(2x − π) = 1.</div></a>
+<a class="task-link" href="task10.html"><strong>Задание 10. Дробное уравнение без решений</strong><div>Решите уравнение (4sin³x − 2sin x) / sin(2x − π) = cos x.</div></a>
+      </div>
+    </article>
+  </section>
+</main>
+
+<div class="footer">
+  Сайт создан как учебный комплект по теме «Тригонометрические уравнения повышенной сложности».
+</div>
+</body>
+</html>
