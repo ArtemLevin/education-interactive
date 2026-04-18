@@ -114,6 +114,7 @@
     <div class="toolbar">
         <div class="toggle-chip" id="toggleTangent" title="Показать касательную в точке курсора (T)">📐 Касательная</div>
         <div class="toggle-chip" id="toggleIntegral" title="Заштриховать площадь под f(x) (I)">📊 Интеграл ∫f(x)dx</div>
+        <div class="toggle-chip" id="secondDerivToggle" title="Показать вторую производную f''(x)">🌀 Вторая производная</div>
         <div class="toggle-chip" id="toggleKeyPoints" title="Таблица нулей, экстремумов и перегибов">📍 Ключевые точки</div>
         <button class="btn btn-small btn-primary" id="exportBtn">📷 Экспорт PNG</button>
         <button class="btn btn-small btn-secondary" id="shareBtn">🔗 Поделиться</button>
@@ -143,6 +144,7 @@
         <h4>🎯 Ключевые точки <button class="copy-btn" onclick="copyKeyPoints()">📋 Копировать</button></h4>
         <div id="keyPointsContent"></div>
     </div>
+    <div class="error-message" id="errorMsg"></div>
 </div>
 
 <script>
@@ -452,8 +454,16 @@
 
     function copyKeyPoints() { navigator.clipboard.writeText(document.getElementById('keyPointsContent').innerText.replace(/\s+/g, ' ').trim()).then(() => alert('Скопировано!')); }
 
-    function updateURL() { const f = document.getElementById('functionInput').value; const url = new URL(window.location); url.searchParams.set('f', encodeURIComponent(f)); window.history.replaceState({}, '', url); }
-    function loadFromURL() { const f = new URLSearchParams(window.location.search).get('f'); if (f) { document.getElementById('functionInput').value = f; build(); } }
+    function updateURL() {
+        const f = document.getElementById('functionInput').value;
+        const url = new URL(window.location);
+        url.searchParams.set('f', f);
+        window.history.replaceState({}, '', url);
+    }
+    function loadFromURL() {
+        const f = new URLSearchParams(window.location.search).get('f');
+        if (f) { document.getElementById('functionInput').value = f; build(); }
+    }
 
     function updateRecent() {
         const input = document.getElementById('functionInput').value.trim(); if (!input) return;
@@ -471,9 +481,11 @@
     }
 
     function exportPNG() {
+        const functionCanvas = document.getElementById('functionCanvas');
+        const derivativeCanvas = document.getElementById('derivativeCanvas');
         const temp = document.createElement('canvas'); temp.width = funcWidth*2+60; temp.height = funcHeight+40;
         const c = temp.getContext('2d'); c.fillStyle = '#0f0c29'; c.fillRect(0,0,temp.width,temp.height);
-        c.drawImage(funcCanvas, 0, 40); c.drawImage(derivCanvas, funcWidth+60, 40);
+        c.drawImage(functionCanvas, 0, 40); c.drawImage(derivativeCanvas, funcWidth+60, 40);
         c.fillStyle = '#fff'; c.font = 'bold 20px Segoe UI'; c.textAlign = 'center'; c.fillText('График функции и производной', temp.width/2, 25);
         const a = document.createElement('a'); a.download = `graph.png`; a.href = temp.toDataURL(); a.click();
     }
@@ -532,14 +544,25 @@
 
     document.getElementById('plotBtn').addEventListener('click', build);
     document.getElementById('functionInput').addEventListener('keypress', e => { if(e.key==='Enter') build(); });
-    document.getElementById('clearBtn').addEventListener('click', () => { document.getElementById('functionInput').value=''; currentFunction=null; document.getElementById('errorMsg').style.display='none'; xMin=-10;xMax=10;yMin=-10;yMax=10;isScaled=false; drawGrid(funcCtx,funcWidth,funcHeight,xMin,xMax,yMin,yMax); drawGrid(derivCtx,derivWidth,derivHeight,xMin,xMax,yMin,yMax); });
-    document.getElementById('secondDerivToggle').addEventListener('click', function() { showSecondDerivative=!showSecondDerivative; this.classList.toggle('active'); render(); });
-    document.getElementById('layoutToggleBtn').addEventListener('click', function() { document.getElementById('canvasContainer').classList.toggle('vertical'); this.textContent = document.getElementById('canvasContainer').classList.contains('vertical') ? '⬅️ Горизонтально' : '⬇️ Вертикально'; setTimeout(()=>{ initAllCanvases(); render(); }, 10); });
-    document.getElementById('toggleTangent').addEventListener('click', function() { showTangent=!showTangent; this.classList.toggle('active'); render(); });
-    document.getElementById('toggleIntegral').addEventListener('click', function() { showIntegral=!showIntegral; this.classList.toggle('active'); render(); });
+    document.getElementById('clearBtn').addEventListener('click', () => {
+        document.getElementById('functionInput').value = '';
+        currentFunction = null;
+        document.getElementById('errorMsg').style.display = 'none';
+        xMin = -10; xMax = 10; yMin = -10; yMax = 10; isScaled = false;
+        drawGrid(funcCtx, funcWidth, funcHeight, xMin, xMax, yMin, yMax);
+        drawGrid(derivCtx, derivWidth, derivHeight, xMin, xMax, yMin, yMax);
+    });
+    document.getElementById('secondDerivToggle').addEventListener('click', function() { showSecondDerivative = !showSecondDerivative; this.classList.toggle('active'); render(); });
+    document.getElementById('layoutToggleBtn').addEventListener('click', function() {
+        document.getElementById('canvasContainer').classList.toggle('vertical');
+        this.textContent = document.getElementById('canvasContainer').classList.contains('vertical') ? '⬅️ Горизонтально' : '⬇️ Вертикально';
+        setTimeout(() => { initAllCanvases(); render(); }, 10);
+    });
+    document.getElementById('toggleTangent').addEventListener('click', function() { showTangent = !showTangent; this.classList.toggle('active'); render(); });
+    document.getElementById('toggleIntegral').addEventListener('click', function() { showIntegral = !showIntegral; this.classList.toggle('active'); render(); });
     document.getElementById('toggleKeyPoints').addEventListener('click', function() { this.classList.toggle('active'); updateKeyPoints(); });
     document.getElementById('exportBtn').addEventListener('click', exportPNG);
-    document.getElementById('shareBtn').addEventListener('click', () => { navigator.clipboard.writeText(window.location.href).then(()=>alert('Ссылка скопирована!')); });
+    document.getElementById('shareBtn').addEventListener('click', () => { navigator.clipboard.writeText(window.location.href).then(() => alert('Ссылка скопирована!')); });
 
     window.addEventListener('load', () => { initAllCanvases(); renderRecent(); loadFromURL(); setupInteraction('functionCanvas', 'functionTooltip', false); setupInteraction('derivativeCanvas', 'derivativeTooltip', true); if (!window.location.search.includes('f=')) build(); });
 </script>
