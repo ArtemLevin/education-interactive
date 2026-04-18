@@ -63,7 +63,12 @@
         canvas { width: 100%; height: 500px; background: rgba(0, 0, 0, 0.4); border-radius: 12px; cursor: grab; transition: background 0.2s; }
         canvas:active { cursor: grabbing; }
 
-        .tooltip { position: absolute; background: rgba(0, 0, 0, 0.85); color: #ffffff; padding: 8px 12px; border-radius: 8px; font-size: 0.9em; pointer-events: none; z-index: 100; display: none; border: 1px solid rgba(0, 210, 255, 0.5); font-family: 'Courier New', monospace; }
+        .tooltip { position: absolute; background: rgba(0, 0, 0, 0.9); color: #ffffff; padding: 10px 14px; border-radius: 10px; font-size: 0.9em; pointer-events: none; z-index: 100; display: none; border: 1px solid rgba(0, 210, 255, 0.5); font-family: 'Courier New', monospace; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .tooltip .trend { font-weight: bold; margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.2); }
+        .tooltip .trend.increasing { color: #00ff88; }
+        .tooltip .trend.decreasing { color: #ff5252; }
+        .tooltip .trend.stationary { color: #ffd700; }
+
         .error-message { background: rgba(255, 82, 82, 0.2); border: 1px solid rgba(255, 82, 82, 0.5); color: #ff5252; padding: 12px 20px; border-radius: 12px; margin-top: 15px; display: none; }
         .zoom-controls { display: flex; gap: 10px; margin: 0 auto 30px; justify-content: center; flex-wrap: wrap; }
         .second-deriv-toggle { display: flex; align-items: center; gap: 10px; margin-top: 15px; }
@@ -80,7 +85,7 @@
     <header>
         <h1>📈 Генератор графиков функций и производных</h1>
         <p>Введите функцию — получите график, производную и её визуализацию</p>
-        <div class="hint">🖱️ Зажмите ЛКМ для перемещения | Колесико мыши для масштабирования</div>
+        <div class="hint">🖱️ Зажмите ЛКМ для перемещения | Колесико мыши для масштабирования | Наведите для анализа монотонности</div>
     </header>
     <div class="controls">
         <div class="input-group">
@@ -136,6 +141,7 @@
     let showSecondDerivative = false;
     let isDragging = false;
     let dragStartX, dragStartY;
+    let hoverX = null;
 
     function initCanvas(canvasId) {
         const canvas = document.getElementById(canvasId);
@@ -241,6 +247,117 @@
         points.inflection.forEach(p => { const px = (p.x - xMin) / xRange * width, py = height - (p.y - yMin) / yRange * height; ctx.fillStyle = '#b91d73'; ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill(); });
     }
 
+    // Подсветка фрагмента кривой функции вокруг hoverX
+    function drawFunctionSegmentHighlight(ctx, width, height, f, xMin, xMax, yMin, yMax, hoverX) {
+        if (hoverX === null || hoverX < xMin || hoverX > xMax) return;
+        const dy = derivative(f, hoverX);
+        if (isNaN(dy) || !isFinite(dy)) return;
+
+        const xRange = xMax - xMin;
+        const segmentWidth = Math.max(0.3, xRange * 0.02);
+        const steps = 50;
+        const dx = (segmentWidth * 2) / steps;
+
+        let color;
+        if (dy > 1e-8) color = 'rgba(0, 255, 136, 0.9)';
+        else if (dy < -1e-8) color = 'rgba(255, 82, 82, 0.9)';
+        else color = 'rgba(255, 215, 0, 0.9)';
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        let started = false;
+
+        for (let i = 0; i <= steps; i++) {
+            const x = hoverX - segmentWidth + i * dx;
+            if (x < xMin || x > xMax) continue;
+            const y = f(x);
+            if (isNaN(y) || !isFinite(y)) { started = false; continue; }
+            const px = (x - xMin) / xRange * width;
+            const py = height - (y - yMin) / (yMax - yMin) * height;
+            if (!started) { ctx.moveTo(px, py); started = true; }
+            else { ctx.lineTo(px, py); }
+        }
+        if (started) ctx.stroke();
+    }
+
+    // Заливка области под графиком производной в зависимости от знака
+    function drawDerivativeAreaFill(ctx, width, height, f, xMin, xMax, yMin, yMax) {
+        const xRange = xMax - xMin, yRange = yMax - yMin;
+        const steps = width * 2;
+        const dx = xRange / steps;
+        const zeroY = height - (0 - yMin) / yRange * height;
+
+        // Сначала закрашиваем положительные области (зелёным)
+        ctx.fillStyle = 'rgba(0, 255, 136, 0.12)';
+        ctx.beginPath();
+        let inPositive = false, pathStarted = false;
+
+        for (let i = 0; i <= steps; i++) {
+            const x = xMin + i * dx;
+            const y = f(x);
+            const px = (x - xMin) / xRange * width;
+            const py = height - (y - yMin) / yRange * height;
+
+            if (y > 1e-10 && !isNaN(y) && isFinite(y)) {
+                if (!inPositive) {
+                    if (pathStarted) ctx.closePath();
+                    ctx.beginPath();
+                    ctx.moveTo(px, zeroY);
+                    pathStarted = true;
+                    inPositive = true;
+                }
+                ctx.lineTo(px, py);
+            } else if (inPositive) {
+                ctx.lineTo(px, zeroY);
+                ctx.closePath();
+                ctx.fill();
+                inPositive = false;
+                pathStarted = false;
+            }
+        }
+        if (inPositive && pathStarted) {
+            ctx.lineTo(xMax / xRange * width, zeroY);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Затем закрашиваем отрицательные области (красным)
+        ctx.fillStyle = 'rgba(255, 82, 82, 0.12)';
+        let inNegative = false;
+        pathStarted = false;
+
+        for (let i = 0; i <= steps; i++) {
+            const x = xMin + i * dx;
+            const y = f(x);
+            const px = (x - xMin) / xRange * width;
+            const py = height - (y - yMin) / yRange * height;
+
+            if (y < -1e-10 && !isNaN(y) && isFinite(y)) {
+                if (!inNegative) {
+                    if (pathStarted) ctx.closePath();
+                    ctx.beginPath();
+                    ctx.moveTo(px, zeroY);
+                    pathStarted = true;
+                    inNegative = true;
+                }
+                ctx.lineTo(px, py);
+            } else if (inNegative) {
+                ctx.lineTo(px, zeroY);
+                ctx.closePath();
+                ctx.fill();
+                inNegative = false;
+                pathStarted = false;
+            }
+        }
+        if (inNegative && pathStarted) {
+            ctx.lineTo(xMax / xRange * width, zeroY);
+            ctx.closePath();
+            ctx.fill();
+        }
+    }
+
     function plotAll() {
         const input = document.getElementById('functionInput').value.trim(); const errorMsg = document.getElementById('errorMsg');
         if (!input) { errorMsg.textContent = 'Введите функцию'; errorMsg.style.display = 'block'; return; }
@@ -256,12 +373,38 @@
         yMin = minY - padding; yMax = maxY + padding; if (yMax - yMin > 100) { yMin = Math.max(yMin, -50); yMax = Math.min(yMax, 50); }
     }
 
-    function plotFunctionGraph() { drawGrid(funcCtx, funcWidth, funcHeight, xMin, xMax, yMin, yMax); if (currentFunction) { drawGraph(funcCtx, funcWidth, funcHeight, currentFunction, xMin, xMax, yMin, yMax, '#00d2ff', 3); drawKeyPoints(funcCtx, funcWidth, funcHeight, findKeyPoints(currentFunction, xMin, xMax), xMin, xMax, yMin, yMax); } }
-    function plotDerivativeGraph() { drawGrid(derivCtx, derivWidth, derivHeight, xMin, xMax, yMin, yMax); if (currentFunction) { const deriv = x => derivative(currentFunction, x); drawGraph(derivCtx, derivWidth, derivHeight, deriv, xMin, xMax, yMin, yMax, '#f953c6', 2.5); if (showSecondDerivative) drawGraph(derivCtx, derivWidth, derivHeight, x => secondDerivative(currentFunction, x), xMin, xMax, yMin, yMax, '#ffd700', 2); drawKeyPoints(derivCtx, derivWidth, derivHeight, findKeyPoints(x => derivative(currentFunction, x), xMin, xMax), xMin, xMax, yMin, yMax); } }
+    function plotFunctionGraph() {
+        drawGrid(funcCtx, funcWidth, funcHeight, xMin, xMax, yMin, yMax);
+        if (currentFunction) {
+            drawGraph(funcCtx, funcWidth, funcHeight, currentFunction, xMin, xMax, yMin, yMax, '#00d2ff', 3);
+            drawKeyPoints(funcCtx, funcWidth, funcHeight, findKeyPoints(currentFunction, xMin, xMax), xMin, xMax, yMin, yMax);
+            if (hoverX !== null) drawFunctionSegmentHighlight(funcCtx, funcWidth, funcHeight, currentFunction, xMin, xMax, yMin, yMax, hoverX);
+        }
+    }
+
+    function plotDerivativeGraph() {
+        drawGrid(derivCtx, derivWidth, derivHeight, xMin, xMax, yMin, yMax);
+        if (currentFunction) {
+            const deriv = x => derivative(currentFunction, x);
+            // Сначала заливаем области
+            drawDerivativeAreaFill(derivCtx, derivWidth, derivHeight, deriv, xMin, xMax, yMin, yMax);
+            // Затем рисуем сам график поверх заливки
+            drawGraph(derivCtx, derivWidth, derivHeight, deriv, xMin, xMax, yMin, yMax, '#f953c6', 2.5);
+            if (showSecondDerivative) drawGraph(derivCtx, derivWidth, derivHeight, x => secondDerivative(currentFunction, x), xMin, xMax, yMin, yMax, '#ffd700', 2);
+            drawKeyPoints(derivCtx, derivWidth, derivHeight, findKeyPoints(x => derivative(currentFunction, x), xMin, xMax), xMin, xMax, yMin, yMax);
+        }
+    }
 
     function zoomIn() { const cx = (xMin + xMax) / 2, cy = (yMin + yMax) / 2, xRange = (xMax - xMin) * 0.35, yRange = (yMax - yMin) * 0.35; xMin = cx - xRange; xMax = cx + xRange; yMin = cy - yRange; yMax = cy + yRange; if (currentFunction) plotAll(); }
     function zoomOut() { const cx = (xMin + xMax) / 2, cy = (yMin + yMax) / 2, xRange = (xMax - xMin) * 0.75, yRange = (yMax - yMin) * 0.75; xMin = cx - xRange; xMax = cx + xRange; yMin = cy - yRange; yMax = cy + yRange; if (currentFunction) plotAll(); }
     function resetView() { xMin = -10; xMax = 10; yMin = -10; yMax = 10; if (currentFunction) plotAll(); }
+
+    function getTrendInfo(dy) {
+        if (isNaN(dy) || !isFinite(dy)) return { class: '', text: '—' };
+        if (dy > 1e-8) return { class: 'increasing', text: '▲ возрастает (f\'(x) > 0)' };
+        if (dy < -1e-8) return { class: 'decreasing', text: '▼ убывает (f\'(x) < 0)' };
+        return { class: 'stationary', text: '● стационарная точка (f\'(x) ≈ 0)' };
+    }
 
     function setupInteraction(canvasId, tooltipId, isDerivative = false) {
         const canvas = document.getElementById(canvasId);
@@ -278,18 +421,13 @@
         });
 
         window.addEventListener('mousemove', (e) => {
-            // Обработка перетаскивания
             if (isDragging) {
                 const deltaX = e.clientX - dragStartX;
                 const deltaY = e.clientY - dragStartY;
                 dragStartX = e.clientX;
                 dragStartY = e.clientY;
-
-                const xRange = xMax - xMin;
-                const yRange = yMax - yMin;
-                // Используем размеры одного из canvas (они синхронизированы по сетке)
+                const xRange = xMax - xMin, yRange = yMax - yMin;
                 const w = funcWidth, h = funcHeight;
-
                 xMin -= (deltaX / w) * xRange;
                 xMax -= (deltaX / w) * xRange;
                 yMin -= (deltaY / h) * yRange;
@@ -299,20 +437,24 @@
                 return;
             }
 
-            // Обработка тултипа (только если не перетаскиваем)
             if (!currentFunction) return;
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left, mouseY = e.clientY - rect.top;
-            if (mouseX < 0 || mouseY < 0 || mouseX > rect.width || mouseY > rect.height) { tooltip.style.display = 'none'; return; }
+            if (mouseX < 0 || mouseY < 0 || mouseX > rect.width || mouseY > rect.height) { tooltip.style.display = 'none'; hoverX = null; plotAll(); return; }
 
             const x = xMin + (mouseX / rect.width) * (xMax - xMin);
-            const y = isDerivative ? derivative(currentFunction, x) : currentFunction(x);
-            if (isNaN(y) || !isFinite(y)) { tooltip.style.display = 'none'; return; }
+            hoverX = x;
 
-            tooltip.innerHTML = `x = ${x.toFixed(4)}<br>${isDerivative ? "f'(x)" : "f(x)"} = ${y.toFixed(6)}`;
+            const y = isDerivative ? derivative(currentFunction, x) : currentFunction(x);
+            if (isNaN(y) || !isFinite(y)) { tooltip.style.display = 'none'; plotAll(); return; }
+
+            const dy = derivative(currentFunction, x);
+            const trend = getTrendInfo(dy);
+
+            tooltip.innerHTML = `x = ${x.toFixed(4)}<br>${isDerivative ? "f'(x)" : "f(x)"} = ${y.toFixed(6)}<div class="trend ${trend.class}">${trend.text}</div>`;
             tooltip.style.display = 'block';
             tooltip.style.left = (mouseX + 15) + 'px';
-            tooltip.style.top = (mouseY - 40) + 'px';
+            tooltip.style.top = (mouseY - 60) + 'px';
 
             plotAll();
             const ctx = isDerivative ? derivCtx : funcCtx;
@@ -339,25 +481,18 @@
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
-
-            const xRange = xMax - xMin;
-            const yRange = yMax - yMin;
-
-            // Координаты курсора в мире
+            const xRange = xMax - xMin, yRange = yMax - yMin;
             const mouseWorldX = xMin + (mouseX / rect.width) * xRange;
             const mouseWorldY = yMax - (mouseY / rect.height) * yRange;
-
             const factor = e.deltaY > 0 ? 1.15 : 0.87;
-
             xMin = mouseWorldX - (mouseWorldX - xMin) * factor;
             xMax = mouseWorldX + (xMax - mouseWorldX) * factor;
             yMin = mouseWorldY - (mouseWorldY - yMin) * factor;
             yMax = mouseWorldY + (yMax - mouseWorldY) * factor;
-
             plotAll();
         }, { passive: false });
 
-        canvas.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+        canvas.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; hoverX = null; plotAll(); });
     }
 
     function setPreset(expr) { document.getElementById('functionInput').value = expr; plotAll(); }
