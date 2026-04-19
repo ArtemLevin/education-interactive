@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — трапеция в окружности</title>
+    <style>
+        :root{
+            --bg:#0b1020;
+            --panel:#121a30;
+            --panel-2:#0f1730;
+            --ink:#e8eefc;
+            --muted:#9fb0d8;
+            --line:#2c3c66;
+            --accent:#7dd3fc;
+            --accent-2:#a78bfa;
+            --good:#86efac;
+            --warn:#fbbf24;
+            --danger:#fca5a5;
+            --shadow:0 20px 50px rgba(0,0,0,.35);
+            --radius:24px;
+            --stickyTop:18px;
+        }
+
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:radial-gradient(circle at top, #182548 0%, var(--bg) 45%, #070b16 100%);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;scroll-behavior:smooth}
+        body{line-height:1.55}
+        button,input,select{font:inherit}
+
+        .wrap{max-width:1480px;margin:0 auto;padding:24px}
+        .hero{
+            border:1px solid var(--line);
+            border-radius:32px;
+            background:linear-gradient(180deg, rgba(125,211,252,.10), rgba(167,139,250,.08));
+            box-shadow:var(--shadow);
+            overflow:hidden;
+            position:relative;
+        }
+        .hero::before{
+            content:"";
+            position:absolute;inset:0;
+            background:
+            radial-gradient(circle at 15% 20%, rgba(125,211,252,.16), transparent 28%),
+            radial-gradient(circle at 80% 15%, rgba(167,139,250,.16), transparent 24%),
+            linear-gradient(120deg, transparent 0 42%, rgba(255,255,255,.03) 42% 46%, transparent 46% 100%);
+            pointer-events:none;
+        }
+        .hero-inner{position:relative;padding:30px 30px 26px}
+        .eyebrow{display:inline-flex;gap:10px;align-items:center;padding:8px 12px;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:rgba(12,18,36,.65);backdrop-filter:blur(6px)}
+        .title{font-size:clamp(28px,4vw,54px);line-height:1.05;margin:18px 0 12px;font-weight:800;letter-spacing:-.03em}
+        .subtitle{max-width:920px;color:var(--muted);font-size:clamp(15px,1.7vw,19px)}
+
+        .toolbar{
+            margin-top:20px;
+            display:flex;flex-wrap:wrap;gap:10px;
+        }
+        .btn,.chip{
+            border:1px solid var(--line);
+            background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+            color:var(--ink);
+            border-radius:14px;
+            padding:10px 14px;
+            cursor:pointer;
+            transition:.2s transform,.2s border-color,.2s background;
+        }
+        .btn:hover,.chip:hover{transform:translateY(-1px);border-color:#4562a5}
+        .btn.primary{background:linear-gradient(180deg, rgba(125,211,252,.16), rgba(125,211,252,.08));border-color:#4f84b7}
+        .chip[aria-pressed="true"]{background:linear-gradient(180deg, rgba(167,139,250,.22), rgba(167,139,250,.10));border-color:#7b64c9}
+
+        .banner{
+            margin-top:18px;padding:14px 16px;border-top:1px solid var(--line);background:rgba(8,12,24,.5);
+            display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;color:var(--muted)
+        }
+        .banner strong{color:var(--ink)}
+
+        .grid{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(420px,.96fr);gap:22px;margin-top:24px;align-items:start}
+        .left,.right{min-width:0}
+
+        .panel{
+            background:linear-gradient(180deg, rgba(18,26,48,.96), rgba(10,15,31,.96));
+            border:1px solid var(--line);
+            border-radius:var(--radius);
+            box-shadow:var(--shadow);
+            overflow:hidden;
+        }
+        .panel-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}
+        .panel-head h2,.panel-head h3{margin:0;font-size:18px}
+        .panel-body{padding:20px}
+
+        .idea{
+            border:1px solid rgba(125,211,252,.35);
+            background:linear-gradient(180deg, rgba(125,211,252,.10), rgba(125,211,252,.03));
+            border-radius:22px;padding:18px 18px 14px;margin-bottom:18px
+        }
+        .idea h3{margin:0 0 8px;font-size:18px;color:var(--accent)}
+        .idea p{margin:0;color:#d9e6ff}
+
+        .schema{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+        .mini{border:1px solid var(--line);border-radius:18px;padding:14px;background:rgba(255,255,255,.02)}
+        .mini h4{margin:0 0 8px;font-size:15px;color:#dce7ff}
+        .mini p{margin:0;color:var(--muted);font-size:14px}
+
+        .steps{display:flex;flex-direction:column;gap:14px}
+        .step{
+            border:1px solid var(--line);border-radius:22px;padding:16px 16px 14px;
+            background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+            transition:.2s border-color,.2s transform,.2s box-shadow;
+            position:relative;
+        }
+        .step.active{border-color:#6fb8d4;box-shadow:0 0 0 1px rgba(125,211,252,.18) inset, 0 0 30px rgba(125,211,252,.08)}
+        .step:hover{transform:translateY(-1px)}
+        .step-top{display:flex;gap:12px;align-items:flex-start}
+        .num{
+            flex:0 0 auto;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+            border:1px solid #4e6fae;background:rgba(125,211,252,.10);font-weight:700;color:var(--accent)
+        }
+        .step h4{margin:2px 0 6px;font-size:17px}
+        .step p{margin:0;color:var(--muted)}
+        .math{display:block;margin-top:10px;padding:10px 12px;border-radius:14px;background:rgba(3,8,19,.55);border:1px solid rgba(125,211,252,.14);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#dff7ff;white-space:pre-wrap}
+        .detail{margin-top:10px;font-size:14px;color:#b8c6e6}
+
+        .callout{margin-top:18px;padding:14px 16px;border-radius:18px;border:1px solid rgba(134,239,172,.28);background:rgba(134,239,172,.06);color:#dcffe6}
+        .callout strong{color:#b8ffd0}
+
+        .mistakes ul,.memo ul{margin:10px 0 0;padding-left:20px;color:var(--muted)}
+        .mistakes li,.memo li{margin:8px 0}
+
+        .sticky{position:sticky;top:var(--stickyTop)}
+        .viz-wrap{display:flex;flex-direction:column;gap:14px}
+        .controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+        .control{border:1px solid var(--line);border-radius:18px;padding:12px;background:rgba(255,255,255,.02)}
+        .control label{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--muted);margin-bottom:8px}
+        input[type="range"]{width:100%}
+        .toggle-row{display:flex;flex-wrap:wrap;gap:8px}
+        .status{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+        .stat{border:1px solid var(--line);border-radius:18px;padding:12px;background:rgba(255,255,255,.02)}
+        .stat .k{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+        .stat .v{font-size:22px;font-weight:800;letter-spacing:-.02em}
+        .scene-shell{border:1px solid var(--line);border-radius:24px;overflow:hidden;background:linear-gradient(180deg, #0b1329, #0a1122)}
+        .scene-top{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--muted);font-size:14px}
+        .scene{position:relative;min-height:560px;cursor:grab;user-select:none}
+        .scene.dragging{cursor:grabbing}
+        svg{display:block;width:100%;height:100%}
+        .legend{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px;border-top:1px solid var(--line);background:rgba(255,255,255,.02)}
+        .tag{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-size:13px}
+        .sw{width:11px;height:11px;border-radius:50%}
+
+        .quiz-grid,.gen-grid{display:grid;gap:14px}
+        .quiz-q{border:1px solid var(--line);border-radius:18px;padding:14px;background:rgba(255,255,255,.02)}
+        .quiz-q h4{margin:0 0 10px;font-size:16px}
+        .options{display:grid;gap:8px}
+        .option{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.02);cursor:pointer;color:#dce8ff}
+        .option.correct{border-color:#4d9d68;background:rgba(134,239,172,.12)}
+        .option.wrong{border-color:#b75a5a;background:rgba(252,165,165,.10)}
+        .feedback{margin-top:8px;font-size:14px;color:var(--muted)}
+
+        .problem-box{padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02)}
+        .problem-box strong{display:block;color:#eaf3ff;margin-bottom:8px}
+
+        .footer{margin:28px 0 10px;color:var(--muted);text-align:center;font-size:14px}
+
+        .tooltip{
+            position:fixed;z-index:50;pointer-events:none;
+            max-width:280px;padding:10px 12px;border-radius:14px;
+            background:linear-gradient(180deg, rgba(11,17,32,.98), rgba(18,26,48,.98));
+            border:1px solid rgba(125,211,252,.28);color:#e9f7ff;font-size:13px;
+            box-shadow:0 16px 40px rgba(0,0,0,.45);opacity:0;transform:translateY(4px);transition:.16s opacity,.16s transform;
+        }
+        .tooltip.show{opacity:1;transform:translateY(0)}
+
+        .hint{
+            position:fixed;right:20px;bottom:20px;z-index:40;max-width:340px;
+            padding:14px 16px;border-radius:18px;border:1px solid rgba(125,211,252,.34);
+            background:linear-gradient(180deg, rgba(16,28,56,.98), rgba(10,16,32,.98));
+            box-shadow:0 20px 50px rgba(0,0,0,.35);display:none
+        }
+        .hint.show{display:block;animation:hintBounce .5s ease}
+        .hint h4{margin:0 0 6px;color:var(--accent);font-size:15px}
+        .hint p{margin:0;color:#dce9ff;font-size:14px}
+        .hint .close{margin-top:10px}
+        .hintPulse{animation:hintPulse 2.1s infinite}
+        @keyframes hintPulse{0%,100%{box-shadow:0 0 0 0 rgba(125,211,252,.0)}50%{box-shadow:0 0 0 10px rgba(125,211,252,.08)}}
+        @keyframes hintBounce{0%{transform:translateY(14px);opacity:0}100%{transform:translateY(0);opacity:1}}
+
+        .modal{position:fixed;inset:0;background:rgba(4,8,17,.78);display:none;align-items:center;justify-content:center;padding:18px;z-index:60}
+        .modal.show{display:flex}
+        .modal-card{width:min(1180px,96vw);height:min(88vh,900px);background:linear-gradient(180deg,#101933,#0b1225);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-rows:auto 1fr auto}
+        .modal-head,.modal-foot{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center}
+        .modal-foot{border-bottom:none;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+        .modal-scene{min-height:0}
+
+        @media (max-width:1100px){
+            .grid{grid-template-columns:1fr}
+            .sticky{position:relative;top:auto}
+            .scene{min-height:460px}
+        }
+        @media (max-width:760px){
+            .wrap{padding:14px}
+            .hero-inner{padding:20px}
+            .schema,.controls,.status{grid-template-columns:1fr}
+            .panel-body,.panel-head{padding:16px}
+            .scene{min-height:360px}
+            .title{font-size:34px}
+        }
+        @media print{
+            body{background:#fff;color:#000}
+            .hero,.panel{box-shadow:none;background:#fff;border-color:#bbb}
+            .grid{grid-template-columns:1fr}
+            .sticky{position:relative}
+            .toolbar,.controls,.legend .tag.hide-print,.hint,.modal,.quiz-grid,.gen-grid .actions{display:none!important}
+            .scene-shell,.panel,.idea,.mini,.step,.callout,.problem-box{break-inside:avoid}
+            .scene{min-height:420px}
+            .footer{color:#000}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div class="hero-inner">
+            <div class="eyebrow hintPulse">Наглядная математика • Геометрия ОГЭ • Трапеции и окружности</div>
+            <h1 class="title">Трапеция с основаниями 40 и 14 вписана в окружность радиуса 25.<br>Найдите высоту трапеции.</h1>
+            <p class="subtitle">
+                Это самая важная задача из блока: она сразу учит не путать <strong>«трапеция вписана в окружность»</strong> и <strong>«окружность вписана в трапецию»</strong>, переводить задачу к <strong>хордам</strong> и видеть, что возможны <strong>две геометрические конфигурации</strong>.
+            </p>
+            <div class="toolbar">
+                <button class="btn primary" data-scroll="#solution">Перейти к разбору</button>
+                <button class="btn" id="showAllBtn">Раскрыть все шаги</button>
+                <button class="btn" id="resetViewBtn">Сбросить вид рисунка</button>
+                <button class="btn" id="openModalBtn">Открыть большой чертёж</button>
+            </div>
+        </div>
+        <div class="banner">
+            <div><strong>Главная идея:</strong> высота трапеции выражается через расстояния от центра окружности до двух хорд-оснований.</div>
+            <div><strong>Ответ:</strong> <span id="heroAnswer">39 или 9</span></div>
+        </div>
+    </section>
+
+    <div class="grid">
+        <main class="left">
+            <section class="panel" id="solution">
+                <div class="panel-head">
+                    <h2>Пошаговый разбор</h2>
+                    <div class="toggle-row">
+                        <button class="chip" aria-pressed="true" data-detail="full">Подробно</button>
+                        <button class="chip" aria-pressed="false" data-detail="brief">Кратко</button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="idea">
+                        <h3>Идея решения</h3>
+                        <p>
+                            Основания трапеции — это хорды одной окружности. Если знать расстояние от центра окружности до каждой хорды, то высота трапеции либо равна <strong>сумме</strong> этих расстояний, либо их <strong>разности</strong>. Поэтому задача сводится к формуле расстояния от центра до хорды.
+                        </p>
+                        <div class="schema">
+                            <div class="mini">
+                                <h4>Что дано</h4>
+                                <p>Основания: 40 и 14. Радиус окружности: 25.</p>
+                            </div>
+                            <div class="mini">
+                                <h4>Что найти</h4>
+                                <p>Высоту трапеции и объяснить, почему ответов два.</p>
+                            </div>
+                            <div class="mini">
+                                <h4>Ключевая формула</h4>
+                                <p>Расстояние от центра до хорды длины <em>L</em>: √(R² − (L/2)²).</p>
+                            </div>
+                            <div class="mini">
+                                <h4>Ключевая мысль</h4>
+                                <p>Центр окружности может оказаться между основаниями или по одну сторону от них.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="steps">
+                        <article class="step active" data-step="1" data-obj="trap,baseBig,baseSmall,center">
+                            <div class="step-top">
+                                <div class="num">1</div>
+                                <div>
+                                    <h4>Сначала правильно читаем условие</h4>
+                                    <p>Сказано: <strong>трапеция вписана в окружность</strong>. Это значит, что все вершины трапеции лежат на окружности.</p>
+                                    <div class="math">Не путать с другой фразой:
+                                        «окружность вписана в трапецию» — это совсем другая задача.</div>
+                                    <div class="detail full-only">У вписанной в окружность трапеции автоматически возникает ещё один важный факт: такая трапеция равнобедренная. Но здесь для вычислений достаточно понимать, что оба основания — хорды одной и той же окружности.</div>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="step" data-step="2" data-obj="baseBig,baseSmall,center,perpBig,perpSmall">
+                            <div class="step-top">
+                                <div class="num">2</div>
+                                <div>
+                                    <h4>Проводим перпендикуляры от центра к основаниям</h4>
+                                    <p>Перпендикуляр из центра к хорде делит её пополам. Поэтому удобно опустить перпендикуляры к обоим основаниям.</p>
+                                    <div class="math">Половина большего основания: 40/2 = 20
+                                        Половина меньшего основания: 14/2 = 7</div>
+                                    <div class="detail full-only">Теперь у нас появились два прямоугольных треугольника: в одном гипотенуза 25 и катет 20, в другом гипотенуза 25 и катет 7.</div>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="step" data-step="3" data-obj="triBig,perpBig,baseBigHalf,radiusBig">
+                            <div class="step-top">
+                                <div class="num">3</div>
+                                <div>
+                                    <h4>Находим расстояние до большего основания</h4>
+                                    <p>По теореме Пифагора расстояние от центра до хорды длины 40 равно:</p>
+                                    <div class="math">d₄₀ = √(25² − 20²) = √(625 − 400) = √225 = 15</div>
+                                    <div class="detail full-only">Это расстояние от центра окружности до большего основания трапеции.</div>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="step" data-step="4" data-obj="triSmall,perpSmall,baseSmallHalf,radiusSmall">
+                            <div class="step-top">
+                                <div class="num">4</div>
+                                <div>
+                                    <h4>Находим расстояние до меньшего основания</h4>
+                                    <p>Аналогично для хорды длины 14:</p>
+                                    <div class="math">d₁₄ = √(25² − 7²) = √(625 − 49) = √576 = 24</div>
+                                    <div class="detail full-only">Получили второе расстояние от центра до хорды-основания.</div>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="step" data-step="5" data-obj="caseInside,between,perpBig,perpSmall,heightLine">
+                            <div class="step-top">
+                                <div class="num">5</div>
+                                <div>
+                                    <h4>Первая конфигурация: центр между основаниями</h4>
+                                    <p>Если центр лежит между основаниями, то высота складывается из двух расстояний.</p>
+                                    <div class="math">h = d₄₀ + d₁₄ = 15 + 24 = 39</div>
+                                    <div class="detail full-only">Именно так обычно изображают задачу «по умолчанию», но это не единственный вариант.</div>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="step" data-step="6" data-obj="caseOutside,oneSide,perpBig,perpSmall,heightLine">
+                            <div class="step-top">
+                                <div class="num">6</div>
+                                <div>
+                                    <h4>Вторая конфигурация: центр по одну сторону от оснований</h4>
+                                    <p>Если обе хорды находятся по одну сторону от центра, высота равна разности расстояний.</p>
+                                    <div class="math">h = d₁₄ − d₄₀ = 24 − 15 = 9</div>
+                                    <div class="detail full-only">Эта конфигурация тоже геометрически возможна, поэтому в задаче действительно два ответа.</div>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="step" data-step="7" data-obj="resultAll">
+                            <div class="step-top">
+                                <div class="num">7</div>
+                                <div>
+                                    <h4>Проверка и итог</h4>
+                                    <p>Оба результата меньше диаметра 50, что естественно. Большее основание действительно ближе к центру, потому что длинная хорда лежит ближе к центру окружности.</p>
+                                    <div class="math">Ответ: h = 39 или h = 9</div>
+                                    <div class="detail full-only">Главный навык здесь — не машинально считать, а сначала увидеть, что у задачи две геометрические модели.</div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="callout"><strong>Вывод:</strong> как только в задаче появляются окружность и основания трапеции, сразу думайте о хордах, половинах хорд и перпендикулярах из центра.</div>
+                </div>
+            </section>
+
+            <section class="panel mistakes" style="margin-top:20px">
+                <div class="panel-head"><h3>Типичные ошибки</h3></div>
+                <div class="panel-body">
+                    <ul>
+                        <li>Перепутать две разные фразы: «трапеция вписана в окружность» и «окружность вписана в трапецию».</li>
+                        <li>Считать только один случай и забыть, что центр окружности может располагаться по-разному.</li>
+                        <li>Подставить в формулу не половину основания, а всё основание целиком.</li>
+                        <li>Забыть, что расстояние до хорды находится через прямоугольный треугольник и теорему Пифагора.</li>
+                        <li>Не заметить, что более длинная хорда должна быть ближе к центру.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="panel memo" style="margin-top:20px">
+                <div class="panel-head"><h3>Памятка по теме</h3></div>
+                <div class="panel-body">
+                    <ul>
+                        <li>Если длина хорды равна <strong>L</strong>, а радиус окружности равен <strong>R</strong>, то расстояние от центра до хорды равно <strong>√(R² − (L/2)²)</strong>.</li>
+                        <li>У длинной хорды расстояние до центра меньше.</li>
+                        <li>Высота между двумя параллельными хордами равна либо сумме, либо разности их расстояний до центра.</li>
+                        <li>Для вписанной в окружность трапеции полезно помнить: она равнобедренная.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="panel" style="margin-top:20px">
+                <div class="panel-head"><h3>Мини-квиз</h3></div>
+                <div class="panel-body">
+                    <div class="quiz-grid" id="quiz"></div>
+                </div>
+            </section>
+
+            <section class="panel" style="margin-top:20px">
+                <div class="panel-head"><h3>Генератор похожих задач</h3></div>
+                <div class="panel-body">
+                    <div class="gen-grid">
+                        <div class="problem-box" id="generatedTask">
+                            <strong>Нажмите кнопку, чтобы получить похожую задачу.</strong>
+                            <div>Будет сгенерирована задача того же типа: трапеция вписана в окружность, нужно найти высоту.</div>
+                        </div>
+                        <div class="actions toggle-row">
+                            <button class="btn primary" id="genBtn">Сгенерировать задачу</button>
+                            <button class="btn" id="showGenAnswerBtn">Показать ответ</button>
+                        </div>
+                        <div class="problem-box" id="generatedAnswer" style="display:none"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <aside class="right">
+            <div class="sticky viz-wrap">
+                <section class="panel">
+                    <div class="panel-head"><h2>Интерактивная модель</h2><span style="color:var(--muted);font-size:14px">Можно крутить колесо, таскать мышью и открывать в модальном окне</span></div>
+                    <div class="panel-body">
+                        <div class="controls">
+                            <div class="control">
+                                <label for="caseSelect"><span>Конфигурация</span><strong id="caseLabel">центр между основаниями</strong></label>
+                                <select id="caseSelect" class="btn" style="width:100%;padding:10px 12px">
+                                    <option value="inside">Сумма расстояний → h = 39</option>
+                                    <option value="outside">Разность расстояний → h = 9</option>
+                                </select>
+                            </div>
+                            <div class="control">
+                                <label for="zoomRange"><span>Масштаб</span><strong id="zoomValue">100%</strong></label>
+                                <input id="zoomRange" type="range" min="60" max="220" value="100" />
+                            </div>
+                            <div class="control">
+                                <label><span>Показывать элементы</span><strong>переключатели</strong></label>
+                                <div class="toggle-row">
+                                    <button class="chip" aria-pressed="true" data-toggle="showPerp">Перпендикуляры</button>
+                                    <button class="chip" aria-pressed="true" data-toggle="showRadius">Радиусы</button>
+                                    <button class="chip" aria-pressed="true" data-toggle="showHalves">Половины оснований</button>
+                                    <button class="chip" aria-pressed="true" data-toggle="showFormula">Формулы</button>
+                                </div>
+                            </div>
+                            <div class="control">
+                                <label><span>Пошаговая подсветка</span><strong id="activeStepLabel">шаг 1</strong></label>
+                                <div class="toggle-row">
+                                    <button class="btn" id="prevStepBtn">← шаг</button>
+                                    <button class="btn" id="nextStepBtn">шаг →</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="status" style="margin-top:14px">
+                            <div class="stat"><span class="k">Расстояние до хорды 40</span><span class="v" id="statBig">15</span></div>
+                            <div class="stat"><span class="k">Расстояние до хорды 14</span><span class="v" id="statSmall">24</span></div>
+                            <div class="stat"><span class="k">Высота трапеции</span><span class="v" id="statHeight">39</span></div>
+                            <div class="stat"><span class="k">Режим</span><span class="v" id="statMode" style="font-size:16px">сумма расстояний</span></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel scene-shell">
+                    <div class="scene-top">
+                        <div>Клик по рисунку открывает большой режим.</div>
+                        <div id="sceneCaption">Подсказка: наведите на хорды, перпендикуляры и подписи.</div>
+                    </div>
+                    <div class="scene" id="scene">
+                        <svg id="svgMain" viewBox="0 0 720 620" aria-label="Интерактивный чертёж"></svg>
+                    </div>
+                    <div class="legend">
+                        <span class="tag"><span class="sw" style="background:#8fd3ff"></span>окружность</span>
+                        <span class="tag"><span class="sw" style="background:#f8fafc"></span>трапеция</span>
+                        <span class="tag"><span class="sw" style="background:#fbbf24"></span>перпендикуляры</span>
+                        <span class="tag"><span class="sw" style="background:#a78bfa"></span>радиусы</span>
+                        <span class="tag hide-print"><span class="sw" style="background:#86efac"></span>активная подсветка</span>
+                    </div>
+                </section>
+            </div>
+        </aside>
+    </div>
+
+    <div class="footer">Сделано в формате «Наглядная математика»: текст слева, большая связанная визуализация справа, две конфигурации, квиз и генератор.</div>
+</div>
+
+<div class="tooltip" id="tooltip" role="tooltip" aria-hidden="true"></div>
+
+<div class="hint" id="hint1">
+    <h4>Подсказка 1</h4>
+    <p>Попробуйте переключить конфигурацию. Вы увидите, что числа 15 и 24 не меняются, меняется только способ собрать из них высоту.</p>
+    <button class="btn close" data-close-hint="hint1">Понятно</button>
+</div>
+
+<div class="hint" id="hint2" style="bottom:142px">
+    <h4>Подсказка 2</h4>
+    <p>Наведите на шаг слева: рисунок справа подсветит именно те объекты, которые участвуют в этом шаге.</p>
+    <button class="btn close" data-close-hint="hint2">Хорошо</button>
+</div>
+
+<div class="hint" id="hint3" style="bottom:264px">
+    <h4>Подсказка 3</h4>
+    <p>Откройте большой чертёж и увеличьте масштаб колёсиком мыши. Так удобнее рассмотреть прямоугольные треугольники.</p>
+    <button class="btn close" data-close-hint="hint3">Закрыть</button>
+</div>
+
+<div class="modal" id="modal" aria-hidden="true">
+    <div class="modal-card">
+        <div class="modal-head">
+            <strong>Увеличенный чертёж</strong>
+            <button class="btn" id="closeModalBtn">Закрыть ✕</button>
+        </div>
+        <div class="modal-scene scene" id="modalScene">
+            <svg id="svgModal" viewBox="0 0 720 620" aria-label="Увеличенный интерактивный чертёж"></svg>
+        </div>
+        <div class="modal-foot">Состояние синхронизировано с основным рисунком: конфигурация, зум, панорамирование, подсветка шага и переключатели общие.</div>
+    </div>
+</div>
+
+<script>
+    const state = {
+        caseType: 'inside',
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        activeStep: 1,
+        detail: 'full',
+        showPerp: true,
+        showRadius: true,
+        showHalves: true,
+        showFormula: true,
+        modalOpen: false,
+        dragging: null,
+        dragStart: null,
+        generated: null
+    };
+
+    const els = {
+        svgMain: document.getElementById('svgMain'),
+        svgModal: document.getElementById('svgModal'),
+        scene: document.getElementById('scene'),
+        modalScene: document.getElementById('modalScene'),
+        caseSelect: document.getElementById('caseSelect'),
+        caseLabel: document.getElementById('caseLabel'),
+        zoomRange: document.getElementById('zoomRange'),
+        zoomValue: document.getElementById('zoomValue'),
+        statBig: document.getElementById('statBig'),
+        statSmall: document.getElementById('statSmall'),
+        statHeight: document.getElementById('statHeight'),
+        statMode: document.getElementById('statMode'),
+        activeStepLabel: document.getElementById('activeStepLabel'),
+        sceneCaption: document.getElementById('sceneCaption'),
+        tooltip: document.getElementById('tooltip'),
+        modal: document.getElementById('modal'),
+        heroAnswer: document.getElementById('heroAnswer'),
+        generatedTask: document.getElementById('generatedTask'),
+        generatedAnswer: document.getElementById('generatedAnswer')
+    };
+
+    const geom = {
+        cx: 360,
+        cy: 310,
+        R: 220,
+        chords: {
+            big: { L: 40, half: 20, d: 15 },
+            small: { L: 14, half: 7, d: 24 }
+        }
+    };
+
+    const stepObjects = {
+        1:['trap','baseBig','baseSmall','center'],
+        2:['baseBig','baseSmall','center','perpBig','perpSmall'],
+        3:['triBig','perpBig','baseBigHalf','radiusBig'],
+        4:['triSmall','perpSmall','baseSmallHalf','radiusSmall'],
+        5:['caseInside','between','perpBig','perpSmall','heightLine'],
+        6:['caseOutside','oneSide','perpBig','perpSmall','heightLine'],
+        7:['resultAll']
+    };
+
+    function createEl(tag, attrs = {}, children = []) {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+        (Array.isArray(children) ? children : [children]).forEach(ch => ch && el.appendChild(ch));
+        return el;
+    }
+
+    function htmlEl(tag, attrs = {}, text) {
+        const el = document.createElement(tag);
+        Object.entries(attrs).forEach(([k, v]) => {
+            if (k === 'class') el.className = v;
+            else if (k.startsWith('data-')) el.setAttribute(k, v);
+            else el[k] = v;
+        });
+        if (text != null) el.innerHTML = text;
+        return el;
+    }
+
+    function chordData(caseType, which){
+        const isInside = caseType === 'inside';
+        const d = which === 'big' ? geom.chords.big.d : geom.chords.small.d;
+        const half = which === 'big' ? geom.chords.big.half : geom.chords.small.half;
+        const y = which === 'big'
+        ? (isInside ? geom.cy + geom.chords.big.d : geom.cy + geom.chords.big.d)
+        : (isInside ? geom.cy - geom.chords.small.d : geom.cy + geom.chords.small.d);
+        const x1 = geom.cx - half * (geom.R / 25);
+        const x2 = geom.cx + half * (geom.R / 25);
+        return { y, x1, x2, d, half };
+    }
+
+    function getHeight(){
+        return state.caseType === 'inside' ? 39 : 9;
+    }
+
+    function getModeText(){
+        return state.caseType === 'inside' ? 'сумма расстояний' : 'разность расстояний';
+    }
+
+    function getAnswerText(){
+        return state.caseType === 'inside' ? '39' : '9';
+    }
+
+    function transform(){
+        return `translate(${state.panX} ${state.panY}) scale(${state.zoom})`;
+    }
+
+    function isActive(obj){
+        const arr = stepObjects[state.activeStep] || [];
+        return arr.includes(obj) || arr.includes('resultAll');
+    }
+
+    function styleStroke(base, activeObj, width=2.2){
+        return {
+            stroke: base,
+            'stroke-width': isActive(activeObj) ? width + 1.5 : width,
+            'stroke-opacity': isActive(activeObj) ? 1 : .92,
+            fill: 'none'
+        };
+    }
+
+    function svgText(x,y,txt,extra={}){
+        return createEl('text', {
+            x, y,
+            fill: extra.fill || '#e8eefc',
+            'font-size': extra.size || 16,
+            'font-weight': extra.weight || 600,
+            'text-anchor': extra.anchor || 'middle'
+        }, document.createTextNode(txt));
+    }
+
+    function addTooltipEvents(target, text){
+        target.dataset.tip = text;
+        target.addEventListener('mouseenter', showTooltip);
+        target.addEventListener('mousemove', moveTooltip);
+        target.addEventListener('mouseleave', hideTooltip);
+    }
+
+    function showTooltip(e){
+        const tip = e.currentTarget.dataset.tip;
+        if(!tip) return;
+        els.tooltip.innerHTML = tip;
+        els.tooltip.classList.add('show');
+        els.tooltip.setAttribute('aria-hidden','false');
+        moveTooltip(e);
+    }
+    function moveTooltip(e){
+        els.tooltip.style.left = (e.clientX + 16) + 'px';
+        els.tooltip.style.top = (e.clientY + 16) + 'px';
+    }
+    function hideTooltip(){
+        els.tooltip.classList.remove('show');
+        els.tooltip.setAttribute('aria-hidden','true');
+    }
+
+    function renderScene(svg){
+        svg.innerHTML = '';
+        const g = createEl('g', { transform: transform() });
+        svg.appendChild(g);
+
+        const defs = createEl('defs');
+        defs.appendChild(createEl('filter', { id:'glow', x:'-40%', y:'-40%', width:'180%', height:'180%' }, [
+            createEl('feGaussianBlur', { stdDeviation:'4', result:'b' }),
+            createEl('feMerge', {}, [createEl('feMergeNode', { in:'b' }), createEl('feMergeNode', { in:'SourceGraphic' })])
+        ]));
+        svg.appendChild(defs);
+
+        const big = chordData(state.caseType,'big');
+        const small = chordData(state.caseType,'small');
+        const between = state.caseType === 'inside';
+
+        const circle = createEl('circle', {
+            cx: geom.cx, cy: geom.cy, r: geom.R,
+            ...styleStroke('#8fd3ff','center',2.6), fill:'rgba(143,211,255,.04)'
+        });
+        addTooltipEvents(circle,'Окружность радиуса 25');
+        g.appendChild(circle);
+
+        const trap = createEl('polygon', {
+            points: `${big.x1},${big.y} ${small.x1},${small.y} ${small.x2},${small.y} ${big.x2},${big.y}`,
+            stroke:'#f8fafc', 'stroke-width': isActive('trap') ? 4 : 2.4,
+            'stroke-opacity':.95, fill:'rgba(248,250,252,.03)'
+        });
+        addTooltipEvents(trap,'Трапеция, вписанная в окружность');
+        g.appendChild(trap);
+
+        const center = createEl('circle', {
+            cx: geom.cx, cy: geom.cy, r: isActive('center') ? 7 : 5,
+            fill:'#86efac', filter:isActive('center') ? 'url(#glow)' : undefined
+        });
+        addTooltipEvents(center,'Центр окружности O');
+        g.appendChild(center);
+        g.appendChild(svgText(geom.cx+16, geom.cy-12, 'O', { anchor:'start', fill:'#dff7e5' }));
+
+        // labels for vertices
+        const pts = {
+            A:[big.x1,big.y], B:[small.x1,small.y], C:[small.x2,small.y], D:[big.x2,big.y]
+        };
+        Object.entries(pts).forEach(([name,[x,y]])=>{
+            const p = createEl('circle',{cx:x,cy:y,r:4.5,fill:'#fff'});
+            g.appendChild(p);
+            g.appendChild(svgText(x + (name==='A'||name==='B' ? -14 : 14), y + (name==='A'||name==='D' ? 24 : -16), name, {size:15,anchor:'middle'}));
+        });
+
+        const baseBig = createEl('line', { x1:big.x1, y1:big.y, x2:big.x2, y2:big.y, ...styleStroke('#f8fafc','baseBig',3.2)});
+        const baseSmall = createEl('line', { x1:small.x1, y1:small.y, x2:small.x2, y2:small.y, ...styleStroke('#f8fafc','baseSmall',3.2)});
+        addTooltipEvents(baseBig,'Большее основание: 40');
+        addTooltipEvents(baseSmall,'Меньшее основание: 14');
+        g.appendChild(baseBig); g.appendChild(baseSmall);
+
+        g.appendChild(svgText((big.x1+big.x2)/2, big.y+26, '40', {fill:'#ffe9b0'}));
+        g.appendChild(svgText((small.x1+small.x2)/2, small.y-18, '14', {fill:'#ffe9b0'}));
+
+        const footBig = [geom.cx, big.y];
+        const footSmall = [geom.cx, small.y];
+
+        if(state.showPerp){
+            const perpBig = createEl('line', { x1:geom.cx, y1:geom.cy, x2:footBig[0], y2:footBig[1], ...styleStroke('#fbbf24','perpBig',3), 'stroke-dasharray':'7 6'});
+            const perpSmall = createEl('line', { x1:geom.cx, y1:geom.cy, x2:footSmall[0], y2:footSmall[1], ...styleStroke('#fbbf24','perpSmall',3), 'stroke-dasharray':'7 6'});
+            addTooltipEvents(perpBig,'Расстояние от центра до хорды 40: 15');
+            addTooltipEvents(perpSmall,'Расстояние от центра до хорды 14: 24');
+            g.appendChild(perpBig); g.appendChild(perpSmall);
+
+            // right angle markers
+            [[footBig[0],footBig[1]],[footSmall[0],footSmall[1]]].forEach(([fx,fy])=>{
+                const s = 16;
+                const path = createEl('path',{d:`M ${fx} ${fy} l ${s} 0 l 0 ${between ? (fy<geom.cy ? s : -s) : -s}`,
+                    stroke:'#fbbf24','stroke-width':2,fill:'none'});
+                g.appendChild(path);
+            });
+        }
+
+        if(state.showRadius){
+            const radiusBig = createEl('line',{x1:geom.cx,y1:geom.cy,x2:small.x2,y2:small.y,...styleStroke('#a78bfa','radiusSmall',2.6)});
+            const radiusSmall = createEl('line',{x1:geom.cx,y1:geom.cy,x2:big.x2,y2:big.y,...styleStroke('#a78bfa','radiusBig',2.6)});
+            addTooltipEvents(radiusBig,'Радиус к точке на меньшем основании: 25');
+            addTooltipEvents(radiusSmall,'Радиус к точке на большем основании: 25');
+            g.appendChild(radiusBig); g.appendChild(radiusSmall);
+            g.appendChild(svgText((geom.cx+small.x2)/2+18,(geom.cy+small.y)/2-8,'25',{fill:'#d8c6ff',size:15}));
+            g.appendChild(svgText((geom.cx+big.x2)/2+18,(geom.cy+big.y)/2+10,'25',{fill:'#d8c6ff',size:15}));
+        }
+
+        if(state.showHalves){
+            const midBigL = [geom.cx - 20*(geom.R/25), big.y];
+            const midSmallL = [geom.cx - 7*(geom.R/25), small.y];
+            const halfBig = createEl('line',{x1:midBigL[0],y1:midBigL[1],x2:geom.cx,y2:big.y,...styleStroke('#67e8f9','baseBigHalf',2.8)});
+            const halfSmall = createEl('line',{x1:midSmallL[0],y1:midSmallL[1],x2:geom.cx,y2:small.y,...styleStroke('#67e8f9','baseSmallHalf',2.8)});
+            addTooltipEvents(halfBig,'Половина большего основания: 20');
+            addTooltipEvents(halfSmall,'Половина меньшего основания: 7');
+            g.appendChild(halfBig); g.appendChild(halfSmall);
+            g.appendChild(svgText((midBigL[0]+geom.cx)/2, big.y-12, '20', {fill:'#c8fbff',size:14}));
+            g.appendChild(svgText((midSmallL[0]+geom.cx)/2, small.y+20, '7', {fill:'#c8fbff',size:14}));
+        }
+
+        // triangle emphasis
+        if(isActive('triBig')){
+            const tri = createEl('polygon',{points:`${geom.cx},${geom.cy} ${big.x2},${big.y} ${geom.cx},${big.y}`,fill:'rgba(251,191,36,.08)',stroke:'#fbbf24','stroke-width':2.4});
+            g.appendChild(tri);
+        }
+        if(isActive('triSmall')){
+            const tri = createEl('polygon',{points:`${geom.cx},${geom.cy} ${small.x2},${small.y} ${geom.cx},${small.y}`,fill:'rgba(167,139,250,.08)',stroke:'#a78bfa','stroke-width':2.4});
+            g.appendChild(tri);
+        }
+
+        // height explanation line on right side
+        const hx = Math.max(big.x2, small.x2) + 48;
+        const hLine = createEl('line', { x1:hx, y1:small.y, x2:hx, y2:big.y, ...styleStroke('#86efac','heightLine',3.6)});
+        if(isActive('heightLine') || isActive('resultAll')){
+            g.appendChild(hLine);
+            g.appendChild(svgText(hx+24, (small.y+big.y)/2, `h = ${getAnswerText()}`, {fill:'#cfffdd',anchor:'start',size:18}));
+        }
+
+        // case labels
+        const boxText = state.caseType === 'inside'
+        ? ['Случай 1: центр между основаниями', 'h = 15 + 24 = 39']
+        : ['Случай 2: центр по одну сторону', 'h = 24 − 15 = 9'];
+        const box = createEl('rect',{x:42,y:44,width:274,height:68,rx:18,fill:'rgba(16,28,56,.86)',stroke:isActive('caseInside')||isActive('caseOutside')?'#86efac':'#35507b','stroke-width':1.4});
+        g.appendChild(box);
+        g.appendChild(svgText(179,70,boxText[0],{size:16,fill:'#e8eefc'}));
+        g.appendChild(svgText(179,95,boxText[1],{size:16,fill:'#b8ffd0'}));
+
+        // formula box
+        if(state.showFormula){
+            const f = createEl('rect',{x:390,y:42,width:286,height:98,rx:18,fill:'rgba(10,16,32,.88)',stroke:'#406085','stroke-width':1.2});
+            g.appendChild(f);
+            g.appendChild(svgText(533,68,'d = √(R² − (L/2)²)',{size:17,fill:'#dff7ff'}));
+            g.appendChild(svgText(533,94,'d₄₀ = √(25² − 20²) = 15',{size:15,fill:'#ffe9b0'}));
+            g.appendChild(svgText(533,118,'d₁₄ = √(25² − 7²) = 24',{size:15,fill:'#ffe9b0'}));
+        }
+
+        // captions for distances
+        g.appendChild(svgText(geom.cx+18, (geom.cy+big.y)/2, '15', {anchor:'start',fill:'#ffd979',size:15}));
+        g.appendChild(svgText(geom.cx+18, (geom.cy+small.y)/2, '24', {anchor:'start',fill:'#ffd979',size:15}));
+
+        // active overlay highlight around center case region
+        if(isActive('between') && between){
+            const hl = createEl('circle',{cx:geom.cx,cy:(small.y+big.y)/2,r:108,fill:'rgba(134,239,172,.05)',stroke:'#86efac','stroke-width':2.2,'stroke-dasharray':'10 8'});
+            g.appendChild(hl);
+        }
+        if(isActive('oneSide') && !between){
+            const hl = createEl('ellipse',{cx:geom.cx,cy:big.y-40,rx:120,ry:86,fill:'rgba(252,165,165,.05)',stroke:'#fca5a5','stroke-width':2.2,'stroke-dasharray':'10 8'});
+            g.appendChild(hl);
+        }
+
+        // outer labels explaining relation
+        g.appendChild(svgText(geom.cx, geom.cy+geom.R+34, state.caseType === 'inside' ? 'Высота = сумма расстояний до оснований' : 'Высота = разность расстояний до оснований', {fill:'#d7e5ff',size:18}));
+    }
+
+    function renderAll(){
+        renderScene(els.svgMain);
+        renderScene(els.svgModal);
+        document.querySelectorAll('.step').forEach(step => {
+            step.classList.toggle('active', Number(step.dataset.step) === state.activeStep);
+        });
+        document.querySelectorAll('[data-detail]').forEach(btn => {
+            btn.setAttribute('aria-pressed', String(btn.dataset.detail === state.detail));
+        });
+        document.querySelectorAll('.full-only').forEach(el => {
+            el.style.display = state.detail === 'full' ? '' : 'none';
+        });
+        document.querySelectorAll('[data-toggle]').forEach(btn => {
+            const key = btn.dataset.toggle;
+            btn.setAttribute('aria-pressed', String(state[key]));
+        });
+        els.caseSelect.value = state.caseType;
+        els.caseLabel.textContent = state.caseType === 'inside' ? 'центр между основаниями' : 'центр по одну сторону';
+        els.zoomValue.textContent = Math.round(state.zoom*100) + '%';
+        els.zoomRange.value = Math.round(state.zoom*100);
+        els.statBig.textContent = '15';
+        els.statSmall.textContent = '24';
+        els.statHeight.textContent = getAnswerText();
+        els.statMode.textContent = getModeText();
+        els.activeStepLabel.textContent = 'шаг ' + state.activeStep;
+        els.heroAnswer.textContent = state.caseType === 'inside' ? '39' : '9';
+        els.sceneCaption.textContent = state.caseType === 'inside'
+        ? 'Сейчас показан случай, когда центр находится между основаниями.'
+        : 'Сейчас показан случай, когда обе хорды лежат по одну сторону от центра.';
+    }
+
+    function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+
+    function bindPanZoom(sceneEl){
+        sceneEl.addEventListener('pointerdown', e => {
+            state.dragging = sceneEl.id;
+            state.dragStart = { x:e.clientX, y:e.clientY, panX:state.panX, panY:state.panY };
+            sceneEl.classList.add('dragging');
+        });
+        window.addEventListener('pointermove', e => {
+            if(state.dragging !== sceneEl.id || !state.dragStart) return;
+            state.panX = state.dragStart.panX + (e.clientX - state.dragStart.x);
+            state.panY = state.dragStart.panY + (e.clientY - state.dragStart.y);
+            renderAll();
+        });
+        window.addEventListener('pointerup', ()=>{
+            if(state.dragging === sceneEl.id){
+                sceneEl.classList.remove('dragging');
+            }
+            state.dragging = null;
+            state.dragStart = null;
+        });
+        sceneEl.addEventListener('wheel', e => {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 0.08 : -0.08;
+            state.zoom = clamp(Number((state.zoom + delta).toFixed(2)), .6, 2.2);
+            renderAll();
+        }, { passive:false });
+        sceneEl.addEventListener('click', e => {
+            if(sceneEl.id === 'scene' && !state.dragStart){ openModal(); }
+        });
+    }
+
+    function openModal(){
+        state.modalOpen = true;
+        els.modal.classList.add('show');
+        els.modal.setAttribute('aria-hidden','false');
+    }
+    function closeModal(){
+        state.modalOpen = false;
+        els.modal.classList.remove('show');
+        els.modal.setAttribute('aria-hidden','true');
+    }
+
+    function setupSteps(){
+        document.querySelectorAll('.step').forEach(step => {
+            step.addEventListener('mouseenter', ()=>{
+                state.activeStep = Number(step.dataset.step);
+                renderAll();
+            });
+            step.addEventListener('click', ()=>{
+                state.activeStep = Number(step.dataset.step);
+                renderAll();
+            });
+        });
+    }
+
+    function setupControls(){
+        els.caseSelect.addEventListener('change', e => { state.caseType = e.target.value; renderAll(); });
+        els.zoomRange.addEventListener('input', e => { state.zoom = e.target.value / 100; renderAll(); });
+
+        document.querySelectorAll('[data-toggle]').forEach(btn => {
+            btn.addEventListener('click', ()=>{
+                const key = btn.dataset.toggle;
+                state[key] = !state[key];
+                renderAll();
+            });
+        });
+        document.querySelectorAll('[data-detail]').forEach(btn => {
+            btn.addEventListener('click', ()=>{
+                state.detail = btn.dataset.detail;
+                renderAll();
+            });
+        });
+
+        document.getElementById('prevStepBtn').addEventListener('click', ()=>{ state.activeStep = state.activeStep === 1 ? 7 : state.activeStep - 1; renderAll(); });
+        document.getElementById('nextStepBtn').addEventListener('click', ()=>{ state.activeStep = state.activeStep === 7 ? 1 : state.activeStep + 1; renderAll(); });
+        document.getElementById('showAllBtn').addEventListener('click', ()=>{ state.detail = 'full'; renderAll(); window.scrollTo({top:document.getElementById('solution').offsetTop - 14, behavior:'smooth'}); });
+        document.getElementById('resetViewBtn').addEventListener('click', resetView);
+        document.getElementById('openModalBtn').addEventListener('click', openModal);
+        document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+        els.modal.addEventListener('click', e => { if(e.target === els.modal) closeModal(); });
+        window.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+        document.querySelectorAll('[data-scroll]').forEach(btn => {
+            btn.addEventListener('click', ()=>{
+                const target = document.querySelector(btn.dataset.scroll);
+                if(target) target.scrollIntoView({ behavior:'smooth', block:'start' });
+            });
+        });
+    }
+
+    function resetView(){
+        state.zoom = 1;
+        state.panX = 0;
+        state.panY = 0;
+        renderAll();
+    }
+
+    function setupQuiz(){
+        const questions = [
+            {
+                q:'Почему в этой задаче можно работать именно с хордами?',
+                options:['Потому что основания трапеции лежат на окружности', 'Потому что трапеция обязательно прямоугольная', 'Потому что радиус всегда равен высоте'],
+                correct:0,
+                explain:'Основания — это хорды одной окружности, а значит можно искать расстояния от центра до хорд.'
+            },
+            {
+                q:'Чему равна половина основания 14?',
+                options:['14', '7', '3,5'],
+                correct:1,
+                explain:'В формуле расстояния до хорды используется именно половина хорды.'
+            },
+            {
+                q:'Почему у задачи два ответа?',
+                options:['Потому что могут быть две разные окружности', 'Потому что центр может располагаться по-разному относительно оснований', 'Потому что высота может быть отрицательной'],
+                correct:1,
+                explain:'Расстояния до хорд одни и те же, но высота получается как сумма или как разность.'
+            }
+        ];
+        const root = document.getElementById('quiz');
+        questions.forEach((item, idx) => {
+            const card = htmlEl('div',{class:'quiz-q'});
+            card.appendChild(htmlEl('h4',{},`${idx+1}. ${item.q}`));
+            const opts = htmlEl('div',{class:'options'});
+            const feedback = htmlEl('div',{class:'feedback'},'');
+            item.options.forEach((opt, i) => {
+                const b = htmlEl('button',{class:'option', type:'button'},opt);
+                b.addEventListener('click',()=>{
+                    opts.querySelectorAll('.option').forEach((x,j)=>{
+                        x.classList.remove('correct','wrong');
+                        if(j===item.correct) x.classList.add('correct');
+                    });
+                    if(i!==item.correct) b.classList.add('wrong');
+                    feedback.textContent = item.explain;
+                });
+                opts.appendChild(b);
+            });
+            card.appendChild(opts);
+            card.appendChild(feedback);
+            root.appendChild(card);
+        });
+    }
+
+    function generateProblem(){
+        const candidates = [];
+        for(let R=10; R<=40; R++){
+            for(let a=4; a<2*R; a+=2){
+                for(let b=4; b<a; b+=2){
+                    const ha = a/2, hb = b/2;
+                    const da2 = R*R - ha*ha;
+                    const db2 = R*R - hb*hb;
+                    const da = Math.sqrt(da2), db = Math.sqrt(db2);
+                    if(Number.isInteger(da) && Number.isInteger(db) && da !== db){
+                        candidates.push({R,a,b,da,db,h1:da+db,h2:Math.abs(db-da)});
+                    }
+                }
+            }
+        }
+        const filtered = candidates.filter(x => x.h1 <= 80 && x.h2 >= 3 && !(x.R===25 && x.a===40 && x.b===14));
+        const pick = filtered[Math.floor(Math.random()*filtered.length)];
+        state.generated = pick;
+        els.generatedTask.innerHTML = `<strong>Новая задача</strong>
+        Трапеция с основаниями <b>${pick.a}</b> и <b>${pick.b}</b> вписана в окружность радиуса <b>${pick.R}</b>. Найдите высоту трапеции во всех возможных конфигурациях.`;
+        els.generatedAnswer.style.display = 'none';
+    }
+
+    function showGeneratedAnswer(){
+        if(!state.generated){ generateProblem(); }
+        const p = state.generated;
+        els.generatedAnswer.style.display = 'block';
+        els.generatedAnswer.innerHTML = `<strong>Ответ и идея</strong>
+      <div style="margin-bottom:8px">Половины оснований: ${p.a/2} и ${p.b/2}.</div>
+      <div style="margin-bottom:8px">Расстояния до хорд:</div>
+      <div style="font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#dff7ff">d₁ = √(${p.R}² − ${(p.a/2)}²) = ${p.da}<br>d₂ = √(${p.R}² − ${(p.b/2)}²) = ${p.db}</div>
+      <div style="margin-top:10px">Возможные высоты: <b>${p.h1}</b> и <b>${p.h2}</b>.</div>`;
+    }
+
+    function setupGenerator(){
+        document.getElementById('genBtn').addEventListener('click', generateProblem);
+        document.getElementById('showGenAnswerBtn').addEventListener('click', showGeneratedAnswer);
+    }
+
+    function setupHints(){
+        const ids = ['hint1','hint2','hint3'];
+        if(!sessionStorage.getItem('nm-hints-shown')){
+            setTimeout(()=>document.getElementById('hint1').classList.add('show'),3000);
+            setTimeout(()=>document.getElementById('hint2').classList.add('show'),7000);
+            setTimeout(()=>document.getElementById('hint3').classList.add('show'),11000);
+            sessionStorage.setItem('nm-hints-shown','1');
+        }
+        document.querySelectorAll('[data-close-hint]').forEach(btn=>{
+            btn.addEventListener('click',()=>document.getElementById(btn.dataset.closeHint).classList.remove('show'));
+        });
+        window.addEventListener('keydown', e => {
+            if(e.key === 'Escape') ids.forEach(id=>document.getElementById(id).classList.remove('show'));
+        });
+        window.addEventListener('click', e => {
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if(el.classList.contains('show') && !el.contains(e.target)) el.classList.remove('show');
+            });
+        });
+        setTimeout(()=>ids.forEach(id=>document.getElementById(id).classList.remove('show')),15000);
+    }
+
+    bindPanZoom(els.scene);
+    bindPanZoom(els.modalScene);
+    setupSteps();
+    setupControls();
+    setupQuiz();
+    setupGenerator();
+    setupHints();
+    renderAll();
+</script>
+</body>
+</html>
