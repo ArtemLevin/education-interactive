@@ -100,16 +100,10 @@
         .pop button{margin-top:8px;border:2px solid #000;background:#fff;color:#111;padding:8px 10px;border-radius:0;cursor:pointer;font-weight:700}
         .modal{position:fixed;inset:0;background:rgba(3,7,16,.82);display:none;align-items:center;justify-content:center;padding:16px;z-index:30}
         .modal.open{display:flex}
-        .modal-box{width:min(1200px,96vw);height:min(90vh,900px);background:var(--panel);border:2px solid var(--line);border-radius:0;padding:16px;position:relative;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+        .modal-box{width:min(1200px,96vw);height:min(90vh,900px);background:#0b1120;border:1px solid var(--line);border-radius:24px;padding:16px;position:relative;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
         .modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding-right:8px}
         .modal-head .section-title{margin:0}
-        .close{width:42px;height:42px;border-radius:0;border:2px solid var(--line);background:var(--panel-2);color:var(--text);cursor:pointer;font-size:24px;flex:0 0 auto}
-        .topnav{display:flex;justify-content:space-between;align-items:center;border:2px solid var(--line);background:#000;color:#fff;padding:10px 14px;box-shadow:var(--shadow);margin-bottom:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
-        .subbanner{border:2px solid var(--line);background:#000;color:#fff;padding:8px 12px;margin-bottom:12px;font-weight:700;text-transform:uppercase}
-        .zoom-btns{display:flex;gap:6px;margin-top:8px}
-        .zoom-btn{border:2px solid var(--line);background:var(--panel);color:var(--text);width:36px;height:36px;font-size:20px;font-weight:800;cursor:pointer}
-        .hot{cursor:pointer}
-        .print-summary{display:none}
+        .close{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#11192d;color:#fff;cursor:pointer;font-size:24px;flex:0 0 auto}
         .modal .viz{min-height:0;height:auto;flex:1}
         .modal .viz svg{height:100%}
         .badge{display:inline-block;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid var(--line);font-size:12px;color:#dfe7ff}
@@ -413,7 +407,7 @@
         </aside>
     </div>
 
-    <div class="footer">МАТЕМАТИКА. НАГЛЯДНО. Одна задача — много правильных идей.</div>
+    <div class="footer">Лёвин Артём Александрович эксклюзивно для Юлианны Куликовой</div>
 </div>
 
 <div class="modal" id="modal">
@@ -560,12 +554,12 @@
         // external tangent and radii
         if(state.showExternal && ext.exists){
             const tStroke = (hl==='build'||hl==='solve'||hl==='idea'||hl==='all') ? '#72e6d1' : '#4b6a65';
-            base.push(`<line class="hot" data-step-trigger="2" x1="${ext.p1.x-ext.t.x*130}" y1="${ext.p1.y-ext.t.y*130}" x2="${ext.p2.x+ext.t.x*130}" y2="${ext.p2.y+ext.t.y*130}" stroke="${tStroke}" stroke-width="4"/>`);
+            base.push(line(ext.p1.x-ext.t.x*130,ext.p1.y-ext.t.y*130,ext.p2.x+ext.t.x*130,ext.p2.y+ext.t.y*130,`stroke="${tStroke}" stroke-width="4"`));
             base.push(line(ext.O1.x,ext.O1.y,ext.p1.x,ext.p1.y,`stroke="#8bb8ff" stroke-width="3"`));
             base.push(line(ext.O2.x,ext.O2.y,ext.p2.x,ext.p2.y,`stroke="#8bb8ff" stroke-width="3"`));
             // right angles
-            base.push(path(rightAngleMark(ext.p1, {x:ext.n.x,y:ext.n.y}, ext.t), `fill="none" stroke="#ff9a9a" stroke-width="2"`));
-            base.push(path(rightAngleMark(ext.p2, {x:ext.n.x,y:ext.n.y}, {x:-ext.t.x,y:-ext.t.y}), `fill="none" stroke="#ff9a9a" stroke-width="2"`));
+            base.push(path(rightAngleMark(ext.p1, {x:-ext.n.x,y:-ext.n.y}, ext.t), `fill="none" stroke="#ff9a9a" stroke-width="2"`));
+            base.push(path(rightAngleMark(ext.p2, {x:-ext.n.x,y:-ext.n.y}, ext.t), `fill="none" stroke="#ff9a9a" stroke-width="2"`));
 
             // triangle for external
             if(state.showTri){
@@ -576,7 +570,7 @@
                 const F = {x:ext.O2.x + u.x*proj, y:ext.O2.y + u.y*proj};
                 const ofLen = Math.hypot(ext.O1.x-F.x,ext.O1.y-F.y) || 1;
                 const triStroke=(hl==='solve'||hl==='idea'||hl==='all')?'#ffd27a':'#6b6247';
-                base.push(`<line class="hot" data-step-trigger="3" x1="${ext.O1.x}" y1="${ext.O1.y}" x2="${F.x}" y2="${F.y}" stroke="${triStroke}" stroke-width="3"/>`);
+                base.push(line(ext.O1.x,ext.O1.y,F.x,F.y,`stroke="${triStroke}" stroke-width="3"`));
                 base.push(path(rightAngleMark(F, {x:(ext.O1.x-F.x)/ofLen, y:(ext.O1.y-F.y)/ofLen}, u, 9), `fill="none" stroke="#ff9a9a" stroke-width="2"`));
                 if(state.showLabels){
                     base.push(text((ext.O1.x+ext.O2.x)/2, ext.O1.y-12, `d = ${state.d}`, `fill="#dfe8ff" font-size="18" font-weight="700" text-anchor="middle"`));
@@ -592,8 +586,8 @@
             base.push(line(intl.p1.x-intl.t.x*100,intl.p1.y-intl.t.y*100,intl.p2.x+intl.t.x*100,intl.p2.y+intl.t.y*100,`stroke="${tStroke}" stroke-width="4" opacity="0.95"`));
             base.push(line(intl.O1.x,intl.O1.y,intl.p1.x,intl.p1.y,`stroke="#8bb8ff" stroke-width="3"`));
             base.push(line(intl.O2.x,intl.O2.y,intl.p2.x,intl.p2.y,`stroke="#72e6d1" stroke-width="3"`));
-            base.push(path(rightAngleMark(intl.p1, {x:intl.n.x,y:intl.n.y}, intl.t), `fill="none" stroke="#ff9a9a" stroke-width="2"`));
-            base.push(path(rightAngleMark(intl.p2, {x:-intl.n.x,y:-intl.n.y}, {x:-intl.t.x,y:-intl.t.y}), `fill="none" stroke="#ff9a9a" stroke-width="2"`));
+            base.push(path(rightAngleMark(intl.p1, {x:-intl.n.x,y:-intl.n.y}, intl.t), `fill="none" stroke="#ff9a9a" stroke-width="2"`));
+            base.push(path(rightAngleMark(intl.p2, {x:intl.n.x,y:intl.n.y}, intl.t), `fill="none" stroke="#ff9a9a" stroke-width="2"`));
             if(state.showLabels){
                 base.push(text((intl.O1.x+intl.O2.x)/2, intl.O1.y+30, `для внутренней: R + r = ${c.sum}`, `fill="#d7e6ff" font-size="17" font-weight="700" text-anchor="middle"`));
                 base.push(text((intl.O1.x+intl.O2.x)/2, intl.p1.y-12, `ℓвнутр = ${fmt(c.internal)}`, `fill="#8bb8ff" font-size="18" font-weight="800" text-anchor="middle"`));
