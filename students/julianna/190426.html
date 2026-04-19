@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная геометрия — общая касательная к двум окружностям</title>
+    <style>
+        :root{
+            --bg:#0b1020;
+            --panel:#131a2e;
+            --panel-2:#0f1527;
+            --text:#eaf0ff;
+            --muted:#aeb9d9;
+            --line:#33405f;
+            --accent:#72e6d1;
+            --accent-2:#8bb8ff;
+            --warn:#ffd27a;
+            --danger:#ff9a9a;
+            --ok:#9effb0;
+            --shadow:0 18px 50px rgba(0,0,0,.28);
+            --radius:22px;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:radial-gradient(circle at top,#17213f 0,#0b1020 48%,#080c18 100%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;scroll-behavior:smooth}
+        body{min-height:100vh}
+        .wrap{max-width:1440px;margin:0 auto;padding:18px}
+        .hero{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01));box-shadow:var(--shadow);border-radius:28px;padding:24px 24px 18px;margin-bottom:18px;overflow:hidden;position:relative}
+        .hero::after{content:"";position:absolute;right:-90px;top:-90px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle, rgba(114,230,209,.22), rgba(114,230,209,0));pointer-events:none}
+        .eyebrow{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:rgba(114,230,209,.08);color:var(--accent);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+        h1{margin:14px 0 10px;font-size:clamp(28px,4vw,48px);line-height:1.05}
+        .lead{max-width:980px;color:var(--muted);font-size:18px;line-height:1.6}
+        .hero-grid{display:grid;grid-template-columns:1.4fr .9fr;gap:16px;align-items:start;margin-top:18px}
+        .banner{background:#09111f;border:1px solid var(--line);border-radius:20px;padding:16px 18px;font-size:15px;color:#d9e5ff}
+        .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+        .chip{padding:10px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(139,184,255,.08);color:#dfe8ff;font-size:14px}
+        .topbar{display:grid;grid-template-columns:1fr auto;gap:12px;margin-bottom:16px}
+        .modes{display:flex;gap:8px;flex-wrap:wrap}
+        .mode-btn{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:12px 14px;border-radius:14px;cursor:pointer;font-weight:700}
+        .mode-btn.active{background:linear-gradient(180deg,rgba(114,230,209,.18),rgba(114,230,209,.08));border-color:#4b8d84;color:#fff}
+        .actions{display:flex;gap:8px;flex-wrap:wrap}
+        .btn{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:12px 14px;border-radius:14px;cursor:pointer;font-weight:700}
+        .btn:hover,.mode-btn:hover{transform:translateY(-1px)}
+        .workspace{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(420px,.98fr);gap:18px;align-items:start}
+        .panel{border:1px solid var(--line);background:linear-gradient(180deg,var(--panel),var(--panel-2));border-radius:26px;box-shadow:var(--shadow)}
+        .left{padding:18px}
+        .right{position:sticky;top:16px;padding:14px}
+        .section-title{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:800;margin-bottom:10px}
+        .step{padding:16px;border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.02);margin-bottom:12px;transition:.2s}
+        .step.active{outline:2px solid rgba(114,230,209,.35);background:rgba(114,230,209,.07)}
+        .step h3{margin:0 0 8px;font-size:20px}
+        .step p,.step li{line-height:1.62;color:#e4ebff}
+        .step ul{margin:8px 0 0 20px;padding:0}
+        .formula{margin:10px 0;padding:12px 14px;border-radius:16px;background:#0b1326;border:1px dashed #42527a;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#dff8f3;overflow:auto}
+        .mini{font-size:14px;color:var(--muted)}
+        .kbd{padding:2px 7px;border:1px solid #4c5b80;border-bottom-width:3px;border-radius:8px;background:#11192c;font-size:12px;color:#e8f0ff}
+        .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+        .control{padding:12px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02)}
+        .control label{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:#dbe5ff;margin-bottom:8px}
+        input[type="range"]{width:100%}
+        .toggle-row{display:flex;gap:8px;flex-wrap:wrap}
+        .toggle{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#11192d;color:#eef3ff;cursor:pointer;font-size:14px}
+        .toggle.on{background:rgba(114,230,209,.13);border-color:#4e8b84;color:#fff}
+        .viz{border:1px solid var(--line);border-radius:24px;background:radial-gradient(circle at top,#111a30 0,#0b1120 100%);padding:10px;position:relative;min-height:620px}
+        .viz svg{width:100%;height:600px;display:block;border-radius:18px;background:linear-gradient(180deg,#09111e,#0c1426);cursor:grab}
+        .legend,.status{margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.03)}
+        .legend-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;font-size:14px;color:#dbe5ff}
+        .key{display:flex;align-items:center;gap:8px}
+        .sw{width:18px;height:4px;border-radius:999px;background:#fff}
+        .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+        .card{padding:14px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.03)}
+        .card .n{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+        .card .v{font-size:28px;font-weight:800;margin-top:6px}
+        .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+        .tab{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#10172a;cursor:pointer;font-weight:700}
+        .tab.active{background:rgba(139,184,255,.14);border-color:#5a78b6}
+        .hidden{display:none !important}
+        .quiz-q{padding:14px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02);margin-bottom:10px}
+        .answers{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+        .answer-btn{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#11192d;color:#eef3ff;cursor:pointer}
+        .answer-btn.good{background:rgba(158,255,176,.15);border-color:#49995b}
+        .answer-btn.bad{background:rgba(255,154,154,.12);border-color:#a76060}
+        .print-note{font-size:13px;color:var(--muted)}
+        .footer{margin:18px 0 10px;padding:16px;text-align:center;color:var(--muted)}
+        .formula-inline{color:var(--accent)}
+        .pop{position:absolute;right:14px;top:14px;max-width:280px;background:linear-gradient(180deg,rgba(114,230,209,.16),rgba(114,230,209,.08));border:1px solid #4b8d84;border-radius:18px;padding:12px 14px;color:#f1fffb;box-shadow:var(--shadow);animation:hintBounce 1.8s ease-in-out infinite alternate}
+        .pop button{margin-top:8px;border:none;background:#092019;color:#eafff9;padding:8px 10px;border-radius:10px;cursor:pointer}
+        @keyframes hintBounce{from{transform:translateY(0)}to{transform:translateY(-4px)}}
+        .modal{position:fixed;inset:0;background:rgba(3,7,16,.82);display:none;align-items:center;justify-content:center;padding:16px;z-index:30}
+        .modal.open{display:flex}
+        .modal-box{width:min(1200px,96vw);height:min(90vh,900px);background:#0b1120;border:1px solid var(--line);border-radius:24px;padding:14px;position:relative;box-shadow:var(--shadow)}
+        .close{position:absolute;right:14px;top:14px;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#11192d;color:#fff;cursor:pointer;font-size:24px}
+        .modal .viz{min-height:auto;height:100%}
+        .modal .viz svg{height:calc(100% - 150px)}
+        .badge{display:inline-block;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid var(--line);font-size:12px;color:#dfe7ff}
+        @media (max-width:1100px){.workspace{grid-template-columns:1fr}.right{position:static}.hero-grid{grid-template-columns:1fr}.controls,.cards{grid-template-columns:1fr}}
+        @media print{
+            body{background:#fff;color:#000}
+            .topbar,.actions,.controls,.toggle-row,.quiz-only,.pop,.modal,.footer{display:none !important}
+            .panel,.hero,.viz,.step,.card,.legend,.status{box-shadow:none;background:#fff;color:#000;border-color:#999}
+            .workspace{grid-template-columns:1fr}
+            .right{position:static}
+            .viz svg{background:#fff}
+            .hero::after{display:none}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div class="eyebrow">Наглядная геометрия · окружность · ОГЭ</div>
+        <h1>Одна ключевая задача: длина общей касательной к двум окружностям</h1>
+        <p class="lead">Разберём задачу, которая собирает сразу несколько фундаментальных идей: <b>радиус к точке касания</b>, <b>линия центров</b>, <b>прямоугольный треугольник</b>, <b>теорема Пифагора</b> и различие между <b>внешней</b> и <b>внутренней</b> общей касательной.</p>
+        <div class="hero-grid">
+            <div class="banner">
+                <b>Задача.</b> Радиусы двух окружностей равны <span class="formula-inline">27</span> и <span class="formula-inline">13</span>, расстояние между их центрами равно <span class="formula-inline">50</span>. Найдите длину <b>внешней общей касательной</b>.<br><br>
+                Это опорная задача: если Вы уверенно понимаете именно её, то большая часть задач на систему окружностей становится заметно проще.
+                <div class="chips">
+                    <div class="chip">линия центров</div>
+                    <div class="chip">радиус ⟂ касательной</div>
+                    <div class="chip">прямоугольный треугольник</div>
+                    <div class="chip">Пифагор</div>
+                    <div class="chip">внешняя / внутренняя касательная</div>
+                </div>
+            </div>
+            <div class="banner">
+                <div><span class="badge">Что отработаем</span></div>
+                <ul>
+                    <li>как увидеть стандартные доппостроения;</li>
+                    <li>почему появляется разность радиусов;</li>
+                    <li>как быстро получить формулу <b>ℓ = √(d² − (R − r)²)</b>;</li>
+                    <li>как не перепутать внешний и внутренний случай;</li>
+                    <li>как решать похожие задачи по шаблону.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <div class="topbar">
+        <div class="modes">
+            <button class="mode-btn active" data-mode="analysis">Разбор</button>
+            <button class="mode-btn" data-mode="errors">Ошибки</button>
+            <button class="mode-btn" data-mode="selfcheck">Самопроверка</button>
+            <button class="mode-btn" data-mode="generator">Генератор</button>
+            <button class="mode-btn" data-mode="quiz">Квиз</button>
+            <button class="mode-btn" data-mode="memo">Памятка</button>
+            <button class="mode-btn" data-mode="summary">Итог</button>
+        </div>
+        <div class="actions">
+            <button class="btn" id="showAllBtn">Показать все шаги</button>
+            <button class="btn" id="fitBtn">Сбросить вид</button>
+            <button class="btn" id="openModalBtn">Открыть большой чертёж</button>
+        </div>
+    </div>
+
+    <div class="workspace">
+        <section class="panel left">
+            <div id="mode-analysis" class="mode-panel">
+                <div class="section-title">Подробный разбор</div>
+
+                <div class="tabs" id="stepTabs">
+                    <button class="tab active" data-step="0">Дано</button>
+                    <button class="tab" data-step="1">Смысл</button>
+                    <button class="tab" data-step="2">Идея</button>
+                    <button class="tab" data-step="3">Построение</button>
+                    <button class="tab" data-step="4">Решение</button>
+                    <button class="tab" data-step="5">Проверка</button>
+                    <button class="tab" data-step="6">Вывод</button>
+                </div>
+
+                <article class="step active" data-step-box="0">
+                    <h3>1. Что дано</h3>
+                    <p>Есть две окружности с радиусами <b>R = 27</b> и <b>r = 13</b>. Расстояние между центрами равно <b>d = 50</b>. Нужно найти длину <b>внешней общей касательной</b>.</p>
+                    <div class="formula">R = 27, r = 13, d = 50, найти ℓ</div>
+                    <p class="mini">Ключевой вопрос: какую фигуру мы хотим получить? Ответ: <b>прямоугольный треугольник</b>.</p>
+                </article>
+
+                <article class="step" data-step-box="1">
+                    <h3>2. Смысл условий</h3>
+                    <p>Задачи про окружности почти никогда не решаются «самими окружностями». Они переводятся в задачи про <b>отрезки, углы и треугольники</b>.</p>
+                    <ul>
+                        <li>Общая касательная даёт две точки касания.</li>
+                        <li>Радиусы, проведённые в эти точки, перпендикулярны касательной.</li>
+                        <li>Линия центров соединяет два центра и становится гипотенузой нужного прямоугольного треугольника.</li>
+                    </ul>
+                </article>
+
+                <article class="step" data-step-box="2">
+                    <h3>3. Идея решения</h3>
+                    <p>Если опустить перпендикуляр от одного центра на продолжение радиуса другой окружности, то появится прямоугольный треугольник, в котором:</p>
+                    <ul>
+                        <li>гипотенуза — это расстояние между центрами <b>d</b>;</li>
+                        <li>один катет — <b>разность радиусов R − r</b>;</li>
+                        <li>второй катет — длина касательной <b>ℓ</b>.</li>
+                    </ul>
+                    <div class="formula">ℓ² + (R − r)² = d²</div>
+                </article>
+
+                <article class="step" data-step-box="3">
+                    <h3>4. Дополнительное построение</h3>
+                    <p>Это главное место всей задачи.</p>
+                    <ul>
+                        <li>Проводим <b>линию центров O₁O₂</b>.</li>
+                        <li>Проводим <b>радиусы к точкам касания</b>.</li>
+                        <li>Замечаем, что оба радиуса перпендикулярны касательной.</li>
+                        <li>Получаем прямоугольник и рядом — прямоугольный треугольник.</li>
+                    </ul>
+                    <p>Именно здесь из чертежа рождается <b>разность радиусов</b>: большой «вертикальный подъём» минус малый.</p>
+                </article>
+
+                <article class="step" data-step-box="4">
+                    <h3>5. Пошаговое решение</h3>
+                    <p>Подставим числа:</p>
+                    <div class="formula">ℓ = √(d² − (R − r)²) = √(50² − (27 − 13)²)</div>
+                    <div class="formula">ℓ = √(2500 − 14²) = √(2500 − 196) = √2304 = 48</div>
+                    <p>Ответ: <b>48</b>.</p>
+                </article>
+
+                <article class="step" data-step-box="5">
+                    <h3>6. Проверка здравым смыслом</h3>
+                    <ul>
+                        <li>Разность радиусов равна <b>14</b>, это меньше расстояния между центрами <b>50</b> — значит треугольник существует.</li>
+                        <li>Длина касательной <b>48</b> чуть меньше <b>50</b>, это логично: катет меньше гипотенузы.</li>
+                        <li>Число красивое, потому что вышла пифагорова тройка: <b>14, 48, 50</b>.</li>
+                    </ul>
+                </article>
+
+                <article class="step" data-step-box="6">
+                    <h3>7. Главный вывод</h3>
+                    <p>В задачах на две окружности надо не «смотреть на круги», а <b>собирать прямоугольный треугольник</b>. Для внешней касательной всегда работает шаблон:</p>
+                    <div class="formula">ℓвнеш = √(d² − (R − r)²)</div>
+                    <p>А для внутренней касательной почти тот же шаблон, но вместо разности радиусов стоит <b>сумма</b>:</p>
+                    <div class="formula">ℓвнутр = √(d² − (R + r)²)</div>
+                </article>
+            </div>
+
+            <div id="mode-errors" class="mode-panel hidden">
+                <div class="section-title">Типичные ошибки</div>
+                <div class="step active">
+                    <h3>Что чаще всего ломает решение</h3>
+                    <ul>
+                        <li><b>Не проводят радиусы к точкам касания.</b> Тогда не видно прямых углов.</li>
+                        <li><b>Путают внешний и внутренний случай.</b> Для внешней касательной: <b>R − r</b>, для внутренней: <b>R + r</b>.</li>
+                        <li><b>Пишут Пифагора не в тот треугольник.</b> Сначала надо явно увидеть треугольник.</li>
+                        <li><b>Берут 27 + 13 в нашей задаче.</b> Это сразу переводит задачу в другой тип.</li>
+                        <li><b>Не проверяют существование.</b> Подкоренное выражение должно быть неотрицательным.</li>
+                    </ul>
+                    <div class="formula">Для внешней касательной нужно d ≥ |R − r|, для внутренней — d ≥ R + r.</div>
+                </div>
+            </div>
+
+            <div id="mode-selfcheck" class="mode-panel hidden">
+                <div class="section-title">Самопроверка</div>
+                <div class="cards">
+                    <div class="card"><div class="n">Вопрос 1</div><div class="v" style="font-size:20px">Почему радиус перпендикулярен касательной?</div><div class="mini">Это базовое свойство касательной в точке касания.</div></div>
+                    <div class="card"><div class="n">Вопрос 2</div><div class="v" style="font-size:20px">Почему появляется именно R − r?</div><div class="mini">Потому что при внешней касательной радиусы отстоят от касательной по одну сторону.</div></div>
+                    <div class="card"><div class="n">Вопрос 3</div><div class="v" style="font-size:20px">Какая величина является гипотенузой?</div><div class="mini">Расстояние между центрами: d.</div></div>
+                    <div class="card"><div class="n">Вопрос 4</div><div class="v" style="font-size:20px">Что изменится для внутренней касательной?</div><div class="mini">Разность радиусов заменится на сумму.</div></div>
+                </div>
+            </div>
+
+            <div id="mode-generator" class="mode-panel hidden">
+                <div class="section-title">Генератор похожих задач</div>
+                <div class="step active">
+                    <h3>Сгенерируйте новый безопасный пример</h3>
+                    <p>Нажмите кнопку справа <span class="kbd">Новая задача</span>. Генератор подбирает такие значения, чтобы:</p>
+                    <ul>
+                        <li>внешняя касательная существовала;</li>
+                        <li>под корнем получалось положительное число;</li>
+                        <li>ответ был целым или понятным иррациональным числом;</li>
+                        <li>чертёж автоматически перестраивался.</li>
+                    </ul>
+                    <div class="formula" id="generatedText">Сейчас на экране исходная задача: R = 27, r = 13, d = 50.</div>
+                </div>
+            </div>
+
+            <div id="mode-quiz" class="mode-panel hidden quiz-only">
+                <div class="section-title">Мини-квиз</div>
+                <div id="quizBox"></div>
+            </div>
+
+            <div id="mode-memo" class="mode-panel hidden">
+                <div class="section-title">Памятка</div>
+                <div class="step active">
+                    <h3>Алгоритм за 20 секунд</h3>
+                    <ol>
+                        <li>Проведите линию центров.</li>
+                        <li>Проведите радиусы к точкам касания.</li>
+                        <li>Отметьте прямые углы.</li>
+                        <li>Соберите прямоугольный треугольник.</li>
+                        <li>Для внешней касательной берите <b>R − r</b>.</li>
+                        <li>Для внутренней касательной берите <b>R + r</b>.</li>
+                        <li>Применяйте Пифагора.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div id="mode-summary" class="mode-panel hidden">
+                <div class="section-title">Итог</div>
+                <div class="step active">
+                    <h3>Что Вы должны унести из этой страницы</h3>
+                    <ul>
+                        <li>Главный объект решения — <b>не окружность, а прямоугольный треугольник</b>.</li>
+                        <li>Главное доппостроение — <b>линия центров + радиусы к точкам касания</b>.</li>
+                        <li>Формулы надо не заучивать отдельно, а видеть на чертеже.</li>
+                        <li>Одна и та же идея покрывает целый пласт задач ОГЭ и базового уровня ЕГЭ.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <aside class="panel right">
+            <div class="section-title">Интерактивная визуализация</div>
+            <div class="controls">
+                <div class="control">
+                    <label><span>Большой радиус R</span><b id="RLabel">27</b></label>
+                    <input id="RRange" type="range" min="10" max="40" step="1" value="27">
+                </div>
+                <div class="control">
+                    <label><span>Малый радиус r</span><b id="rLabel">13</b></label>
+                    <input id="rRange" type="range" min="4" max="25" step="1" value="13">
+                </div>
+                <div class="control">
+                    <label><span>Расстояние между центрами d</span><b id="dLabel">50</b></label>
+                    <input id="dRange" type="range" min="18" max="80" step="1" value="50">
+                </div>
+                <div class="control">
+                    <label><span>Масштаб</span><b id="zoomLabel">100%</b></label>
+                    <input id="zoomRange" type="range" min="60" max="180" step="1" value="100">
+                </div>
+            </div>
+            <div class="toggle-row" style="margin-bottom:10px">
+                <button class="toggle on" data-toggle="showExternal">Внешняя касательная</button>
+                <button class="toggle" data-toggle="showInternal">Внутренняя касательная</button>
+                <button class="toggle on" data-toggle="showTri">Прямоугольный треугольник</button>
+                <button class="toggle on" data-toggle="showLabels">Подписи</button>
+                <button class="toggle on" data-toggle="showHelp">Подсказка</button>
+                <button class="toggle" id="newTaskBtn">Новая задача</button>
+            </div>
+            <div class="viz">
+                <div class="pop" id="hintPop">Нажмите на шаг слева или вкладку сверху — чертёж подсветит нужную идею. Колесо мыши меняет масштаб, перетаскивание двигает сцену.<br><button id="closeHint">Понятно</button></div>
+                <svg id="svgMain" viewBox="0 0 760 600" aria-label="Интерактивный геометрический чертёж">
+                    <defs>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8bb8ff"></path></marker>
+                        <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
+                            <path d="M 28 0 L 0 0 0 28" fill="none" stroke="#13203b" stroke-width="1"/>
+                        </pattern>
+                    </defs>
+                    <rect x="0" y="0" width="760" height="600" fill="url(#grid)" />
+                    <g id="scene"></g>
+                </svg>
+                <div class="legend">
+                    <div class="legend-grid">
+                        <div class="key"><span class="sw" style="background:#72e6d1"></span> касательная</div>
+                        <div class="key"><span class="sw" style="background:#8bb8ff"></span> линия центров / радиусы</div>
+                        <div class="key"><span class="sw" style="background:#ffd27a"></span> разность или сумма радиусов</div>
+                        <div class="key"><span class="sw" style="background:#ff9a9a"></span> прямой угол</div>
+                    </div>
+                </div>
+                <div class="status">
+                    <div class="cards">
+                        <div class="card"><div class="n">Внешняя касательная</div><div class="v" id="externalVal">48</div><div class="mini">ℓ = √(d² − (R − r)²)</div></div>
+                        <div class="card"><div class="n">Внутренняя касательная</div><div class="v" id="internalVal">30</div><div class="mini">ℓ = √(d² − (R + r)²)</div></div>
+                        <div class="card"><div class="n">Разность радиусов</div><div class="v" id="diffVal">14</div><div class="mini">R − r</div></div>
+                        <div class="card"><div class="n">Сумма радиусов</div><div class="v" id="sumVal">40</div><div class="mini">R + r</div></div>
+                    </div>
+                </div>
+                <p class="print-note">Подсветка в модуле «Разбор» синхронизирована с чертежом. Нажатие на сам чертёж открывает увеличенную версию.</p>
+            </div>
+        </aside>
+    </div>
+
+    <div class="footer">МАТЕМАТИКА. НАГЛЯДНО. Одна задача — много правильных идей.</div>
+</div>
+
+<div class="modal" id="modal">
+    <div class="modal-box">
+        <button class="close" id="closeModal">×</button>
+        <div class="section-title">Увеличенная визуализация</div>
+        <div class="viz" style="height:calc(100% - 26px)">
+            <svg id="svgModal" viewBox="0 0 760 600"><rect x="0" y="0" width="760" height="600" fill="url(#grid)" /><g id="sceneModal"></g></svg>
+        </div>
+    </div>
+</div>
+
+<script>
+    const state = {
+        R:27,
+        r:13,
+        d:50,
+        zoom:1,
+        panX:0,
+        panY:0,
+        mode:'analysis',
+        activeStep:0,
+        showExternal:true,
+        showInternal:false,
+        showTri:true,
+        showLabels:true,
+        showHelp:true,
+    };
+
+    const els = {
+        RRange: document.getElementById('RRange'),
+        rRange: document.getElementById('rRange'),
+        dRange: document.getElementById('dRange'),
+        zoomRange: document.getElementById('zoomRange'),
+        RLabel: document.getElementById('RLabel'),
+        rLabel: document.getElementById('rLabel'),
+        dLabel: document.getElementById('dLabel'),
+        zoomLabel: document.getElementById('zoomLabel'),
+        externalVal: document.getElementById('externalVal'),
+        internalVal: document.getElementById('internalVal'),
+        diffVal: document.getElementById('diffVal'),
+        sumVal: document.getElementById('sumVal'),
+        scene: document.getElementById('scene'),
+        sceneModal: document.getElementById('sceneModal'),
+        svgMain: document.getElementById('svgMain'),
+        svgModal: document.getElementById('svgModal'),
+        hintPop: document.getElementById('hintPop'),
+        generatedText: document.getElementById('generatedText'),
+        modal: document.getElementById('modal')
+    };
+
+    function fmt(x){
+        if (Number.isNaN(x)) return '—';
+        const rx = Math.round(x*100)/100;
+        return Number.isInteger(rx) ? String(rx) : rx.toFixed(2).replace(/\.00$/,'');
+    }
+
+    function calc(){
+        const diff = state.R - state.r;
+        const sum = state.R + state.r;
+        const external2 = state.d*state.d - diff*diff;
+        const internal2 = state.d*state.d - sum*sum;
+        return {
+            diff, sum,
+            external: external2 >= 0 ? Math.sqrt(external2) : NaN,
+            internal: internal2 >= 0 ? Math.sqrt(internal2) : NaN,
+            external2, internal2
+        };
+    }
+
+    function line(x1,y1,x2,y2,attrs=''){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${attrs}/>`;}
+    function circle(cx,cy,r,attrs=''){return `<circle cx="${cx}" cy="${cy}" r="${r}" ${attrs}/>`;}
+    function text(x,y,t,attrs=''){return `<text x="${x}" y="${y}" ${attrs}>${t}</text>`;}
+    function rect(x,y,w,h,attrs=''){return `<rect x="${x}" y="${y}" width="${w}" height="${h}" ${attrs}/>`;}
+    function path(d,attrs=''){return `<path d="${d}" ${attrs}/>`;}
+
+    function tangentForExternal(top=true){
+        const O1={x:180,y:380};
+        const O2={x:180+state.d*8,y:380};
+        const y1=O1.y - state.r*8;
+        const y2=O2.y - state.R*8;
+        const p1={x:O1.x,y:y1};
+        const p2={x:O2.x,y:y2};
+        return {O1,O2,p1,p2};
+    }
+
+    function tangentForInternal(){
+        const O1={x:180,y:380};
+        const O2={x:180+state.d*8,y:380};
+        const y1=O1.y + state.r*8;
+        const y2=O2.y - state.R*8;
+        const p1={x:O1.x,y:y1};
+        const p2={x:O2.x,y:y2};
+        return {O1,O2,p1,p2};
+    }
+
+    function getHighlight(){
+        if(state.mode !== 'analysis') return 'all';
+        return ['given','meaning','idea','build','solve','check','final'][state.activeStep] || 'all';
+    }
+
+    function renderScene(target){
+        const g = target;
+        const c = calc();
+        const ext = tangentForExternal();
+        const intl = tangentForInternal();
+        const hl = getHighlight();
+
+        const base = [];
+        base.push(`<g transform="translate(${state.panX},${state.panY}) scale(${state.zoom})">`);
+
+        // circles
+        base.push(circle(ext.O1.x,ext.O1.y,state.r*8,`fill="rgba(139,184,255,.06)" stroke="#8bb8ff" stroke-width="3"`));
+        base.push(circle(ext.O2.x,ext.O2.y,state.R*8,`fill="rgba(114,230,209,.06)" stroke="#72e6d1" stroke-width="3"`));
+
+        // centers line
+        const centerStroke = (hl==='build'||hl==='solve'||hl==='idea'||hl==='all'||hl==='meaning') ? '#cce2ff' : '#668';
+        base.push(line(ext.O1.x,ext.O1.y,ext.O2.x,ext.O2.y,`stroke="${centerStroke}" stroke-width="3" stroke-dasharray="8 6"`));
+
+        // external tangent and radii
+        if(state.showExternal){
+            const tStroke = (hl==='build'||hl==='solve'||hl==='idea'||hl==='all') ? '#72e6d1' : '#4b6a65';
+            base.push(line(ext.p1.x-120,ext.p1.y,ext.p2.x+120,ext.p2.y,`stroke="${tStroke}" stroke-width="4"`));
+            base.push(line(ext.O1.x,ext.O1.y,ext.p1.x,ext.p1.y,`stroke="#8bb8ff" stroke-width="3"`));
+            base.push(line(ext.O2.x,ext.O2.y,ext.p2.x,ext.p2.y,`stroke="#8bb8ff" stroke-width="3"`));
+            // right angles
+            base.push(rect(ext.p1.x-10,ext.p1.y-10,10,10,`fill="none" stroke="#ff9a9a" stroke-width="2"`));
+            base.push(rect(ext.p2.x-10,ext.p2.y,10,10,`fill="none" stroke="#ff9a9a" stroke-width="2"`));
+
+            // triangle for external
+            if(state.showTri){
+                const H={x:ext.O1.x,y:ext.p2.y};
+                const triStroke=(hl==='solve'||hl==='idea'||hl==='all')?'#ffd27a':'#6b6247';
+                base.push(line(ext.O1.x,ext.O1.y,H.x,H.y,`stroke="${triStroke}" stroke-width="3" stroke-dasharray="6 5"`));
+                base.push(line(H.x,H.y,ext.O2.x,ext.O2.y,`stroke="${triStroke}" stroke-width="3" stroke-dasharray="6 5"`));
+                base.push(rect(H.x,H.y,12,12,`fill="none" stroke="#ff9a9a" stroke-width="2"`));
+                if(state.showLabels){
+                    base.push(text((ext.O1.x+ext.O2.x)/2, ext.O1.y-12, `d = ${state.d}`, `fill="#dfe8ff" font-size="18" font-weight="700" text-anchor="middle"`));
+                    base.push(text(H.x-14,(ext.O1.y+H.y)/2, `R − r = ${c.diff}`, `fill="#ffd27a" font-size="18" font-weight="700" text-anchor="end"`));
+                    base.push(text((H.x+ext.O2.x)/2, H.y-10, `ℓ = ${fmt(c.external)}`, `fill="#72e6d1" font-size="19" font-weight="800" text-anchor="middle"`));
+                }
+            }
+        }
+
+        // internal tangent
+        if(state.showInternal){
+            const tStroke = '#8bb8ff';
+            base.push(line(intl.p1.x-90,intl.p1.y,intl.p2.x+90,intl.p2.y,`stroke="${tStroke}" stroke-width="4" opacity="0.95"`));
+            base.push(line(intl.O1.x,intl.O1.y,intl.p1.x,intl.p1.y,`stroke="#8bb8ff" stroke-width="3"`));
+            base.push(line(intl.O2.x,intl.O2.y,intl.p2.x,intl.p2.y,`stroke="#72e6d1" stroke-width="3"`));
+            base.push(rect(intl.p1.x,intl.p1.y-10,10,10,`fill="none" stroke="#ff9a9a" stroke-width="2"`));
+            base.push(rect(intl.p2.x-10,intl.p2.y,10,10,`fill="none" stroke="#ff9a9a" stroke-width="2"`));
+            if(state.showLabels){
+                base.push(text((intl.O1.x+intl.O2.x)/2, intl.O1.y+30, `для внутренней: R + r = ${c.sum}`, `fill="#d7e6ff" font-size="17" font-weight="700" text-anchor="middle"`));
+                base.push(text((intl.O1.x+intl.O2.x)/2, intl.p1.y-12, `ℓвнутр = ${fmt(c.internal)}`, `fill="#8bb8ff" font-size="18" font-weight="800" text-anchor="middle"`));
+            }
+        }
+
+        // points/labels
+        if(state.showLabels){
+            const points = [
+                [ext.O1.x,ext.O1.y,'O₁'], [ext.O2.x,ext.O2.y,'O₂'],
+                [ext.p1.x,ext.p1.y,'A'], [ext.p2.x,ext.p2.y,'B'],
+                [intl.p1.x,intl.p1.y,'C'], [intl.p2.x,intl.p2.y,'D']
+            ];
+            points.forEach(([x,y,t])=>{base.push(circle(x,y,4,`fill="#fff"`)); base.push(text(x+10,y-10,t,`fill="#eef4ff" font-size="17" font-weight="700"`));});
+            base.push(text(ext.O1.x, ext.O1.y + state.r*8 + 28, `r = ${state.r}`, `fill="#8bb8ff" font-size="17" text-anchor="middle"`));
+            base.push(text(ext.O2.x, ext.O2.y + state.R*8 + 28, `R = ${state.R}`, `fill="#72e6d1" font-size="17" text-anchor="middle"`));
+        }
+
+        // step-specific emphasis callouts
+        if(hl==='given'){
+            base.push(text(90,70,'Дано: два радиуса и расстояние между центрами',`fill="#ffffff" font-size="24" font-weight="800"`));
+        }
+        if(hl==='idea'){
+            base.push(path(`M ${ext.O1.x+14} ${ext.O1.y-10} Q ${ext.O1.x+50} ${ext.O1.y-120} ${ext.O2.x-80} ${ext.p2.y-20}` ,`fill="none" stroke="#ffd27a" stroke-width="4" marker-end="url(#arrow)"`));
+        }
+        if(hl==='check'){
+            base.push(text(95,530,`Проверка: ${c.diff}² + ${fmt(c.external)}² = ${state.d}²`,`fill="#fff0c6" font-size="22" font-weight="800"`));
+        }
+        if(hl==='final'){
+            base.push(text(100,78,`Ответ: ℓ = ${fmt(c.external)}`,`fill="#9effb0" font-size="30" font-weight="900"`));
+        }
+
+        base.push(`</g>`);
+        g.innerHTML = base.join('');
+    }
+
+    function syncReadouts(){
+        const c = calc();
+        els.RLabel.textContent = state.R;
+        els.rLabel.textContent = state.r;
+        els.dLabel.textContent = state.d;
+        els.zoomLabel.textContent = Math.round(state.zoom*100) + '%';
+        els.externalVal.textContent = fmt(c.external);
+        els.internalVal.textContent = isNaN(c.internal) ? 'нет' : fmt(c.internal);
+        els.diffVal.textContent = fmt(c.diff);
+        els.sumVal.textContent = fmt(c.sum);
+
+        // constraints for safe geometry
+        if(state.r >= state.R){
+            state.r = state.R - 1;
+            els.rRange.value = state.r;
+        }
+        const minD = Math.max(18, state.R - state.r + 1);
+        if(state.d < minD){
+            state.d = minD;
+            els.dRange.value = state.d;
+        }
+        els.generatedText.textContent = `Текущая задача: R = ${state.R}, r = ${state.r}, d = ${state.d}. Внешняя касательная: ${fmt(c.external)}.`;
+    }
+
+    function render(){
+        syncReadouts();
+        renderScene(els.scene);
+        renderScene(els.sceneModal);
+        document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active', b.dataset.mode===state.mode));
+        document.querySelectorAll('.mode-panel').forEach(p=>p.classList.add('hidden'));
+        document.getElementById('mode-'+state.mode).classList.remove('hidden');
+        document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', Number(t.dataset.step)===state.activeStep));
+        document.querySelectorAll('.step').forEach(s=>{
+            const match = Number(s.dataset.stepBox)===state.activeStep;
+            if(s.dataset.stepBox!==undefined) s.classList.toggle('active', match);
+        });
+        document.querySelectorAll('.toggle[data-toggle]').forEach(t=>{
+            t.classList.toggle('on', state[t.dataset.toggle]);
+        });
+        if(!state.showHelp) els.hintPop.style.display='none';
+    }
+
+    function setMode(mode){ state.mode=mode; render(); }
+    document.querySelectorAll('.mode-btn').forEach(btn=>btn.addEventListener('click',()=>setMode(btn.dataset.mode)));
+    document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>{state.activeStep=Number(tab.dataset.step); state.mode='analysis'; render();}));
+    document.getElementById('showAllBtn').addEventListener('click',()=>{
+        state.mode='analysis';
+        document.querySelectorAll('[data-step-box]').forEach(s=>s.classList.add('active'));
+        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+        render();
+        document.querySelectorAll('[data-step-box]').forEach(s=>s.classList.add('active'));
+    });
+
+    ['RRange','rRange','dRange','zoomRange'].forEach(id=>{
+        els[id].addEventListener('input',e=>{
+            const v=Number(e.target.value);
+            if(id==='RRange') state.R=v;
+            if(id==='rRange') state.r=Math.min(v,state.R-1);
+            if(id==='dRange') state.d=v;
+            if(id==='zoomRange') state.zoom=v/100;
+            render();
+        })
+    });
+
+    document.querySelectorAll('.toggle[data-toggle]').forEach(btn=>btn.addEventListener('click',()=>{
+        const k=btn.dataset.toggle; state[k]=!state[k]; render();
+    }));
+    document.getElementById('closeHint').addEventListener('click',()=>{state.showHelp=false; render();});
+    document.getElementById('fitBtn').addEventListener('click',()=>{state.zoom=1; state.panX=0; state.panY=0; els.zoomRange.value=100; render();});
+
+    function generateTask(){
+        const triples = [
+            [27,13,50], [20,8,37], [18,6,30], [15,7,25], [24,9,41], [16,4,29]
+        ];
+        const [R,r,d] = triples[Math.floor(Math.random()*triples.length)];
+        state.R=R; state.r=r; state.d=d;
+        els.RRange.value=R; els.rRange.value=r; els.dRange.value=d;
+        render();
+        state.mode='generator';
+        render();
+    }
+    document.getElementById('newTaskBtn').addEventListener('click', generateTask);
+
+    const quizData = [
+        {q:'Что является гипотенузой в ключевом прямоугольном треугольнике?', a:['больший радиус','расстояние между центрами','длина касательной'], correct:1},
+        {q:'Что берётся для внешней общей касательной?', a:['R + r','R − r','R · r'], correct:1},
+        {q:'Какой первый обязательный шаг на чертеже?', a:['провести линию центров','сразу писать Пифагора','строить биссектрису'], correct:0},
+        {q:'Если R=27, r=13, d=50, то длина внешней касательной равна...', a:['40','48','36'], correct:1}
+    ];
+    function buildQuiz(){
+        const box = document.getElementById('quizBox');
+        box.innerHTML = quizData.map((item,idx)=>`
+        <div class="quiz-q">
+          <b>${idx+1}. ${item.q}</b>
+          <div class="answers">
+            ${item.a.map((ans,i)=>`<button class="answer-btn" data-q="${idx}" data-a="${i}">${ans}</button>`).join('')}
+          </div>
+        </div>`).join('');
+        box.querySelectorAll('.answer-btn').forEach(btn=>btn.addEventListener('click',()=>{
+            const q=Number(btn.dataset.q), a=Number(btn.dataset.a);
+            const isGood = quizData[q].correct===a;
+            box.querySelectorAll(`.answer-btn[data-q="${q}"]`).forEach(b=>b.classList.remove('good','bad'));
+            btn.classList.add(isGood?'good':'bad');
+        }));
+    }
+    buildQuiz();
+
+    // pan/zoom
+    function attachPanZoom(svg){
+        let down=false,start={x:0,y:0},pan0={x:0,y:0};
+        svg.addEventListener('mousedown',e=>{down=true; start={x:e.clientX,y:e.clientY}; pan0={x:state.panX,y:state.panY}; svg.style.cursor='grabbing';});
+        window.addEventListener('mouseup',()=>{down=false; svg.style.cursor='grab';});
+        window.addEventListener('mousemove',e=>{ if(!down) return; state.panX = pan0.x + (e.clientX-start.x); state.panY = pan0.y + (e.clientY-start.y); render(); });
+        svg.addEventListener('wheel',e=>{ e.preventDefault(); const next=Math.min(1.8,Math.max(.6,state.zoom + (e.deltaY<0?0.05:-0.05))); state.zoom=next; els.zoomRange.value=Math.round(next*100); render(); }, {passive:false});
+        svg.addEventListener('dblclick',()=>{document.getElementById('openModalBtn').click();});
+    }
+    attachPanZoom(els.svgMain); attachPanZoom(els.svgModal);
+
+    // modal
+    document.getElementById('openModalBtn').addEventListener('click',()=>els.modal.classList.add('open'));
+    document.getElementById('closeModal').addEventListener('click',()=>els.modal.classList.remove('open'));
+    els.modal.addEventListener('click',e=>{ if(e.target===els.modal) els.modal.classList.remove('open'); });
+    window.addEventListener('keydown',e=>{ if(e.key==='Escape') els.modal.classList.remove('open'); });
+
+    render();
+</script>
+</body>
+</html>
