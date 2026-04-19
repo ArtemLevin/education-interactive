@@ -522,15 +522,19 @@
 
             // triangle for external
             if(state.showTri){
-                const H={x:ext.O1.x,y:ext.p2.y};
+                const bigRad = {x:ext.p2.x - ext.O2.x, y:ext.p2.y - ext.O2.y};
+                const bigLen = Math.hypot(bigRad.x, bigRad.y) || 1;
+                const u = {x:bigRad.x/bigLen, y:bigRad.y/bigLen};
+                const proj = (ext.O1.x - ext.O2.x)*u.x + (ext.O1.y - ext.O2.y)*u.y;
+                const F = {x:ext.O2.x + u.x*proj, y:ext.O2.y + u.y*proj};
+                const ofLen = Math.hypot(ext.O1.x-F.x,ext.O1.y-F.y) || 1;
                 const triStroke=(hl==='solve'||hl==='idea'||hl==='all')?'#ffd27a':'#6b6247';
-                base.push(line(ext.O1.x,ext.O1.y,H.x,H.y,`stroke="${triStroke}" stroke-width="3" stroke-dasharray="6 5"`));
-                base.push(line(H.x,H.y,ext.O2.x,ext.O2.y,`stroke="${triStroke}" stroke-width="3" stroke-dasharray="6 5"`));
-                base.push(rect(H.x,H.y,12,12,`fill="none" stroke="#ff9a9a" stroke-width="2"`));
+                base.push(line(ext.O1.x,ext.O1.y,F.x,F.y,`stroke="${triStroke}" stroke-width="3"`));
+                base.push(path(rightAngleMark(F, {x:(ext.O1.x-F.x)/ofLen, y:(ext.O1.y-F.y)/ofLen}, u, 9), `fill="none" stroke="#ff9a9a" stroke-width="2"`));
                 if(state.showLabels){
                     base.push(text((ext.O1.x+ext.O2.x)/2, ext.O1.y-12, `d = ${state.d}`, `fill="#dfe8ff" font-size="18" font-weight="700" text-anchor="middle"`));
-                    base.push(text(H.x-14,(ext.O1.y+H.y)/2, `R − r = ${c.diff}`, `fill="#ffd27a" font-size="18" font-weight="700" text-anchor="end"`));
-                    base.push(text((H.x+ext.O2.x)/2, H.y-10, `ℓ = ${fmt(c.external)}`, `fill="#72e6d1" font-size="19" font-weight="800" text-anchor="middle"`));
+                    base.push(text((ext.O1.x+F.x)/2 - 8,(ext.O1.y+F.y)/2 - 8, `R − r = ${c.diff}`, `fill="#ffd27a" font-size="18" font-weight="700" text-anchor="end"`));
+                    base.push(text((ext.p1.x+ext.p2.x)/2, (ext.p1.y+ext.p2.y)/2 - 12, `ℓ = ${fmt(c.external)}`, `fill="#72e6d1" font-size="19" font-weight="800" text-anchor="middle"`));
                 }
             }
         }
