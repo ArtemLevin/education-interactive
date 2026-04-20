@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядное пособие — Конус, подобие и объёмы</title>
+    <style>
+        :root{
+            --bg:#f6f7f4;
+            --panel:#ffffff;
+            --ink:#161616;
+            --muted:#5b5f5d;
+            --line:#1f1f1f;
+            --accent:#0f766e;
+            --accent-2:#d97706;
+            --soft:#e8f3f2;
+            --soft-2:#fff2df;
+            --good:#1f7a1f;
+            --bad:#a11a1a;
+            --shadow:8px 8px 0 #111;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+        body{line-height:1.45}
+        .page{max-width:1440px;margin:0 auto;padding:18px}
+        .hero{
+            border:2px solid var(--line); background:var(--panel); box-shadow:var(--shadow);
+            padding:20px; margin-bottom:18px;
+        }
+        .hero-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+        .eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+        h1{margin:.25rem 0 .5rem;font-size:clamp(28px,4vw,48px);line-height:1.02;text-transform:uppercase}
+        .subtitle{max-width:900px;color:var(--muted);font-size:16px}
+        .badge-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+        .badge{border:2px solid var(--line);padding:8px 10px;font-weight:700;background:var(--soft)}
+        .controlbar{
+            display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:18px 0;
+        }
+        .controlbar > div, .mini-card, .panel, .tabpanel, .quiz-card, .gen-card{
+            border:2px solid var(--line);background:var(--panel);box-shadow:6px 6px 0 #111;
+        }
+        .controlbar > div{padding:10px}
+        .controlbar label{display:block;font-size:12px;font-weight:800;text-transform:uppercase;margin-bottom:6px}
+        input[type="range"], select, button{
+            width:100%;
+        }
+        button, select{
+            border:2px solid var(--line); background:#fff; padding:10px; font-weight:700; cursor:pointer;
+        }
+        input[type="range"]{accent-color:var(--accent)}
+        .workspace{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;align-items:start}
+        .leftcol{display:flex;flex-direction:column;gap:16px}
+        .rightcol{position:sticky;top:16px;display:flex;flex-direction:column;gap:16px}
+        .panel{padding:16px}
+        .panel h2{margin:0 0 10px;font-size:24px;text-transform:uppercase}
+        .panel h3{margin:14px 0 8px;font-size:18px}
+        .idea{background:var(--soft)}
+        .mistakes{background:#fff5f5}
+        .memo{background:#f5f8ff}
+        .step-list{display:grid;gap:10px}
+        .step{
+            border:2px solid var(--line);padding:12px;background:#fff;cursor:pointer;transition:transform .15s ease;
+        }
+        .step:hover{transform:translate(-2px,-2px)}
+        .step.active{background:var(--soft);outline:3px solid var(--accent)}
+        .step-title{font-weight:800;margin-bottom:6px}
+        .formula{font-size:clamp(18px,2vw,28px);font-weight:800;line-height:1.2;padding:10px 12px;border:2px dashed var(--line);background:#fcfcfc;overflow:auto}
+        .small{font-size:14px;color:var(--muted)}
+        .canvas-card{padding:12px}
+        .canvas-tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}
+        .legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+        .legend .mini-card{padding:10px}
+        .mini-card strong{display:block;font-size:14px;text-transform:uppercase;margin-bottom:4px}
+        canvas{display:block;width:100%;height:auto;border:2px solid var(--line);background:#fefefe;cursor:grab}
+        canvas:active{cursor:grabbing}
+        .status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+        .status{padding:10px;border:2px solid var(--line);background:#fff}
+        .status-label{font-size:12px;text-transform:uppercase;font-weight:800;color:var(--muted)}
+        .status-value{font-size:24px;font-weight:900}
+        .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+        .tab{width:auto;padding:10px 14px}
+        .tab.active{background:var(--soft)}
+        .tabpanel{padding:14px;display:none}
+        .tabpanel.active{display:block}
+        .qa{display:grid;gap:12px}
+        .quiz-card,.gen-card{padding:14px}
+        .question{font-weight:800;font-size:18px}
+        .answers{display:grid;gap:8px;margin-top:10px}
+        .answers button{text-align:left}
+        .result{margin-top:10px;font-weight:800}
+        .result.good{color:var(--good)}
+        .result.bad{color:var(--bad)}
+        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .print-note{margin-top:10px;font-size:13px;color:var(--muted)}
+        .focus{background:var(--soft-2);padding:8px 10px;border-left:6px solid var(--accent-2);font-weight:700}
+        .footer{margin:18px 0 8px;text-align:center;font-size:12px;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
+        .overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}
+        .overlay.open{display:flex}
+        .overlay-inner{background:#fff;border:2px solid #000;box-shadow:10px 10px 0 #111;max-width:min(1100px,95vw);width:100%;padding:14px;position:relative}
+        .overlay-close{position:absolute;right:10px;top:10px;width:auto;padding:8px 12px}
+        .overlay canvas{max-height:80vh}
+        .checklist{margin:0;padding-left:20px}
+        .checklist li{margin:6px 0}
+        @media (max-width: 1040px){
+            .workspace{grid-template-columns:1fr}
+            .rightcol{position:static}
+            .controlbar{grid-template-columns:repeat(2,minmax(0,1fr))}
+        }
+        @media (max-width: 720px){
+            .controlbar,.canvas-tools,.legend,.status-grid,.two-col{grid-template-columns:1fr}
+            .page{padding:12px}
+            h1{font-size:30px}
+        }
+        @media print{
+            .controlbar,.canvas-tools,.tabs,.answers button,.overlay,.footer{display:none !important}
+            .workspace{grid-template-columns:1fr}
+            .rightcol{position:static}
+            .panel,.tabpanel,.quiz-card,.gen-card,.hero,.controlbar>div,.mini-card{box-shadow:none}
+            body{background:#fff}
+            .page{max-width:none;padding:0}
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <section class="hero">
+        <div class="hero-top">
+            <div>
+                <div class="eyebrow">Наглядное пособие · ЕГЭ профиль · стереометрия</div>
+                <h1>Конус: отношение объёмов через коэффициент подобия</h1>
+                <div class="subtitle">
+                    Самая важная задача из занятия: через точку на высоте конуса проведена плоскость, параллельная основанию. Нужно по объёму малого конуса найти объём всего конуса. Главная идея — объём меняется как куб коэффициента подобия.
+                </div>
+                <div class="badge-row">
+                    <div class="badge">Подобие</div>
+                    <div class="badge">Объём конуса</div>
+                    <div class="badge">Коэффициент 1:5</div>
+                    <div class="badge">Типичная ошибка: забыть куб</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="controlbar">
+        <div>
+            <label for="cutRatio">Положение точки на высоте</label>
+            <input id="cutRatio" type="range" min="1" max="4" value="1" step="1" />
+            <div class="small">Верхняя часть : нижняя часть = <span id="ratioText">1 : 4</span></div>
+        </div>
+        <div>
+            <label for="smallVolume">Объём малого конуса</label>
+            <input id="smallVolume" type="range" min="2" max="40" value="10" step="1" />
+            <div class="small">V<sub>мал</sub> = <span id="smallVolumeText">10</span></div>
+        </div>
+        <div>
+            <label for="detailMode">Режим подробности</label>
+            <select id="detailMode">
+                <option value="base">Коротко</option>
+                <option value="full" selected>Подробно</option>
+            </select>
+        </div>
+        <div>
+            <label>&nbsp;</label>
+            <button id="showAllBtn">Показать все шаги</button>
+        </div>
+        <div>
+            <label>&nbsp;</label>
+            <button id="openModalBtn">Увеличить визуализацию</button>
+        </div>
+    </section>
+
+    <section class="workspace">
+        <div class="leftcol">
+            <section class="panel idea">
+                <h2>Идея решения</h2>
+                <div class="focus">Если плоскость параллельна основанию конуса, то маленький и большой конусы подобны. Значит, радиусы и высоты меняются в одинаковое число раз, а объёмы — в куб этого числа.</div>
+                <div class="formula" id="mainIdeaFormula">k = 5, поэтому V<sub>больш</sub> = 125 · V<sub>мал</sub></div>
+            </section>
+
+            <section class="panel">
+                <h2>Что дано</h2>
+                <ul class="checklist">
+                    <li>Через точку на высоте конуса проведена плоскость, параллельная основанию.</li>
+                    <li>Точка делит высоту в отношении <span id="givenRatioInline">1 : 4</span>, считая от вершины.</li>
+                    <li>Объём отсечённого малого конуса равен <span id="givenSmallInline">10</span>.</li>
+                    <li>Нужно найти объём всего исходного конуса.</li>
+                </ul>
+            </section>
+
+            <section class="panel">
+                <h2>Пошаговый разбор</h2>
+                <div class="step-list" id="steps"></div>
+            </section>
+
+            <section class="panel mistakes">
+                <h2>Типичные ошибки</h2>
+                <div class="tabs">
+                    <button class="tab active" data-tab="mist1">Ошибка 1</button>
+                    <button class="tab" data-tab="mist2">Ошибка 2</button>
+                    <button class="tab" data-tab="mist3">Ошибка 3</button>
+                </div>
+                <div class="tabpanel active" id="mist1">
+                    <h3>Умножают объём на 5, а не на 125</h3>
+                    <p>Пятёрка — это коэффициент изменения длины. Для объёма нужен <strong>куб</strong> коэффициента: 5³ = 125.</p>
+                </div>
+                <div class="tabpanel" id="mist2">
+                    <h3>Неверно читают отношение 1 : 4</h3>
+                    <p>Это означает: верхняя часть = 1 доля, нижняя часть = 4 доли, вся высота = 5 долей.</p>
+                </div>
+                <div class="tabpanel" id="mist3">
+                    <h3>Забывают про подобие</h3>
+                    <p>Плоскость параллельна основанию, значит сечение отсекает <strong>подобный</strong> меньший конус. Именно это даёт право переносить отношение высот на радиусы.</p>
+                </div>
+            </section>
+
+            <section class="panel memo">
+                <h2>Памятка</h2>
+                <div class="two-col">
+                    <div>
+                        <h3>Если сравниваются длины</h3>
+                        <div class="formula">k</div>
+                    </div>
+                    <div>
+                        <h3>Если сравниваются площади</h3>
+                        <div class="formula">k²</div>
+                    </div>
+                    <div>
+                        <h3>Если сравниваются объёмы</h3>
+                        <div class="formula">k³</div>
+                    </div>
+                    <div>
+                        <h3>Формула объёма конуса</h3>
+                        <div class="formula">V = (1/3) · π · R² · h</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="gen-card">
+                <h2>Тренировка</h2>
+                <p>Нажмите кнопку — получите похожую задачу и сразу увидите ответ.</p>
+                <button id="generateBtn">Сгенерировать похожую задачу</button>
+                <div id="generatedTask" style="margin-top:12px"></div>
+            </section>
+
+            <section class="quiz-card">
+                <h2>Мини-квиз</h2>
+                <div class="question" id="quizQuestion">Если линейный коэффициент подобия равен 3, во сколько раз меняется объём?</div>
+                <div class="answers" id="quizAnswers"></div>
+                <div class="result" id="quizResult"></div>
+            </section>
+        </div>
+
+        <div class="rightcol">
+            <section class="panel canvas-card">
+                <h2>Визуализация</h2>
+                <div class="canvas-tools">
+                    <button id="zoomInBtn">Увеличить</button>
+                    <button id="zoomOutBtn">Уменьшить</button>
+                    <button id="resetViewBtn">Сброс</button>
+                    <button id="toggleLabelsBtn">Метки: вкл</button>
+                </div>
+                <canvas id="scene" width="760" height="760" aria-label="Интерактивная визуализация конуса"></canvas>
+                <div class="status-grid">
+                    <div class="status"><div class="status-label">Коэффициент подобия</div><div class="status-value" id="kValue">5</div></div>
+                    <div class="status"><div class="status-label">Во сколько раз объём больше</div><div class="status-value" id="cubeValue">125</div></div>
+                    <div class="status"><div class="status-label">Малый объём</div><div class="status-value" id="smallStatus">10</div></div>
+                    <div class="status"><div class="status-label">Итоговый объём</div><div class="status-value" id="bigStatus">1250</div></div>
+                </div>
+                <div class="legend">
+                    <div class="mini-card"><strong>Бирюзовый</strong> Малый конус</div>
+                    <div class="mini-card"><strong>Оранжевый</strong> Основание большого конуса</div>
+                    <div class="mini-card"><strong>Пунктир</strong> Линия параллельного сечения</div>
+                    <div class="mini-card"><strong>Шкала справа</strong> Разбиение высоты по долям</div>
+                </div>
+                <div class="print-note">Подсказка: можно крутить колёсико мыши для зума и перетаскивать рисунок.</div>
+            </section>
+        </div>
+    </section>
+
+    <div class="footer">Математика. Наглядно.</div>
+    <div class="footer">Лёвин Артём Александрович Лёвин эксклюзивно для Валерии Деньгиной</div>
+</div>
+
+<div class="overlay" id="overlay">
+    <div class="overlay-inner">
+        <button class="overlay-close" id="overlayClose">Закрыть</button>
+        <canvas id="sceneModal" width="1200" height="900" aria-label="Увеличенная визуализация конуса"></canvas>
+    </div>
+</div>
+
+<script>
+    const state = {
+        topPart: 1,
+        bottomPart: 4,
+        smallVolume: 10,
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        showLabels: true,
+        activeStep: 0,
+        dragging: false,
+        lastX: 0,
+        lastY: 0,
+        detailMode: 'full'
+    };
+
+    const els = {
+        cutRatio: document.getElementById('cutRatio'),
+        smallVolume: document.getElementById('smallVolume'),
+        ratioText: document.getElementById('ratioText'),
+        smallVolumeText: document.getElementById('smallVolumeText'),
+        detailMode: document.getElementById('detailMode'),
+        mainIdeaFormula: document.getElementById('mainIdeaFormula'),
+        steps: document.getElementById('steps'),
+        givenRatioInline: document.getElementById('givenRatioInline'),
+        givenSmallInline: document.getElementById('givenSmallInline'),
+        kValue: document.getElementById('kValue'),
+        cubeValue: document.getElementById('cubeValue'),
+        smallStatus: document.getElementById('smallStatus'),
+        bigStatus: document.getElementById('bigStatus'),
+        scene: document.getElementById('scene'),
+        sceneModal: document.getElementById('sceneModal'),
+        openModalBtn: document.getElementById('openModalBtn'),
+        overlay: document.getElementById('overlay'),
+        overlayClose: document.getElementById('overlayClose'),
+        toggleLabelsBtn: document.getElementById('toggleLabelsBtn'),
+        quizQuestion: document.getElementById('quizQuestion'),
+        quizAnswers: document.getElementById('quizAnswers'),
+        quizResult: document.getElementById('quizResult'),
+        generatedTask: document.getElementById('generatedTask')
+    };
+
+    function getDerived(){
+        const totalParts = state.topPart + state.bottomPart;
+        const k = totalParts / state.topPart;
+        const cube = Math.round(k ** 3 * 1000) / 1000;
+        const bigVolume = Math.round(state.smallVolume * cube * 1000) / 1000;
+        return { totalParts, k, cube, bigVolume };
+    }
+
+    function formatNum(x){
+        return Number.isInteger(x) ? String(x) : String(x).replace('.', ',');
+    }
+
+    function updateText(){
+        const d = getDerived();
+        els.ratioText.textContent = `${state.topPart} : ${state.bottomPart}`;
+        els.smallVolumeText.textContent = formatNum(state.smallVolume);
+        els.givenRatioInline.textContent = `${state.topPart} : ${state.bottomPart}`;
+        els.givenSmallInline.textContent = formatNum(state.smallVolume);
+        els.kValue.textContent = formatNum(d.k);
+        els.cubeValue.textContent = formatNum(d.cube);
+        els.smallStatus.textContent = formatNum(state.smallVolume);
+        els.bigStatus.textContent = formatNum(d.bigVolume);
+        els.mainIdeaFormula.innerHTML = `k = ${formatNum(d.k)}, поэтому V<sub>больш</sub> = ${formatNum(d.cube)} · V<sub>мал</sub> = ${formatNum(d.bigVolume)}`;
+    }
+
+    function buildSteps(){
+        const d = getDerived();
+        const short = state.detailMode === 'base';
+        const steps = [
+            {
+                title: 'Шаг 1. Прочитать отношение правильно',
+                text: short
+                ? `Высота делится как ${state.topPart}:${state.bottomPart}, значит вся высота — ${d.totalParts} долей.`
+                : `Фраза «в отношении ${state.topPart}:${state.bottomPart}, считая от вершины» означает: от вершины до секущей плоскости — ${state.topPart} доля(и), от плоскости до основания — ${state.bottomPart} доля(и). Значит вся высота конуса состоит из ${d.totalParts} равных долей.`
+            },
+            {
+                title: 'Шаг 2. Ввести удобную переменную',
+                text: short
+                ? `Пусть малая высота = ${state.topPart}x, тогда вся высота = ${d.totalParts}x.`
+                : `Удобно положить одну долю равной x. Тогда высота малого конуса равна ${state.topPart}x, а высота всего конуса — ${d.totalParts}x. Это сразу показывает линейный коэффициент подобия.`
+            },
+            {
+                title: 'Шаг 3. Увидеть подобие конусов',
+                text: short
+                ? `Плоскость параллельна основанию, поэтому конусы подобны.`
+                : `Так как секущая плоскость параллельна основанию конуса, отсечённый сверху конус подобен исходному. Значит, отношение радиусов такое же, как отношение высот.`
+            },
+            {
+                title: 'Шаг 4. Найти линейный коэффициент',
+                text: short
+                ? `k = ${d.totalParts}/${state.topPart} = ${formatNum(d.k)}.`
+                : `Линейный коэффициент перехода от малого конуса к большому равен отношению соответствующих высот: k = (${d.totalParts}x)/(${state.topPart}x) = ${formatNum(d.k)}.`
+            },
+            {
+                title: 'Шаг 5. Перейти от длин к объёму',
+                text: short
+                ? `Объёмы относятся как k³ = ${formatNum(d.cube)}.`
+                : `Объём — величина трёхмерная. Поэтому при коэффициенте подобия ${formatNum(d.k)} объёмы относятся как k³ = ${formatNum(d.k)}³ = ${formatNum(d.cube)}.`
+            },
+            {
+                title: 'Шаг 6. Найти ответ',
+                text: short
+                ? `Vбольш = ${formatNum(state.smallVolume)} · ${formatNum(d.cube)} = ${formatNum(d.bigVolume)}.`
+                : `Если объём малого конуса равен ${formatNum(state.smallVolume)}, то объём всего конуса равен ${formatNum(state.smallVolume)} · ${formatNum(d.cube)} = ${formatNum(d.bigVolume)}.`
+            }
+        ];
+
+        els.steps.innerHTML = '';
+        steps.forEach((s, i) => {
+            const div = document.createElement('div');
+            div.className = 'step' + (i === state.activeStep ? ' active' : '');
+            div.innerHTML = `<div class="step-title">${s.title}</div><div>${s.text}</div>`;
+            div.addEventListener('click', () => { state.activeStep = i; buildSteps(); renderAll(); });
+            els.steps.appendChild(div);
+        });
+    }
+
+    function drawCone(ctx, canvas){
+        const { totalParts, k, cube } = getDerived();
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0,0,w,h);
+        ctx.save();
+        ctx.translate(w/2 + state.panX, h/2 + state.panY);
+        ctx.scale(state.zoom, state.zoom);
+
+        const H = Math.min(w,h)*0.58;
+        const R = H*0.34;
+        const apexY = -H/2;
+        const baseY = H/2;
+        const cutY = apexY + H * (state.topPart / totalParts);
+        const rSmall = R * (state.topPart / totalParts);
+
+        const is = (n) => state.activeStep === n;
+
+        // big cone fill
+        ctx.fillStyle = '#f7efe3';
+        ctx.strokeStyle = '#1f1f1f';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, apexY);
+        ctx.lineTo(-R, baseY);
+        ctx.ellipse(0, baseY, R, R*0.2, 0, Math.PI, 0, true);
+        ctx.lineTo(R, baseY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // big base
+        ctx.fillStyle = is(5) ? '#ffd8a8' : '#ffe9c7';
+        ctx.beginPath();
+        ctx.ellipse(0, baseY, R, R*0.2, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.stroke();
+
+        // small cone highlight
+        ctx.fillStyle = is(2) || is(3) || is(4) || is(5) ? 'rgba(15,118,110,0.25)' : 'rgba(15,118,110,0.14)';
+        ctx.beginPath();
+        ctx.moveTo(0, apexY);
+        ctx.lineTo(-rSmall, cutY);
+        ctx.ellipse(0, cutY, rSmall, rSmall*0.2, 0, Math.PI, 0, true);
+        ctx.lineTo(rSmall, cutY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#0f766e';
+        ctx.stroke();
+
+        // cut plane
+        ctx.setLineDash([8,8]);
+        ctx.strokeStyle = is(2) ? '#0f766e' : '#444';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(0, cutY, rSmall, rSmall*0.2, 0, 0, Math.PI*2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // height ruler
+        const rx = R + 70;
+        ctx.strokeStyle = '#111';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(rx, apexY);
+        ctx.lineTo(rx, baseY);
+        ctx.stroke();
+
+        for(let i=0;i<=totalParts;i++){
+            const y = apexY + (H/totalParts)*i;
+            ctx.beginPath();
+            ctx.moveTo(rx-10,y);
+            ctx.lineTo(rx+10,y);
+            ctx.stroke();
+        }
+
+        // highlight top part and bottom part
+        ctx.fillStyle = 'rgba(15,118,110,0.18)';
+        ctx.fillRect(rx-7, apexY, 14, cutY-apexY);
+        ctx.fillStyle = 'rgba(217,119,6,0.16)';
+        ctx.fillRect(rx-7, cutY, 14, baseY-cutY);
+
+        if(state.showLabels){
+            ctx.fillStyle = '#111';
+            ctx.font = 'bold 22px Arial';
+            ctx.fillText('вершина', -58, apexY - 14);
+            ctx.fillText('основание', -58, baseY + 42);
+            ctx.fillStyle = '#0f766e';
+            ctx.fillText(`малая высота = ${state.topPart}x`, rx + 20, apexY + (cutY-apexY)/2 + 8);
+            ctx.fillStyle = '#d97706';
+            ctx.fillText(`нижняя часть = ${state.bottomPart}x`, rx + 20, cutY + (baseY-cutY)/2 + 8);
+            ctx.fillStyle = '#111';
+            ctx.fillText(`вся высота = ${totalParts}x`, rx - 32, baseY + 74);
+            ctx.fillStyle = '#0f766e';
+            ctx.fillText(`k = ${formatNum(k)}`, -R - 120, cutY - 20);
+            ctx.fillText(`Vмал = ${formatNum(state.smallVolume)}`, -R - 120, cutY + 14);
+            ctx.fillStyle = '#d97706';
+            ctx.fillText(`Vбольш = ${formatNum(state.smallVolume * cube)}`, -R - 120, cutY + 48);
+        }
+
+        // formula block inside visual
+        ctx.fillStyle = '#fff';
+        ctx.strokeStyle = '#111';
+        ctx.lineWidth = 2;
+        ctx.fillRect(-w*0.34, h*0.18, w*0.68, 110);
+        ctx.strokeRect(-w*0.34, h*0.18, w*0.68, 110);
+        ctx.fillStyle = '#111';
+        ctx.font = 'bold 24px Arial';
+        ctx.fillText(`Линейный коэффициент: ${totalParts}/${state.topPart} = ${formatNum(k)}`, -w*0.31, h*0.18 + 34);
+        ctx.fillText(`Отношение объёмов: ${formatNum(k)}³ = ${formatNum(cube)}`, -w*0.31, h*0.18 + 68);
+        ctx.fillText(`Ответ: ${formatNum(state.smallVolume)} · ${formatNum(cube)} = ${formatNum(state.smallVolume*cube)}`, -w*0.31, h*0.18 + 100);
+
+        ctx.restore();
+    }
+
+    function renderAll(){
+        drawCone(els.scene.getContext('2d'), els.scene);
+        drawCone(els.sceneModal.getContext('2d'), els.sceneModal);
+    }
+
+    function resetView(){
+        state.zoom = 1;
+        state.panX = 0;
+        state.panY = 0;
+        renderAll();
+    }
+
+    function addCanvasInteractions(canvas){
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 1.1 : 0.9;
+            state.zoom = Math.max(0.5, Math.min(2.6, state.zoom * delta));
+            renderAll();
+        }, {passive:false});
+
+        canvas.addEventListener('mousedown', (e) => {
+            state.dragging = true;
+            state.lastX = e.clientX;
+            state.lastY = e.clientY;
+        });
+        window.addEventListener('mouseup', () => state.dragging = false);
+        window.addEventListener('mousemove', (e) => {
+            if(!state.dragging) return;
+            state.panX += e.clientX - state.lastX;
+            state.panY += e.clientY - state.lastY;
+            state.lastX = e.clientX;
+            state.lastY = e.clientY;
+            renderAll();
+        });
+    }
+
+    function bindTabs(){
+        document.querySelectorAll('.tab').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const parent = btn.parentElement;
+                parent.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const host = parent.parentElement;
+                host.querySelectorAll('.tabpanel').forEach(p => p.classList.remove('active'));
+                host.querySelector('#' + btn.dataset.tab).classList.add('active');
+            });
+        });
+    }
+
+    function buildQuiz(){
+        const quizzes = [
+            {q:'Если линейный коэффициент подобия равен 3, во сколько раз меняется объём?', a:['в 3 раза','в 6 раз','в 9 раз','в 27 раз'], correct:3, why:'Объём меняется как куб коэффициента: 3³ = 27.'},
+            {q:'Если высоты подобных конусов относятся как 1:4, как относятся их объёмы?', a:['1:4','1:8','1:16','1:64'], correct:3, why:'Для объёмов нужно возвести коэффициент в куб: 1³:4³ = 1:64.'},
+            {q:'Плоскость параллельна основанию конуса. Какой главный вывод?', a:['Конусы равновелики','Конусы подобны','Радиусы равны','Высоты не связаны'], correct:1, why:'Именно параллельность основанию даёт подобие малого и большого конусов.'}
+        ];
+        const quiz = quizzes[Math.floor(Math.random()*quizzes.length)];
+        els.quizQuestion.textContent = quiz.q;
+        els.quizAnswers.innerHTML = '';
+        els.quizResult.textContent = '';
+        els.quizResult.className = 'result';
+        quiz.a.forEach((ans, idx) => {
+            const btn = document.createElement('button');
+            btn.textContent = ans;
+            btn.addEventListener('click', () => {
+                const ok = idx === quiz.correct;
+                els.quizResult.textContent = ok ? 'Верно. ' + quiz.why : 'Пока нет. ' + quiz.why;
+                els.quizResult.className = 'result ' + (ok ? 'good' : 'bad');
+            });
+            els.quizAnswers.appendChild(btn);
+        });
+    }
+
+    function generateTask(){
+        const top = 1 + Math.floor(Math.random()*3);
+        const bottom = 2 + Math.floor(Math.random()*5);
+        const total = top + bottom;
+        const small = 2 + Math.floor(Math.random()*19);
+        const big = small * (total/top) ** 3;
+        const rounded = Math.round(big * 1000) / 1000;
+        els.generatedTask.innerHTML = `
+        <div class="panel" style="margin:0;padding:12px;background:#fcfffb">
+          <div class="step-title">Новая задача</div>
+          <div>Через точку, делящую высоту конуса в отношении <strong>${top}:${bottom}</strong>, считая от вершины, проведена плоскость, параллельная основанию. Объём отсечённого малого конуса равен <strong>${small}</strong>. Найдите объём исходного конуса.</div>
+          <div style="margin-top:10px" class="formula">Ответ: ${formatNum(rounded)}</div>
+          <div class="small">Пояснение: k = ${total}/${top}, значит объёмы относятся как (${total}/${top})³.</div>
+        </div>
+      `;
+    }
+
+    els.cutRatio.addEventListener('input', () => {
+        state.topPart = Number(els.cutRatio.value);
+        updateText();
+        buildSteps();
+        renderAll();
+    });
+    els.smallVolume.addEventListener('input', () => {
+        state.smallVolume = Number(els.smallVolume.value);
+        updateText();
+        buildSteps();
+        renderAll();
+    });
+    els.detailMode.addEventListener('change', () => {
+        state.detailMode = els.detailMode.value;
+        buildSteps();
+    });
+    document.getElementById('showAllBtn').addEventListener('click', () => {
+        state.activeStep = 5;
+        buildSteps();
+        renderAll();
+    });
+    document.getElementById('zoomInBtn').addEventListener('click', () => {
+        state.zoom = Math.min(2.6, state.zoom * 1.15); renderAll();
+    });
+    document.getElementById('zoomOutBtn').addEventListener('click', () => {
+        state.zoom = Math.max(0.5, state.zoom / 1.15); renderAll();
+    });
+    document.getElementById('resetViewBtn').addEventListener('click', resetView);
+    els.toggleLabelsBtn.addEventListener('click', () => {
+        state.showLabels = !state.showLabels;
+        els.toggleLabelsBtn.textContent = 'Метки: ' + (state.showLabels ? 'вкл' : 'выкл');
+        renderAll();
+    });
+    els.openModalBtn.addEventListener('click', () => els.overlay.classList.add('open'));
+    els.scene.addEventListener('click', () => els.overlay.classList.add('open'));
+    els.overlayClose.addEventListener('click', () => els.overlay.classList.remove('open'));
+    els.overlay.addEventListener('click', (e) => { if(e.target === els.overlay) els.overlay.classList.remove('open'); });
+    window.addEventListener('keydown', (e) => { if(e.key === 'Escape') els.overlay.classList.remove('open'); });
+    document.getElementById('generateBtn').addEventListener('click', generateTask);
+
+    addCanvasInteractions(els.scene);
+    addCanvasInteractions(els.sceneModal);
+    bindTabs();
+    updateText();
+    buildSteps();
+    buildQuiz();
+    generateTask();
+    renderAll();
+</script>
+</body>
+</html>

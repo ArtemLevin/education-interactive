@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Фабрика времени — Deluxe</title>
+    <style>
+        :root{
+            --bg:#f4f7fb;
+            --card:#ffffff;
+            --ink:#173042;
+            --muted:#5a6d7d;
+            --line:#d8e3eb;
+            --accent:#0f766e;
+            --accent2:#14b8a6;
+            --accent3:#def8f4;
+            --gold:#f59e0b;
+            --good:#166534;
+            --bad:#b91c1c;
+            --shadow:0 14px 40px rgba(18,40,58,.10);
+            --radius:24px;
+        }
+        *{box-sizing:border-box}
+        body{
+            margin:0;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            color:var(--ink);
+            background:
+            radial-gradient(circle at top left,#ffffff 0%, #f8fcff 30%, rgba(255,255,255,0) 55%),
+            radial-gradient(circle at top right,#e6fffb 0%, rgba(230,255,251,0) 30%),
+            linear-gradient(180deg,#f6fbff 0%, var(--bg) 100%);
+        }
+        .wrap{max-width:1380px;margin:0 auto;padding:20px}
+        .hero{
+            display:grid;
+            grid-template-columns:1.15fr .85fr;
+            gap:20px;
+            margin-bottom:20px;
+        }
+        .panel{
+            background:var(--card);
+            border:1px solid var(--line);
+            border-radius:28px;
+            box-shadow:var(--shadow);
+        }
+        .hero-main{
+            padding:28px;
+            background:
+            radial-gradient(circle at 80% 18%, #eafff9 0%, rgba(234,255,249,0) 28%),
+            linear-gradient(135deg,#ffffff 0%, #f6fffd 100%);
+        }
+        .eyebrow{
+            display:inline-block;
+            background:var(--accent3);
+            color:var(--accent);
+            font-size:13px;
+            font-weight:900;
+            padding:8px 12px;
+            border-radius:999px;
+            letter-spacing:.03em;
+        }
+        h1{
+            margin:14px 0 10px;
+            font-size:clamp(34px,5vw,58px);
+            line-height:1.02;
+        }
+        .subtitle{font-size:18px;line-height:1.62;color:var(--muted);max-width:760px}
+        .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+        button{
+            border:none;
+            border-radius:14px;
+            padding:12px 16px;
+            cursor:pointer;
+            font-weight:900;
+            font-size:15px;
+            transition:.18s ease;
+        }
+        button:hover{transform:translateY(-1px)}
+        .primary{background:var(--accent);color:#fff}
+        .secondary{background:#eef7f7;color:var(--accent);border:1px solid var(--line)}
+        .ghost{background:#f5f8fb;color:var(--ink);border:1px solid var(--line)}
+        .hero-side{padding:20px;display:grid;gap:12px}
+        .stat{
+            border:1px solid var(--line);
+            border-radius:18px;
+            padding:14px 16px;
+            background:#fbfefe;
+        }
+        .stat .label{color:var(--muted);font-size:14px}
+        .stat .value{font-size:30px;font-weight:900;color:var(--accent);margin-top:4px}
+        .layout{
+            display:grid;
+            grid-template-columns:1.08fr .92fr;
+            gap:20px;
+        }
+        .left,.right{display:grid;gap:20px;align-content:start}
+        .card{padding:22px}
+        .card h2,.card h3{margin:0 0 12px}
+        .taskbox{
+            padding:18px;
+            border:1px solid #d7ece8;
+            border-radius:18px;
+            background:linear-gradient(180deg,#fcffff,#f5fbfb);
+            font-size:18px;
+            line-height:1.68;
+        }
+        .muted{color:var(--muted)}
+        .hudline{display:flex;flex-wrap:wrap;gap:10px}
+        .badge{
+            padding:9px 12px;
+            border-radius:999px;
+            font-size:13px;
+            font-weight:900;
+            background:#f6fafc;
+            border:1px solid var(--line);
+        }
+        .stage-map{
+            display:grid;
+            grid-template-columns:repeat(5,1fr);
+            gap:10px;
+            margin-bottom:12px;
+        }
+        .stage-pill{
+            padding:10px 8px;
+            border-radius:16px;
+            border:1px solid var(--line);
+            text-align:center;
+            font-size:12px;
+            font-weight:900;
+            color:var(--muted);
+            background:#f9fbfc;
+        }
+        .stage-pill.active{background:var(--accent3);color:var(--accent);border-color:#bfe8e1}
+        .stage-pill.done{background:#effcf2;color:var(--good);border-color:#c9ecd4}
+        .console{
+            border:1px solid var(--line);
+            border-radius:22px;
+            padding:18px;
+            background:linear-gradient(180deg,#ffffff,#fbfdff);
+        }
+        .title-big{font-size:24px;font-weight:900;margin:0 0 8px}
+        .options{display:grid;gap:12px;margin-top:14px}
+        .option{
+            width:100%;
+            text-align:left;
+            background:white;
+            border:1px solid var(--line);
+            border-radius:16px;
+            padding:14px 16px;
+            font-weight:800;
+            color:var(--ink);
+        }
+        .option:hover{border-color:#a6d8d2}
+        .option.correct{background:#effcf2;border-color:#b6e7c3;color:var(--good)}
+        .option.wrong{background:#fff4f4;border-color:#f0c7c7;color:var(--bad)}
+        .feedback{
+            display:none;
+            margin-top:14px;
+            padding:14px 16px;
+            border-radius:16px;
+            font-weight:800;
+            line-height:1.55;
+        }
+        .feedback.show{display:block}
+        .feedback.good{background:#effcf2;color:var(--good);border:1px solid #c9ecd4}
+        .feedback.bad{background:#fff4f4;color:var(--bad);border:1px solid #efc6c6}
+        .scratch{
+            background:#f7fbfc;
+            border:1px solid var(--line);
+            border-radius:18px;
+            padding:16px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size:15px;
+            line-height:1.7;
+            white-space:pre-wrap;
+        }
+        .scene{
+            border:1px solid var(--line);
+            border-radius:22px;
+            padding:16px;
+            background:linear-gradient(180deg,#fbffff,#f4fbfd);
+            overflow:hidden;
+        }
+        .factory{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:16px;
+        }
+        .worker{
+            border:1px solid var(--line);
+            border-radius:20px;
+            background:#fff;
+            padding:16px;
+            position:relative;
+        }
+        .worker h4{margin:0 0 8px;font-size:20px}
+        .machine{
+            position:relative;
+            height:180px;
+            border-radius:18px;
+            border:1px solid var(--line);
+            background:
+            linear-gradient(180deg,#f6fffe 0%, #edf7f9 100%);
+            overflow:hidden;
+        }
+        .cloud{
+            position:absolute;
+            width:14px;height:14px;border-radius:50%;
+            background:#dcf7f2;opacity:.8;
+            animation: float 5s linear infinite;
+        }
+        .cloud.c1{left:28px;top:28px}
+        .cloud.c2{left:44px;top:18px;width:18px;height:18px;animation-delay:.6s}
+        .cloud.c3{left:60px;top:30px;width:12px;height:12px;animation-delay:1.1s}
+        @keyframes float{
+            0%{transform:translateY(8px);opacity:0}
+            15%{opacity:.8}
+            100%{transform:translateY(-45px);opacity:0}
+        }
+        .avatar-head{
+            position:absolute;left:16px;top:42px;
+            width:56px;height:56px;border-radius:50%;
+            background:#d9f5f0;border:2px solid #7ed2c4;
+        }
+        .avatar-body{
+            position:absolute;left:9px;top:99px;
+            width:72px;height:60px;border-radius:18px;
+            background:#dff4f0;border:2px solid #7ed2c4;
+        }
+        .gear{
+            position:absolute;
+            width:56px;height:56px;right:26px;top:36px;
+            border-radius:50%;border:7px dashed #9adbd1;
+            animation:spin 4s linear infinite;
+        }
+        .gear.g2{right:76px;top:82px;width:42px;height:42px;border-width:6px;animation-direction:reverse;animation-duration:3.2s}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .belt-wrap{
+            position:absolute;left:98px;right:18px;bottom:18px;height:18px;
+            border:1px solid var(--line);border-radius:999px;background:#e8eff3;overflow:hidden
+        }
+        .belt{
+            position:absolute;inset:0;
+            background:
+            repeating-linear-gradient(90deg,rgba(255,255,255,.20) 0 12px, transparent 12px 24px),
+            linear-gradient(90deg,var(--accent2),var(--accent));
+            width:50%;
+            animation:beltMove 1.2s linear infinite;
+        }
+        @keyframes beltMove{
+            0%{background-position:0 0,0 0}
+            100%{background-position:24px 0,0 0}
+        }
+        .boxes{
+            position:absolute;left:112px;right:18px;bottom:46px;height:48px;
+        }
+        .box{
+            position:absolute;bottom:0;width:20px;height:20px;border-radius:4px;
+            background:#ffd68a;border:1px solid #e5af42;
+            transform:translateX(0);
+        }
+        .bars{display:grid;gap:12px;margin-top:14px}
+        .bar-label{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--muted);margin-bottom:5px}
+        .bar{height:16px;border-radius:999px;background:#edf3f6;border:1px solid var(--line);overflow:hidden}
+        .fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .5s ease}
+        .drag-area{
+            display:grid;gap:16px;margin-top:14px
+        }
+        .tokens{
+            display:flex;flex-wrap:wrap;gap:10px
+        }
+        .token{
+            padding:10px 12px;border-radius:12px;background:#fff;border:1px solid var(--line);
+            font-weight:900;cursor:grab;user-select:none
+        }
+        .token.used{opacity:.35}
+        .drop-grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:12px;
+        }
+        .slot{
+            min-height:72px;
+            border:2px dashed #c9dbe6;
+            border-radius:16px;
+            padding:10px 12px;
+            background:#fbfdff;
+        }
+        .slot small{display:block;color:var(--muted);margin-bottom:8px}
+        .slot .placed{font-weight:900;color:var(--accent)}
+        .slot.good{border-color:#87d5bf;background:#f2fff6}
+        .slot.bad{border-color:#f0b1b1;background:#fff4f4}
+        .inline-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+        .pair-grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:12px;
+        }
+        .pair-card{
+            border:1px solid var(--line);
+            border-radius:18px;
+            background:#fff;
+            padding:16px;
+            cursor:pointer;
+            font-weight:800;
+        }
+        .pair-card:hover{border-color:#96d9d0}
+        .math{
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            background:#f8fbfc;border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:inline-block
+        }
+        .hint{
+            padding:16px;border-radius:18px;border:1px solid var(--line);background:#fbfefe;line-height:1.6
+        }
+        .complete{
+            display:none;
+            padding:18px;border-radius:20px;
+            background:linear-gradient(180deg,#f0fff7,#fbfffd);
+            border:1px solid #c9e8d6
+        }
+        .complete.show{display:block}
+        .complete h3{margin:0 0 8px;color:var(--good)}
+        .confetti{
+            position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:50;
+        }
+        .piece{
+            position:absolute; width:10px; height:16px; opacity:.9;
+            animation:fall 1.8s linear forwards;
+        }
+        @keyframes fall{
+            0%{transform:translateY(-20px) rotate(0deg)}
+            100%{transform:translateY(105vh) rotate(720deg); opacity:.1}
+        }
+        .footer{margin-top:18px;text-align:center;color:var(--muted);font-size:14px;padding:12px}
+        @media (max-width:1120px){
+            .hero,.layout{grid-template-columns:1fr}
+        }
+        @media (max-width:720px){
+            .wrap{padding:12px}
+            .factory,.pair-grid,.drop-grid{grid-template-columns:1fr}
+            .hero-main,.hero-side,.card{padding:18px}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div class="panel hero-main">
+            <div class="eyebrow">ИНТЕРАКТИВНАЯ УЧЕБНАЯ ИГРА</div>
+            <h1>Фабрика времени — Deluxe</h1>
+            <div class="subtitle">
+                Я усилил игру визуалом и интерактивом: появилась анимированная фабрика, drag-and-drop-этап,
+                прогресс по шагам, более живой интерфейс и финальная проверка ответа.
+            </div>
+            <div class="hero-actions">
+                <button class="primary" id="startBtn">Начать уровень</button>
+                <button class="secondary" id="newBtn">Новая задача</button>
+                <button class="ghost" id="hintBtn">Подсказка</button>
+            </div>
+        </div>
+        <div class="panel hero-side">
+            <div class="stat"><div class="label">Очки</div><div class="value" id="scoreValue">0</div></div>
+            <div class="stat"><div class="label">Серия</div><div class="value" id="streakValue">0</div></div>
+            <div class="stat"><div class="label">Жизни</div><div class="value" id="livesValue">❤❤❤</div></div>
+            <div class="stat"><div class="label">Режим</div><div class="value" style="font-size:24px">Квест 5 шагов</div></div>
+        </div>
+    </section>
+
+    <div class="layout">
+        <div class="left">
+            <section class="panel card">
+                <div class="hudline">
+                    <div class="badge">Тема: задачи на производительность</div>
+                    <div class="badge">Модель: работа = производительность × время</div>
+                    <div class="badge">Навык: перевод текста в уравнение</div>
+                </div>
+                <h2 style="margin-top:14px">Миссия</h2>
+                <div class="taskbox" id="taskText"></div>
+            </section>
+
+            <section class="panel card">
+                <h2>Анимированная фабрика</h2>
+                <div class="scene">
+                    <div class="factory">
+                        <div class="worker">
+                            <h4>Первый рабочий</h4>
+                            <div class="muted" id="w1info">Скорость пока не открыта</div>
+                            <div class="machine">
+                                <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+                                <div class="avatar-head"></div><div class="avatar-body"></div>
+                                <div class="gear"></div><div class="gear g2"></div>
+                                <div class="boxes" id="boxes1"></div>
+                                <div class="belt-wrap"><div class="belt" id="belt1"></div></div>
+                            </div>
+                            <div class="bars">
+                                <div>
+                                    <div class="bar-label"><span>Объём работы</span><span id="work1text">0 / 0</span></div>
+                                    <div class="bar"><div class="fill" id="work1fill"></div></div>
+                                </div>
+                                <div>
+                                    <div class="bar-label"><span>Время</span><span id="time1text">?</span></div>
+                                    <div class="bar"><div class="fill" id="time1fill"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="worker">
+                            <h4>Второй рабочий</h4>
+                            <div class="muted" id="w2info">Скорость пока не открыта</div>
+                            <div class="machine">
+                                <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+                                <div class="avatar-head"></div><div class="avatar-body"></div>
+                                <div class="gear"></div><div class="gear g2"></div>
+                                <div class="boxes" id="boxes2"></div>
+                                <div class="belt-wrap"><div class="belt" id="belt2"></div></div>
+                            </div>
+                            <div class="bars">
+                                <div>
+                                    <div class="bar-label"><span>Объём работы</span><span id="work2text">0 / 0</span></div>
+                                    <div class="bar"><div class="fill" id="work2fill"></div></div>
+                                </div>
+                                <div>
+                                    <div class="bar-label"><span>Время</span><span id="time2text">?</span></div>
+                                    <div class="bar"><div class="fill" id="time2fill"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="right">
+            <section class="panel card">
+                <div class="stage-map" id="stageMap"></div>
+                <div class="console">
+                    <div class="title-big" id="stageTitle">Нажмите «Начать уровень»</div>
+                    <div class="muted" id="stagePrompt">Игра проведёт вас по шагам решения.</div>
+                    <div id="interactionZone"></div>
+                    <div class="feedback" id="feedback"></div>
+                </div>
+            </section>
+
+            <section class="panel card">
+                <h3>Черновик решения</h3>
+                <div class="scratch" id="scratchText">Пока пусто. Запустите уровень.</div>
+            </section>
+
+            <section class="panel card">
+                <h3>Подсказка</h3>
+                <div class="hint" id="hintText">Главный ключ: время = работа / производительность.</div>
+            </section>
+
+            <section class="panel card">
+                <div class="complete" id="completeBox">
+                    <h3>Уровень пройден!</h3>
+                    <div id="completeText"></div>
+                </div>
+                <h3 style="margin-top:0">Что улучшено</h3>
+                <div class="muted">
+                    • живой визуал фабрики<br>
+                    • drag-and-drop на этапе таблицы<br>
+                    • анимированное отображение работы и времени<br>
+                    • прогресс по шагам и награда за прохождение
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="footer">Если захотите, следующей версией можно добавить таймер, звук и режим серии из 10 задач подряд.</div>
+</div>
+
+<div class="confetti" id="confetti"></div>
+
+<script>
+    const PRESETS = [
+        {slower:12,diff:4},{slower:15,diff:5},{slower:16,diff:4},{slower:18,diff:6},
+        {slower:20,diff:5},{slower:24,diff:6},{slower:25,diff:5},{slower:28,diff:7}
+    ];
+
+    const state = {
+        score:0,
+        streak:0,
+        lives:3,
+        stage:0,
+        completed:false,
+        task:null
+    };
+
+    function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    function makeTask(){
+        const base = pick(PRESETS);
+        const s = base.slower;
+        const d = base.diff;
+        const f = s + d;
+        const work = s * f / d;
+        return {
+            slower:s,
+            faster:f,
+            diff:d,
+            work:work,
+            tSlow:work/s,
+            tFast:work/f,
+            eq:`${work}/x − ${work}/(x + ${d}) = 1`,
+            quadratic:`x² + ${d}x − ${work*d} = 0`,
+            answer:`первый — ${f} дет/ч, второй — ${s} дет/ч`
+        };
+    }
+
+    function setText(id, txt){ document.getElementById(id).innerHTML = txt; }
+
+    function renderHUD(){
+        setText('scoreValue', state.score);
+        setText('streakValue', state.streak);
+        setText('livesValue', '❤'.repeat(state.lives) + '♡'.repeat(3 - state.lives));
+    }
+
+    function renderStageMap(){
+        const names = ['x','Таблица','Уравнение','Корень','Ответ'];
+        const map = document.getElementById('stageMap');
+        map.innerHTML = '';
+        names.forEach((name, idx) => {
+            const s = idx + 1;
+            const div = document.createElement('div');
+            let cls = 'stage-pill';
+            if(state.stage === s) cls += ' active';
+            if(state.completed || state.stage > s) cls += ' done';
+            div.className = cls;
+            div.textContent = name;
+            map.appendChild(div);
+        });
+    }
+
+    function renderTask(){
+        const t = state.task;
+        setText('taskText', `Два рабочих должны изготовить по <b>${t.work}</b> деталей. Первый делает за час на <b>${t.diff}</b> деталей больше, чем второй, поэтому тратит на выполнение задания на <b>1 час меньше</b>. Сколько деталей в час делает каждый рабочий?`);
+    }
+
+    function renderBoxes(containerId, count){
+        const el = document.getElementById(containerId);
+        el.innerHTML = '';
+        const n = Math.min(12, Math.max(4, Math.round(count / 10)));
+        for(let i=0;i<n;i++){
+            const box = document.createElement('div');
+            box.className = 'box';
+            box.style.left = `${i * 22}px`;
+            box.style.height = `${18 + (i % 3) * 4}px`;
+            el.appendChild(box);
+        }
+    }
+
+    function updateFactory(showAnswer=false, solved=false){
+        const t = state.task;
+        renderBoxes('boxes1', t.work);
+        renderBoxes('boxes2', t.work);
+        setText('work1text', `${t.work} / ${t.work}`);
+        setText('work2text', `${t.work} / ${t.work}`);
+        document.getElementById('work1fill').style.width = '100%';
+        document.getElementById('work2fill').style.width = '100%';
+
+        document.getElementById('belt1').style.width = solved ? '100%' : '70%';
+        document.getElementById('belt2').style.width = solved ? '100%' : '70%';
+
+        if(showAnswer){
+            setText('w1info', `Скорость: ${t.faster} дет/ч`);
+            setText('w2info', `Скорость: ${t.slower} дет/ч`);
+            setText('time1text', `${t.tFast} ч`);
+            setText('time2text', `${t.tSlow} ч`);
+            const maxT = Math.max(t.tFast, t.tSlow);
+            document.getElementById('time1fill').style.width = `${100 * t.tFast / maxT}%`;
+            document.getElementById('time2fill').style.width = `${100 * t.tSlow / maxT}%`;
+        } else {
+            setText('w1info', 'Скорость пока не открыта');
+            setText('w2info', 'Скорость пока не открыта');
+            setText('time1text', '?');
+            setText('time2text', '?');
+            document.getElementById('time1fill').style.width = '38%';
+            document.getElementById('time2fill').style.width = '58%';
+        }
+    }
+
+    function resetLevel(newTask=true){
+        if(newTask || !state.task) state.task = makeTask();
+        state.stage = 0;
+        state.completed = false;
+        renderTask();
+        renderStageMap();
+        updateFactory(false,false);
+        setText('stageTitle','Нажмите «Начать уровень»');
+        setText('stagePrompt','Игра проведёт вас по 5 шагам решения.');
+        setText('interactionZone','');
+        setText('scratchText','Пока пусто. Запустите уровень.');
+        setText('hintText','Главный ключ: время = работа / производительность.');
+        const fb = document.getElementById('feedback');
+        fb.className = 'feedback';
+        fb.textContent = '';
+        document.getElementById('completeBox').classList.remove('show');
+        renderHUD();
+    }
+
+    function startLevel(){
+        state.stage = 1;
+        state.completed = false;
+        renderStage();
+    }
+
+    function renderStage(){
+        renderStageMap();
+        const t = state.task;
+        const zone = document.getElementById('interactionZone');
+        const fb = document.getElementById('feedback');
+        fb.className = 'feedback';
+        fb.textContent = '';
+        zone.innerHTML = '';
+
+        if(state.stage === 1){
+            setText('stageTitle','Шаг 1. Выберите переменную');
+            setText('stagePrompt','Что удобнее всего обозначить за x?');
+            setText('scratchText',`Пусть x — скорость второго рабочего.\nТогда скорость первого: x + ${t.diff}.`);
+            setText('hintText','Удобнее обозначить скорость более медленного рабочего, чтобы скорость первого записалась как x + d.');
+            renderChoices(zone, [
+                {label:`x — скорость второго рабочего (дет/ч)`, ok:true, msg:`Верно. Тогда скорость первого равна x + ${t.diff}.`},
+                {label:`x — время первого рабочего`, ok:false, msg:`Так неудобно. Потом сложнее выражать остальные величины.`},
+                {label:`x — число деталей в заказе`, ok:false, msg:`Число деталей уже известно: ${t.work}.`}
+            ]);
+        }
+
+        if(state.stage === 2){
+            setText('stageTitle','Шаг 2. Заполните таблицу');
+            setText('stagePrompt','Перетащите карточки в правильные ячейки.');
+            setText('scratchText',
+                `Производительность:
+                первый — x + ${t.diff}
+                второй — x
+
+                Время:
+                первый — ${t.work}/(x + ${t.diff})
+                второй — ${t.work}/x`);
+            setText('hintText','Помните: время = работа / производительность.');
+            renderDragStage(zone, t);
+        }
+
+        if(state.stage === 3){
+            setText('stageTitle','Шаг 3. Составьте уравнение');
+            setText('stagePrompt','Какая запись верно отражает условие «первый тратит на 1 час меньше»?');
+            setText('scratchText',`${t.work}/x − ${t.work}/(x + ${t.diff}) = 1\n\nПосле преобразования:\n${t.quadratic}`);
+            setText('hintText','Второй работает дольше, значит нужно взять «время второго минус время первого».');
+            renderChoices(zone, [
+                {label:`${t.work}/x − ${t.work}/(x + ${t.diff}) = 1`, ok:true, msg:'Верно. Это правильная разность времён.'},
+                {label:`${t.work}/(x + ${t.diff}) − ${t.work}/x = 1`, ok:false, msg:'Здесь знак перепутан: получилось, будто первый работает дольше.'},
+                {label:`${t.work}/x + ${t.work}/(x + ${t.diff}) = 1`, ok:false, msg:'По условию дана разность, а не сумма времён.'}
+            ]);
+        }
+
+        if(state.stage === 4){
+            setText('stageTitle','Шаг 4. Выберите подходящий корень');
+            setText('stagePrompt',`Уравнение ${t.quadratic} имеет два корня. Какой подходит по смыслу?`);
+            setText('scratchText',`${t.quadratic}\n\nКорни: x₁ = ${t.slower}, x₂ = ${-t.faster}\nПодходит только x = ${t.slower}.`);
+            setText('hintText','Отрицательная производительность в задаче невозможна.');
+            renderChoices(zone, [
+                {label:`x = ${t.slower}`, ok:true, msg:'Да. Это скорость второго рабочего.'},
+                {label:`x = ${-t.faster}`, ok:false, msg:'Нет. Отрицательная производительность невозможна.'},
+                {label:`x = ${t.faster}`, ok:false, msg:'Это скорость первого рабочего, а x — скорость второго.'}
+            ]);
+            updateFactory(true,false);
+        }
+
+        if(state.stage === 5){
+            setText('stageTitle','Шаг 5. Дайте окончательный ответ');
+            setText('stagePrompt','Выберите правильную пару скоростей.');
+            setText('scratchText',
+                `Ответ:
+                второй — ${t.slower} дет/ч
+                первый — ${t.faster} дет/ч
+
+                Проверка:
+                ${t.work}/${t.slower} = ${t.tSlow} ч
+                ${t.work}/${t.faster} = ${t.tFast} ч
+                Разница = 1 ч`);
+            setText('hintText','Не забудьте: x обозначал скорость второго рабочего.');
+            renderPairChoices(zone, [
+                {label:`Первый — ${t.faster} дет/ч, второй — ${t.slower} дет/ч`, ok:true, msg:`Верно. Проверка: ${t.work}/${t.slower} = ${t.tSlow} ч, ${t.work}/${t.faster} = ${t.tFast} ч.`},
+                {label:`Первый — ${t.slower} дет/ч, второй — ${t.faster} дет/ч`, ok:false, msg:'Здесь роли перепутаны: первый должен работать быстрее.'},
+                {label:`Первый — ${t.work} дет/ч, второй — ${t.diff} дет/ч`, ok:false, msg:'Это вообще не скорости рабочих из решения.'}
+            ]);
+            updateFactory(true,false);
+        }
+    }
+
+    function renderChoices(zone, choices){
+        const box = document.createElement('div');
+        box.className = 'options';
+        choices.forEach(ch => {
+            const btn = document.createElement('button');
+            btn.className = 'option';
+            btn.innerHTML = ch.label;
+            btn.onclick = () => handleChoice(btn, ch.ok, ch.msg);
+            box.appendChild(btn);
+        });
+        zone.appendChild(box);
+    }
+
+    function renderPairChoices(zone, choices){
+        const grid = document.createElement('div');
+        grid.className = 'pair-grid';
+        choices.forEach(ch => {
+            const card = document.createElement('div');
+            card.className = 'pair-card';
+            card.innerHTML = ch.label;
+            card.onclick = () => handleChoice(card, ch.ok, ch.msg, true);
+            grid.appendChild(card);
+        });
+        zone.appendChild(grid);
+    }
+
+    function renderDragStage(zone, t){
+        const wrap = document.createElement('div');
+        wrap.className = 'drag-area';
+        wrap.innerHTML = `
+    <div class="tokens" id="tokensRow">
+      <div class="token" draggable="true" data-value="x">x</div>
+      <div class="token" draggable="true" data-value="x+${t.diff}">x + ${t.diff}</div>
+      <div class="token" draggable="true" data-value="${t.work}/x">${t.work}/x</div>
+      <div class="token" draggable="true" data-value="${t.work}/(x+${t.diff})">${t.work}/(x + ${t.diff})</div>
+    </div>
+    <div class="drop-grid">
+      <div class="slot" data-accept="x+${t.diff}">
+        <small>Первый: производительность</small>
+        <div class="placed"></div>
+      </div>
+      <div class="slot" data-accept="x">
+        <small>Второй: производительность</small>
+        <div class="placed"></div>
+      </div>
+      <div class="slot" data-accept="${t.work}/(x+${t.diff})">
+        <small>Первый: время</small>
+        <div class="placed"></div>
+      </div>
+      <div class="slot" data-accept="${t.work}/x">
+        <small>Второй: время</small>
+        <div class="placed"></div>
+      </div>
+    </div>
+    <div class="inline-actions">
+      <button class="primary" id="checkDragBtn">Проверить</button>
+      <button class="secondary" id="resetDragBtn">Сбросить</button>
+    </div>
+  `;
+        zone.appendChild(wrap);
+
+        let currentDrag = null;
+        wrap.querySelectorAll('.token').forEach(token => {
+            token.addEventListener('dragstart', () => currentDrag = token);
+        });
+        wrap.querySelectorAll('.slot').forEach(slot => {
+            slot.addEventListener('dragover', e => e.preventDefault());
+            slot.addEventListener('drop', e => {
+                e.preventDefault();
+                if(!currentDrag) return;
+                slot.dataset.value = currentDrag.dataset.value;
+                slot.querySelector('.placed').textContent = currentDrag.textContent;
+                currentDrag.classList.add('used');
+            });
+        });
+
+        document.getElementById('resetDragBtn').onclick = () => {
+            wrap.querySelectorAll('.slot').forEach(slot => {
+                slot.dataset.value = '';
+                slot.classList.remove('good','bad');
+                slot.querySelector('.placed').textContent = '';
+            });
+            wrap.querySelectorAll('.token').forEach(tk => tk.classList.remove('used'));
+            const fb = document.getElementById('feedback');
+            fb.className = 'feedback';
+            fb.textContent = '';
+        };
+
+        document.getElementById('checkDragBtn').onclick = () => {
+            let allGood = true;
+            wrap.querySelectorAll('.slot').forEach(slot => {
+                const ok = slot.dataset.value === slot.dataset.accept;
+                slot.classList.remove('good','bad');
+                slot.classList.add(ok ? 'good' : 'bad');
+                if(!ok) allGood = false;
+            });
+            if(allGood){
+                handleSuccess('Отлично. Таблица собрана верно: скорость и время записаны правильно.');
+            } else {
+                handleFail('Пока нет. Сверьтесь с формулой времени: работа / производительность.');
+            }
+        };
+    }
+
+    function handleChoice(el, ok, msg, isCard=false){
+        const container = document.getElementById('interactionZone');
+        container.querySelectorAll('.option, .pair-card').forEach(x => x.style.pointerEvents = 'none');
+        if(ok){
+            el.classList.add(isCard ? '' : 'correct');
+            if(isCard){
+                el.style.borderColor = '#b6e7c3';
+                el.style.background = '#effcf2';
+                el.style.color = '#166534';
+            }
+            handleSuccess(msg);
+        } else {
+            el.classList.add(isCard ? '' : 'wrong');
+            if(isCard){
+                el.style.borderColor = '#f0c7c7';
+                el.style.background = '#fff4f4';
+                el.style.color = '#b91c1c';
+            }
+            handleFail(msg, true);
+            setTimeout(() => {
+                container.querySelectorAll('.option, .pair-card').forEach(x => x.style.pointerEvents = 'auto');
+            }, 400);
+        }
+    }
+
+    function handleSuccess(msg){
+        state.score += 10 + Math.min(state.streak,5);
+        state.streak += 1;
+        const fb = document.getElementById('feedback');
+        fb.className = 'feedback show good';
+        fb.textContent = msg;
+
+        if(state.stage < 5){
+            setTimeout(() => {
+                state.stage += 1;
+                renderHUD();
+                renderStage();
+            }, 850);
+        } else {
+            state.score += 20;
+            state.completed = true;
+            renderHUD();
+            finishLevel(msg);
+        }
+        renderHUD();
+    }
+
+    function handleFail(msg){
+        state.streak = 0;
+        state.lives = Math.max(0, state.lives - 1);
+        const fb = document.getElementById('feedback');
+        fb.className = 'feedback show bad';
+        fb.textContent = msg;
+        renderHUD();
+        if(state.lives === 0){
+            setTimeout(() => {
+                state.lives = 3;
+                state.stage = 1;
+                renderHUD();
+                renderStage();
+                const fb2 = document.getElementById('feedback');
+                fb2.className = 'feedback show bad';
+                fb2.textContent = 'Жизни закончились. Уровень начат заново с первого шага.';
+            }, 1000);
+        }
+    }
+
+    function finishLevel(msg){
+        updateFactory(true,true);
+        renderStageMap();
+        setText('stageTitle','Уровень пройден');
+        setText('stagePrompt','Можно взять новую задачу и закрепить навык.');
+        setText('interactionZone','');
+        const fb = document.getElementById('feedback');
+        fb.className = 'feedback show good';
+        fb.textContent = msg;
+        const t = state.task;
+        setText('completeText', `Ответ найден: <b>первый — ${t.faster} дет/ч</b>, <b>второй — ${t.slower} дет/ч</b>.<br>Проверка: ${t.work}/${t.slower} = ${t.tSlow} ч, ${t.work}/${t.faster} = ${t.tFast} ч.`);
+        document.getElementById('completeBox').classList.add('show');
+        explodeConfetti();
+    }
+
+    function explodeConfetti(){
+        const root = document.getElementById('confetti');
+        root.innerHTML = '';
+        const colors = ['#14b8a6','#0f766e','#f59e0b','#60a5fa','#f472b6','#34d399'];
+        for(let i=0;i<70;i++){
+            const p = document.createElement('div');
+            p.className = 'piece';
+            p.style.left = `${Math.random()*100}vw`;
+            p.style.top = `${-10 - Math.random()*20}px`;
+            p.style.background = colors[Math.floor(Math.random()*colors.length)];
+            p.style.transform = `rotate(${Math.random()*360}deg)`;
+            p.style.animationDelay = `${Math.random()*0.25}s`;
+            p.style.animationDuration = `${1.4 + Math.random()*1.2}s`;
+            root.appendChild(p);
+        }
+        setTimeout(() => root.innerHTML = '', 2500);
+    }
+
+    document.getElementById('startBtn').onclick = () => {
+        if(state.stage === 0 || state.completed) startLevel();
+        else renderStage();
+    };
+    document.getElementById('newBtn').onclick = () => {
+        state.lives = 3;
+        state.streak = 0;
+        resetLevel(true);
+    };
+    document.getElementById('hintBtn').onclick = () => {
+        const hints = {
+            0:'Сначала запустите уровень.',
+            1:'Обычно удобно взять за x скорость более медленного рабочего.',
+            2:'Не забывайте формулу: время = работа / производительность.',
+            3:'Нужно сравнивать именно времена: второй минус первый.',
+            4:'Проверьте смысл корня: скорость не может быть отрицательной.',
+            5:'Вернитесь к тому, что именно обозначает x.'
+        };
+        setText('hintText', hints[state.stage] || hints[0]);
+    };
+
+    resetLevel(true);
+</script>
+</body>
+</html>
