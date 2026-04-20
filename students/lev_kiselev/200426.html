@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядное пособие — задача на производительность</title>
+    <style>
+        :root{
+            --bg:#f6f7f4;
+            --panel:#ffffff;
+            --ink:#182026;
+            --muted:#5d6972;
+            --accent:#116466;
+            --accent-2:#1f8a8c;
+            --line:#d7dedd;
+            --soft:#eef5f5;
+            --warn:#8a4b08;
+            --ok:#14532d;
+            --shadow:0 10px 30px rgba(0,0,0,.08);
+            --radius:20px;
+        }
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background:linear-gradient(180deg,#f8faf8 0%, #eef3f2 100%);
+            color:var(--ink);
+        }
+        .wrap{max-width:1400px;margin:0 auto;padding:24px}
+        .hero{
+            background:linear-gradient(135deg,#fefefe 0%, #edf6f6 100%);
+            border:1px solid var(--line);
+            border-radius:28px;
+            padding:28px;
+            box-shadow:var(--shadow);
+            display:grid;
+            grid-template-columns:1.2fr .8fr;
+            gap:20px;
+            align-items:center;
+        }
+        .eyebrow{
+            display:inline-block;
+            padding:8px 12px;
+            border-radius:999px;
+            background:var(--soft);
+            color:var(--accent);
+            font-weight:700;
+            font-size:13px;
+            letter-spacing:.03em;
+        }
+        h1{font-size:clamp(30px,5vw,54px);line-height:1.04;margin:14px 0 12px}
+        .subtitle{font-size:18px;color:var(--muted);line-height:1.6;max-width:780px}
+        .hero-card{
+            background:var(--panel);
+            border:1px solid var(--line);
+            border-radius:24px;
+            padding:18px;
+        }
+        .hero-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:10px}
+        .mini{
+            border:1px solid var(--line);
+            border-radius:18px;
+            padding:14px;
+            background:#fbfdfd;
+        }
+        .mini b{display:block;font-size:24px;margin-bottom:4px;color:var(--accent)}
+        .banner{
+            margin:18px 0 22px;
+            background:var(--accent);
+            color:#fff;
+            border-radius:18px;
+            padding:14px 18px;
+            font-weight:700;
+            box-shadow:var(--shadow);
+        }
+        .workspace{
+            display:grid;
+            grid-template-columns:minmax(0,1fr) 520px;
+            gap:22px;
+            align-items:start;
+        }
+        .left{min-width:0}
+        .right{position:sticky;top:18px}
+        .card{
+            background:var(--panel);
+            border:1px solid var(--line);
+            border-radius:24px;
+            padding:22px;
+            box-shadow:var(--shadow);
+            margin-bottom:18px;
+        }
+        .card h2,.card h3{margin:0 0 12px}
+        .lead{color:var(--muted);line-height:1.65}
+        .task-box{
+            background:#fbfcff;
+            border:1px solid #dce7f4;
+            border-left:6px solid var(--accent);
+            border-radius:16px;
+            padding:16px;
+            font-size:18px;
+            line-height:1.65;
+        }
+        .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+        .chip{padding:8px 12px;border-radius:999px;background:var(--soft);border:1px solid var(--line);font-weight:600;font-size:14px}
+        .steps{display:grid;gap:12px}
+        .step{
+            border:1px solid var(--line);
+            border-radius:18px;
+            padding:16px;
+            transition:.2s ease;
+            cursor:pointer;
+            background:#fff;
+        }
+        .step.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(17,100,102,.12)}
+        .step .top{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+        .num{
+            width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+            background:var(--accent);color:#fff;font-weight:800;flex:0 0 34px;
+        }
+        .formula{
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            background:#f6fbfb;
+            border:1px solid var(--line);
+            padding:12px 14px;
+            border-radius:14px;
+            overflow:auto;
+            line-height:1.7;
+            font-size:15px;
+            margin-top:10px;
+        }
+        .table-wrap{overflow:auto}
+        table{width:100%;border-collapse:collapse;margin-top:8px}
+        th,td{padding:12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+        th{color:var(--accent);font-size:14px}
+        .idea, .mistakes, .memo, .quiz, .practice{
+            border-radius:20px;padding:18px;border:1px solid var(--line);background:#fcfefe;
+        }
+        .idea{background:linear-gradient(180deg,#f3fbfb,#fcfefe)}
+        .mistakes ul,.memo ul{margin:8px 0 0 20px;padding:0}
+        .mistakes li,.memo li{margin:8px 0;line-height:1.55}
+        .viz{
+            background:var(--panel);
+            border:1px solid var(--line);
+            border-radius:28px;
+            box-shadow:var(--shadow);
+            overflow:hidden;
+        }
+        .viz-head{
+            padding:16px 18px;
+            border-bottom:1px solid var(--line);
+            display:flex;justify-content:space-between;gap:12px;align-items:center;
+            flex-wrap:wrap;
+        }
+        .controls{display:flex;gap:10px;flex-wrap:wrap}
+        .controls button,.controls input[type="range"], .controls select{
+            accent-color:var(--accent);
+        }
+        button{
+            border:none;background:var(--accent);color:#fff;padding:10px 14px;border-radius:12px;
+            font-weight:700;cursor:pointer
+        }
+        button.secondary{background:#edf5f5;color:var(--accent);border:1px solid var(--line)}
+        .scene-wrap{padding:14px}
+        .scene{
+            width:100%;aspect-ratio:1/1;background:linear-gradient(180deg,#fbfefe,#f0f7f7);
+            border:1px solid var(--line);border-radius:22px;overflow:hidden;cursor:zoom-in;position:relative;
+        }
+        svg{display:block;width:100%;height:100%}
+        .legend{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 14px}
+        .legend .mini{padding:12px}
+        .status{padding:14px;border-top:1px solid var(--line);background:#fbfdfd}
+        .status-line{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0}
+        .kpi{font-weight:800;color:var(--accent)}
+        .hidden{display:none}
+        .quiz-grid{display:grid;gap:12px}
+        .q{
+            border:1px solid var(--line);padding:14px;border-radius:14px;background:#fff;
+        }
+        .q button{margin-top:10px}
+        .feedback{margin-top:8px;font-weight:700}
+        .ok{color:var(--ok)}
+        .bad{color:#9f1239}
+        .gen-box{
+            border:1px dashed var(--line);border-radius:16px;padding:14px;background:#fff;margin-top:10px;
+        }
+        .footer{
+            margin:22px 0 8px;padding:18px;text-align:center;color:var(--muted);font-size:14px
+        }
+        .modal{
+            position:fixed;inset:0;background:rgba(10,15,20,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:50;
+        }
+        .modal.open{display:flex}
+        .modal-card{
+            width:min(1100px,96vw);height:min(92vh,900px);background:#fff;border-radius:24px;border:1px solid var(--line);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)
+        }
+        .modal-top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+        .modal-scene{height:calc(100% - 62px);padding:14px}
+        .print-note{display:none}
+        @media (max-width: 1120px){
+            .hero,.workspace{grid-template-columns:1fr}
+            .right{position:static}
+        }
+        @media (max-width: 720px){
+            .wrap{padding:14px}
+            .card,.viz{border-radius:18px}
+            h1{font-size:34px}
+            .legend{grid-template-columns:1fr}
+        }
+        @media print{
+            body{background:#fff}
+            .hero,.banner,.controls,.modal,.footer,.quiz,.practice .gen-controls{display:none !important}
+            .workspace{grid-template-columns:1fr}
+            .right{position:static}
+            .card,.viz{box-shadow:none;border:1px solid #bbb}
+            .print-note{display:block;color:#000;margin-bottom:14px}
+            .scene{cursor:default}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div>
+            <span class="eyebrow">НАГЛЯДНОЕ ПОСОБИЕ · 8 КЛАСС · АЛГЕБРА</span>
+            <h1>Текстовая задача на производительность</h1>
+            <p class="subtitle">Разберём одну из самых важных задач из занятия: она учит переводить текст в таблицу, правильно вводить переменную, составлять рациональное уравнение и обязательно проверять смысл ответа.</p>
+        </div>
+        <div class="hero-card">
+            <div><b>Почему именно эта задача?</b></div>
+            <div class="hero-grid">
+                <div class="mini"><b>1</b>Тренирует составление уравнения по тексту</div>
+                <div class="mini"><b>2</b>Проверяет понимание «производительность–время–работа»</div>
+                <div class="mini"><b>3</b>Нужна аккуратность со знаками и дробями</div>
+                <div class="mini"><b>4</b>Подходит и для МЦКО, и для школьных контрольных</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="banner" align="center">Главная идея: сначала собрать таблицу «производительность — время — работа. Затем от большего времени вычесть меньшее».</div>
+
+    <div class="workspace">
+        <main class="left">
+            <section class="card">
+                <h2>Задача</h2>
+                <div class="task-box">
+                    Два рабочих должны изготовить <b>по 60 деталей</b>. Первый рабочий делает за час на <b>10 деталей больше</b>, чем второй, поэтому тратит на выполнение задания на <b>1 час меньше</b>. Сколько деталей в час делает каждый рабочий?
+                </div>
+                <div class="chips">
+                    <div class="chip">Тема: текстовые задачи</div>
+                    <div class="chip">Модель: работа = производительность × время</div>
+                    <div class="chip">Тип: рациональное уравнение</div>
+                </div>
+            </section>
+
+            <section class="card idea">
+                <h2>Идея решения</h2>
+                <p class="lead">Если оба делают одинаковый объём работы, то удобнее всего обозначить <b>производительность</b>. Тогда время выражается через деление: <b>время = работа / производительность</b>. После этого условие «на 1 час меньше» превращается в уравнение.</p>
+            </section>
+
+            <section class="card">
+                <h2>Пошаговый разбор</h2>
+                <div class="steps" id="steps">
+                    <div class="step active" data-step="1">
+                        <div class="top"><div class="num">1</div><div><b>Выбираем переменную</b></div></div>
+                        <div>Пусть второй рабочий делает <b>x</b> деталей в час. Тогда первый делает <b>x + 10</b> деталей в час, потому что он работает быстрее.</div>
+                        <div class="formula"><math display="block"><mtable columnalign="center"><mtr><mtd><mfrac><mrow><mn>60</mn><mo>(</mo><mi>x</mi><mo>+</mo><mn>10</mn><mo>)</mo><mo>−</mo><mn>60</mn><mi>x</mi></mrow><mrow><mi>x</mi><mo>(</mo><mi>x</mi><mo>+</mo><mn>10</mn><mo>)</mo></mrow></mfrac><mo>=</mo><mn>1</mn></mtd></mtr><mtr><mtd><mfrac><mn>600</mn><mrow><mi>x</mi><mo>(</mo><mi>x</mi><mo>+</mo><mn>10</mn><mo>)</mo></mrow></mfrac><mo>=</mo><mn>1</mn></mtd></mtr><mtr><mtd><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>10</mn><mi>x</mi><mo>−</mo><mn>600</mn><mo>=</mo><mn>0</mn></mtd></mtr></mtable></math></div>
+                    </div>
+
+                    <div class="step" data-step="5">
+                        <div class="top"><div class="num">5</div><div><b>Находим корни и отбираем подходящий</b></div></div>
+                        <div class="formula"><math display="block"><mtable columnalign="left"><mtr><mtd><mi>D</mi><mo>=</mo><msup><mn>10</mn><mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>·</mo><mn>1</mn><mo>·</mo><mo>(</mo><mo>−</mo><mn>600</mn><mo>)</mo><mo>=</mo><mn>100</mn><mo>+</mo><mn>2400</mn><mo>=</mo><mn>2500</mn></mtd></mtr><mtr><mtd><msqrt><mi>D</mi></msqrt><mo>=</mo><mn>50</mn></mtd></mtr><mtr><mtd><msub><mi>x</mi><mn>1</mn></msub><mo>=</mo><mfrac><mrow><mo>−</mo><mn>10</mn><mo>+</mo><mn>50</mn></mrow><mn>2</mn></mfrac><mo>=</mo><mn>20</mn></mtd></mtr><mtr><mtd><msub><mi>x</mi><mn>2</mn></msub><mo>=</mo><mfrac><mrow><mo>−</mo><mn>10</mn><mo>−</mo><mn>50</mn></mrow><mn>2</mn></mfrac><mo>=</mo><mo>−</mo><mn>30</mn></mtd></mtr></mtable></math></div>
+                        <div>Отрицательная производительность невозможна, поэтому <b>x = 20</b> — это скорость второго рабочего. Тогда скорость первого рабочего равна <b>30</b>.</div>
+                    </div>
+
+                    <div class="step" data-step="6">
+                        <div class="top"><div class="num">6</div><div><b>Проверяем ответ</b></div></div>
+                        <div class="formula"><math display="block"><mtable columnalign="left"><mtr><mtd><mtext>второй:</mtext><mfrac><mn>60</mn><mn>20</mn></mfrac><mo>=</mo><mn>3</mn><mtext> часа</mtext></mtd></mtr><mtr><mtd><mtext>первый:</mtext><mfrac><mn>60</mn><mn>30</mn></mfrac><mo>=</mo><mn>2</mn><mtext> часа</mtext></mtd></mtr><mtr><mtd><mtext>разница:</mtext><mn>3</mn><mo>−</mo><mn>2</mn><mo>=</mo><mn>1</mn><mtext> час</mtext></mtd></mtr></mtable></math></div>
+                        <div><b>Ответ:</b> первый рабочий делает <b>30</b> деталей в час, второй — <b>20</b> деталей в час.</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card mistakes">
+                <h2>Типичные ошибки</h2>
+                <ul>
+                    <li>Взять <b>x</b> за скорость первого, а потом неверно записать скорость второго.</li>
+                    <li>Перепутать формулу и записать <b>время = производительность / работа</b>.</li>
+                    <li>Неверно понять фразу «на 1 час меньше» и составить уравнение с неправильным знаком.</li>
+                    <li>Забыть, что производительность должна быть <b>положительной</b>.</li>
+                    <li>Найти только <b>x</b> и не вернуться к вопросу задачи: нужны скорости обоих рабочих.</li>
+                </ul>
+            </section>
+
+            <section class="card memo">
+                <h2>Памятка</h2>
+                <ul>
+                    <li>В задачах на работу почти всегда нужна таблица.</li>
+                    <li>Если объём работы одинаковый, удобно обозначать именно производительность.</li>
+                    <li>После решения обязательно проверьте ответ подстановкой в текст задачи.</li>
+                </ul>
+            </section>
+
+            <section class="card quiz">
+                <h2>Мини-квиз</h2>
+                <div class="quiz-grid">
+                    <div class="q">
+                        <div><b>1.</b> Если рабочий делает 48 деталей за час и должен изготовить 96 деталей, сколько часов он будет работать?</div>
+                        <button data-answer="2" class="ans-btn" data-group="q1">2 часа</button>
+                        <button data-answer="0" class="ans-btn" data-group="q1">48 часов</button>
+                        <button data-answer="0" class="ans-btn" data-group="q1">144 часа</button>
+                        <div class="feedback" id="q1"></div>
+                    </div>
+                    <div class="q">
+                        <div><b>2.</b> Если второй делает x деталей в час, а первый на 7 деталей больше, как записать скорость первого?</div>
+                        <button data-answer="0" class="ans-btn" data-group="q2">x − 7</button>
+                        <button data-answer="1" class="ans-btn" data-group="q2">x + 7</button>
+                        <button data-answer="0" class="ans-btn" data-group="q2">7x</button>
+                        <div class="feedback" id="q2"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card practice">
+                <h2>Тренировка</h2>
+                <p class="lead">Нажмите кнопку — появится похожая задача с безопасными числами и сразу с проверяемым ответом.</p>
+                <div class="gen-controls controls">
+                    <button id="genBtn">Сгенерировать похожую задачу</button>
+                </div>
+                <div class="gen-box" id="generatedBox">Пока ничего не сгенерировано.</div>
+            </section>
+        </main>
+
+        <aside class="right">
+            <section class="viz" id="vizCard">
+                <div class="viz-head">
+                    <div>
+                        <h3 style="margin:0">Интерактивная модель</h3>
+                        <div class="lead" style="font-size:14px">Нажимайте шаги слева или используйте ползунок. Клик по схеме откроет увеличенный вид.</div>
+                    </div>
+                    <div class="controls">
+                        <button class="secondary" id="prevBtn">← Шаг</button>
+                        <button class="secondary" id="nextBtn">Шаг →</button>
+                        <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)">Зум
+                            <input id="zoomRange" type="range" min="80" max="170" value="100" />
+                        </label>
+                    </div>
+                </div>
+                <div class="scene-wrap">
+                    <div class="print-note"><b>Схема:</b> одинаковая работа по 60 деталей; первый работает быстрее, значит его время меньше.</div>
+                    <div class="scene" id="scene"></div>
+                </div>
+                <div class="legend">
+                    <div class="mini"><b id="legendStep">Шаг 1</b><span id="legendText">Выбрали переменную: второй делает x деталей в час.</span><div style="margin-top:10px"><button class="secondary" id="openTableBtn">Открыть таблицу</button></div></div>
+                    <div class="mini"><b>Ключевая связь</b><span>время = работа / производительность</span></div>
+                </div>
+                <div class="status">
+                    <div class="status-line"><span>Скорость второго</span><span class="kpi" id="speed2">20 дет/ч</span></div>
+                    <div class="status-line"><span>Скорость первого</span><span class="kpi" id="speed1">30 дет/ч</span></div>
+                    <div class="status-line"><span>Время второго</span><span class="kpi" id="time2">3 ч</span></div>
+                    <div class="status-line"><span>Время первого</span><span class="kpi" id="time1">2 ч</span></div>
+                </div>
+            </section>
+        </aside>
+    </div>
+
+    <div class="footer">Наглядное пособие: одна задача → одна модель → один понятный алгоритм.</div>
+</div>
+
+<div class="modal" id="modal">
+    <div class="modal-card">
+        <div class="modal-top">
+            <div><b>Таблица к задаче</b></div>
+            <button id="closeModal">Закрыть ✕</button>
+        </div>
+        <div class="modal-scene" style="overflow:auto;background:#fbfefe;">
+            <div class="card" style="box-shadow:none;margin:0;border-radius:18px;min-height:100%">
+                <h2>Таблица «производительность — время — работа»</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Рабочий</th>
+                            <th>Производительность</th>
+                            <th>Время</th>
+                            <th>Работа</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Первый</td>
+                            <td><math display="inline"><mrow><mi>x</mi><mo>+</mo><mn>10</mn></mrow></math></td>
+                            <td><math display="inline"><mfrac><mn>60</mn><mrow><mi>x</mi><mo>+</mo><mn>10</mn></mrow></mfrac></math></td>
+                            <td><math display="inline"><mn>60</mn></math></td>
+                        </tr>
+                        <tr>
+                            <td>Второй</td>
+                            <td><math display="inline"><mi>x</mi></math></td>
+                            <td><math display="inline"><mfrac><mn>60</mn><mi>x</mi></mfrac></math></td>
+                            <td><math display="inline"><mn>60</mn></math></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="formula" style="margin-top:16px"><math display="block"><mrow><mtext>время</mtext><mo>=</mo><mfrac><mtext>работа</mtext><mtext>производительность</mtext></mfrac></mrow></math></div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    const state = {
+        step: 1,
+        zoom: 1,
+        speed2: 20,
+        speed1: 30,
+        time2: 3,
+        time1: 2,
+        work: 60
+    };
+
+    const legend = {
+        1: 'Выбрали переменную: второй делает x деталей в час.',
+        2: 'Заполнили таблицу и выразили время через работу и производительность.',
+        3: 'Собрали уравнение по фразе «на 1 час меньше».',
+        4: 'Привели дроби к общему знаменателю и получили квадратное уравнение.',
+        5: 'Из двух корней выбрали только осмысленный положительный.',
+        6: 'Проверили ответ по времени: 3 часа и 2 часа.'
+    };
+
+    const steps = [...document.querySelectorAll('.step')];
+    const scene = document.getElementById('scene');
+    const modalScene = document.getElementById('modalScene');
+    const openTableBtn = document.getElementById('openTableBtn');
+    const legendStep = document.getElementById('legendStep');
+    const legendText = document.getElementById('legendText');
+    const zoomRange = document.getElementById('zoomRange');
+    const modal = document.getElementById('modal');
+
+    function setStep(n){
+        state.step = Math.max(1, Math.min(6, n));
+        steps.forEach(el => el.classList.toggle('active', +el.dataset.step === state.step));
+        legendStep.textContent = 'Шаг ' + state.step;
+        legendText.textContent = legend[state.step];
+        renderBoth();
+    }
+
+    steps.forEach(el => el.addEventListener('click', () => setStep(+el.dataset.step)));
+    document.getElementById('prevBtn').addEventListener('click', () => setStep(state.step - 1));
+    document.getElementById('nextBtn').addEventListener('click', () => setStep(state.step + 1));
+    zoomRange.addEventListener('input', e => { state.zoom = e.target.value / 100; renderBoth(); });
+
+    function draw(svgRoot, large=false){
+        const w = svgRoot.clientWidth || 500;
+        const h = svgRoot.clientHeight || 500;
+        const z = state.zoom;
+        const pad = large ? 44 : 28;
+        const cx = w/2, cy = h/2;
+        const leftX = cx - 140*z;
+        const rightX = cx + 40*z;
+        const barW = 72*z;
+        const maxBarH = 220*z;
+        const timeScale = maxBarH / 3.4;
+        const t2H = state.time2 * timeScale;
+        const t1H = state.time1 * timeScale;
+        const boxW = 150*z;
+        const boxH = 48*z;
+        const topY = 60*z;
+        const workY = h - 84*z;
+        const fontMain = large ? 22 : 16;
+        const fontSmall = large ? 18 : 13;
+        const active = state.step;
+
+        const op = (k) => active >= k ? 1 : 0.22;
+        const strong = (k) => active === k ? 1 : .72;
+        const eqText = [
+            '',
+            'второй: x    первый: x + 10',
+            't = 60 / v',
+            '60/x − 60/(x + 10) = 1',
+            'x² + 10x − 600 = 0',
+            'x = 20,  x + 10 = 30',
+            'проверка: 3 ч и 2 ч'
+        ][active];
+
+        svgRoot.innerHTML = `
+      <svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" aria-label="Интерактивная схема задачи на производительность">
+        <defs>
+          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="8" stdDeviation="8" flood-opacity="0.12"/>
+          </filter>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#116466"/>
+          </marker>
+        </defs>
+
+        <rect x="0" y="0" width="${w}" height="${h}" rx="28" fill="url(#bg)" opacity="0"/>
+
+        <rect x="${leftX-14*z}" y="${topY-12*z}" width="${boxW}" height="${boxH}" rx="16" fill="#ffffff" stroke="#d7dedd" opacity="${op(1)}" filter="url(#shadow)"/>
+        <text x="${leftX + boxW/2 - 14*z}" y="${topY+18*z}" text-anchor="middle" font-size="${fontMain}" font-weight="800" fill="#116466" opacity="${op(1)}">Второй</text>
+
+        <rect x="${rightX-14*z}" y="${topY-12*z}" width="${boxW}" height="${boxH}" rx="16" fill="#ffffff" stroke="#d7dedd" opacity="${op(1)}" filter="url(#shadow)"/>
+        <text x="${rightX + boxW/2 - 14*z}" y="${topY+18*z}" text-anchor="middle" font-size="${fontMain}" font-weight="800" fill="#116466" opacity="${op(1)}">Первый</text>
+
+        <text x="${leftX + boxW/2 - 14*z}" y="${topY+52*z}" text-anchor="middle" font-size="${fontSmall}" fill="#5d6972" opacity="${op(1)}">скорость: ${active>=5 ? state.speed2 + ' дет/ч' : 'x'}</text>
+        <text x="${rightX + boxW/2 - 14*z}" y="${topY+52*z}" text-anchor="middle" font-size="${fontSmall}" fill="#5d6972" opacity="${op(1)}">скорость: ${active>=5 ? state.speed1 + ' дет/ч' : 'x + 10'}</text>
+
+        <line x1="${leftX + boxW/2 - 14*z}" y1="${topY+68*z}" x2="${leftX + boxW/2 - 14*z}" y2="${workY - t2H - 30*z}" stroke="#7ba9aa" stroke-width="3" stroke-dasharray="8 8" opacity="${op(2)}"/>
+        <line x1="${rightX + boxW/2 - 14*z}" y1="${topY+68*z}" x2="${rightX + boxW/2 - 14*z}" y2="${workY - t1H - 30*z}" stroke="#7ba9aa" stroke-width="3" stroke-dasharray="8 8" opacity="${op(2)}"/>
+
+        <rect x="${leftX + 25*z}" y="${workY - t2H}" width="${barW}" height="${t2H}" rx="18" fill="#9fd3d4" stroke="#116466" stroke-width="3" opacity="${op(2) * strong(6)}"/>
+        <rect x="${rightX + 25*z}" y="${workY - t1H}" width="${barW}" height="${t1H}" rx="18" fill="#4fb3b5" stroke="#116466" stroke-width="3" opacity="${op(2) * strong(6)}"/>
+
+        <text x="${leftX + 61*z}" y="${workY - t2H - 12*z}" text-anchor="middle" font-size="${fontSmall}" fill="#182026" opacity="${op(2)}">${active>=6 ? '3 ч' : '60 / x'}</text>
+        <text x="${rightX + 61*z}" y="${workY - t1H - 12*z}" text-anchor="middle" font-size="${fontSmall}" fill="#182026" opacity="${op(2)}">${active>=6 ? '2 ч' : '60 / (x + 10)'}</text>
+
+        <rect x="${leftX + 6*z}" y="${workY + 12*z}" width="${110*z}" height="${40*z}" rx="12" fill="#ffffff" stroke="#d7dedd" opacity="${op(2)}"/>
+        <rect x="${rightX + 6*z}" y="${workY + 12*z}" width="${110*z}" height="${40*z}" rx="12" fill="#ffffff" stroke="#d7dedd" opacity="${op(2)}"/>
+        <text x="${leftX + 61*z}" y="${workY + 38*z}" text-anchor="middle" font-size="${fontSmall}" fill="#182026" opacity="${op(2)}">работа: 60</text>
+        <text x="${rightX + 61*z}" y="${workY + 38*z}" text-anchor="middle" font-size="${fontSmall}" fill="#182026" opacity="${op(2)}">работа: 60</text>
+
+        <path d="M ${leftX + 115*z} ${workY - t2H/2} C ${cx - 28*z} ${workY - t2H/2 - 70*z}, ${cx - 8*z} ${workY - t1H/2 + 20*z}, ${rightX + 25*z} ${workY - t1H/2}" stroke="#116466" stroke-width="4" fill="none" marker-end="url(#arrow)" opacity="${op(3)}"/>
+        <text x="${cx - 10*z}" y="${workY - 110*z}" text-anchor="middle" font-size="${fontSmall}" font-weight="700" fill="#116466" opacity="${op(3)}">разница времени = 1 ч</text>
+
+        <rect x="${pad}" y="${h - 92*z}" width="${w - 2*pad}" height="${54*z}" rx="18" fill="#ffffff" stroke="#d7dedd" opacity="${op(3)}"/>
+        <text x="${w/2}" y="${h - 58*z}" text-anchor="middle" font-size="${fontSmall}" font-weight="700" fill="#182026" opacity="${op(3)}">${eqText}</text>
+      </svg>`;
+    }
+
+    function renderBoth(){
+        draw(scene, false);
+        draw(modalScene, true);
+        document.getElementById('speed2').textContent = state.speed2 + ' дет/ч';
+        document.getElementById('speed1').textContent = state.speed1 + ' дет/ч';
+        document.getElementById('time2').textContent = state.time2 + ' ч';
+        document.getElementById('time1').textContent = state.time1 + ' ч';
+    }
+
+    document.getElementById('scene').addEventListener('click', ()=> modal.classList.add('open'));
+    openTableBtn.addEventListener('click', ()=> modal.classList.add('open'));
+    document.getElementById('closeModal').addEventListener('click', ()=> modal.classList.remove('open'));
+    modal.addEventListener('click', (e)=> { if(e.target === modal) modal.classList.remove('open'); });
+    window.addEventListener('keydown', (e)=> { if(e.key === 'Escape') modal.classList.remove('open'); });
+
+    document.querySelectorAll('.ans-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const group = btn.dataset.group;
+            const out = document.getElementById(group);
+            if(btn.dataset.answer === '1'){
+                out.textContent = 'Верно.';
+                out.className = 'feedback ok';
+            } else {
+                out.textContent = 'Пока нет. Вспомните формулу или смысл условия.';
+                out.className = 'feedback bad';
+            }
+        });
+    });
+
+    function makeTask(){
+        const slower = [12,14,15,16,18,20][Math.floor(Math.random()*6)];
+        const diff = [4,5,6,8][Math.floor(Math.random()*4)];
+        const work = slower * (slower + diff);
+        const faster = slower + diff;
+        const timeSlow = work / slower;
+        const timeFast = work / faster;
+        const delta = timeSlow - timeFast;
+        const text = `
+        <div><b>Новая задача.</b> Два рабочих должны изготовить по <b>${work}</b> деталей. Первый делает за час на <b>${diff}</b> деталей больше, чем второй, поэтому тратит на выполнение задания на <b>${delta}</b> ${delta === 1 ? 'час' : (delta < 5 ? 'часа' : 'часов')} меньше.</div>
+        <div style="margin-top:10px"><b>Что взять за x?</b> Удобно взять скорость второго: <b>x</b> дет/ч.</div>
+        <div style="margin-top:10px"><b>Ответ:</b> второй — <b>${slower}</b> дет/ч, первый — <b>${faster}</b> дет/ч.</div>
+        <div style="margin-top:10px;color:#5d6972">Проверка: ${work}/${slower} = ${timeSlow} ч, ${work}/${faster} = ${timeFast} ч.</div>
+      `;
+        document.getElementById('generatedBox').innerHTML = text;
+    }
+
+    document.getElementById('genBtn').addEventListener('click', makeTask);
+
+    setStep(1);
+    renderBoth();
+</script>
+</body>
+</html>
