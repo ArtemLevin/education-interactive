@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Интерактивное пособие: система с параметром</title>
+    <style>
+        :root{
+            --bg:#f4f4f0;
+            --panel:#ffffff;
+            --ink:#111111;
+            --muted:#5f5f5f;
+            --line:#111111;
+            --accent:#d84f3d;
+            --accent-2:#2f5bd3;
+            --soft:#ecebe4;
+            --ok:#1f7a1f;
+            --warn:#9a6b00;
+            --shadow:6px 6px 0 #111111;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+        body{line-height:1.5}
+        .wrap{max-width:1440px;margin:0 auto;padding:24px}
+        .hero{border:2px solid var(--line);background:var(--panel);box-shadow:var(--shadow);padding:24px;margin-bottom:20px}
+        .eyebrow{display:inline-block;background:#111;color:#fff;padding:6px 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+        h1,h2,h3{margin:0 0 12px 0;line-height:1.1}
+        h1{font-size:clamp(30px,4vw,54px);text-transform:uppercase}
+        h2{font-size:clamp(22px,2.6vw,34px)}
+        h3{font-size:clamp(18px,2vw,24px)}
+        p{margin:0 0 12px 0}
+        .banner{margin-top:16px;background:#111;color:#fff;border:2px solid #111;padding:12px 14px;font-weight:700}
+        .controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
+        .control{border:2px solid var(--line);background:var(--soft);padding:12px}
+        .control label{display:block;font-size:13px;font-weight:700;margin-bottom:8px}
+        .value{font-weight:700;color:var(--accent-2)}
+        input[type="range"]{width:100%}
+        button,.btn{border:2px solid var(--line);background:var(--panel);padding:10px 12px;font-weight:700;cursor:pointer;box-shadow:4px 4px 0 #111;text-decoration:none;color:var(--ink)}
+        button:hover,.btn:hover{transform:translate(1px,1px);box-shadow:3px 3px 0 #111}
+        .main{display:grid;grid-template-columns:minmax(340px,1.05fr) minmax(360px,.95fr);gap:20px;align-items:start}
+        .panel{border:2px solid var(--line);background:var(--panel);box-shadow:var(--shadow)}
+        .panel-inner{padding:18px}
+        .sticky{position:sticky;top:18px}
+        .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+        .tab{border:2px solid var(--line);padding:8px 10px;background:var(--soft);font-weight:700;cursor:pointer}
+        .tab.active{background:var(--accent);color:#fff}
+        .mode{display:none}
+        .mode.active{display:block}
+        .step-list{display:grid;gap:10px}
+        .step{border:2px solid var(--line);padding:14px;background:#fff;cursor:pointer}
+        .step.active{background:#fff2ef;border-color:var(--accent)}
+        .step small{display:block;color:var(--muted);margin-bottom:6px}
+        .formula{display:block;border-left:4px solid var(--accent);background:var(--soft);padding:10px 12px;margin:10px 0;font-family:"Courier New",monospace;white-space:pre-wrap}
+        .mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+        .card{border:2px solid var(--line);padding:12px;background:#fff}
+        .answer{font-weight:700;color:var(--ok)}
+        .warning{font-weight:700;color:var(--warn)}
+        .canvas-shell{border:2px solid var(--line);background:#fff;padding:10px;position:relative}
+        canvas{display:block;width:100%;height:auto;background:#fff;cursor:grab}
+        canvas:active{cursor:grabbing}
+        .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:14px}
+        .legend span{display:inline-flex;align-items:center;gap:8px}
+        .sw{width:16px;height:4px;display:inline-block;background:#000;border:1px solid #000}
+        .sw.arc{background:var(--accent-2)}
+        .sw.roof{background:var(--accent)}
+        .sw.dot{width:10px;height:10px;border-radius:50%;background:#111}
+        .status{display:grid;gap:8px;margin-top:12px}
+        .status .row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed #cfcfcf;padding-bottom:6px}
+        .pill{display:inline-block;padding:3px 8px;border:2px solid #111;background:var(--soft);font-weight:700}
+        .pill.one{background:#e9f7e9;color:#0f5a0f}
+        .pill.zero{background:#f6efef;color:#7a1f1f}
+        .pill.many{background:#eef2ff;color:#203f95}
+        .quiz{display:grid;gap:14px}
+        .q{border:2px solid var(--line);padding:12px;background:#fff}
+        .choices{display:grid;gap:8px;margin-top:8px}
+        .choice{border:2px solid var(--line);padding:8px;background:var(--soft);cursor:pointer}
+        .choice.correct{background:#e6f7e6}
+        .choice.wrong{background:#fdeaea}
+        .footer{margin-top:20px;border:2px solid var(--line);background:#111;color:#fff;box-shadow:var(--shadow);padding:16px;text-align:center;font-weight:700;letter-spacing:.06em}
+        .tagline{color:#ff6a57}
+        .hint{font-size:13px;color:var(--muted)}
+        .range-row{display:flex;gap:8px;align-items:center}
+        .range-row button{padding:6px 10px;box-shadow:none}
+        .mono{font-family:"Courier New",monospace}
+        .table-like{display:grid;gap:8px}
+        .table-row{display:grid;grid-template-columns:110px 1fr;border:2px solid var(--line)}
+        .table-row > div{padding:8px}
+        .table-row > div:first-child{background:var(--soft);font-weight:700;border-right:2px solid var(--line)}
+        .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:24px;z-index:30}
+        .modal.open{display:flex}
+        .modal-card{width:min(1100px,96vw);background:#fff;border:2px solid #111;box-shadow:8px 8px 0 #111;padding:14px;position:relative}
+        .close{position:absolute;top:10px;right:10px}
+        @media (max-width:1000px){
+            .main{grid-template-columns:1fr}
+            .sticky{position:static}
+            .controls{grid-template-columns:1fr 1fr}
+        }
+        @media (max-width:680px){
+            .wrap{padding:14px}
+            .controls,.mini-grid{grid-template-columns:1fr}
+            .table-row{grid-template-columns:1fr}
+            .table-row > div:first-child{border-right:none;border-bottom:2px solid var(--line)}
+        }
+        @media print{
+            .controls,.tabs,.footer,.modal{display:none!important}
+            .main{grid-template-columns:1fr}
+            .sticky{position:static}
+            .panel,.hero{box-shadow:none}
+            body{background:#fff}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div class="eyebrow">интерактивное пособие · 11 класс · егэ профиль</div>
+        <h1>система с параметром: модуль и полуокружность</h1>
+        <p><strong>Исходная задача.</strong> Найти все значения параметра <span class="mono">a</span>, при которых система</p>
+        <div class="formula">|x - a| + |y| = 2
+            y = √(4 - x²)</div>
+        <p>имеет ровно одно решение. Ниже — наглядный графо-аналитический разбор, интерактивный чертёж, автоматический подсчёт числа решений, тренировка и мини-квиз.</p>
+        <div class="banner">главная идея: график y = 2 - |x - a| двигается вдоль оси x, а число решений — это число точек пересечения с верхней полуокружностью y = √(4 - x²)</div>
+        <div class="controls">
+            <div class="control">
+                <label>параметр a: <span id="aVal" class="value">0.00</span></label>
+                <div class="range-row">
+                    <button id="minusA">−</button>
+                    <input id="aRange" type="range" min="-6" max="6" step="0.01" value="0" />
+                    <button id="plusA">+</button>
+                </div>
+                <div class="hint">двигайте ползунок и наблюдайте, как меняется число решений</div>
+            </div>
+            <div class="control">
+                <label>масштаб чертежа</label>
+                <div class="range-row">
+                    <button id="zoomOut">−</button>
+                    <input id="zoomRange" type="range" min="0.7" max="2.1" step="0.01" value="1" />
+                    <button id="zoomIn">+</button>
+                </div>
+                <div class="hint">работает вместе с колесом мыши на чертеже</div>
+            </div>
+            <div class="control">
+                <label>видимость элементов</label>
+                <div><label><input type="checkbox" id="showGuides" checked /> показать направляющие</label></div>
+                <div><label><input type="checkbox" id="showPoints" checked /> показать точки пересечения</label></div>
+                <div><label><input type="checkbox" id="showBranches" checked /> подписать ветви ломаной</label></div>
+            </div>
+            <div class="control">
+                <label>действия</label>
+                <div style="display:grid;gap:8px">
+                    <button id="resetView">сбросить вид</button>
+                    <button id="jumpOne">показать области, где ровно одно решение</button>
+                    <button id="openModal">открыть большой график</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="main">
+        <div class="panel">
+            <div class="panel-inner">
+                <div class="tabs">
+                    <div class="tab active" data-tab="theory">разбор</div>
+                    <div class="tab" data-tab="mistakes">ошибки</div>
+                    <div class="tab" data-tab="practice">тренировка</div>
+                    <div class="tab" data-tab="quiz">квиз</div>
+                    <div class="tab" data-tab="summary">памятка</div>
+                </div>
+
+                <div class="mode active" id="theory">
+                    <h2>пошаговый разбор</h2>
+                    <div class="step-list" id="stepList"></div>
+                </div>
+
+                <div class="mode" id="mistakes">
+                    <h2>типичные ошибки</h2>
+                    <div class="mini-grid">
+                        <div class="card"><strong>Ошибка 1.</strong><br>Забыть, что по второму уравнению всегда <span class="mono">y ≥ 0</span>, и не заменить <span class="mono">|y|</span> на <span class="mono">y</span>.</div>
+                        <div class="card"><strong>Ошибка 2.</strong><br>Сразу возводить в квадрат и терять геометрию задачи.</div>
+                        <div class="card"><strong>Ошибка 3.</strong><br>Не учитывать, что при <span class="mono">a = 0</span> вершина ломаной <span class="mono">(0, 2)</span> общая для двух ветвей, но это одна точка, а не две.</div>
+                        <div class="card"><strong>Ошибка 4.</strong><br>Не выделять критические значения параметра, в которых меняется число решений.</div>
+                    </div>
+                </div>
+
+                <div class="mode" id="practice">
+                    <h2>тренировка по мотивам задачи</h2>
+                    <div class="card">
+                        <p><strong>Задача.</strong> Найдите все значения параметра <span class="mono">b</span>, при которых система</p>
+                        <div class="formula">|x - b| + |y| = 3
+                            y = √(9 - x²)</div>
+                        <p>имеет ровно одно решение.</p>
+                        <button id="togglePractice">показать решение и ответ</button>
+                        <div id="practiceSolution" style="display:none;margin-top:12px">
+                            <p>Это та же конструкция, только радиус полуокружности и высота вершины ломаной равны 3. Поэтому критические значения масштабируются в 1.5 раза относительно основной задачи:</p>
+                            <div class="formula">b = -6,
+                                b = 3 - 3√2,
+                                b = 3√2 - 3,
+                                b = 6</div>
+                            <p class="answer">Ответ: b ∈ [−6, 3 − 3√2) ∪ (3√2 − 3, 6].</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mode" id="quiz">
+                    <h2>мини-квиз</h2>
+                    <div class="quiz" id="quizBox"></div>
+                </div>
+
+                <div class="mode" id="summary">
+                    <h2>памятка</h2>
+                    <div class="table-like">
+                        <div class="table-row"><div>график 1</div><div><span class="mono">y = √(4 - x²)</span> — верхняя полуокружность радиуса 2.</div></div>
+                        <div class="table-row"><div>график 2</div><div><span class="mono">|x-a| + |y| = 2</span> при <span class="mono">y ≥ 0</span> превращается в <span class="mono">y = 2 - |x-a|</span>.</div></div>
+                        <div class="table-row"><div>идея</div><div>Считать число точек пересечения ломаной и полуокружности при движении параметра <span class="mono">a</span>.</div></div>
+                        <div class="table-row"><div>критические a</div><div><span class="mono">−4, 2−2√2, 2√2−2, 4</span>.</div></div>
+                        <div class="table-row"><div>итог</div><div class="answer"><span class="mono">a ∈ [−4, 2−2√2) ∪ (2√2−2, 4]</span>.</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel sticky">
+            <div class="panel-inner">
+                <h2>интерактивный график</h2>
+                <div class="canvas-shell">
+                    <canvas id="graph" width="760" height="620" aria-label="График системы"></canvas>
+                </div>
+                <div class="legend">
+                    <span><i class="sw arc"></i> полуокружность</span>
+                    <span><i class="sw roof"></i> ломаная y = 2 - |x-a|</span>
+                    <span><i class="sw dot"></i> точки пересечения</span>
+                </div>
+                <div class="status">
+                    <div class="row"><span>текущее значение a</span><strong id="statusA">0.00</strong></div>
+                    <div class="row"><span>число решений</span><strong id="solCountBadge" class="pill many">3</strong></div>
+                    <div class="row"><span>критические значения</span><strong class="mono">−4; 2−2√2; 2√2−2; 4</strong></div>
+                    <div class="row"><span>вывод для текущего a</span><strong id="statusText">три решения</strong></div>
+                </div>
+                <div class="card" style="margin-top:12px">
+                    <h3>автоматический вывод</h3>
+                    <p id="autoExplain"></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">параметры · графики · пересечения · <span class="tagline">математика. наглядно</span></footer>
+    <footer class="footer">Лёвин Артём Александрович эксклюзивно для Полины Ковальчук</span></footer>
+</div>
+
+<div class="modal" id="modal">
+    <div class="modal-card">
+        <button class="close" id="closeModal">закрыть</button>
+        <h2 style="margin-bottom:12px">увеличенная визуализация</h2>
+        <div class="canvas-shell"><canvas id="graphModal" width="1080" height="760"></canvas></div>
+    </div>
+</div>
+
+<script>
+    const state = {
+        a: 0,
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        showGuides: true,
+        showPoints: true,
+        showBranches: true,
+        activeStep: 0,
+        modalOpen: false
+    };
+
+    const steps = [
+        {
+            title: '1. Считываем второй график',
+            text: 'Уравнение y = √(4 - x²) задаёт верхнюю полуокружность x² + y² = 4, y ≥ 0. Это значит, что все решения системы лежат только в верхней полуплоскости.'
+        },
+        {
+            title: '2. Упрощаем первое уравнение',
+            text: 'Так как y ≥ 0, получаем |y| = y. Тогда |x-a| + |y| = 2 превращается в y = 2 - |x-a|. Это ломаная с вершиной в точке (a, 2).'
+        },
+        {
+            title: '3. Делим ломаную на две ветви',
+            text: 'Левая ветвь имеет вид y = x + 2 - a, правая ветвь — y = -x + a + 2. Далее удобно анализировать, сколько точек пересечения даёт каждая ветвь.'
+        },
+        {
+            title: '4. Отмечаем критические положения',
+            text: 'Число решений меняется только тогда, когда ветвь касается полуокружности или проходит через её крайние точки. Получаются критические значения a = -4, 2 - 2√2, 2√2 - 2, 4.'
+        },
+        {
+            title: '5. Читаем ответ по интервалам',
+            text: 'Ровно одно решение бывает тогда, когда одна ветвь ещё пересекает полуокружность, а другая уже нет. Ответ: a ∈ [−4, 2−2√2) ∪ (2√2−2, 4].'
+        }
+    ];
+
+    const quizData = [
+        {
+            q: 'Почему в основной задаче можно заменить |y| на y?',
+            choices: ['Потому что x всегда положителен', 'Потому что по второму уравнению y ≥ 0', 'Потому что a ≥ 0'],
+            correct: 1,
+            explain: 'Да, из y = √(4 - x²) сразу следует y ≥ 0.'
+        },
+        {
+            q: 'Какой график задаёт уравнение y = 2 - |x-a|?',
+            choices: ['Параболу', 'Окружность', 'Ломаную с вершиной в точке (a, 2)'],
+            correct: 2,
+            explain: 'Верно: это график вида «крыша».'
+        },
+        {
+            q: 'При каком значении a вершина ломаной совпадает с верхней точкой полуокружности?',
+            choices: ['a = -2', 'a = 0', 'a = 2'],
+            correct: 1,
+            explain: 'Верхняя точка полуокружности — (0, 2), значит вершина (a, 2) должна иметь a = 0.'
+        }
+    ];
+
+    const canvas = document.getElementById('graph');
+    const ctx = canvas.getContext('2d');
+    const modalCanvas = document.getElementById('graphModal');
+    const modalCtx = modalCanvas.getContext('2d');
+
+    const aRange = document.getElementById('aRange');
+    const zoomRange = document.getElementById('zoomRange');
+    const aVal = document.getElementById('aVal');
+    const statusA = document.getElementById('statusA');
+    const solCountBadge = document.getElementById('solCountBadge');
+    const statusText = document.getElementById('statusText');
+    const autoExplain = document.getElementById('autoExplain');
+
+    function worldToScreen(x, y, W, H){
+        const scale = 80 * state.zoom;
+        const cx = W/2 + state.panX;
+        const cy = H/2 + 110 + state.panY;
+        return {x: cx + x*scale, y: cy - y*scale};
+    }
+
+    function screenToWorld(px, py, W, H){
+        const scale = 80 * state.zoom;
+        const cx = W/2 + state.panX;
+        const cy = H/2 + 110 + state.panY;
+        return {x:(px-cx)/scale, y:(cy-py)/scale};
+    }
+
+    function nearlyEqual(a,b,eps=1e-7){ return Math.abs(a-b) < eps; }
+
+    function roofY(x,a){ return 2 - Math.abs(x-a); }
+    function semicircleY(x){
+        const val = 4 - x*x;
+        return val < 0 ? null : Math.sqrt(val);
+    }
+
+    function uniquePoints(points){
+        const out = [];
+        for(const p of points){
+            if(!out.some(q => Math.hypot(p.x-q.x,p.y-q.y) < 1e-5)) out.push(p);
+        }
+        return out;
+    }
+
+    function solveIntersections(a){
+        const pts = [];
+        const c1 = 2 - a; // y = x + c1
+        const d1 = 8 - c1*c1;
+        if(d1 >= -1e-9){
+            const root = Math.sqrt(Math.max(0,d1));
+            const xs = [(-c1 + root)/2, (-c1 - root)/2];
+            xs.forEach(x => {
+                const y = x + c1;
+                if(y >= -1e-9 && x <= a + 1e-7 && x >= -2-1e-7 && x <= 2+1e-7) pts.push({x,y});
+            });
+        }
+        const c2 = a + 2; // y = -x + c2
+        const d2 = 8 - c2*c2;
+        if(d2 >= -1e-9){
+            const root = Math.sqrt(Math.max(0,d2));
+            const xs = [(c2 + root)/2, (c2 - root)/2];
+            xs.forEach(x => {
+                const y = -x + c2;
+                if(y >= -1e-9 && x >= a - 1e-7 && x >= -2-1e-7 && x <= 2+1e-7) pts.push({x,y});
+            });
+        }
+        return uniquePoints(pts).sort((p,q)=>p.x-q.x);
+    }
+
+    function explainForA(a,count){
+        const c1 = 2 - 2*Math.SQRT2;
+        const c2 = 2*Math.SQRT2 - 2;
+        if(a < -4) return 'Ломаная слишком сдвинута влево: ни одна ветвь не пересекает верхнюю полуокружность.';
+        if(nearlyEqual(a,-4)) return 'Правая ветвь проходит через точку (−2, 0), а левая ещё не пересекает дугу. Получается ровно одно решение.';
+        if(a > -4 && a < c1) return 'Правая ветвь даёт одну точку пересечения, а левая ещё не дошла до полуокружности. Поэтому решение ровно одно.';
+        if(nearlyEqual(a,c1)) return 'Появляется новое касание левой ветви, поэтому решений становится уже два.';
+        if(a > c1 && a < 0) return 'Левая ветвь уже даёт две точки, правая — одну. Итого три решения.';
+        if(nearlyEqual(a,0)) return 'Вершина ломаной совпадает с точкой (0, 2), а также остаются точки (−2, 0) и (2, 0). Всего три решения.';
+        if(a > 0 && a < c2) return 'Теперь правая ветвь даёт две точки, левая — одну. Снова три решения.';
+        if(nearlyEqual(a,c2)) return 'Правая ветвь касается полуокружности, левая даёт ещё одну точку. Итого два решения.';
+        if(a > c2 && a < 4) return 'Левая ветвь даёт одну точку пересечения, правая уже не пересекает дугу. Поэтому решение ровно одно.';
+        if(nearlyEqual(a,4)) return 'Левая ветвь проходит через точку (2, 0), правая уже ушла. Получается ровно одно решение.';
+        return 'Ломаная слишком сдвинута вправо: пересечений с верхней полуокружностью нет.';
+    }
+
+    function formatA(v){
+        return (Math.abs(v) < 1e-9 ? 0 : v).toFixed(2);
+    }
+
+    function drawAxes(targetCtx, W, H){
+        targetCtx.save();
+        targetCtx.strokeStyle = '#111';
+        targetCtx.lineWidth = 1.2;
+        const x1 = worldToScreen(-6.2,0,W,H), x2 = worldToScreen(6.2,0,W,H);
+        const y1 = worldToScreen(0,-0.8,W,H), y2 = worldToScreen(0,3.2,W,H);
+        targetCtx.beginPath();
+        targetCtx.moveTo(x1.x,x1.y); targetCtx.lineTo(x2.x,x2.y);
+        targetCtx.moveTo(y1.x,y1.y); targetCtx.lineTo(y2.x,y2.y);
+        targetCtx.stroke();
+        targetCtx.fillStyle = '#111';
+        targetCtx.font = '14px Arial';
+        targetCtx.fillText('x', x2.x-10, x2.y-8);
+        targetCtx.fillText('y', y2.x+8, y2.y+6);
+        for(let i=-6;i<=6;i++){
+            const p = worldToScreen(i,0,W,H);
+            targetCtx.beginPath();
+            targetCtx.moveTo(p.x,p.y-5); targetCtx.lineTo(p.x,p.y+5); targetCtx.stroke();
+            if(i!==0) targetCtx.fillText(String(i), p.x-6, p.y+18);
+        }
+        for(let j=1;j<=3;j++){
+            const p = worldToScreen(0,j,W,H);
+            targetCtx.beginPath();
+            targetCtx.moveTo(p.x-5,p.y); targetCtx.lineTo(p.x+5,p.y); targetCtx.stroke();
+            targetCtx.fillText(String(j), p.x+8, p.y+5);
+        }
+        targetCtx.restore();
+    }
+
+    function drawGraph(targetCtx, W, H){
+        targetCtx.clearRect(0,0,W,H);
+        targetCtx.fillStyle = '#fff';
+        targetCtx.fillRect(0,0,W,H);
+
+        drawAxes(targetCtx,W,H);
+
+        if(state.showGuides){
+            targetCtx.save();
+            targetCtx.strokeStyle = '#d8d8d8';
+            targetCtx.lineWidth = 1;
+            for(let i=-6;i<=6;i++){
+                const p1 = worldToScreen(i,-0.4,W,H), p2 = worldToScreen(i,3.0,W,H);
+                targetCtx.beginPath(); targetCtx.moveTo(p1.x,p1.y); targetCtx.lineTo(p2.x,p2.y); targetCtx.stroke();
+            }
+            for(let j=0;j<=3;j+=0.5){
+                const p1 = worldToScreen(-6,j,W,H), p2 = worldToScreen(6,j,W,H);
+                targetCtx.beginPath(); targetCtx.moveTo(p1.x,p1.y); targetCtx.lineTo(p2.x,p2.y); targetCtx.stroke();
+            }
+            targetCtx.restore();
+        }
+
+        // semicircle
+        targetCtx.save();
+        targetCtx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-2').trim();
+        targetCtx.lineWidth = 3;
+        targetCtx.beginPath();
+        let first = true;
+        for(let x=-2;x<=2;x+=0.01){
+            const y = semicircleY(x);
+            const p = worldToScreen(x,y,W,H);
+            if(first){targetCtx.moveTo(p.x,p.y); first=false;} else {targetCtx.lineTo(p.x,p.y);}
+        }
+        targetCtx.stroke();
+        targetCtx.restore();
+
+        // roof
+        targetCtx.save();
+        targetCtx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+        targetCtx.lineWidth = 3;
+        targetCtx.beginPath();
+        let p = worldToScreen(state.a-2,0,W,H);
+        targetCtx.moveTo(p.x,p.y);
+        p = worldToScreen(state.a,2,W,H);
+        targetCtx.lineTo(p.x,p.y);
+        p = worldToScreen(state.a+2,0,W,H);
+        targetCtx.lineTo(p.x,p.y);
+        targetCtx.stroke();
+        targetCtx.restore();
+
+        // highlighted branches labels
+        if(state.showBranches){
+            targetCtx.fillStyle = '#111';
+            targetCtx.font = 'bold 14px Arial';
+            const lp = worldToScreen(state.a-1.2,0.9,W,H);
+            const rp = worldToScreen(state.a+1.15,0.95,W,H);
+            targetCtx.fillText('левая ветвь', lp.x-42, lp.y);
+            targetCtx.fillText('правая ветвь', rp.x-36, rp.y);
+        }
+
+        // critical lines
+        targetCtx.save();
+        const crits = [-4, 2-2*Math.SQRT2, 2*Math.SQRT2-2, 4];
+        targetCtx.setLineDash([6,6]);
+        targetCtx.strokeStyle = '#666';
+        crits.forEach(v=>{
+            const p1=worldToScreen(v,-0.25,W,H), p2=worldToScreen(v,2.5,W,H);
+            targetCtx.beginPath(); targetCtx.moveTo(p1.x,p1.y); targetCtx.lineTo(p2.x,p2.y); targetCtx.stroke();
+        });
+        targetCtx.restore();
+
+        // intersection points
+        const pts = solveIntersections(state.a);
+        if(state.showPoints){
+            targetCtx.save();
+            targetCtx.fillStyle = '#111';
+            pts.forEach((pt,idx)=>{
+                const p = worldToScreen(pt.x,pt.y,W,H);
+                targetCtx.beginPath(); targetCtx.arc(p.x,p.y,5,0,Math.PI*2); targetCtx.fill();
+                targetCtx.font='13px Arial';
+                targetCtx.fillText(`P${idx+1}`, p.x+8, p.y-8);
+            });
+            targetCtx.restore();
+        }
+
+        // active step overlays
+        targetCtx.save();
+        targetCtx.lineWidth = 2;
+        targetCtx.strokeStyle = '#111';
+        if(state.activeStep===0){
+            targetCtx.fillStyle='rgba(47,91,211,0.08)';
+            const left = worldToScreen(-2,0,W,H); const top = worldToScreen(2,2,W,H);
+            targetCtx.fillRect(left.x, top.y, worldToScreen(2,0,W,H).x-left.x, left.y-top.y);
+        } else if(state.activeStep===1){
+            const v = worldToScreen(state.a,2,W,H);
+            targetCtx.fillStyle='rgba(216,79,61,0.12)';
+            targetCtx.beginPath(); targetCtx.arc(v.x,v.y,14,0,Math.PI*2); targetCtx.fill();
+        } else if(state.activeStep===2){
+            const v = worldToScreen(state.a,2,W,H);
+            targetCtx.fillStyle='rgba(216,79,61,0.12)';
+            targetCtx.fillRect(Math.min(worldToScreen(state.a-2,0,W,H).x,v.x), Math.min(worldToScreen(state.a-2,0,W,H).y,v.y), Math.abs(worldToScreen(state.a-2,0,W,H).x-v.x), Math.abs(worldToScreen(state.a-2,0,W,H).y-v.y));
+            targetCtx.fillRect(Math.min(worldToScreen(state.a+2,0,W,H).x,v.x), Math.min(worldToScreen(state.a+2,0,W,H).y,v.y), Math.abs(worldToScreen(state.a+2,0,W,H).x-v.x), Math.abs(worldToScreen(state.a+2,0,W,H).y-v.y));
+        } else if(state.activeStep===3){
+            [-4, 2-2*Math.SQRT2, 2*Math.SQRT2-2, 4].forEach(val=>{
+                const p=worldToScreen(val,0,W,H); targetCtx.fillStyle='rgba(0,0,0,0.15)'; targetCtx.fillRect(p.x-5,p.y-12,10,24);
+            });
+        } else if(state.activeStep===4){
+            pts.forEach(pt=>{
+                const p=worldToScreen(pt.x,pt.y,W,H); targetCtx.strokeRect(p.x-10,p.y-10,20,20);
+            });
+        }
+        targetCtx.restore();
+
+        // labels
+        targetCtx.fillStyle = '#111';
+        targetCtx.font = 'bold 15px Arial';
+        const sp = worldToScreen(1.2,1.75,W,H);
+        targetCtx.fillText('y = √(4 - x²)', sp.x, sp.y);
+        const rp2 = worldToScreen(state.a+0.2,1.75,W,H);
+        targetCtx.fillText('y = 2 - |x-a|', rp2.x, rp2.y);
+    }
+
+    function render(){
+        drawGraph(ctx, canvas.width, canvas.height);
+        drawGraph(modalCtx, modalCanvas.width, modalCanvas.height);
+        const pts = solveIntersections(state.a);
+        aVal.textContent = formatA(state.a);
+        statusA.textContent = formatA(state.a);
+        const count = pts.length;
+        solCountBadge.textContent = String(count);
+        solCountBadge.className = 'pill ' + (count===0?'zero':count===1?'one':'many');
+        statusText.textContent = count===0 ? 'решений нет' : count===1 ? 'ровно одно решение' : `${count} решения`;
+        autoExplain.textContent = explainForA(state.a,count);
+    }
+
+    function setA(v){
+        state.a = Math.max(-6, Math.min(6, v));
+        aRange.value = state.a;
+        render();
+    }
+
+    aRange.addEventListener('input', e => setA(parseFloat(e.target.value)));
+    zoomRange.addEventListener('input', e => { state.zoom = parseFloat(e.target.value); render(); });
+    document.getElementById('minusA').addEventListener('click', ()=> setA(state.a - 0.1));
+    document.getElementById('plusA').addEventListener('click', ()=> setA(state.a + 0.1));
+    document.getElementById('zoomOut').addEventListener('click', ()=> { state.zoom=Math.max(0.7,state.zoom-0.08); zoomRange.value=state.zoom; render(); });
+    document.getElementById('zoomIn').addEventListener('click', ()=> { state.zoom=Math.min(2.1,state.zoom+0.08); zoomRange.value=state.zoom; render(); });
+    document.getElementById('resetView').addEventListener('click', ()=> { state.zoom=1; state.panX=0; state.panY=0; zoomRange.value=1; render(); });
+    document.getElementById('showGuides').addEventListener('change', e=>{ state.showGuides=e.target.checked; render(); });
+    document.getElementById('showPoints').addEventListener('change', e=>{ state.showPoints=e.target.checked; render(); });
+    document.getElementById('showBranches').addEventListener('change', e=>{ state.showBranches=e.target.checked; render(); });
+    document.getElementById('jumpOne').addEventListener('click', ()=> {
+        const c1 = 2 - 2*Math.SQRT2;
+        const c2 = 2*Math.SQRT2 - 2;
+        if(state.a < -4 || state.a > 4) setA(-2.5);
+        else if(state.a >= c1 && state.a <= c2) setA(3);
+        else setA(-2);
+    });
+
+    function setupTabs(){
+        document.querySelectorAll('.tab').forEach(tab=>{
+            tab.addEventListener('click', ()=>{
+                document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+                document.querySelectorAll('.mode').forEach(m=>m.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+    }
+
+    function buildSteps(){
+        const box = document.getElementById('stepList');
+        box.innerHTML = '';
+        steps.forEach((s,idx)=>{
+            const div = document.createElement('div');
+            div.className = 'step' + (idx===state.activeStep?' active':'');
+            div.innerHTML = `<small>шаг ${idx+1}</small><strong>${s.title}</strong><p>${s.text}</p>`;
+            div.addEventListener('click', ()=>{
+                state.activeStep = idx;
+                buildSteps();
+                render();
+            });
+            box.appendChild(div);
+        });
+    }
+
+    function buildQuiz(){
+        const box = document.getElementById('quizBox');
+        box.innerHTML='';
+        quizData.forEach((item,qi)=>{
+            const q = document.createElement('div');
+            q.className='q';
+            q.innerHTML=`<strong>${qi+1}. ${item.q}</strong>`;
+            const ch = document.createElement('div');
+            ch.className='choices';
+            item.choices.forEach((text,ci)=>{
+                const btn=document.createElement('div');
+                btn.className='choice';
+                btn.textContent=text;
+                btn.addEventListener('click', ()=>{
+                    [...ch.children].forEach((n,i)=>{
+                        n.classList.remove('correct','wrong');
+                        if(i===item.correct) n.classList.add('correct');
+                    });
+                    if(ci!==item.correct) btn.classList.add('wrong');
+                    note.textContent=item.explain;
+                });
+                ch.appendChild(btn);
+            });
+            const note=document.createElement('p');
+            note.className='hint';
+            note.style.marginTop='8px';
+            q.appendChild(ch);
+            q.appendChild(note);
+            box.appendChild(q);
+        });
+    }
+
+    document.getElementById('togglePractice').addEventListener('click', ()=>{
+        const block = document.getElementById('practiceSolution');
+        const isHidden = block.style.display === 'none';
+        block.style.display = isHidden ? 'block' : 'none';
+        document.getElementById('togglePractice').textContent = isHidden ? 'скрыть решение и ответ' : 'показать решение и ответ';
+    });
+
+    // modal
+    const modal = document.getElementById('modal');
+    document.getElementById('openModal').addEventListener('click', ()=> modal.classList.add('open'));
+    document.getElementById('closeModal').addEventListener('click', ()=> modal.classList.remove('open'));
+    modal.addEventListener('click', e=>{ if(e.target===modal) modal.classList.remove('open'); });
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') modal.classList.remove('open'); });
+
+    // pan + wheel zoom
+    function attachCanvasInteractions(target){
+        let dragging=false, lastX=0, lastY=0;
+        target.addEventListener('mousedown', e=>{ dragging=true; lastX=e.offsetX; lastY=e.offsetY; });
+        target.addEventListener('mousemove', e=>{
+            if(!dragging) return;
+            state.panX += e.offsetX - lastX;
+            state.panY += e.offsetY - lastY;
+            lastX = e.offsetX; lastY = e.offsetY;
+            render();
+        });
+        window.addEventListener('mouseup', ()=> dragging=false);
+        target.addEventListener('wheel', e=>{
+            e.preventDefault();
+            const factor = e.deltaY < 0 ? 1.08 : 0.92;
+            state.zoom = Math.max(0.7, Math.min(2.1, state.zoom * factor));
+            zoomRange.value = state.zoom;
+            render();
+        }, {passive:false});
+        target.addEventListener('dblclick', ()=> modal.classList.add('open'));
+    }
+    attachCanvasInteractions(canvas);
+    attachCanvasInteractions(modalCanvas);
+
+    buildSteps();
+    buildQuiz();
+    setupTabs();
+    render();
+</script>
+</body>
+</html>
