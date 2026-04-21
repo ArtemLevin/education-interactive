@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — отсечённая треугольная призма</title>
+    <style>
+        :root{
+            --bg:#0b1020;
+            --bg2:#101935;
+            --panel:#121c3f;
+            --panel2:#172554;
+            --text:#eef4ff;
+            --muted:#adc0ea;
+            --accent:#7dd3fc;
+            --accent2:#a78bfa;
+            --good:#86efac;
+            --warn:#fcd34d;
+            --danger:#fca5a5;
+            --line:rgba(173,192,234,.18);
+            --shadow:0 18px 60px rgba(0,0,0,.35);
+            --radius:22px;
+            --radius-sm:16px;
+            --max:1420px;
+            --stepGlow:0 0 0 1px rgba(125,211,252,.3), 0 0 28px rgba(125,211,252,.14);
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:radial-gradient(circle at top, #16224b 0%, var(--bg) 42%, #070b17 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;scroll-behavior:smooth}
+        body{min-height:100vh}
+        .wrap{max-width:var(--max);margin:0 auto;padding:24px}
+        .hero{
+            position:relative;overflow:hidden;border:1px solid var(--line);border-radius:32px;padding:32px;
+            background:linear-gradient(135deg, rgba(125,211,252,.10), rgba(167,139,250,.10) 45%, rgba(255,255,255,.03));
+            box-shadow:var(--shadow);
+        }
+        .hero::before{
+            content:"";position:absolute;inset:auto -8% -40% auto;width:380px;height:380px;border-radius:50%;
+            background:radial-gradient(circle, rgba(125,211,252,.24), transparent 68%);filter:blur(6px);pointer-events:none;
+        }
+        h1{margin:0;font-size:clamp(32px,4vw,54px);line-height:1.02;letter-spacing:-.03em}
+        .subtitle{margin-top:12px;max-width:860px;color:var(--muted);font-size:18px;line-height:1.55}
+        .hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:22px}
+        .badge-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+        .badge{padding:10px 14px;border-radius:999px;background:rgba(125,211,252,.10);border:1px solid rgba(125,211,252,.18);color:#dff4ff;font-size:14px}
+        .formula-banner{
+            border-radius:22px;padding:20px;background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+            border:1px solid var(--line)
+        }
+        .formula-banner .kicker{color:var(--accent);font-size:13px;text-transform:uppercase;letter-spacing:.14em}
+        .formula-banner .big{margin-top:10px;font-size:clamp(28px,3vw,42px);font-weight:800}
+        .controls{
+            display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:12px;margin-top:18px
+        }
+        .control-card{
+            border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:18px;padding:14px 14px 12px
+        }
+        .control-card label{display:block;color:var(--muted);font-size:13px;margin-bottom:8px}
+        .control-card input[type="range"]{width:100%}
+        .control-card .val{margin-top:8px;font-weight:700;color:var(--accent)}
+        .buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+        button{
+            border:0;border-radius:16px;padding:12px 16px;background:linear-gradient(135deg, var(--accent), #93c5fd);color:#08111f;font-weight:800;cursor:pointer;
+            box-shadow:0 10px 24px rgba(125,211,252,.18);transition:transform .18s ease, filter .18s ease
+        }
+        button.secondary{background:rgba(255,255,255,.04);color:var(--text);border:1px solid var(--line);box-shadow:none}
+        button.ghost{background:transparent;color:var(--muted);border:1px dashed var(--line);box-shadow:none}
+        button:hover{transform:translateY(-1px);filter:brightness(1.03)}
+
+        .workspace{display:grid;grid-template-columns:minmax(0,1fr) 540px;gap:24px;align-items:start;margin-top:26px}
+        .panel{background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
+        .left{padding:24px}
+        .sticky{position:sticky;top:18px;padding:16px}
+        .section{padding:18px 0;border-bottom:1px solid rgba(173,192,234,.10)}
+        .section:last-child{border-bottom:none}
+        .section h2{font-size:26px;margin:0 0 12px}
+        .section h3{font-size:18px;margin:0 0 10px;color:#dbeafe}
+        .section p,.section li{color:var(--muted);line-height:1.7;font-size:17px}
+        .math{font-family:Cambria, 'Times New Roman', serif;color:#fff;background:rgba(125,211,252,.07);border:1px solid rgba(125,211,252,.16);padding:14px 16px;border-radius:16px;margin:10px 0;font-size:22px;overflow:auto}
+        .idea{padding:16px 18px;border-radius:18px;border:1px solid rgba(134,239,172,.16);background:rgba(134,239,172,.08);color:#eafff2}
+        .mistakes{padding:16px 18px;border-radius:18px;border:1px solid rgba(252,165,165,.18);background:rgba(252,165,165,.08)}
+        .mistakes li{color:#ffe3e3}
+        .steps{display:grid;gap:12px}
+        .step{padding:16px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.02);transition:.2s ease;cursor:pointer}
+        .step.active{box-shadow:var(--stepGlow);border-color:rgba(125,211,252,.35);background:rgba(125,211,252,.07)}
+        .step .num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:rgba(125,211,252,.16);color:var(--accent);font-weight:800;margin-right:10px}
+        .step-title{font-weight:800;font-size:18px;display:flex;align-items:center;gap:8px}
+        .step-body{margin-top:10px;color:var(--muted);line-height:1.65}
+        .list-tight{margin:8px 0 0 0;padding-left:20px}
+        .mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+        .card{padding:16px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+        .card h4{margin:0 0 10px;font-size:18px}
+        .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+        .pill{display:inline-flex;gap:8px;align-items:center;padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:13px;color:var(--muted)}
+        .dot{width:10px;height:10px;border-radius:50%}
+        .viz-head{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:8px 6px 12px 6px}
+        .viz-head .title{font-size:20px;font-weight:800}
+        .viz-area{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);background:radial-gradient(circle at 30% 20%, rgba(125,211,252,.08), transparent 40%), linear-gradient(180deg,#0a132a,#0c1732 60%, #091126)}
+        .stage{width:100%;aspect-ratio:1/1;display:block;cursor:grab;touch-action:none}
+        .stage.dragging{cursor:grabbing}
+        .hud{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+        .hud .box{padding:12px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+        .hud .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+        .hud .value{font-size:20px;font-weight:800;margin-top:6px}
+        .tabbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+        .tab{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--line);cursor:pointer;color:var(--muted);font-size:14px}
+        .tab.active{background:rgba(125,211,252,.10);color:#f1fbff;border-color:rgba(125,211,252,.28)}
+        .tip{margin-top:12px;color:var(--muted);font-size:14px;line-height:1.55}
+        .generator{display:grid;gap:12px}
+        .quiz-option{display:block;width:100%;text-align:left;background:rgba(255,255,255,.03);color:var(--text);border:1px solid var(--line);padding:12px 14px;border-radius:14px;margin-top:8px}
+        .quiz-option.correct{border-color:rgba(134,239,172,.55);background:rgba(134,239,172,.12)}
+        .quiz-option.wrong{border-color:rgba(252,165,165,.5);background:rgba(252,165,165,.10)}
+        .footer-note{padding:20px;color:var(--muted);text-align:center}
+        .overlay{position:fixed;inset:0;background:rgba(5,9,19,.78);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+        .overlay.open{display:flex}
+        .modal{width:min(1100px,96vw);background:linear-gradient(180deg,#101a37,#0a1329);border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);padding:16px}
+        .modal-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:4px 4px 12px}
+        .close{width:42px;height:42px;border-radius:12px;padding:0;font-size:20px}
+        .sr-only{position:absolute;left:-9999px}
+
+        @media (max-width: 1100px){
+            .workspace{grid-template-columns:1fr}
+            .sticky{position:static}
+            .hero-grid{grid-template-columns:1fr}
+        }
+        @media (max-width: 760px){
+            .wrap{padding:14px}
+            .hero{padding:22px}
+            .controls,.mini-grid,.hud{grid-template-columns:1fr}
+            .section h2{font-size:22px}
+            .math{font-size:18px}
+        }
+        @media print{
+            body{background:#fff;color:#000}
+            .workspace{grid-template-columns:1fr}
+            .sticky{position:static}
+            .buttons,.controls,.tabbar,.tip,.overlay{display:none!important}
+            .panel,.hero,.viz-area,.card,.step,.idea,.mistakes{box-shadow:none;background:#fff;color:#000;border:1px solid #bbb}
+            .subtitle,.section p,.section li,.footer-note,.pill,.label{color:#222!important}
+            .math{background:#f6f6f6;color:#000;border-color:#ccc}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <h1>Наглядная математика: отсечённая треугольная призма</h1>
+        <p class="subtitle">
+            Самая важная задача занятия: она учит не просто находить ответ, а видеть <b>главный метод</b> —
+            когда площадь ищут по площади, а объём по объёму, часто выгоднее <b>делить формулу на формулу</b>,
+            подставлять отношения сторон и сокращать всё лишнее.
+        </p>
+
+        <div class="badge-row">
+            <span class="badge">Тема: призмы</span>
+            <span class="badge">Ключевая идея: отношение формул</span>
+            <span class="badge">Фокус: средняя линия</span>
+            <span class="badge">Ответ: 6</span>
+        </div>
+
+        <div class="hero-grid">
+            <div class="formula-banner">
+                <div class="kicker">Задача</div>
+                <div style="margin-top:10px;line-height:1.7;color:var(--muted);font-size:17px">
+                    Через среднюю линию основания треугольной призмы проведена плоскость, параллельная боковым рёбрам.
+                    Площадь боковой поверхности исходной призмы равна <b>12</b>. Найдите площадь боковой поверхности
+                    отсечённой треугольной призмы.
+                </div>
+                <div class="big">S<sub>бок</sub> = P<sub>осн</sub> · h</div>
+            </div>
+            <div class="formula-banner">
+                <div class="kicker">Ключевой вывод</div>
+                <div class="big">P<sub>AMK</sub> = 1/2 · P<sub>ABC</sub></div>
+                <div style="margin-top:12px;color:var(--muted);line-height:1.65">
+                    Поскольку <b>MK</b> — средняя линия треугольника <b>ABC</b>, все соответствующие стороны у малого основания
+                    в 2 раза меньше. При одинаковой высоте площадь боковой поверхности тоже уменьшается в 2 раза.
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-card">
+                <label for="zoomRange">Масштаб чертежа</label>
+                <input id="zoomRange" type="range" min="0.7" max="2.4" step="0.01" value="1" />
+                <div class="val"><span id="zoomVal">100%</span></div>
+            </div>
+            <div class="control-card">
+                <label for="detailRange">Подробность разбора</label>
+                <input id="detailRange" type="range" min="1" max="3" step="1" value="2" />
+                <div class="val"><span id="detailVal">стандартно</span></div>
+            </div>
+            <div class="control-card">
+                <label><input id="showLabels" type="checkbox" checked /> Показывать обозначения</label>
+                <label><input id="showHeights" type="checkbox" checked /> Подсветить общую высоту</label>
+                <label><input id="showRelations" type="checkbox" checked /> Показать отношения сторон</label>
+            </div>
+            <div class="control-card">
+                <label>Быстрые действия</label>
+                <div class="buttons" style="margin-top:0">
+                    <button class="secondary" id="zoomIn">+</button>
+                    <button class="secondary" id="zoomOut">−</button>
+                    <button class="secondary" id="resetView">Сброс</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="workspace">
+        <article class="panel left">
+            <div class="section">
+                <h2>Идея решения</h2>
+                <div class="idea">
+                    Здесь не надо отдельно искать все стороны и заново считать две боковые поверхности. Гораздо сильнее метод:
+                    <b>записать формулу площади боковой поверхности для большой призмы и для отсечённой, затем поделить одну на другую</b>.
+                    Высота сократится, а средняя линия даст коэффициент <b>1 : 2</b> для всех сторон основания.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Что дано и что нужно найти</h2>
+                <div class="mini-grid">
+                    <div class="card">
+                        <h4>Дано</h4>
+                        <ul class="list-tight">
+                            <li>Основание большой призмы — треугольник <b>ABC</b>.</li>
+                            <li><b>M</b> — середина <b>AB</b>, <b>K</b> — середина <b>AC</b>.</li>
+                            <li><b>MK</b> — средняя линия треугольника <b>ABC</b>.</li>
+                            <li>Площадь боковой поверхности большой призмы равна <b>12</b>.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Найти</h4>
+                        <ul class="list-tight">
+                            <li>Площадь боковой поверхности отсечённой призмы с основанием <b>AMK</b>.</li>
+                            <li>Объяснить, почему решение строится через <b>отношение формул</b>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Смысл условий</h2>
+                <p>Средняя линия в треугольнике соединяет середины двух сторон. Значит:</p>
+                <div class="math">AM = AB / 2,&nbsp;&nbsp; AK = AC / 2,&nbsp;&nbsp; MK = BC / 2.</div>
+                <p>То же самое удобно читать и в обратную сторону:</p>
+                <div class="math">AB = 2AM,&nbsp;&nbsp; AC = 2AK,&nbsp;&nbsp; BC = 2MK.</div>
+                <p>Это означает, что всё малое основание <b>AMK</b> подобно большому основанию <b>ABC</b> с коэффициентом <b>1/2</b>.</p>
+            </div>
+
+            <div class="section">
+                <h2>Пошаговое решение</h2>
+                <div class="steps" id="steps">
+                    <div class="step active" data-step="1">
+                        <div class="step-title"><span class="num">1</span>Записываем формулу площади боковой поверхности</div>
+                        <div class="step-body detail detail-1 detail-2 detail-3">
+                            Для любой прямой призмы: <b>S<sub>бок</sub> = P<sub>осн</sub> · h</b>, где P<sub>осн</sub> — периметр основания, h — высота.
+                        </div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-title"><span class="num">2</span>Пишем две формулы: для большой и для малой призмы</div>
+                        <div class="step-body detail detail-2 detail-3">
+                            Для большой: <div class="math">12 = (AB + BC + AC) · h</div>
+                            Для отсечённой: <div class="math">x = (AM + MK + AK) · h</div>
+                        </div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-title"><span class="num">3</span>Делим одну формулу на другую</div>
+                        <div class="step-body detail detail-1 detail-2 detail-3">
+                            <div class="math">12 / x = ((AB + BC + AC) · h) / ((AM + MK + AK) · h)</div>
+                            Высота <b>h</b> сокращается, потому что у обеих призм она одинакова.
+                        </div>
+                    </div>
+                    <div class="step" data-step="4">
+                        <div class="step-title"><span class="num">4</span>Подставляем соотношения средней линии</div>
+                        <div class="step-body detail detail-2 detail-3">
+                            Подставляем <b>AB = 2AM</b>, <b>BC = 2MK</b>, <b>AC = 2AK</b>:
+                            <div class="math">12 / x = (2AM + 2MK + 2AK) / (AM + MK + AK)</div>
+                        </div>
+                    </div>
+                    <div class="step" data-step="5">
+                        <div class="step-title"><span class="num">5</span>Сокращаем и находим x</div>
+                        <div class="step-body detail detail-1 detail-2 detail-3">
+                            <div class="math">12 / x = 2(AM + MK + AK) / (AM + MK + AK) = 2</div>
+                            Значит,
+                            <div class="math">12 / x = 2  ⇒  12 = 2x  ⇒  x = 6.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Проверка</h2>
+                <p>Если у малого основания все стороны в 2 раза меньше, то и его периметр в 2 раза меньше. Высота у призм одинаковая. Значит, площадь боковой поверхности тоже должна уменьшиться в 2 раза:</p>
+                <div class="math">12 / 2 = 6</div>
+                <p>Ответ согласуется со здравым смыслом.</p>
+            </div>
+
+            <div class="section">
+                <h2>Типичные ошибки</h2>
+                <div class="mistakes">
+                    <ul class="list-tight">
+                        <li>Считать, что уменьшается площадь основания, а не периметр основания — а в формуле боковой поверхности нужен именно <b>периметр</b>.</li>
+                        <li>Забывать, что высота у обеих призм одинаковая, и потому она сокращается.</li>
+                        <li>Подставлять только одну связь, например <b>AB = 2AM</b>, и забывать про остальные стороны.</li>
+                        <li>Пытаться искать все длины численно, хотя задача решается чисто отношением.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Памятка</h2>
+                <div class="card">
+                    <div class="math">Если ищут площадь по площади или объём по объёму — сначала попробуйте делить формулу на формулу.</div>
+                    <ul class="list-tight">
+                        <li>Определите, что у фигур общее.</li>
+                        <li>Выделите коэффициент подобия или отношение сторон.</li>
+                        <li>Составьте отношение формул.</li>
+                        <li>Подставьте связи и сократите.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Тренировка</h2>
+                <div class="generator">
+                    <div class="card">
+                        <h4>Сгенерированная похожая задача</h4>
+                        <p id="genTask" style="margin:0;color:var(--muted)">Нажмите кнопку, чтобы получить новую задачу.</p>
+                        <div class="buttons">
+                            <button id="genBtn">Сгенерировать</button>
+                            <button class="secondary" id="showGenAnswer">Показать ответ</button>
+                        </div>
+                        <div class="math" id="genAnswer" style="display:none"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Мини-квиз</h2>
+                <div class="card">
+                    <p style="margin:0 0 10px;color:var(--muted)">Если у основания новой призмы все стороны в 2 раза меньше, а высота остаётся той же, то площадь боковой поверхности...</p>
+                    <button class="quiz-option" data-correct="false">уменьшится в 4 раза</button>
+                    <button class="quiz-option" data-correct="true">уменьшится в 2 раза</button>
+                    <button class="quiz-option" data-correct="false">не изменится</button>
+                    <button class="quiz-option" data-correct="false">увеличится в 2 раза</button>
+                    <p id="quizResult" style="margin:12px 0 0;color:var(--muted)"></p>
+                </div>
+            </div>
+        </article>
+
+        <aside class="panel sticky">
+            <div class="viz-head">
+                <div class="title">Интерактивная модель</div>
+                <div class="buttons" style="margin-top:0">
+                    <button class="secondary" id="openModal">Открыть крупно</button>
+                </div>
+            </div>
+
+            <div class="viz-area">
+                <svg id="stage" class="stage" viewBox="0 0 700 700" aria-label="Чертёж призмы"></svg>
+            </div>
+
+            <div class="legend">
+                <span class="pill"><span class="dot" style="background:#7dd3fc"></span>большое основание ABC</span>
+                <span class="pill"><span class="dot" style="background:#a78bfa"></span>малое основание AMK</span>
+                <span class="pill"><span class="dot" style="background:#86efac"></span>общая высота</span>
+            </div>
+
+            <div class="hud">
+                <div class="box">
+                    <div class="label">Коэффициент подобия</div>
+                    <div class="value">1 : 2</div>
+                </div>
+                <div class="box">
+                    <div class="label">Исходная площадь</div>
+                    <div class="value">12</div>
+                </div>
+                <div class="box">
+                    <div class="label">Ответ</div>
+                    <div class="value" id="answerBox">6</div>
+                </div>
+            </div>
+
+            <div class="tabbar" id="tabbar">
+                <div class="tab active" data-mode="main">Рисунок</div>
+                <div class="tab" data-mode="ratio">Отношения</div>
+                <div class="tab" data-mode="formula">Формулы</div>
+            </div>
+
+            <div class="tip" id="vizTip">
+                Наведите на шаг решения слева: на чертеже будет подсвечиваться соответствующая идея. Колесо мыши — зум, перетаскивание — панорама.
+            </div>
+        </aside>
+    </section>
+
+    <div class="footer-note">Материал собран как учебная web-страница для первичного закрепления ключевого метода по теме призм.</div>
+</div>
+
+<div class="overlay" id="overlay" aria-hidden="true">
+    <div class="modal">
+        <div class="modal-top">
+            <div style="font-size:22px;font-weight:800">Увеличенная визуализация</div>
+            <button class="close secondary" id="closeModal" aria-label="Закрыть">×</button>
+        </div>
+        <div class="viz-area">
+            <svg id="stageModal" class="stage" viewBox="0 0 1100 850" aria-label="Увеличенный чертёж"></svg>
+        </div>
+    </div>
+</div>
+
+<script>
+    const state = {
+        activeStep: 1,
+        mode: 'main',
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        showLabels: true,
+        showHeights: true,
+        showRelations: true,
+        detail: 2,
+        generated: null,
+        modalOpen: false
+    };
+
+    const stage = document.getElementById('stage');
+    const stageModal = document.getElementById('stageModal');
+    const zoomRange = document.getElementById('zoomRange');
+    const zoomVal = document.getElementById('zoomVal');
+    const detailRange = document.getElementById('detailRange');
+    const detailVal = document.getElementById('detailVal');
+    const answerBox = document.getElementById('answerBox');
+    const steps = [...document.querySelectorAll('.step')];
+    const tabs = [...document.querySelectorAll('.tab')];
+    const overlay = document.getElementById('overlay');
+    const genTask = document.getElementById('genTask');
+    const genAnswer = document.getElementById('genAnswer');
+    const showLabels = document.getElementById('showLabels');
+    const showHeights = document.getElementById('showHeights');
+    const showRelations = document.getElementById('showRelations');
+
+    function labelTextForDetail(v){
+        return v === 1 ? 'кратко' : v === 2 ? 'стандартно' : 'подробно';
+    }
+
+    function setDetail(level){
+        state.detail = level;
+        detailVal.textContent = labelTextForDetail(level);
+        document.querySelectorAll('.detail').forEach(el => {
+            el.style.display = el.classList.contains('detail-' + level) || level === 3 && el.classList.contains('detail-2') || level === 2 && el.classList.contains('detail-1') ? '' : '';
+        });
+        document.querySelectorAll('.step .step-body').forEach(body => {
+            if(level === 1){
+                body.style.fontSize = '16px';
+            } else if(level === 2){
+                body.style.fontSize = '17px';
+            } else {
+                body.style.fontSize = '18px';
+            }
+        });
+    }
+
+    function svgLine(x1,y1,x2,y2, opts=''){ return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${opts}/>`; }
+    function svgPoly(points, opts=''){ return `<polygon points="${points.map(p=>p.join(',')).join(' ')}" ${opts}/>`; }
+    function svgText(x,y,t, opts=''){ return `<text x="${x}" y="${y}" ${opts}>${t}</text>`; }
+    function svgCircle(x,y,r, opts=''){ return `<circle cx="${x}" cy="${y}" r="${r}" ${opts}/>`; }
+    function svgPath(d, opts=''){ return `<path d="${d}" ${opts}/>`; }
+
+    const geom = {
+        A:[135,470],
+        B:[520,520],
+        C:[260,200],
+        dx:120,
+        dy:-150
+    };
+
+    function mid(P,Q){ return [(P[0]+Q[0])/2, (P[1]+Q[1])/2]; }
+
+    function getPoints(){
+        const {A,B,C,dx,dy} = geom;
+        const A1=[A[0]+dx, A[1]+dy], B1=[B[0]+dx, B[1]+dy], C1=[C[0]+dx, C[1]+dy];
+        const M=mid(A,B), K=mid(A,C), M1=[M[0]+dx, M[1]+dy], K1=[K[0]+dx, K[1]+dy];
+        return {A,B,C,A1,B1,C1,M,K,M1,K1};
+    }
+
+    function fmt(v){ return String(v).replace('.', ','); }
+
+    function render(target, large=false){
+        const P = getPoints();
+        const s = large ? 1.35 : 1;
+        const vb = large ? {w:1100,h:850} : {w:700,h:700};
+        const tx = large ? 140 : 0;
+        const ty = large ? 100 : 0;
+        const z = state.zoom * s;
+        const px = state.panX + tx;
+        const py = state.panY + ty;
+        const strokeBase = large ? 3 : 2.2;
+        const labelSize = large ? 24 : 16;
+        const p = name => [P[name][0], P[name][1]];
+        const step = state.activeStep;
+        const mode = state.mode;
+        const showL = state.showLabels;
+        const showH = state.showHeights;
+        const showR = state.showRelations;
+
+        const hiBig = step === 2 || step === 3 ? 'rgba(125,211,252,.12)' : 'rgba(125,211,252,.07)';
+        const hiSmall = step >= 4 ? 'rgba(167,139,250,.18)' : 'rgba(167,139,250,.10)';
+
+        const label = (name, dx=0, dy=0) => showL ? svgText(P[name][0]+dx, P[name][1]+dy, name, `fill="#eef4ff" font-size="${labelSize}" font-weight="700"`) : '';
+        const point = name => svgCircle(P[name][0], P[name][1], large ? 5.5 : 4, 'fill="#fff" stroke="#7dd3fc" stroke-width="2"');
+        const relStyle = 'fill="#fef3c7" font-size="'+(large?20:14)+'" font-weight="700"';
+
+        let content = `
+      <defs>
+        <filter id="glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#86efac"></path></marker>
+      </defs>
+      <rect x="0" y="0" width="${vb.w}" height="${vb.h}" fill="transparent"></rect>
+      <g transform="translate(${px},${py}) scale(${z})">
+        ${svgPath('M40 600 C 150 520, 220 630, 320 560 S 520 500, 630 560', 'stroke="rgba(125,211,252,.08)" stroke-width="2" fill="none"')}
+        ${svgPoly([p('A'),p('B'),p('C')], `fill="${hiBig}" stroke="#7dd3fc" stroke-width="${strokeBase}"`)}
+        ${svgPoly([p('A1'),p('B1'),p('C1')], `fill="rgba(125,211,252,.03)" stroke="#7dd3fc" stroke-width="${strokeBase}"`)}
+        ${svgLine(...p('A'), ...p('A1'), `stroke="#86efac" stroke-width="${strokeBase+0.2}" ${showH ? '' : 'opacity="0.18"'}`)}
+        ${svgLine(...p('B'), ...p('B1'), `stroke="#86efac" stroke-width="${strokeBase+0.2}" ${showH ? '' : 'opacity="0.18"'}`)}
+        ${svgLine(...p('C'), ...p('C1'), `stroke="#86efac" stroke-width="${strokeBase+0.2}" ${showH ? '' : 'opacity="0.18"'}`)}
+
+        ${svgPoly([p('A'),p('M'),p('K')], `fill="${hiSmall}" stroke="#a78bfa" stroke-width="${strokeBase+0.3}" filter="url(#glow)"`)}
+        ${svgPoly([p('A1'),p('M1'),p('K1')], `fill="rgba(167,139,250,.04)" stroke="#a78bfa" stroke-width="${strokeBase}"`)}
+        ${svgLine(...p('M'), ...p('M1'), `stroke="#a78bfa" stroke-width="${strokeBase}"`)}
+        ${svgLine(...p('K'), ...p('K1'), `stroke="#a78bfa" stroke-width="${strokeBase}"`)}
+
+        ${step >= 4 ? svgLine(...p('M'), ...p('K'), `stroke="#fbbf24" stroke-width="${strokeBase+1}" stroke-dasharray="8 8"`) : ''}
+
+        ${(mode === 'ratio' || showR) ? svgText((P.A[0]+P.B[0])/2-24, (P.A[1]+P.B[1])/2+34, 'AB = 2AM', relStyle) : ''}
+        ${(mode === 'ratio' || showR) ? svgText((P.A[0]+P.C[0])/2-58, (P.A[1]+P.C[1])/2-10, 'AC = 2AK', relStyle) : ''}
+        ${(mode === 'ratio' || showR) ? svgText((P.B[0]+P.C[0])/2+10, (P.B[1]+P.C[1])/2-8, 'BC = 2MK', relStyle) : ''}
+        ${(mode === 'formula' || step === 5) ? svgText(48, 82, '12 / x = 2  ⇒  x = 6', `fill="#eafcff" font-size="${large?28:20}" font-weight="800"`) : ''}
+        ${(mode === 'main' && step <= 3) ? svgText(48, 82, 'Sбок = Pосн · h', `fill="#eafcff" font-size="${large?28:20}" font-weight="800"`) : ''}
+        ${showH ? svgText(P.A1[0]-20, (P.A[1]+P.A1[1])/2, 'h', `fill="#86efac" font-size="${large?26:18}" font-weight="800"`) : ''}
+
+        ${['A','B','C','A1','B1','C1','M','K','M1','K1'].map(point).join('')}
+        ${label('A',-22,22)}${label('B',8,20)}${label('C',-8,-12)}
+        ${label('A1',-30,-8)}${label('B1',8,-4)}${label('C1',-8,-12)}
+        ${label('M',-8,24)}${label('K',-20,-6)}${label('M1',-10,22)}${label('K1',-22,-6)}
+      </g>`;
+        target.innerHTML = content;
+    }
+
+    function rerender(){
+        zoomVal.textContent = Math.round(state.zoom * 100) + '%';
+        answerBox.textContent = state.generated && state.generated.revealed ? state.generated.answer : '6';
+        render(stage, false);
+        render(stageModal, true);
+    }
+
+    steps.forEach(step => {
+        step.addEventListener('click', () => {
+            steps.forEach(s => s.classList.remove('active'));
+            step.classList.add('active');
+            state.activeStep = Number(step.dataset.step);
+            rerender();
+        });
+    });
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            state.mode = tab.dataset.mode;
+            rerender();
+        });
+    });
+
+    zoomRange.addEventListener('input', e => { state.zoom = Number(e.target.value); rerender(); });
+    detailRange.addEventListener('input', e => { setDetail(Number(e.target.value)); });
+    showLabels.addEventListener('change', e => { state.showLabels = e.target.checked; rerender(); });
+    showHeights.addEventListener('change', e => { state.showHeights = e.target.checked; rerender(); });
+    showRelations.addEventListener('change', e => { state.showRelations = e.target.checked; rerender(); });
+
+    document.getElementById('zoomIn').addEventListener('click', ()=>{ state.zoom = Math.min(2.4, +(state.zoom + 0.1).toFixed(2)); zoomRange.value = state.zoom; rerender(); });
+    document.getElementById('zoomOut').addEventListener('click', ()=>{ state.zoom = Math.max(0.7, +(state.zoom - 0.1).toFixed(2)); zoomRange.value = state.zoom; rerender(); });
+    document.getElementById('resetView').addEventListener('click', ()=>{ state.zoom = 1; state.panX = 0; state.panY = 0; zoomRange.value = 1; rerender(); });
+
+    function addPanZoom(svg, large=false){
+        let dragging = false, lastX = 0, lastY = 0;
+        svg.addEventListener('pointerdown', e => { dragging = true; lastX = e.clientX; lastY = e.clientY; svg.classList.add('dragging'); svg.setPointerCapture(e.pointerId); });
+        svg.addEventListener('pointermove', e => {
+            if(!dragging) return;
+            const factor = large ? 1 : 1;
+            state.panX += (e.clientX - lastX) / factor;
+            state.panY += (e.clientY - lastY) / factor;
+            lastX = e.clientX; lastY = e.clientY; rerender();
+        });
+        function stop(e){ dragging = false; svg.classList.remove('dragging'); try{ svg.releasePointerCapture(e.pointerId);}catch(_){} }
+        svg.addEventListener('pointerup', stop);
+        svg.addEventListener('pointercancel', stop);
+        svg.addEventListener('wheel', e => {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 0.08 : -0.08;
+            state.zoom = Math.max(0.7, Math.min(2.4, +(state.zoom + delta).toFixed(2)));
+            zoomRange.value = state.zoom; rerender();
+        }, {passive:false});
+        svg.addEventListener('click', e => {
+            if(svg === stage && e.detail === 2){ openModal(); }
+        });
+    }
+
+    function openModal(){ state.modalOpen = true; overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false'); rerender(); }
+    function closeModal(){ state.modalOpen = false; overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); }
+    document.getElementById('openModal').addEventListener('click', openModal);
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    overlay.addEventListener('click', e => { if(e.target === overlay) closeModal(); });
+    window.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+    function generateTask(){
+        const base = [8, 10, 12, 14, 16, 18, 20, 24];
+        const S = base[Math.floor(Math.random()*base.length)];
+        const answer = S / 2;
+        state.generated = {
+            S, answer,
+            revealed:false,
+            text:`Через среднюю линию основания треугольной призмы проведена плоскость, параллельная боковым рёбрам. Площадь боковой поверхности исходной призмы равна ${S}. Найдите площадь боковой поверхности отсечённой призмы.`
+        };
+        genTask.textContent = state.generated.text;
+        genAnswer.style.display = 'none';
+        genAnswer.textContent = `Ответ: ${answer}. Потому что периметр малого основания в 2 раза меньше, а высота та же.`;
+        rerender();
+    }
+    document.getElementById('genBtn').addEventListener('click', generateTask);
+    document.getElementById('showGenAnswer').addEventListener('click', ()=>{
+        if(!state.generated) generateTask();
+        state.generated.revealed = true;
+        genAnswer.style.display = 'block';
+        rerender();
+    });
+
+    document.querySelectorAll('.quiz-option').forEach(btn => {
+        btn.addEventListener('click', ()=>{
+            document.querySelectorAll('.quiz-option').forEach(b => b.classList.remove('correct','wrong'));
+            const ok = btn.dataset.correct === 'true';
+            btn.classList.add(ok ? 'correct' : 'wrong');
+            document.getElementById('quizResult').textContent = ok
+            ? 'Верно. В формуле Sбок = Pосн · h высота не меняется, а периметр уменьшается в 2 раза.'
+            : 'Неверно. Здесь масштабируется периметр основания, а не площадь основания.';
+        });
+    });
+
+    addPanZoom(stage);
+    addPanZoom(stageModal, true);
+    setDetail(2);
+    generateTask();
+    rerender();
+</script>
+</body>
+</html>
