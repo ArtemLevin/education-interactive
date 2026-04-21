@@ -1,0 +1,608 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядное пособие — векторы и прямая</title>
+    <style>
+        :root{
+            --bg:#0f1724;
+            --panel:#162234;
+            --panel-2:#1b2b42;
+            --ink:#e9f1fb;
+            --muted:#9db0c8;
+            --accent:#79c0ff;
+            --accent-2:#7ee787;
+            --warn:#ffb86b;
+            --danger:#ff7b72;
+            --line:#2b3f5f;
+            --shadow:0 16px 40px rgba(0,0,0,.28);
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:linear-gradient(180deg,#0b1220 0%, #111b2c 100%);color:var(--ink);font-family:Inter,Segoe UI,Arial,sans-serif;scroll-behavior:smooth}
+        body{min-height:100vh}
+        .wrap{max-width:1440px;margin:0 auto;padding:24px}
+        .hero{
+            border:1px solid var(--line);
+            background:linear-gradient(135deg, rgba(121,192,255,.12), rgba(126,231,135,.06));
+            box-shadow:var(--shadow);
+            border-radius:22px;
+            padding:28px;
+            display:grid;
+            grid-template-columns:1.3fr .9fr;
+            gap:20px;
+            align-items:center;
+        }
+        .hero h1{margin:0 0 10px;font-size:clamp(28px,5vw,48px);line-height:1.05}
+        .hero p{margin:10px 0;color:var(--muted);font-size:16px;line-height:1.6}
+        .pillbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+        .pill{
+            padding:8px 12px;border-radius:999px;
+            border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--ink);font-size:14px
+        }
+        .stats{
+            display:grid;grid-template-columns:repeat(2,1fr);gap:12px
+        }
+        .stat{
+            background:rgba(8,14,25,.45);
+            border:1px solid var(--line);
+            border-radius:18px;padding:16px
+        }
+        .stat .k{font-size:13px;color:var(--muted);margin-bottom:6px}
+        .stat .v{font-size:28px;font-weight:700}
+        .topnav{
+            position:sticky;top:0;z-index:20;margin:18px 0 16px;
+            backdrop-filter: blur(10px);
+            background:rgba(11,18,32,.7);
+            border:1px solid var(--line);
+            border-radius:18px;padding:10px
+        }
+        .navrow{display:flex;flex-wrap:wrap;gap:10px}
+        .navrow a{
+            text-decoration:none;color:var(--ink);padding:10px 14px;border-radius:12px;
+            background:rgba(255,255,255,.03);border:1px solid transparent
+        }
+        .navrow a:hover,.navrow a.active{border-color:var(--accent);background:rgba(121,192,255,.08)}
+        .workspace{
+            display:grid;grid-template-columns:minmax(0,1.05fr) minmax(340px,.95fr);gap:20px;align-items:start
+        }
+        .leftcol{display:flex;flex-direction:column;gap:18px}
+        .rightcol{position:sticky;top:90px}
+        .card{
+            background:linear-gradient(180deg, rgba(22,34,52,.96), rgba(18,28,43,.96));
+            border:1px solid var(--line);
+            border-radius:22px;padding:22px;box-shadow:var(--shadow)
+        }
+        .card h2,.card h3{margin-top:0}
+        .section-title{
+            display:flex;align-items:center;gap:12px;margin-bottom:14px
+        }
+        .badge{
+            min-width:38px;height:38px;display:grid;place-items:center;border-radius:12px;
+            background:rgba(121,192,255,.12);border:1px solid var(--line);color:var(--accent);font-weight:700
+        }
+        .theory-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+        .mini{
+            border:1px solid var(--line);border-radius:16px;padding:14px;background:rgba(255,255,255,.02)
+        }
+        .mini h4{margin:0 0 8px;font-size:15px}
+        .formula{
+            font-family:Cambria, "Times New Roman", serif;
+            font-size:22px;line-height:1.45;margin:10px 0;padding:12px 14px;border-radius:14px;
+            background:rgba(121,192,255,.06);border:1px solid rgba(121,192,255,.18)
+        }
+        .steps{display:flex;flex-direction:column;gap:10px}
+        .step{
+            border-left:3px solid var(--line);
+            padding:12px 14px 12px 16px;border-radius:0 14px 14px 0;background:rgba(255,255,255,.02)
+        }
+        .step.active{border-left-color:var(--accent);background:rgba(121,192,255,.08)}
+        .step .n{font-weight:700;color:var(--accent);margin-bottom:6px}
+        .hint{
+            margin-top:10px;padding:12px 14px;border-radius:14px;
+            background:rgba(255,184,107,.08);border:1px solid rgba(255,184,107,.22);color:#ffd6a8
+        }
+        .answer{
+            margin-top:14px;
+            text-align:center;font-size:24px;font-weight:800;
+            padding:16px;border-radius:16px;border:1px solid rgba(126,231,135,.28);
+            background:rgba(126,231,135,.08);color:#b6f7c0
+        }
+        .controls{
+            display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px
+        }
+        button, select, input[type="range"]{
+            background:var(--panel-2);color:var(--ink);border:1px solid var(--line);
+            border-radius:12px;padding:10px 12px;font:inherit
+        }
+        button{cursor:pointer}
+        button:hover{border-color:var(--accent)}
+        .viewer{
+            min-height:560px;background:radial-gradient(circle at top, rgba(121,192,255,.06), transparent 42%), rgba(6,11,19,.5);
+            border:1px solid var(--line);border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:12px
+        }
+        .canvas-wrap{
+            position:relative;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#0c1422
+        }
+        svg{display:block;width:100%;height:auto}
+        .legend{display:flex;flex-wrap:wrap;gap:10px;font-size:14px;color:var(--muted)}
+        .legend span{display:flex;align-items:center;gap:8px}
+        .dot{width:12px;height:12px;border-radius:50%}
+        .readout{
+            display:grid;grid-template-columns:repeat(2,1fr);gap:10px
+        }
+        .readout .mini strong{display:block;margin-bottom:6px}
+        .train-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+        .quiz-q{
+            padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02)
+        }
+        .foot{
+            margin:26px 0 10px;color:var(--muted);text-align:center;font-size:14px
+        }
+        .small{font-size:14px;color:var(--muted)}
+        .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+        .sep{height:1px;background:linear-gradient(90deg, transparent, var(--line), transparent);margin:8px 0}
+        @media (max-width: 1100px){
+            .hero,.workspace{grid-template-columns:1fr}
+            .rightcol{position:static}
+            .theory-grid,.train-grid{grid-template-columns:1fr}
+        }
+        @media print{
+            .topnav,.controls,.foot button{display:none !important}
+            body{background:#fff;color:#000}
+            .card,.hero,.topnav,.viewer,.mini,.step{box-shadow:none;background:#fff;color:#000}
+            .formula,.answer,.hint{background:#fff}
+            .wrap{max-width:none;padding:0}
+            .rightcol{position:static}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div>
+            <h1>Наглядное пособие:<br>векторы и уравнение прямой</h1>
+            <p>
+                Это автономная учебная web-страница по трём задачам: скалярное произведение,
+                векторное произведение и уравнение прямой по двум точкам. Слева — подробный
+                пошаговый разбор, справа — интерактивная визуализация, которая помогает
+                связать вычисления с геометрическим смыслом.
+            </p>
+            <div class="pillbar">
+                <div class="pill">уровень: вуз</div>
+                <div class="pill">ученик: Лев Хоменко</div>
+                <div class="pill">формат: наглядное web-пособие</div>
+                <div class="pill">тема: аналитическая геометрия</div>
+            </div>
+        </div>
+        <div class="stats">
+            <div class="stat"><div class="k">задач разобрано</div><div class="v">3</div></div>
+            <div class="stat"><div class="k">тренировок</div><div class="v">3</div></div>
+            <div class="stat"><div class="k">ключевых формул</div><div class="v">6</div></div>
+            <div class="stat"><div class="k">режим визуализации</div><div class="v" style="font-size:20px">интерактивный</div></div>
+        </div>
+    </section>
+
+    <nav class="topnav">
+        <div class="navrow">
+            <a href="#theory" class="active">Теория</a>
+            <a href="#task1">Задача 1</a>
+            <a href="#task2">Задача 2</a>
+            <a href="#task3">Задача 3</a>
+            <a href="#practice">Тренировка</a>
+            <a href="#quiz">Квиз</a>
+            <a href="#cheat">Памятка</a>
+        </div>
+    </nav>
+
+    <div class="workspace">
+        <main class="leftcol">
+            <section class="card" id="theory">
+                <div class="section-title"><div class="badge">Т</div><h2>Теория</h2></div>
+                <div class="theory-grid">
+                    <div class="mini">
+                        <h4>Скалярное произведение</h4>
+                        <div class="formula">a · b = a₁b₁ + a₂b₂ + a₃b₃</div>
+                        <div class="small">Если результат больше нуля — угол острый. Если меньше нуля — тупой. Если равен нулю — векторы перпендикулярны.</div>
+                    </div>
+                    <div class="mini">
+                        <h4>Векторное произведение</h4>
+                        <div class="formula">a × b = (a₂b₃ − a₃b₂; a₃b₁ − a₁b₃; a₁b₂ − a₂b₁)</div>
+                        <div class="small">Получается новый вектор, перпендикулярный обоим исходным. Очень важно не потерять знак второй координаты.</div>
+                    </div>
+                    <div class="mini">
+                        <h4>Уравнение прямой</h4>
+                        <div class="formula">y = kx + b, &nbsp;&nbsp; k = (y₂ − y₁)/(x₂ − x₁)</div>
+                        <div class="small">Сначала находим угловой коэффициент k, затем подставляем координаты одной точки и вычисляем b.</div>
+                    </div>
+                    <div class="mini">
+                        <h4>Типичные ошибки</h4>
+                        <ul class="small">
+                            <li>Перемножают не соответствующие координаты в скалярном произведении.</li>
+                            <li>Теряют знак во второй координате векторного произведения.</li>
+                            <li>Несогласованно вычитают координаты при поиске k.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card" id="task1">
+                <div class="section-title"><div class="badge">1</div><h2>Задача 1. Скалярное произведение</h2></div>
+                <p><strong>Условие.</strong> Вычислить <span class="mono">a · b</span>, если
+                    <span class="mono">a = (−1; 2; 1)</span>, <span class="mono">b = (2; −1; 3)</span>.
+                </p>
+                <div class="formula">a · b = (−1)·2 + 2·(−1) + 1·3</div>
+                <div class="steps" id="steps1">
+                    <div class="step active"><div class="n">Шаг 1</div>Перемножаем соответствующие координаты: (−1)·2, 2·(−1), 1·3.</div>
+                    <div class="step"><div class="n">Шаг 2</div>Получаем числа: −2, −2 и 3.</div>
+                    <div class="step"><div class="n">Шаг 3</div>Складываем: −2 − 2 + 3 = −1.</div>
+                    <div class="step"><div class="n">Шаг 4</div>Результат отрицателен, значит угол между векторами тупой.</div>
+                </div>
+                <div class="hint">Идея решения: скалярное произведение — это обычная сумма попарных произведений координат.</div>
+                <div class="answer">Ответ: a · b = −1</div>
+            </section>
+
+            <section class="card" id="task2">
+                <div class="section-title"><div class="badge">2</div><h2>Задача 2. Векторное произведение</h2></div>
+                <p><strong>Условие.</strong> Вычислить <span class="mono">a × b</span>, если
+                    <span class="mono">a = (4; −1; 1)</span>, <span class="mono">b = (2; −3; 1)</span>.
+                </p>
+                <div class="formula">a × b = (a₂b₃ − a₃b₂; a₃b₁ − a₁b₃; a₁b₂ − a₂b₁)</div>
+                <div class="steps" id="steps2">
+                    <div class="step active"><div class="n">Шаг 1</div>Первая координата: (−1)·1 − 1·(−3) = −1 + 3 = 2.</div>
+                    <div class="step"><div class="n">Шаг 2</div>Вторая координата: 1·2 − 4·1 = 2 − 4 = −2.</div>
+                    <div class="step"><div class="n">Шаг 3</div>Третья координата: 4·(−3) − (−1)·2 = −12 + 2 = −10.</div>
+                    <div class="step"><div class="n">Шаг 4</div>Получаем вектор (2; −2; −10). Он должен быть перпендикулярен обоим исходным — это хорошая проверка.</div>
+                </div>
+                <div class="hint">Идея решения: здесь не число, а новый вектор. Поэтому мы считаем сразу три координаты по специальной формуле.</div>
+                <div class="answer">Ответ: a × b = (2; −2; −10)</div>
+            </section>
+
+            <section class="card" id="task3">
+                <div class="section-title"><div class="badge">3</div><h2>Задача 3. Уравнение прямой</h2></div>
+                <p><strong>Условие.</strong> Составить уравнение прямой, проходящей через точки
+                    <span class="mono">K(1; 1)</span> и <span class="mono">L(2; 5)</span>,
+                    в виде уравнения с угловым коэффициентом.
+                </p>
+                <div class="formula">k = (5 − 1)/(2 − 1) = 4, &nbsp;&nbsp; y = 4x + b</div>
+                <div class="steps" id="steps3">
+                    <div class="step active"><div class="n">Шаг 1</div>Находим угловой коэффициент: k = (5 − 1)/(2 − 1) = 4.</div>
+                    <div class="step"><div class="n">Шаг 2</div>Записываем общий вид прямой: y = 4x + b.</div>
+                    <div class="step"><div class="n">Шаг 3</div>Подставляем точку K(1;1): 1 = 4·1 + b.</div>
+                    <div class="step"><div class="n">Шаг 4</div>Находим b = −3, значит y = 4x − 3.</div>
+                    <div class="step"><div class="n">Шаг 5</div>Проверяем точку L(2;5): 4·2 − 3 = 5. Всё верно.</div>
+                </div>
+                <div class="hint">Идея решения: вся задача сводится к нахождению двух чисел — наклона k и свободного члена b.</div>
+                <div class="answer">Ответ: y = 4x − 3</div>
+            </section>
+
+            <section class="card" id="practice">
+                <div class="section-title"><div class="badge">П</div><h2>Тренировка</h2></div>
+                <div class="train-grid">
+                    <div class="mini">
+                        <h4>T1</h4>
+                        <p>Найдите значение <span class="mono">m</span>, при котором
+                            <span class="mono">u = (m; 2; −1)</span> и
+                            <span class="mono">v = (3; −1; 4)</span> перпендикулярны.</p>
+                        <details>
+                            <summary>Показать ответ</summary>
+                            <p class="mono">3m + 2·(−1) + (−1)·4 = 0 → 3m − 6 = 0 → m = 2</p>
+                        </details>
+                    </div>
+                    <div class="mini">
+                        <h4>T2</h4>
+                        <p>Найдите значение <span class="mono">m</span>, если у
+                            <span class="mono">p = (1; m; 2)</span> и
+                            <span class="mono">q = (3; −1; 4)</span>
+                            третья координата вектора <span class="mono">p × q</span> равна <span class="mono">−4</span>.</p>
+                        <details>
+                            <summary>Показать ответ</summary>
+                            <p class="mono">1·(−1) − 3m = −4 → −1 − 3m = −4 → m = 1</p>
+                            <p class="mono">Тогда p × q = (6; 2; −4)</p>
+                        </details>
+                    </div>
+                    <div class="mini">
+                        <h4>T3</h4>
+                        <p>Составьте уравнение прямой в виде <span class="mono">y = kx + b</span>,
+                            если она проходит через точки <span class="mono">A(−2;3)</span> и <span class="mono">B(4;−9)</span>.</p>
+                        <details>
+                            <summary>Показать ответ</summary>
+                            <p class="mono">k = (−9 − 3)/(4 − (−2)) = −12/6 = −2</p>
+                            <p class="mono">3 = −2·(−2) + b → b = −1</p>
+                            <p class="mono">Ответ: y = −2x − 1</p>
+                        </details>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card" id="quiz">
+                <div class="section-title"><div class="badge">Q</div><h2>Мини-квиз</h2></div>
+                <div class="quiz-q">
+                    <p><strong>1.</strong> Если <span class="mono">a · b = 0</span>, то векторы...</p>
+                    <button onclick="showQuiz(this, 'перпендикулярны')">Проверить</button>
+                    <div class="small" data-a></div>
+                </div>
+                <div class="quiz-q" style="margin-top:12px">
+                    <p><strong>2.</strong> Чему равен угловой коэффициент прямой через точки (0;2) и (3;8)?</p>
+                    <button onclick="showQuiz(this, '2')">Проверить</button>
+                    <div class="small" data-a></div>
+                </div>
+                <div class="quiz-q" style="margin-top:12px">
+                    <p><strong>3.</strong> Когда <span class="mono">a × b = 0</span>, векторы...</p>
+                    <button onclick="showQuiz(this, 'коллинеарны')">Проверить</button>
+                    <div class="small" data-a></div>
+                </div>
+            </section>
+
+            <section class="card" id="cheat">
+                <div class="section-title"><div class="badge">C</div><h2>Памятка</h2></div>
+                <div class="mini">
+                    <div class="formula">a · b = a₁b₁ + a₂b₂ + a₃b₃</div>
+                    <div class="formula">a × b = (a₂b₃ − a₃b₂; a₃b₁ − a₁b₃; a₁b₂ − a₂b₁)</div>
+                    <div class="formula">k = (y₂ − y₁)/(x₂ − x₁), &nbsp;&nbsp; y = kx + b</div>
+                    <ul>
+                        <li>Скалярное произведение даёт <strong>число</strong>.</li>
+                        <li>Векторное произведение даёт <strong>вектор</strong>.</li>
+                        <li>Уравнение прямой по двум точкам строится через <strong>k</strong>, затем через <strong>b</strong>.</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <aside class="rightcol">
+            <section class="viewer card">
+                <div class="section-title"><div class="badge">∎</div><h2>Интерактивная модель</h2></div>
+                <div class="controls">
+                    <button data-mode="dot" onclick="setMode('dot', this)">Скалярное</button>
+                    <button data-mode="cross" onclick="setMode('cross', this)">Векторное</button>
+                    <button data-mode="line" onclick="setMode('line', this)">Прямая</button>
+                    <label class="small">шаг
+                        <input type="range" min="1" max="5" value="5" id="stepRange" oninput="setStep(this.value)">
+                    </label>
+                </div>
+                <div class="canvas-wrap">
+                    <svg id="scene" viewBox="0 0 760 560" aria-label="Интерактивная визуализация"></svg>
+                </div>
+                <div class="legend">
+                    <span><i class="dot" style="background:#79c0ff"></i> первый объект</span>
+                    <span><i class="dot" style="background:#7ee787"></i> второй объект</span>
+                    <span><i class="dot" style="background:#ffb86b"></i> результат / ключевая линия</span>
+                </div>
+                <div class="readout">
+                    <div class="mini"><strong>Текущий режим</strong><div id="modeLabel">Скалярное произведение</div></div>
+                    <div class="mini"><strong>Ключевой результат</strong><div id="modeValue">−1</div></div>
+                    <div class="mini"><strong>Смысл</strong><div id="modeMeaning">Отрицательный результат: угол между векторами тупой.</div></div>
+                    <div class="mini"><strong>Подсказка</strong><div id="modeHint">Сложите попарные произведения координат.</div></div>
+                </div>
+            </section>
+        </aside>
+    </div>
+
+    <div class="foot">Автономное наглядное пособие в формате одного HTML-файла.</div>
+</div>
+
+<script>
+    const S = {
+        mode: 'dot',
+        step: 5
+    };
+
+    const data = {
+        dot: {
+            label: 'Скалярное произведение',
+            value: '−1',
+            meaning: 'Отрицательный результат: угол между векторами тупой.',
+            hint: 'Сложите попарные произведения координат.',
+            stepsId: 'steps1'
+        },
+        cross: {
+            label: 'Векторное произведение',
+            value: '(2; −2; −10)',
+            meaning: 'Полученный вектор перпендикулярен обоим исходным.',
+            hint: 'Особенно внимательно следите за знаками координат.',
+            stepsId: 'steps2'
+        },
+        line: {
+            label: 'Уравнение прямой',
+            value: 'y = 4x − 3',
+            meaning: 'Прямая проходит через обе заданные точки.',
+            hint: 'Сначала найдите k, затем подставьте точку и найдите b.',
+            stepsId: 'steps3'
+        }
+    };
+
+    function $(sel){ return document.querySelector(sel); }
+    function $$ (sel){ return Array.from(document.querySelectorAll(sel)); }
+
+    function setMode(mode, btn){
+        S.mode = mode;
+        $$('[data-mode]').forEach(b => b.style.borderColor = 'transparent');
+        if(btn) btn.style.borderColor = 'var(--accent)';
+        updateReadout();
+        render();
+    }
+    function setStep(v){
+        S.step = Number(v);
+        updateSteps();
+        render();
+    }
+    function updateReadout(){
+        const d = data[S.mode];
+        $('#modeLabel').textContent = d.label;
+        $('#modeValue').textContent = d.value;
+        $('#modeMeaning').textContent = d.meaning;
+        $('#modeHint').textContent = d.hint;
+        updateSteps();
+    }
+    function updateSteps(){
+        ['steps1','steps2','steps3'].forEach(id => {
+            const box = document.getElementById(id);
+            if(!box) return;
+            [...box.children].forEach((el, i) => {
+                el.classList.toggle('active', id === data[S.mode].stepsId && i < S.step);
+            });
+        });
+    }
+    function line(x1,y1,x2,y2,stroke,w=3,dash=''){
+        return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''} stroke-linecap="round"/>`;
+    }
+    function circle(x,y,r,fill,stroke='none'){
+        return `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" />`;
+    }
+    function text(x,y,content,fill='#e9f1fb',size=18,anchor='start',weight='600'){
+        return `<text x="${x}" y="${y}" fill="${fill}" font-size="${size}" text-anchor="${anchor}" font-weight="${weight}" font-family="Inter,Segoe UI,Arial,sans-serif">${content}</text>`;
+    }
+    function arrow(x1,y1,x2,y2,color,w=4){
+        return `
+    <defs>
+      <marker id="arr-${color.replace('#','')}" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+        <polygon points="0,0 10,5 0,10" fill="${color}"></polygon>
+      </marker>
+    </defs>
+    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${w}" marker-end="url(#arr-${color.replace('#','')})" stroke-linecap="round"/>
+  `;
+    }
+    function proj2d(v){
+        // simple 3D -> 2D isometric-ish projection
+        const scale = 36;
+        const ox = 230, oy = 330;
+        const x = ox + (v[0] - v[1]) * scale;
+        const y = oy - (v[2] * scale + (v[0] + v[1]) * scale * 0.45);
+        return [x,y];
+    }
+    function axes3d(){
+        const O = proj2d([0,0,0]), X = proj2d([4,0,0]), Y = proj2d([0,4,0]), Z = proj2d([0,0,4]);
+        return `
+    ${arrow(O[0],O[1],X[0],X[1],'#556b8a',2.5)}
+    ${arrow(O[0],O[1],Y[0],Y[1],'#556b8a',2.5)}
+    ${arrow(O[0],O[1],Z[0],Z[1],'#556b8a',2.5)}
+    ${text(X[0]+8,X[1],'x','#9db0c8',15)}
+    ${text(Y[0]-8,Y[1],'y','#9db0c8',15,'end')}
+    ${text(Z[0],Z[1]-10,'z','#9db0c8',15,'middle')}
+  `;
+    }
+    function renderDot(){
+        const a=[-1,2,1], b=[2,-1,3];
+        const O=proj2d([0,0,0]), A=proj2d(a), B=proj2d(b);
+        let svg = `<rect x="0" y="0" width="760" height="560" fill="#0c1422"/>`;
+        svg += axes3d();
+        svg += circle(O[0],O[1],5,'#e9f1fb');
+        if(S.step>=1) svg += arrow(O[0],O[1],A[0],A[1],'#79c0ff',4);
+        if(S.step>=2) svg += arrow(O[0],O[1],B[0],B[1],'#7ee787',4);
+        if(S.step>=3){
+            svg += text((O[0]+A[0])/2-10,(O[1]+A[1])/2-10,'a','#79c0ff',18);
+            svg += text((O[0]+B[0])/2+10,(O[1]+B[1])/2-10,'b','#7ee787',18);
+        }
+        if(S.step>=4){
+            svg += `<path d="M ${A[0]} ${A[1]} Q ${O[0]-18} ${O[1]-68} ${B[0]} ${B[1]}" fill="none" stroke="#ffb86b" stroke-width="2.5" stroke-dasharray="7 6"/>`;
+            svg += text(O[0]-24,O[1]-76,'тупой угол','#ffb86b',16,'middle');
+        }
+        if(S.step>=5){
+            svg += `<rect x="430" y="80" width="255" height="110" rx="16" fill="rgba(121,192,255,.08)" stroke="rgba(121,192,255,.2)"/>`;
+            svg += text(455,110,'(−1)·2 + 2·(−1) + 1·3', '#e9f1fb', 22);
+            svg += text(455,150,'= −2 − 2 + 3 = −1', '#7ee787', 24);
+        }
+        return svg;
+    }
+    function renderCross(){
+        const a=[4,-1,1], b=[2,-3,1], c=[2,-2,-10/3]; // scaled for view
+        const O=proj2d([0,0,0]), A=proj2d(a), B=proj2d(b), C=proj2d(c);
+        let svg = `<rect x="0" y="0" width="760" height="560" fill="#0c1422"/>`;
+        svg += axes3d();
+        svg += circle(O[0],O[1],5,'#e9f1fb');
+        if(S.step>=1) svg += arrow(O[0],O[1],A[0],A[1],'#79c0ff',4);
+        if(S.step>=2) svg += arrow(O[0],O[1],B[0],B[1],'#7ee787',4);
+        if(S.step>=3) svg += arrow(O[0],O[1],C[0],C[1],'#ffb86b',4);
+        if(S.step>=4){
+            svg += text((O[0]+A[0])/2-5,(O[1]+A[1])/2-10,'a','#79c0ff',18);
+            svg += text((O[0]+B[0])/2+8,(O[1]+B[1])/2-10,'b','#7ee787',18);
+            svg += text((O[0]+C[0])/2+12,(O[1]+C[1])/2,'a×b','#ffb86b',18);
+        }
+        if(S.step>=5){
+            svg += `<rect x="420" y="62" width="280" height="160" rx="16" fill="rgba(255,184,107,.08)" stroke="rgba(255,184,107,.22)"/>`;
+            svg += text(442,94,'(−1·1 − 1·(−3); 1·2 − 4·1; 4·(−3) − (−1)·2)', '#e9f1fb', 15);
+            svg += text(442,138,'= (2; −2; −10)', '#ffb86b', 26);
+            svg += text(442,178,'проверка: (a×b)·a = 0 и (a×b)·b = 0', '#9db0c8', 15);
+        }
+        return svg;
+    }
+    function renderLine(){
+        const W=760,H=560, pad=60;
+        const toX = x => pad + (x + 1) * 90;
+        const toY = y => H - pad - (y + 1) * 55;
+        let svg = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0c1422"/>`;
+        for(let i=0;i<=7;i++){
+            const x=pad+i*90;
+            svg += line(x,pad,x,H-pad,'#18263a',1.3);
+        }
+        for(let j=0;j<=7;j++){
+            const y=pad+j*55;
+            svg += line(pad,y,W-pad,y,'#18263a',1.3);
+        }
+        const x0=toX(0), y0=toY(0);
+        svg += arrow(pad,H-pad,W-pad+12,H-pad,'#556b8a',2.5);
+        svg += arrow(pad,H-pad,pad,pad-12,'#556b8a',2.5);
+        svg += text(W-pad+18,H-pad+5,'x','#9db0c8',16);
+        svg += text(pad-8,pad-18,'y','#9db0c8',16,'end');
+        for(let i=-1;i<=6;i++){
+            svg += text(toX(i),H-pad+22,String(i),'#9db0c8',13,'middle','500');
+        }
+        for(let i=-1;i<=6;i++){
+            svg += text(pad-14,toY(i)+4,String(i),'#9db0c8',13,'end','500');
+        }
+
+        if(S.step>=1){
+            // line y=4x-3
+            const p1=[toX(0),toY(-3)], p2=[toX(2.2),toY(5.8)];
+            svg += line(p1[0],p1[1],p2[0],p2[1],'#ffb86b',4);
+            svg += text(p2[0]-15,p2[1]-12,'y = 4x − 3','#ffb86b',18,'end');
+        }
+        if(S.step>=2){
+            const K=[toX(1),toY(1)], L=[toX(2),toY(5)];
+            svg += circle(K[0],K[1],6,'#79c0ff');
+            svg += circle(L[0],L[1],6,'#7ee787');
+            svg += text(K[0]-10,K[1]-12,'K(1;1)','#79c0ff',16,'end');
+            svg += text(L[0]+10,L[1]-12,'L(2;5)','#7ee787',16);
+        }
+        if(S.step>=3){
+            svg += `<rect x="420" y="80" width="240" height="135" rx="16" fill="rgba(121,192,255,.08)" stroke="rgba(121,192,255,.18)"/>`;
+            svg += text(442,112,'k = (5 − 1)/(2 − 1) = 4', '#e9f1fb', 21);
+            svg += text(442,152,'y = 4x + b', '#e9f1fb', 23);
+            svg += text(442,192,'1 = 4·1 + b  →  b = −3', '#7ee787', 18);
+        }
+        if(S.step>=4){
+            // slope triangle
+            const A=[toX(1),toY(1)], B=[toX(2),toY(1)], C=[toX(2),toY(5)];
+            svg += line(A[0],A[1],B[0],B[1],'#79c0ff',3,'6 5');
+            svg += line(B[0],B[1],C[0],C[1],'#79c0ff',3,'6 5');
+            svg += text((A[0]+B[0])/2, A[1]+22,'Δx = 1','#79c0ff',15,'middle');
+            svg += text(B[0]+28,(B[1]+C[1])/2,'Δy = 4','#79c0ff',15);
+        }
+        if(S.step>=5){
+            svg += `<rect x="420" y="240" width="240" height="88" rx="16" fill="rgba(126,231,135,.08)" stroke="rgba(126,231,135,.22)"/>`;
+            svg += text(442,274,'Проверка: 4·2 − 3 = 5', '#b6f7c0', 19);
+            svg += text(442,308,'Значит точка L лежит на прямой', '#b6f7c0', 15);
+        }
+        return svg;
+    }
+    function render(){
+        const svg = S.mode === 'dot' ? renderDot() : S.mode === 'cross' ? renderCross() : renderLine();
+        $('#scene').innerHTML = svg;
+    }
+    function showQuiz(btn, ans){
+        const out = btn.parentElement.querySelector('[data-a]');
+        out.textContent = 'Ответ: ' + ans + '.';
+    }
+    document.querySelectorAll('.navrow a').forEach((a,idx) => {
+        a.addEventListener('click', () => {
+            document.querySelectorAll('.navrow a').forEach(x => x.classList.remove('active'));
+            a.classList.add('active');
+        });
+    });
+    updateReadout();
+    document.querySelector('[data-mode="dot"]').style.borderColor = 'var(--accent)';
+    render();
+</script>
+</body>
+</html>
