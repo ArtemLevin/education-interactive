@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядное пособие — вероятность без возвращения</title>
+    <style>
+        :root{
+            --bg:#f6f7f8;
+            --panel:#ffffff;
+            --panel-2:#f0f5f5;
+            --text:#172026;
+            --muted:#5d6a72;
+            --accent:#0b7a75;
+            --accent-2:#0f5c59;
+            --line:#d6e1e1;
+            --danger:#a93b3b;
+            --ok:#26734d;
+            --shadow:0 10px 30px rgba(0,0,0,.08);
+            --radius:20px;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+        body{line-height:1.55}
+        .topbar{
+            position:sticky;top:0;z-index:20;
+            backdrop-filter: blur(10px);
+            background:rgba(246,247,248,.88);
+            border-bottom:1px solid var(--line);
+        }
+        .topbar-inner{max-width:1380px;margin:0 auto;padding:12px 18px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+        .brand{font-weight:800;letter-spacing:.02em}
+        .controls{display:flex;gap:10px;flex-wrap:wrap}
+        button,select,input[type="range"]{
+            font:inherit;
+        }
+        button, .pill {
+            border:1px solid var(--line);background:var(--panel);color:var(--text);
+            border-radius:999px;padding:10px 14px;cursor:pointer;box-shadow:var(--shadow)
+        }
+        button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+        button.ghost{box-shadow:none;background:transparent}
+        .hero{max-width:1380px;margin:0 auto;padding:28px 18px 18px}
+        .hero-card{
+            background:linear-gradient(135deg,#ffffff 0%,#eff8f7 100%);
+            border:1px solid var(--line);border-radius:28px;padding:28px;box-shadow:var(--shadow)
+        }
+        .eyebrow{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:12px}
+        h1{margin:8px 0 12px;font-size:clamp(28px,4vw,46px);line-height:1.05}
+        .subtitle{max-width:980px;color:var(--muted);font-size:18px}
+        .facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
+        .fact{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px}
+        .fact b{display:block;font-size:22px;color:var(--accent-2)}
+
+        .workspace{max-width:1380px;margin:0 auto;padding:0 18px 28px;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(420px,.95fr);gap:18px;align-items:start}
+        .left-col,.right-col{display:flex;flex-direction:column;gap:18px}
+        .card{background:var(--panel);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+        .card-pad{padding:22px}
+        .section-title{font-size:24px;font-weight:800;margin:0 0 10px}
+        .muted{color:var(--muted)}
+        .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+        .tab{padding:9px 13px;border-radius:999px;border:1px solid var(--line);background:var(--panel-2);cursor:pointer}
+        .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+        .step-list{display:grid;gap:12px}
+        .step{
+            border:1px solid var(--line);border-radius:18px;padding:16px;background:#fff;position:relative;transition:.2s transform,.2s border-color,.2s box-shadow
+        }
+        .step:hover{transform:translateY(-2px)}
+        .step.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(11,122,117,.10)}
+        .step-num{position:absolute;top:12px;right:14px;color:var(--muted);font-weight:700;font-size:13px}
+        .formula{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--panel-2);border:1px solid var(--line);padding:10px 12px;border-radius:14px;overflow:auto}
+        .case-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+        .case{border:1px solid var(--line);border-radius:18px;padding:14px;background:#fff;cursor:pointer}
+        .case.active{border-color:var(--accent);background:#f2fbfa}
+        .case-title{font-weight:800;margin-bottom:6px}
+        .small{font-size:14px}
+        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .bullets{padding-left:18px;margin:10px 0}
+        .bullets li{margin:6px 0}
+
+        .viz-sticky{position:sticky;top:82px}
+        .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+        .toolbar .group{display:flex;gap:8px;align-items:center;background:var(--panel-2);border:1px solid var(--line);padding:8px 10px;border-radius:16px}
+        .viz-wrap{padding:18px}
+        .stage{background:linear-gradient(180deg,#fbfefe 0%,#eef7f6 100%);border:1px solid var(--line);border-radius:24px;padding:18px;overflow:hidden;position:relative;min-height:560px}
+        .stage-panzoom{transform-origin:center center;transition:transform .18s ease}
+        .shelf-title{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;margin-bottom:10px}
+        .shelf{background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px;margin-bottom:16px}
+        .items{display:flex;flex-wrap:wrap;gap:10px}
+        .item{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;border:2px solid rgba(0,0,0,.08);position:relative;user-select:none}
+        .item.blue{background:#cce7ff;color:#12466f}
+        .item.red{background:#ffd2d2;color:#7a2020}
+        .item.saucer{border-radius:18px;height:34px;width:58px}
+        .item.dim{opacity:.18;transform:scale(.96)}
+        .item.pick{outline:4px solid rgba(11,122,117,.23);transform:scale(1.08)}
+        .arrow-band{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:10px 0 8px}
+        .basket{background:#fff;border:1px dashed var(--line);border-radius:20px;padding:14px;min-height:120px}
+        .basket h4{margin:0 0 10px;font-size:15px}
+        .status{display:grid;gap:8px;margin-top:12px}
+        .status-line{background:#fff;border:1px solid var(--line);padding:12px 14px;border-radius:16px}
+        .status-line strong{color:var(--accent-2)}
+        .legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+        .legend .dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}
+        .legend-item{font-size:14px;color:var(--muted)}
+
+        .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+        .mini-card{border:1px solid var(--line);border-radius:18px;padding:14px;background:#fff}
+        .train-list{display:grid;gap:10px}
+        .train-task{border:1px solid var(--line);border-radius:16px;padding:14px;background:#fff}
+        .answer{display:none;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);color:var(--accent-2);font-weight:700}
+        .answer.show{display:block}
+        .quiz-options{display:grid;gap:10px;margin-top:12px}
+        .quiz-option{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff;cursor:pointer}
+        .quiz-option.correct{border-color:var(--ok);background:#eef9f2}
+        .quiz-option.wrong{border-color:var(--danger);background:#fff1f1}
+
+        .footer-space{height:30px}
+
+        @media (max-width: 1100px){
+            .workspace{grid-template-columns:1fr}
+            .viz-sticky{position:static}
+            .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+        }
+        @media (max-width: 720px){
+            .facts,.case-grid,.two-col,.grid-3{grid-template-columns:1fr}
+            .item{width:42px;height:42px}
+            .item.saucer{width:50px;height:30px}
+            .hero-card,.card-pad,.viz-wrap{padding:16px}
+            h1{font-size:30px}
+            .subtitle{font-size:16px}
+            .stage{min-height:460px}
+        }
+        @media print{
+            .topbar,.toolbar,.footer-space,button,.quiz-options{display:none !important}
+            .workspace{grid-template-columns:1fr}
+            .viz-sticky{position:static}
+            .card,.hero-card,.stage,.step,.case,.mini-card,.train-task{box-shadow:none}
+            body{background:#fff}
+        }
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <div class="topbar-inner">
+        <div class="brand">Наглядное пособие • Вероятность без возвращения</div>
+        <div class="brand">Лёвин Артём Александрович эксклюзивно для Яны Плиско</div>
+        <div class="controls">
+            <button id="showAllBtn" class="primary">Показать весь разбор</button>
+            <button id="resetBtn">Сбросить модель</button>
+            <button id="openGuideBtn">Памятка</button>
+        </div>
+    </div>
+</div>
+
+<section class="hero">
+    <div class="hero-card">
+        <div class="eyebrow">ЕГЭ профиль • самая важная задача занятия</div>
+        <h1>Как считать вероятность двух чайных пар без возвращения</h1>
+        <div class="subtitle">
+            Здесь мы разбираем задачу, где отдельно выбирают <b>2 блюдца</b> и <b>2 чашки</b>, а затем нужно понять, можно ли составить <b>две пары одинакового цвета</b>.
+            Главная идея: сначала перечислить <b>все подходящие случаи</b>, затем для каждого случая аккуратно учесть, что выбор идёт <b>без возвращения</b>.
+        </div>
+        <div class="facts">
+            <div class="fact"><b>14</b> синих блюдец из 36</div>
+            <div class="fact"><b>22</b> красных блюдец из 36</div>
+            <div class="fact"><b>27</b> синих чашек из 36</div>
+            <div class="fact"><b>9</b> красных чашек из 36</div>
+        </div>
+    </div>
+</section>
+
+<main class="workspace">
+    <section class="left-col">
+        <article class="card card-pad">
+            <h2 class="section-title">Что именно должно произойти</h2>
+            <p class="muted">Нужно выбрать 2 блюдца и 2 чашки так, чтобы из них можно было составить <b>две чайные пары</b>, причём в каждой паре чашка и блюдце одного цвета.</p>
+            <div class="two-col">
+                <div class="mini-card">
+                    <b>Это подходит</b>
+                    <ul class="bullets">
+                        <li>синяя чашка + синее блюдце, и ещё раз синяя + синее;</li>
+                        <li>красная чашка + красное блюдце, и ещё раз красная + красное;</li>
+                        <li>одна синяя пара и одна красная пара.</li>
+                    </ul>
+                </div>
+                <div class="mini-card">
+                    <b>Это не подходит</b>
+                    <ul class="bullets">
+                        <li>две синие чашки и два красных блюдца;</li>
+                        <li>одна синяя чашка, одно синее блюдце, но оставшиеся предметы разных цветов;</li>
+                        <li>любой набор, где хотя бы одну пару нельзя составить по цвету.</li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <article class="card card-pad">
+            <div class="tabs" id="stepTabs"></div>
+            <div class="step-list" id="stepList"></div>
+        </article>
+
+        <article class="card card-pad">
+            <h2 class="section-title">Четыре подходящих случая</h2>
+            <p class="muted">Нажмите на случай — справа модель сразу покажет, какие предметы «вытягиваются», и какую формулу вероятности нужно записать.</p>
+            <div class="case-grid" id="caseGrid"></div>
+        </article>
+
+        <article class="card card-pad">
+            <h2 class="section-title">Типичные ошибки</h2>
+            <div class="grid-3">
+                <div class="mini-card">
+                    <b>Ошибка 1</b>
+                    <p class="small muted">Оставить знаменатель 36 на втором шаге. После первого извлечения предметов уже остаётся 35.</p>
+                </div>
+                <div class="mini-card">
+                    <b>Ошибка 2</b>
+                    <p class="small muted">Уменьшить число красных предметов, хотя до этого вытаскивали только синие. Меняется только то количество, из которого реально убрали предмет.</p>
+                </div>
+                <div class="mini-card">
+                    <b>Ошибка 3</b>
+                    <p class="small muted">Не перечислить все случаи. В таких задачах это критично: пропустили один подходящий случай — потеряли часть вероятности.</p>
+                </div>
+            </div>
+        </article>
+
+        <article class="card card-pad">
+            <h2 class="section-title">Мини-квиз</h2>
+            <div class="mini-card">
+                <div><b>Вопрос.</b> Почему в выражении для второй выбранной чашки появляется знаменатель <span class="formula" style="display:inline-block;padding:2px 8px">35</span>, а не <span class="formula" style="display:inline-block;padding:2px 8px">36</span>?</div>
+                <div class="quiz-options" id="quizOptions"></div>
+                <div id="quizFeedback" class="small muted" style="margin-top:10px"></div>
+            </div>
+        </article>
+
+        <article class="card card-pad">
+            <h2 class="section-title">Тренировка</h2>
+            <p class="muted">Ниже — три похожие задачи для закрепления. Можно открыть ответ после самостоятельной попытки.</p>
+            <div class="train-list" id="trainList"></div>
+        </article>
+    </section>
+
+    <aside class="right-col">
+        <div class="viz-sticky card viz-wrap">
+            <div class="toolbar">
+                <div class="group">
+                    <label for="zoomRange"><b>Масштаб</b></label>
+                    <input id="zoomRange" type="range" min="80" max="140" value="100" />
+                </div>
+                <div class="group">
+                    <button id="prevCaseBtn">← Случай</button>
+                    <button id="nextCaseBtn">Случай →</button>
+                </div>
+                <div class="group">
+                    <button id="toggleDimBtn">Скрыть неактивные</button>
+                </div>
+            </div>
+            <div class="stage" id="stage">
+                <div class="stage-panzoom" id="stageInner">
+                    <div class="shelf">
+                        <div class="shelf-title">Полка с блюдцами</div>
+                        <div class="items" id="saucerShelf"></div>
+                    </div>
+                    <div class="shelf">
+                        <div class="shelf-title">Полка с чашками</div>
+                        <div class="items" id="cupShelf"></div>
+                    </div>
+
+                    <div class="arrow-band">
+                        <div class="basket">
+                            <h4>Выбранные блюдца</h4>
+                            <div class="items" id="pickedSaucers"></div>
+                        </div>
+                        <div class="basket">
+                            <h4>Выбранные чашки</h4>
+                            <div class="items" id="pickedCups"></div>
+                        </div>
+                    </div>
+
+                    <div class="status">
+                        <div class="status-line"><strong>Активный случай:</strong> <span id="caseName"></span></div>
+                        <div class="status-line"><strong>Формула:</strong> <span id="caseFormula"></span></div>
+                        <div class="status-line"><strong>Значение:</strong> <span id="caseValue"></span></div>
+                        <div class="status-line"><strong>Итоговая сумма 4 случаев:</strong> <span id="totalValue"></span></div>
+                    </div>
+
+                    <div class="legend">
+                        <div class="legend-item"><span class="dot" style="background:#cce7ff"></span>синий предмет</div>
+                        <div class="legend-item"><span class="dot" style="background:#ffd2d2"></span>красный предмет</div>
+                        <div class="legend-item"><span class="dot" style="background:rgba(11,122,117,.2)"></span>подсвеченный выбор</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+</main>
+
+<div class="footer-space"></div>
+
+<script>
+    const steps = [
+        {
+            title: 'Шаг 1. Сначала не считаем — сначала думаем',
+            body: `Прежде чем писать дроби, надо понять, <b>какие наборы цветов вообще подходят</b>. Это главный стратегический шаг.`
+        },
+        {
+            title: 'Шаг 2. Подходящих случаев ровно четыре',
+            body: `Подходят: <b>BB+BB</b>, <b>RR+RR</b>, <b>BB+RR</b>, <b>RR+BB</b>, где B — синяя пара, R — красная пара.`
+        },
+        {
+            title: 'Шаг 3. Союз «и» даёт умножение',
+            body: `Если мы фиксируем конкретный сценарий выбора, то идём по шагам и <b>перемножаем вероятности</b>. Например: сначала синее блюдце, потом синяя чашка, потом ещё синее блюдце, потом ещё синяя чашка.`
+        },
+        {
+            title: 'Шаг 4. Без возвращения — значит меняется знаменатель',
+            body: `После первого выбора на полке уже не 36 предметов, а <b>35</b>. Именно поэтому на втором шаге появляются знаменатели 35.`
+        },
+        {
+            title: 'Шаг 5. Меняется только тот цвет, который реально вынули',
+            body: `Если вы пока вытаскивали только синие предметы, число красных не уменьшается. Это одна из самых частых ошибок.`
+        },
+        {
+            title: 'Шаг 6. Случаи между собой соединяются словом «или»',
+            body: `После того как нашли вероятности всех четырёх подходящих сценариев, их нужно <b>сложить</b>, потому что событие может реализоваться любым из этих способов.`
+        }
+    ];
+
+    const cases = [
+        {
+            name:'Две синие пары',
+            short:'BB + BB',
+            pickS:['blue','blue'],
+            pickC:['blue','blue'],
+            formulaText:'(14/36) · (27/36) · (13/35) · (26/35)',
+            calc:()=> (14/36)*(27/36)*(13/35)*(26/35)
+        },
+        {
+            name:'Две красные пары',
+            short:'RR + RR',
+            pickS:['red','red'],
+            pickC:['red','red'],
+            formulaText:'(22/36) · (9/36) · (21/35) · (8/35)',
+            calc:()=> (22/36)*(9/36)*(21/35)*(8/35)
+        },
+        {
+            name:'Сначала синяя пара, потом красная',
+            short:'BB + RR',
+            pickS:['blue','red'],
+            pickC:['blue','red'],
+            formulaText:'(14/36) · (27/36) · (22/35) · (9/35)',
+            calc:()=> (14/36)*(27/36)*(22/35)*(9/35)
+        },
+        {
+            name:'Сначала красная пара, потом синяя',
+            short:'RR + BB',
+            pickS:['red','blue'],
+            pickC:['red','blue'],
+            formulaText:'(22/36) · (9/36) · (14/35) · (27/35)',
+            calc:()=> (22/36)*(9/36)*(14/35)*(27/35)
+        }
+    ];
+
+    const training = [
+        {
+            task:'В коробке 10 шаров: 6 белых и 4 чёрных. Извлекают 2 шара без возвращения. Найдите вероятность того, что оба шара белые.',
+            answer:'(6/10)·(5/9)=1/3.'
+        },
+        {
+            task:'На одной полке 5 синих и 7 красных блюдец, на другой — 8 синих и 4 красные чашки. Берут по одному блюдцу и одной чашке. Найдите вероятность синей пары.',
+            answer:'(5/12)·(8/12)=10/36=5/18.'
+        },
+        {
+            task:'В двух наборах по 2 предмета каждого цвета: блюдца — 3 синих и 2 красных, чашки — 4 синие и 1 красная. Берут 2 блюдца и 2 чашки без возвращения. Найдите вероятность того, что получится одна синяя и одна красная пара.',
+            answer:'(3/5)·(4/5)·(2/4)·(1/4) + (2/5)·(1/5)·(3/4)·(4/4) = 3/25 + 3/50 = 9/50.'
+        }
+    ];
+
+    const quiz = [
+        {text:'Потому что учитель так сказал.', correct:false},
+        {text:'Потому что после первого извлечения количество предметов на полке уменьшилось на 1.', correct:true},
+        {text:'Потому что красных предметов стало меньше.', correct:false},
+        {text:'Потому что всегда во второй дроби пишут 35.', correct:false}
+    ];
+
+    let activeStep = 0;
+    let activeCase = 0;
+    let dimOthers = false;
+
+    const stepTabs = document.getElementById('stepTabs');
+    const stepList = document.getElementById('stepList');
+    const caseGrid = document.getElementById('caseGrid');
+    const saucerShelf = document.getElementById('saucerShelf');
+    const cupShelf = document.getElementById('cupShelf');
+    const pickedSaucers = document.getElementById('pickedSaucers');
+    const pickedCups = document.getElementById('pickedCups');
+    const caseName = document.getElementById('caseName');
+    const caseFormula = document.getElementById('caseFormula');
+    const caseValue = document.getElementById('caseValue');
+    const totalValue = document.getElementById('totalValue');
+    const zoomRange = document.getElementById('zoomRange');
+    const stageInner = document.getElementById('stageInner');
+    const trainList = document.getElementById('trainList');
+    const quizOptions = document.getElementById('quizOptions');
+    const quizFeedback = document.getElementById('quizFeedback');
+
+    function fracToText(x){
+        return x.toFixed(5).replace('.', ',');
+    }
+
+    function renderSteps(){
+        stepTabs.innerHTML = '';
+        stepList.innerHTML = '';
+        steps.forEach((s, i)=>{
+            const t = document.createElement('button');
+            t.className = 'tab' + (i===activeStep?' active':'');
+            t.textContent = 'Шаг ' + (i+1);
+            t.onclick = ()=>{activeStep=i; renderSteps();};
+            stepTabs.appendChild(t);
+
+            const item = document.createElement('div');
+            item.className = 'step' + (i===activeStep?' active':'');
+            item.innerHTML = `<div class="step-num">${i+1}/6</div><div style="font-weight:800;margin-bottom:6px">${s.title}</div><div class="muted">${s.body}</div>`;
+            if(i!==activeStep){ item.style.display='none'; }
+            stepList.appendChild(item);
+        });
+    }
+
+    function renderCases(){
+        caseGrid.innerHTML='';
+        cases.forEach((c,i)=>{
+            const el = document.createElement('div');
+            el.className = 'case' + (i===activeCase ? ' active':'');
+            el.innerHTML = `<div class="case-title">${c.name}</div>
+          <div class="small muted">${c.short}</div>
+          <div class="formula" style="margin-top:10px">${c.formulaText}</div>`;
+            el.onclick = ()=>{activeCase=i; renderCases(); renderStage();};
+            caseGrid.appendChild(el);
+        });
+    }
+
+    function createItem(color, type, label, picked=false, dim=false){
+        const d = document.createElement('div');
+        d.className = `item ${color} ${type} ${picked?'pick':''} ${dim?'dim':''}`;
+        d.textContent = label;
+        return d;
+    }
+
+    function renderShelf(target, blueCount, redCount, type, pickedColors){
+        target.innerHTML='';
+        let blueMarked = 0;
+        let redMarked = 0;
+        for(let i=0;i<blueCount;i++){
+            const picked = blueMarked < pickedColors.filter(x=>x==='blue').length;
+            if(picked) blueMarked++;
+            target.appendChild(createItem('blue', type, type==='saucer'?'Б':'Ч', picked, dimOthers && !picked));
+        }
+        for(let i=0;i<redCount;i++){
+            const picked = redMarked < pickedColors.filter(x=>x==='red').length;
+            if(picked) redMarked++;
+            target.appendChild(createItem('red', type, type==='saucer'?'Б':'Ч', picked, dimOthers && !picked));
+        }
+    }
+
+    function renderPicked(target, arr, type){
+        target.innerHTML='';
+        arr.forEach(c=> target.appendChild(createItem(c, type, type==='saucer'?'Б':'Ч', true, false)));
+    }
+
+    function renderStage(){
+        const c = cases[activeCase];
+        renderShelf(saucerShelf, 14, 22, 'saucer', c.pickS);
+        renderShelf(cupShelf, 27, 9, 'cup', c.pickC);
+        renderPicked(pickedSaucers, c.pickS, 'saucer');
+        renderPicked(pickedCups, c.pickC, 'cup');
+        caseName.textContent = c.name;
+        caseFormula.textContent = c.formulaText;
+        caseValue.textContent = fracToText(c.calc());
+        const total = cases.reduce((s,x)=>s+x.calc(),0);
+        totalValue.textContent = fracToText(total);
+    }
+
+    function renderTraining(){
+        trainList.innerHTML='';
+        training.forEach((t, i)=>{
+            const wrap = document.createElement('div');
+            wrap.className='train-task';
+            wrap.innerHTML = `<div><b>Задача ${i+1}.</b> ${t.task}</div>
+          <button style="margin-top:10px" data-i="${i}">Показать ответ</button>
+          <div class="answer" id="ans-${i}">${t.answer}</div>`;
+            wrap.querySelector('button').onclick = ()=>{
+                wrap.querySelector('.answer').classList.toggle('show');
+            };
+            trainList.appendChild(wrap);
+        });
+    }
+
+    function renderQuiz(){
+        quizOptions.innerHTML='';
+        quiz.forEach(q=>{
+            const el = document.createElement('div');
+            el.className='quiz-option';
+            el.textContent=q.text;
+            el.onclick = ()=>{
+                [...quizOptions.children].forEach(x=>x.className='quiz-option');
+                if(q.correct){
+                    el.classList.add('correct');
+                    quizFeedback.textContent = 'Верно. Во второй дроби знаменатель уменьшается, потому что выбор идёт без возвращения.';
+                }else{
+                    el.classList.add('wrong');
+                    quizFeedback.textContent = 'Пока нет. Смотрите на общее количество предметов после первого извлечения.';
+                }
+            };
+            quizOptions.appendChild(el);
+        });
+    }
+
+    document.getElementById('showAllBtn').onclick = ()=>{
+        stepList.innerHTML = '';
+        stepTabs.innerHTML = '';
+        steps.forEach((s,i)=>{
+            const item = document.createElement('div');
+            item.className = 'step active';
+            item.innerHTML = `<div class="step-num">${i+1}/6</div><div style="font-weight:800;margin-bottom:6px">${s.title}</div><div class="muted">${s.body}</div>`;
+            stepList.appendChild(item);
+        });
+    };
+
+    document.getElementById('resetBtn').onclick = ()=>{
+        activeStep = 0;
+        activeCase = 0;
+        dimOthers = false;
+        zoomRange.value = 100;
+        stageInner.style.transform = 'scale(1)';
+        document.getElementById('toggleDimBtn').textContent = 'Скрыть неактивные';
+        renderSteps();
+        renderCases();
+        renderStage();
+    };
+
+    document.getElementById('openGuideBtn').onclick = ()=>{
+        alert('Памятка:\n1) Сначала перечислите все подходящие случаи.\n2) Внутри одного случая используйте умножение.\n3) Между случаями используйте сложение.\n4) Без возвращения знаменатели уменьшаются.\n5) Меняйте только то количество, из которого реально вынули предмет.');
+    };
+
+    document.getElementById('prevCaseBtn').onclick = ()=>{
+        activeCase = (activeCase - 1 + cases.length) % cases.length;
+        renderCases(); renderStage();
+    };
+    document.getElementById('nextCaseBtn').onclick = ()=>{
+        activeCase = (activeCase + 1) % cases.length;
+        renderCases(); renderStage();
+    };
+    document.getElementById('toggleDimBtn').onclick = (e)=>{
+        dimOthers = !dimOthers;
+        e.target.textContent = dimOthers ? 'Показать все предметы' : 'Скрыть неактивные';
+        renderStage();
+    };
+
+    zoomRange.oninput = ()=>{
+        stageInner.style.transform = `scale(${zoomRange.value/100})`;
+    };
+
+    renderSteps();
+    renderCases();
+    renderStage();
+    renderTraining();
+    renderQuiz();
+</script>
+</body>
+</html>
