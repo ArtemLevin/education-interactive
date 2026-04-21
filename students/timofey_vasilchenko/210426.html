@@ -473,12 +473,14 @@
         dy:-150
     };
 
-    function mid(P,Q){ return [(P[0]+Q[0])/2, (P[1]+Q[1])/2]; }
+    function lerp(P, Q, t){ return [P[0] + (Q[0] - P[0]) * t, P[1] + (Q[1] - P[1]) * t]; }
 
     function getPoints(){
         const {A,B,C,dx,dy} = geom;
         const A1=[A[0]+dx, A[1]+dy], B1=[B[0]+dx, B[1]+dy], C1=[C[0]+dx, C[1]+dy];
-        const M=mid(A,B), K=mid(A,C), M1=[M[0]+dx, M[1]+dy], K1=[K[0]+dx, K[1]+dy];
+        // Точки средней линии задаём напрямую на соответствующих рёбрах,
+        // чтобы в интерактивной панели они всегда оставались на нужных сторонах.
+        const M=lerp(A, B, 0.5), K=lerp(A, C, 0.5), M1=lerp(A1, B1, 0.5), K1=lerp(A1, C1, 0.5);
         return {A,B,C,A1,B1,C1,M,K,M1,K1};
     }
 
@@ -519,6 +521,10 @@
         ${svgPath('M40 600 C 150 520, 220 630, 320 560 S 520 500, 630 560', 'stroke="rgba(125,211,252,.08)" stroke-width="2" fill="none"')}
         ${svgPoly([p('A'),p('B'),p('C')], `fill="${hiBig}" stroke="#7dd3fc" stroke-width="${strokeBase}"`)}
         ${svgPoly([p('A1'),p('B1'),p('C1')], `fill="rgba(125,211,252,.03)" stroke="#7dd3fc" stroke-width="${strokeBase}"`)}
+        ${svgLine(...p('A'), ...p('B'), `stroke="#7dd3fc" stroke-width="${strokeBase}"`)}
+        ${svgLine(...p('A'), ...p('C'), `stroke="#7dd3fc" stroke-width="${strokeBase}"`)}
+        ${svgLine(...p('A1'), ...p('B1'), `stroke="#7dd3fc" stroke-width="${strokeBase}"`)}
+        ${svgLine(...p('A1'), ...p('C1'), `stroke="#7dd3fc" stroke-width="${strokeBase}"`)}
         ${svgLine(...p('A'), ...p('A1'), `stroke="#86efac" stroke-width="${strokeBase+0.2}" ${showH ? '' : 'opacity="0.18"'}`)}
         ${svgLine(...p('B'), ...p('B1'), `stroke="#86efac" stroke-width="${strokeBase+0.2}" ${showH ? '' : 'opacity="0.18"'}`)}
         ${svgLine(...p('C'), ...p('C1'), `stroke="#86efac" stroke-width="${strokeBase+0.2}" ${showH ? '' : 'opacity="0.18"'}`)}
