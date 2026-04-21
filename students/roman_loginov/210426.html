@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — логарифм и максимум функции</title>
+    <style>
+        :root{
+            --bg:#0b1020;
+            --bg-soft:#10182e;
+            --panel:#141f3c;
+            --panel-2:#0f1730;
+            --text:#ebf1ff;
+            --muted:#a8b7df;
+            --accent:#6ee7d8;
+            --accent-2:#7aa6ff;
+            --accent-3:#ffd166;
+            --danger:#ff8a8a;
+            --ok:#87f0a6;
+            --border:rgba(255,255,255,.12);
+            --shadow:0 18px 40px rgba(0,0,0,.28);
+            --radius:24px;
+            --stickyTop:18px;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:radial-gradient(circle at top, #17244a 0%, var(--bg) 45%, #070b16 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;scroll-behavior:smooth}
+        body{line-height:1.55}
+        .wrap{max-width:1440px;margin:0 auto;padding:20px}
+        .hero{position:relative;overflow:hidden;border:1px solid var(--border);background:linear-gradient(145deg, rgba(122,166,255,.14), rgba(110,231,216,.08));box-shadow:var(--shadow);border-radius:32px;padding:28px 28px 22px}
+        .hero::before{content:"";position:absolute;inset:auto -120px -120px auto;width:320px;height:320px;background:radial-gradient(circle, rgba(110,231,216,.18), transparent 70%);filter:blur(8px)}
+        .eyebrow{display:inline-flex;gap:10px;align-items:center;padding:8px 12px;border:1px solid var(--border);background:rgba(255,255,255,.04);border-radius:999px;color:var(--accent);font-size:14px;font-weight:700;letter-spacing:.02em}
+        h1{margin:14px 0 8px;font-size:clamp(30px,5vw,52px);line-height:1.04}
+        .subtitle{max-width:930px;color:var(--muted);font-size:18px}
+        .hero-grid{display:grid;grid-template-columns:1.25fr .95fr;gap:18px;margin-top:22px}
+        .card{background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+        .hero-card{padding:18px 18px 14px}
+        .formula{font-size:clamp(20px,3vw,32px);font-weight:800;color:var(--accent);letter-spacing:.02em}
+        .mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+        .mini{padding:12px 14px;border:1px solid var(--border);border-radius:18px;background:rgba(255,255,255,.03)}
+        .mini b{display:block;color:var(--accent-3);font-size:13px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+        .toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+        button,.btn{appearance:none;border:none;cursor:pointer;padding:12px 16px;border-radius:14px;font-weight:700;color:#08111f;background:linear-gradient(180deg,var(--accent),#52d7c9);transition:.18s transform,.18s opacity,.18s box-shadow;box-shadow:0 10px 24px rgba(110,231,216,.2)}
+        button:hover,.btn:hover{transform:translateY(-1px)}
+        button.secondary,.btn.secondary{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);box-shadow:none}
+        button.ghost,.btn.ghost{background:transparent;color:var(--muted);border:1px dashed var(--border);box-shadow:none}
+        .workspace{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(360px,.98fr);gap:20px;margin-top:20px;align-items:start}
+        .left-col{display:flex;flex-direction:column;gap:18px}
+        .right-col{position:sticky;top:var(--stickyTop)}
+        .section{padding:20px}
+        .section h2{margin:0 0 10px;font-size:24px}
+        .section h3{margin:4px 0 8px;font-size:18px;color:var(--accent-3)}
+        .lead{color:var(--muted)}
+        .idea{border-left:4px solid var(--accent);padding:14px 16px;background:rgba(110,231,216,.06);border-radius:16px}
+        .steps{display:grid;gap:14px}
+        .step{padding:16px;border:1px solid var(--border);border-radius:20px;background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));transition:.2s border-color,.2s transform,.2s background}
+        .step:hover{transform:translateY(-1px)}
+        .step.active{border-color:rgba(110,231,216,.7);background:linear-gradient(180deg, rgba(110,231,216,.10), rgba(122,166,255,.06));box-shadow:0 0 0 1px rgba(110,231,216,.18) inset}
+        .step-num{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:rgba(110,231,216,.18);color:var(--accent);font-weight:800;margin-right:10px}
+        .math{display:block;margin:10px 0;padding:12px 14px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.08);border-radius:14px;font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;font-size:22px;overflow:auto}
+        .inline-math{font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;font-size:1.03em;color:#f6fbff}
+        .checklist{margin:8px 0 0;padding-left:18px}
+        .checklist li{margin:6px 0}
+        .mistakes{display:grid;gap:10px}
+        .mistake{padding:12px 14px;border-radius:14px;border:1px solid rgba(255,138,138,.22);background:rgba(255,138,138,.08)}
+        .mistake b{color:#ffd0d0}
+        .viz{padding:18px}
+        .viz-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+        .viz-title h2{margin:0 0 6px;font-size:24px}
+        .viz-title p{margin:0;color:var(--muted)}
+        .status{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0 14px}
+        .status .box{padding:12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--border);min-height:74px}
+        .status .label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+        .status .value{font-size:26px;font-weight:800;margin-top:2px;color:var(--accent)}
+        .controls{display:grid;gap:12px}
+        .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+        .row label{font-size:14px;color:var(--muted)}
+        input[type="range"]{width:100%}
+        .range-wrap{display:grid;gap:6px}
+        .canvas-shell{position:relative;border-radius:24px;overflow:hidden;border:1px solid var(--border);background:linear-gradient(180deg,#0b1227,#08101f);min-height:520px;cursor:zoom-in}
+        canvas{display:block;width:100%;height:520px}
+        .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+        .legend span{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--border);font-size:13px;color:var(--muted)}
+        .sw{width:18px;height:4px;border-radius:999px;display:inline-block}
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .quiz{display:grid;gap:10px}
+        .quiz button.option{justify-content:flex-start;text-align:left;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--border);box-shadow:none}
+        .quiz button.option.correct{border-color:rgba(135,240,166,.65);background:rgba(135,240,166,.12)}
+        .quiz button.option.wrong{border-color:rgba(255,138,138,.6);background:rgba(255,138,138,.12)}
+        .feedback{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--border)}
+        .trainer{display:grid;gap:12px}
+        .task-box{padding:16px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--border)}
+        .answer-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+        input[type="number"]{background:#0b1225;color:var(--text);border:1px solid var(--border);border-radius:14px;padding:12px 14px;font-size:16px;min-width:120px}
+        .pill{display:inline-flex;align-items:center;padding:8px 10px;border-radius:999px;font-size:13px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted)}
+        .footer{margin:20px 0 8px;color:var(--muted);text-align:center}
+        .print-note{font-size:13px;color:var(--muted)}
+        .hint{position:fixed;right:18px;bottom:18px;max-width:360px;background:linear-gradient(180deg, rgba(122,166,255,.16), rgba(110,231,216,.12));border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:14px 16px;box-shadow:var(--shadow);z-index:30;animation:hintPulse 2.6s infinite}
+        .hint strong{display:block;margin-bottom:6px;color:var(--accent)}
+        .hint .close{position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--muted);padding:4px 8px;box-shadow:none}
+        @keyframes hintPulse{0%,100%{transform:translateY(0);box-shadow:var(--shadow)}50%{transform:translateY(-3px);box-shadow:0 22px 44px rgba(0,0,0,.32)}}
+        .modal{position:fixed;inset:0;background:rgba(4,8,18,.82);display:none;align-items:center;justify-content:center;padding:22px;z-index:50}
+        .modal.open{display:flex}
+        .modal-card{width:min(1200px,96vw);height:min(88vh,860px);background:linear-gradient(180deg,#0a1122,#091221);border:1px solid var(--border);border-radius:28px;box-shadow:var(--shadow);padding:16px;display:grid;grid-template-rows:auto 1fr auto;gap:12px}
+        .modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+        .modal-head h3{margin:0}
+        .modal-canvas-wrap{border:1px solid var(--border);border-radius:24px;overflow:hidden;min-height:0}
+        .modal-canvas-wrap canvas{height:100%;min-height:420px;cursor:zoom-out}
+        .step-link{cursor:pointer;text-decoration:none;color:inherit;display:block}
+        @media (max-width: 1080px){.hero-grid,.workspace,.grid-2{grid-template-columns:1fr}.right-col{position:static}.canvas-shell{min-height:420px}canvas{height:420px}.status{grid-template-columns:1fr}}
+        @media (max-width: 720px){.wrap{padding:12px}.hero{padding:18px}.section,.viz{padding:16px}.formula{font-size:24px}.math{font-size:19px}.mini-grid{grid-template-columns:1fr}.toolbar{gap:8px}button,.btn{width:auto;min-height:44px}.hint{right:12px;left:12px;max-width:none}}
+        @media print{:root{--bg:#fff;--panel:#fff;--text:#111;--muted:#444;--border:#bbb;--accent:#145f5f;--accent-2:#3555a5;--accent-3:#875e00;--shadow:none}body{background:#fff;color:#111}.wrap{max-width:none;padding:0}.hero,.card,.step,.task-box,.section,.viz,.mini,.box,.feedback,.mistake{box-shadow:none;background:#fff !important}.toolbar,.controls,.hint,.modal,button,.btn,.footer .print-note{display:none !important}.workspace{grid-template-columns:1fr}.right-col{position:static}.canvas-shell{min-height:auto}canvas{height:420px !important}a{color:#111;text-decoration:none}}
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div class="eyebrow">Наглядная математика · ЕГЭ профиль · Логарифмы и экстремумы</div>
+        <h1>Как найти максимум функции <span class="formula">y = log₂(−x² + 4x + 5)</span> без лишней производной</h1>
+        <p class="subtitle">Главная идея этой задачи: логарифм с основанием больше 1 сохраняет порядок. Значит, максимум логарифма достигается там же, где максимум подлогарифмического выражения — но только после проверки области определения.</p>
+        <div class="hero-grid">
+            <div class="card hero-card">
+                <div class="mini-grid">
+                    <div class="mini"><b>Что дано</b><span>Функция вида <span class="inline-math">log₂(g(x))</span>, где <span class="inline-math">g(x)=−x²+4x+5</span>.</span></div>
+                    <div class="mini"><b>Что найти</b><span>Абсциссу точки максимума, то есть значение <span class="inline-math">x</span>, при котором функция наибольшая.</span></div>
+                    <div class="mini"><b>Ключ</b><span>Исследуем не весь логарифм, а параболу внутри него, не забывая ОДЗ.</span></div>
+                </div>
+                <div class="toolbar">
+                    <button id="showAllBtn">Показать итог</button>
+                    <button class="secondary" id="focusIdeaBtn">Перейти к идее</button>
+                    <button class="secondary" id="focusTrainerBtn">Перейти к тренировке</button>
+                    <button class="ghost" onclick="window.print()">Печать / PDF</button>
+                </div>
+            </div>
+            <div class="card hero-card">
+                <h3 style="margin-top:0">Памятка в одну строку</h3>
+                <div class="idea">Для функции вида <span class="inline-math">y = logₐ(g(x))</span> при <span class="inline-math">a &gt; 1</span> максимум и минимум ищутся по <span class="inline-math">g(x)</span>, но сначала обязательно проверяется условие <span class="inline-math">g(x) &gt; 0</span>.</div>
+                <p class="print-note" style="margin:12px 0 0">Ниже есть: пошаговый разбор, интерактивный график, типичные ошибки, мини‑квиз и генератор похожих задач.</p>
+            </div>
+        </div>
+    </section>
+
+    <main class="workspace">
+        <div class="left-col">
+            <section class="card section" id="ideaSection">
+                <h2>Идея решения</h2>
+                <div class="idea">Вместо громоздкого исследования функции <span class="inline-math">y = log₂(−x² + 4x + 5)</span> мы выделяем внутреннюю часть <span class="inline-math">g(x)=−x²+4x+5</span>. Так как основание логарифма равно 2, а значит больше 1, логарифм возрастает. Следовательно, там, где парабола <span class="inline-math">g(x)</span> достигает максимума, там же максимум достигает и исходная функция.</div>
+            </section>
+
+            <section class="card section">
+                <h2>Пошаговый разбор</h2>
+                <p class="lead">Нажимайте на шаги: график справа будет подсвечивать нужный смысловой фрагмент.</p>
+                <div class="steps" id="steps">
+                    <a class="step step-link active" data-step="1" href="#vizPanel">
+                        <div><span class="step-num">1</span><strong>Выделяем внутреннюю функцию</strong></div>
+                        <div class="math">g(x) = −x² + 4x + 5</div>
+                        <div>Тогда исходная функция записывается как <span class="inline-math">y = log₂(g(x))</span>. Это главный переход: теперь мы понимаем, что именно нужно изучать.</div>
+                    </a>
+                    <a class="step step-link" data-step="2" href="#vizPanel">
+                        <div><span class="step-num">2</span><strong>Проверяем область допустимых значений</strong></div>
+                        <div class="math">g(x) &gt; 0 ⇔ −x² + 4x + 5 &gt; 0</div>
+                        <div class="math">x² − 4x − 5 &lt; 0 ⇔ (x − 5)(x + 1) &lt; 0</div>
+                        <div>Значит, функция определена только при <span class="inline-math">−1 &lt; x &lt; 5</span>. За пределами этого интервала логарифм не существует.</div>
+                    </a>
+                    <a class="step step-link" data-step="3" href="#vizPanel">
+                        <div><span class="step-num">3</span><strong>Используем свойство логарифма</strong></div>
+                        <div class="math">2 &gt; 1, значит функция log₂(t) возрастает</div>
+                        <div>Если <span class="inline-math">g(x)</span> растёт, то и <span class="inline-math">log₂(g(x))</span> растёт. Если <span class="inline-math">g(x)</span> убывает, то и логарифм убывает. Поэтому максимум у них общий.</div>
+                    </a>
+                    <a class="step step-link" data-step="4" href="#vizPanel">
+                        <div><span class="step-num">4</span><strong>Находим вершину параболы</strong></div>
+                        <div class="math">x₀ = −b / (2a) = −4 / (2·(−1)) = 2</div>
+                        <div>Парабола <span class="inline-math">g(x)=−x²+4x+5</span> направлена ветвями вниз, поэтому вершина даёт максимум.</div>
+                    </a>
+                    <a class="step step-link" data-step="5" href="#vizPanel">
+                        <div><span class="step-num">5</span><strong>Проверяем, что вершина лежит в ОДЗ</strong></div>
+                        <div class="math">−1 &lt; 2 &lt; 5</div>
+                        <div>Да, точка вершины не выходит из области определения, значит она подходит для исходной логарифмической функции.</div>
+                    </a>
+                    <a class="step step-link" data-step="6" href="#vizPanel">
+                        <div><span class="step-num">6</span><strong>Формулируем ответ</strong></div>
+                        <div class="math">Ответ: x = 2</div>
+                        <div>Именно абсцисса <span class="inline-math">x=2</span> является абсциссой точки максимума функции.</div>
+                    </a>
+                </div>
+            </section>
+
+            <section class="card section">
+                <h2>Что важно запомнить</h2>
+                <div class="grid-2">
+                    <div>
+                        <h3>Алгоритм</h3>
+                        <ol class="checklist">
+                            <li>Выделить подлогарифмическое выражение <span class="inline-math">g(x)</span>.</li>
+                            <li>Обязательно проверить ОДЗ: <span class="inline-math">g(x) &gt; 0</span>.</li>
+                            <li>Понять, возрастает или убывает внешний слой функции.</li>
+                            <li>Найти максимум или минимум у внутренней функции.</li>
+                            <li>Проверить, что найденная точка попадает в ОДЗ.</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h3>Когда так можно делать</h3>
+                        <ul class="checklist">
+                            <li>Для <span class="inline-math">logₐ(g(x))</span> при понятной монотонности логарифма.</li>
+                            <li>Для <span class="inline-math">a^{g(x)}</span> при <span class="inline-math">a &gt; 1</span> или <span class="inline-math">0 &lt; a &lt; 1</span>.</li>
+                            <li>Для некоторых корней и степеней, если внешний слой монотонен на нужной области.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card section">
+                <h2>Типичные ошибки</h2>
+                <div class="mistakes">
+                    <div class="mistake"><b>Ошибка 1.</b> Сразу ищут вершину параболы и забывают, что логарифм существует только при положительном подлогарифмическом выражении.</div>
+                    <div class="mistake"><b>Ошибка 2.</b> Начинают брать производную от всего логарифма, хотя здесь можно решить короче и надёжнее.</div>
+                    <div class="mistake"><b>Ошибка 3.</b> Путают, что значит «найти максимум функции» и «найти абсциссу точки максимума». В ответе нужен именно <span class="inline-math">x</span>, а не значение <span class="inline-math">y</span>.</div>
+                    <div class="mistake"><b>Ошибка 4.</b> Не учитывают, что при основании логарифма меньше 1 направление сравнения меняется.</div>
+                </div>
+            </section>
+
+            <section class="card section" id="quizSection">
+                <h2>Мини‑квиз</h2>
+                <div class="quiz" id="quiz">
+                    <div class="task-box"><strong>Вопрос.</strong> Почему максимум функции <span class="inline-math">y = log₂(−x²+4x+5)</span> достигается там же, где максимум у параболы <span class="inline-math">−x²+4x+5</span>?</div>
+                    <button class="option" data-correct="0">Потому что логарифм всегда превращает максимум в минимум.</button>
+                    <button class="option" data-correct="1">Потому что логарифм с основанием 2 возрастает и сохраняет порядок значений.</button>
+                    <button class="option" data-correct="0">Потому что у любой логарифмической функции максимум равен вершине параболы.</button>
+                    <div class="feedback" id="quizFeedback">Выберите вариант.</div>
+                </div>
+            </section>
+
+            <section class="card section" id="trainerSection">
+                <h2>Генератор похожих задач</h2>
+                <div class="trainer">
+                    <div class="task-box">
+                        <div class="pill">Формат задачи</div>
+                        <p id="generatedTask" style="font-size:20px;margin:10px 0 8px;font-family:'Cambria Math','Times New Roman',serif">Найдите абсциссу точки максимума функции y = log₂(−x² + 6x + 7).</p>
+                        <div class="answer-row">
+                            <input type="number" id="userAnswer" placeholder="Введите x" step="any" />
+                            <button id="checkAnswerBtn">Проверить</button>
+                            <button class="secondary" id="newTaskBtn">Новая задача</button>
+                            <button class="ghost" id="showHintBtn">Подсказка</button>
+                            <button class="ghost" id="showSolutionBtn">Краткое решение</button>
+                        </div>
+                        <div class="feedback" id="trainerFeedback" style="margin-top:12px">Сгенерирована корректная задача без вырождений. Решение всегда строится по той же логике: ОДЗ → внутренняя парабола → вершина → проверка.</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <aside class="right-col" id="vizPanel">
+            <section class="card viz">
+                <div class="viz-top">
+                    <div class="viz-title">
+                        <h2>Интерактивная визуализация</h2>
+                        <p>Слева — шаги решения, здесь — их графический смысл. Клик по графику откроет увеличенный режим.</p>
+                    </div>
+                    <div class="toolbar" style="margin-top:0"><button class="secondary" id="openModalBtn">Открыть крупно</button></div>
+                </div>
+                <div class="status">
+                    <div class="box"><div class="label">ОДЗ</div><div class="value">(−1; 5)</div></div>
+                    <div class="box"><div class="label">Вершина g(x)</div><div class="value">x = 2</div></div>
+                    <div class="box"><div class="label">Ответ</div><div class="value">2</div></div>
+                </div>
+                <div class="controls">
+                    <div class="range-wrap"><label for="zoomRange">Масштаб графика</label><input id="zoomRange" type="range" min="0.8" max="2.4" step="0.02" value="1.2" /></div>
+                    <div class="row">
+                        <button class="secondary" id="zoomInBtn">+</button>
+                        <button class="secondary" id="zoomOutBtn">−</button>
+                        <button class="secondary" id="resetViewBtn">Сброс</button>
+                        <button class="ghost" id="toggleODZBtn">Скрыть ОДЗ</button>
+                        <button class="ghost" id="toggleVertexBtn">Скрыть вершину</button>
+                    </div>
+                </div>
+                <div class="canvas-shell" id="canvasShell" title="Нажмите, чтобы открыть график крупно"><canvas id="graphCanvas" aria-label="Интерактивный график"></canvas></div>
+                <div class="legend">
+                    <span><i class="sw" style="background:var(--accent)"></i> Парабола g(x)=−x²+4x+5</span>
+                    <span><i class="sw" style="background:var(--accent-2)"></i> Область определения логарифма</span>
+                    <span><i class="sw" style="background:var(--accent-3)"></i> Вершина параболы и максимум</span>
+                </div>
+            </section>
+        </aside>
+    </main>
+
+    <div class="footer">Смысл задачи: не усложнять вычисления там, где структура функции уже подсказывает решение.</div>
+</div>
+
+<div class="hint" id="hintBox" role="tooltip" aria-live="polite">
+    <button class="close" id="closeHintBtn" aria-label="Закрыть подсказку">×</button>
+    <strong>Подсказка</strong>
+    Начните не с производной, а с вопроса: какая функция спрятана внутри логарифма и где она принимает максимум?
+</div>
+
+<div class="modal" id="graphModal" aria-hidden="true">
+    <div class="modal-card">
+        <div class="modal-head">
+            <h3>Увеличенный график</h3>
+            <div class="row">
+                <button class="secondary" id="modalZoomIn">+</button>
+                <button class="secondary" id="modalZoomOut">−</button>
+                <button class="secondary" id="modalReset">Сброс</button>
+                <button id="closeModalBtn">Закрыть</button>
+            </div>
+        </div>
+        <div class="modal-canvas-wrap"><canvas id="modalCanvas"></canvas></div>
+        <div class="print-note">Состояние синхронизировано с основным графиком: масштаб и вид одинаковые.</div>
+    </div>
+</div>
+
+<script>
+    const state = { zoom: 1.2, panX: 0, panY: 0, showODZ: true, showVertex: true, activeStep: 1, drag: {on:false,x:0,y:0}, trainer: null };
+    const functionData = { f(x){ return -(x*x) + 4*x + 5; }, vertexX: 2, vertexY: 9, odzLeft: -1, odzRight: 5 };
+    const mainCanvas = document.getElementById('graphCanvas');
+    const modalCanvas = document.getElementById('modalCanvas');
+    const ctxMain = mainCanvas.getContext('2d');
+    const ctxModal = modalCanvas.getContext('2d');
+    const canvases = [{canvas: mainCanvas, ctx: ctxMain}, {canvas: modalCanvas, ctx: ctxModal}];
+
+    function resizeCanvas(canvas){
+        const rect = canvas.getBoundingClientRect();
+        const dpr = Math.max(window.devicePixelRatio || 1, 1);
+        const w = Math.max(300, Math.round(rect.width * dpr));
+        const h = Math.max(240, Math.round(rect.height * dpr));
+        if (canvas.width !== w || canvas.height !== h){ canvas.width = w; canvas.height = h; }
+    }
+    function getWorldBox(){
+        const baseX = 6, baseY = 10, k = state.zoom;
+        return { xmin: -baseX / k + state.panX, xmax: baseX / k + state.panX, ymin: -baseY / k + state.panY, ymax: baseY / k + state.panY };
+    }
+    function worldToScreen(x,y,canvas){
+        const box = getWorldBox();
+        return { x:(x-box.xmin)/(box.xmax-box.xmin)*canvas.width, y:canvas.height-(y-box.ymin)/(box.ymax-box.ymin)*canvas.height };
+    }
+    function drawAxes(ctx, canvas){
+        const box = getWorldBox();
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        const bg = ctx.createLinearGradient(0,0,0,canvas.height);
+        bg.addColorStop(0,'#0b1227'); bg.addColorStop(1,'#08101f');
+        ctx.fillStyle = bg; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.lineWidth = 1;
+        for(let x=Math.floor(box.xmin); x<=Math.ceil(box.xmax); x++){
+            const p = worldToScreen(x,0,canvas);
+            ctx.strokeStyle = x === 0 ? 'rgba(255,255,255,.28)' : 'rgba(255,255,255,.07)';
+            ctx.beginPath(); ctx.moveTo(p.x,0); ctx.lineTo(p.x,canvas.height); ctx.stroke();
+        }
+        for(let y=Math.floor(box.ymin); y<=Math.ceil(box.ymax); y++){
+            const p = worldToScreen(0,y,canvas);
+            ctx.strokeStyle = y === 0 ? 'rgba(255,255,255,.28)' : 'rgba(255,255,255,.07)';
+            ctx.beginPath(); ctx.moveTo(0,p.y); ctx.lineTo(canvas.width,p.y); ctx.stroke();
+        }
+        const ox = worldToScreen(0,0,canvas).x, oy = worldToScreen(0,0,canvas).y;
+        ctx.strokeStyle = 'rgba(255,255,255,.42)'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(0,oy); ctx.lineTo(canvas.width,oy); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(ox,canvas.height); ctx.lineTo(ox,0); ctx.stroke();
+        ctx.fillStyle = 'rgba(235,241,255,.72)'; ctx.font = `${Math.max(16, canvas.width*0.018)}px Inter, sans-serif`;
+        for(let x=Math.floor(box.xmin); x<=Math.ceil(box.xmax); x++){ const p = worldToScreen(x,0,canvas); if (p.x > 18 && p.x < canvas.width-18) ctx.fillText(String(x), p.x+4, oy+22); }
+        for(let y=Math.floor(box.ymin); y<=Math.ceil(box.ymax); y++){ if(y===0) continue; const p = worldToScreen(0,y,canvas); if (p.y > 18 && p.y < canvas.height-14) ctx.fillText(String(y), ox+8, p.y-4); }
+        ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.fillText('x', canvas.width-18, oy-10); ctx.fillText('y', ox+10, 24);
+    }
+    function roundRect(ctx, x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+    function drawFunction(ctx, canvas){
+        drawAxes(ctx, canvas);
+        if(state.showODZ){
+            const p1 = worldToScreen(functionData.odzLeft,0,canvas), p2 = worldToScreen(functionData.odzRight,0,canvas);
+            ctx.strokeStyle = 'rgba(122,166,255,.95)'; ctx.lineWidth = 8; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+            ctx.fillStyle = 'rgba(122,166,255,.95)'; ctx.beginPath(); ctx.arc(p1.x,p1.y,6,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(p2.x,p2.y,6,0,Math.PI*2); ctx.fill();
+            ctx.font = `${Math.max(16, canvas.width*0.018)}px Inter, sans-serif`; ctx.fillText('ОДЗ: −1 < x < 5', (p1.x+p2.x)/2 - 54, p1.y - 14);
+        }
+        ctx.beginPath();
+        const box = getWorldBox();
+        const step = (box.xmax-box.xmin)/600;
+        let started = false;
+        for(let x=box.xmin; x<=box.xmax; x+=step){ const y = functionData.f(x); const p = worldToScreen(x,y,canvas); if(!started){ctx.moveTo(p.x,p.y); started=true;} else ctx.lineTo(p.x,p.y); }
+        const grad = ctx.createLinearGradient(0,0,canvas.width,0); grad.addColorStop(0,'rgba(110,231,216,.5)'); grad.addColorStop(1,'rgba(110,231,216,1)');
+        ctx.strokeStyle = grad; ctx.lineWidth = state.activeStep >= 4 ? 5 : 4; ctx.shadowColor = 'rgba(110,231,216,.35)'; ctx.shadowBlur = 18; ctx.stroke(); ctx.shadowBlur = 0;
+        if(state.activeStep >= 4 && state.showVertex){
+            const pv = worldToScreen(functionData.vertexX, functionData.vertexY, canvas), px = worldToScreen(functionData.vertexX, 0, canvas);
+            ctx.strokeStyle = 'rgba(255,209,102,.95)'; ctx.setLineDash([10,8]); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(pv.x,pv.y); ctx.lineTo(px.x,px.y); ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(255,209,102,.98)'; ctx.beginPath(); ctx.arc(pv.x,pv.y,8,0,Math.PI*2); ctx.fill();
+            ctx.font = `${Math.max(16, canvas.width*0.019)}px Inter, sans-serif`; ctx.fillText('вершина: (2; 9)', pv.x + 12, pv.y - 14);
+        }
+        if(state.activeStep === 3){
+            const p1 = worldToScreen(0.3, functionData.f(0.3), canvas), p2 = worldToScreen(3.6, functionData.f(3.6), canvas);
+            ctx.strokeStyle = 'rgba(255,209,102,.85)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+            ctx.fillStyle = 'rgba(255,209,102,.95)'; ctx.fillText('слева растёт, справа убывает', p1.x + 18, p1.y - 18);
+        }
+        if(state.activeStep === 2){
+            [-1,5].forEach(r => { const p = worldToScreen(r,0,canvas); ctx.fillStyle = 'rgba(122,166,255,.96)'; ctx.beginPath(); ctx.arc(p.x,p.y,7,0,Math.PI*2); ctx.fill(); });
+        }
+        if(state.activeStep === 6){
+            const p = worldToScreen(functionData.vertexX, functionData.vertexY, canvas); const text = 'ответ: x = 2';
+            ctx.font = `700 ${Math.max(18, canvas.width*0.022)}px Inter, sans-serif`; const w = ctx.measureText(text).width + 24;
+            ctx.fillStyle = 'rgba(8,17,31,.88)'; ctx.strokeStyle = 'rgba(110,231,216,.55)'; ctx.lineWidth = 1.5; roundRect(ctx, p.x - 18, p.y - 58, w, 38, 12); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#ebf1ff'; ctx.fillText(text, p.x - 6, p.y - 32);
+        }
+    }
+    function renderAll(){ canvases.forEach(({canvas,ctx})=>{ resizeCanvas(canvas); drawFunction(ctx,canvas); }); document.getElementById('zoomRange').value = state.zoom.toFixed(2); document.getElementById('toggleODZBtn').textContent = state.showODZ ? 'Скрыть ОДЗ' : 'Показать ОДЗ'; document.getElementById('toggleVertexBtn').textContent = state.showVertex ? 'Скрыть вершину' : 'Показать вершину'; }
+    function setActiveStep(step){ state.activeStep = step; document.querySelectorAll('.step').forEach(el => el.classList.toggle('active', Number(el.dataset.step) === step)); renderAll(); }
+    document.querySelectorAll('.step').forEach(step => step.addEventListener('click', ()=> setActiveStep(Number(step.dataset.step))));
+    function attachCanvasInteractions(canvas){
+        canvas.addEventListener('wheel', e => { e.preventDefault(); state.zoom = Math.min(2.8, Math.max(0.7, state.zoom * (e.deltaY < 0 ? 1.08 : 0.92))); renderAll(); }, {passive:false});
+        canvas.addEventListener('pointerdown', e => { state.drag.on = true; state.drag.x = e.clientX; state.drag.y = e.clientY; canvas.setPointerCapture(e.pointerId); });
+        canvas.addEventListener('pointermove', e => { if(!state.drag.on) return; const dx = e.clientX - state.drag.x, dy = e.clientY - state.drag.y; const box = getWorldBox(); state.panX -= dx / canvas.width * (box.xmax-box.xmin); state.panY += dy / canvas.height * (box.ymax-box.ymin); state.drag.x = e.clientX; state.drag.y = e.clientY; renderAll(); });
+        ['pointerup','pointercancel','pointerleave'].forEach(name => canvas.addEventListener(name, ()=> state.drag.on = false));
+    }
+    attachCanvasInteractions(mainCanvas); attachCanvasInteractions(modalCanvas);
+    document.getElementById('zoomRange').addEventListener('input', e => { state.zoom = Number(e.target.value); renderAll(); });
+    document.getElementById('zoomInBtn').addEventListener('click', () => { state.zoom = Math.min(2.8, state.zoom + 0.12); renderAll(); });
+    document.getElementById('zoomOutBtn').addEventListener('click', () => { state.zoom = Math.max(0.7, state.zoom - 0.12); renderAll(); });
+    document.getElementById('resetViewBtn').addEventListener('click', () => { state.zoom = 1.2; state.panX = 0; state.panY = 0; renderAll(); });
+    document.getElementById('toggleODZBtn').addEventListener('click', () => { state.showODZ = !state.showODZ; renderAll(); });
+    document.getElementById('toggleVertexBtn').addEventListener('click', () => { state.showVertex = !state.showVertex; renderAll(); });
+    const modal = document.getElementById('graphModal');
+    function openModal(){ modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); renderAll(); }
+    function closeModal(){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }
+    document.getElementById('openModalBtn').addEventListener('click', openModal); document.getElementById('canvasShell').addEventListener('click', openModal); document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
+    document.getElementById('modalZoomIn').addEventListener('click', () => { state.zoom = Math.min(2.8, state.zoom + 0.12); renderAll(); });
+    document.getElementById('modalZoomOut').addEventListener('click', () => { state.zoom = Math.max(0.7, state.zoom - 0.12); renderAll(); });
+    document.getElementById('modalReset').addEventListener('click', () => { state.zoom = 1.2; state.panX = 0; state.panY = 0; renderAll(); });
+    document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closeModal(); document.getElementById('hintBox').style.display = 'none'; } });
+    document.getElementById('showAllBtn').addEventListener('click', () => { setActiveStep(6); document.getElementById('vizPanel').scrollIntoView({behavior:'smooth', block:'start'}); });
+    document.getElementById('focusIdeaBtn').addEventListener('click', () => document.getElementById('ideaSection').scrollIntoView({behavior:'smooth'}));
+    document.getElementById('focusTrainerBtn').addEventListener('click', () => document.getElementById('trainerSection').scrollIntoView({behavior:'smooth'}));
+    document.querySelectorAll('#quiz .option').forEach(btn => btn.addEventListener('click', () => {
+        const correct = btn.dataset.correct === '1';
+        document.querySelectorAll('#quiz .option').forEach(b => { b.classList.remove('correct','wrong'); if(b.dataset.correct === '1') b.classList.add('correct'); });
+        if(!correct) btn.classList.add('wrong');
+        document.getElementById('quizFeedback').textContent = correct ? 'Верно. Основание 2 больше 1, значит логарифм возрастает и сохраняет порядок значений.' : 'Не совсем. Здесь важно свойство: log₂(t) возрастает, потому что основание больше 1.';
+    }));
+    function generateTask(){
+        const h = 2 + Math.floor(Math.random()*7); const k = 4 + Math.floor(Math.random()*7); const b = 2*h; const c = k - h*h; const base = [2,3,4,5][Math.floor(Math.random()*4)];
+        state.trainer = {h,k,b,c,base,answer:h};
+        const signC = c >= 0 ? `+ ${c}` : `− ${Math.abs(c)}`;
+        document.getElementById('generatedTask').textContent = `Найдите абсциссу точки максимума функции y = log₍${base}₎(−x² + ${b}x ${signC}).`;
+        document.getElementById('trainerFeedback').textContent = 'Новая задача готова. Подумайте: сначала ОДЗ, затем вершина параболы.';
+        document.getElementById('userAnswer').value = '';
+    }
+    generateTask();
+    document.getElementById('newTaskBtn').addEventListener('click', generateTask);
+    document.getElementById('checkAnswerBtn').addEventListener('click', () => {
+        const val = Number(document.getElementById('userAnswer').value); const fb = document.getElementById('trainerFeedback');
+        if(Number.isNaN(val)){ fb.textContent = 'Сначала введите число.'; return; }
+        if(Math.abs(val - state.trainer.answer) < 1e-9) fb.innerHTML = `Верно. Ответ: <b>${state.trainer.answer}</b>. Вершина параболы имеет абсциссу x = −b/(2a) = ${state.trainer.answer}.`;
+        else fb.innerHTML = `Пока нет. Подсказка: здесь <b>a = −1</b>, <b>b = ${state.trainer.b}</b>, значит ищем вершину по формуле <b>x = −b/(2a)</b>.`;
+    });
+    document.getElementById('showHintBtn').addEventListener('click', () => { document.getElementById('trainerFeedback').innerHTML = `Подсказка: у параболы максимум в вершине. Используйте формулу <b>x = −b/(2a)</b>.`; });
+    document.getElementById('showSolutionBtn').addEventListener('click', () => { document.getElementById('trainerFeedback').innerHTML = `Краткое решение: подлогарифмическая функция — парабола, ветви направлены вниз. Здесь <b>a = −1</b>, <b>b = ${state.trainer.b}</b>, значит <b>x = −${state.trainer.b}/(2·(−1)) = ${state.trainer.answer}</b>. Ответ: <b>${state.trainer.answer}</b>.`; });
+    const hintBox = document.getElementById('hintBox'); document.getElementById('closeHintBtn').addEventListener('click', () => hintBox.style.display = 'none');
+    if(sessionStorage.getItem('nm_hint_shown')) hintBox.style.display = 'none';
+    else { setTimeout(() => { hintBox.style.display = 'block'; sessionStorage.setItem('nm_hint_shown','1'); setTimeout(() => { hintBox.style.display = 'none'; }, 15000); }, 3000); }
+    window.addEventListener('resize', renderAll);
+    renderAll();
+</script>
+</body>
+</html>
