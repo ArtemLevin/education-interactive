@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — трапеция</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230d1b2a'/%3E%3Cpath d='M14 46 22 18h20l8 28Z' fill='none' stroke='%232ee6c6' stroke-width='4'/%3E%3Cpath d='M22 30h20' stroke='%23ffd166' stroke-width='4'/%3E%3C/svg%3E" />
+    <style>
+        :root{
+            --bg:#08111f;
+            --bg2:#0f1d33;
+            --panel:#101b2d;
+            --panel2:#16233a;
+            --text:#ebf4ff;
+            --muted:#9ab0ca;
+            --accent:#2ee6c6;
+            --accent2:#6ea8ff;
+            --accent3:#ffd166;
+            --accent4:#ff6bb7;
+            --line:#26415f;
+            --good:#76e39e;
+            --warn:#ffb86c;
+            --shadow:0 16px 40px rgba(0,0,0,.32);
+            --radius:20px;
+            --radius-sm:14px;
+            --stickyTop:18px;
+            --stepGlow:0 0 0 1px rgba(46,230,198,.28), 0 0 24px rgba(46,230,198,.16);
+        }
+        body.light{
+            --bg:#f4f8fc;
+            --bg2:#ffffff;
+            --panel:#ffffff;
+            --panel2:#eef5ff;
+            --text:#132238;
+            --muted:#5f7391;
+            --accent:#007f73;
+            --accent2:#2765d1;
+            --accent3:#d08a00;
+            --accent4:#c02c7a;
+            --line:#cfe0f6;
+            --good:#238c4b;
+            --warn:#b36300;
+            --shadow:0 12px 28px rgba(32,63,100,.14);
+            --stepGlow:0 0 0 1px rgba(0,127,115,.22), 0 0 20px rgba(39,101,209,.11);
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;scroll-behavior:smooth}
+        body{min-height:100vh}
+        .page{max-width:1500px;margin:0 auto;padding:18px 18px 56px}
+        .topbar{
+            display:grid;grid-template-columns:1.4fr .9fr auto;gap:14px;align-items:stretch;margin-bottom:18px;
+        }
+        .hero,.controlsTop,.themeBox{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+        .hero{padding:20px 22px;position:relative;overflow:hidden}
+        .hero::after{
+            content:'';position:absolute;inset:auto -10% -40% 30%;height:180px;background:radial-gradient(circle at center, rgba(46,230,198,.14), transparent 62%);pointer-events:none;
+        }
+        h1{margin:0;font-size:clamp(30px,4vw,54px);line-height:1.02;letter-spacing:.02em}
+        .subtitle{margin-top:10px;color:var(--muted);max-width:950px;font-size:clamp(15px,1.5vw,19px)}
+        .heroBadges{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+        .badge{padding:9px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:14px}
+        .badge strong{color:var(--accent)}
+        .controlsTop{padding:14px 16px;display:grid;gap:10px}
+        .controlsTop h2,.themeBox h2{margin:0 0 4px 0;font-size:16px}
+        .miniMeta{display:grid;gap:8px;color:var(--muted);font-size:14px}
+        .themeBox{padding:14px 16px;display:grid;align-content:start;gap:10px;min-width:180px}
+        button,select,input[type="range"]{font:inherit}
+        .themeToggle,.mainBtn,.ghostBtn,.tabBtn,.stepBtn,.chipBtn,.quizBtn,.genBtn,.hintAction{
+            border:none;border-radius:14px;padding:12px 14px;cursor:pointer;transition:.22s transform,.22s box-shadow,.22s background,.22s opacity;
+        }
+        .themeToggle,.mainBtn,.genBtn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04111d;font-weight:800;box-shadow:0 10px 24px rgba(46,230,198,.22)}
+        .ghostBtn,.chipBtn,.stepBtn,.quizBtn,.hintAction,.tabBtn{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+        button:hover{transform:translateY(-1px)}
+        button:active{transform:translateY(1px)}
+        .layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(400px,.92fr);gap:18px;align-items:start}
+        .leftCol{display:grid;gap:18px}
+        .panel{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+        .panelHeader{padding:16px 18px 0}
+        .panelBody{padding:16px 18px 18px}
+        .topicTabs{display:flex;flex-wrap:wrap;gap:10px}
+        .tabBtn.active{background:linear-gradient(135deg,rgba(46,230,198,.18),rgba(110,168,255,.18));border-color:rgba(46,230,198,.45);box-shadow:var(--stepGlow)}
+        .overviewGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+        .miniCard{padding:14px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+        .miniCard h3{margin:0 0 8px 0;font-size:16px}
+        .miniCard p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+        .sectionTitle{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+        .sectionTitle h2,.sectionTitle h3{margin:0}
+        .ideaList,.mistakeList,.checkList,.legendList,.memoryList{display:grid;gap:10px}
+        .ideaItem,.mistakeItem,.checkItem,.legendItem,.memoryItem,.quizOption,.selfLine{
+            padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03);
+        }
+        .stageWrap{display:grid;gap:10px}
+        .stage{
+            border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:18px;overflow:hidden;
+        }
+        .stage.activeStage{box-shadow:var(--stepGlow)}
+        .stageHead{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer}
+        .stageHeadLeft{display:flex;gap:12px;align-items:center}
+        .stageNum{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04111d;font-weight:900}
+        .stageContent{padding:0 14px 14px;display:none}
+        .stage.open .stageContent{display:block}
+        .stepTags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+        .stepTag{padding:6px 8px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:13px}
+        .stepActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+        .formulaBox{padding:12px 14px;border-radius:16px;border:1px dashed rgba(46,230,198,.45);background:rgba(46,230,198,.08);overflow:auto}
+        .mathBlock{font-size:clamp(18px,2vw,28px);font-weight:800}
+        .mathInline math,.mathBlock math{color:var(--text)}
+        .note{padding:12px 14px;border-left:4px solid var(--accent3);background:rgba(255,209,102,.08);border-radius:14px;color:var(--text);margin-top:10px}
+        .muted{color:var(--muted)}
+        .stickyCol{position:sticky;top:var(--stickyTop);display:grid;gap:18px}
+        .vizPanel{padding:14px;border-radius:24px;background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);box-shadow:var(--shadow)}
+        .vizTop{display:grid;gap:12px;margin-bottom:12px}
+        .vizToolbar{display:grid;grid-template-columns:1fr auto auto auto auto;gap:10px;align-items:center}
+        .zoomWrap{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.03)}
+        .toggleRow{display:flex;gap:8px;flex-wrap:wrap}
+        .chipBtn.active{background:rgba(46,230,198,.14);border-color:rgba(46,230,198,.45);color:var(--text)}
+        .canvasWrap{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);background:radial-gradient(circle at 50% 30%, rgba(110,168,255,.12), transparent 38%), linear-gradient(180deg,#0d1524,#0a1120);min-height:520px;cursor:grab;user-select:none}
+        body.light .canvasWrap{background:radial-gradient(circle at 50% 30%, rgba(39,101,209,.08), transparent 35%), linear-gradient(180deg,#f8fbff,#e9f1fb)}
+        .canvasWrap.dragging{cursor:grabbing}
+        svg{display:block;width:100%;height:auto}
+        .legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+        .legendItem{display:flex;gap:10px;align-items:flex-start}
+        .swatch{width:16px;height:16px;border-radius:4px;flex:0 0 16px;margin-top:3px}
+        .summaryBox{display:grid;gap:10px}
+        .summaryLine{padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+        .highlightLink{outline:2px solid rgba(46,230,198,.5)!important;background:rgba(46,230,198,.12)!important}
+        .tipsStrip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+        .genLayout,.quizLayout,.selfLayout{display:grid;gap:14px}
+        .controlsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+        label{display:grid;gap:6px;font-size:14px;color:var(--muted)}
+        select{background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:12px;border-radius:14px}
+        .generatedTask,.quizResult,.selfResult{padding:14px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
+        .quizOptions{display:grid;gap:10px}
+        .quizOption{cursor:pointer}
+        .quizOption.correct{border-color:rgba(118,227,158,.5);background:rgba(118,227,158,.1)}
+        .quizOption.wrong{border-color:rgba(255,107,183,.5);background:rgba(255,107,183,.1)}
+        .inputRow{display:flex;gap:10px;flex-wrap:wrap}
+        input[type="number"],input[type="text"]{background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:12px;border-radius:14px;min-width:120px}
+        .footerNote{margin-top:10px;color:var(--muted);font-size:13px}
+        .hintHotspot{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:rgba(46,230,198,.14);color:var(--accent);font-weight:900;border:1px solid rgba(46,230,198,.38);cursor:pointer;position:relative;animation:hintPulse 2.1s infinite}
+        .hintGlow{animation:borderGlow 1.6s infinite alternate}
+        .hintPopover{
+            position:fixed;z-index:60;max-width:320px;background:linear-gradient(180deg,#071221,#0d1e35);border:1px solid rgba(46,230,198,.6);border-radius:18px;box-shadow:0 18px 38px rgba(0,0,0,.42), 0 0 0 2px rgba(110,168,255,.16);padding:12px 12px 10px;opacity:0;transform:translateY(6px) scale(.98);pointer-events:none;transition:.22s ease;
+        }
+        body.light .hintPopover{background:linear-gradient(180deg,#ffffff,#ecf4ff)}
+        .hintPopover.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+        .hintPopover .hintHead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}
+        .hintPopover .hintHead strong{color:var(--accent)}
+        .hintClose{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0 4px}
+        .hintBody{font-size:14px;line-height:1.45;color:var(--text)}
+        .hintArrow{position:absolute;width:14px;height:14px;background:inherit;border-left:1px solid rgba(46,230,198,.6);border-top:1px solid rgba(46,230,198,.6);transform:rotate(45deg)}
+        .hintActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+        .modal{position:fixed;inset:0;background:rgba(5,10,18,.76);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:80;padding:20px}
+        .modal.open{display:flex}
+        .modalInner{position:relative;width:min(1200px,96vw);max-height:92vh;background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:24px;padding:16px;box-shadow:var(--shadow)}
+        .modalClose{position:absolute;right:14px;top:12px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:22px;cursor:pointer}
+        .modalCanvas{border-radius:18px;overflow:hidden;border:1px solid var(--line);min-height:72vh;cursor:grab;background:inherit}
+        .modalCanvas.dragging{cursor:grabbing}
+        .printOnly{display:none}
+        .topSwitches{display:flex;gap:8px;flex-wrap:wrap}
+        .small{font-size:13px}
+        .sr{position:absolute!important;left:-9999px!important}
+        @keyframes hintPulse{
+            0%,100%{box-shadow:0 0 0 0 rgba(46,230,198,.0),0 0 0 0 rgba(46,230,198,.0)}
+            35%{box-shadow:0 0 0 7px rgba(46,230,198,.14),0 0 22px rgba(46,230,198,.18)}
+            70%{box-shadow:0 0 0 14px rgba(46,230,198,.0),0 0 0 rgba(46,230,198,.0)}
+        }
+        @keyframes borderGlow{
+            from{box-shadow:0 0 0 1px rgba(46,230,198,.35), 0 0 0 rgba(46,230,198,.0)}
+            to{box-shadow:0 0 0 1px rgba(46,230,198,.7), 0 0 24px rgba(110,168,255,.18)}
+        }
+        @keyframes hintBounce{
+            0%{transform:translateY(8px) scale(.95)}
+            55%{transform:translateY(-3px) scale(1.02)}
+            100%{transform:translateY(0) scale(1)}
+        }
+        .showBounce{animation:hintBounce .32s ease}
+        .hideOnMobile{display:inline-flex}
+        @media (max-width:1200px){
+            .layout{grid-template-columns:1fr}
+            .stickyCol{position:relative;top:0}
+        }
+        @media (max-width:900px){
+            .topbar{grid-template-columns:1fr}
+            .overviewGrid,.tipsStrip,.controlsGrid,.legend{grid-template-columns:1fr}
+            .vizToolbar{grid-template-columns:1fr 1fr 1fr;}
+            .zoomWrap{grid-column:1/-1}
+            .page{padding:12px 12px 44px}
+            .canvasWrap{min-height:420px}
+            .hideOnMobile{display:none}
+        }
+        @media print{
+            body{background:#fff;color:#000}
+            .topbar,.vizToolbar,.topicTabs,.stepActions,.genLayout .controlsGrid,.genBtn,.quizBtn,.inputRow,.hintHotspot,.modal,.themeBox,.controlsTop{display:none!important}
+            .layout{grid-template-columns:1fr}
+            .stickyCol{position:relative}
+            .panel,.vizPanel,.miniCard,.ideaItem,.mistakeItem,.checkItem,.legendItem,.summaryLine,.quizOption,.generatedTask,.quizResult,.selfResult,.stage,.note,.formulaBox{box-shadow:none!important;border-color:#b9c5d5!important;background:#fff!important;color:#000!important}
+            .stageContent{display:block!important}
+            .stageHead{cursor:default}
+            .printOnly{display:block}
+            .canvasWrap,.modalCanvas{background:#fff!important}
+            .page{max-width:none;padding:0}
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header class="topbar">
+        <section class="hero panel">
+            <h1>Трапеция: теория и задачи</h1>
+            <div class="subtitle">Наглядная интерактивная страница по мотивам предыдущего пособия: средняя линия, участок между диагоналями, сечение, параллельное основаниям, биссектрисы и полезные конструкции. Всё объясняется школьными методами, с опорой на рисунок, пошаговый разбор и визуальную проверку.</div>
+            <div class="heroBadges">
+                <div class="badge"><strong>Цель:</strong> подготовка к ОГЭ и объяснение с нуля</div>
+                <div class="badge"><strong>Уровень:</strong> базовый</div>
+                <div class="badge"><strong>Фокус:</strong> графическая интерпретация</div>
+                <div class="badge"><strong>Режим:</strong> пошаговое раскрытие</div>
+            </div>
+        </section>
+        <aside class="controlsTop panel">
+            <h2>Режим страницы</h2>
+            <div class="miniMeta">
+                <div>Автор: Лёвин Артём Александрович</div>
+                <div>Формулы и вычисления встроены в MathML.</div>
+                <div>Щёлкните по чертежу справа, чтобы открыть увеличенную модальную версию.</div>
+            </div>
+            <div class="topSwitches">
+                <button class="mainBtn" id="showAllBtn">Показать весь разбор</button>
+                <button class="ghostBtn" id="collapseBtn">Свернуть шаги</button>
+                <button class="ghostBtn" id="printBtn">Печать</button>
+            </div>
+        </aside>
+        <aside class="themeBox panel">
+            <h2>Тема оформления</h2>
+            <button class="themeToggle" id="themeToggle">Переключить тему</button>
+            <div class="small muted">Есть светлая и тёмная тема. Иконка вкладки остаётся читаемой в обоих режимах.</div>
+        </aside>
+    </header>
+
+    <main class="layout">
+        <section class="leftCol">
+            <section class="panel">
+                <div class="panelHeader sectionTitle">
+                    <h2>Выберите разбор</h2>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span class="muted small">Тип объяснения</span>
+                        <label class="sr" for="detailSelect">Степень подробности</label>
+                        <select id="detailSelect" aria-label="Переключение подробности">
+                            <option value="brief">Кратко</option>
+                            <option value="standard" selected>Стандартно</option>
+                            <option value="full">Очень подробно</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="panelBody">
+                    <div class="topicTabs" id="topicTabs"></div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="panelHeader sectionTitle">
+                    <h2>Карта темы</h2>
+                    <span class="muted">Что важно помнить перед задачами</span>
+                </div>
+                <div class="panelBody">
+                    <div class="overviewGrid" id="overviewGrid"></div>
+                </div>
+            </section>
+
+            <section class="panel" id="lessonPanel">
+                <div class="panelHeader sectionTitle">
+                    <h2 id="lessonTitle">Разбор</h2>
+                    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                        <span class="muted small">Пошаговый режим</span>
+                        <button class="stepBtn" id="prevStepBtn">← Назад</button>
+                        <button class="stepBtn" id="nextStepBtn">Вперёд →</button>
+                    </div>
+                </div>
+                <div class="panelBody">
+                    <section class="panel" style="background:rgba(255,255,255,.02);box-shadow:none;border-radius:18px;">
+                        <div class="panelBody">
+                            <div class="sectionTitle">
+                                <h3>Идея решения</h3>
+                                <span class="muted">Сначала стратегия, потом детали</span>
+                            </div>
+                            <div class="ideaList" id="ideaList"></div>
+                        </div>
+                    </section>
+
+                    <div class="stageWrap" id="stageWrap"></div>
+
+                    <section class="panel" style="background:rgba(255,255,255,.02);box-shadow:none;border-radius:18px;margin-top:14px;">
+                        <div class="panelBody">
+                            <div class="sectionTitle"><h3>Типичные ошибки</h3><span class="muted">На что чаще всего натыкаются</span></div>
+                            <div class="mistakeList" id="mistakeList"></div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="panelHeader sectionTitle">
+                    <h2>Похожая задача</h2>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span class="muted small">Генератор</span>
+                        <span class="hintHotspot" tabindex="0" data-hint="generator">?</span>
+                    </div>
+                </div>
+                <div class="panelBody genLayout">
+                    <div class="controlsGrid">
+                        <label>Тип задачи
+                            <select id="generatorType">
+                                <option value="sectionLength">Сечение, параллельное основаниям</option>
+                                <option value="midlineCenter">Участок средней линии между диагоналями</option>
+                                <option value="midline">Средняя линия</option>
+                            </select>
+                        </label>
+                        <label>Сложность
+                            <select id="generatorDifficulty">
+                                <option value="base">Базовая</option>
+                                <option value="plus">Чуть сложнее</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                        <button class="genBtn hintGlow" id="generateBtn">Сгенерировать задачу</button>
+                        <button class="ghostBtn" id="applyGeneratedBtn">Применить к модели</button>
+                        <span class="hintHotspot" tabindex="0" data-hint="typeSelect">i</span>
+                    </div>
+                    <div class="generatedTask" id="generatedTask"></div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="panelHeader sectionTitle">
+                    <h2>Мини-квиз</h2>
+                    <span class="muted">Проверка понимания идеи</span>
+                </div>
+                <div class="panelBody quizLayout">
+                    <div id="quizQuestion" class="generatedTask"></div>
+                    <div id="quizOptions" class="quizOptions"></div>
+                    <div id="quizResult" class="quizResult">Выберите вариант.</div>
+                    <button class="quizBtn" id="newQuizBtn">Другой вопрос</button>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="panelHeader sectionTitle">
+                    <h2>Самопроверка</h2>
+                    <span class="muted">Можно ввести ответ самому</span>
+                </div>
+                <div class="panelBody selfLayout">
+                    <div class="selfLine">Попробуйте самостоятельно найти длину выбранного в модели объекта и проверьте себя.</div>
+                    <div class="inputRow">
+                        <label>Ваш ответ
+                            <input type="number" id="selfAnswer" step="0.1" />
+                        </label>
+                        <button class="quizBtn" id="checkSelfBtn">Проверить</button>
+                    </div>
+                    <div id="selfResult" class="selfResult">Сейчас проверяется активная величина: <strong id="selfTargetName"></strong>.</div>
+                </div>
+            </section>
+        </section>
+
+        <aside class="stickyCol">
+            <section class="vizPanel">
+                <div class="vizTop">
+                    <div class="sectionTitle" style="margin-bottom:0;">
+                        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                            <h2 style="margin:0;">Интерактивная модель</h2>
+                            <span class="hintHotspot" tabindex="0" data-hint="zoom">!</span>
+                        </div>
+                        <span class="muted small">Щёлкните по схеме для увеличения</span>
+                    </div>
+                    <div class="vizToolbar">
+                        <div class="zoomWrap">
+                            <span>Зум</span>
+                            <input id="zoomRange" type="range" min="0.6" max="2.2" step="0.01" value="1" aria-label="Масштаб схемы" />
+                            <span id="zoomValue">100%</span>
+                        </div>
+                        <button class="ghostBtn" id="zoomOutBtn">−</button>
+                        <button class="ghostBtn" id="zoomInBtn">+</button>
+                        <button class="ghostBtn" id="resetViewBtn">Сброс</button>
+                        <button class="ghostBtn hideOnMobile" id="openModalBtn">Открыть</button>
+                    </div>
+                    <div class="toggleRow" id="toggleRow"></div>
+                </div>
+
+                <div class="canvasWrap" id="canvasWrap" tabindex="0" aria-label="Интерактивная схема трапеции"></div>
+                <div class="legend" id="legend"></div>
+                <div class="summaryBox" id="summaryBox"></div>
+            </section>
+
+            <section class="vizPanel">
+                <div class="sectionTitle"><h3>Памятка по методу</h3><span class="muted">Коротко и по делу</span></div>
+                <div class="tipsStrip" id="memoryStrip"></div>
+                <div class="footerNote">Управление разбором и чертежом синхронизировано: активный шаг подсвечивает нужные элементы схемы.</div>
+            </section>
+        </aside>
+    </main>
+
+    <section class="printOnly">
+        <h2>Печатная версия</h2>
+        <p>На печати остаются: теория, ключевые формулы, идея решения, шаги, проверка ответа, типичные ошибки и схема.</p>
+    </section>
+</div>
+
+<div class="modal" id="modal" aria-hidden="true">
+    <div class="modalInner">
+        <button class="modalClose" id="modalClose" aria-label="Закрыть увеличенную схему">×</button>
+        <div class="modalCanvas" id="modalCanvas"></div>
+    </div>
+</div>
+
+<div class="hintPopover" id="hintPopover" role="tooltip" aria-hidden="true">
+    <div class="hintArrow" id="hintArrow"></div>
+    <div class="hintHead">
+        <strong id="hintTitle"></strong>
+        <button class="hintClose" id="hintClose" aria-label="Закрыть подсказку">×</button>
+    </div>
+    <div class="hintBody" id="hintBody"></div>
+    <div class="hintActions" id="hintActions"></div>
+</div>
+
+<script>
+    const topics = [
+        {
+            id:'midline',
+            title:'Средняя линия трапеции',
+            short:'Соединяем середины боковых сторон и получаем полусумму оснований.',
+            targetName:'MN',
+            mathKey:'midline',
+            formulaSummary:'MN = (AD + BC) / 2',
+            overview:[
+                {title:'Что дано', text:'Трапеция ABCD, где AD и BC — основания. Точки M и N — середины боковых сторон.'},
+                {title:'Главная формула', text:'Средняя линия равна полусумме оснований.'},
+                {title:'Графическая идея', text:'Отрезок MN параллелен основаниям и проходит посередине фигуры.'}
+            ],
+            memory:['Ищите середины боковых сторон.','Средняя линия всегда параллельна основаниям.','Длина находится через полусумму оснований.'],
+            idea:[
+                'Сначала распознаём среднюю линию: это отрезок, соединяющий середины боковых сторон.',
+                'Потом вспоминаем ключевое свойство: средняя линия трапеции параллельна основаниям.',
+                'Главная формула сразу даёт ответ без дополнительных построений.',
+                'После вычисления полезно прикинуть: результат должен лежать между длинами оснований.'
+            ],
+            mistakes:[
+                'Путают полусумму с суммой и забывают делить на 2.',
+                'Берут в формулу боковую сторону вместо одного из оснований.',
+                'Не проверяют здравый смысл: средняя линия должна быть длиннее меньшего основания и короче большего.',
+                'Неверно распознают середины боковых сторон по рисунку.'
+            ],
+            stages:{
+                brief:[
+                    {id:'given', title:'Что дано', link:['bases','midline'], content:`<p>В трапеции <span data-link="bases">AD</span> и <span data-link="bases">BC</span> — основания, а <span data-link="midline">MN</span> соединяет середины боковых сторон.</p>`},
+                    {id:'meaning', title:'Что означает условие', link:['midline'], content:`<p>Это значит, что <span data-link="midline">MN</span> — средняя линия трапеции.</p>`},
+                    {id:'idea', title:'Ключевая идея', link:['midline'], content:`<div class="formulaBox"><div class="mathBlock">${mathML.midline}</div></div>`},
+                    {id:'answer', title:'Проверка и вывод', link:['midline'], content:`<p>Полученное значение обязано быть между длинами оснований. Это быстрая проверка ответа.</p>`}
+                ],
+                standard:[
+                    {id:'given', title:'1) Что дано', link:['bases','midline'], content:`<p>Рассматриваем трапецию ABCD, где <span data-link="bases">AD</span> и <span data-link="bases">BC</span> — основания, а точки M и N — середины боковых сторон. Значит, <span data-link="midline">MN</span> соединяет середины этих сторон.</p>`},
+                    {id:'mean', title:'2) Что означает каждое условие', link:['midline'], content:`<p>Если отрезок соединяет середины боковых сторон трапеции, то он называется <strong>средней линией</strong>. Для средней линии сразу известно важное свойство: она параллельна основаниям и имеет специальную формулу длины.</p>`},
+                    {id:'inter', title:'3) Геометрическая интерпретация', link:['bases','midline'], content:`<p>На рисунке видно, что <span data-link="midline">MN</span> проходит «посередине» трапеции. Поэтому её длина не может быть меньше меньшего основания и не может быть больше большего основания.</p>`},
+                    {id:'key', title:'4) Ключевая идея', link:['midline'], content:`<p>Главная мысль проста: не нужно ничего достраивать, если вы уже распознали среднюю линию.</p><div class="formulaBox"><div class="mathBlock">${mathML.midline}</div></div>`},
+                    {id:'finish', title:'5) Пошаговое доведение до ответа', link:['midline'], content:`<p>Подставляем длины оснований в формулу. Сначала складываем основания, затем делим результат пополам.</p><div class="note">Порядок действий важен: сначала полная сумма, потом деление на 2.</div>`},
+                    {id:'check', title:'6) Финальная проверка ответа по условию', link:['bases','midline'], content:`<p>Сравниваем найденное значение с длинами оснований. Оно должно лежать между <span data-link="bases">BC</span> и <span data-link="bases">AD</span>.</p>`},
+                    {id:'out', title:'7) Краткий вывод', link:['midline'], content:`<p>Если видите середины боковых сторон трапеции, почти всегда первым делом вспоминайте формулу средней линии.</p>`}
+                ],
+                full:[
+                    {id:'given', title:'1) Что дано', link:['bases','midline'], content:`<p>В условии есть трапеция ABCD. По записи <span data-link="bases">AD ∥ BC</span> сразу определяем основания. Отрезок <span data-link="midline">MN</span> соединяет середины боковых сторон, значит, он относится к специальным линиям трапеции.</p>`},
+                    {id:'mean', title:'2) Что означает каждое условие', link:['midline'], content:`<p>Указание на середины боковых сторон — это сигнал, что перед нами средняя линия. У средней линии два ключевых свойства:</p><ul><li>она параллельна основаниям;</li><li>её длина равна полусумме оснований.</li></ul>`},
+                    {id:'inter', title:'3) Геометрическая интерпретация', link:['bases','midline'], content:`<p>Средняя линия как будто усредняет длины оснований. Поэтому с графической точки зрения она занимает промежуточное положение и по расположению, и по длине.</p><div class="formulaBox"><div class="mathBlock">${mathML.midline}</div></div>`},
+                    {id:'key', title:'4) Ключевая идея', link:['midline'], content:`<p>Здесь не требуется подобие, диагонали или координаты. Вся задача держится на одном распознавании: «отрезок между серединами боковых сторон» = «средняя линия».</p>`},
+                    {id:'steps', title:'5) Пошаговое доведение до ответа', link:['midline'], content:`<ol><li>Выпишите длины оснований.</li><li>Сложите их.</li><li>Разделите сумму на 2.</li><li>Получите длину <span data-link="midline">MN</span>.</li></ol><div class="note">Если одно основание 8, а другое 18, то средняя линия равна 13. Это удобно как эталонный пример.</div>`},
+                    {id:'check', title:'6) Финальная проверка ответа по условию', link:['bases','midline'], content:`<p>Проверяем две вещи:</p><ul><li>число лежит между длинами оснований;</li><li>другого значения быть не может, потому что формула средней линии однозначна.</li></ul>`},
+                    {id:'out', title:'7) Краткий вывод', link:['midline'], content:`<p>Средняя линия — один из самых быстрых сюжетов в трапеции. Если её распознать, задача часто решается в одно действие.</p>`}
+            }
+        }
+        },
+    {
+        id:'centerSegment',
+        title:'Участок средней линии между диагоналями',
+        short:'Центральный отрезок средней линии связан с разностью оснований.',
+        targetName:'PQ',
+        mathKey:'centerSegment',
+        formulaSummary:'PQ = (AD - BC) / 2',
+        overview:[
+            {title:'Что дано', text:'Средняя линия трапеции пересекает диагонали.'},
+            {title:'Главная формула', text:'Центральный отрезок между диагоналями равен полуразности оснований.'},
+            {title:'Когда работает', text:'Удобнее считать при AD > BC.'}
+        ],
+        memory:['Сначала найдите основания.','Центральный участок — не вся средняя линия.','Берите полуразность, а не полусумму.'],
+        idea:[
+            'Нужно отличать всю среднюю линию от её центрального участка между диагоналями.',
+            'Вся средняя линия связана с полусуммой, а центральный кусок — с полуразностью оснований.',
+            'По рисунку центральный участок обычно самый «внутренний», между точками пересечения с диагоналями.',
+            'Проверка проста: этот кусок меньше всей средней линии.'
+        ],
+        mistakes:[
+            'По привычке используют формулу всей средней линии вместо нужного внутреннего куска.',
+            'Берут сумму оснований вместо разности.',
+            'Забывают делить разность на 2.',
+            'Считают крайние куски средней линии и принимают их за центральный.'
+        ],
+        stages:{
+            brief:[
+                {id:'given', title:'Что дано', link:['centerSegment','diagonals','bases'], content:`<p>Средняя линия пересекает <span data-link="diagonals">диагонали</span> и образует внутренний участок <span data-link="centerSegment">PQ</span>.</p>`},
+                {id:'idea', title:'Ключевая идея', link:['centerSegment'], content:`<div class="formulaBox"><div class="mathBlock">${mathML.centerSegment}</div></div>`},
+                {id:'check', title:'Проверка', link:['centerSegment','midline'], content:`<p><span data-link="centerSegment">PQ</span> должен быть меньше всей средней линии.</p>`}
+            ],
+            standard:[
+                {id:'given', title:'1) Что дано', link:['centerSegment','diagonals','bases'], content:`<p>В трапеции проведена средняя линия, и <span data-link="diagonals">диагонали</span> пересекают её в двух точках. Между этими точками образуется отрезок <span data-link="centerSegment">PQ</span>.</p>`},
+                {id:'mean', title:'2) Что означает условие', link:['centerSegment'], content:`<p>Нас спрашивают не всю среднюю линию, а только её центральную часть между диагоналями.</p>`},
+                {id:'inter', title:'3) Геометрическая интерпретация', link:['bases','centerSegment'], content:`<p>Если основания сильно отличаются, то и центральный кусок получается заметным. Если основания почти равны, то этот участок маленький.</p>`},
+                {id:'key', title:'4) Ключевая идея', link:['centerSegment'], content:`<div class="formulaBox"><div class="mathBlock">${mathML.centerSegment}</div></div><p>Это формула именно для отрезка между диагоналями.</p>`},
+                {id:'steps', title:'5) Пошаговое доведение до ответа', link:['bases','centerSegment'], content:`<p>Находим разность оснований <span data-link="bases">AD</span> и <span data-link="bases">BC</span>, затем делим её пополам.</p>`},
+                {id:'check', title:'6) Финальная проверка ответа по условию', link:['centerSegment'], content:`<p>Полученный отрезок не может быть отрицательным. В стандартной записи удобнее считать, что <span data-link="bases">AD > BC</span>.</p>`},
+                {id:'out', title:'7) Краткий вывод', link:['centerSegment'], content:`<p>Запомните контраст: полусумма — для всей средней линии, полуразность — для участка между диагоналями.</p>`}
+            ],
+            full:[
+                {id:'given', title:'1) Что дано', link:['centerSegment','diagonals','midline'], content:`<p>У нас есть средняя линия трапеции. Диагонали пересекают её в двух точках, поэтому она делится на три части: левую, центральную и правую. Нас интересует именно центральный отрезок <span data-link="centerSegment">PQ</span>.</p>`},
+                {id:'mean', title:'2) Что означает каждое условие', link:['centerSegment'], content:`<p>Условие про диагонали важно потому, что без них нельзя выделить нужный внутренний участок. Сам по себе отрезок <span data-link="centerSegment">PQ</span> — это не вся средняя линия.</p>`},
+                {id:'inter', title:'3) Геометрическая интерпретация', link:['bases','centerSegment'], content:`<p>Длина внутреннего участка зависит от того, насколько одно основание длиннее другого. Поэтому здесь естественно появляется <strong>разность</strong> оснований, а не их сумма.</p>`},
+                {id:'key', title:'4) Ключевая идея', link:['centerSegment'], content:`<p>Ключевое свойство:</p><div class="formulaBox"><div class="mathBlock">${mathML.centerSegment}</div></div>`},
+                {id:'steps', title:'5) Пошаговое доведение до ответа', link:['bases','centerSegment'], content:`<ol><li>Определяем большее и меньшее основание.</li><li>Находим разность оснований.</li><li>Делим разность на 2.</li><li>Получаем длину <span data-link="centerSegment">PQ</span>.</li></ol>`},
+                {id:'check', title:'6) Финальная проверка ответа по условию', link:['centerSegment','midline'], content:`<p>Сравниваем ответ со всей средней линией. Центральный кусок обязан быть короче неё. Другого значения нет, потому что для данной конфигурации формула однозначна.</p>`},
+                {id:'out', title:'7) Краткий вывод', link:['centerSegment'], content:`<p>Если слышите фразу «между диагоналями», сразу переключайтесь с полусуммы на полуразность оснований.</p>`}
+        }
+    }
+    },
+    {
+    id:'sectionLength',
+    title:'Сечение, параллельное основаниям',
+    short:'Длина такого сечения меняется линейно вдоль боковой стороны.',
+    targetName:'KN',
+    mathKey:'sectionLength',
+    formulaSummary:'KN = BC + (AD - BC)·CN / CD',
+    overview:[
+    {title:'Что дано', text:'Через точку N на боковой стороне CD проведён отрезок KN, параллельный основаниям.'},
+    {title:'Главная формула', text:'Длина сечения линейно зависит от положения точки N на стороне CD.'},
+    {title:'Опорная идея', text:'Можно решать через подобие или пользоваться готовой линейной формулой.'}
+    ],
+    memory:['Проведите диагональ, если нужна геометрическая идея.','Отношение CN/CD показывает долю пути от верхнего основания к нижнему.','При N = C получаем BC, при N = D получаем AD.'],
+    idea:[
+    'Длина сечения, параллельного основаниям, постепенно меняется от BC к AD.',
+    'Положение точки N удобно измерять долей CN / CD.',
+    'Если доля равна 0, сечение совпадает с верхним основанием; если 1 — с нижним.',
+    'Значит, длина KN выражается линейной формулой между BC и AD.'
+    ],
+    mistakes:[
+    'Используют CN/ND вместо CN/CD.',
+    'Забывают, что CD = CN + ND.',
+    'Путают, от какого основания отсчитывается доля.',
+    'Получают KN меньше BC или больше AD и не замечают ошибку.'
+    ],
+    stages:{
+    brief:[
+    {id:'given', title:'Что дано', link:['section','rightSide','bases'], content:`<p>Через точку <span data-link="rightSide">N</span> на боковой стороне <span data-link="rightSide">CD</span> проведён отрезок <span data-link="section">KN</span>, параллельный основаниям.</p>`},
+    {id:'idea', title:'Ключевая идея', link:['section','rightSide'], content:`<div class="formulaBox"><div class="mathBlock">${mathML.section}</div></div><div class="formulaBox" style="margin-top:10px;"><div class="mathBlock">${mathML.cdSplit}</div></div>`},
+    {id:'check', title:'Проверка', link:['section','bases'], content:`<p>Ответ должен лежать между длинами оснований.</p>`}
+    ],
+    standard:[
+    {id:'given', title:'1) Что дано', link:['section','rightSide','bases'], content:`<p>В трапеции ABCD через точку <span data-link="rightSide">N</span> на боковой стороне <span data-link="rightSide">CD</span> проведён отрезок <span data-link="section">KN</span>, причём <span data-link="section">KN ∥ AD ∥ BC</span>.</p>`},
+    {id:'mean', title:'2) Что означает каждое условие', link:['section','rightSide'], content:`<p>Такое сечение устроено как «промежуточное основание». Чем ниже точка N по стороне <span data-link="rightSide">CD</span>, тем ближе длина <span data-link="section">KN</span> к нижнему основанию.</p>`},
+    {id:'inter', title:'3) Геометрическая интерпретация', link:['rightSide','section'], content:`<p>Доля <span data-link="rightSide">CN / CD</span> показывает, насколько далеко мы спустились от точки C к точке D. Это и определяет длину сечения.</p>`},
+    {id:'key', title:'4) Ключевая идея', link:['section','rightSide'], content:`<div class="formulaBox"><div class="mathBlock">${mathML.section}</div></div><div class="note">Если по условию даны <span data-link="rightSide">CN</span> и <span data-link="rightSide">ND</span>, сначала находят <span data-link="rightSide">CD</span> по формуле ${mathML.cdSplit}</div>`},
+    {id:'steps', title:'5) Пошаговое доведение до ответа', link:['section','bases','rightSide'], content:`<ol><li>Находим <span data-link="rightSide">CD</span> как сумму <span data-link="rightSide">CN</span> и <span data-link="rightSide">ND</span>.</li><li>Составляем дробь <span data-link="rightSide">CN / CD</span>.</li><li>Находим разность оснований <span data-link="bases">AD − BC</span>.</li><li>Умножаем разность на долю <span data-link="rightSide">CN / CD</span>.</li><li>Прибавляем <span data-link="bases">BC</span> и получаем <span data-link="section">KN</span>.</li></ol>`},
+    {id:'check', title:'6) Финальная проверка ответа по условию', link:['section','bases'], content:`<p>Проверка очень наглядная: число должно быть не меньше <span data-link="bases">BC</span> и не больше <span data-link="bases">AD</span>. Другого ответа нет, потому что для каждого положения N длина сечения определяется однозначно.</p>`},
+    {id:'out', title:'7) Краткий вывод', link:['section'], content:`<p>Это одна из важнейших задач темы: сечение, параллельное основаниям, удобно понимать как линейный переход от верхнего основания к нижнему.</p>`}
+    ],
+    full:[
+    {id:'given', title:'1) Что дано', link:['section','rightSide','bases','diagonal'], content:`<p>Есть трапеция ABCD с основаниями <span data-link="bases">AD</span> и <span data-link="bases">BC</span>. На боковой стороне <span data-link="rightSide">CD</span> взята точка <span data-link="rightSide">N</span>. Через неё проведён отрезок <span data-link="section">KN</span>, параллельный основаниям. Часто в таком сюжете дополнительно проводят <span data-link="diagonal">диагональ AC</span>, чтобы увидеть подобные треугольники.</p>`},
+    {id:'mean', title:'2) Что означает каждое условие', link:['section','rightSide'], content:`<p>Параллельность означает, что <span data-link="section">KN</span> ведёт себя как промежуточное основание. Точка <span data-link="rightSide">N</span> выбирает конкретный уровень внутри трапеции. Отсюда рождается мысль: длина сечения зависит от того, где именно находится точка N.</p>`},
+    {id:'inter', title:'3) Геометрическая или графическая интерпретация', link:['section','rightSide','bases'], content:`<p>Если <span data-link="rightSide">N</span> совпадает с C, то сечение сжимается до верхнего основания <span data-link="bases">BC</span>. Если <span data-link="rightSide">N</span> совпадает с D, то длина сечения становится равной нижнему основанию <span data-link="bases">AD</span>. Между этими крайними случаями длина меняется равномерно.</p>`},
+    {id:'key', title:'4) Ключевая идея', link:['section','rightSide'], content:`<p>Самая удобная запись:</p><div class="formulaBox"><div class="mathBlock">${mathML.section}</div></div><p>Здесь дробь <span data-link="rightSide">CN / CD</span> — это доля пути от верхней вершины C до точки N по боковой стороне.</p><div class="formulaBox" style="margin-top:10px;"><div class="mathBlock">${mathML.cdSplit}</div></div>`},
+    {id:'steps', title:'5) Пошаговое доведение до ответа', link:['section','rightSide','bases'], content:`<ol><li>Если известны части боковой стороны, найдите полную длину: <span data-link="rightSide">CD = CN + ND</span>.</li><li>Составьте дробь положения точки: <span data-link="rightSide">CN / CD</span>.</li><li>Найдите, на сколько нижнее основание длиннее верхнего: <span data-link="bases">AD − BC</span>.</li><li>Возьмите соответствующую долю этой разности.</li><li>Прибавьте верхнее основание <span data-link="bases">BC</span>.</li><li>Получите длину <span data-link="section">KN</span>.</li></ol><div class="note">Именно так решается и главная сюжетная задача с числами 40, 16, 12 и 18: получается ${mathML.example256}.</div>`},
+    {id:'check', title:'6) Финальная проверка ответа по условию', link:['section','bases','rightSide'], content:`<p>Проверяем три вещи:</p><ul><li>дробь <span data-link="rightSide">CN / CD</span> должна быть между 0 и 1;</li><li>длина <span data-link="section">KN</span> должна лежать между основаниями;</li><li>если подставить крайние случаи, формула даёт верные значения: при <span data-link="rightSide">CN = 0</span> имеем <span data-link="bases">BC</span>, а при <span data-link="rightSide">CN = CD</span> получаем <span data-link="bases">AD</span>.</li></ul>`},
+    {id:'out', title:'7) Краткий вывод', link:['section'], content:`<p>Сечение, параллельное основаниям, — центральный сюжет всей темы. Оно связывает рисунок, дробь положения точки и линейную зависимость длины.</p>`}
+    }
+    }
+    },
+    {
+    id:'bisector',
+    title:'Биссектрисы в трапеции',
+    short:'Точка на биссектрисах равноудалена от сторон соответствующих углов.',
+    targetName:'d(K,AB)',
+    mathKey:'bisector',
+    formulaSummary:'d(K,AB) = d(K,AD) = d(K,BC)',
+    overview:[
+    {title:'Что дано', text:'Точка K лежит на биссектрисах углов A и B трапеции.'},
+    {title:'Главный факт', text:'Точка на биссектрисе угла равноудалена от сторон этого угла.'},
+    {title:'Результат', text:'Получаем равенство трёх расстояний до прямых AB, AD и BC.'}
+    ],
+    memory:['Сначала вспомните свойство биссектрисы угла.','Расстояние до прямой — это длина перпендикуляра.','Точку на двух биссектрисах удобно мыслить как центр вписанной окружности в систему углов.'],
+    idea:[
+    'Если точка лежит на биссектрисе угла, она одинаково удалена от его сторон.',
+    'Если K лежит сразу на биссектрисах углов A и B, то равенства расстояний складываются цепочкой.',
+    'Расстояния до прямых всегда понимаем как перпендикуляры.',
+    'На рисунке это превращает K в очень «симметричную» точку для трёх прямых.'
+    ],
+    mistakes:[
+    'Путают расстояние до прямой с расстоянием до вершины.',
+    'Опускают не перпендикуляр, а произвольный отрезок.',
+    'Забывают, что свойство биссектрисы работает именно для сторон угла.',
+    'Пытаются доказать равенство отрезков по рисунку без опоры на теорему.'
+    ],
+    stages:{
+    brief:[
+    {id:'given', title:'Что дано', link:['bisectors'], content:`<p>Точка <span data-link="bisectors">K</span> лежит на биссектрисах углов A и B.</p>`},
+    {id:'idea', title:'Ключевая идея', link:['bisectors'], content:`<div class="formulaBox"><div class="mathBlock">${mathML.bisector}</div></div>`},
+    {id:'check', title:'Проверка', link:['bisectors'], content:`<p>Все расстояния понимаются как длины перпендикуляров от K к соответствующим прямым.</p>`}
+    ],
+    standard:[
+    {id:'given', title:'1) Что дано', link:['bisectors'], content:`<p>В трапеции точка <span data-link="bisectors">K</span> лежит на биссектрисе угла A и одновременно на биссектрисе угла B.</p>`},
+    {id:'mean', title:'2) Что означает каждое условие', link:['bisectors'], content:`<p>Из первого условия следует, что расстояния от K до сторон угла A равны. Из второго — что равны расстояния от K до сторон угла B.</p>`},
+    {id:'inter', title:'3) Геометрическая интерпретация', link:['bisectors'], content:`<p>Если опустить из K перпендикуляры к прямым AB, AD и BC, то они окажутся равны по длине.</p>`},
+    {id:'key', title:'4) Ключевая идея', link:['bisectors'], content:`<div class="formulaBox"><div class="mathBlock">${mathML.bisector}</div></div>`},
+    {id:'steps', title:'5) Пошаговое доведение до ответа', link:['bisectors'], content:`<p>Сначала используем биссектрису угла A: <strong>d(K,AB) = d(K,AD)</strong>. Затем биссектрису угла B: <strong>d(K,AB) = d(K,BC)</strong>. Объединяем равенства в одну цепочку.</p>`},
+    {id:'check', title:'6) Финальная проверка ответа по условию', link:['bisectors'], content:`<p>Важно помнить: речь идёт не о длинах сторон трапеции, а именно о расстояниях от точки до прямых.</p>`},
+    {id:'out', title:'7) Краткий вывод', link:['bisectors'], content:`<p>Сюжет с биссектрисами полезен как в чистых доказательствах, так и в задачах на вписанные окружности и равноудалённость.</p>`}
+    ],
+    full:[
+    {id:'given', title:'1) Что дано', link:['bisectors'], content:`<p>Точка <span data-link="bisectors">K</span> находится на биссектрисах двух соседних углов трапеции. Это очень сильное условие, потому что сразу даёт доступ к свойству равноудалённости.</p>`},
+    {id:'mean', title:'2) Что означает каждое условие', link:['bisectors'], content:`<p>Для угла A получаем: точка K одинаково удалена от прямых AB и AD. Для угла B получаем: точка K одинаково удалена от прямых AB и BC.</p>`},
+    {id:'inter', title:'3) Геометрическая интерпретация', link:['bisectors'], content:`<p>Вся геометрия здесь построена на перпендикулярах. Если вы опускаете перпендикуляр не к той прямой или не под прямым углом, смысл расстояния теряется.</p>`},
+    {id:'key', title:'4) Ключевая идея', link:['bisectors'], content:`<p>Главный факт темы:</p><div class="formulaBox"><div class="mathBlock">${mathML.bisector}</div></div>`},
+    {id:'steps', title:'5) Пошаговое доведение до ответа', link:['bisectors'], content:`<ol><li>Из условия «K на биссектрисе угла A» пишем <strong>d(K,AB) = d(K,AD)</strong>.</li><li>Из условия «K на биссектрисе угла B» пишем <strong>d(K,AB) = d(K,BC)</strong>.</li><li>По общему звену <strong>d(K,AB)</strong> объединяем равенства.</li><li>Получаем тройное равенство расстояний.</li></ol>`},
+    {id:'check', title:'6) Финальная проверка ответа по условию', link:['bisectors'], content:`<p>Других значений для расстояний искать не нужно: мы доказали именно равенство длин перпендикуляров. Это прямое следствие свойства биссектрисы, а не визуальной догадки по рисунку.</p>`},
+    {id:'out', title:'7) Краткий вывод', link:['bisectors'], content:`<p>Если в трапеции появляются биссектрисы, в первую очередь ищите равноудалённость от прямых и возможную окружность, касающуюся сторон углов.</p>`}
+    }
+    }
+    },
+    {
+    id:'specialFact',
+    title:'Полезный факт: T — середина CD, AT — биссектриса',
+    short:'В этой конфигурации оказывается, что AB = AD + BC.',
+    targetName:'AB',
+    mathKey:'specialFact',
+    formulaSummary:'AB = AD + BC',
+    overview:[
+    {title:'Что дано', text:'T — середина боковой стороны CD, а AT — биссектриса угла A.'},
+    {title:'Главный вывод', text:'Левая боковая сторона выражается как сумма оснований.'},
+    {title:'Опорная идея', text:'Появляется равнобедренный треугольник и средняя линия.'}
+    ],
+    memory:['Середина боковой стороны почти зовёт к средней линии.','Биссектриса часто приводит к равенству углов и равнобедренному треугольнику.','Итоговый вывод: AB = AD + BC.'],
+    idea:[
+    'Через середину удобно проводить дополнительный отрезок, связанный со средней линией.',
+    'Биссектриса помогает получить равные углы.',
+    'Из равных углов рождается равнобедренный треугольник.',
+    'Дальше длина нужной стороны выражается через среднюю линию и основания.'
+    ],
+    mistakes:[
+    'Не используют факт, что T — середина, и упускают среднюю линию.',
+    'Пишут равенство углов без пояснения, откуда оно взялось.',
+    'Не замечают равнобедренный треугольник.',
+    'Смешивают формулу средней линии и итоговое равенство AB = AD + BC.'
+    ],
+    stages:{
+    brief:[
+    {id:'given', title:'Что дано', link:['special'], content:`<p>T — середина CD, а AT — биссектриса угла A.</p>`},
+    {id:'idea', title:'Ключевая идея', link:['special'], content:`<div class="formulaBox"><div class="mathBlock">${mathML.special}</div></div>`},
+    {id:'check', title:'Проверка', link:['special'], content:`<p>Результат должен зависеть только от оснований и не содержать неизвестных дополнительных отрезков.</p>`}
+    ],
+    standard:[
+    {id:'given', title:'1) Что дано', link:['special'], content:`<p>В трапеции ABCD точка T — середина боковой стороны CD, а отрезок AT является биссектрисой угла при вершине A.</p>`},
+    {id:'mean', title:'2) Что означает каждое условие', link:['special'], content:`<p>Середина боковой стороны подсказывает рассмотреть среднюю линию, а биссектриса — поискать равные углы.</p>`},
+    {id:'inter', title:'3) Геометрическая интерпретация', link:['special'], content:`<p>Эта конфигурация не случайна: середина и биссектриса работают вместе и позволяют выразить боковую сторону через основания.</p>`},
+    {id:'key', title:'4) Ключевая идея', link:['special'], content:`<p>После аккуратного дополнительного построения возникает равнобедренный треугольник, а затем подключается формула средней линии. Итог:</p><div class="formulaBox"><div class="mathBlock">${mathML.special}</div></div>`},
+    {id:'steps', title:'5) Пошаговое доведение до ответа', link:['special'], content:`<p>Нужно использовать середину T, провести удобный вспомогательный отрезок к стороне AB, затем через параллельность и биссектрису получить равенство углов. После этого выделяется равнобедренный треугольник, а длина выражается через среднюю линию.</p>`},
+    {id:'check', title:'6) Финальная проверка ответа по условию', link:['special'], content:`<p>Получается точное равенство, а не приближённая оценка. Его удобно проверять на конкретных числах из тренировочных задач.</p>`},
+    {id:'out', title:'7) Краткий вывод', link:['special'], content:`<p>Это красивый факт темы: биссектриса и середина вместе дают очень сильное соотношение.</p>`}
+    ],
+    full:[
+    {id:'given', title:'1) Что дано', link:['special'], content:`<p>Точка T делит боковую сторону CD пополам. Одновременно AT — биссектриса угла A. Значит, в задаче спрятаны сразу два типовых инструмента: средняя линия и равенство углов.</p>`},
+    {id:'mean', title:'2) Что означает каждое условие', link:['special'], content:`<p>Середина подсказывает достроить отрезок, параллельный основанию, чтобы получить среднюю линию. Биссектриса подсказывает искать углы, которые окажутся равными по определению биссектрисы и по параллельности прямых.</p>`},
+    {id:'inter', title:'3) Геометрическая интерпретация', link:['special'], content:`<p>По сути, задача собирает в одном месте почти все основные идеи темы трапеции: середины, параллельность, биссектрису и равнобедренный треугольник.</p>`},
+    {id:'key', title:'4) Ключевая идея', link:['special'], content:`<p>После вспомогательного построения получается равнобедренный треугольник, а его сторона выражается через среднюю линию. Финальный вывод:</p><div class="formulaBox"><div class="mathBlock">${mathML.special}</div></div>`},
+    {id:'steps', title:'5) Пошаговое доведение до ответа', link:['special'], content:`<ol><li>Используем то, что T — середина CD.</li><li>Проводим отрезок через T, чтобы задействовать среднюю линию трапеции.</li><li>Через параллельность получаем пару накрест лежащих углов.</li><li>Через биссектрису получаем ещё одно равенство углов.</li><li>Делаем вывод о равнобедренном треугольнике.</li><li>Выражаем нужную длину через среднюю линию.</li><li>Приходим к равенству ${mathML.special}.</li></ol>`},
+    {id:'check', title:'6) Финальная проверка ответа по условию', link:['special'], content:`<p>Если подставить, например, основания 7 и 15, получим AB = 22. Это совпадает с результатами задач такого типа. Других значений быть не может, потому что вывод идёт из жёсткой цепочки равенств.</p>`},
+    {id:'out', title:'7) Краткий вывод', link:['special'], content:`<p>Этот факт удобно помнить как отдельную готовую конструкцию: «середина на CD + биссектриса AT» → «AB равно сумме оснований».</p>`}
+    }
+    }
+    }
+    ];
+
+    const mathML = {
+    midline:`<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>M</mi><mi>N</mi><mo>=</mo><mfrac><mrow><mi>A</mi><mi>D</mi><mo>+</mo><mi>B</mi><mi>C</mi></mrow><mn>2</mn></mfrac></mrow></math>`,
+    centerSegment:`<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>P</mi><mi>Q</mi><mo>=</mo><mfrac><mrow><mi>A</mi><mi>D</mi><mo>−</mo><mi>B</mi><mi>C</mi></mrow><mn>2</mn></mfrac></mrow></math>`,
+    section:`<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>K</mi><mi>N</mi><mo>=</mo><mi>B</mi><mi>C</mi><mo>+</mo><mo>(</mo><mi>A</mi><mi>D</mi><mo>−</mo><mi>B</mi><mi>C</mi><mo>)</mo><mo>·</mo><mfrac><mrow><mi>C</mi><mi>N</mi></mrow><mrow><mi>C</mi><mi>D</mi></mrow></mfrac></mrow></math>`,
+    cdSplit:`<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>C</mi><mi>D</mi><mo>=</mo><mi>C</mi><mi>N</mi><mo>+</mo><mi>N</mi><mi>D</mi></mrow></math>`,
+    bisector:`<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>d</mi><mo>(</mo><mi>K</mi><mo>,</mo><mi>A</mi><mi>B</mi><mo>)</mo><mo>=</mo><mi>d</mi><mo>(</mo><mi>K</mi><mo>,</mo><mi>A</mi><mi>D</mi><mo>)</mo><mo>=</mo><mi>d</mi><mo>(</mo><mi>K</mi><mo>,</mo><mi>B</mi><mi>C</mi><mo>)</mo></mrow></math>`,
+    special:`<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>A</mi><mi>B</mi><mo>=</mo><mi>A</mi><mi>D</mi><mo>+</mo><mi>B</mi><mi>C</mi></mrow></math>`,
+    example256:`<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>K</mi><mi>N</mi><mo>=</mo><mn>25.6</mn></mrow></math>`
+    };
+
+    const state = {
+    theme: localStorage.getItem('trap-theme') || 'dark',
+    topicId: 'sectionLength',
+    detail: 'standard',
+    openStep: 0,
+    zoom: 1,
+    panX: 0,
+    panY: 0,
+    showLabels: true,
+    showDiagonals: true,
+    showParallelMarks: true,
+    showHeights: true,
+    modalOpen: false,
+    generatedTask: null,
+    hoverKey: null,
+    activeSelfTarget: 'KN',
+    figureAngleX: 0,
+    figureAngleY: 0
+    };
+
+    const dom = {};
+    ['topicTabs','overviewGrid','lessonTitle','ideaList','stageWrap','mistakeList','toggleRow','canvasWrap','legend','summaryBox','memoryStrip','zoomRange','zoomValue','themeToggle','detailSelect','showAllBtn','collapseBtn','printBtn','prevStepBtn','nextStepBtn','generatorType','generatorDifficulty','generateBtn','generatedTask','applyGeneratedBtn','quizQuestion','quizOptions','quizResult','newQuizBtn','selfAnswer','checkSelfBtn','selfResult','selfTargetName','modal','modalCanvas','modalClose','openModalBtn','resetViewBtn','zoomOutBtn','zoomInBtn','hintPopover','hintArrow','hintTitle','hintBody','hintActions','hintClose'].forEach(id=>dom[id]=document.getElementById(id));
+
+    const hintData = {
+    typeSelect:{title:'Как выбирать тип задачи', body:`<p>Селектор переключает <strong>тот же метод</strong>, но в разных сюжетах темы.</p><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>M</mi><mi>N</mi><mo>=</mo><mfrac><mrow><mi>A</mi><mi>D</mi><mo>+</mo><mi>B</mi><mi>C</mi></mrow><mn>2</mn></mfrac></mrow></math><p>Для средней линии работает полусумма, а для центрального участка между диагоналями — полуразность.</p>`, actions:[{label:'Показать пример', action:'exampleMidline'},{label:'Другой тип', action:'switchGenType'}]},
+    generator:{title:'Что делает генератор', body:`<p>Он создаёт <strong>корректную похожую задачу</strong> без вырожденных случаев и сразу считает ответ.</p><p>Можно применить числа к интерактивной модели и проверить решение на том же чертеже.</p>`, actions:[{label:'Сгенерировать сейчас', action:'generateNow'}]},
+    zoom:{title:'Как управлять схемой', body:`<p>Вы можете увеличивать чертёж, двигать его мышью и крутить колесом.</p><p>Щелчок по схеме открывает модальное окно с увеличенной копией. Состояние масштаба и сдвига синхронизируется.</p>`, actions:[{label:'Сбросить вид', action:'resetView'}]}
+    };
+
+    function currentTopic(){ return topics.find(t=>t.id===state.topicId) || topics[0]; }
+
+    function applyTheme(){
+    document.body.classList.toggle('light', state.theme==='light');
+    localStorage.setItem('trap-theme', state.theme);
+    }
+
+    function renderTabs(){
+    dom.topicTabs.innerHTML='';
+    topics.forEach(topic=>{
+    const b=document.createElement('button');
+    b.className='tabBtn'+(topic.id===state.topicId?' active':'');
+    b.innerHTML=`<strong>${topic.title}</strong><br><span class="small muted">${topic.short}</span>`;
+    b.onclick=()=>{state.topicId=topic.id; state.openStep=0; renderAll(); showShortModeHint(topic.title);};
+    dom.topicTabs.appendChild(b);
+    });
+    }
+
+    function renderOverview(){
+    const topic=currentTopic();
+    dom.overviewGrid.innerHTML='';
+    topic.overview.forEach(card=>{
+    const el=document.createElement('div');
+    el.className='miniCard';
+    el.innerHTML=`<h3>${card.title}</h3><p>${card.text}</p>`;
+    dom.overviewGrid.appendChild(el);
+    });
+    }
+
+    function renderLesson(){
+    const topic=currentTopic();
+    dom.lessonTitle.textContent=topic.title;
+    dom.ideaList.innerHTML='';
+    topic.idea.forEach((text,i)=>{
+    const el=document.createElement('div');
+    el.className='ideaItem';
+    el.innerHTML=`<strong>${i+1}.</strong> ${text}`;
+    dom.ideaList.appendChild(el);
+    });
+    const stages=topic.stages[state.detail];
+    dom.stageWrap.innerHTML='';
+    stages.forEach((stage,idx)=>{
+    const block=document.createElement('div');
+    const open = idx===state.openStep;
+    block.className='stage'+(open?' open activeStage':'');
+    const links = (stage.link||[]).map(x=>`<span class="stepTag">${legendName(x)}</span>`).join('');
+    block.innerHTML=`
+          <div class="stageHead" data-step="${idx}">
+            <div class="stageHeadLeft">
+              <div class="stageNum">${idx+1}</div>
+              <div>
+                <div><strong>${stage.title}</strong></div>
+                <div class="stepTags">${links}</div>
+              </div>
+            </div>
+            <div class="muted">${open?'▾':'▸'}</div>
+          </div>
+          <div class="stageContent">${stage.content}<div class="stepActions"><button class="stepBtn" data-focus="${(stage.link||[])[0]||''}">Подсветить на схеме</button></div></div>`;
+    dom.stageWrap.appendChild(block);
+    });
+    dom.stageWrap.querySelectorAll('.stageHead').forEach(head=>head.onclick=()=>{state.openStep=+head.dataset.step; syncStageOpen();});
+    dom.stageWrap.querySelectorAll('[data-focus]').forEach(btn=>btn.onclick=()=>{state.hoverKey=btn.dataset.focus || null; renderVisualization();});
+    dom.stageWrap.querySelectorAll('[data-link]').forEach(node=>{
+    const key=node.dataset.link;
+    node.onmouseenter=()=>{state.hoverKey=key; renderVisualization(); highlightTextByKey(key,true);};
+    node.onmouseleave=()=>{state.hoverKey=null; renderVisualization(); highlightTextByKey(key,false);};
+    });
+
+    dom.mistakeList.innerHTML='';
+    topic.mistakes.forEach(m=>{
+    const el=document.createElement('div');
+    el.className='mistakeItem';
+    el.textContent='• '+m;
+    dom.mistakeList.appendChild(el);
+    });
+    dom.selfTargetName.textContent = topic.targetName;
+    state.activeSelfTarget = topic.targetName;
+    }
+
+    function syncStageOpen(){
+    dom.stageWrap.querySelectorAll('.stage').forEach((stage,idx)=>{
+    const open = idx===state.openStep;
+    stage.classList.toggle('open',open);
+    stage.classList.toggle('activeStage',open);
+    });
+    const current = dom.stageWrap.querySelectorAll('.stage')[state.openStep];
+    if(current){
+    const linkKey=(current.querySelector('[data-focus]')?.dataset.focus)|| currentTopic().stages[state.detail][state.openStep].link?.[0] || null;
+    state.hoverKey=linkKey;
+    renderVisualization();
+    }
+    }
+
+    function renderMemory(){
+    dom.memoryStrip.innerHTML='';
+    currentTopic().memory.forEach((m,i)=>{
+    const el=document.createElement('div');
+    el.className='memoryItem';
+    el.innerHTML=`<strong>${i+1}.</strong> ${m}`;
+    dom.memoryStrip.appendChild(el);
+    });
+    }
+
+    function renderToggles(){
+    const toggles=[
+    {key:'showLabels', label:'Подписи'},
+    {key:'showDiagonals', label:'Диагонали'},
+    {key:'showParallelMarks', label:'Параллельность'},
+    {key:'showHeights', label:'Перпендикуляры'}
+    ];
+    dom.toggleRow.innerHTML='';
+    toggles.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='chipBtn'+(state[t.key]?' active':'');
+    b.textContent=t.label;
+    b.onclick=()=>{state[t.key]=!state[t.key]; renderVisualization(); showShortModeHint('Схема обновлена');};
+    dom.toggleRow.appendChild(b);
+    });
+    }
+
+    function renderLegend(){
+    const items=[
+    {key:'bases', color:'var(--accent2)', title:'Основания', text:'AD и BC — параллельные основания трапеции.'},
+    {key:'midline', color:'var(--accent3)', title:'Средняя линия', text:'MN — линия через середины боковых сторон.'},
+    {key:'section', color:'var(--accent)', title:'Сечение', text:'KN — отрезок, параллельный основаниям.'},
+    {key:'diagonals', color:'var(--accent4)', title:'Диагонали', text:'Используются для центрального участка средней линии.'},
+    {key:'bisectors', color:'#ff88a8', title:'Биссектрисы', text:'Показывают равноудалённость точки K от прямых.'},
+    {key:'special', color:'#8fd3ff', title:'Специальная конструкция', text:'T — середина CD, AT — биссектриса.'}
+    ];
+    dom.legend.innerHTML='';
+    items.forEach(item=>{
+    const el=document.createElement('div');
+    el.className='legendItem'+(state.hoverKey===item.key?' highlightLink':'');
+    el.innerHTML=`<span class="swatch" style="background:${item.color};"></span><div><strong>${item.title}</strong><div class="muted small">${item.text}</div></div>`;
+    el.onmouseenter=()=>{state.hoverKey=item.key; renderVisualization();};
+    el.onmouseleave=()=>{state.hoverKey=null; renderVisualization();};
+    dom.legend.appendChild(el);
+    });
+    }
+
+    function legendName(key){
+    const map={bases:'основания',midline:'средняя линия',centerSegment:'участок между диагоналями',section:'сечение',rightSide:'боковая сторона CD',diagonals:'диагонали',bisectors:'биссектрисы',special:'специальная конструкция',diagonal:'диагональ AC'};
+    return map[key]||key;
+    }
+
+    function renderSummary(){
+    const t=currentTopic();
+    dom.summaryBox.innerHTML=`
+        <div class="summaryLine"><strong>Главная формула:</strong> ${t.formulaSummary}</div>
+        <div class="summaryLine"><strong>Активная тема:</strong> ${t.short}</div>
+        <div class="summaryLine"><strong>Подсказка для проверки:</strong> ответ должен согласовываться с рисунком и школьной логикой задачи.</div>
+      `;
+    }
+
+    function line(x1,y1,x2,y2,opts={}){
+    const dash=opts.dash?` stroke-dasharray="${opts.dash}"`:'';
+    const width=opts.width||3;
+    const color=opts.color||'currentColor';
+    const op=opts.opacity!=null?` opacity="${opts.opacity}"`:'';
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}" stroke-linecap="round"${dash}${op} />`;
+    }
+    function circle(x,y,r,opts={}){ return `<circle cx="${x}" cy="${y}" r="${r}" fill="${opts.fill||opts.color||'#fff'}" stroke="${opts.stroke||'none'}" stroke-width="${opts.strokeWidth||0}" />`; }
+    function label(x,y,text,opts={}){ return state.showLabels?`<text x="${x}" y="${y}" fill="${opts.color||'var(--text)'}" font-size="${opts.size||26}" font-weight="${opts.weight||700}" text-anchor="${opts.anchor||'middle'}">${text}</text>`:''; }
+
+    function renderVisualization(target='canvasWrap'){
+    const host = document.getElementById(target);
+    const w = target==='modalCanvas'?1100:760;
+    const h = target==='modalCanvas'?760:560;
+    const scale = state.zoom;
+    const tx = state.panX + w*0.04;
+    const ty = state.panY + h*0.02;
+    const hover=state.hoverKey;
+    const hl=(key,baseColor,altWidth=5)=>({color: hover===key? 'var(--accent3)': baseColor, width: hover===key? altWidth:3.2, opacity:hover && hover!==key?0.45:1});
+    const A={x:110,y:470}, D={x:670,y:470}, B={x:230,y:130}, C={x:530,y:130};
+    const M={x:(A.x+B.x)/2,y:(A.y+B.y)/2}, Nmid={x:(C.x+D.x)/2,y:(C.y+D.y)/2};
+    const P={x:235,y:300}, Q={x:525,y:300};
+    const N={x:588,y:315};
+    const K={x:188,y:315};
+    const Qsec={x:360,y:315};
+    const interDiagLeft={x:265,y:300}, interDiagRight={x:475,y:300};
+    const T={x:(C.x+D.x)/2,y:(C.y+D.y)/2};
+    const bisK={x:370,y:255};
+    const H1={x:370,y:470};
+
+    const group = [];
+    group.push(`<rect x="0" y="0" width="${w}" height="${h}" fill="transparent" />`);
+    if(state.showDiagonals){
+    group.push(line(A.x,A.y,C.x,C.y,hl('diagonals','var(--accent4)',4.6)));
+    group.push(line(B.x,B.y,D.x,D.y,hl('diagonals','rgba(255,107,183,.65)',4)));
+    }
+    group.push(line(A.x,A.y,B.x,B.y,hl('bases','rgba(255,255,255,.88)',5)));
+    group.push(line(B.x,B.y,C.x,C.y,hl('bases','var(--accent2)',5)));
+    group.push(line(C.x,C.y,D.x,D.y,hl('rightSide','rgba(255,255,255,.88)',5)));
+    group.push(line(A.x,A.y,D.x,D.y,hl('bases','var(--accent2)',5)));
+
+    group.push(line(M.x,M.y,Nmid.x,Nmid.y,hl('midline','var(--accent3)',4.6)));
+    group.push(line(P.x,P.y,Q.x,Q.y,hl('centerSegment','var(--accent3)',4.6)));
+    group.push(line(K.x,K.y,N.x,N.y,hl('section','var(--accent)',4.8)));
+
+    if(state.showParallelMarks){
+    [[M,Nmid],[K,N],[P,Q]].forEach(pair=>{
+    const y=pair[0].y;
+    group.push(line(pair[0].x+16,y-8,pair[0].x+22,y+8,{color:'var(--accent3)',width:2.2}));
+    group.push(line(pair[0].x+26,y-8,pair[0].x+32,y+8,{color:'var(--accent3)',width:2.2}));
+    group.push(line(pair[1].x-16,y-8,pair[1].x-22,y+8,{color:'var(--accent3)',width:2.2}));
+    group.push(line(pair[1].x-26,y-8,pair[1].x-32,y+8,{color:'var(--accent3)',width:2.2}));
+    });
+    }
+    if(state.showHeights){
+    group.push(line(bisK.x,bisK.y,H1.x,H1.y,{color:'rgba(255,255,255,.5)',width:2,dash:'8 8'}));
+    group.push(line(H1.x-14,H1.y,H1.x-14,H1.y-14,{color:'rgba(255,255,255,.7)',width:2}));
+    group.push(line(H1.x-14,H1.y-14,H1.x,H1.y-14,{color:'rgba(255,255,255,.7)',width:2}));
+    }
+
+    group.push(line(A.x,A.y,T.x,T.y,hl('special','#8fd3ff',4.5)));
+    group.push(line(A.x,A.y,bisK.x,bisK.y,hl('bisectors','#ff88a8',4.3)));
+    group.push(line(B.x,B.y,bisK.x,bisK.y,hl('bisectors','#ff88a8',4.3)));
+
+    [['A',A.x-22,A.y+18],['B',B.x-18,B.y-16],['C',C.x+18,C.y-16],['D',D.x+20,D.y+18],['M',M.x-18,M.y-12],['N',Nmid.x+18,Nmid.y-12],['P',P.x-18,P.y-12],['Q',Q.x+18,Q.y-12],['K',K.x-20,K.y-14],['N',N.x+22,N.y],['Q',Qsec.x+18,Qsec.y-12],['T',T.x+18,T.y+8],['K',bisK.x+18,bisK.y+8]].forEach(([t,x,y])=>group.push(label(x,y,t,{color:'var(--text)'})));
+
+    [A,B,C,D,M,Nmid,P,Q,K,N,Qsec,T,bisK].forEach(pt=>group.push(circle(pt.x,pt.y,6,{fill:'var(--text)'})));
+
+    const dimColor='var(--muted)';
+    group.push(line(B.x,B.y-42,C.x,C.y-42,{color:dimColor,width:2}));
+    group.push(line(B.x,B.y-26,B.x,B.y-58,{color:dimColor,width:2,dash:'5 5'}));
+    group.push(line(C.x,C.y-26,C.x,C.y-58,{color:dimColor,width:2,dash:'5 5'}));
+    group.push(label((B.x+C.x)/2,B.y-52,'BC',{size:20,color:'var(--muted)'}));
+    group.push(line(A.x,A.y+48,D.x,D.y+48,{color:dimColor,width:2}));
+    group.push(line(A.x,A.y+12,A.x,A.y+66,{color:dimColor,width:2,dash:'5 5'}));
+    group.push(line(D.x,D.y+12,D.x,D.y+66,{color:dimColor,width:2,dash:'5 5'}));
+    group.push(label((A.x+D.x)/2,A.y+64,'AD',{size:20,color:'var(--muted)'}));
+
+    group.push(label((K.x+N.x)/2,K.y-18,currentTopic().targetName,{size:24,color:'var(--accent)'}));
+
+    if(currentTopic().id==='sectionLength'){
+    group.push(label((C.x+N.x)/2+36,(C.y+N.y)/2,'CN',{size:20,color:'var(--accent2)'}));
+    group.push(label((N.x+D.x)/2+36,(N.y+D.y)/2,'ND',{size:20,color:'var(--accent2)'}));
+    }
+
+    const svg = `
+        <svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <g transform="translate(${tx},${ty}) scale(${scale})">
+            ${group.join('')}
+          </g>
+        </svg>`;
+    host.innerHTML = svg;
+    }
+
+    function setupDrag(target='canvasWrap'){
+    const el=document.getElementById(target);
+    let dragging=false, startX=0,startY=0, startPanX=0,startPanY=0;
+    el.onpointerdown=(e)=>{dragging=true; el.classList.add('dragging'); startX=e.clientX; startY=e.clientY; startPanX=state.panX; startPanY=state.panY; el.setPointerCapture?.(e.pointerId);};
+    el.onpointermove=(e)=>{
+    if(!dragging) return;
+    state.panX = startPanX + (e.clientX-startX);
+    state.panY = startPanY + (e.clientY-startY);
+    renderVisualization(target);
+    if(target==='canvasWrap' && state.modalOpen) renderVisualization('modalCanvas');
+    if(target==='modalCanvas') renderVisualization('canvasWrap');
+    };
+    const stop=()=>{dragging=false; el.classList.remove('dragging');};
+    el.onpointerup=stop; el.onpointerleave=stop; el.onpointercancel=stop;
+    el.onwheel=(e)=>{e.preventDefault(); const delta = e.deltaY<0?0.08:-0.08; state.zoom=Math.max(0.6,Math.min(2.2, +(state.zoom+delta).toFixed(2))); syncZoom(); renderVisualization(target); if(target==='canvasWrap'&&state.modalOpen) renderVisualization('modalCanvas'); if(target==='modalCanvas') renderVisualization('canvasWrap');};
+    if(target==='canvasWrap') el.onclick=(e)=>{ if(Math.abs((e.clientX||0)-startX)<4 && Math.abs((e.clientY||0)-startY)<4) openModal(); };
+    }
+
+    function syncZoom(){
+    dom.zoomRange.value = state.zoom;
+    dom.zoomValue.textContent = Math.round(state.zoom*100)+'%';
+    if(state.modalOpen) renderVisualization('modalCanvas');
+    renderVisualization('canvasWrap');
+    }
+
+    function generateTask(){
+    const type=dom.generatorType.value;
+    const diff=dom.generatorDifficulty.value;
+    let task=null;
+    if(type==='sectionLength'){
+    const BC = randEven(8,20);
+    const AD = BC + randEven(diff==='plus'?10:6, diff==='plus'?30:18);
+    const CN = randInt(4,14);
+    const ND = randInt(6,18);
+    const CD = CN+ND;
+    const ans = +(BC + (AD-BC)*(CN/CD)).toFixed(1);
+    task={type, BC, AD, CN, ND, CD, answer:ans, text:`В трапеции ABCD основания равны BC = ${BC}, AD = ${AD}. Через точку N на стороне CD проведён отрезок KN, параллельный основаниям. Известно, что CN = ${CN}, ND = ${ND}. Найдите KN.`, idea:`Сначала найдите CD = CN + ND, затем используйте формулу KN = BC + (AD − BC)·CN/CD.`};
+    } else if(type==='midlineCenter'){
+    const BC = randEven(4,18);
+    const AD = BC + randEven(diff==='plus'?12:6, diff==='plus'?28:16);
+    const ans=(AD-BC)/2;
+    task={type,BC,AD,answer:ans,text:`В трапеции ABCD основания равны BC = ${BC}, AD = ${AD}. Средняя линия пересекает диагонали в точках P и Q. Найдите PQ.`,idea:`Для участка средней линии между диагоналями берут полуразность оснований.`};
+    } else {
+    const BC=randEven(4,18), AD=BC+randEven(diff==='plus'?10:6,diff==='plus'?24:16), ans=(AD+BC)/2;
+    task={type,BC,AD,answer:ans,text:`В трапеции ABCD основания равны BC = ${BC}, AD = ${AD}. Найдите длину средней линии MN.`, idea:`Средняя линия трапеции равна полусумме оснований.`};
+    }
+    state.generatedTask=task;
+    renderGeneratedTask();
+    }
+
+    function renderGeneratedTask(){
+    const t=state.generatedTask;
+    if(!t){ dom.generatedTask.textContent='Нажмите «Сгенерировать задачу». '; return; }
+    dom.generatedTask.innerHTML=`<strong>Условие.</strong> ${t.text}<br><br><strong>Ответ:</strong> ${t.answer}<br><strong>Идея:</strong> ${t.idea}`;
+    }
+
+    function applyGenerated(){
+    const t=state.generatedTask; if(!t) return;
+    if(t.type==='sectionLength') state.topicId='sectionLength';
+    if(t.type==='midlineCenter') state.topicId='centerSegment';
+    if(t.type==='midline') state.topicId='midline';
+    state.openStep=0; renderAll(); showShortModeHint('Числа новой задачи применены к разбору');
+    }
+
+    const quizBank=[
+    {q:'Какая формула относится ко всей средней линии трапеции?', options:['(AD − BC) / 2','(AD + BC) / 2','BC + AD'], correct:1, explain:'Для всей средней линии берут полусумму оснований.'},
+    {q:'Что показывает дробь CN / CD в задаче про сечение KN?', options:['Длину основания','Долю пути от C до N по стороне CD','Отношение диагоналей'], correct:1, explain:'Это положение точки N на боковой стороне.'},
+    {q:'Какой отрезок равен полуразности оснований?', options:['Средняя линия целиком','Участок средней линии между диагоналями','Любое сечение параллельно основаниям'], correct:1, explain:'Именно внутренний участок PQ между диагоналями.'},
+    {q:'Что означает расстояние от точки до прямой?', options:['Длину любого соединяющего отрезка','Длину перпендикуляра к прямой','Длину стороны фигуры'], correct:1, explain:'Только перпендикуляр задаёт расстояние до прямой.'}
+    ];
+    let currentQuiz=null;
+    function newQuiz(){
+    currentQuiz=quizBank[Math.floor(Math.random()*quizBank.length)];
+    dom.quizQuestion.textContent=currentQuiz.q;
+    dom.quizOptions.innerHTML='';
+    currentQuiz.options.forEach((opt,i)=>{
+    const el=document.createElement('div');
+    el.className='quizOption';
+    el.textContent=opt;
+    el.onclick=()=>checkQuiz(i,el);
+    dom.quizOptions.appendChild(el);
+    });
+    dom.quizResult.textContent='Выберите вариант.';
+    }
+    function checkQuiz(i,el){
+    [...dom.quizOptions.children].forEach((n,idx)=>n.classList.add(idx===currentQuiz.correct?'correct':(idx===i?'wrong':'')));
+    dom.quizResult.innerHTML = i===currentQuiz.correct ? `<strong>Верно.</strong> ${currentQuiz.explain}` : `<strong>Пока нет.</strong> ${currentQuiz.explain}`;
+    }
+
+    function checkSelf(){
+    const v=parseFloat(dom.selfAnswer.value);
+    if(Number.isNaN(v)){ dom.selfResult.textContent='Введите число.'; return; }
+    let right=null;
+    if(state.topicId==='midline') right=13;
+    else if(state.topicId==='centerSegment') right=8;
+    else if(state.topicId==='sectionLength') right=25.6;
+    else if(state.topicId==='bisector') { dom.selfResult.textContent='Здесь проверяется не число, а идея равноудалённости от прямых.'; return; }
+    else if(state.topicId==='specialFact') right=22;
+    const ok=Math.abs(v-right)<0.11;
+    dom.selfResult.innerHTML = ok ? `<strong>Верно.</strong> Для активной темы ожидается ${right}.` : `<strong>Пока нет.</strong> Ожидается ${right}. Сверьтесь с шагами решения.`;
+    }
+
+    function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+    function randEven(a,b){ let x=randInt(Math.ceil(a/2), Math.floor(b/2))*2; return x; }
+
+    function renderAll(){
+    renderTabs();
+    renderOverview();
+    renderLesson();
+    renderMemory();
+    renderToggles();
+    renderLegend();
+    renderSummary();
+    renderVisualization('canvasWrap');
+    if(state.modalOpen) renderVisualization('modalCanvas');
+    syncStageOpen();
+    renderGeneratedTask();
+    }
+
+    function highlightTextByKey(key,on){
+    document.querySelectorAll('[data-link]').forEach(node=>node.classList.toggle('highlightLink', on && node.dataset.link===key));
+    }
+
+    function openModal(){
+    state.modalOpen=true; dom.modal.classList.add('open'); dom.modal.setAttribute('aria-hidden','false'); renderVisualization('modalCanvas');
+    }
+    function closeModal(){
+    state.modalOpen=false; dom.modal.classList.remove('open'); dom.modal.setAttribute('aria-hidden','true');
+    }
+
+    let hintTimer=null;
+    function showHint(key, anchor){
+    const data=hintData[key]; if(!data) return;
+    dom.hintTitle.textContent=data.title;
+    dom.hintBody.innerHTML=data.body;
+    dom.hintActions.innerHTML='';
+    (data.actions||[]).forEach(a=>{
+    const btn=document.createElement('button');
+    btn.className='hintAction'; btn.textContent=a.label; btn.onclick=()=>runHintAction(a.action); dom.hintActions.appendChild(btn);
+    });
+    const rect=anchor.getBoundingClientRect();
+    const pop=dom.hintPopover;
+    pop.classList.add('show','showBounce');
+    pop.style.left=Math.min(window.innerWidth-340, Math.max(10, rect.left-20))+'px';
+    pop.style.top=(rect.bottom+16)+'px';
+    dom.hintArrow.style.left='28px'; dom.hintArrow.style.top='-7px';
+    pop.setAttribute('aria-hidden','false');
+    clearTimeout(hintTimer); hintTimer=setTimeout(hideHint,15000);
+    }
+    function hideHint(){ dom.hintPopover.classList.remove('show'); dom.hintPopover.setAttribute('aria-hidden','true'); }
+    function runHintAction(action){
+    if(action==='generateNow'){ generateTask(); }
+    if(action==='resetView'){ state.zoom=1; state.panX=0; state.panY=0; syncZoom(); }
+    if(action==='switchGenType'){ dom.generatorType.selectedIndex=(dom.generatorType.selectedIndex+1)%dom.generatorType.options.length; showShortModeHint('Тип генерации изменён'); }
+    if(action==='exampleMidline'){ state.topicId='midline'; renderAll(); }
+    hideHint();
+    }
+
+    function showShortModeHint(text){
+    const key='mode-flash-'+Date.now();
+    dom.hintTitle.textContent='Короткая подсказка';
+    dom.hintBody.innerHTML=`<p>${text}</p>`;
+    dom.hintActions.innerHTML='';
+    dom.hintPopover.classList.add('show','showBounce');
+    dom.hintPopover.style.left=Math.max(10, window.innerWidth-360)+'px';
+    dom.hintPopover.style.top='90px';
+    dom.hintArrow.style.left='auto'; dom.hintArrow.style.right='26px'; dom.hintArrow.style.top='-7px';
+    clearTimeout(hintTimer); hintTimer=setTimeout(hideHint,2800);
+    }
+
+    function firstHintOnce(){
+    if(sessionStorage.getItem('trap-hint-shown')) return;
+    const anchor=document.querySelector('[data-hint="generator"]');
+    if(anchor){ setTimeout(()=>{ showHint('generator', anchor); sessionStorage.setItem('trap-hint-shown','1'); }, 3000); }
+    }
+
+    dom.themeToggle.onclick=()=>{ state.theme = state.theme==='dark'?'light':'dark'; applyTheme(); renderVisualization('canvasWrap'); if(state.modalOpen) renderVisualization('modalCanvas'); };
+    dom.detailSelect.onchange=(e)=>{ state.detail=e.target.value; state.openStep=0; renderLesson(); renderVisualization(); showShortModeHint('Степень подробности обновлена'); };
+    dom.showAllBtn.onclick=()=>{ document.querySelectorAll('.stage').forEach(s=>s.classList.add('open')); showShortModeHint('Все шаги раскрыты'); };
+    dom.collapseBtn.onclick=()=>{ state.openStep=0; syncStageOpen(); showShortModeHint('Оставлен только текущий шаг'); };
+    dom.printBtn.onclick=()=>window.print();
+    dom.prevStepBtn.onclick=()=>{ state.openStep=Math.max(0,state.openStep-1); syncStageOpen(); };
+    dom.nextStepBtn.onclick=()=>{ state.openStep=Math.min(currentTopic().stages[state.detail].length-1,state.openStep+1); syncStageOpen(); };
+    dom.zoomRange.oninput=(e)=>{ state.zoom=+e.target.value; syncZoom(); };
+    dom.zoomOutBtn.onclick=()=>{ state.zoom=Math.max(.6, +(state.zoom-.1).toFixed(2)); syncZoom(); };
+    dom.zoomInBtn.onclick=()=>{ state.zoom=Math.min(2.2, +(state.zoom+.1).toFixed(2)); syncZoom(); };
+    dom.resetViewBtn.onclick=()=>{ state.zoom=1; state.panX=0; state.panY=0; syncZoom(); };
+    dom.openModalBtn.onclick=openModal;
+    dom.modalClose.onclick=closeModal;
+    dom.modal.onclick=(e)=>{ if(e.target===dom.modal) closeModal(); };
+    document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ hideHint(); closeModal(); } });
+    dom.generateBtn.onclick=generateTask;
+    dom.applyGeneratedBtn.onclick=applyGenerated;
+    dom.newQuizBtn.onclick=newQuiz;
+    dom.checkSelfBtn.onclick=checkSelf;
+    dom.hintClose.onclick=hideHint;
+
+    document.querySelectorAll('[data-hint]').forEach(node=>{
+    const key=node.dataset.hint;
+    const open=()=>showHint(key,node);
+    node.addEventListener('mouseenter',open);
+    node.addEventListener('focus',open);
+    node.addEventListener('click',(e)=>{e.stopPropagation(); open();});
+    });
+    document.addEventListener('click',(e)=>{ if(!dom.hintPopover.contains(e.target) && !e.target.closest('[data-hint]')) hideHint(); });
+
+    applyTheme();
+    renderAll();
+    setupDrag('canvasWrap');
+    setupDrag('modalCanvas');
+    newQuiz();
+    generateTask();
+    firstHintOnce();
+</script>
+</body>
+</html>
