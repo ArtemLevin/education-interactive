@@ -1,0 +1,1291 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — повторение по мотивам пособия</title>
+    <style>
+        :root{
+            --bg:#0f1720;
+            --bg2:#131d28;
+            --panel:#172432;
+            --panel2:#1d2d3d;
+            --text:#e9f2f7;
+            --muted:#a7bdcc;
+            --accent:#35d0d3;
+            --accent2:#2bb5a6;
+            --line:#274052;
+            --good:#7ee081;
+            --warn:#ffd166;
+            --bad:#ff7b7b;
+            --shadow:0 18px 50px rgba(0,0,0,.28);
+            --radius:20px;
+            --mono:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+        body[data-theme="light"]{
+            --bg:#eef4f6;
+            --bg2:#f8fbfc;
+            --panel:#ffffff;
+            --panel2:#f4f9fb;
+            --text:#12202b;
+            --muted:#4e6472;
+            --accent:#007c7e;
+            --accent2:#0aa39a;
+            --line:#cfe1e8;
+            --good:#127d3f;
+            --warn:#9a6b00;
+            --bad:#b03030;
+            --shadow:0 14px 36px rgba(21,44,55,.12);
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);font:16px/1.45 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;min-height:100%}
+        body{transition:background .25s ease,color .25s ease}
+        button,input,select{font:inherit}
+        .app{max-width:1500px;margin:0 auto;padding:18px 18px 64px}
+        .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:stretch;margin-bottom:18px}
+        .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+        .hero-main{padding:26px 26px 22px;position:relative;overflow:hidden}
+        .hero-main::after{content:"";position:absolute;right:-100px;top:-100px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle, rgba(53,208,211,.22), transparent 65%);pointer-events:none}
+        .eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--accent);font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:.82rem}
+        h1{margin:14px 0 8px;font-size:clamp(1.8rem,3vw,3rem);line-height:1.08}
+        .subtitle{color:var(--muted);max-width:70ch}
+        .hero-grid{margin-top:18px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+        .pill{padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
+        .pill strong{display:block;font-size:.9rem;color:var(--text)}
+        .pill span{font-size:.92rem;color:var(--muted)}
+        .hero-side{padding:18px}
+        .meta{display:grid;gap:10px}
+        .meta-row{display:flex;justify-content:space-between;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.03)}
+        .meta-row b{font-size:.95rem}
+        .meta-row span{font-size:.92rem;color:var(--muted);text-align:right}
+
+        .toolbar{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr auto;gap:10px;padding:14px;align-items:end;margin-bottom:18px;position:sticky;top:10px;z-index:25;backdrop-filter:blur(10px)}
+        .control{display:grid;gap:7px;position:relative}
+        .control label{font-size:.84rem;color:var(--muted);display:flex;gap:8px;align-items:center}
+        .control select,.control button,.control input[type="range"]{width:100%;min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 12px}
+        .btn{cursor:pointer;transition:transform .15s ease, border-color .2s ease, box-shadow .2s ease}
+        .btn:hover{transform:translateY(-1px);border-color:var(--accent)}
+        .btn-accent{background:linear-gradient(180deg, rgba(53,208,211,.2), rgba(43,181,166,.14));border-color:rgba(53,208,211,.45)}
+        .btn-ghost{background:transparent}
+
+        .workspace{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(370px,.92fr);gap:18px;align-items:start}
+        .left-col{min-width:0;display:grid;gap:18px}
+        .right-col{min-width:0}
+        .sticky-visual{position:sticky;top:92px;padding:16px;display:grid;gap:12px}
+        .visual-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+        .visual-head h2{margin:0;font-size:1.05rem}
+        .mini-muted{font-size:.9rem;color:var(--muted)}
+        .viz-canvas-wrap{position:relative;border-radius:18px;border:1px solid var(--line);background:radial-gradient(circle at top left, rgba(53,208,211,.08), transparent 40%), #0c141d;min-height:420px;overflow:hidden;cursor:grab}
+        body[data-theme="light"] .viz-canvas-wrap{background:radial-gradient(circle at top left, rgba(10,163,154,.09), transparent 40%), #f9feff}
+        .viz-canvas-wrap:active{cursor:grabbing}
+        svg.visual{width:100%;height:100%;display:block;min-height:420px}
+        .viz-controls{display:grid;grid-template-columns:1fr auto auto auto auto;gap:8px;align-items:center}
+        .zoom-readout{min-width:78px;text-align:center;padding:10px 8px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.03);font-variant-numeric:tabular-nums}
+        .toggles{display:flex;flex-wrap:wrap;gap:8px}
+        .toggle{display:inline-flex;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.03);cursor:pointer;font-size:.9rem}
+        .legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+        .legend-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:.9rem}
+        .swatch{width:14px;height:14px;border-radius:50%}
+
+        .tabs{display:flex;flex-wrap:wrap;gap:8px;padding:12px}
+        .tab{padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.03);cursor:pointer;font-weight:700;color:var(--muted)}
+        .tab.active{color:var(--text);border-color:rgba(53,208,211,.45);box-shadow:0 0 0 1px rgba(53,208,211,.18) inset;background:rgba(53,208,211,.08)}
+
+        .section{padding:18px 18px 20px}
+        .section h3{margin:0 0 10px;font-size:1.15rem}
+        .lead{color:var(--muted);margin-bottom:14px}
+        .idea-list,.mistakes-list,.check-list,.quiz-list,.steps{display:grid;gap:12px}
+        .idea-item,.mistake-item,.check-item,.quiz-item,.step,.gen-block,.status-box{padding:14px 15px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
+        .idea-item strong,.step strong,.status-box strong{display:block;margin-bottom:6px}
+        .step{transition:border-color .2s ease, background .2s ease, transform .12s ease}
+        .step.active,.step:hover{border-color:rgba(53,208,211,.5);background:rgba(53,208,211,.08)}
+        .step-header{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:8px}
+        .step button{padding:8px 10px;min-height:auto;font-size:.92rem}
+        .step-content{display:none;color:var(--text)}
+        .step.open .step-content{display:block}
+        .step small,.soft{color:var(--muted)}
+        .mathline{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px dashed var(--line);margin:10px 0}
+        math{font-size:1rem;color:var(--text)}
+        .compact-math math{font-size:.95rem}
+        .system{display:inline-grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;border:1px dashed var(--line);background:rgba(255,255,255,.03)}
+        .system-brace{font-size:1.6rem;line-height:1;transform:translateY(-1px);color:var(--accent);font-weight:700}
+        .system-lines{display:grid;gap:4px}
+
+        .generator-grid{display:grid;gap:12px}
+        .answer-badge{display:inline-flex;padding:7px 10px;border-radius:999px;background:rgba(126,224,129,.12);border:1px solid rgba(126,224,129,.35);color:var(--good);font-weight:700}
+        .idea-badge{display:inline-flex;padding:7px 10px;border-radius:999px;background:rgba(53,208,211,.12);border:1px solid rgba(53,208,211,.35);color:var(--accent);font-weight:700}
+
+        .quiz-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+        .result{margin-top:10px;font-weight:700}
+        .good{color:var(--good)} .bad{color:var(--bad)} .warn{color:var(--warn)}
+
+        .hint-trigger{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;font-size:.83rem;font-weight:800;background:linear-gradient(180deg, rgba(53,208,211,.3), rgba(43,181,166,.12));color:var(--accent);border:1px solid rgba(53,208,211,.45);cursor:pointer;position:relative;animation:hintPulse 2.1s infinite}
+        .hint-trigger[data-variant="bang"]{color:var(--warn)}
+        .hint-trigger[data-variant="info"]{color:var(--accent2)}
+        .hint-pop{position:absolute;z-index:40;min-width:260px;max-width:320px;padding:12px 12px 10px;border-radius:16px;border:1px solid rgba(53,208,211,.45);background:linear-gradient(180deg, rgba(11,22,30,.97), rgba(18,33,43,.98));box-shadow:0 18px 50px rgba(0,0,0,.38);opacity:0;pointer-events:none;transform:translateY(8px) scale(.97);transition:opacity .22s ease, transform .22s ease}
+        body[data-theme="light"] .hint-pop{background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(241,249,250,.99));box-shadow:0 12px 32px rgba(14,39,50,.16)}
+        .hint-pop.show{opacity:1;pointer-events:auto;transform:translateY(0) scale(1);animation:hintBounce .28s ease}
+        .hint-pop::before{content:"";position:absolute;width:12px;height:12px;background:inherit;border-left:1px solid rgba(53,208,211,.45);border-top:1px solid rgba(53,208,211,.45);transform:rotate(45deg)}
+        .hint-pop[data-pos="top"]::before{left:18px;bottom:-7px}
+        .hint-pop[data-pos="bottom"]::before{left:18px;top:-7px}
+        .hint-pop[data-pos="right"]::before{left:-7px;top:16px}
+        .hint-pop[data-pos="left"]::before{right:-7px;top:16px}
+        .hint-title{display:flex;justify-content:space-between;gap:10px;align-items:center;font-weight:800;margin-bottom:7px}
+        .hint-close{background:transparent;border:0;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:0 2px}
+        .hint-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+        .hint-actions button{min-height:auto;padding:7px 9px;font-size:.86rem}
+        .glow-target{animation:borderGlow 1.35s ease 2}
+
+        .overlay{position:fixed;inset:0;background:rgba(6,12,18,.72);display:none;align-items:center;justify-content:center;z-index:80;padding:18px}
+        .overlay.show{display:flex}
+        .modal{width:min(1200px,100%);max-height:92vh;overflow:auto;padding:16px}
+        .modal-top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
+        .modal-viz{min-height:72vh}
+
+        .sr-only{position:absolute;left:-9999px}
+        .topic-status{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+        .topic-status .status-box{padding:12px}
+
+        .print-note{color:var(--muted);font-size:.92rem}
+        @keyframes hintPulse{0%{box-shadow:0 0 0 0 rgba(53,208,211,.33)} 70%{box-shadow:0 0 0 12px rgba(53,208,211,0)} 100%{box-shadow:0 0 0 0 rgba(53,208,211,0)}}
+        @keyframes borderGlow{0%,100%{box-shadow:0 0 0 0 rgba(53,208,211,0)} 50%{box-shadow:0 0 0 2px rgba(53,208,211,.6), 0 0 24px rgba(53,208,211,.18)}}
+        @keyframes hintBounce{0%{transform:translateY(8px) scale(.94)} 60%{transform:translateY(-2px) scale(1.01)} 100%{transform:translateY(0) scale(1)}}
+
+        @media (max-width:1100px){
+            .hero,.workspace{grid-template-columns:1fr}
+            .sticky-visual{position:static}
+            .toolbar{grid-template-columns:1fr 1fr;top:0}
+            .viz-controls{grid-template-columns:1fr auto auto auto auto}
+        }
+        @media (max-width:760px){
+            .app{padding:12px 12px 40px}
+            .toolbar{grid-template-columns:1fr}
+            .hero-grid,.legend,.topic-status{grid-template-columns:1fr}
+            .viz-controls{grid-template-columns:1fr 1fr 1fr;align-items:stretch}
+            .zoom-readout{grid-column:1/-1}
+            .hint-pop{max-width:min(92vw,320px);min-width:0}
+            .viz-canvas-wrap,svg.visual{min-height:340px}
+        }
+        @media print{
+            body{background:#fff;color:#000}
+            .toolbar,.overlay,.hint-trigger,.viz-controls button,.toggle input,.print-hide{display:none !important}
+            .card{box-shadow:none;border:1px solid #bbb;background:#fff}
+            .workspace{grid-template-columns:1fr}
+            .sticky-visual{position:static}
+            .viz-canvas-wrap{min-height:360px;background:#fff;border:1px solid #999}
+            .step-content{display:block !important}
+            .step{break-inside:avoid}
+            .tabs{padding-bottom:0}
+        }
+    </style>
+</head>
+<body data-theme="dark">
+<div class="app">
+    <section class="hero">
+        <div class="hero-main card">
+            <div class="eyebrow">Наглядная математика • повторение + объяснение с нуля</div>
+            <h1>Теория и задачи по мотивам пособия</h1>
+            <p class="subtitle">Страница собрана для базового уровня: всё разложено по темам, каждая тема имеет идею, пошаговый разбор, явную проверку ответа, типичные ошибки, мини-квиз, самопроверку и одну похожую задачу.</p>
+            <div class="hero-grid">
+                <div class="pill"><strong>Фокус</strong><span>графическая интерпретация и связь текста с моделью</span></div>
+                <div class="pill"><strong>Режим</strong><span>пошаговое раскрытие + интерактивная схема</span></div>
+                <div class="pill"><strong>Метод</strong><span>только школьные методы, без тяжёлой терминологии</span></div>
+                <div class="pill"><strong>Формат</strong><span>автономный HTML, печать, мобильная версия, светлая/тёмная тема</span></div>
+            </div>
+        </div>
+        <aside class="hero-side card">
+            <div class="meta">
+                <div class="meta-row"><b>Цель</b><span>повторение и объяснение с нуля</span></div>
+                <div class="meta-row"><b>Уровень</b><span>базовый</span></div>
+                <div class="meta-row"><b>Подробность</b><span>стандартная с переключателем на кратко / подробно</span></div>
+                <div class="meta-row"><b>Интерактивность</b><span>расширенная</span></div>
+                <div class="meta-row"><b>Автор</b><span>Лёвин Артём Александрович</span></div>
+            </div>
+        </aside>
+    </section>
+
+    <section class="toolbar card" aria-label="Панель управления страницей">
+        <div class="control" id="topicControlWrap">
+            <label for="topicSelect">Тема
+                <span class="hint-trigger" tabindex="0" data-hint="topicHint" data-variant="info" aria-label="Подсказка о выборе темы">i</span>
+            </label>
+            <select id="topicSelect" aria-label="Выбор темы">
+                <option value="probability">Вероятность</option>
+                <option value="geometry">Геометрия</option>
+                <option value="graphs">Графы</option>
+                <option value="algebra">Алгебраическая текстовая задача</option>
+            </select>
+        </div>
+        <div class="control">
+            <label for="detailSelect">Подробность</label>
+            <select id="detailSelect" aria-label="Уровень подробности">
+                <option value="short">Кратко</option>
+                <option value="standard" selected>Стандартно</option>
+                <option value="full">Очень подробно</option>
+            </select>
+        </div>
+        <div class="control">
+            <label for="themeToggle">Тема оформления</label>
+            <button class="btn btn-ghost" id="themeToggle" aria-label="Переключить светлую и тёмную тему">Светлая / тёмная тема</button>
+        </div>
+        <div class="control" id="genWrap">
+            <label for="generateBtn">Похожая задача
+                <span class="hint-trigger" tabindex="0" data-hint="genHint" data-variant="bang" aria-label="Подсказка о генераторе">!</span>
+            </label>
+            <button class="btn btn-accent" id="generateBtn">Сгенерировать</button>
+        </div>
+        <div class="control">
+            <label for="expandAllBtn">Шаги решения</label>
+            <button class="btn btn-ghost" id="expandAllBtn">Открыть всё</button>
+        </div>
+
+        <div id="topicHint" class="hint-pop" data-pos="bottom" role="tooltip" aria-hidden="true">
+            <div class="hint-title"><span>Как выбирать тему</span><button class="hint-close" aria-label="Закрыть подсказку">×</button></div>
+            <div>Каждый раздел использует <strong>тот же школьный метод</strong>, что и в пособии: вероятность — через события «и/или», геометрия — через треугольник, графы — через нечётные вершины, алгебра — через составление уравнения.</div>
+            <div class="compact-math" style="margin-top:8px">
+                <math display="block"><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>A</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mtext>благоприятные</mtext><mtext>все</mtext></mfrac></mrow></math>
+            </div>
+            <div class="hint-actions">
+                <button class="btn btn-ghost" data-action="tryGeometry">Открыть геометрию</button>
+                <button class="btn btn-ghost" data-action="tryGraphs">Открыть графы</button>
+            </div>
+        </div>
+
+        <div id="genHint" class="hint-pop" data-pos="bottom" role="tooltip" aria-hidden="true">
+            <div class="hint-title"><span>Что делает генератор</span><button class="hint-close" aria-label="Закрыть подсказку">×</button></div>
+            <div>Кнопка создаёт <strong>одну новую задачу того же типа</strong>, сразу показывает ответ и очень короткую идею. Генерация безопасная: без вырожденных случаев и с той же моделью справа.</div>
+            <div class="hint-actions">
+                <button class="btn btn-ghost" data-action="generateNow">Сгенерировать сейчас</button>
+                <button class="btn btn-ghost" data-action="flashGen">Подсветить кнопку</button>
+            </div>
+        </div>
+    </section>
+
+    <div class="workspace">
+        <main class="left-col">
+            <section class="card">
+                <div class="tabs" id="tabBar"></div>
+                <div class="section">
+                    <h3 id="topicTitle"></h3>
+                    <p class="lead" id="topicLead"></p>
+                    <div class="topic-status" id="topicStatus"></div>
+                </div>
+            </section>
+
+            <section class="card section">
+                <h3>Идея решения</h3>
+                <div class="idea-list" id="ideaList"></div>
+            </section>
+
+            <section class="card section">
+                <h3>Пошаговый разбор</h3>
+                <p class="lead">Режим пошагового раскрытия включён. Можно открывать этапы по одному или сразу все.</p>
+                <div class="steps" id="stepsContainer"></div>
+            </section>
+
+            <section class="card section">
+                <h3>Явная проверка ответа</h3>
+                <div class="check-list" id="checkList"></div>
+            </section>
+
+            <section class="card section">
+                <h3>Типичные ошибки</h3>
+                <div class="mistakes-list" id="mistakesList"></div>
+            </section>
+
+            <section class="card section">
+                <h3>Похожая задача</h3>
+                <div class="generator-grid" id="generatorBox"></div>
+            </section>
+
+            <section class="card section">
+                <h3>Мини-квиз</h3>
+                <div class="quiz-list" id="quizBox"></div>
+            </section>
+
+            <section class="card section">
+                <h3>Самопроверка</h3>
+                <div class="check-list" id="selfCheckBox"></div>
+                <p class="print-note">Для печати страница раскрывает шаги автоматически и сохраняет схему с текущими параметрами.</p>
+            </section>
+        </main>
+
+        <aside class="right-col">
+            <section class="card sticky-visual">
+                <div class="visual-head">
+                    <div>
+                        <h2>Интерактивная модель</h2>
+                        <div class="mini-muted" id="vizCaption">Кликните по схеме, чтобы открыть увеличенную копию. Масштаб и положение синхронизируются.</div>
+                    </div>
+                    <span class="hint-trigger" tabindex="0" data-hint="vizHint" aria-label="Подсказка о визуализации">?</span>
+                </div>
+                <div class="viz-canvas-wrap" id="vizWrap" tabindex="0" aria-label="Интерактивная математическая схема"></div>
+                <div class="viz-controls">
+                    <input type="range" min="0.6" max="2.4" step="0.05" id="zoomSlider" aria-label="Масштаб схемы" />
+                    <button class="btn btn-ghost" id="zoomOutBtn" aria-label="Уменьшить">−</button>
+                    <button class="btn btn-ghost" id="zoomInBtn" aria-label="Увеличить">+</button>
+                    <button class="btn btn-ghost" id="resetViewBtn" aria-label="Сбросить вид">Сброс</button>
+                    <div class="zoom-readout" id="zoomReadout">100%</div>
+                </div>
+                <div class="toggles" id="toggleBox"></div>
+                <div class="legend" id="legendBox"></div>
+                <div id="vizHint" class="hint-pop" data-pos="top" role="tooltip" aria-hidden="true">
+                    <div class="hint-title"><span>Как работать со схемой</span><button class="hint-close" aria-label="Закрыть подсказку">×</button></div>
+                    <div>Можно <strong>тащить мышкой</strong>, менять масштаб колесом и открывать модальное окно кликом. При наведении на шаг слева подсвечивается нужный объект справа.</div>
+                    <div class="hint-actions">
+                        <button class="btn btn-ghost" data-action="resetView">Сбросить вид</button>
+                        <button class="btn btn-ghost" data-action="showExampleHighlight">Показать подсветку</button>
+                    </div>
+                </div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+<div class="overlay" id="overlay" aria-hidden="true">
+    <div class="modal card">
+        <div class="modal-top">
+            <div>
+                <strong>Увеличенная схема</strong>
+                <div class="mini-muted">Состояние полностью синхронизировано с основной моделью.</div>
+            </div>
+            <button class="btn btn-ghost" id="closeOverlayBtn" aria-label="Закрыть увеличенную схему">Закрыть</button>
+        </div>
+        <div class="viz-canvas-wrap modal-viz" id="modalVizWrap" tabindex="0"></div>
+    </div>
+</div>
+
+<script>
+    (() => {
+        const state = {
+            theme: localStorage.getItem('mathTheme') || 'dark',
+            topic: 'probability',
+            detail: 'standard',
+            openAll: false,
+            view: { zoom: 1, x: 0, y: 0 },
+            toggles: { labels: true, helper: true, alt: true },
+            activeLink: null,
+            drag: null,
+            generated: {},
+        };
+
+        const el = {
+            body: document.body,
+            topicSelect: document.getElementById('topicSelect'),
+            detailSelect: document.getElementById('detailSelect'),
+            themeToggle: document.getElementById('themeToggle'),
+            generateBtn: document.getElementById('generateBtn'),
+            expandAllBtn: document.getElementById('expandAllBtn'),
+            tabBar: document.getElementById('tabBar'),
+            topicTitle: document.getElementById('topicTitle'),
+            topicLead: document.getElementById('topicLead'),
+            topicStatus: document.getElementById('topicStatus'),
+            ideaList: document.getElementById('ideaList'),
+            stepsContainer: document.getElementById('stepsContainer'),
+            checkList: document.getElementById('checkList'),
+            mistakesList: document.getElementById('mistakesList'),
+            generatorBox: document.getElementById('generatorBox'),
+            quizBox: document.getElementById('quizBox'),
+            selfCheckBox: document.getElementById('selfCheckBox'),
+            vizWrap: document.getElementById('vizWrap'),
+            modalVizWrap: document.getElementById('modalVizWrap'),
+            overlay: document.getElementById('overlay'),
+            closeOverlayBtn: document.getElementById('closeOverlayBtn'),
+            zoomSlider: document.getElementById('zoomSlider'),
+            zoomReadout: document.getElementById('zoomReadout'),
+            zoomInBtn: document.getElementById('zoomInBtn'),
+            zoomOutBtn: document.getElementById('zoomOutBtn'),
+            resetViewBtn: document.getElementById('resetViewBtn'),
+            toggleBox: document.getElementById('toggleBox'),
+            legendBox: document.getElementById('legendBox'),
+            vizCaption: document.getElementById('vizCaption'),
+        };
+
+        const topics = {
+            probability: {
+                label: 'Вероятность',
+                title: 'Вероятность: «и», «или», без возвращения и противоположное событие',
+                lead: 'Опорная цель — научиться быстро переводить текст в модель: что считается, где порядок важен, а где нет, что надо складывать, а что — умножать.',
+                status: [
+                    ['Что дано', 'Ручки трёх цветов и серия вытаскиваний без возвращения'],
+                    ['Ключевая идея', 'Сначала определить тип события: «и» или «или»'],
+                    ['Финальный навык', 'Составить верную дробь на каждом шаге']
+                ],
+                ideas: [
+                    'Сначала считаем количество объектов каждого вида. Если один объект уже достали, общее число уменьшается на 1.',
+                    'Если событие звучит как «сначала …, потом …», это обычно союз «и», значит вероятности перемножаются.',
+                    'Если подходят два разных порядка, например «синяя–красная» или «красная–синяя», эти варианты складываются.',
+                    'Для событий «не попал», «не выпало 6», «не меньше одной» часто выгодно использовать противоположное событие.'
+                ],
+                steps(detail){
+                    const blocks = {
+                        short: [
+                            ['Что дано', 'Есть 24 синие, 7 красных и 19 чёрных ручек. Всего 50 ручек.'],
+                            ['Что означает условие', '«Без возвращения» значит после первого выбора и общее число, и число ручек нужного цвета могут уменьшиться.'],
+                            ['Интерпретация', 'Для пары синяя–красная в любом порядке нужно рассмотреть два варианта: сначала синяя, потом красная; сначала красная, потом синяя.'],
+                            ['Ключевая идея', 'Внутри каждого варианта используем «и» → умножение. Между вариантами — «или» → сложение.'],
+                            ['Доведение до ответа', 'Получаем 24/50 · 7/49 + 7/50 · 24/49 = 168/1225.'],
+                            ['Проверка', 'Вероятность положительна и меньше 1. Оба порядка учтены ровно по одному разу.'],
+                            ['Вывод', 'Главное — не забыть, что второй знаменатель равен 49, а не 50.']
+                        ],
+                        standard: [
+                            ['Что дано', 'В коробке 50 ручек: 24 синие, 7 красных, 19 чёрных. Рассматриваем событие: вытащить пару «синяя и красная» в любом порядке.', 'prob-total'],
+                            ['Что означает каждое условие', 'Фраза «в любом порядке» означает, что подходят два разных сценария. Фраза «без возвращения» означает, что после первого выбора остаётся 49 ручек.', 'prob-draw'],
+                            ['Графическая интерпретация', 'В модели справа показаны два пути: С→К и К→С. Каждый путь — это ветка дерева событий.'],
+                            ['Ключевая идея', 'Для каждого пути сначала умножаем вероятности шагов, потому что внутри пути стоит союз «и». Затем складываем два пути, потому что между ними стоит союз «или».'],
+                            ['Пошаговое доведение', 'Вероятность пути С→К равна 24/50 · 7/49. Вероятность пути К→С равна 7/50 · 24/49. Складываем: 24/50 · 7/49 + 7/50 · 24/49 = 168/1225.', 'prob-paths'],
+                            ['Финальная проверка', 'Оба порядка учтены. Второй знаменатель у обоих путей равен 49, это согласуется с условием «без возвращения». Вероятность меньше 1, значит ответ реалистичен.'],
+                            ['Краткий вывод', 'В задачах на два последовательных выбора сначала решаем вопрос о порядке, а уже потом записываем дроби.']
+                        ],
+                        full: [
+                            ['Что дано', 'Есть три группы объектов: 24 синие, 7 красных, 19 чёрных. Всего 24 + 7 + 19 = 50. Нас интересует не конкретный цвет первой ручки, а итоговая пара цветов: одна синяя и одна красная.', 'prob-total'],
+                            ['Что означает каждое условие', '1) «Последовательно» — действия идут по шагам. 2) «Без возвращения» — первую выбранную ручку обратно не кладут. 3) «В любом порядке» — подходят оба расположения цветов по шагам.', 'prob-draw'],
+                            ['Графическая интерпретация', 'Удобно мыслить деревом: из старта выходят две нужные ветки. Первая ветка — выбрать синюю, а потом красную. Вторая — выбрать красную, а потом синюю.'],
+                            ['Ключевая идея', 'Вероятность сложного события собирается из простых. Внутри одного сценария действия происходят вместе: «и» → умножение. Разные допустимые сценарии конкурируют как варианты ответа: «или» → сложение.'],
+                            ['Пошаговое доведение', 'Первый путь: P(сначала синяя) = 24/50. После этого остаётся 49 ручек, красных по-прежнему 7, значит P(потом красная) = 7/49. Получаем 24/50 · 7/49. Второй путь: P(сначала красная) = 7/50, затем P(потом синяя) = 24/49. Получаем 7/50 · 24/49. Складываем: 24·7/(50·49) + 7·24/(50·49) = 336/2450 = 168/1225.', 'prob-paths'],
+                            ['Финальная проверка ответа', 'Других подходящих вариантов нет: пара должна состоять ровно из одной синей и одной красной. Сценарий С→К учтён, сценарий К→С учтён. Сценарии С→С, К→К, чёрные ручки и тройные комбинации не подходят.'],
+                            ['Краткий вывод', 'Самая частая ошибка — написать второй знаменатель 50. Как только первый объект вынут, пространство исходов меняется.']
+                        ]
+                    };
+                    return blocks[detail];
+                },
+                checks: [
+                    'Сумма количеств действительно равна 50.',
+                    'После первого вытаскивания знаменатель меняется с 50 на 49.',
+                    'Учитываются оба допустимых порядка: синяя → красная и красная → синяя.',
+                    'Итоговая вероятность лежит между 0 и 1.'
+                ],
+                mistakes: [
+                    'Оставить знаменатель 50 во второй дроби.',
+                    'Сложить вероятности внутри одного пути вместо умножения.',
+                    'Учесть только один порядок, хотя в условии сказано «пара» без фиксированного порядка.',
+                    'Путать событие «ровно одна красная» с событием «хотя бы одна красная».',
+                ],
+                legend(){
+                    return [
+                        ['#35d0d3','Синяя ветка — выбор синей ручки'],
+                        ['#ff7b7b','Красная ветка — выбор красной ручки'],
+                        ['#ffd166','Жёлтая рамка — текущий активный шаг'],
+                        ['#7ee081','Зелёная подпись — итоговая формула']
+                    ];
+                },
+                toggles: [
+                    ['labels','Подписи'],
+                    ['helper','Подсказки путей'],
+                    ['alt','Второй порядок']
+                ],
+                generator(){
+                    const blue = randInt(10,28), red = randInt(4,11), black = randInt(8,24);
+                    const total = blue+red+black;
+                    const answerNum = 2*blue*red;
+                    const answerDen = total*(total-1);
+                    return {
+                        prompt:`В коробке ${blue} синих, ${red} красных и ${black} чёрных фишек. Две фишки вынимают подряд без возвращения. Найдите вероятность того, что получится пара «синяя и красная» в любом порядке.`,
+                        answer:`${answerNum}/${answerDen}`,
+                        idea:'Рассмотрите два пути: синяя→красная и красная→синяя. Внутри пути умножайте, между путями складывайте.',
+                        viz:{blue,red,black,total}
+                    }
+                },
+                quiz(){
+                    return {
+                        question:'Если сначала выбирают одну ручку, а потом вторую без возвращения, каким будет второй знаменатель?',
+                        options:['Он не меняется: 50','Он становится 49','Он становится 48'],
+                        correct:1,
+                        explain:'После первого выбора один объект исчезает, поэтому остаётся 49 возможных объектов.'
+                    }
+                },
+                selfCheck:[
+                    'Я могу по тексту задачи понять, важен порядок или нет.',
+                    'Я умею отдельно записать два допустимых порядка и не потерять ни один.',
+                    'Я помню, что без возвращения второй знаменатель уменьшается на 1.',
+                    'Я умею проверить, что итоговая вероятность выглядит реалистично.'
+                ],
+                caption:'Справа дерево двухшагового выбора: ветки отражают порядок цветов. Можно двигать схему мышкой и увеличивать её.'
+            },
+            geometry: {
+                label: 'Геометрия',
+                title: 'Геометрия: высота, равнобедренный треугольник, Пифагор и площадь',
+                lead: 'Здесь главный навык — свести задачу к прямоугольному треугольнику. Это позволяет сразу включить теорему Пифагора и получить длины, а затем площадь.',
+                status: [
+                    ['Что дано', 'Равнобедренный треугольник: боковая сторона и высота к основанию'],
+                    ['Ключевая идея', 'Высота к основанию делит основание пополам'],
+                    ['Финальный навык', 'Найти основание через Пифагора и затем площадь']
+                ],
+                ideas: [
+                    'Высота к основанию в равнобедренном треугольнике одновременно является и медианой.',
+                    'После проведения высоты исходная фигура распадается на два равных прямоугольных треугольника.',
+                    'В каждом таком треугольнике гипотенуза — боковая сторона, один катет — высота, а второй катет — половина основания.',
+                    'Когда половина основания найдена, основание восстанавливается удвоением, а площадь считается по формуле S = 1/2 · a · h.'
+                ],
+                steps(detail){
+                    const blocks = {
+                        short: [
+                            ['Что дано', 'Равнобедренный треугольник с боковой стороной 25 и высотой к основанию 24.'],
+                            ['Что означает условие', 'Высота делит основание пополам.'],
+                            ['Интерпретация', 'Получаем прямоугольный треугольник с гипотенузой 25 и катетом 24.'],
+                            ['Ключевая идея', 'По Пифагору находим половину основания: √(25² − 24²) = 7.'],
+                            ['Доведение до ответа', 'Основание 14, площадь 1/2 · 14 · 24 = 168.', 'geo-area'],
+                            ['Проверка', '7² + 24² = 25², значит найденная длина верна.'],
+                            ['Вывод', 'Нужно было сначала найти половину основания, а не всё основание сразу.']
+                        ],
+                        standard: [
+                            ['Что дано', 'Есть равнобедренный треугольник. Боковая сторона равна 25, высота к основанию равна 24. Требуется найти площадь.', 'geo-main'],
+                            ['Что означает каждое условие', 'Так как треугольник равнобедренный, высота к основанию делит основание на две равные части. Значит, если обозначить основание через a, то половина основания равна a/2.', 'geo-half'],
+                            ['Графическая интерпретация', 'После проведения высоты справа получается прямоугольный треугольник. В нём гипотенуза — 25, один катет — 24, второй катет — половина основания.'],
+                            ['Ключевая идея', 'Через теорему Пифагора находим половину основания, затем удваиваем её и подставляем в формулу площади треугольника.', 'geo-pif'],
+                            ['Пошаговое доведение', 'Пусть половина основания равна x. Тогда x² + 24² = 25². Получаем x² = 625 − 576 = 49, значит x = 7. Тогда всё основание равно 14. Площадь S = 1/2 · 14 · 24 = 168.', 'geo-area'],
+                            ['Финальная проверка', 'Проверяем прямоугольный треугольник: 7² + 24² = 49 + 576 = 625 = 25². Значит, длина найдена верно. Основание положительно и согласуется с чертежом.'],
+                            ['Краткий вывод', 'Если в задаче на равнобедренный треугольник дана высота к основанию, почти всегда нужно строить прямоугольный треугольник и включать Пифагора.']
+                        ],
+                        full: [
+                            ['Что дано', 'Рассматриваем равнобедренный треугольник с боковыми сторонами по 25 и высотой к основанию 24. Нужно найти площадь. На рисунке высота проведена из вершины к основанию.', 'geo-main'],
+                            ['Что означает каждое условие', 'Признак равнобедренности даёт сразу важное следствие: высота, опущенная к основанию, одновременно является медианой. Это значит, что основание делится на две равные части. Именно это условие делает задачу школьно-удобной.', 'geo-half'],
+                            ['Графическая интерпретация', 'Фигура справа раскладывается на два одинаковых прямоугольных треугольника. В каждом гипотенуза равна 25, вертикальный катет равен 24, горизонтальный катет — половина основания. Поэтому достаточно решить только одну половину.', 'geo-pif'],
+                            ['Ключевая идея', 'Не нужно пытаться искать всю площадь сразу. Сначала находим скрытую длину через Пифагора: половину основания. Потом восстанавливаем всё основание и только после этого считаем площадь по школьной формуле.', 'geo-main'],
+                            ['Пошаговое доведение', 'Обозначим половину основания через x. По теореме Пифагора: x² + 24² = 25². Следовательно, x² = 625 − 576 = 49, откуда x = 7. Тогда основание равно 2x = 14. Теперь используем формулу площади: S = 1/2 · a · h = 1/2 · 14 · 24 = 168.', 'geo-area'],
+                            ['Финальная проверка ответа', 'Проверяем длину: если половина основания 7, то действительно получается известная тройка 7–24–25. Основание равно 14 — это разумно: оно меньше суммы двух боковых сторон и фигура не вырождается. Площадь положительна и вычислена через сторону, к которой проведена данная высота.'],
+                            ['Краткий вывод', 'Когда в равнобедренном треугольнике дана высота к основанию, задача почти автоматически сводится к прямоугольному треугольнику. Это один из самых надёжных школьных шаблонов.']
+                        ]
+                    };
+                    return blocks[detail];
+                },
+                checks: [
+                    'Высота действительно проведена к основанию, значит формула площади применена корректно.',
+                    'Половина основания вычислена по Пифагору без потери смысла: x > 0.',
+                    'Основание восстановлено удвоением, а не оставлено равным 7.',
+                    'Проверка 7² + 24² = 25² подтверждает вычисления.'
+                ],
+                mistakes: [
+                    'Подставить в формулу площади боковую сторону вместо основания.',
+                    'Забыть, что высота делит основание пополам.',
+                    'После Пифагора взять x = 7 и принять его за всё основание.',
+                    'Считать площадь до нахождения нужной стороны.',
+                ],
+                legend(){
+                    return [
+                        ['#35d0d3','Бирюзовая линия — высота CH'],
+                        ['#7ee081','Зелёная подпись — найденная половина основания'],
+                        ['#ffd166','Жёлтая рамка — активный шаг решения'],
+                        ['#ff7b7b','Красные точки — вершины треугольника']
+                    ];
+                },
+                toggles: [
+                    ['labels','Подписи'],
+                    ['helper','Прямой угол'],
+                    ['alt','Половина основания']
+                ],
+                generator(){
+                    const h = randInt(6,20);
+                    const x = randInt(4,15);
+                    const side = Math.round(Math.sqrt(h*h + x*x));
+                    if(side*side !== h*h + x*x) return this.generator();
+                    const base = 2*x;
+                    const area = base*h/2;
+                    return {
+                        prompt:`В равнобедренном треугольнике боковая сторона равна ${side}, а высота к основанию равна ${h}. Найдите площадь треугольника.`,
+                        answer:String(area),
+                        idea:'Найдите половину основания по теореме Пифагора, затем удвойте её и примените формулу площади.',
+                        viz:{h,x,side,base}
+                    }
+                },
+                quiz(){
+                    return {
+                        question:'Почему в равнобедренном треугольнике удобно проводить высоту к основанию?',
+                        options:['Потому что она всегда равна боковой стороне','Потому что она делит основание пополам и даёт прямоугольные треугольники','Потому что тогда площадь всегда равна 1'],
+                        correct:1,
+                        explain:'Именно это свойство позволяет сразу использовать теорему Пифагора.'
+                    }
+                },
+                selfCheck:[
+                    'Я помню, что высота к основанию в равнобедренном треугольнике делит основание пополам.',
+                    'Я умею построить прямоугольный треугольник внутри исходной фигуры.',
+                    'Я не путаю половину основания и всё основание.',
+                    'Я могу явно проверить ответ по теореме Пифагора.'
+                ],
+                caption:'Справа равнобедренный треугольник с высотой. Можно двигать чертёж, увеличивать и открывать модальное окно.'
+            },
+            graphs: {
+                label: 'Графы',
+                title: 'Графы: когда можно обвести рисунок, не повторяя рёбра',
+                lead: 'Это тема на короткое, но очень надёжное правило. Чертить маршрут обычно не нужно: достаточно посчитать степени вершин и сделать вывод.',
+                status: [
+                    ['Что дано', 'Граф с несколькими вершинами и рёбрами'],
+                    ['Ключевая идея', 'Считать нечётные степени вершин'],
+                    ['Финальный навык', 'Решить задачу без выписывания полного маршрута']
+                ],
+                ideas: [
+                    'Степень вершины — это количество рёбер, выходящих из неё.',
+                    'Если все вершины чётные, обход можно начать и закончить в одной и той же вершине.',
+                    'Если нечётных вершин ровно две, обход возможен: старт в одной нечётной вершине, финиш в другой.',
+                    'Если нечётных вершин больше двух, такой обход невозможен.'
+                ],
+                steps(detail){
+                    const common = {
+                        short:[
+                            ['Что дано','Нужно понять, можно ли пройти по всем рёбрам графа один раз, не отрывая карандаш.'],
+                            ['Что означает условие','Нас интересует не длина пути, а только его существование.'],
+                            ['Интерпретация','Смотрим не на сам маршрут, а на степени вершин.'],
+                            ['Ключевая идея','Ровно две нечётные вершины → обход есть. Больше двух → обхода нет.'],
+                            ['Доведение до ответа','В модели справа нечётные вершины подсвечены. Их две, значит обход возможен.'],
+                            ['Проверка','Старт и финиш должны быть именно в нечётных вершинах.'],
+                            ['Вывод','Маршрут строить не обязательно: достаточно правила по нечётным вершинам.']
+                        ],
+                        standard:[
+                            ['Что дано','Есть граф. Требуется определить, можно ли обвести его, не отрывая карандаш и не проходя по одному ребру дважды.', 'graph-main'],
+                            ['Что означает каждое условие','Такой обход использует каждое ребро ровно один раз. Значит, задача сводится к распознаванию эйлерова пути школьным правилом по нечётным вершинам.', 'graph-deg'],
+                            ['Графическая интерпретация','В правой модели возле каждой вершины подписана её степень. Нечётные вершины выделены отдельно.'],
+                            ['Ключевая идея','Нужно посчитать степени всех вершин и посмотреть, сколько среди них нечётных.', 'graph-odd'],
+                            ['Пошаговое доведение','Если нечётных вершин две, то путь существует. Начинать надо в одной из них, а закончить — в другой. Если их было бы больше двух, путь был бы невозможен.', 'graph-path'],
+                            ['Финальная проверка','Проверяем, что чётные вершины могут служить «промежуточными», а две нечётные вершины естественно становятся стартом и финишем.'],
+                            ['Краткий вывод','В подобных задачах сначала нужна теория по степеням вершин, а уже потом — при желании — конкретный маршрут.']
+                        ],
+                        full:[
+                            ['Что дано','Перед нами граф — набор вершин и рёбер. По условию нужно пройти по всем рёбрам, не повторяя ни одно ребро и не отрывая карандаш. Это означает, что каждое ребро должно войти в маршрут ровно один раз.', 'graph-main'],
+                            ['Что означает каждое условие','Не нужно искать кратчайший путь, не нужно считать длины и углы. Вся задача держится на одном объекте: степени вершины, то есть на числе рёбер, инцидентных этой вершине.', 'graph-deg'],
+                            ['Графическая интерпретация','На схеме справа можно перетаскивать вершины. Подписи степеней остаются привязанными к вершинам, чтобы было видно: именно количество рёбер, а не форма рисунка, определяет ответ.', 'graph-deg'],
+                            ['Ключевая идея','У внутренней вершины вход и выход обычно идут парой, поэтому чётность степени критична. Ровно две нечётные вершины означают, что одна будет стартовой, а другая — конечной. Ноль нечётных — старт и финиш совпадают. Больше двух — маршрут разрушается.', 'graph-odd'],
+                            ['Пошаговое доведение','Считаем степени всех вершин. Затем выделяем нечётные. Если видим ровно две нечётные вершины, делаем вывод: обход существует, начинать надо в одной из них, заканчивать — в другой. Конкретный путь можно не выписывать, если этого не требует условие.', 'graph-path'],
+                            ['Финальная проверка ответа','Проверка состоит не в повторном рисовании всего пути, а в согласовании с правилом: чётные вершины допускают вход и выход попарно, а нечётные «оставляют» один лишний конец маршрута. Поэтому две нечётные вершины — это ровно тот случай, когда старт и финиш различны.'],
+                            ['Краткий вывод','Главная экономия времени на экзамене: не искать маршрут раньше, чем посчитаны степени вершин. Очень часто одного этого уже достаточно для верного ответа.']
+                        ]
+                    };
+                    return common[detail];
+                },
+                checks: [
+                    'Посчитаны именно степени вершин, а не количество соседей «на глаз».',
+                    'Вывод делается по числу нечётных вершин, а не по форме рисунка.',
+                    'Если нечётных вершин две, старт и финиш указаны именно в них.',
+                    'Если нечётных вершин больше двух, обход объявляется невозможным.'
+                ],
+                mistakes: [
+                    'Сразу пытаться рисовать путь и запутаться.',
+                    'Путать вершины и рёбра.',
+                    'Думать, что форма рисунка меняет ответ. На самом деле важна только структура соединений.',
+                    'Забыть, что две нечётные вершины — это не запрет, а как раз допустимый случай.'
+                ],
+                legend(){
+                    return [
+                        ['#35d0d3','Бирюзовые линии — рёбра графа'],
+                        ['#7ee081','Зелёная вершина — чётная степень'],
+                        ['#ff7b7b','Красная вершина — нечётная степень'],
+                        ['#ffd166','Жёлтая подсветка — активный шаг']
+                    ];
+                },
+                toggles:[
+                    ['labels','Подписи'],
+                    ['helper','Степени'],
+                    ['alt','Подсветка нечётных']
+                ],
+                generator(){
+                    const pattern = [2,4,3,5,2,4,2];
+                    return {
+                        prompt:'У вершин графа степени равны 2, 4, 3, 5, 2, 4, 2. Можно ли обвести граф, не отрывая карандаша и не проходя по одному ребру дважды?',
+                        answer:'Да, можно: нечётных вершин ровно две.',
+                        idea:'Сосчитайте, сколько нечётных степеней. Если их ровно две, обход существует.',
+                        viz:{degrees:pattern}
+                    }
+                },
+                quiz(){
+                    return {
+                        question:'Что нужно сделать первым делом в задаче на обход графа?',
+                        options:['Найти самый красивый маршрут','Посчитать степени вершин','Проверить длину каждого ребра'],
+                        correct:1,
+                        explain:'Именно степени вершин дают быстрый теоретический ответ.'
+                    }
+                },
+                selfCheck:[
+                    'Я понимаю, что степень вершины — это число выходящих из неё рёбер.',
+                    'Я помню все три правила: 0 нечётных, 2 нечётные, больше 2 нечётных.',
+                    'Я умею объяснить, почему старт и финиш должны лежать в нечётных вершинах.',
+                    'Я не трачу время на маршрут, если задача этого не требует.'
+                ],
+                caption:'Справа — интерактивный граф. Вершины можно перетаскивать мышкой: ответ от формы рисунка не меняется.'
+            },
+            algebra: {
+                label: 'Алгебра',
+                title: 'Алгебраическая текстовая задача: два отрицательных числа и квадратное уравнение',
+                lead: 'Здесь важно не только решить квадратное уравнение, но и правильно перевести текст в модель, а затем проверить смысл найденных корней.',
+                status: [
+                    ['Что дано', 'Два отрицательных числа, разность 3, произведение 108'],
+                    ['Ключевая идея', 'Обозначить меньшее число через x, второе через x + 3'],
+                    ['Финальный навык', 'Решить уравнение и отбросить неподходящий корень']
+                ],
+                ideas:[
+                    'Если одно число на 3 больше другого, удобнее брать меньшее число за x, тогда второе равно x + 3.',
+                    'Условие о произведении даёт квадратное уравнение x(x + 3) = 108.',
+                    'После решения нужно проверить не только уравнение, но и смысл задачи: оба числа должны быть отрицательными.',
+                    'Положительный корень может появиться технически, но не подойти по условию.'
+                ],
+                steps(detail){
+                    const blocks = {
+                        short:[
+                            ['Что дано','Два отрицательных числа отличаются на 3, их произведение равно 108.'],
+                            ['Что означает условие','Если меньшее число x, то второе x + 3.'],
+                            ['Интерпретация','Получаем уравнение x(x + 3) = 108.'],
+                            ['Ключевая идея','Решаем квадратное уравнение и проверяем знак корней.'],
+                            ['Доведение до ответа','x² + 3x − 108 = 0, D = 441, x = 9 или x = −12. Подходит x = −12, второе число −9.', 'alg-eq'],
+                            ['Проверка','Числа отрицательные, отличаются на 3, произведение 108.'],
+                            ['Вывод','Ответ: −12 и −9.']
+                        ],
+                        standard:[
+                            ['Что дано','Есть два отрицательных числа. Одно меньше другого на 3, а их произведение равно 108.', 'alg-main'],
+                            ['Что означает каждое условие','Если меньшее число обозначить через x, то большее равно x + 3. Это прямо отражает фразу «одно больше другого на 3».'],
+                            ['Алгебраическая интерпретация','Произведение чисел равно 108, поэтому составляем уравнение x(x + 3) = 108.', 'alg-eq'],
+                            ['Ключевая идея','Нужно привести всё к квадратному уравнению, решить его по дискриминанту и затем проверить условие «оба числа отрицательные».'],
+                            ['Пошаговое доведение','Получаем x² + 3x − 108 = 0. Дискриминант D = 3² − 4·1·(−108) = 9 + 432 = 441. Тогда x = (−3 ± 21)/2, то есть x = 9 или x = −12. Значение x = 9 не подходит, потому что число должно быть отрицательным. Значит, x = −12, а второе число равно −9.', 'alg-roots'],
+                            ['Финальная проверка','Числа −12 и −9 действительно отрицательны. Разность между ними равна 3 по модулю направления: −9 = −12 + 3. Произведение (−12)·(−9) = 108. Других подходящих чисел нет, потому что второе решение не проходит по условию.'],
+                            ['Краткий вывод','В текстовых задачах на числа корни уравнения — это ещё не ответ. Ответом становятся только те значения, которые соответствуют смыслу условия.']
+                        ],
+                        full:[
+                            ['Что дано','Рассматриваем задачу на два числа: оба числа отрицательные, одно отличается от другого на 3, а произведение равно 108. Нужно найти оба числа.', 'alg-main'],
+                            ['Что означает каждое условие','Условие «одно меньше другого на 3» удобнее записать через меньшее число. Если меньшее число x, то второе число x + 3. Такой выбор снижает риск ошибки со знаком и сразу делает модель компактной.', 'alg-main'],
+                            ['Алгебраическая интерпретация','Произведение чисел равно 108, значит x(x + 3) = 108. Это стандартный перевод текстового условия в квадратное уравнение. Дальше задача уже чисто алгебраическая.', 'alg-eq'],
+                            ['Ключевая идея','Сначала решаем уравнение честно и получаем все корни, а потом возвращаемся к смыслу текста и отбрасываем неподходящие. Такой порядок безопаснее, чем пытаться угадывать знак заранее.', 'alg-roots'],
+                            ['Пошаговое доведение','Раскрываем скобки: x² + 3x = 108, переносим всё влево: x² + 3x − 108 = 0. Считаем дискриминант: D = 3² − 4·1·(−108) = 441 = 21². Тогда x = (−3 ± 21)/2. Получаем два корня: x = 9 и x = −12. По условию число должно быть отрицательным, значит x = 9 отбрасываем. Остаётся x = −12, второе число равно x + 3 = −9.', 'alg-roots'],
+                            ['Финальная проверка ответа','Проверяем оба условия отдельно. 1) Оба числа отрицательны: да. 2) Одно больше другого на 3: −9 = −12 + 3. 3) Произведение: (−12)(−9) = 108. Другой корень x = 9 не подходит, так как тогда одно из чисел было бы положительным.'],
+                            ['Краткий вывод','В задачах по тексту всегда делайте двойную проверку: сначала по уравнению, потом по смыслу условия. Именно вторая проверка отсеивает лишние корни.']
+                        ]
+                    };
+                    return blocks[detail];
+                },
+                checks:[
+                    'Модель x и x + 3 соответствует именно смыслу «одно больше другого на 3».',
+                    'Дискриминант посчитан правильно: 441.',
+                    'Оба найденных корня проверены по условию, а не только по уравнению.',
+                    'Ответ состоит из двух отрицательных чисел: −12 и −9.'
+                ],
+                mistakes:[
+                    'Неверно задать второе число: x − 3 вместо x + 3.',
+                    'Ошибиться в дискриминанте из-за знака при переносе.',
+                    'Записать в ответ положительный корень, не проверив условие.',
+                    'Остановиться после нахождения x и забыть найти второе число.'
+                ],
+                legend(){
+                    return [
+                        ['#35d0d3','Бирюзовая кривая — график y = x(x + 3)'],
+                        ['#ff7b7b','Красная горизонталь — уровень y = 108'],
+                        ['#7ee081','Зелёная точка — подходящий отрицательный корень'],
+                        ['#ffd166','Жёлтая рамка — активный шаг']
+                    ];
+                },
+                toggles:[
+                    ['labels','Подписи'],
+                    ['helper','Уровень 108'],
+                    ['alt','Вторая точка пересечения']
+                ],
+                generator(){
+                    const a = randInt(6,15), b = randInt(2,7);
+                    const prod = a*(a-b);
+                    return {
+                        prompt:`Есть два отрицательных числа. Одно больше другого на ${b}, а их произведение равно ${prod}. Найдите эти числа.`,
+                        answer:`${-a} и ${-(a-b)}`,
+                        idea:'Обозначьте меньшее число через x, второе — через x + k. После решения проверьте, что оба числа отрицательные.',
+                        viz:{a,b,prod}
+                    }
+                },
+                quiz(){
+                    return {
+                        question:'Зачем после решения квадратного уравнения ещё раз возвращаться к тексту задачи?',
+                        options:['Чтобы сделать решение длиннее','Чтобы отбросить корни, не подходящие по смыслу условия','Потому что без этого дискриминант не существует'],
+                        correct:1,
+                        explain:'Текстовые ограничения часто убирают один из формально найденных корней.'
+                    }
+                },
+                selfCheck:[
+                    'Я умею перевести текст «одно больше другого на k» в выражение x + k.',
+                    'Я помню, что сначала решается уравнение, а потом проверяется смысл задачи.',
+                    'Я умею проверить найденные числа по разности и по произведению.',
+                    'Я не забываю записать оба числа, а не только x.'
+                ],
+                caption:'Справа — графическая интерпретация уравнения: пересечение параболы и горизонтали y = 108. Схему можно двигать мышкой.'
+            }
+        };
+
+        function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+        function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+        function setTheme(theme){
+            state.theme = theme;
+            el.body.dataset.theme = theme;
+            localStorage.setItem('mathTheme', theme);
+        }
+
+        function buildTabs(){
+            el.tabBar.innerHTML = '';
+            Object.entries(topics).forEach(([key, t]) => {
+                const btn = document.createElement('button');
+                btn.className = 'tab' + (key === state.topic ? ' active' : '');
+                btn.textContent = t.label;
+                btn.addEventListener('click', () => {
+                    state.topic = key;
+                    el.topicSelect.value = key;
+                    state.view = { zoom: 1, x: 0, y: 0 };
+                    toastHint('topicControlWrap', `Теперь открыт раздел «${t.label}». Схема и разбор справа/слева обновлены.`);
+                    render();
+                });
+                el.tabBar.appendChild(btn);
+            });
+        }
+
+        function buildStatus(list){
+            el.topicStatus.innerHTML = list.map(([a,b]) => `<div class="status-box"><strong>${escapeHtml(a)}</strong><div>${escapeHtml(b)}</div></div>`).join('');
+        }
+
+        function buildIdeas(items){
+            el.ideaList.innerHTML = items.map((text,i) => `<div class="idea-item"><strong>Идея ${i+1}</strong><div>${escapeHtml(text)}</div></div>`).join('');
+        }
+
+        function buildSteps(stepTuples){
+            el.stepsContainer.innerHTML = '';
+            stepTuples.forEach((item, idx) => {
+                const [title, content, link] = item;
+                const step = document.createElement('div');
+                step.className = 'step' + (state.openAll || idx === 0 ? ' open' : '');
+                step.dataset.link = link || '';
+                step.innerHTML = `
+          <div class="step-header">
+            <div><strong>Шаг ${idx+1}. ${escapeHtml(title)}</strong></div>
+            <button class="btn btn-ghost" aria-label="Открыть или скрыть шаг">${state.openAll || idx === 0 ? 'Скрыть' : 'Открыть'}</button>
+          </div>
+          <div class="step-content">${formatRich(content)}</div>`;
+                const btn = step.querySelector('button');
+                btn.addEventListener('click', () => {
+                    step.classList.toggle('open');
+                    btn.textContent = step.classList.contains('open') ? 'Скрыть' : 'Открыть';
+                });
+                step.addEventListener('mouseenter', () => { state.activeLink = link || null; syncHighlights(); });
+                step.addEventListener('mouseleave', () => { state.activeLink = null; syncHighlights(); });
+                step.addEventListener('focusin', () => { state.activeLink = link || null; syncHighlights(); });
+                step.addEventListener('focusout', () => { state.activeLink = null; syncHighlights(); });
+                el.stepsContainer.appendChild(step);
+            });
+        }
+
+        function formatRich(text){
+            const map = {
+                '24/50 · 7/49 + 7/50 · 24/49 = 168/1225': `<div class="mathline"><math><mrow><mfrac><mn>24</mn><mn>50</mn></mfrac><mo>·</mo><mfrac><mn>7</mn><mn>49</mn></mfrac><mo>+</mo><mfrac><mn>7</mn><mn>50</mn></mfrac><mo>·</mo><mfrac><mn>24</mn><mn>49</mn></mfrac><mo>=</mo><mfrac><mn>168</mn><mn>1225</mn></mfrac></mrow></math></div>`,
+                'x² + 24² = 25². Получаем x² = 625 − 576 = 49, значит x = 7. Тогда всё основание равно 14. Площадь S = 1/2 · 14 · 24 = 168.': `Пусть половина основания равна <math><mi>x</mi></math>. Тогда
+        <div class="mathline"><math><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mn>24</mn><mn>2</mn></msup><mo>=</mo><msup><mn>25</mn><mn>2</mn></msup></mrow></math></div>
+        <div class="mathline"><math><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>=</mo><mn>625</mn><mo>−</mo><mn>576</mn><mo>=</mo><mn>49</mn></mrow></math></div>
+        Значит, <math><mi>x</mi><mo>=</mo><mn>7</mn></math>, всё основание равно <math><mn>14</mn></math>, а площадь
+        <div class="mathline"><math><mrow><mi>S</mi><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>·</mo><mn>14</mn><mo>·</mo><mn>24</mn><mo>=</mo><mn>168</mn></mrow></math></div>`,
+                'Получаем x² + 3x − 108 = 0. Дискриминант D = 3² − 4·1·(−108) = 9 + 432 = 441. Тогда x = (−3 ± 21)/2, то есть x = 9 или x = −12. Значение x = 9 не подходит, потому что число должно быть отрицательным. Значит, x = −12, а второе число равно −9.': `
+        <div class="system"><div class="system-brace">{</div><div class="system-lines"><div><math><mrow><mi>x</mi><mo stretchy="false">(</mo><mi>x</mi><mo>+</mo><mn>3</mn><mo stretchy="false">)</mo><mo>=</mo><mn>108</mn></mrow></math></div><div><math><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>3</mn><mi>x</mi><mo>−</mo><mn>108</mn><mo>=</mo><mn>0</mn></mrow></math></div></div></div>
+        <div class="mathline"><math><mrow><mi>D</mi><mo>=</mo><msup><mn>3</mn><mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>·</mo><mn>1</mn><mo>·</mo><mo stretchy="false">(</mo><mo>−</mo><mn>108</mn><mo stretchy="false">)</mo><mo>=</mo><mn>441</mn></mrow></math></div>
+        <div class="mathline"><math><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo>−</mo><mn>3</mn><mo>±</mo><mn>21</mn></mrow><mn>2</mn></mfrac></mrow></math></div>
+        Получаем <math><mi>x</mi><mo>=</mo><mn>9</mn></math> или <math><mi>x</mi><mo>=</mo><mo>−</mo><mn>12</mn></math>. Подходит только отрицательный корень, поэтому числа: <math><mo>−</mo><mn>12</mn></math> и <math><mo>−</mo><mn>9</mn></math>.`,
+            };
+            return map[text] || `<div>${text}</div>`;
+        }
+
+        function buildList(target, items, className){
+            target.innerHTML = items.map((txt,i) => `<div class="${className}"><strong>${i+1}.</strong><div>${escapeHtml(txt)}</div></div>`).join('');
+        }
+
+        function ensureGenerated(){
+            if(!state.generated[state.topic]) state.generated[state.topic] = topics[state.topic].generator();
+            return state.generated[state.topic];
+        }
+
+        function buildGenerator(){
+            const g = ensureGenerated();
+            el.generatorBox.innerHTML = `
+        <div class="gen-block">
+          <strong>Новая задача того же типа</strong>
+          <div style="margin-top:8px">${escapeHtml(g.prompt)}</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+            <span class="answer-badge">Ответ: ${escapeHtml(g.answer)}</span>
+            <span class="idea-badge">Идея: ${escapeHtml(g.idea)}</span>
+          </div>
+        </div>`;
+        }
+
+        function buildQuiz(){
+            const q = topics[state.topic].quiz();
+            el.quizBox.innerHTML = `
+        <div class="quiz-item">
+          <strong>${escapeHtml(q.question)}</strong>
+          <div class="quiz-actions">
+            ${q.options.map((opt,i)=>`<button class="btn btn-ghost quiz-opt" data-index="${i}">${escapeHtml(opt)}</button>`).join('')}
+          </div>
+          <div class="result" id="quizResult" aria-live="polite"></div>
+        </div>`;
+            el.quizBox.querySelectorAll('.quiz-opt').forEach(btn => btn.addEventListener('click', () => {
+                const ok = Number(btn.dataset.index) === q.correct;
+                const res = document.getElementById('quizResult');
+                res.className = 'result ' + (ok ? 'good' : 'bad');
+                res.textContent = (ok ? 'Верно. ' : 'Пока нет. ') + q.explain;
+            }));
+        }
+
+        function buildSelfCheck(){
+            el.selfCheckBox.innerHTML = topics[state.topic].selfCheck.map((txt,i)=>`
+        <label class="check-item"><input type="checkbox" style="margin-right:10px" /> <span><strong>${i+1}.</strong> ${escapeHtml(txt)}</span></label>
+      `).join('');
+        }
+
+        function buildLegend(){
+            el.legendBox.innerHTML = topics[state.topic].legend().map(([c,txt])=>`<div class="legend-item"><span class="swatch" style="background:${c}"></span><span>${escapeHtml(txt)}</span></div>`).join('');
+            el.toggleBox.innerHTML = topics[state.topic].toggles.map(([key,label])=>`
+        <label class="toggle"><input type="checkbox" ${state.toggles[key] ? 'checked' : ''} data-toggle="${key}" /> ${escapeHtml(label)}</label>
+      `).join('');
+            el.toggleBox.querySelectorAll('input[data-toggle]').forEach(inp => inp.addEventListener('change', () => {
+                state.toggles[inp.dataset.toggle] = inp.checked;
+                renderViz();
+            }));
+        }
+
+        function render(){
+            const t = topics[state.topic];
+            buildTabs();
+            el.topicTitle.textContent = t.title;
+            el.topicLead.textContent = t.lead;
+            el.vizCaption.textContent = t.caption;
+            buildStatus(t.status);
+            buildIdeas(t.ideas);
+            buildSteps(t.steps(state.detail));
+            buildList(el.checkList, t.checks, 'check-item');
+            buildList(el.mistakesList, t.mistakes, 'mistake-item');
+            buildGenerator();
+            buildQuiz();
+            buildSelfCheck();
+            buildLegend();
+            renderViz();
+            el.expandAllBtn.textContent = state.openAll ? 'Свернуть всё' : 'Открыть всё';
+            el.zoomSlider.value = state.view.zoom;
+            el.zoomReadout.textContent = `${Math.round(state.view.zoom*100)}%`;
+        }
+
+        function svgShell(inner){
+            const {zoom,x,y} = state.view;
+            return `<svg class="visual" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" aria-label="Математическая визуализация">
+        <defs>
+          <filter id="glow"><feGaussianBlur stdDeviation="4" result="c"/><feMerge><feMergeNode in="c"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <marker id="arrow" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="#35d0d3"/></marker>
+        </defs>
+        <g transform="translate(${x},${y}) scale(${zoom})">${inner}</g>
+      </svg>`;
+        }
+
+        function renderViz(){
+            const main = drawTopic(state.topic);
+            el.vizWrap.innerHTML = svgShell(main);
+            el.modalVizWrap.innerHTML = svgShell(main);
+            attachVizEvents(el.vizWrap);
+            attachVizEvents(el.modalVizWrap);
+            syncHighlights();
+            el.zoomReadout.textContent = `${Math.round(state.view.zoom*100)}%`;
+        }
+
+        function drawTopic(topic){
+            if(topic==='probability') return drawProbability();
+            if(topic==='geometry') return drawGeometry();
+            if(topic==='graphs') return drawGraphs();
+            return drawAlgebra();
+        }
+
+        function activeStyle(id){
+            return state.activeLink === id ? 'filter="url(#glow)" stroke="#ffd166" stroke-width="5"' : '';
+        }
+
+        function drawProbability(){
+            const g = ensureGenerated().viz || {blue:24,red:7,black:19,total:50};
+            const showLabels = state.toggles.labels, showHelp = state.toggles.helper, showAlt = state.toggles.alt;
+            return `
+      <rect x="0" y="0" width="800" height="520" fill="transparent"/>
+      <text x="45" y="48" fill="var(--text)" font-size="24" font-weight="700">Дерево двухшагового выбора</text>
+      <g data-link="prob-total">
+        <rect x="42" y="72" rx="16" ry="16" width="150" height="118" fill="rgba(53,208,211,.08)" stroke="#35d0d3" stroke-width="2" ${activeStyle('prob-total')}/>
+        <text x="62" y="112" fill="#35d0d3" font-size="20" font-weight="700">Всего: ${g.total}</text>
+        ${showLabels?`<text x="62" y="145" fill="currentColor" font-size="16">Синих: ${g.blue}</text>
+        <text x="62" y="168" fill="#ff7b7b" font-size="16">Красных: ${g.red}</text>`:''}
+      </g>
+      <g data-link="prob-draw">
+        <line x1="190" y1="130" x2="340" y2="90" stroke="#35d0d3" stroke-width="3" marker-end="url(#arrow)" ${activeStyle('prob-draw')}/>
+        <line x1="190" y1="130" x2="340" y2="210" stroke="#ff7b7b" stroke-width="3" marker-end="url(#arrow)" ${activeStyle('prob-draw')}/>
+        ${showHelp?`<text x="232" y="95" fill="#35d0d3" font-size="18">${g.blue}/${g.total}</text>
+        <text x="232" y="205" fill="#ff7b7b" font-size="18">${g.red}/${g.total}</text>`:''}
+      </g>
+      <g data-link="prob-paths">
+        <rect x="346" y="56" rx="16" ry="16" width="140" height="70" fill="rgba(53,208,211,.08)" stroke="#35d0d3" stroke-width="2" ${activeStyle('prob-paths')}/>
+        <text x="366" y="99" fill="#35d0d3" font-size="22" font-weight="700">Синяя</text>
+        <line x1="486" y1="92" x2="620" y2="92" stroke="#ff7b7b" stroke-width="3" marker-end="url(#arrow)" />
+        <rect x="626" y="57" rx="16" ry="16" width="132" height="70" fill="rgba(255,123,123,.08)" stroke="#ff7b7b" stroke-width="2" ${activeStyle('prob-paths')}/>
+        <text x="648" y="100" fill="#ff7b7b" font-size="22" font-weight="700">Красная</text>
+        ${showLabels?`<text x="535" y="78" fill="#ff7b7b" font-size="18">${g.red}/${g.total-1}</text>`:''}
+
+        ${showAlt?`<rect x="346" y="174" rx="16" ry="16" width="140" height="70" fill="rgba(255,123,123,.08)" stroke="#ff7b7b" stroke-width="2" ${activeStyle('prob-paths')}/>
+        <text x="368" y="217" fill="#ff7b7b" font-size="22" font-weight="700">Красная</text>
+        <line x1="486" y1="210" x2="620" y2="210" stroke="#35d0d3" stroke-width="3" marker-end="url(#arrow)" />
+        <rect x="626" y="175" rx="16" ry="16" width="132" height="70" fill="rgba(53,208,211,.08)" stroke="#35d0d3" stroke-width="2" ${activeStyle('prob-paths')}/>
+        <text x="648" y="218" fill="#35d0d3" font-size="22" font-weight="700">Синяя</text>
+        ${showLabels?`<text x="535" y="197" fill="#35d0d3" font-size="18">${g.blue}/${g.total-1}</text>`:''}`:''}
+      </g>
+      <g>
+        <rect x="70" y="315" rx="18" ry="18" width="660" height="128" fill="rgba(126,224,129,.06)" stroke="#7ee081" stroke-width="2"/>
+        <text x="95" y="350" fill="#7ee081" font-size="24" font-weight="800">Итоговая формула</text>
+        <foreignObject x="95" y="365" width="610" height="64">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="font-size:24px;color:var(--text);font-weight:700;line-height:1.4">
+            P = ${g.blue}/${g.total} · ${g.red}/${g.total-1}${showAlt?` + ${g.red}/${g.total} · ${g.blue}/${g.total-1}`:''}
+          </div>
+        </foreignObject>
+      </g>`;
+        }
+
+        function drawGeometry(){
+            const v = ensureGenerated().viz || {h:24,x:7,side:25,base:14};
+            const showLabels = state.toggles.labels, showRight = state.toggles.helper, showHalf = state.toggles.alt;
+            const A = [140,410], B=[620,410], C=[380,110], H=[380,410];
+            return `
+      <rect x="0" y="0" width="800" height="520" fill="transparent"/>
+      <text x="45" y="48" fill="var(--text)" font-size="24" font-weight="700">Высота превращает задачу в прямоугольный треугольник</text>
+      <g data-link="geo-main">
+        <polygon points="${A.join(',')} ${C.join(',')} ${B.join(',')}" fill="rgba(53,208,211,.05)" stroke="#35d0d3" stroke-width="3" ${activeStyle('geo-main')}/>
+        <circle cx="${A[0]}" cy="${A[1]}" r="6" fill="#ff7b7b"/>
+        <circle cx="${B[0]}" cy="${B[1]}" r="6" fill="#ff7b7b"/>
+        <circle cx="${C[0]}" cy="${C[1]}" r="6" fill="#ff7b7b"/>
+        ${showLabels?`<text x="124" y="432" fill="currentColor">A</text><text x="626" y="432" fill="currentColor">B</text><text x="388" y="102" fill="currentColor">C</text>`:''}
+      </g>
+      <g data-link="geo-half">
+        <line x1="${C[0]}" y1="${C[1]}" x2="${H[0]}" y2="${H[1]}" stroke="#35d0d3" stroke-width="4" ${activeStyle('geo-half')}/>
+        <circle cx="${H[0]}" cy="${H[1]}" r="5" fill="#35d0d3"/>
+        ${showLabels?`<text x="388" y="432" fill="#35d0d3">H</text>`:''}
+        ${showRight?`<path d="M380 410 l0 -28 l28 0" fill="none" stroke="#ffd166" stroke-width="3"/>`:''}
+      </g>
+      <g data-link="geo-pif">
+        ${showHalf?`<line x1="${A[0]}" y1="${A[1]-16}" x2="${H[0]}" y2="${H[1]-16}" stroke="#7ee081" stroke-width="3" stroke-dasharray="7 6" ${activeStyle('geo-pif')}/>
+        <line x1="${H[0]}" y1="${H[1]-16}" x2="${B[0]}" y2="${B[1]-16}" stroke="#7ee081" stroke-width="3" stroke-dasharray="7 6" ${activeStyle('geo-pif')}/>
+        <text x="245" y="385" fill="#7ee081" font-size="20">${v.x}</text>
+        <text x="500" y="385" fill="#7ee081" font-size="20">${v.x}</text>`:''}
+        ${showLabels?`<text x="260" y="250" fill="currentColor" font-size="20">${v.side}</text>
+        <text x="486" y="250" fill="currentColor" font-size="20">${v.side}</text>
+        <text x="395" y="268" fill="#35d0d3" font-size="20">${v.h}</text>
+        <text x="355" y="458" fill="currentColor" font-size="20">${v.base}</text>`:''}
+      </g>
+      <g data-link="geo-area">
+        <rect x="60" y="446" width="680" height="52" rx="14" fill="rgba(126,224,129,.06)" stroke="#7ee081" stroke-width="2" ${activeStyle('geo-area')}/>
+        <foreignObject x="84" y="455" width="630" height="38">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="font-size:22px;color:var(--text);font-weight:700">S = 1/2 · ${v.base} · ${v.h} = ${v.base*v.h/2}</div>
+        </foreignObject>
+      </g>`;
+        }
+
+        function drawGraphs(){
+            const nodes = [
+                {id:'A',x:110,y:200},{id:'B',x:240,y:120},{id:'C',x:250,y:290},{id:'D',x:390,y:120},{id:'E',x:410,y:290},{id:'F',x:560,y:120},{id:'G',x:580,y:290}
+            ];
+            const edges = [['A','B'],['A','C'],['B','C'],['B','D'],['B','E'],['C','E'],['D','E'],['D','F'],['E','G'],['F','G'],['E','F']];
+            const degree = Object.fromEntries(nodes.map(n=>[n.id,0]));
+            edges.forEach(([u,v])=>{degree[u]++; degree[v]++;});
+            const showLabels = state.toggles.labels, showDeg = state.toggles.helper, showOdd = state.toggles.alt;
+            return `
+      <rect x="0" y="0" width="800" height="520" fill="transparent"/>
+      <text x="45" y="48" fill="var(--text)" font-size="24" font-weight="700">Степени вершин решают задачу быстрее маршрута</text>
+      <g data-link="graph-main">
+        ${edges.map(([u,v])=>{
+                const a=nodes.find(n=>n.id===u), b=nodes.find(n=>n.id===v);
+                return `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#35d0d3" stroke-width="3" ${activeStyle('graph-main')}/>`;
+            }).join('')}
+      </g>
+      <g data-link="graph-deg">
+        ${nodes.map(n=>{
+            const odd = degree[n.id] % 2 === 1;
+            const fill = showOdd && odd ? '#ff7b7b' : '#7ee081';
+            return `<g class="node" data-node="${n.id}" transform="translate(${n.x},${n.y})">
+            <circle r="24" fill="${fill}" stroke="#0f1720" stroke-width="4" ${activeStyle('graph-deg')}/>
+            <text y="7" text-anchor="middle" fill="#0f1720" font-size="18" font-weight="800">${n.id}</text>
+            ${showDeg?`<text y="46" text-anchor="middle" fill="currentColor" font-size="16">степень ${degree[n.id]}</text>`:''}
+          </g>`;
+        }).join('')}
+      </g>
+      <g data-link="graph-odd">
+        <rect x="70" y="360" width="300" height="90" rx="16" fill="rgba(255,123,123,.08)" stroke="#ff7b7b" stroke-width="2" ${activeStyle('graph-odd')}/>
+        <text x="92" y="394" fill="#ff7b7b" font-size="22" font-weight="800">Нечётные вершины</text>
+        <text x="92" y="426" fill="currentColor" font-size="18">B и E → их ровно две</text>
+      </g>
+      <g data-link="graph-path">
+        <rect x="400" y="360" width="330" height="90" rx="16" fill="rgba(126,224,129,.08)" stroke="#7ee081" stroke-width="2" ${activeStyle('graph-path')}/>
+        <text x="422" y="394" fill="#7ee081" font-size="22" font-weight="800">Вывод</text>
+        <text x="422" y="426" fill="currentColor" font-size="18">Обход возможен: старт в одной нечётной, финиш в другой</text>
+      </g>`;
+    }
+
+    function drawAlgebra(){
+        const v = ensureGenerated().viz || {a:12,b:3,prod:108};
+        const showLabels = state.toggles.labels, showLine = state.toggles.helper, showAlt = state.toggles.alt;
+        const points = [];
+        for(let x=-16;x<=12;x+=0.2){
+            const y = x*(x+3);
+            const sx = 90 + (x+16)*20;
+            const sy = 430 - y*2.2;
+            points.push(`${sx},${sy}`);
+        }
+        const y108 = 430 - 108*2.2;
+        const roots = [-12,9];
+        return `
+      <rect x="0" y="0" width="800" height="520" fill="transparent"/>
+      <text x="45" y="48" fill="var(--text)" font-size="24" font-weight="700">Графическая интерпретация уравнения</text>
+      <g data-link="alg-main">
+        <line x1="80" y1="430" x2="740" y2="430" stroke="currentColor" stroke-width="2"/>
+        <line x1="170" y1="470" x2="170" y2="60" stroke="currentColor" stroke-width="2"/>
+        ${showLabels?`<text x="745" y="435" fill="currentColor">x</text><text x="175" y="58" fill="currentColor">y</text>`:''}
+        ${Array.from({length:9},(_,i)=>-16+i*3).map(val=>`<g><line x1="${90+(val+16)*20}" y1="424" x2="${90+(val+16)*20}" y2="436" stroke="currentColor"/><text x="${90+(val+16)*20}" y="452" fill="currentColor" text-anchor="middle" font-size="12">${val}</text></g>`).join('')}
+      </g>
+      <g data-link="alg-eq">
+        <polyline fill="none" stroke="#35d0d3" stroke-width="4" points="${points.join(' ')}" ${activeStyle('alg-eq')}/>
+        ${showLine?`<line x1="80" y1="${y108}" x2="740" y2="${y108}" stroke="#ff7b7b" stroke-width="3" stroke-dasharray="9 6" ${activeStyle('alg-eq')}/>
+        <text x="680" y="${y108-8}" fill="#ff7b7b" font-size="18">y = 108</text>`:''}
+      </g>
+      <g data-link="alg-roots">
+        ${roots.map((r,i)=>{
+    const sx = 90 + (r+16)*20;
+    return `<g>
+            <circle cx="${sx}" cy="${y108}" r="8" fill="${i===0 ? '#7ee081' : '#ffd166'}" stroke="#0f1720" stroke-width="3" ${activeStyle('alg-roots')}/>
+            ${showAlt || i===0 ? `<text x="${sx}" y="${y108-14}" text-anchor="middle" fill="${i===0 ? '#7ee081' : '#ffd166'}" font-size="17">x = ${r}</text>` : ''}
+          </g>`;
+    }).join('')}
+      </g>`;
+    }
+
+    function attachVizEvents(wrap){
+    const svg = wrap.querySelector('svg');
+    if(!svg) return;
+    wrap.onwheel = (e) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.08 : -0.08;
+    state.view.zoom = clamp(state.view.zoom + delta, 0.6, 2.4);
+    syncView();
+    };
+    wrap.onpointerdown = (e) => {
+    state.drag = { x: e.clientX, y: e.clientY, vx: state.view.x, vy: state.view.y, wrap };
+    wrap.setPointerCapture?.(e.pointerId);
+    };
+    wrap.onpointermove = (e) => {
+    if(!state.drag) return;
+    state.view.x = state.drag.vx + (e.clientX - state.drag.x);
+    state.view.y = state.drag.vy + (e.clientY - state.drag.y);
+    syncView();
+    };
+    wrap.onpointerup = () => { state.drag = null; };
+    wrap.onpointercancel = () => { state.drag = null; };
+    wrap.onclick = (e) => {
+    if(e.target.closest('.node')) return;
+    if(wrap === el.vizWrap) openOverlay();
+    };
+    }
+
+    function clamp(x,a,b){ return Math.max(a, Math.min(b,x)); }
+    function syncView(){
+    el.zoomSlider.value = state.view.zoom;
+    renderViz();
+    }
+    function openOverlay(){ el.overlay.classList.add('show'); el.overlay.setAttribute('aria-hidden','false'); }
+    function closeOverlay(){ el.overlay.classList.remove('show'); el.overlay.setAttribute('aria-hidden','true'); }
+
+    function syncHighlights(){
+    document.querySelectorAll('[data-link]').forEach(node => {
+    const link = node.getAttribute('data-link');
+    if(link && link === state.activeLink) node.classList.add('glow-target');
+    else node.classList.remove('glow-target');
+    });
+    document.querySelectorAll('.step').forEach(step => {
+    const on = state.activeLink && step.dataset.link === state.activeLink;
+    step.classList.toggle('active', !!on);
+    });
+    }
+
+    function installHints(){
+    const triggers = document.querySelectorAll('.hint-trigger');
+    let timer = null;
+    function show(pop, trigger){
+    const r = trigger.getBoundingClientRect();
+    const pos = pop.dataset.pos || 'bottom';
+    pop.classList.add('show');
+    pop.setAttribute('aria-hidden','false');
+    const gap = 10;
+    let top = 0, left = 0;
+    if(pos === 'bottom'){ top = r.bottom + gap + window.scrollY; left = r.left + window.scrollX - 10; }
+    if(pos === 'top'){ top = r.top + window.scrollY - pop.offsetHeight - gap; left = r.left + window.scrollX - 10; }
+    if(pos === 'right'){ top = r.top + window.scrollY - 6; left = r.right + gap + window.scrollX; }
+    if(pos === 'left'){ top = r.top + window.scrollY - 6; left = r.left - pop.offsetWidth - gap + window.scrollX; }
+    pop.style.top = `${Math.max(10, top)}px`;
+    pop.style.left = `${Math.max(10, left)}px`;
+    clearTimeout(timer);
+    timer = setTimeout(()=>hide(pop),15000);
+    }
+    function hide(pop){ pop.classList.remove('show'); pop.setAttribute('aria-hidden','true'); }
+    triggers.forEach(tr => {
+    const pop = document.getElementById(tr.dataset.hint);
+    if(!pop) return;
+    tr.addEventListener('mouseenter', ()=>show(pop,tr));
+    tr.addEventListener('focus', ()=>show(pop,tr));
+    tr.addEventListener('click', (e)=>{ e.stopPropagation(); pop.classList.contains('show') ? hide(pop) : show(pop,tr);});
+    pop.querySelector('.hint-close')?.addEventListener('click', ()=>hide(pop));
+    });
+    document.addEventListener('click', (e)=>{
+    if(!e.target.closest('.hint-pop') && !e.target.closest('.hint-trigger')) document.querySelectorAll('.hint-pop.show').forEach(hide);
+    });
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') { document.querySelectorAll('.hint-pop.show').forEach(hide); closeOverlay(); } });
+    document.querySelectorAll('[data-action]').forEach(btn => btn.addEventListener('click', () => {
+    const a = btn.dataset.action;
+    if(a==='tryGeometry'){ state.topic='geometry'; el.topicSelect.value='geometry'; render(); }
+    if(a==='tryGraphs'){ state.topic='graphs'; el.topicSelect.value='graphs'; render(); }
+    if(a==='generateNow'){ state.generated[state.topic] = topics[state.topic].generator(); buildGenerator(); renderViz(); }
+    if(a==='flashGen'){ document.getElementById('genWrap').classList.add('glow-target'); setTimeout(()=>document.getElementById('genWrap').classList.remove('glow-target'),1800); }
+    if(a==='resetView'){ state.view = {zoom:1,x:0,y:0}; syncView(); }
+    if(a==='showExampleHighlight'){ state.activeLink = topics[state.topic]==topics.geometry ? 'geo-pif' : Object.keys({probability:'prob-paths',graphs:'graph-odd',algebra:'alg-roots'})[0]; syncHighlights(); setTimeout(()=>{state.activeLink=null;syncHighlights();},1800); }
+    }));
+    if(!sessionStorage.getItem('firstHintShown')){
+    setTimeout(()=>{
+    const tr = document.querySelector('.hint-trigger[data-hint="topicHint"]');
+    const pop = document.getElementById('topicHint');
+    if(tr && pop){
+    pop.classList.add('show');
+    pop.setAttribute('aria-hidden','false');
+    const r = tr.getBoundingClientRect();
+    pop.style.top = `${r.bottom + 10 + window.scrollY}px`;
+    pop.style.left = `${Math.max(10, r.left - 10 + window.scrollX)}px`;
+    sessionStorage.setItem('firstHintShown','1');
+    }
+    },3000);
+    }
+    }
+
+    function toastHint(anchorId, text){
+    const anchor = document.getElementById(anchorId);
+    if(!anchor) return;
+    const toast = document.createElement('div');
+    toast.className = 'hint-pop show';
+    toast.dataset.pos = 'bottom';
+    toast.style.position = 'absolute';
+    toast.style.minWidth = '240px';
+    toast.style.maxWidth = '320px';
+    toast.innerHTML = `<div class="hint-title"><span>Короткая подсказка</span><button class="hint-close">×</button></div><div>${escapeHtml(text)}</div>`;
+    anchor.appendChild(toast);
+    toast.style.top = '60px'; toast.style.left = '0';
+    toast.querySelector('.hint-close').addEventListener('click', ()=>toast.remove());
+    setTimeout(()=>toast.remove(),4000);
+    }
+
+    el.topicSelect.addEventListener('change', () => { state.topic = el.topicSelect.value; state.view = {zoom:1,x:0,y:0}; render(); });
+    el.detailSelect.addEventListener('change', () => { state.detail = el.detailSelect.value; render(); });
+    el.themeToggle.addEventListener('click', () => setTheme(state.theme === 'dark' ? 'light' : 'dark'));
+    el.generateBtn.addEventListener('click', () => { state.generated[state.topic] = topics[state.topic].generator(); buildGenerator(); renderViz(); toastHint('genWrap','Новая задача и модель созданы. Ответ уже показан рядом.'); });
+    el.expandAllBtn.addEventListener('click', () => { state.openAll = !state.openAll; render(); });
+    el.zoomSlider.addEventListener('input', () => { state.view.zoom = Number(el.zoomSlider.value); syncView(); });
+    el.zoomInBtn.addEventListener('click', () => { state.view.zoom = clamp(state.view.zoom + 0.1,0.6,2.4); syncView(); });
+    el.zoomOutBtn.addEventListener('click', () => { state.view.zoom = clamp(state.view.zoom - 0.1,0.6,2.4); syncView(); });
+    el.resetViewBtn.addEventListener('click', () => { state.view = {zoom:1,x:0,y:0}; syncView(); });
+    el.closeOverlayBtn.addEventListener('click', closeOverlay);
+    el.overlay.addEventListener('click', (e) => { if(e.target === el.overlay) closeOverlay(); });
+    window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeOverlay(); });
+
+    setTheme(state.theme);
+    el.topicSelect.value = state.topic;
+    el.detailSelect.value = state.detail;
+    installHints();
+    render();
+    })();
+</script>
+</body>
+</html>
