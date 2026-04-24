@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Электрические цепи — интерактивный web-конспект</title>
+    <style>
+        :root {
+            --bg: #0f1720;
+            --panel: #172331;
+            --panel-2: #1f3042;
+            --text: #f2f6f8;
+            --muted: #b8c7d2;
+            --accent: #2dd4bf;
+            --accent-2: #f97316;
+            --accent-3: #f43f5e;
+            --line: rgba(255,255,255,.14);
+            --shadow: 0 18px 48px rgba(0,0,0,.28);
+            --radius: 22px;
+            --paper: #f5efe3;
+            --ink: #1f2933;
+            --good: #34d399;
+            --bad: #fb7185;
+            --warn: #fbbf24;
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+            radial-gradient(circle at 10% 0%, rgba(45,212,191,.16), transparent 34%),
+            radial-gradient(circle at 90% 10%, rgba(249,115,22,.12), transparent 34%),
+            linear-gradient(135deg, #0b1119, var(--bg));
+            color: var(--text);
+            line-height: 1.55;
+        }
+
+        body.light {
+            --bg: #f4f4f0;
+            --panel: #fffaf0;
+            --panel-2: #f0eadf;
+            --text: #151a1f;
+            --muted: #4b5563;
+            --line: rgba(0,0,0,.18);
+            --shadow: 8px 8px 0 #111827;
+            background: #f4f4f0;
+        }
+
+        a { color: inherit; }
+
+        .page {
+            width: min(1180px, calc(100% - 28px));
+            margin: 0 auto;
+            padding: 24px 0 56px;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0 14px;
+            backdrop-filter: blur(14px);
+        }
+
+        .nav {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .nav a,
+        .themeBtn,
+        .smallBtn {
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,.06);
+            color: var(--text);
+            padding: 9px 12px;
+            border-radius: 999px;
+            text-decoration: none;
+            white-space: nowrap;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform .18s, background .18s, border-color .18s;
+        }
+
+        body.light .nav a,
+        body.light .themeBtn,
+        body.light .smallBtn {
+            border: 2px solid #111827;
+            background: #fff;
+            border-radius: 0;
+            box-shadow: 3px 3px 0 #111827;
+        }
+
+        .nav a:hover,
+        .themeBtn:hover,
+        .smallBtn:hover {
+            transform: translateY(-1px);
+            border-color: var(--accent);
+            background: rgba(45,212,191,.12);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.25fr .75fr;
+            gap: 24px;
+            align-items: stretch;
+            margin-top: 10px;
+        }
+
+        .heroCard,
+        .card {
+            background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.035));
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        body.light .heroCard,
+        body.light .card {
+            background: var(--panel);
+            border: 2px solid #111827;
+            border-radius: 0;
+        }
+
+        .heroCard { padding: 34px; }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            font-weight: 800;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            font-size: 12px;
+            margin-bottom: 14px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(34px, 6vw, 68px);
+            line-height: .98;
+            letter-spacing: -0.05em;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            max-width: 700px;
+            margin: 18px 0 0;
+            font-size: 18px;
+        }
+
+        .heroGrid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 26px;
+        }
+
+        .miniMetric {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+            background: rgba(0,0,0,.13);
+        }
+
+        body.light .miniMetric {
+            border: 2px solid #111827;
+            border-radius: 0;
+            background: #fff;
+        }
+
+        .miniMetric strong {
+            display: block;
+            font-size: 24px;
+            color: var(--accent-2);
+            margin-bottom: 4px;
+        }
+
+        .heroSide {
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .formulaWheel {
+            min-height: 260px;
+            display: grid;
+            place-items: center;
+            background:
+            radial-gradient(circle, rgba(45,212,191,.18), transparent 52%),
+            linear-gradient(135deg, rgba(249,115,22,.12), transparent);
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.light .formulaWheel {
+            border: 2px solid #111827;
+            border-radius: 0;
+            background: #fff6df;
+        }
+
+        .ohmTriangle {
+            width: 210px;
+            height: 188px;
+            position: relative;
+        }
+
+        .ohmTriangle svg { width: 100%; height: 100%; overflow: visible; }
+
+        .ohmTriangle text {
+            font-size: 36px;
+            font-weight: 900;
+            fill: var(--text);
+        }
+
+        body.light .ohmTriangle text { fill: #111827; }
+
+        .section {
+            margin-top: 26px;
+            scroll-margin-top: 90px;
+        }
+
+        .sectionHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 16px;
+            margin: 0 0 12px;
+        }
+
+        .sectionHeader h2 {
+            margin: 0;
+            font-size: clamp(25px, 3vw, 38px);
+            letter-spacing: -0.035em;
+        }
+
+        .sectionHeader p {
+            margin: 0;
+            color: var(--muted);
+            max-width: 620px;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(340px, .95fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .leftStack { display: grid; gap: 16px; }
+
+        .card { padding: 22px; }
+
+        .card h3 {
+            margin: 0 0 12px;
+            font-size: 23px;
+            color: var(--accent);
+        }
+
+        .note {
+            border-left: 4px solid var(--accent);
+            padding: 12px 14px;
+            background: rgba(45,212,191,.09);
+            border-radius: 0 14px 14px 0;
+            color: var(--text);
+        }
+
+        body.light .note {
+            background: #e9fffa;
+            border-radius: 0;
+        }
+
+        .formulaRow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 14px 0;
+        }
+
+        .formulaPill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 10px 14px;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            background: rgba(0,0,0,.16);
+            font-weight: 900;
+            font-size: 20px;
+            letter-spacing: .01em;
+        }
+
+        body.light .formulaPill {
+            border: 2px solid #111827;
+            border-radius: 0;
+            background: #fff;
+        }
+
+        .stickyLab {
+            position: sticky;
+            top: 82px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .labCanvas {
+            min-height: 470px;
+            padding: 18px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .canvasTitle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .canvasTitle strong { font-size: 18px; }
+
+        .svgWrap {
+            min-height: 270px;
+            display: grid;
+            place-items: center;
+            background: rgba(0,0,0,.18);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        body.light .svgWrap {
+            background: #fff;
+            border: 2px solid #111827;
+            border-radius: 0;
+        }
+
+        svg.circuit {
+            width: 100%;
+            height: 300px;
+            max-width: 520px;
+        }
+
+        .wire { stroke: var(--muted); stroke-width: 5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .resBody { fill: var(--panel-2); stroke: var(--text); stroke-width: 4; }
+        .label { fill: var(--text); font-size: 18px; font-weight: 800; }
+        .hot { stroke: var(--accent-2); fill: rgba(249,115,22,.18); }
+        .node { fill: var(--accent); stroke: var(--text); stroke-width: 3; }
+        .currentArrow { stroke: var(--accent-3); stroke-width: 4; fill: none; marker-end: url(#arrow); }
+        body.light .wire { stroke: #4b5563; }
+        body.light .resBody { fill: #fff; stroke: #111827; }
+        body.light .label { fill: #111827; }
+        body.light .node { stroke: #111827; }
+
+        .controls {
+            display: grid;
+            gap: 10px;
+        }
+
+        .controlGrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        label.control {
+            display: grid;
+            gap: 5px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        input, select {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px 12px;
+            background: rgba(0,0,0,.18);
+            color: var(--text);
+            outline: none;
+            font-size: 15px;
+        }
+
+        body.light input,
+        body.light select {
+            background: #fff;
+            color: #111827;
+            border: 2px solid #111827;
+            border-radius: 0;
+        }
+
+        .resultBox {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+            background: rgba(45,212,191,.08);
+            display: grid;
+            gap: 5px;
+        }
+
+        body.light .resultBox {
+            border: 2px solid #111827;
+            border-radius: 0;
+            background: #e9fffa;
+        }
+
+        .resultBox b { color: var(--accent); }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 0 0 14px;
+        }
+
+        .tab {
+            border: 1px solid var(--line);
+            color: var(--text);
+            background: rgba(255,255,255,.06);
+            border-radius: 999px;
+            padding: 9px 12px;
+            cursor: pointer;
+            font-weight: 800;
+        }
+
+        .tab.active {
+            background: var(--accent);
+            color: #06201c;
+            border-color: var(--accent);
+        }
+
+        body.light .tab {
+            border: 2px solid #111827;
+            border-radius: 0;
+            background: #fff;
+        }
+
+        body.light .tab.active {
+            background: #2dd4bf;
+            color: #111827;
+        }
+
+        .stepList { display: grid; gap: 10px; }
+
+        .step {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+            background: rgba(255,255,255,.045);
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 12px;
+            align-items: start;
+            cursor: pointer;
+            transition: transform .18s, border-color .18s, background .18s;
+        }
+
+        .step:hover,
+        .step.active {
+            transform: translateY(-1px);
+            border-color: var(--accent-2);
+            background: rgba(249,115,22,.09);
+        }
+
+        body.light .step {
+            border: 2px solid #111827;
+            border-radius: 0;
+            background: #fff;
+        }
+
+        .badge {
+            width: 32px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            background: var(--accent-2);
+            color: #1b1005;
+            border-radius: 50%;
+            font-weight: 900;
+        }
+
+        body.light .badge { border: 2px solid #111827; }
+
+        .grid2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .compareCard {
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(0,0,0,.14);
+        }
+
+        body.light .compareCard {
+            border: 2px solid #111827;
+            border-radius: 0;
+            background: #fff;
+        }
+
+        .compareCard h4 {
+            margin: 0 0 10px;
+            color: var(--accent-2);
+            font-size: 20px;
+        }
+
+        .quizOptions {
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .quizOptions button {
+            text-align: left;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: rgba(255,255,255,.06);
+            color: var(--text);
+            padding: 12px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        body.light .quizOptions button {
+            border: 2px solid #111827;
+            border-radius: 0;
+            background: #fff;
+        }
+
+        .quizOptions button.correct { background: rgba(52,211,153,.18); border-color: var(--good); }
+        .quizOptions button.wrong { background: rgba(251,113,133,.18); border-color: var(--bad); }
+
+        .mistakeList {
+            display: grid;
+            gap: 10px;
+        }
+
+        .mistake {
+            padding: 14px;
+            border: 1px dashed rgba(251,191,36,.55);
+            border-radius: 16px;
+            background: rgba(251,191,36,.06);
+        }
+
+        body.light .mistake {
+            border: 2px dashed #111827;
+            border-radius: 0;
+            background: #fff8dc;
+        }
+
+        .printSheet {
+            background: var(--paper);
+            color: var(--ink);
+            border-radius: 18px;
+            padding: 22px;
+            border: 1px solid rgba(0,0,0,.12);
+        }
+
+        body.light .printSheet { border: 2px solid #111827; border-radius: 0; }
+
+        .printSheet h3 { color: #0f766e; }
+        .printSheet .formulaPill { color: var(--ink); background: #fff; border-color: rgba(0,0,0,.18); }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.78);
+            z-index: 100;
+            display: none;
+            place-items: center;
+            padding: 22px;
+        }
+
+        .modal.open { display: grid; }
+
+        .modalInner {
+            width: min(980px, 96vw);
+            max-height: 92vh;
+            overflow: auto;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 18px;
+            position: relative;
+        }
+
+        body.light .modalInner {
+            border: 2px solid #111827;
+            border-radius: 0;
+            background: var(--panel);
+        }
+
+        .closeModal {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,.08);
+            color: var(--text);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 22px;
+        }
+
+        .modal svg.circuit { height: 520px; max-width: 900px; }
+
+        .footer {
+            margin-top: 30px;
+            color: var(--muted);
+            text-align: center;
+            padding: 22px;
+        }
+
+        @media (max-width: 920px) {
+            .hero,
+            .workspace,
+            .grid2 {
+                grid-template-columns: 1fr;
+            }
+            .stickyLab { position: static; }
+            .heroGrid { grid-template-columns: 1fr; }
+            .sectionHeader { display: block; }
+            .controlGrid { grid-template-columns: 1fr; }
+        }
+
+        @media print {
+            body { background: white; color: black; }
+            .topbar, .stickyLab, .themeBtn, .smallBtn, .tabs, .quizOptions, .modal { display: none !important; }
+            .page { width: auto; padding: 0; }
+            .hero, .workspace, .grid2 { grid-template-columns: 1fr; }
+            .card, .heroCard, .printSheet { box-shadow: none; border: 1px solid #999; break-inside: avoid; }
+            .section { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header class="topbar">
+        <nav class="nav" aria-label="Навигация по конспекту">
+            <a href="#ohm">Закон Ома</a>
+            <a href="#connections">Соединения</a>
+            <a href="#mixed">Смешанные цепи</a>
+            <a href="#workpower">Работа и мощность</a>
+            <a href="#trainer">Тренажёр</a>
+            <a href="#quiz">Квиз</a>
+            <a href="#print">Памятка</a>
+        </nav>
+        <button class="themeBtn" id="themeBtn" type="button">LIGHT / DARK</button>
+    </header>
+
+    <section class="hero" id="top">
+        <div class="heroCard">
+            <div class="eyebrow">интерактивный web-конспект • 8 класс</div>
+            <h1>Электрические цепи</h1>
+            <p class="subtitle">Закон Ома, последовательное и параллельное соединение резисторов, смешанные цепи, работа и мощность электрического тока — в одном наглядном конспекте.</p>
+            <div class="heroGrid">
+                <div class="miniMetric"><strong>R</strong><span>сопротивление, Ом</span></div>
+                <div class="miniMetric"><strong>U</strong><span>напряжение, В</span></div>
+                <div class="miniMetric"><strong>I</strong><span>сила тока, А</span></div>
+            </div>
+        </div>
+        <aside class="heroSide card">
+            <div class="formulaWheel" aria-label="Треугольник закона Ома">
+                <div class="ohmTriangle">
+                    <svg viewBox="0 0 220 190" role="img" aria-label="Треугольник закона Ома: U сверху, I и R снизу">
+                        <polygon points="110,10 20,170 200,170" fill="none" stroke="var(--accent)" stroke-width="7" stroke-linejoin="round" />
+                        <line x1="62" y1="103" x2="158" y2="103" stroke="var(--accent-2)" stroke-width="5" stroke-linecap="round" />
+                        <line x1="110" y1="103" x2="110" y2="170" stroke="var(--accent-2)" stroke-width="5" stroke-linecap="round" />
+                        <text x="110" y="82" text-anchor="middle">U</text>
+                        <text x="74" y="151" text-anchor="middle">I</text>
+                        <text x="146" y="151" text-anchor="middle">R</text>
+                    </svg>
+                </div>
+            </div>
+            <div class="note"><b>Быстрый смысл:</b> ток показывает поток зарядов, напряжение — «толчок» источника, сопротивление — насколько элемент мешает току.</div>
+        </aside>
+    </section>
+
+    <section class="section" id="ohm">
+        <div class="sectionHeader">
+            <h2>1. Закон Ома</h2>
+            <p>Главная формула для участка цепи: зная две величины, Вы находите третью.</p>
+        </div>
+        <div class="workspace">
+            <div class="leftStack">
+                <div class="card">
+                    <h3>Формулы</h3>
+                    <div class="formulaRow">
+                        <span class="formulaPill">I = U / R</span>
+                        <span class="formulaPill">U = I · R</span>
+                        <span class="formulaPill">R = U / I</span>
+                    </div>
+                    <div class="note">Единицы: ток — в амперах, напряжение — в вольтах, сопротивление — в омах.</div>
+                </div>
+                <div class="card">
+                    <h3>Как не перепутать</h3>
+                    <div class="stepList">
+                        <div class="step" data-step="u"><span class="badge">1</span><div><b>Ищем ток.</b><br>Делим напряжение на сопротивление: I = U / R.</div></div>
+                        <div class="step" data-step="i"><span class="badge">2</span><div><b>Ищем напряжение.</b><br>Умножаем ток на сопротивление: U = I · R.</div></div>
+                        <div class="step" data-step="r"><span class="badge">3</span><div><b>Ищем сопротивление.</b><br>Делим напряжение на ток: R = U / I.</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="stickyLab">
+                <div class="card labCanvas" id="mainCanvas" title="Нажмите, чтобы открыть увеличенную визуализацию">
+                    <div class="canvasTitle"><strong>Модель участка цепи</strong><span class="smallBtn">открыть крупно</span></div>
+                    <div class="svgWrap" id="svgHost"></div>
+                    <div class="controls">
+                        <div class="controlGrid">
+                            <label class="control">Тип цепи
+                                <select id="circuitType">
+                                    <option value="series">Последовательно</option>
+                                    <option value="parallel">Параллельно</option>
+                                    <option value="mixed">Смешанная</option>
+                                </select>
+                            </label>
+                            <label class="control">Напряжение U, В
+                                <input id="voltage" type="number" min="1" step="1" value="24" />
+                            </label>
+                            <label class="control">R1, Ом
+                                <input id="r1" type="number" min="1" step="1" value="4" />
+                            </label>
+                            <label class="control">R2, Ом
+                                <input id="r2" type="number" min="1" step="1" value="8" />
+                            </label>
+                            <label class="control">R3, Ом
+                                <input id="r3" type="number" min="1" step="1" value="6" />
+                            </label>
+                            <label class="control">Масштаб рисунка
+                                <input id="zoom" type="range" min="80" max="150" value="100" />
+                            </label>
+                        </div>
+                        <div class="resultBox" id="results"></div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <section class="section" id="connections">
+        <div class="sectionHeader">
+            <h2>2. Соединение резисторов</h2>
+            <p>Ключевой навык — сразу распознать, что одинаково: ток или напряжение.</p>
+        </div>
+        <div class="grid2">
+            <div class="compareCard">
+                <h4>Последовательно</h4>
+                <div class="formulaRow"><span class="formulaPill">Rобщ = R1 + R2 + ...</span></div>
+                <ul>
+                    <li>Ток одинаковый на всех элементах.</li>
+                    <li>Напряжения складываются.</li>
+                    <li>Общее сопротивление больше большего.</li>
+                </ul>
+            </div>
+            <div class="compareCard">
+                <h4>Параллельно</h4>
+                <div class="formulaRow"><span class="formulaPill">1/Rобщ = 1/R1 + 1/R2 + ...</span></div>
+                <ul>
+                    <li>Напряжение одинаковое на ветвях.</li>
+                    <li>Токи складываются.</li>
+                    <li>Общее сопротивление меньше меньшего.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="mixed">
+        <div class="sectionHeader">
+            <h2>3. Смешанные цепи</h2>
+            <p>Сложная схема решается через постепенную замену простых фрагментов эквивалентными резисторами.</p>
+        </div>
+        <div class="card">
+            <h3>Алгоритм решения</h3>
+            <div class="tabs" role="tablist">
+                <button class="tab active" data-tab="0" type="button">Шаг 1</button>
+                <button class="tab" data-tab="1" type="button">Шаг 2</button>
+                <button class="tab" data-tab="2" type="button">Шаг 3</button>
+                <button class="tab" data-tab="3" type="button">Шаг 4</button>
+            </div>
+            <div class="stepList" id="mixedSteps"></div>
+        </div>
+    </section>
+
+    <section class="section" id="workpower">
+        <div class="sectionHeader">
+            <h2>4. Работа и мощность тока</h2>
+            <p>Работа — сколько энергии передано. Мощность — как быстро эта энергия передаётся.</p>
+        </div>
+        <div class="grid2">
+            <div class="card">
+                <h3>Работа тока</h3>
+                <div class="formulaRow"><span class="formulaPill">A = U · I · t</span><span class="formulaPill">A = P · t</span></div>
+                <p>Если время в секундах, работа получается в джоулях. Если мощность в киловаттах, а время в часах, энергия получается в кВт·ч.</p>
+                <div class="note">Для стоимости электроэнергии используйте: стоимость = энергия · тариф.</div>
+            </div>
+            <div class="card">
+                <h3>Мощность тока</h3>
+                <div class="formulaRow"><span class="formulaPill">P = U · I</span><span class="formulaPill">P = I²R</span><span class="formulaPill">P = U² / R</span></div>
+                <p>1 кВт = 1000 Вт. 1 МВт = 1 000 000 Вт.</p>
+                <div class="note">Чайник мощностью 2 кВт за 0,25 ч израсходует 0,5 кВт·ч.</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="trainer">
+        <div class="sectionHeader">
+            <h2>5. Мини-тренажёр</h2>
+            <p>Сгенерируйте похожую задачу и проверьте ответ.</p>
+        </div>
+        <div class="card">
+            <div class="tabs">
+                <button class="tab active" id="genTask" type="button">Сгенерировать задачу</button>
+                <button class="tab" id="showAnswer" type="button">Показать ответ</button>
+            </div>
+            <div id="taskBox" class="note"></div>
+            <div id="answerBox" style="margin-top:12px; display:none;" class="resultBox"></div>
+        </div>
+    </section>
+
+    <section class="section" id="quiz">
+        <div class="sectionHeader">
+            <h2>6. Самопроверка</h2>
+            <p>Короткий квиз на самые частые ловушки.</p>
+        </div>
+        <div class="card">
+            <h3 id="quizQuestion">Вопрос</h3>
+            <div class="quizOptions" id="quizOptions"></div>
+            <div id="quizFeedback" class="note" style="margin-top:12px; display:none;"></div>
+            <button class="smallBtn" id="nextQuiz" type="button" style="margin-top:12px;">Следующий вопрос</button>
+        </div>
+    </section>
+
+    <section class="section" id="mistakes">
+        <div class="sectionHeader">
+            <h2>7. Типичные ошибки</h2>
+            <p>Проверьте себя перед решением контрольной или домашней работы.</p>
+        </div>
+        <div class="mistakeList">
+            <div class="mistake"><b>Ошибка 1.</b> Складывать сопротивления при параллельном соединении: Rобщ ≠ R1 + R2.</div>
+            <div class="mistake"><b>Ошибка 2.</b> Забывать перевернуть дробь: если 1/R = 7/8, то R = 8/7.</div>
+            <div class="mistake"><b>Ошибка 3.</b> Путать: последовательно — ток одинаковый; параллельно — напряжение одинаковое.</div>
+            <div class="mistake"><b>Ошибка 4.</b> Писать кВт/ч вместо кВт·ч в задачах на энергию.</div>
+        </div>
+    </section>
+
+    <section class="section" id="print">
+        <div class="sectionHeader">
+            <h2>8. Памятка для печати</h2>
+            <p>Краткая версия конспекта: можно распечатать или сохранить как PDF.</p>
+        </div>
+        <div class="printSheet">
+            <h3>Электрические цепи — главное</h3>
+            <div class="formulaRow">
+                <span class="formulaPill">I = U / R</span>
+                <span class="formulaPill">U = I · R</span>
+                <span class="formulaPill">R = U / I</span>
+            </div>
+            <ul>
+                <li><b>Последовательно:</b> Rобщ = R1 + R2 + ..., ток одинаковый, напряжения складываются.</li>
+                <li><b>Параллельно:</b> 1/Rобщ = 1/R1 + 1/R2 + ..., напряжение одинаковое, токи складываются.</li>
+                <li><b>Смешанная цепь:</b> найдите простой участок → замените эквивалентным резистором → повторите → примените закон Ома.</li>
+                <li><b>Работа:</b> A = U · I · t или A = P · t.</li>
+                <li><b>Мощность:</b> P = U · I = I²R = U²/R.</li>
+                <li><b>Стоимость:</b> энергия в кВт·ч умножается на тариф.</li>
+            </ul>
+        </div>
+    </section>
+
+    <footer class="footer">Математика и физика становятся проще, когда схема превращается в понятную модель.</footer>
+</div>
+
+<div class="modal" id="modal" aria-hidden="true">
+    <div class="modalInner">
+        <button class="closeModal" id="closeModal" type="button" aria-label="Закрыть">×</button>
+        <div class="canvasTitle"><strong>Увеличенная модель цепи</strong><span>состояние синхронизировано</span></div>
+        <div class="svgWrap" id="modalSvgHost"></div>
+        <div class="resultBox" id="modalResults" style="margin-top:12px;"></div>
+    </div>
+</div>
+
+<script>
+    const state = {
+        type: 'series',
+        U: 24,
+        r1: 4,
+        r2: 8,
+        r3: 6,
+        zoom: 100,
+        activeStep: 0,
+        generated: null,
+        quizIndex: 0
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    const fmt = (x) => {
+        if (!Number.isFinite(x)) return '—';
+        const rounded = Math.round(x * 1000) / 1000;
+        return String(rounded).replace('.', ',');
+    };
+
+    function seriesReq(r1, r2, r3) {
+        return r1 + r2 + r3;
+    }
+
+    function parallelReq(values) {
+        return 1 / values.reduce((sum, r) => sum + 1 / r, 0);
+    }
+
+    function mixedReq(r1, r2, r3) {
+        // Смешанная модель: R1 и R2 последовательно в верхней ветви, эта ветвь параллельна R3.
+        const top = r1 + r2;
+        return parallelReq([top, r3]);
+    }
+
+    function currentResult() {
+        const {type, U, r1, r2, r3} = state;
+        let R = 0;
+        let detail = '';
+        if (type === 'series') {
+            R = seriesReq(r1, r2, r3);
+            const I = U / R;
+            detail = `Rобщ = ${r1} + ${r2} + ${r3} = ${fmt(R)} Ом<br>Iобщ = ${fmt(U)} / ${fmt(R)} = ${fmt(I)} А<br>U1 = ${fmt(I*r1)} В, U2 = ${fmt(I*r2)} В, U3 = ${fmt(I*r3)} В`;
+        }
+        if (type === 'parallel') {
+            R = parallelReq([r1, r2, r3]);
+            const I1 = U / r1, I2 = U / r2, I3 = U / r3;
+            detail = `1/Rобщ = 1/${r1} + 1/${r2} + 1/${r3}<br>Rобщ = ${fmt(R)} Ом<br>I1 = ${fmt(I1)} А, I2 = ${fmt(I2)} А, I3 = ${fmt(I3)} А<br>Iобщ = ${fmt(I1+I2+I3)} А`;
+        }
+        if (type === 'mixed') {
+            const top = r1 + r2;
+            R = mixedReq(r1, r2, r3);
+            const I = U / R;
+            const ITop = U / top;
+            const IBottom = U / r3;
+            detail = `Rверх = R1 + R2 = ${fmt(top)} Ом<br>Rобщ = (${fmt(top)} · ${r3}) / (${fmt(top)} + ${r3}) = ${fmt(R)} Ом<br>Iверх = ${fmt(ITop)} А, Iниз = ${fmt(IBottom)} А<br>Iобщ = ${fmt(I)} А`;
+        }
+        return {R, detail};
+    }
+
+    function resistorSvg(x, y, label, value, active=false) {
+        return `
+        <rect class="resBody ${active ? 'hot' : ''}" x="${x}" y="${y}" width="82" height="34" rx="6"></rect>
+        <text class="label" x="${x+41}" y="${y-8}" text-anchor="middle">${label}</text>
+        <text class="label" x="${x+41}" y="${y+57}" text-anchor="middle">${value} Ом</text>`;
+    }
+
+    function renderCircuit(targetId) {
+        const {type, r1, r2, r3, zoom, activeStep} = state;
+        let inner = '';
+        if (type === 'series') {
+            inner = `
+          <path class="wire" d="M40 150 H110 M192 150 H250 M332 150 H390 M472 150 H520" />
+          ${resistorSvg(110,133,'R1',r1, activeStep===0)}
+          ${resistorSvg(250,133,'R2',r2, activeStep===1)}
+          ${resistorSvg(390,133,'R3',r3, activeStep===2)}
+          <circle class="node" cx="40" cy="150" r="8"/><circle class="node" cx="520" cy="150" r="8"/>
+          <path class="currentArrow" d="M88 102 C190 70, 330 70, 454 102"/>`;
+        }
+        if (type === 'parallel') {
+            inner = `
+          <path class="wire" d="M40 150 H100 M100 150 V70 H160 M242 70 H420 V150 H500 M100 150 V230 H160 M242 230 H420 V150" />
+          ${resistorSvg(160,53,'R1',r1, activeStep===0)}
+          ${resistorSvg(160,133,'R2',r2, activeStep===1)}
+          ${resistorSvg(160,213,'R3',r3, activeStep===2)}
+          <path class="wire" d="M242 150 H420" />
+          <circle class="node" cx="40" cy="150" r="8"/><circle class="node" cx="500" cy="150" r="8"/>
+          <circle class="node" cx="100" cy="150" r="7"/><circle class="node" cx="420" cy="150" r="7"/>
+          <path class="currentArrow" d="M60 112 H92"/>`;
+        }
+        if (type === 'mixed') {
+            inner = `
+          <path class="wire" d="M40 150 H100 M100 150 V80 H150 M232 80 H270 M352 80 H420 V150 H500 M100 150 V230 H170 M252 230 H420 V150" />
+          ${resistorSvg(150,63,'R1',r1, activeStep===0)}
+          ${resistorSvg(270,63,'R2',r2, activeStep===1)}
+          ${resistorSvg(170,213,'R3',r3, activeStep===2)}
+          <circle class="node" cx="40" cy="150" r="8"/><circle class="node" cx="500" cy="150" r="8"/>
+          <circle class="node" cx="100" cy="150" r="7"/><circle class="node" cx="420" cy="150" r="7"/>
+          <path class="currentArrow" d="M60 112 H92"/>`;
+        }
+        $(targetId).innerHTML = `
+        <svg class="circuit" viewBox="0 0 560 300" style="transform:scale(${zoom/100}); transform-origin:center;" role="img" aria-label="Интерактивная схема электрической цепи">
+          <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="var(--accent-3)"></path></marker></defs>
+          ${inner}
+        </svg>`;
+    }
+
+    function renderResults() {
+        const {R, detail} = currentResult();
+        const html = `<b>Эквивалентное сопротивление:</b> ${fmt(R)} Ом<br>${detail}`;
+        $('results').innerHTML = html;
+        $('modalResults').innerHTML = html;
+    }
+
+    function renderAll() {
+        renderCircuit('svgHost');
+        renderCircuit('modalSvgHost');
+        renderResults();
+    }
+
+    ['circuitType','voltage','r1','r2','r3','zoom'].forEach(id => {
+        $(id).addEventListener('input', () => {
+            state.type = $('circuitType').value;
+            state.U = Number($('voltage').value) || 1;
+            state.r1 = Number($('r1').value) || 1;
+            state.r2 = Number($('r2').value) || 1;
+            state.r3 = Number($('r3').value) || 1;
+            state.zoom = Number($('zoom').value) || 100;
+            renderAll();
+        });
+    });
+
+    document.querySelectorAll('.step').forEach((el, idx) => {
+        el.addEventListener('mouseenter', () => { state.activeStep = idx; renderAll(); });
+        el.addEventListener('click', () => { state.activeStep = idx; renderAll(); });
+    });
+
+    const mixedTexts = [
+        ['Найдите простой участок', 'Обычно это два резистора последовательно или параллельно. Не пытайтесь сразу считать всю схему целиком.'],
+        ['Замените его эквивалентным резистором', 'Если участок последовательный — сложите сопротивления. Если параллельный — используйте обратные величины.'],
+        ['Повторите упрощение', 'После замены схема становится проще. Продолжайте, пока не останется один общий резистор.'],
+        ['Примените закон Ома', 'Когда известно Rобщ и U, найдите общий ток. Затем при необходимости вернитесь к ветвям и отдельным резисторам.']
+    ];
+
+    function renderMixedStep() {
+        const [title, text] = mixedTexts[state.activeStep];
+        $('mixedSteps').innerHTML = `<div class="step active"><span class="badge">${state.activeStep+1}</span><div><b>${title}</b><br>${text}</div></div>`;
+        document.querySelectorAll('.tab[data-tab]').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.tab) === state.activeStep));
+    }
+
+    document.querySelectorAll('.tab[data-tab]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.activeStep = Number(btn.dataset.tab);
+            renderMixedStep();
+            renderAll();
+        });
+    });
+
+    function randInt(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+
+    function generateTask() {
+        const variants = ['series', 'parallel', 'work'];
+        const v = variants[randInt(0, variants.length - 1)];
+        if (v === 'series') {
+            const a = randInt(2, 9), b = randInt(3, 12), U = randInt(2, 6) * (a+b);
+            const R = a + b, I = U / R;
+            state.generated = {
+                task: `Два резистора ${a} Ом и ${b} Ом соединены последовательно. Напряжение источника ${U} В. Найдите Rобщ, силу тока и напряжение на каждом резисторе.`,
+                answer: `Rобщ = ${R} Ом; I = ${fmt(I)} А; U1 = ${fmt(I*a)} В; U2 = ${fmt(I*b)} В.`
+            };
+        }
+        if (v === 'parallel') {
+            const a = [4,6,8,10,12][randInt(0,4)], b = [3,4,6,12][randInt(0,3)], U = 24;
+            const R = parallelReq([a,b]), I1 = U/a, I2 = U/b;
+            state.generated = {
+                task: `Два резистора ${a} Ом и ${b} Ом соединены параллельно. Напряжение на участке ${U} В. Найдите токи в ветвях, общий ток и Rобщ.`,
+                answer: `I1 = ${fmt(I1)} А; I2 = ${fmt(I2)} А; Iобщ = ${fmt(I1+I2)} А; Rобщ = ${fmt(R)} Ом.`
+            };
+        }
+        if (v === 'work') {
+            const P = [1.2, 1.5, 2, 2.2][randInt(0,3)], t = [0.25, 0.5, 1.5, 2][randInt(0,3)], tariff = randInt(5,8);
+            const A = P*t;
+            state.generated = {
+                task: `Прибор мощностью ${String(P).replace('.', ',')} кВт работал ${String(t).replace('.', ',')} ч. Тариф ${tariff} руб. за 1 кВт·ч. Найдите расход энергии и стоимость.`,
+                answer: `A = ${fmt(A)} кВт·ч; стоимость = ${fmt(A*tariff)} руб.`
+            };
+        }
+        $('taskBox').textContent = state.generated.task;
+        $('answerBox').style.display = 'none';
+        $('answerBox').textContent = '';
+    }
+
+    $('genTask').addEventListener('click', generateTask);
+    $('showAnswer').addEventListener('click', () => {
+        if (!state.generated) generateTask();
+        $('answerBox').style.display = 'grid';
+        $('answerBox').textContent = state.generated.answer;
+    });
+
+    const quiz = [
+        {
+            q: 'Что одинаково при последовательном соединении?',
+            options: ['Сила тока', 'Напряжение', 'Сопротивление каждого резистора'],
+            correct: 0,
+            explain: 'При последовательном соединении ток один и тот же через все элементы.'
+        },
+        {
+            q: 'Что одинаково при параллельном соединении?',
+            options: ['Напряжение на ветвях', 'Сила тока во всех ветвях', 'Сопротивление ветвей'],
+            correct: 0,
+            explain: 'Параллельные ветви подключены к одним и тем же двум точкам, поэтому напряжение одинаково.'
+        },
+        {
+            q: 'Если 1/Rобщ = 7/8, чему равно Rобщ?',
+            options: ['7/8 Ом', '8/7 Ом', '15 Ом'],
+            correct: 1,
+            explain: 'Нужно перевернуть дробь: Rобщ = 8/7 Ом.'
+        },
+        {
+            q: 'Какая запись верна для расхода электроэнергии?',
+            options: ['кВт/ч', 'кВт·ч', 'кВт·А'],
+            correct: 1,
+            explain: 'Киловатт-час — это энергия: мощность умножили на время.'
+        }
+    ];
+
+    function renderQuiz() {
+        const item = quiz[state.quizIndex];
+        $('quizQuestion').textContent = item.q;
+        $('quizOptions').innerHTML = '';
+        $('quizFeedback').style.display = 'none';
+        item.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.textContent = opt;
+            btn.type = 'button';
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#quizOptions button').forEach(b => b.disabled = true);
+                btn.classList.add(idx === item.correct ? 'correct' : 'wrong');
+                if (idx !== item.correct) $('quizOptions').children[item.correct].classList.add('correct');
+                $('quizFeedback').style.display = 'block';
+                $('quizFeedback').textContent = item.explain;
+            });
+            $('quizOptions').appendChild(btn);
+        });
+    }
+
+    $('nextQuiz').addEventListener('click', () => {
+        state.quizIndex = (state.quizIndex + 1) % quiz.length;
+        renderQuiz();
+    });
+
+    $('themeBtn').addEventListener('click', () => {
+        document.body.classList.toggle('light');
+        localStorage.setItem('electric-theme', document.body.classList.contains('light') ? 'light' : 'dark');
+        renderAll();
+    });
+
+    if (localStorage.getItem('electric-theme') === 'light') document.body.classList.add('light');
+
+    $('mainCanvas').addEventListener('click', (e) => {
+        if (['INPUT','SELECT','BUTTON'].includes(e.target.tagName)) return;
+        $('modal').classList.add('open');
+        $('modal').setAttribute('aria-hidden','false');
+        renderAll();
+    });
+
+    $('closeModal').addEventListener('click', () => {
+        $('modal').classList.remove('open');
+        $('modal').setAttribute('aria-hidden','true');
+    });
+
+    $('modal').addEventListener('click', (e) => {
+        if (e.target.id === 'modal') $('closeModal').click();
+    });
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') $('closeModal').click();
+    });
+
+    generateTask();
+    renderMixedStep();
+    renderQuiz();
+    renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,1614 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядная математика — теория и задачи</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1220'/%3E%3Cpath d='M10 46H54M18 50V14M22 42c5-13 9-20 16-20 6 0 9 6 14 20' fill='none' stroke='%2326d0ce' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='33' cy='23' r='3' fill='%23f59e0b'/%3E%3C/svg%3E" />
+    <style>
+        :root {
+            --bg: #071018;
+            --panel: #0d1722;
+            --panel-2: #101f2d;
+            --panel-3: #132536;
+            --text: #e8f3ff;
+            --muted: #93a9bd;
+            --line: rgba(117, 170, 214, 0.2);
+            --line-strong: rgba(55, 179, 201, 0.55);
+            --accent: #20d3d0;
+            --accent-2: #21a5ff;
+            --accent-3: #a97bff;
+            --warn: #ff8a4c;
+            --good: #72da64;
+            --danger: #ff6666;
+            --shadow: 0 18px 40px rgba(0,0,0,.35);
+            --radius: 18px;
+            --radius-sm: 12px;
+            --header-h: 74px;
+            --glow: 0 0 0 1px rgba(32,211,208,.35), 0 0 26px rgba(32,211,208,.16);
+        }
+
+        body.light {
+            --bg: #eef4fa;
+            --panel: #ffffff;
+            --panel-2: #f6fbff;
+            --panel-3: #edf7ff;
+            --text: #102030;
+            --muted: #556779;
+            --line: rgba(45, 91, 126, 0.12);
+            --line-strong: rgba(0, 128, 128, 0.35);
+            --accent: #008b8b;
+            --accent-2: #0074d9;
+            --accent-3: #7a56d6;
+            --warn: #d96d1a;
+            --good: #239d3a;
+            --danger: #ce3b3b;
+            --shadow: 0 16px 32px rgba(25,50,80,.08);
+            --glow: 0 0 0 1px rgba(0,139,139,.22), 0 0 22px rgba(0,139,139,.08);
+        }
+
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+        body { min-height: 100vh; }
+        button, input, select { font: inherit; }
+        a { color: inherit; }
+        .app { max-width: 1680px; margin: 0 auto; padding: 0 18px 28px; }
+
+        .topbar {
+            position: sticky; top: 0; z-index: 40;
+            height: var(--header-h);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 18px;
+            padding: 14px 18px;
+            background: color-mix(in srgb, var(--bg) 82%, transparent);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--line);
+        }
+        .brand { display:flex; align-items:center; gap:10px; font-weight: 800; letter-spacing:.02em; white-space:nowrap; }
+        .brand svg { width: 28px; height: 28px; }
+        .tabs { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+        .tab {
+            background: transparent; color: var(--muted); border: 1px solid transparent; border-radius: 999px; padding: 10px 14px; cursor:pointer;
+            transition: .25s ease; position: relative;
+        }
+        .tab:hover, .tab:focus-visible { color: var(--text); border-color: var(--line-strong); outline:none; }
+        .tab.active { color: var(--text); background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 16%, transparent), transparent); box-shadow: inset 0 -2px 0 var(--accent); }
+        .tools { display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+        .tool-btn, .ghost-btn, .primary-btn, .quiet-btn {
+            background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; cursor:pointer; box-shadow: var(--shadow);
+            transition: transform .18s ease, border-color .18s ease, background .18s ease;
+        }
+        .ghost-btn { background: transparent; box-shadow: none; }
+        .quiet-btn { background: var(--panel-2); box-shadow: none; }
+        .tool-btn:hover, .ghost-btn:hover, .primary-btn:hover, .quiet-btn:hover { transform: translateY(-1px); border-color: var(--line-strong); }
+        .primary-btn { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 16%, var(--panel)), var(--panel)); box-shadow: var(--glow); }
+
+        .theme-switch { display:flex; align-items:center; gap:10px; color: var(--muted); font-size: .95rem; }
+        .switch {
+            width: 56px; height: 30px; border-radius: 999px; background: var(--panel-2); border:1px solid var(--line); position:relative; cursor:pointer;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+        }
+        .switch::after {
+            content:""; position:absolute; width:22px; height:22px; border-radius:50%; top:3px; left:4px;
+            background: linear-gradient(180deg, #fff, #cbd5e1); transition:.22s ease; box-shadow: 0 4px 12px rgba(0,0,0,.28);
+        }
+        body.light .switch::after { transform: translateX(25px); background: linear-gradient(180deg, #0b7285, #2dd4bf); }
+
+        .hero { padding: 18px 0 14px; }
+        .hero h1 { margin: 8px 0 8px; font-size: clamp(1.7rem, 2vw, 2.4rem); line-height:1.15; }
+        .hero p { margin:0; color: var(--muted); font-size: 1rem; }
+        .crumbs { display:flex; gap:10px; flex-wrap:wrap; color: var(--muted); font-size:.94rem; }
+        .crumbs span::after { content:"•"; margin-left: 10px; opacity:.55; }
+        .crumbs span:last-child::after { display:none; }
+
+        .layout {
+            display:grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(380px, .9fr) 260px;
+            gap: 16px;
+            align-items: start;
+        }
+        .left-col, .right-col, .aside-col { min-width:0; }
+
+        .card {
+            background: linear-gradient(180deg, color-mix(in srgb, var(--panel-2) 88%, transparent), var(--panel));
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        .card.pad { padding: 16px; }
+        .sticky-card { position: sticky; top: calc(var(--header-h) + 16px); }
+
+        .controls-row {
+            display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between; margin-bottom: 12px; padding:14px 16px;
+        }
+        .pill-group { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .pill-label { color: var(--muted); margin-right:6px; font-size:.95rem; }
+        .pill {
+            border:1px solid var(--line); background: var(--panel-2); color: var(--muted); padding:7px 11px; border-radius: 10px; cursor:pointer;
+        }
+        .pill.active { color: var(--text); border-color: var(--accent); box-shadow: inset 0 0 0 1px rgba(32,211,208,.25); background: color-mix(in srgb, var(--accent) 10%, var(--panel-2)); }
+
+        .steps { display:grid; gap: 10px; }
+        .step-card { border:1px solid var(--line); border-radius: 16px; background: var(--panel); overflow: hidden; transition: .22s ease; }
+        .step-card:hover { border-color: var(--line-strong); }
+        .step-head {
+            width:100%; background: transparent; color:inherit; border:0; padding:14px 16px; cursor:pointer; text-align:left;
+            display:grid; grid-template-columns: auto 1fr auto; gap:12px; align-items:center;
+        }
+        .step-num {
+            width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-weight:800; color:white;
+            background: linear-gradient(180deg, color-mix(in srgb, var(--accent-2) 40%, var(--accent)), var(--accent));
+            box-shadow: 0 0 0 3px rgba(32,211,208,.12);
+            flex-shrink:0;
+        }
+        .step-title { font-weight:700; }
+        .step-meta { color: var(--muted); font-size: .92rem; }
+        .arrow { color: var(--muted); transition: transform .18s ease; }
+        .step-card.open .arrow { transform: rotate(180deg); }
+        .step-body { display:none; padding: 0 16px 16px 62px; color: var(--text); }
+        .step-card.open .step-body { display:block; }
+        .substeps { display:grid; gap:10px; margin-top: 8px; }
+        .substep-nav { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin: 12px 0; }
+        .mini-step-btn { padding:6px 10px; border-radius:10px; border:1px solid var(--line); background: var(--panel-2); color: var(--muted); cursor:pointer; }
+        .mini-step-btn.active { color: var(--text); border-color: var(--accent); }
+        .substep { display:none; border:1px solid var(--line); border-radius: 14px; padding: 12px; background: var(--panel-2); }
+        .substep.active, .substep.all-visible { display:block; }
+        .substep h4 { margin:0 0 10px; font-size:1rem; }
+
+        .math-inline, .math-block {
+            display:inline-flex; align-items:center; gap:6px; background: color-mix(in srgb, var(--panel-3) 88%, transparent); border:1px solid var(--line); border-radius:12px; padding: 6px 10px; vertical-align: middle;
+        }
+        .math-block { display:flex; justify-content:center; padding: 10px 14px; margin: 10px 0; overflow:auto; }
+        math { color: var(--text); }
+        mrow, mi, mn, mo, mfrac, msup, msub, msubsup { font-size: 1em; }
+
+        .idea-list, .plain-list, .errors-list, .check-list { margin:0; padding-left: 18px; }
+        .plain-list li, .errors-list li, .check-list li { margin: 8px 0; }
+        .muted { color: var(--muted); }
+        .highlight { color: var(--accent); }
+        .warn { color: var(--warn); }
+        .good { color: var(--good); }
+
+        .model-head {
+            padding: 14px 16px; display:flex; justify-content:space-between; align-items:center; gap:10px; border-bottom:1px solid var(--line);
+        }
+        .model-title { font-weight:800; font-size: 1.1rem; display:flex; align-items:center; gap:8px; }
+        .hint-dot {
+            width:20px; height:20px; border-radius:50%; display:grid; place-items:center; background: color-mix(in srgb, var(--accent) 18%, var(--panel-2)); color: var(--accent); font-size:.82rem; font-weight:800;
+            border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); cursor:pointer; position:relative;
+            animation: hintPulse 2.2s infinite ease-in-out;
+        }
+        @keyframes hintPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(32,211,208,.00), 0 0 0 0 rgba(32,211,208,.00); }
+            50% { box-shadow: 0 0 0 6px rgba(32,211,208,.08), 0 0 18px rgba(32,211,208,.18); }
+        }
+        @keyframes borderGlow {
+            0%,100% { box-shadow: 0 0 0 1px rgba(32,211,208,.18), 0 0 0 rgba(32,211,208,.0); }
+            50% { box-shadow: 0 0 0 1px rgba(32,211,208,.45), 0 0 20px rgba(32,211,208,.15); }
+        }
+        @keyframes hintBounce {
+            0% { transform: translateY(6px) scale(.98); opacity:0; }
+            60% { transform: translateY(-3px) scale(1.01); opacity:1; }
+            100% { transform: translateY(0) scale(1); opacity:1; }
+        }
+
+        .model-wrap { padding: 14px; display:grid; gap:12px; }
+        .graph-frame {
+            border:1px solid var(--line); background: linear-gradient(180deg, #081019, #09121c); border-radius: 18px; overflow:hidden; position:relative; min-height: 420px;
+            cursor: grab; user-select:none;
+        }
+        body.light .graph-frame { background: linear-gradient(180deg, #f3fbff, #ebf4f8); }
+        .graph-frame.dragging { cursor: grabbing; }
+        .graph-legend {
+            position:absolute; right: 12px; top: 12px; z-index: 2; background: color-mix(in srgb, var(--panel) 88%, transparent); border:1px solid var(--line); border-radius: 14px; padding: 10px 12px; font-size:.88rem;
+            display:grid; gap:6px; max-width: 210px;
+        }
+        .legend-item { display:flex; align-items:center; gap:8px; }
+        .legend-swatch { width:10px; height:10px; border-radius:50%; }
+        .model-actions { display:grid; gap:10px; }
+        .zoom-row, .toggle-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+        .zoom-row label { color: var(--muted); font-size:.95rem; }
+        input[type="range"] { accent-color: var(--accent); }
+        .tag-toggle {
+            display:flex; align-items:center; justify-content:space-between; gap:10px; padding: 10px 12px; border-radius: 14px; border:1px solid var(--line); background: var(--panel-2); min-width: 174px;
+        }
+        .tiny-switch { width: 42px; height: 24px; border-radius: 99px; background: var(--panel-3); border:1px solid var(--line); position:relative; cursor:pointer; }
+        .tiny-switch::after { content:""; position:absolute; width:16px; height:16px; top:3px; left:4px; border-radius:50%; background:#cbd5e1; transition:.2s ease; }
+        .tag-toggle.on .tiny-switch::after { transform: translateX(18px); background: var(--accent); }
+        .tag-toggle.on { border-color: color-mix(in srgb, var(--accent) 46%, var(--line)); }
+        .small-note { color: var(--muted); font-size: .92rem; }
+
+        .aside-stack, .lower-grid { display:grid; gap: 14px; }
+        .aside-card h3, .mini-card h3 { margin:0 0 12px; font-size:1.08rem; display:flex; justify-content:space-between; gap:12px; align-items:center; }
+        .aside-card, .mini-card { padding:16px; }
+        .aside-card.warn-card { border-color: color-mix(in srgb, var(--warn) 40%, var(--line)); }
+        .quiz-options { display:grid; gap:8px; margin-top:10px; }
+        .option { display:flex; gap:10px; align-items:flex-start; border:1px solid var(--line); border-radius:12px; padding:10px; cursor:pointer; background: var(--panel-2); }
+        .option.correct { border-color: color-mix(in srgb, var(--good) 48%, var(--line)); }
+        .option.wrong { border-color: color-mix(in srgb, var(--danger) 48%, var(--line)); }
+        .option input { margin-top: 2px; }
+        .generated-box { background: var(--panel-2); border:1px solid var(--line); border-radius:14px; padding:12px; }
+        .check-list label { display:flex; gap:10px; align-items:flex-start; margin:8px 0; }
+        .devices { display:flex; gap:10px; align-items:flex-end; margin-top:8px; }
+        .device { border:1px solid var(--line); background: var(--panel-2); border-radius:8px; position:relative; overflow:hidden; }
+        .device::after { content:""; position:absolute; inset: 8% 8% auto 8%; height: 30%; background: linear-gradient(180deg, rgba(32,211,208,.18), transparent); border-radius:6px; }
+        .desktop { width:86px; height:58px; }
+        .tablet { width:50px; height:64px; }
+        .phone { width:28px; height:52px; }
+
+        .lower-grid {
+            grid-template-columns: 1fr 1fr 1fr;
+            margin-top: 14px;
+        }
+
+        .popover {
+            position: absolute; z-index: 50; width: min(320px, calc(100vw - 36px)); padding:14px 14px 12px;
+            background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 92%, transparent), color-mix(in srgb, var(--panel-2) 92%, transparent));
+            border-radius: 16px; border: 1px solid rgba(38, 208, 206, 0.55); box-shadow: 0 0 0 1px rgba(38,208,206,.18), 0 0 34px rgba(38,208,206,.18), var(--shadow);
+            display:none; animation: hintBounce .25s ease; backdrop-filter: blur(10px);
+        }
+        .popover.show { display:block; }
+        .popover::before {
+            content:""; position:absolute; width:14px; height:14px; background: inherit; border-left:1px solid rgba(38,208,206,.55); border-top:1px solid rgba(38,208,206,.55); transform: rotate(45deg);
+        }
+        .popover[data-pos="bottom"]::before { top:-8px; left:22px; }
+        .popover[data-pos="top"]::before { bottom:-8px; left:22px; transform: rotate(225deg); }
+        .popover[data-pos="right"]::before { left:-8px; top:18px; transform: rotate(315deg); }
+        .popover[data-pos="left"]::before { right:-8px; top:18px; transform: rotate(135deg); }
+        .popover-head { display:flex; justify-content:space-between; gap:10px; margin-bottom:8px; font-weight:700; color: var(--accent); }
+        .popover p { margin:0 0 12px; color: var(--text); line-height:1.45; }
+        .popover-actions { display:flex; gap:8px; flex-wrap:wrap; }
+        .popover .close-x { background: transparent; border:0; color: var(--muted); font-size:1rem; cursor:pointer; }
+
+        .hover-link { border-bottom: 1px dashed color-mix(in srgb, var(--accent) 42%, transparent); cursor: help; }
+        .linked-active { animation: borderGlow 1.3s ease infinite; border-radius: 12px; }
+
+        .modal-overlay {
+            position: fixed; inset:0; background: rgba(0,0,0,.58); z-index: 90; display:none; align-items:center; justify-content:center; padding: 18px;
+        }
+        .modal-overlay.show { display:flex; }
+        .modal-card { width:min(1100px, 96vw); max-height: 92vh; overflow:auto; background: var(--panel); border:1px solid var(--line); border-radius: 22px; box-shadow: 0 25px 60px rgba(0,0,0,.45); }
+        .modal-head { display:flex; justify-content:space-between; align-items:center; gap:12px; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+        .modal-body { padding: 16px; }
+
+        .screen-reader-only {
+            position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+        }
+
+        @media (max-width: 1380px) {
+            .layout { grid-template-columns: 1fr 420px; }
+            .aside-col { grid-column: 1 / -1; }
+            .aside-stack { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (max-width: 1100px) {
+            .layout { grid-template-columns: 1fr; }
+            .sticky-card { position: static; }
+            .aside-stack, .lower-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 760px) {
+            .app { padding: 0 12px 22px; }
+            .topbar { grid-template-columns: 1fr; height:auto; }
+            .tabs { justify-content:flex-start; overflow:auto; padding-bottom:4px; }
+            .tools { justify-content:flex-start; }
+            .controls-row { padding: 12px; }
+            .step-head { grid-template-columns: auto 1fr; }
+            .arrow { display:none; }
+            .step-body { padding: 0 12px 14px 12px; }
+            .graph-legend { position:static; margin: 12px; max-width:none; }
+            .graph-frame { min-height: 350px; }
+            .aside-stack, .lower-grid { grid-template-columns: 1fr; }
+            .tag-toggle { min-width: unset; width:100%; }
+            .popover { width: min(300px, calc(100vw - 24px)); }
+        }
+
+        @media print {
+            .topbar, .tools, .controls-row, .model-actions, .aside-col, .lower-grid, .hint-dot, .popover, .ghost-btn, .primary-btn, .quiet-btn, .tool-btn { display:none !important; }
+            body, html { background:#fff !important; color:#000 !important; }
+            .app { max-width:none; padding:0; }
+            .layout { display:block; }
+            .card, .step-card { border:1px solid #bbb; box-shadow:none; background:#fff !important; color:#000 !important; }
+            .step-body { display:block !important; }
+            .step-card { break-inside: avoid; margin-bottom:10px; }
+            .graph-frame { min-height: 420px; border:1px solid #bbb; }
+            .step-card .arrow { display:none; }
+            .left-col, .right-col { width:100%; }
+            .right-col { margin-top:12px; }
+        }
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <div class="brand" aria-label="ЕГЭ профиль">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M8 48H56M18 52V12M23 44C28 29 34 21 41 21C47 21 51 28 55 44" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" />
+            <circle cx="40.5" cy="21" r="4" fill="var(--warn)" />
+        </svg>
+        <span>ЕГЭ профиль</span>
+    </div>
+    <nav class="tabs" id="tabs" aria-label="Темы"></nav>
+    <div class="tools">
+        <div class="theme-switch">
+            <span>Тема</span>
+            <button class="switch" id="themeToggle" aria-label="Переключить тему"></button>
+        </div>
+        <button class="tool-btn" id="printBtn">Печать</button>
+    </div>
+</div>
+
+<main class="app">
+    <section class="hero">
+        <div class="crumbs">
+            <span>ЕГЭ профиль</span>
+            <span>объяснение с нуля</span>
+            <span>графическая интерпретация</span>
+            <span>комбинированная модель</span>
+        </div>
+        <h1>Наглядная математика: теория и задачи по мотивам пособия</h1>
+        <p id="heroSubtitle">Переключайте темы, сопоставляйте шаги решения с моделью и тренируйтесь на похожих задачах.</p>
+    </section>
+
+    <section class="layout">
+        <div class="left-col">
+            <div class="card controls-row">
+                <div class="pill-group">
+                    <span class="pill-label">Уровень детализации:</span>
+                    <button class="pill detail-pill" data-detail="brief">кратко</button>
+                    <button class="pill detail-pill active" data-detail="standard">стандартно</button>
+                    <button class="pill detail-pill" data-detail="full">подробно</button>
+                    <span class="hint-dot" id="detailHintTrigger" tabindex="0" aria-label="Подсказка по уровню детализации">?</span>
+                </div>
+                <div class="pill-group">
+                    <span class="pill-label">Пошаговый режим:</span>
+                    <button class="pill mode-pill" data-mode="auto">авто</button>
+                    <button class="pill mode-pill active" data-mode="step">по шагам</button>
+                    <button class="pill mode-pill" data-mode="all">все шаги</button>
+                </div>
+            </div>
+
+            <div class="steps" id="steps"></div>
+
+            <div class="lower-grid">
+                <div class="card mini-card" id="detailHelpCard">
+                    <h3>Подсказка к уровню детализации <span class="hint-dot" tabindex="0" data-popover="detailHint">i</span></h3>
+                    <p class="muted">Выбирайте глубину объяснения так, чтобы управлять темпом чтения и количеством формул.</p>
+                    <button class="primary-btn" data-action="show-detail-example">Показать пример</button>
+                </div>
+
+                <div class="card mini-card" id="selfCheckCard">
+                    <h3>Самопроверка <span class="hint-dot" tabindex="0" aria-label="Проверить себя">?</span></h3>
+                    <div id="selfCheck"></div>
+                </div>
+
+                <div class="card mini-card" id="adaptiveCard">
+                    <h3>Адаптивность</h3>
+                    <p class="muted">Сайт сохраняет читаемость на узких экранах: сначала текст, потом модель, а подсказки становятся компактнее.</p>
+                    <div class="devices" aria-hidden="true">
+                        <div class="device desktop"></div>
+                        <div class="device tablet"></div>
+                        <div class="device phone"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-col">
+            <div class="card sticky-card">
+                <div class="model-head">
+                    <div class="model-title">Интерактивная модель <span class="hint-dot" id="zoomHintTrigger" tabindex="0" aria-label="Подсказка по масштабу">?</span></div>
+                    <div class="small-note" id="modelStatus">Перетаскивайте схему мышью</div>
+                </div>
+                <div class="model-wrap">
+                    <div class="graph-frame" id="graphFrame" aria-label="Интерактивная математическая модель">
+                        <div class="graph-legend" id="legend"></div>
+                        <svg id="graphSvg" width="100%" height="100%" viewBox="0 0 760 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="График функции"></svg>
+                    </div>
+
+                    <div class="model-actions">
+                        <div class="zoom-row">
+                            <label for="zoomRange">Масштаб</label>
+                            <button class="quiet-btn" id="zoomOutBtn" aria-label="Уменьшить масштаб">−</button>
+                            <input id="zoomRange" type="range" min="55" max="180" step="1" value="100" />
+                            <span id="zoomLabel">100%</span>
+                            <button class="quiet-btn" id="zoomInBtn" aria-label="Увеличить масштаб">+</button>
+                            <button class="ghost-btn" id="zoomResetBtn">Сброс</button>
+                        </div>
+
+                        <div class="toggle-row" id="toggleRow"></div>
+                        <button class="primary-btn" id="openModalBtn">Открыть в модальном окне</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <aside class="aside-col">
+            <div class="aside-stack">
+                <div class="card aside-card warn-card">
+                    <h3>Типичные ошибки</h3>
+                    <ul class="errors-list" id="errorsList"></ul>
+                </div>
+
+                <div class="card aside-card">
+                    <h3>Сгенерировать похожую задачу <span class="hint-dot" id="genHintTrigger" tabindex="0" aria-label="Подсказка по генерации">?</span></h3>
+                    <div class="generated-box" id="generatedTask"></div>
+                    <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="primary-btn" id="generateBtn">Сгенерировать сейчас</button>
+                        <button class="ghost-btn" id="applyGeneratedBtn">Применить к модели</button>
+                    </div>
+                </div>
+
+                <div class="card aside-card">
+                    <h3>Мини-квиз</h3>
+                    <div id="quizBox"></div>
+                </div>
+            </div>
+        </aside>
+    </section>
+</main>
+
+<div class="modal-overlay" id="modalOverlay" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-head">
+            <div>
+                <div id="modalTitle" class="model-title">Интерактивная модель (увеличенный вид)</div>
+                <div class="small-note">Состояние синхронизировано с основной моделью.</div>
+            </div>
+            <button class="ghost-btn" id="closeModalBtn" aria-label="Закрыть модальное окно">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="graph-frame" id="modalGraphFrame" style="min-height:70vh;">
+                <div class="graph-legend" id="modalLegend"></div>
+                <svg id="modalGraphSvg" width="100%" height="100%" viewBox="0 0 960 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Увеличенный график"></svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="popover" id="detailHint" role="tooltip" aria-hidden="true" data-pos="bottom">
+    <div class="popover-head">Подсказка к уровню детализации <button class="close-x" data-close-popover="detailHint">×</button></div>
+    <p>Переключайте объём объяснения: краткий режим напоминает идею, стандартный даёт рабочий ход, подробный раскрывает каждый шаг.</p>
+    <div class="math-block">
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <mrow>
+                <msub><mi>x</mi><mn>0</mn></msub><mo>=</mo><mfrac><mrow><mo>−</mo><mi>b</mi></mrow><mrow><mn>2</mn><mi>a</mi></mrow></mfrac>
+            </mrow>
+        </math>
+    </div>
+    <div class="popover-actions">
+        <button class="primary-btn" data-action="show-detail-example">Показать пример</button>
+    </div>
+</div>
+
+<div class="popover" id="genHint" role="tooltip" aria-hidden="true" data-pos="left">
+    <div class="popover-head">Подсказка к генерации задач <button class="close-x" data-close-popover="genHint">×</button></div>
+    <p>Нажмите кнопку генерации, чтобы получить новую задачу с тем же методом решения. Коэффициенты подбираются без вырожденных случаев.</p>
+    <div class="popover-actions">
+        <button class="primary-btn" id="genHintAction">Сгенерировать сейчас</button>
+    </div>
+</div>
+
+<div class="popover" id="zoomHint" role="tooltip" aria-hidden="true" data-pos="bottom">
+    <div class="popover-head">Подсказка к масштабу <button class="close-x" data-close-popover="zoomHint">×</button></div>
+    <p>Меняйте масштаб ползунком, кнопками или колёсиком мыши. Перетаскивание помогает приблизить важный фрагмент рисунка.</p>
+    <div class="popover-actions">
+        <button class="primary-btn" data-action="ack-zoom">Понятно!</button>
+    </div>
+</div>
+
+<script>
+    // ===== ДАННЫЕ ТЕМ =====
+    const themes = {
+        angles: {
+            title: 'Углы',
+            subtitle: 'Сумма углов треугольника и разбиение угла',
+            status: 'Сопоставляйте части угла и итоговый ответ',
+            modelType: 'triangle',
+            content: {
+                brief: {
+                    given: 'Точка D лежит на стороне BC. Один угол при вершине A разбит на две равные части.',
+                    meaning: 'Нужно использовать сумму углов большого и малого треугольников.',
+                    graph: 'Визуально важны: весь угол при A, угол при C и искомый угол при D.',
+                    idea: ['Сначала найдите весь угол при A.', 'Потом найдите угол B большого треугольника.', 'Затем перейдите к малому треугольнику ADB.'],
+                    solutionSteps: ['Восстановите целый угол при A как сумму частей.', 'Используйте правило 180° для треугольника ABC.', 'В треугольнике ADB снова используйте сумму углов.'],
+                    check: 'Сумма углов в каждом треугольнике должна дать 180°.',
+                    summary: 'Сначала — большой треугольник, потом — малый.'
+                },
+                standard: {
+                    given: 'В треугольнике ABC точка D лежит на BC, а угол при вершине A разделён на две известные части.',
+                    meaning: 'Каждое условие либо задаёт часть полного угла, либо переносится в меньший треугольник без изменений.',
+                    graph: 'На рисунке полезно отмечать: угол A как сумму двух частей, угол C, угол B большого треугольника и искомый угол ADB.',
+                    idea: ['Соберите полный угол при A.', 'Найдите угол B через сумму углов треугольника ABC.', 'Найдите угол ADB через сумму углов треугольника ADB.'],
+                    solutionSteps: ['Шаг 1. Полный угол при A равен сумме двух соседних углов.', 'Шаг 2. Угол B равен 180° минус сумма углов A и C.', 'Шаг 3. В треугольнике ADB угол при D равен 180° минус BAD и угол B.'],
+                    check: 'Проверьте, что в большом и малом треугольниках суммы углов совпадают с 180°.',
+                    summary: 'Это типовая задача на последовательное применение одного правила: сумма углов треугольника.'
+                },
+                full: {
+                    given: 'Рассматриваются сразу два треугольника: большой ABC и малый ADB. Точка D лежит на стороне BC, поэтому угол при B в этих двух треугольниках один и тот же.',
+                    meaning: 'Если угол при A разбит на части, сначала нужно восстановить весь угол A. Только после этого разумно использовать формулу суммы углов треугольника.',
+                    graph: 'Наглядно удобно выделить цветом два уровня: большой треугольник для нахождения угла B и малый треугольник для нахождения угла ADB.',
+                    idea: ['Соберите полный угол при A.', 'Найдите третий угол большого треугольника.', 'Перенесите найденный угол B в малый треугольник ADB.', 'Получите искомый угол при D.'],
+                    solutionSteps: ['Шаг 1. Если даны две части угла A, то весь угол A равен их сумме.', 'Шаг 2. В треугольнике ABC используйте равенство: сумма углов равна 180°.', 'Шаг 3. Угол при B уже найден и одинаков для треугольников ABC и ADB.', 'Шаг 4. В треугольнике ADB найдите последний угол как разность 180° и суммы двух известных.'],
+                    check: 'Подставьте найденные значения обратно и убедитесь, что ни в одном треугольнике сумма углов не нарушена.',
+                    summary: 'В задачах такого типа ключевой навык — не спешить искать искомый угол, пока не найден весь опорный угол при вершине.'
+                }
+            },
+            errors: ['Сразу переходят к малому треугольнику, не восстановив весь угол при A.', 'Путают угол ABC и угол ABD.', 'Теряют одну из частей угла при A.'],
+            checklist: ['Могу собрать целый угол из частей.', 'Умею использовать сумму углов треугольника дважды.', 'Не путаю большой и малый треугольники.'],
+            quiz: {
+                question: 'Что нужно сделать первым в такой задаче?',
+                options: ['Найти угол ADB сразу.', 'Восстановить весь угол при A.', 'Найти медиану.', 'Поделить угол B пополам.'],
+                correct: 1,
+                explain: 'Без полного угла при A нельзя корректно найти угол B большого треугольника.'
+            }
+        },
+        vectors: {
+            title: 'Векторы',
+            subtitle: 'Координаты, линейные комбинации и длина',
+            status: 'Складывайте координаты покомпонентно',
+            modelType: 'vectors',
+            content: {
+                brief: {
+                    given: 'Даны координаты двух векторов.',
+                    meaning: 'Сложение и умножение на число выполняются отдельно по каждой координате.',
+                    graph: 'На рисунке удобно видеть направление и длину каждого вектора.',
+                    idea: ['Сначала найдите координаты нужной комбинации.', 'Потом примените формулу длины вектора.'],
+                    solutionSteps: ['Сложите x-координаты отдельно и y-координаты отдельно.', 'Для длины используйте квадратный корень из суммы квадратов координат.'],
+                    check: 'Проверьте, что обе координаты комбинации получены покомпонентно.',
+                    summary: 'Работа с векторами в координатах — это аккуратная арифметика по компонентам.'
+                },
+                standard: {
+                    given: 'Даны векторы в координатной форме, например a = (x₁; y₁) и b = (x₂; y₂).',
+                    meaning: 'Линейная комбинация векторов означает отдельные действия по x и y.',
+                    graph: 'На модели показаны векторы, начало координат и результирующий вектор.',
+                    idea: ['Найдите координаты линейной комбинации.', 'Только после этого ищите длину результата.', 'Не смешивайте координаты разных осей.'],
+                    solutionSteps: ['Шаг 1. Используйте правило сложения векторов по координатам.', 'Шаг 2. Если есть коэффициент, сначала умножьте вектор на число.', 'Шаг 3. Для длины примените формулу √(x² + y²).'],
+                    check: 'Квадрат длины должен равняться сумме квадратов координат результата.',
+                    summary: 'Сначала — координаты, потом — длина.'
+                },
+                full: {
+                    given: 'В координатной задаче каждый вектор задаётся двумя числами: абсциссой и ординатой. Линейная комбинация строится строго по компонентам.',
+                    meaning: 'Фраза “найти a + 2b” означает: сначала удвоить каждую координату вектора b, затем прибавить к соответствующим координатам вектора a.',
+                    graph: 'Геометрический смысл: результирующий вектор тоже выходит из начала координат и показывает суммарное смещение по горизонтали и вертикали.',
+                    idea: ['Переведите условие в покоординатные действия.', 'Получите точные координаты результирующего вектора.', 'После этого вычислите его длину по теореме Пифагора в координатной форме.'],
+                    solutionSteps: ['Шаг 1. Умножьте вектор на число отдельно по координатам.', 'Шаг 2. Сложите соответствующие координаты.', 'Шаг 3. Подставьте получившиеся координаты в формулу длины вектора.', 'Шаг 4. При возможности упростите корень.'],
+                    check: 'Если одна из координат равна нулю, длина должна совпадать с модулем второй координаты.',
+                    summary: 'Ошибки здесь почти всегда арифметические, а не идейные: держите x и y отдельно.'
+                }
+            },
+            errors: ['Сразу ищут длину, не найдя координаты результата.', 'Путают умножение вектора на число со сложением векторов.', 'Складывают x одной оси с y другой оси.'],
+            checklist: ['Умею складывать векторы по координатам.', 'Умею находить длину по формуле.', 'Не путаю порядок действий в линейной комбинации.'],
+            quiz: {
+                question: 'Как вычисляется длина вектора с координатами (x; y)?',
+                options: ['x + y', '√(x² + y²)', 'x² + y²', '√(x + y)'],
+                correct: 1,
+                explain: 'Это координатная форма теоремы Пифагора.'
+            }
+        },
+        volumes: {
+            title: 'Объёмы',
+            subtitle: 'Цилиндр и конус с общим основанием и высотой',
+            status: 'Сравнивайте формулы, а не рисуйте лишние построения',
+            modelType: 'volumes',
+            content: {
+                brief: {
+                    given: 'Сравниваются объёмы цилиндра и вписанного в него конуса.',
+                    meaning: 'Основание и высота у фигур одинаковые.',
+                    graph: 'На рисунке видно общее основание и общую высоту.',
+                    idea: ['Запишите формулы объёма.', 'Сократите одинаковые множители.'],
+                    solutionSteps: ['Для цилиндра V = Sосн · h.', 'Для конуса V = 1/3 · Sосн · h.'],
+                    check: 'Конус должен иметь объём в три раза меньше цилиндра.',
+                    summary: 'Если основание и высота совпадают, конус даёт треть объёма цилиндра.'
+                },
+                standard: {
+                    given: 'Конус вписан в цилиндр, то есть они имеют одно и то же основание и одну и ту же высоту.',
+                    meaning: 'Следовательно, в формулах объёма различается только коэффициент 1/3 у конуса.',
+                    graph: 'Модель помогает увидеть, почему основания и высоты совпадают.',
+                    idea: ['Сопоставьте две формулы объёма.', 'Не считайте площадь основания отдельно, если дан объём цилиндра.'],
+                    solutionSteps: ['Шаг 1. Запишите Vцил = Sосн · h.', 'Шаг 2. Запишите Vкон = 1/3 · Sосн · h.', 'Шаг 3. Сделайте вывод: Vкон = 1/3 · Vцил.'],
+                    check: 'Подстановка числа должна дать треть исходного объёма цилиндра.',
+                    summary: 'Это задача на узнавание связи между формулами, а не на длинные вычисления.'
+                },
+                full: {
+                    given: 'В условии важно не просто наличие цилиндра и конуса, а то, что конус вписан в цилиндр. Именно это обеспечивает одинаковые основание и высоту.',
+                    meaning: 'Если основание и высота у двух фигур совпадают, то площадь основания и множитель h в формулах одинаковы. Сравнение сводится к коэффициенту перед ними.',
+                    graph: 'Визуально на рисунке конус опирается на то же основание и достигает той же верхней плоскости, что и цилиндр.',
+                    idea: ['Распознайте одинаковые геометрические параметры.', 'Сравните формулы объёма.', 'Сделайте коэффициентное сокращение.'],
+                    solutionSteps: ['Шаг 1. Для цилиндра объём равен произведению площади основания на высоту.', 'Шаг 2. Для конуса объём равен одной трети такого же произведения.', 'Шаг 3. Значит, объём конуса составляет ровно треть объёма цилиндра.', 'Шаг 4. Если дано численное значение объёма цилиндра, просто разделите его на три.'],
+                    check: 'Проверьте здравый смысл: конус внутри того же цилиндра не может иметь больший объём.',
+                    summary: 'Ключ к задаче — увидеть одинаковые основание и высоту, а не пытаться вычислять их заново.'
+                }
+            },
+            errors: ['Начинают искать радиус и высоту, хотя дано достаточно информации.', 'Путают формулы объёма цилиндра и конуса.', 'Забывают множитель 1/3 у конуса.'],
+            checklist: ['Помню формулы объёма цилиндра и конуса.', 'Вижу, когда параметры у фигур совпадают.', 'Могу быстро перейти от Vцил к Vкон.'],
+            quiz: {
+                question: 'Во сколько раз объём вписанного конуса меньше объёма цилиндра с тем же основанием и высотой?',
+                options: ['В 2 раза', 'В 3 раза', 'В 4 раза', 'Не связано'],
+                correct: 1,
+                explain: 'У конуса формула объёма содержит коэффициент 1/3.'
+            }
+        },
+        domain: {
+            title: 'ОДЗ и корни',
+            subtitle: 'Иррациональные уравнения и обязательная проверка',
+            status: 'Сначала следите за допустимостью, потом возводите в квадрат',
+            modelType: 'root',
+            content: {
+                brief: {
+                    given: 'Есть уравнение с квадратным корнем.',
+                    meaning: 'Правая часть должна быть неотрицательной.',
+                    graph: 'На схеме выделяется условие допустимости и этап проверки.',
+                    idea: ['Сначала запишите ограничение на правую часть.', 'Потом возведите обе части в квадрат.', 'В конце проверьте корни.'],
+                    solutionSteps: ['Из уравнения √(x + 6) = −x следует −x ≥ 0.', 'После возведения в квадрат появляются лишние корни, поэтому проверка обязательна.'],
+                    check: 'Подставьте найденные значения в исходное уравнение, а не в преобразованное.',
+                    summary: 'Главная ловушка — забытая проверка.'
+                },
+                standard: {
+                    given: 'Рассматривается уравнение вида √(f(x)) = g(x).',
+                    meaning: 'Так как квадратный корень не бывает отрицательным, правая часть тоже должна быть неотрицательной.',
+                    graph: 'В модели отдельно показаны ограничение и основной алгебраический переход.',
+                    idea: ['Сначала запишите g(x) ≥ 0.', 'Затем возведите обе части в квадрат.', 'После решения обязательно сделайте проверку.'],
+                    solutionSteps: ['Шаг 1. Из √(x + 6) = −x получить условие −x ≥ 0.', 'Шаг 2. Возвести обе части в квадрат: x + 6 = x².', 'Шаг 3. Решить квадратное уравнение и отфильтровать корни по проверке.'],
+                    check: 'Лишний корень может удовлетворять уравнению после возведения в квадрат, но не исходному уравнению.',
+                    summary: 'ОДЗ и проверка — обязательные части решения, а не украшение.'
+                },
+                full: {
+                    given: 'Уравнение с корнем требует сразу двух линий контроля: область допустимых значений и проверка корней после возведения в квадрат.',
+                    meaning: 'Из равенства √(f(x)) = g(x) следует не только f(x) ≥ 0, но и g(x) ≥ 0, потому что значение корня всегда неотрицательно.',
+                    graph: 'Визуально полезно разделить решение на две рамки: ограничение на допустимые значения и алгебраическое преобразование.',
+                    idea: ['Запишите условие неотрицательности правой части.', 'Возведите уравнение в квадрат.', 'Решите полученное квадратное уравнение.', 'Сделайте подстановочную проверку в исходное равенство.'],
+                    solutionSteps: ['Шаг 1. Для равенства √(x + 6) = −x обязательно требование −x ≥ 0, то есть x ≤ 0.', 'Шаг 2. Возведение в квадрат даёт x + 6 = x².', 'Шаг 3. Найдите корни квадратного уравнения.', 'Шаг 4. Подставьте их в исходное уравнение и оставьте только подходящие.'],
+                    check: 'Проверка делается именно в исходном равенстве с корнем, иначе лишние решения останутся незамеченными.',
+                    summary: 'В иррациональных уравнениях часто решает не техника квадратного уравнения, а дисциплина проверки.'
+                }
+            },
+            errors: ['Забывают условие g(x) ≥ 0.', 'Проверяют корни в преобразованном уравнении вместо исходного.', 'Считают, что достаточно только f(x) ≥ 0.'],
+            checklist: ['Всегда пишу ограничение на правую часть.', 'После возведения в квадрат делаю проверку.', 'Отличаю исходное уравнение от его следствия.'],
+            quiz: {
+                question: 'Что обязательно нужно сделать после возведения в квадрат?',
+                options: ['Сразу записать ответ.', 'Проверить корни в исходном уравнении.', 'Поделить на x.', 'Сменить знак неравенства.'],
+                correct: 1,
+                explain: 'Возведение в квадрат может породить лишние корни.'
+            }
+        },
+        trig: {
+            title: 'Тригонометрия',
+            subtitle: 'Знак функции по четверти и быстрые формулы',
+            status: 'Следите не только за модулем, но и за знаком',
+            modelType: 'trig',
+            content: {
+                brief: {
+                    given: 'Известно значение тригонометрической функции и четверть.',
+                    meaning: 'Четверть определяет знак синуса, косинуса и тангенса.',
+                    graph: 'На единичной окружности четверть видна сразу.',
+                    idea: ['Сначала найдите модуль по основной формуле.', 'Затем выберите правильный знак по четверти.'],
+                    solutionSteps: ['Используйте sin²x + cos²x = 1.', 'Для тангенса используйте tg x = sin x / cos x.'],
+                    check: 'Знак результата должен совпадать с выбранной четвертью.',
+                    summary: 'Модуль даёт формула, знак даёт четверть.'
+                },
+                standard: {
+                    given: 'Дано, например, значение cos x и указано, в какой четверти лежит угол.',
+                    meaning: 'Основная формула даёт два варианта для синуса, а четверть помогает выбрать нужный знак.',
+                    graph: 'На окружности видно, где синус положительный, а где отрицательный.',
+                    idea: ['Найдите недостающую функцию по формуле sin²x + cos²x = 1.', 'Выберите знак по четверти.', 'Подставьте в формулу тангенса.'],
+                    solutionSteps: ['Шаг 1. Найдите sin x через cos x.', 'Шаг 2. Уточните знак по четверти.', 'Шаг 3. Вычислите tg x.'],
+                    check: 'Если угол в IV четверти, то sin x < 0 и cos x > 0.',
+                    summary: 'Тригонометрия здесь — это сочетание формулы и геометрического смысла.'
+                },
+                full: {
+                    given: 'В задачах на вычисление тангенса по известному косинусу ключевая трудность не в формуле, а в выборе знака.',
+                    meaning: 'Из равенства sin²x + cos²x = 1 находится только модуль синуса. Чтобы определить сам sin x, нужно обязательно использовать информацию о четверти.',
+                    graph: 'На единичной окружности синус — это вертикальная координата точки, косинус — горизонтальная. Поэтому знак синуса и косинуса читается напрямую по положению точки.',
+                    idea: ['По основной формуле найдите модуль недостающей функции.', 'По четверти выберите верный знак.', 'Подставьте в формулу тангенса или котангенса.'],
+                    solutionSteps: ['Шаг 1. Используйте sin²x = 1 − cos²x.', 'Шаг 2. Возьмите корень и отдельно обсудите знак.', 'Шаг 3. Найдите tg x как отношение sin x к cos x.', 'Шаг 4. При необходимости используйте формулу tg²x = 1/cos²x − 1 как альтернативу.'],
+                    check: 'Проверьте знак ответа по четверти: в IV четверти тангенс отрицателен, в III — положителен.',
+                    summary: 'В вычислительной тригонометрии четверть — это полноценная часть решения.'
+                }
+            },
+            errors: ['Верно находят модуль синуса, но ошибаются со знаком.', 'Путают знаки тригонометрических функций в III и IV четвертях.', 'Забывают, что tg x зависит от знаков числителя и знаменателя одновременно.'],
+            checklist: ['Помню основную тригонометрическую формулу.', 'Умею выбирать знак по четверти.', 'Могу перейти от косинуса к тангенсу.'],
+            quiz: {
+                question: 'Какой знак у sin x в IV четверти?',
+                options: ['Положительный', 'Отрицательный', 'Нулевой всегда', 'Зависит только от cos x'],
+                correct: 1,
+                explain: 'В IV четверти вертикальная координата точки отрицательна.'
+            }
+        },
+        derivative: {
+            title: 'Производная',
+            subtitle: 'Точки максимума по знакам производной',
+            status: 'Ищите переход + → −, а не просто нули производной',
+            modelType: 'derivative',
+            content: {
+                brief: {
+                    given: 'Известна схема знаков производной.',
+                    meaning: 'Знак производной показывает возрастание или убывание функции.',
+                    graph: 'На числовой прямой видно, где функция растёт и где убывает.',
+                    idea: ['Смотрите только переходы + → −.', 'Это и есть точки максимума.'],
+                    solutionSteps: ['Нули производной сами по себе ещё не дают максимум.', 'Нужна именно смена знака с плюса на минус.'],
+                    check: 'Если знак не меняется, экстремума в точке нет.',
+                    summary: 'Максимум читается по знакам, а не по факту равенства f′ = 0.'
+                },
+                standard: {
+                    given: 'На промежутках показаны знаки производной и несколько критических точек.',
+                    meaning: 'Плюс означает возрастание функции, минус — убывание.',
+                    graph: 'На схеме переход + → − выделяется как вершина подъёма.',
+                    idea: ['Пройдите слева направо по знакам.', 'Посчитайте только переходы + → −.', 'Не учитывайте − → + как максимумы.'],
+                    solutionSteps: ['Шаг 1. Отметьте точки, где производная равна нулю или меняет знак.', 'Шаг 2. Смотрите на знак слева и справа.', 'Шаг 3. За максимум считайте только схему + → −.'],
+                    check: 'Для минимума схема будет обратной: − → +.',
+                    summary: 'Критическая точка и точка максимума — не одно и то же.'
+                },
+                full: {
+                    given: 'В задаче может быть много нулей производной, но не каждый из них порождает экстремум. Нужна именно проверка характера смены знака.',
+                    meaning: 'Если до точки производная положительна, а после неё отрицательна, функция сначала росла, а потом начала убывать — значит, в этой точке максимум.',
+                    graph: 'Числовая ось удобна тем, что позволяет буквально читать поведение функции слева направо.',
+                    idea: ['Выделите все критические точки.', 'Для каждой точки определите знак производной слева и справа.', 'Отберите только переходы + → −.'],
+                    solutionSteps: ['Шаг 1. Нанесите критические точки на числовую ось.', 'Шаг 2. Подпишите знаки на промежутках.', 'Шаг 3. Обведите переходы + → − как точки максимума.', 'Шаг 4. Не путайте их с переходами − → + — это минимумы.'],
+                    check: 'Если по обе стороны от точки знак одинаков, экстремума нет, даже если f′ = 0.',
+                    summary: 'В задачах на производную главное — качественный анализ знаков, а не длинные вычисления.'
+                }
+            },
+            errors: ['Считают все нули производной точками максимума.', 'Путают максимум с минимумом.', 'Не смотрят знак слева и справа от точки.'],
+            checklist: ['Понимаю связь между знаком f′ и поведением функции.', 'Умею считать только переходы + → −.', 'Отличаю экстремум от критической точки.'],
+            quiz: {
+                question: 'Какой переход знака f′ соответствует максимуму?',
+                options: ['− → +', '+ → −', '+ → +', '− → −'],
+                correct: 1,
+                explain: 'Функция сначала возрастает, а потом убывает.'
+            }
+        },
+        mixtures: {
+            title: 'Смеси',
+            subtitle: 'Табличная модель для сплавов и растворов',
+            status: 'Складывайте массы вещества, а не проценты',
+            modelType: 'mixtures',
+            content: {
+                brief: {
+                    given: 'Есть два сплава или раствора с разными концентрациями.',
+                    meaning: 'Главная величина — масса чистого вещества.',
+                    graph: 'Таблица помогает не путать массу смеси и массу вещества.',
+                    idea: ['Обозначьте массы смесей переменными.', 'Запишите массу вещества как концентрация × масса.', 'Составьте систему.'],
+                    solutionSteps: ['Массы складываются напрямую.', 'Проценты напрямую не складываются.'],
+                    check: 'Проверьте, что итоговая концентрация лежит между исходными.',
+                    summary: 'Решение строится через таблицу и систему уравнений.'
+                },
+                standard: {
+                    given: 'Даны концентрации двух смесей и масса итоговой смеси.',
+                    meaning: 'Нужно составить две связи: по общей массе и по массе чистого вещества.',
+                    graph: 'Таблица из трёх строк делает структуру задачи прозрачной.',
+                    idea: ['Ввести переменные для масс смесей.', 'Записать уравнение по массе смеси.', 'Записать уравнение по массе вещества.'],
+                    solutionSteps: ['Шаг 1. Обозначьте массы смесей x и y.', 'Шаг 2. Запишите x + y = масса смеси.', 'Шаг 3. Запишите c₁x + c₂y = c·m.'],
+                    check: 'Итоговая концентрация должна быть между исходными, иначе ответ подозрителен.',
+                    summary: 'В задачах на смеси почти всё решает правильная таблица.'
+                },
+                full: {
+                    given: 'Текстовые задачи на смеси и сплавы удобнее всего сразу переводить в табличную модель: масса смеси, концентрация, масса чистого вещества.',
+                    meaning: 'Концентрация сама по себе не складывается. Складывается только масса чистого вещества, которая вычисляется как произведение концентрации на массу смеси.',
+                    graph: 'Табличная схема дисциплинирует решение: видно, где x, где y, где итоговая масса, и какие именно величины входят в уравнения.',
+                    idea: ['Составьте таблицу из трёх строк.', 'Обозначьте неизвестные массы.', 'Запишите одно уравнение по массе смеси и одно по массе вещества.', 'Решите систему.'],
+                    solutionSteps: ['Шаг 1. Введите переменные для неизвестных масс.', 'Шаг 2. В строке “масса вещества” умножьте концентрацию на массу смеси.', 'Шаг 3. Сложите массы смесей.', 'Шаг 4. Сложите массы чистого вещества и приравняйте к итоговой массе вещества в смеси.'],
+                    check: 'Если полученная масса отрицательна или итоговая концентрация не лежит между исходными, где-то допущена ошибка.',
+                    summary: 'Таблица в задачах на смеси — это не оформление, а сам метод решения.'
+                }
+            },
+            errors: ['Складывают проценты напрямую.', 'Путают массу смеси и массу чистого вещества.', 'Забывают перевести проценты в дроби.'],
+            checklist: ['Умею составлять таблицу смеси.', 'Помню, что масса вещества = концентрация × масса смеси.', 'Могу составить систему из двух уравнений.'],
+            quiz: {
+                question: 'Что можно складывать напрямую в задаче на смеси?',
+                options: ['Проценты', 'Концентрации', 'Массы смесей и массы вещества', 'Только проценты никеля'],
+                correct: 2,
+                explain: 'Проценты не складываются напрямую, а массы — да.'
+            }
+        },
+        parabola: {
+            title: 'Парабола',
+            subtitle: 'Быстрые лайфхаки по графику квадратичной функции',
+            status: 'Перетаскивайте график мышью и сравнивайте шаги с обозначениями',
+            modelType: 'parabola',
+            content: {
+                brief: {
+                    given: 'Рассматривается квадратичная функция.',
+                    meaning: 'Коэффициенты определяют направление, положение и форму графика.',
+                    graph: 'На графике выделяются вершина, ось симметрии и точка пересечения с Oy.',
+                    idea: ['Смотрите на c.', 'Определяйте направление по знаку a.', 'Используйте вершину для связи между a и b.'],
+                    solutionSteps: ['Ось симметрии задаётся формулой x₀ = −b / (2a).', 'Координата y вершины находится подстановкой x₀ в функцию.', 'Точка пересечения с Oy имеет ординату c.'],
+                    check: 'Проверьте знак a, положение вершины и точку (0; c).',
+                    summary: 'Парабола быстро читается по трём ключевым объектам: a, вершина, c.'
+                },
+                standard: {
+                    given: 'Парабола задаётся формулой y = ax² + bx + c, где a ≠ 0.',
+                    meaning: 'Коэффициент a отвечает за направление ветвей и ширину, b влияет на положение вершины, c показывает пересечение с осью Oy.',
+                    graph: 'Ключевые элементы модели: ось симметрии, вершина, точка (0; c), узловые точки.',
+                    idea: ['Найдите ось симметрии.', 'Получите вершину.', 'Отдельно проанализируйте пересечение с Oy.', 'По знаку и модулю a опишите форму графика.'],
+                    solutionSteps: ['Шаг 1. Ось симметрии и вершина.', 'Шаг 2. Точка пересечения с Oy.', 'Шаг 3. Нули функции, если они есть.', 'Шаг 4. Направление ветвей и ширина.'],
+                    check: 'Подтвердите ответ по ключевым точкам графика и свойствам коэффициентов.',
+                    summary: 'Если уверенно читать график, многие задачи на квадратичную функцию решаются почти устно.'
+                },
+                full: {
+                    given: 'Функция квадратичного вида зависит от трёх коэффициентов, и каждый из них имеет свой геометрический смысл. Задача сводится к тому, чтобы связать формулу и график.',
+                    meaning: 'Коэффициент a отвечает за то, куда направлены ветви и насколько график “узкий” или “широкий”. Коэффициент b сдвигает вершину по оси x через формулу оси симметрии. Коэффициент c сразу даёт точку пересечения с осью Oy.',
+                    graph: 'На модели важно держать постоянные обозначения: x₀ — абсцисса вершины, y₀ — ордината вершины, пунктир — ось симметрии, фиолетовая точка — пересечение с Oy, жёлтые точки — нули функции.',
+                    idea: ['Прочитайте коэффициент c прямо с оси Oy.', 'Определите знак и модуль a по направлению и крутизне ветвей.', 'Используйте формулу x₀ = −b / (2a), чтобы связать вершину и коэффициенты.', 'Проверьте вывод по графику и ключевым точкам.'],
+                    solutionSteps: ['Шаг 1. Найдите ось симметрии по формуле для x₀.', 'Шаг 2. Подставьте x₀ в функцию и найдите y₀.', 'Шаг 3. Отметьте точку пересечения с осью Oy: это точка (0; c).', 'Шаг 4. Если график пересекает ось Ox, отметьте нули функции.', 'Шаг 5. По знаку a определите направление ветвей, а по модулю a — относительную ширину графика.'],
+                    check: 'Сверьте найденные значения с рисунком: вершина должна лежать на оси симметрии, а точка (0; c) — на оси Oy. Если знаки не совпадают с рисунком, значит, допущена ошибка.',
+                    summary: 'Парабола хорошо поддаётся визуальному чтению: график, формула и коэффициенты должны объяснять друг друга.'
+                }
+            },
+            errors: ['Забывают, что a не может быть равно нулю.', 'Путают x₀ = −b/(2a) и −b/2.', 'Неверно определяют направление ветвей по знаку a.', 'Ошибаются при вычислении y₀.'],
+            checklist: ['Знаю формулы для x₀ и y₀.', 'Умею читать по графику коэффициент c.', 'Понимаю влияние a, b, c на форму графика.', 'Могу проверить ответ по модели.'],
+            quiz: {
+                question: 'Как определяется ось симметрии параболы y = ax² + bx + c?',
+                options: ['x = −b / (2a)', 'x = −b / a', 'x = b / (2a)', 'x = 0'],
+                correct: 0,
+                explain: 'Абсцисса вершины параболы задаётся формулой −b/(2a).'
+            }
+        }
+    };
+
+    const state = {
+        theme: 'parabola',
+        detail: 'standard',
+        mode: 'step',
+        substep: 0,
+        modalOpen: false,
+        viz: {
+            scale: 1,
+            panX: 0,
+            panY: 0,
+            showAxis: true,
+            showVertex: true,
+            showIntercept: true,
+            showRoots: true
+        },
+        parabola: { a: 1, b: -2, c: -2 },
+        quizSelection: null,
+        generated: null,
+        visiblePopover: null
+    };
+
+    const tabsEl = document.getElementById('tabs');
+    const stepsEl = document.getElementById('steps');
+    const errorsListEl = document.getElementById('errorsList');
+    const selfCheckEl = document.getElementById('selfCheck');
+    const quizBoxEl = document.getElementById('quizBox');
+    const legendEl = document.getElementById('legend');
+    const modalLegendEl = document.getElementById('modalLegend');
+    const generatedTaskEl = document.getElementById('generatedTask');
+    const modelStatusEl = document.getElementById('modelStatus');
+    const subtitleEl = document.getElementById('heroSubtitle');
+
+    const graphSvg = document.getElementById('graphSvg');
+    const modalGraphSvg = document.getElementById('modalGraphSvg');
+    const graphFrame = document.getElementById('graphFrame');
+    const modalGraphFrame = document.getElementById('modalGraphFrame');
+    const zoomRange = document.getElementById('zoomRange');
+    const zoomLabel = document.getElementById('zoomLabel');
+    const modalOverlay = document.getElementById('modalOverlay');
+
+    // ===== MATHML =====
+    function mathBlock(inner) {
+        return `<div class="math-block"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">${inner}</math></div>`;
+    }
+    function mathInline(inner) {
+        return `<span class="math-inline"><math xmlns="http://www.w3.org/1998/Math/MathML">${inner}</math></span>`;
+    }
+
+    const mathSnippets = {
+        parabolaGeneral: mathInline(`<mrow><mi>y</mi><mo>=</mo><mi>a</mi><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mi>b</mi><mi>x</mi><mo>+</mo><mi>c</mi></mrow>`),
+        x0: mathBlock(`<mrow><msub><mi>x</mi><mn>0</mn></msub><mo>=</mo><mfrac><mrow><mo>−</mo><mi>b</mi></mrow><mrow><mn>2</mn><mi>a</mi></mrow></mfrac></mrow>`),
+        y0: mathBlock(`<mrow><msub><mi>y</mi><mn>0</mn></msub><mo>=</mo><mi>f</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mn>0</mn></msub><mo stretchy="false">)</mo><mo>=</mo><mi>a</mi><msubsup><mi>x</mi><mn>0</mn><mn>2</mn></msubsup><mo>+</mo><mi>b</mi><msub><mi>x</mi><mn>0</mn></msub><mo>+</mo><mi>c</mi></mrow>`),
+        bByVertex: mathBlock(`<mrow><mi>b</mi><mo>=</mo><mo>−</mo><mn>2</mn><mi>a</mi><msub><mi>x</mi><mn>0</mn></msub></mrow>`),
+        vectorLength: mathBlock(`<mrow><mo stretchy="false">|</mo><mover><mi>a</mi><mo>→</mo></mover><mo stretchy="false">|</mo><mo>=</mo><msqrt><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup></mrow></msqrt></mrow>`),
+        trigMain: mathBlock(`<mrow><msup><mrow><mi>sin</mi><mi>x</mi></mrow><mn>2</mn></msup><mo>+</mo><msup><mrow><mi>cos</mi><mi>x</mi></mrow><mn>2</mn></msup><mo>=</mo><mn>1</mn></mrow>`),
+        rootEq: mathBlock(`<mrow><msqrt><mrow><mi>x</mi><mo>+</mo><mn>6</mn></mrow></msqrt><mo>=</mo><mo>−</mo><mi>x</mi></mrow>`),
+        cone: mathBlock(`<mrow><msub><mi>V</mi><mtext>кон</mtext></msub><mo>=</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><msub><mi>S</mi><mtext>осн</mtext></msub><mi>h</mi></mrow>`)
+    };
+
+    // ===== РЕНДЕР ИНТЕРФЕЙСА =====
+    function renderTabs() {
+        tabsEl.innerHTML = '';
+        Object.entries(themes).forEach(([key, theme]) => {
+            const btn = document.createElement('button');
+            btn.className = 'tab' + (state.theme === key ? ' active' : '');
+            btn.textContent = theme.title;
+            btn.addEventListener('click', () => {
+                state.theme = key;
+                state.substep = 0;
+                state.quizSelection = null;
+                contextualHint();
+                seedGenerated();
+                renderAll();
+            });
+            tabsEl.appendChild(btn);
+        });
+    }
+
+    function getCurrentThemeData() {
+        return themes[state.theme];
+    }
+
+    function renderSteps() {
+        const theme = getCurrentThemeData();
+        const content = theme.content[state.detail];
+        subtitleEl.textContent = `${theme.subtitle}. Переключайте детализацию, сравнивайте текст с моделью и закрепляйте тему.`;
+        const stepDefs = [
+            { key:'given', title:'Что дано', meta:'Опорная информация задачи', body: renderBodyText(content.given) },
+            { key:'meaning', title:'Что означает условие', meta:'Смысл условий и ограничений', body: renderBodyText(content.meaning) },
+            { key:'graph', title:'Графическая интерпретация', meta:'Как условие читается на схеме', body: renderBodyText(content.graph) },
+            { key:'idea', title:'Идея решения', meta:'Стратегия без перегрузки вычислениями', body: renderIdea(content.idea) },
+            { key:'solution', title:'Пошаговое решение', meta:'Доведём рассуждение до ответа', body: renderSolution(theme, content) },
+            { key:'check', title:'Проверка ответа', meta:'Проверяем найденный результат', body: renderBodyText(content.check) },
+            { key:'summary', title:'Краткий вывод', meta:'Фиксируем главный результат', body: renderBodyText(content.summary) }
+        ];
+
+        stepsEl.innerHTML = stepDefs.map((step, idx) => {
+            const open = idx < 5 || state.mode === 'all';
+            return `
+          <div class="step-card ${open ? 'open' : ''}" data-step-card="${idx}">
+            <button class="step-head" data-toggle-step="${idx}">
+              <span class="step-num">${idx + 1}</span>
+              <div>
+                <div class="step-title">${step.title}</div>
+                <div class="step-meta">${step.meta}</div>
+              </div>
+              <span class="arrow">⌄</span>
+            </button>
+            <div class="step-body">${step.body}</div>
+          </div>
+        `;
+        }).join('');
+
+        stepsEl.querySelectorAll('[data-toggle-step]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const card = btn.closest('.step-card');
+                card.classList.toggle('open');
+            });
+        });
+
+        bindHoverLinks();
+    }
+
+    function renderBodyText(text) {
+        let html = `<p>${text}</p>`;
+        if (state.theme === 'parabola' && text.includes('квадрати')) html += `<div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">${mathSnippets.parabolaGeneral}</div>`;
+        if (state.theme === 'domain' && text.includes('корнем')) html += mathSnippets.rootEq;
+        if (state.theme === 'trig' && text.includes('Основная') || state.theme === 'trig' && text.includes('формула')) html += '';
+        return html;
+    }
+
+    function renderIdea(list) {
+        return `<ol class="idea-list">${list.map(item => `<li>${item}</li>`).join('')}</ol>` + (state.theme === 'parabola' ? `<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:10px; margin-top:12px;">${mathSnippets.x0}${mathSnippets.bByVertex}</div>` : '');
+    }
+
+    function renderSolution(theme, content) {
+        const substeps = content.solutionSteps;
+        const onlyOne = state.mode === 'step';
+        const allVisible = state.mode === 'all';
+        const showAuto = state.mode === 'auto';
+        const inner = substeps.map((text, idx) => {
+            const active = allVisible || showAuto ? true : idx === state.substep;
+            const extra = state.theme === 'parabola' && idx === 0 ? `${mathSnippets.x0}${mathSnippets.y0}` : '';
+            return `<div class="substep ${active ? (allVisible ? 'all-visible' : 'active') : ''}" data-substep="${idx}"><h4>Шаг ${idx+1}</h4><p>${text}</p>${extra}</div>`;
+        }).join('');
+
+        const nav = `<div class="substep-nav"><span class="small-note">Шаг ${Math.min(state.substep + 1, substeps.length)} из ${substeps.length}</span>${substeps.map((_,idx)=>`<button class="mini-step-btn ${idx===state.substep?'active':''}" data-mini-step="${idx}">${idx+1}</button>`).join('')}</div>`;
+        return nav + inner;
+    }
+
+    function bindSolutionNav() {
+        document.querySelectorAll('[data-mini-step]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                state.substep = Number(btn.dataset.miniStep);
+                renderAll();
+            });
+        });
+    }
+
+    function renderErrors() {
+        const theme = getCurrentThemeData();
+        errorsListEl.innerHTML = theme.errors.map(item => `<li>${item}</li>`).join('');
+    }
+
+    function renderChecklist() {
+        const theme = getCurrentThemeData();
+        selfCheckEl.innerHTML = `<form>${theme.checklist.map((item, idx)=>`
+        <label><input type="checkbox" ${idx < 2 ? 'checked' : ''} /> <span>${item}</span></label>
+      `).join('')}</form>`;
+    }
+
+    function renderQuiz() {
+        const q = getCurrentThemeData().quiz;
+        quizBoxEl.innerHTML = `
+        <p><strong>${q.question}</strong></p>
+        <div class="quiz-options">
+          ${q.options.map((opt, idx) => `
+            <label class="option ${state.quizSelection === idx && idx === q.correct ? 'correct' : ''} ${state.quizSelection === idx && idx !== q.correct ? 'wrong' : ''}">
+              <input type="radio" name="quizOption" value="${idx}" ${state.quizSelection === idx ? 'checked' : ''} />
+              <span>${opt}</span>
+            </label>
+          `).join('')}
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+          <button class="primary-btn" id="quizCheckBtn">Проверить ответ</button>
+          <span class="small-note" id="quizResult"></span>
+        </div>
+      `;
+
+        quizBoxEl.querySelectorAll('input[name="quizOption"]').forEach(input => {
+            input.addEventListener('change', e => {
+                state.quizSelection = Number(e.target.value);
+                renderQuiz();
+            });
+        });
+        const btn = document.getElementById('quizCheckBtn');
+        if (btn) btn.addEventListener('click', () => {
+            const result = document.getElementById('quizResult');
+            if (state.quizSelection === null) {
+                result.textContent = 'Сначала выберите вариант.';
+                return;
+            }
+            if (state.quizSelection === q.correct) {
+                result.textContent = 'Верно. ' + q.explain;
+                result.className = 'small-note good';
+            } else {
+                result.textContent = 'Пока нет. ' + q.explain;
+                result.className = 'small-note warn';
+            }
+            renderQuiz();
+            const updated = document.getElementById('quizResult');
+            updated.textContent = state.quizSelection === q.correct ? 'Верно. ' + q.explain : 'Пока нет. ' + q.explain;
+            updated.className = state.quizSelection === q.correct ? 'small-note good' : 'small-note warn';
+        });
+    }
+
+    function seedGenerated() {
+        if (state.theme === 'parabola') {
+            state.generated = generateParabolaTask();
+        } else {
+            state.generated = generateGenericTask(state.theme);
+        }
+    }
+
+    function renderGenerated() {
+        const g = state.generated;
+        if (!g) return;
+        generatedTaskEl.innerHTML = `<p>${g.text}</p>${g.math || ''}<p><strong>Ответ:</strong> ${g.answer}</p><p class="muted"><strong>Идея:</strong> ${g.idea}</p>`;
+    }
+
+    function renderLegend() {
+        const type = getCurrentThemeData().modelType;
+        const items = type === 'parabola'
+        ? [
+            ['var(--accent-2)', 'График функции'],
+            ['var(--warn)', 'Ось симметрии'],
+            ['var(--good)', 'Вершина'],
+            ['var(--accent-3)', 'Точка (0; c)'],
+            ['#f6c445', 'Узловые точки']
+        ]
+        : type === 'vectors'
+        ? [['var(--accent-2)','Вектор a'],['var(--good)','Вектор b'],['#f6c445','Результат']]
+        : type === 'triangle'
+        ? [['var(--accent)','Основные стороны'], ['var(--warn)','Отмеченные углы']]
+        : type === 'trig'
+        ? [['var(--accent-2)','Единичная окружность'], ['var(--warn)','Выбранная четверть']]
+        : type === 'derivative'
+        ? [['var(--good)','Рост функции'], ['var(--danger)','Убывание функции']]
+        : type === 'mixtures'
+        ? [['var(--accent)','Табличная схема'], ['var(--warn)','Строка проверки']]
+        : [['var(--accent-2)','Схема'], ['var(--warn)','Формулы']];
+        const html = items.map(([c,t]) => `<div class="legend-item"><span class="legend-swatch" style="background:${c}"></span><span>${t}</span></div>`).join('');
+        legendEl.innerHTML = html;
+        modalLegendEl.innerHTML = html;
+    }
+
+    function renderToggles() {
+        const wrap = document.getElementById('toggleRow');
+        const toggles = [
+            { key:'showAxis', label:'Ось симметрии', color:'var(--warn)' },
+            { key:'showVertex', label:'Вершина', color:'var(--good)' },
+            { key:'showIntercept', label:'Точка (0; c)', color:'var(--accent-3)' },
+            { key:'showRoots', label:'Узловые точки', color:'#f6c445' }
+        ];
+        const disabled = getCurrentThemeData().modelType !== 'parabola';
+        wrap.innerHTML = toggles.map(t => `
+        <button class="tag-toggle ${state.viz[t.key] ? 'on' : ''}" data-toggle-viz="${t.key}" ${disabled ? 'disabled' : ''}>
+          <span style="display:flex; align-items:center; gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:${t.color};display:inline-block;"></span>${t.label}</span>
+          <span class="tiny-switch"></span>
+        </button>
+      `).join('');
+        wrap.querySelectorAll('[data-toggle-viz]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (disabled) return;
+                state.viz[btn.dataset.toggleViz] = !state.viz[btn.dataset.toggleViz];
+                renderGraph();
+            });
+        });
+    }
+
+    // ===== ГРАФИКА =====
+    function renderGraph() {
+        renderLegend();
+        renderToggles();
+        const theme = getCurrentThemeData();
+        modelStatusEl.textContent = theme.status;
+        drawModel(graphSvg, graphFrame, false);
+        if (state.modalOpen) drawModel(modalGraphSvg, modalGraphFrame, true);
+        zoomRange.value = Math.round(state.viz.scale * 100);
+        zoomLabel.textContent = `${Math.round(state.viz.scale * 100)}%`;
+    }
+
+    function drawModel(svg, frame, isModal) {
+        const type = getCurrentThemeData().modelType;
+        svg.innerHTML = '';
+        if (type === 'parabola') drawParabola(svg, isModal);
+        else if (type === 'triangle') drawTriangle(svg, isModal);
+        else if (type === 'vectors') drawVectors(svg, isModal);
+        else if (type === 'volumes') drawVolumes(svg, isModal);
+        else if (type === 'root') drawRoot(svg, isModal);
+        else if (type === 'trig') drawTrig(svg, isModal);
+        else if (type === 'derivative') drawDerivative(svg, isModal);
+        else if (type === 'mixtures') drawMixtures(svg, isModal);
+    }
+
+    function svgEl(name, attrs = {}, children = []) {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', name);
+        Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
+        children.forEach(ch => el.appendChild(ch));
+        return el;
+    }
+
+    function getCanvasParams(svg) {
+        const vb = svg.viewBox.baseVal;
+        const w = vb.width || 760;
+        const h = vb.height || 460;
+        return { w, h, cx: w/2, cy: h/2 };
+    }
+
+    function drawParabola(svg) {
+        const { w, h, cx, cy } = getCanvasParams(svg);
+        const pad = 26;
+        const group = svgEl('g');
+        const scaleBase = Math.min(w/16, h/12);
+        const unit = scaleBase * state.viz.scale;
+        const ox = cx + state.viz.panX;
+        const oy = cy + state.viz.panY;
+
+        // сетка
+        for (let i = -20; i <= 20; i++) {
+            const x = ox + i * unit;
+            const y = oy + i * unit;
+            group.appendChild(svgEl('line', { x1:x, y1:0, x2:x, y2:h, stroke:'var(--line)', 'stroke-width': i===0?0:1 }));
+            group.appendChild(svgEl('line', { x1:0, y1:y, x2:w, y2:y, stroke:'var(--line)', 'stroke-width': i===0?0:1 }));
+        }
+        // оси
+        group.appendChild(svgEl('line', { x1:0, y1:oy, x2:w, y2:oy, stroke:'var(--text)', 'stroke-width':2 }));
+        group.appendChild(svgEl('line', { x1:ox, y1:0, x2:ox, y2:h, stroke:'var(--text)', 'stroke-width':2 }));
+        group.appendChild(svgEl('text', { x:w-18, y:oy-8, fill:'var(--text)', 'font-size':'18', 'font-weight':'700' }, [document.createTextNode('x')]));
+        group.appendChild(svgEl('text', { x:ox+10, y:18, fill:'var(--text)', 'font-size':'18', 'font-weight':'700' }, [document.createTextNode('y')]));
+
+        // деления
+        for (let i = -8; i <= 8; i++) {
+            const x = ox + i * unit;
+            const y = oy - i * unit;
+            if (x > pad && x < w-pad) {
+                group.appendChild(svgEl('line', { x1:x, y1:oy-5, x2:x, y2:oy+5, stroke:'var(--text)', 'stroke-width':1.2 }));
+                if (i !== 0) group.appendChild(svgEl('text', { x:x-6, y:oy+20, fill:'var(--muted)', 'font-size':'14' }, [document.createTextNode(String(i))]));
+            }
+            if (y > pad && y < h-pad) {
+                group.appendChild(svgEl('line', { x1:ox-5, y1:y, x2:ox+5, y2:y, stroke:'var(--text)', 'stroke-width':1.2 }));
+                if (i !== 0) group.appendChild(svgEl('text', { x:ox+10, y:y+5, fill:'var(--muted)', 'font-size':'14' }, [document.createTextNode(String(i))]));
+            }
+        }
+
+        const { a, b, c } = state.parabola;
+        const x0 = -b / (2*a);
+        const y0 = a*x0*x0 + b*x0 + c;
+        const d = b*b - 4*a*c;
+        const roots = d >= 0 ? [(-b - Math.sqrt(d)) / (2*a), (-b + Math.sqrt(d)) / (2*a)] : [];
+
+        if (state.viz.showAxis) {
+            const xs = ox + x0 * unit;
+            group.appendChild(svgEl('line', { x1:xs, y1:0, x2:xs, y2:h, stroke:'var(--warn)', 'stroke-width':2, 'stroke-dasharray':'8 7' }));
+        }
+
+        let path = '';
+        for (let px = 0; px <= w; px += 3) {
+            const x = (px - ox) / unit;
+            const y = a*x*x + b*x + c;
+            const py = oy - y * unit;
+            path += (px === 0 ? 'M' : 'L') + px + ' ' + py + ' ';
+        }
+        group.appendChild(svgEl('path', { d:path, fill:'none', stroke:'var(--accent-2)', 'stroke-width':4, 'stroke-linecap':'round' }));
+
+        if (state.viz.showVertex) {
+            const vx = ox + x0 * unit;
+            const vy = oy - y0 * unit;
+            const vertex = svgEl('circle', { cx:vx, cy:vy, r:6.5, fill:'var(--good)', 'data-link':'vertex', tabindex:'0' });
+            group.appendChild(vertex);
+            group.appendChild(svgEl('text', { x:vx+10, y:vy+22, fill:'var(--warn)', 'font-size':'18', 'font-weight':'700' }, [document.createTextNode('x₀')]));
+        }
+
+        if (state.viz.showIntercept) {
+            const ix = ox;
+            const iy = oy - c * unit;
+            const intercept = svgEl('circle', { cx:ix, cy:iy, r:6, fill:'var(--accent-3)', 'data-link':'intercept', tabindex:'0' });
+            group.appendChild(intercept);
+            group.appendChild(svgEl('text', { x:ix+10, y:iy-4, fill:'var(--accent-3)', 'font-size':'18', 'font-weight':'700' }, [document.createTextNode('c')]));
+        }
+
+        if (state.viz.showRoots && roots.length) {
+            roots.forEach((r) => {
+                const rx = ox + r * unit;
+                const root = svgEl('circle', { cx:rx, cy:oy, r:5, fill:'#f6c445', 'data-link':'roots', tabindex:'0' });
+                group.appendChild(root);
+            });
+        }
+
+        group.appendChild(svgEl('text', { x:12, y:h-14, fill:'var(--muted)', 'font-size':'13' }, [document.createTextNode(`y = ${a}x² ${b>=0?'+':''}${b}x ${c>=0?'+':''}${c}`)]));
+        svg.appendChild(group);
+        bindGraphHover(svg);
+    }
+
+    function drawTriangle(svg) {
+        const { w, h } = getCanvasParams(svg);
+        const g = svgEl('g');
+        const A = [w/2, 70], B = [120, h-80], C = [w-120, h-80], D = [w/2, h-80];
+        [[A,B],[A,C],[B,C],[A,D]].forEach(([p,q]) => g.appendChild(svgEl('line',{x1:p[0],y1:p[1],x2:q[0],y2:q[1],stroke:'var(--accent)','stroke-width':4} )));
+        [[A,'A'],[B,'B'],[C,'C'],[D,'D']].forEach(([p,t])=>g.appendChild(svgEl('text',{x:p[0]-8,y:p[1]-12,fill:'var(--text)','font-size':'20','font-weight':'700'},[document.createTextNode(t)])));
+        ['22°','22°','30°'].forEach((t,i)=> {
+            const pos = i===0?[w/2-54,138]:i===1?[w/2+18,138]:[w-170,h-92];
+            g.appendChild(svgEl('text',{x:pos[0],y:pos[1],fill:i===2?'var(--warn)':'var(--text)','font-size':'22','font-weight':'700'},[document.createTextNode(t)]));
+        });
+        svg.appendChild(g);
+    }
+
+    function drawVectors(svg) {
+        const { w, h, cx, cy } = getCanvasParams(svg);
+        const g = svgEl('g');
+        const ox = cx - 110, oy = cy + 60, scale = 46;
+        g.appendChild(svgEl('line',{x1:ox-40,y1:oy,x2:ox+260,y2:oy,stroke:'var(--text)','stroke-width':2}));
+        g.appendChild(svgEl('line',{x1:ox,y1:oy+120,x2:ox,y2:oy-180,stroke:'var(--text)','stroke-width':2}));
+        const arrows = [
+            {x:1,y:-2,color:'var(--accent-2)',label:'a'},
+            {x:-3,y:1,color:'var(--good)',label:'b'},
+            {x:-5,y:0,color:'#f6c445',label:'a+2b'}
+        ];
+        arrows.forEach(v=>{
+            const x2 = ox + v.x*scale, y2 = oy - v.y*scale;
+            g.appendChild(svgEl('line',{x1:ox,y1:oy,x2:x2,y2:y2,stroke:v.color,'stroke-width':5,'marker-end':'url(#arrowHead)'}));
+            g.appendChild(svgEl('text',{x:x2+8,y:y2-8,fill:v.color,'font-size':'20','font-weight':'700'},[document.createTextNode(v.label)]));
+        });
+        const defs = svgEl('defs');
+        const marker = svgEl('marker',{id:'arrowHead',markerWidth:10,markerHeight:10,refX:8,refY:3,orient:'auto',markerUnits:'strokeWidth'});
+        marker.appendChild(svgEl('path',{d:'M0,0 L0,6 L9,3 z',fill:'var(--accent-2)'}));
+        defs.appendChild(marker); svg.appendChild(defs); svg.appendChild(g);
+    }
+
+    function drawVolumes(svg) {
+        const { w, h } = getCanvasParams(svg);
+        const g = svgEl('g');
+        g.appendChild(svgEl('ellipse',{cx:210, cy:110, rx:84, ry:26, fill:'none', stroke:'var(--accent-2)','stroke-width':4}));
+        g.appendChild(svgEl('line',{x1:126,y1:110,x2:126,y2:330,stroke:'var(--accent-2)','stroke-width':4}));
+        g.appendChild(svgEl('line',{x1:294,y1:110,x2:294,y2:330,stroke:'var(--accent-2)','stroke-width':4}));
+        g.appendChild(svgEl('ellipse',{cx:210, cy:330, rx:84, ry:26, fill:'none', stroke:'var(--accent-2)','stroke-width':4}));
+        g.appendChild(svgEl('path',{d:'M210 126 L126 330 L294 330 Z',fill:'rgba(245,158,11,.18)',stroke:'#f6c445','stroke-width':4}));
+        g.appendChild(svgEl('line',{x1:210,y1:126,x2:210,y2:330,stroke:'var(--warn)','stroke-width':3,'stroke-dasharray':'8 7'}));
+        g.appendChild(svgEl('text',{x:390,y:145,fill:'var(--text)','font-size':'24','font-weight':'700'},[document.createTextNode('Vцил = Sосн · h')]));
+        g.appendChild(svgEl('text',{x:390,y:205,fill:'var(--text)','font-size':'24','font-weight':'700'},[document.createTextNode('Vкон = 1/3 · Sосн · h')]));
+        svg.appendChild(g);
+    }
+
+    function drawRoot(svg) {
+        const { w, h } = getCanvasParams(svg);
+        const g = svgEl('g');
+        g.appendChild(svgEl('rect',{x:90,y:80,width:w-180,height:h-160,rx:18,fill:'transparent',stroke:'var(--line-strong)','stroke-width':2}));
+        g.appendChild(svgEl('text',{x:140,y:170,fill:'var(--text)','font-size':'40','font-weight':'700'},[document.createTextNode('√(x + 6) = −x')]));
+        g.appendChild(svgEl('text',{x:140,y:250,fill:'var(--warn)','font-size':'28','font-weight':'700'},[document.createTextNode('Важно: −x ≥ 0  ⇒  x ≤ 0')]));
+        g.appendChild(svgEl('text',{x:140,y:320,fill:'var(--text)','font-size':'26','font-weight':'700'},[document.createTextNode('После возведения в квадрат — проверка обязательна') ]));
+        svg.appendChild(g);
+    }
+
+    function drawTrig(svg) {
+        const { w, h, cx, cy } = getCanvasParams(svg);
+        const g = svgEl('g');
+        const r = Math.min(w,h)/4.3;
+        g.appendChild(svgEl('circle',{cx:cx-140,cy:cy,r,fill:'none',stroke:'var(--accent-2)','stroke-width':4}));
+        g.appendChild(svgEl('line',{x1:cx-140-r-24,y1:cy,x2:cx-140+r+24,y2:cy,stroke:'var(--text)','stroke-width':2}));
+        g.appendChild(svgEl('line',{x1:cx-140,y1:cy-r-24,x2:cx-140,y2:cy+r+24,stroke:'var(--text)','stroke-width':2}));
+        g.appendChild(svgEl('path',{d:`M ${cx-140} ${cy} L ${cx-140+r} ${cy} A ${r} ${r} 0 0 1 ${cx-140} ${cy+r} Z`,fill:'rgba(255,138,76,.32)'}));
+        g.appendChild(svgEl('text',{x:cx-110,y:cy+r+34,fill:'var(--warn)','font-size':'28','font-weight':'800'},[document.createTextNode('IV')]));
+        g.appendChild(svgEl('text',{x:cx+40,y:165,fill:'var(--text)','font-size':'28','font-weight':'700'},[document.createTextNode('sin²x + cos²x = 1')]));
+        g.appendChild(svgEl('text',{x:cx+40,y:225,fill:'var(--text)','font-size':'28','font-weight':'700'},[document.createTextNode('tg x = sin x / cos x')]));
+        svg.appendChild(g);
+    }
+
+    function drawDerivative(svg) {
+        const { w, h, cx, cy } = getCanvasParams(svg);
+        const g = svgEl('g');
+        const y = cy + 20;
+        g.appendChild(svgEl('line',{x1:80,y1:y,x2:w-80,y2:y,stroke:'var(--text)','stroke-width':2}));
+        const xs = [180, 320, 470, 620];
+        xs.forEach(x=>g.appendChild(svgEl('circle',{cx:x,cy:y,r:5,fill:'var(--text)'})));
+        [['+',130],['−',250],['+',390],['−',540],['+',680]].forEach(([t,x])=>g.appendChild(svgEl('text',{x,y:y-20,fill:t==='+'?'var(--good)':'var(--danger)','font-size':'30','font-weight':'700'},[document.createTextNode(t)])));
+        g.appendChild(svgEl('text',{x:110,y:120,fill:'var(--text)','font-size':'28','font-weight':'700'},[document.createTextNode('Точка максимума: f′ меняет знак + → −')]));
+        svg.appendChild(g);
+    }
+
+    function drawMixtures(svg) {
+        const { w, h } = getCanvasParams(svg);
+        const g = svgEl('g');
+        g.appendChild(svgEl('rect',{x:70,y:70,width:w-140,height:h-140,rx:20,fill:'transparent',stroke:'var(--line-strong)','stroke-width':2}));
+        const colX = [120, 280, 470, 650];
+        const rowY = [120, 180, 240, 300];
+        colX.forEach(x=>g.appendChild(svgEl('line',{x1:x,y1:100,x2:x,y2:320,stroke:'var(--line-strong)','stroke-width':2})));
+        rowY.forEach(y=>g.appendChild(svgEl('line',{x1:120,y1:y,x2:650,y2:y,stroke:'var(--line-strong)','stroke-width':2})));
+        [['масса',310,118],['концентрация',475,118],['масса вещества',580,118]].forEach(([t,x,y])=>g.appendChild(svgEl('text',{x,y,fill:'var(--text)','font-size':'18','font-weight':'700'},[document.createTextNode(t)])));
+        [['1-й сплав',140,160],['2-й сплав',140,220],['смесь',140,280]].forEach(([t,x,y])=>g.appendChild(svgEl('text',{x,y,fill:'var(--text)','font-size':'20','font-weight':'700'},[document.createTextNode(t)])));
+        g.appendChild(svgEl('text',{x:155,y:382,fill:'var(--warn)','font-size':'24','font-weight':'800'},[document.createTextNode('Складываем массы, а не проценты')]));
+        svg.appendChild(g);
+    }
+
+    // ===== ХОВЕР-СВЯЗКА =====
+    function bindHoverLinks() {
+        document.querySelectorAll('.step-body').forEach(body => body.classList.remove('linked-active'));
+        if (state.theme !== 'parabola') return;
+        const cards = document.querySelectorAll('[data-step-card="2"], [data-step-card="4"], [data-step-card="5"]');
+        cards.forEach((card, idx) => {
+            const link = idx === 0 ? 'intercept' : idx === 1 ? 'vertex' : 'roots';
+            const title = card.querySelector('.step-title');
+            title.classList.add('hover-link');
+            title.dataset.linkTarget = link;
+            title.addEventListener('mouseenter', onTextHover);
+            title.addEventListener('mouseleave', clearTextHover);
+        });
+    }
+
+    function onTextHover(e) {
+        const target = e.currentTarget.dataset.linkTarget;
+        document.querySelectorAll(`[data-link="${target}"]`).forEach(el => el.setAttribute('r', Number(el.getAttribute('r')||6)+3));
+    }
+    function clearTextHover(e) {
+        const target = e.currentTarget.dataset.linkTarget;
+        renderGraph();
+    }
+    function bindGraphHover(svg) {
+        svg.querySelectorAll('[data-link]').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                const link = el.dataset.link;
+                document.querySelectorAll('.step-card').forEach(card => card.classList.remove('linked-active'));
+                if (link === 'intercept') document.querySelector('[data-step-card="2"]').classList.add('linked-active');
+                if (link === 'vertex') document.querySelector('[data-step-card="4"]').classList.add('linked-active');
+                if (link === 'roots') document.querySelector('[data-step-card="5"]').classList.add('linked-active');
+            });
+            el.addEventListener('mouseleave', () => document.querySelectorAll('.step-card').forEach(card => card.classList.remove('linked-active')));
+        });
+    }
+
+    // ===== ГЕНЕРАЦИЯ ЗАДАЧ =====
+    function generateParabolaTask() {
+        const pool = [
+            { a:1, b:-2, c:-3 },
+            { a:-2, b:4, c:-1 },
+            { a:2, b:-8, c:6 },
+            { a:1, b:6, c:5 },
+            { a:-1, b:-2, c:3 }
+        ];
+        const chosen = pool[Math.floor(Math.random() * pool.length)];
+        const x0 = -chosen.b / (2*chosen.a);
+        const y0 = chosen.a*x0*x0 + chosen.b*x0 + chosen.c;
+        const d = chosen.b*chosen.b - 4*chosen.a*chosen.c;
+        const roots = d >= 0 ? `${formatNum((-chosen.b - Math.sqrt(d))/(2*chosen.a))}; ${formatNum((-chosen.b + Math.sqrt(d))/(2*chosen.a))}` : 'действительных нулей нет';
+        return {
+            text: `Дана функция ${chosen.a === 1 ? '' : chosen.a === -1 ? '−' : chosen.a}x² ${chosen.b>=0?'+':''}${chosen.b}x ${chosen.c>=0?'+':''}${chosen.c}. Найдите вершину, точку пересечения с Oy и нули функции.`,
+            answer: `x₀ = ${formatNum(x0)}, y₀ = ${formatNum(y0)}; точка (0; ${chosen.c}); нули: ${roots}.`,
+            idea: 'Сначала найдите x₀ по формуле оси симметрии, затем y₀ подстановкой, а нули — по дискриминанту.',
+            apply() { state.parabola = { ...chosen }; renderGraph(); }
+        };
+    }
+
+    function generateGenericTask(themeKey) {
+        const map = {
+            angles: {
+                text:'В треугольнике угол A состоит из двух частей по 18° и 24°, а угол C равен 35°. Найдите угол B.',
+                answer:'B = 180° − (18° + 24°) − 35° = 103°.',
+                idea:'Сначала восстановите весь угол A, затем используйте сумму углов треугольника.'
+            },
+            vectors: {
+                text:'Даны векторы a = (2; −1) и b = (−1; 4). Найдите a + b и длину результата.',
+                answer:'a + b = (1; 3), длина = √10.',
+                idea:'Сложите координаты покомпонентно, затем используйте формулу длины.'
+            },
+            volumes: {
+                text:'Объём цилиндра равен 72. Найдите объём вписанного конуса.',
+                answer:'24.',
+                idea:'У конуса с тем же основанием и высотой объём в 3 раза меньше.'
+            },
+            domain: {
+                text:'Решите уравнение √(x + 1) = −x.',
+                answer:'x = (1 − √5)/2.',
+                idea:'Сначала запишите −x ≥ 0, затем возведите в квадрат и проверьте корни.'
+            },
+            trig: {
+                text:'Известно, что cos x = 1/2 и x лежит в IV четверти. Найдите tg x.',
+                answer:'tg x = −√3.',
+                idea:'Найдите sin x по основной формуле и выберите знак по четверти.'
+            },
+            derivative: {
+                text:'По схеме знаков f′: +, −, +, − найдите число точек максимума.',
+                answer:'2.',
+                idea:'Считайте только переходы + → −.'
+            },
+            mixtures: {
+                text:'Смешали 20 кг раствора 10% и 30 кг раствора 30%. Найдите концентрацию смеси.',
+                answer:'22%.',
+                idea:'Сложите массы вещества и разделите на общую массу смеси.'
+            }
+        };
+        return map[themeKey];
+    }
+
+    function formatNum(n) {
+        const rounded = Math.round(n * 100) / 100;
+        return String(rounded).replace('.', ',');
+    }
+
+    // ===== ВСПОМОГАТЕЛЬНОЕ =====
+    function contextualHint() {
+        if (!sessionStorage.getItem('themeHintShown')) {
+            sessionStorage.setItem('themeHintShown', '1');
+            setTimeout(() => showPopover('detailHint', document.getElementById('detailHintTrigger')), 200);
+        }
+    }
+
+    function showPopover(id, anchor) {
+        hidePopover();
+        const pop = document.getElementById(id);
+        if (!pop || !anchor) return;
+        const rect = anchor.getBoundingClientRect();
+        pop.classList.add('show');
+        pop.setAttribute('aria-hidden', 'false');
+        const pos = pop.dataset.pos || 'bottom';
+        let top = rect.bottom + 12 + window.scrollY;
+        let left = rect.left + window.scrollX - 8;
+        if (pos === 'left') { top = rect.top + window.scrollY - 10; left = rect.left + window.scrollX - pop.offsetWidth - 14; }
+        if (pos === 'right') { top = rect.top + window.scrollY - 10; left = rect.right + window.scrollX + 14; }
+        if (pos === 'top') { top = rect.top + window.scrollY - pop.offsetHeight - 14; left = rect.left + window.scrollX - 8; }
+        pop.style.top = `${Math.max(12, top)}px`;
+        pop.style.left = `${Math.max(12, left)}px`;
+        state.visiblePopover = id;
+        pop._timer = setTimeout(() => hidePopover(), 15000);
+    }
+
+    function hidePopover() {
+        document.querySelectorAll('.popover').forEach(pop => {
+            pop.classList.remove('show');
+            pop.setAttribute('aria-hidden', 'true');
+            if (pop._timer) clearTimeout(pop._timer);
+        });
+        state.visiblePopover = null;
+    }
+
+    function renderAll() {
+        renderTabs();
+        renderSteps();
+        bindSolutionNav();
+        renderErrors();
+        renderChecklist();
+        renderQuiz();
+        renderGenerated();
+        renderGraph();
+        bindMainControls();
+        if (state.mode === 'all') document.querySelectorAll('.step-card').forEach(card => card.classList.add('open'));
+    }
+
+    function bindMainControls() {
+        document.querySelectorAll('.detail-pill').forEach(btn => {
+            btn.onclick = () => {
+                state.detail = btn.dataset.detail;
+                document.querySelectorAll('.detail-pill').forEach(x => x.classList.toggle('active', x === btn));
+                renderSteps(); bindSolutionNav(); bindHoverLinks();
+            };
+        });
+        document.querySelectorAll('.mode-pill').forEach(btn => {
+            btn.onclick = () => {
+                state.mode = btn.dataset.mode;
+                document.querySelectorAll('.mode-pill').forEach(x => x.classList.toggle('active', x === btn));
+                renderSteps(); bindSolutionNav(); bindHoverLinks();
+            };
+        });
+    }
+
+    // ===== PAN + ZOOM =====
+    function attachPanZoom(frame) {
+        let dragging = false, lastX = 0, lastY = 0;
+        frame.addEventListener('mousedown', (e) => { dragging = true; lastX = e.clientX; lastY = e.clientY; frame.classList.add('dragging'); });
+        window.addEventListener('mousemove', (e) => {
+            if (!dragging) return;
+            state.viz.panX += e.clientX - lastX;
+            state.viz.panY += e.clientY - lastY;
+            lastX = e.clientX; lastY = e.clientY;
+            renderGraph();
+        });
+        window.addEventListener('mouseup', () => { dragging = false; frame.classList.remove('dragging'); });
+        frame.addEventListener('wheel', (e) => {
+            if (getCurrentThemeData().modelType !== 'parabola') return;
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 0.07 : -0.07;
+            state.viz.scale = Math.min(1.8, Math.max(0.55, state.viz.scale + delta));
+            renderGraph();
+        }, { passive: false });
+        frame.addEventListener('click', (e) => {
+            if (e.target === frame || e.target === graphSvg) openModal();
+        });
+    }
+
+    // ===== МОДАЛКА =====
+    function openModal() {
+        state.modalOpen = true;
+        modalOverlay.classList.add('show');
+        modalOverlay.setAttribute('aria-hidden', 'false');
+        renderGraph();
+    }
+    function closeModal() {
+        state.modalOpen = false;
+        modalOverlay.classList.remove('show');
+        modalOverlay.setAttribute('aria-hidden', 'true');
+    }
+
+    // ===== СОБЫТИЯ =====
+    document.getElementById('printBtn').addEventListener('click', () => window.print());
+    document.getElementById('themeToggle').addEventListener('click', () => {
+        document.body.classList.toggle('light');
+        localStorage.setItem('eduThemeLight', document.body.classList.contains('light') ? '1' : '0');
+    });
+    document.getElementById('zoomOutBtn').addEventListener('click', () => { state.viz.scale = Math.max(.55, state.viz.scale - .1); renderGraph(); });
+    document.getElementById('zoomInBtn').addEventListener('click', () => { state.viz.scale = Math.min(1.8, state.viz.scale + .1); renderGraph(); });
+    document.getElementById('zoomResetBtn').addEventListener('click', () => { state.viz.scale = 1; state.viz.panX = 0; state.viz.panY = 0; renderGraph(); });
+    zoomRange.addEventListener('input', (e) => { state.viz.scale = Number(e.target.value) / 100; renderGraph(); });
+    document.getElementById('openModalBtn').addEventListener('click', openModal);
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+
+    document.getElementById('generateBtn').addEventListener('click', () => { seedGenerated(); renderGenerated(); });
+    document.getElementById('genHintAction').addEventListener('click', () => { seedGenerated(); renderGenerated(); hidePopover(); });
+    document.getElementById('applyGeneratedBtn').addEventListener('click', () => { if (state.generated?.apply) state.generated.apply(); });
+
+    document.querySelectorAll('[data-close-popover]').forEach(btn => btn.addEventListener('click', hidePopover));
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.popover') && !e.target.closest('.hint-dot')) hidePopover();
+    });
+    document.getElementById('detailHintTrigger').addEventListener('mouseenter', (e)=>showPopover('detailHint', e.currentTarget));
+    document.getElementById('detailHintTrigger').addEventListener('focus', (e)=>showPopover('detailHint', e.currentTarget));
+    document.getElementById('genHintTrigger').addEventListener('mouseenter', (e)=>showPopover('genHint', e.currentTarget));
+    document.getElementById('genHintTrigger').addEventListener('focus', (e)=>showPopover('genHint', e.currentTarget));
+    document.getElementById('zoomHintTrigger').addEventListener('mouseenter', (e)=>showPopover('zoomHint', e.currentTarget));
+    document.getElementById('zoomHintTrigger').addEventListener('focus', (e)=>showPopover('zoomHint', e.currentTarget));
+
+    document.querySelectorAll('[data-action="show-detail-example"]').forEach(btn => btn.addEventListener('click', () => {
+        state.detail = 'full';
+        document.querySelectorAll('.detail-pill').forEach(x => x.classList.toggle('active', x.dataset.detail === 'full'));
+        renderSteps(); bindSolutionNav(); hidePopover();
+    }));
+    document.querySelectorAll('[data-action="ack-zoom"]').forEach(btn => btn.addEventListener('click', hidePopover));
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            hidePopover();
+            closeModal();
+        }
+    });
+
+    // ===== ИНИЦИАЛИЗАЦИЯ =====
+    if (localStorage.getItem('eduThemeLight') === '1') document.body.classList.add('light');
+    seedGenerated();
+    renderAll();
+    attachPanZoom(graphFrame);
+    attachPanZoom(modalGraphFrame);
+
+    if (!sessionStorage.getItem('firstHintShown')) {
+        sessionStorage.setItem('firstHintShown', '1');
+        setTimeout(() => showPopover('detailHint', document.getElementById('detailHintTrigger')), 3000);
+    }
+</script>
+</body>
+</html>
