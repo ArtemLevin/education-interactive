@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Интерактивный конспект: логарифмические неравенства и финансовые задачи</title>
+    <style>
+        :root{
+            --bg:#f4f1e8;
+            --paper:#fffaf0;
+            --ink:#171717;
+            --muted:#5c5c56;
+            --accent:#c8322b;
+            --accent2:#0f6f6d;
+            --accent3:#f0c24a;
+            --line:#191919;
+            --shadow:8px 8px 0 #171717;
+            --soft:#eee4d1;
+            --good:#0f6f3f;
+            --bad:#a72020;
+            --card:#fff8e7;
+        }
+        [data-theme="dark"]{
+            --bg:#151611;
+            --paper:#22231b;
+            --ink:#f5f0e6;
+            --muted:#c8c0af;
+            --accent:#ff6259;
+            --accent2:#55d3c9;
+            --accent3:#ffce55;
+            --line:#f5f0e6;
+            --shadow:8px 8px 0 #000;
+            --soft:#2c2e24;
+            --card:#26281f;
+            --good:#8bf0aa;
+            --bad:#ff8b8b;
+        }
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            background:
+            radial-gradient(circle at 10% 10%, rgba(200,50,43,.08), transparent 25%),
+            radial-gradient(circle at 85% 0%, rgba(15,111,109,.10), transparent 30%),
+            linear-gradient(135deg, rgba(0,0,0,.03) 25%, transparent 25%) 0 0/18px 18px,
+            var(--bg);
+            color:var(--ink);
+            font-family: Inter, Arial, Helvetica, sans-serif;
+            line-height:1.55;
+        }
+        body:before{
+            content:"";
+            position:fixed; inset:0;
+            pointer-events:none;
+            opacity:.08;
+            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.75'/%3E%3C/svg%3E");
+            mix-blend-mode:multiply;
+        }
+        .topbar{
+            position:sticky; top:0; z-index:50;
+            display:flex; gap:10px; align-items:center; justify-content:space-between;
+            padding:10px clamp(12px,2vw,24px);
+            background:var(--paper);
+            border-bottom:2px solid var(--line);
+        }
+        .brand{font-weight:900; text-transform:uppercase; letter-spacing:.05em}
+        .nav{display:flex; flex-wrap:wrap; gap:8px; justify-content:center}
+        .btn, button, select{
+            border:2px solid var(--line);
+            background:var(--paper);
+            color:var(--ink);
+            padding:8px 11px;
+            font-weight:800;
+            cursor:pointer;
+            box-shadow:3px 3px 0 var(--line);
+            transition:.15s transform,.15s box-shadow,.15s background;
+            border-radius:0;
+        }
+        .btn:hover, button:hover, select:hover{transform:translate(-1px,-1px); box-shadow:5px 5px 0 var(--line)}
+        .btn.active, button.active{background:var(--accent3)}
+        .theme{background:var(--accent2); color:#fff}
+        .wrap{max-width:1280px; margin:0 auto; padding:24px clamp(14px,2vw,26px) 48px}
+        .hero{
+            border:2px solid var(--line);
+            background:var(--paper);
+            box-shadow:var(--shadow);
+            padding:clamp(22px,4vw,42px);
+            position:relative;
+            overflow:hidden;
+        }
+        .stamp{
+            display:inline-block;
+            background:var(--accent);
+            color:#fff;
+            padding:7px 12px;
+            border:2px solid var(--line);
+            font-weight:900;
+            text-transform:uppercase;
+            transform:rotate(-1deg);
+            box-shadow:4px 4px 0 var(--line);
+            margin-bottom:14px;
+        }
+        h1{
+            margin:0;
+            font-size:clamp(2.1rem,6vw,5.2rem);
+            line-height:.95;
+            letter-spacing:-.05em;
+            text-transform:uppercase;
+        }
+        .red{color:var(--accent)}
+        .subtitle{max-width:850px; font-size:clamp(1.05rem,2vw,1.35rem); color:var(--muted); margin:18px 0 0}
+        .hero-grid{display:grid; grid-template-columns:1.4fr .8fr; gap:22px; align-items:end}
+        .formula-card{
+            border:2px dashed var(--line);
+            padding:16px;
+            background:var(--soft);
+            font-weight:800;
+            transform:rotate(1deg);
+        }
+        .workspace{display:grid; grid-template-columns:minmax(0,1fr) 420px; gap:22px; margin-top:30px}
+        .content{display:grid; gap:18px}
+        .card{
+            border:2px solid var(--line);
+            background:var(--card);
+            box-shadow:var(--shadow);
+            padding:20px;
+        }
+        .card h2{margin:0 0 10px; font-size:clamp(1.55rem,3vw,2.4rem); text-transform:uppercase; letter-spacing:-.03em}
+        .card h3{margin:18px 0 8px; font-size:1.2rem; color:var(--accent)}
+        .banner{
+            background:var(--ink);
+            color:var(--paper);
+            border:2px solid var(--line);
+            padding:12px 16px;
+            font-weight:900;
+            text-transform:uppercase;
+            letter-spacing:.06em;
+        }
+        .cols{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px}
+        .mini{
+            border:2px solid var(--line);
+            background:var(--paper);
+            padding:14px;
+        }
+        .mini strong{color:var(--accent)}
+        code, .math{
+            display:inline-block;
+            font-family:"Courier New", monospace;
+            background:var(--soft);
+            border:1.5px solid var(--line);
+            padding:1px 6px;
+            font-weight:800;
+        }
+        .steps{counter-reset:step}
+        .step{
+            border-left:6px solid var(--accent2);
+            background:var(--paper);
+            border-top:2px solid var(--line);
+            border-right:2px solid var(--line);
+            border-bottom:2px solid var(--line);
+            padding:12px 14px;
+            margin:10px 0;
+            position:relative;
+        }
+        .step:before{
+            counter-increment:step;
+            content:counter(step);
+            display:inline-grid; place-items:center;
+            width:26px; height:26px;
+            border:2px solid var(--line);
+            background:var(--accent3);
+            margin-right:8px;
+            font-weight:900;
+        }
+        .revealed .hidden-step{display:block}
+        .hidden-step{display:none}
+        .side{
+            position:sticky; top:76px;
+            align-self:start;
+            display:grid; gap:14px;
+        }
+        .panel{
+            border:2px solid var(--line);
+            background:var(--paper);
+            box-shadow:var(--shadow);
+            padding:16px;
+        }
+        .panel h2{margin:0 0 10px; text-transform:uppercase; font-size:1.45rem}
+        .tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px}
+        .tab-content{display:none}
+        .tab-content.active{display:block}
+        .axisbox{border:2px solid var(--line); background:var(--soft); padding:10px; margin-top:10px}
+        svg{max-width:100%; height:auto; display:block}
+        .control{display:grid; gap:6px; margin:8px 0}
+        input[type="range"]{width:100%}
+        input, .textinput{
+            width:100%; border:2px solid var(--line); background:var(--paper); color:var(--ink); padding:8px; font-weight:700;
+        }
+        .quiz-item{border:2px solid var(--line); background:var(--paper); padding:12px; margin:10px 0}
+        .option{display:block; margin:7px 0; padding:8px; border:2px solid var(--line); cursor:pointer; background:var(--soft); font-weight:700}
+        .option.correct{background:rgba(15,111,63,.20); border-color:var(--good)}
+        .option.wrong{background:rgba(167,32,32,.18); border-color:var(--bad)}
+        .result{font-weight:900; margin-top:8px}
+        .taskbox{border:2px solid var(--line); background:var(--soft); padding:12px; font-weight:800; margin:12px 0}
+        .answer{display:none; margin-top:8px; padding:10px; border:2px dashed var(--line); background:var(--paper)}
+        .answer.show{display:block}
+        .table-wrap{overflow:auto}
+        table{width:100%; border-collapse:collapse; background:var(--paper)}
+        th,td{border-bottom:2px solid var(--line); padding:10px; text-align:left; vertical-align:top}
+        th{background:var(--soft); text-transform:uppercase}
+        .footer{margin-top:32px; text-align:center; font-weight:900; color:var(--accent); text-transform:uppercase; letter-spacing:.08em}
+        .doodle{position:absolute; right:24px; top:24px; font-size:72px; opacity:.18; transform:rotate(12deg)}
+        .print-note{display:none}
+        @media(max-width:1000px){
+            .workspace{grid-template-columns:1fr}
+            .side{position:relative; top:auto}
+            .hero-grid{grid-template-columns:1fr}
+        }
+        @media(max-width:680px){
+            .topbar{align-items:flex-start; flex-direction:column}
+            .nav{justify-content:flex-start}
+            .cols{grid-template-columns:1fr}
+            .card,.panel,.hero{box-shadow:5px 5px 0 var(--line)}
+        }
+        @media print{
+            .topbar,.side,.no-print{display:none!important}
+            body{background:#fff;color:#000}
+            .wrap{max-width:none;padding:0}
+            .hero,.card{box-shadow:none;break-inside:avoid;background:#fff}
+            .print-note{display:block}
+        }
+    </style>
+</head>
+<body>
+<header class="topbar">
+    <div class="brand">МАТЕМАТИКА. НАГЛЯДНО</div>
+    <nav class="nav" aria-label="Навигация">
+        <a class="btn" href="#odz">ОДЗ</a>
+        <a class="btn" href="#algo">Алгоритм</a>
+        <a class="btn" href="#mistakes">Ошибки</a>
+        <a class="btn" href="#finance">Финансы</a>
+        <a class="btn" href="#training">Тренировка</a>
+    </nav>
+    <button class="theme" id="themeBtn" type="button">LIGHT / DARK</button>
+</header>
+
+<main class="wrap">
+    <section class="hero">
+        <div class="doodle">log</div>
+        <div class="hero-grid">
+            <div>
+                <div class="stamp">Интерактивный web-конспект</div>
+                <h1><span class="red">Логарифмические</span><br>неравенства<br>и финансовые задачи</h1>
+                <p class="subtitle">Короткий учебный маршрут: ограничения → преобразования → замена → метод интервалов → обратная замена → проверка. Для кредитов: таблица по годам и уравнения по смыслу.</p>
+            </div>
+            <div class="formula-card">
+                <div>Главное правило:</div>
+                <p><span class="math">log<sub>a</sub>b</span> существует, если <span class="math">a&gt;0</span>, <span class="math">a≠1</span>, <span class="math">b&gt;0</span>.</p>
+                <p>Если логарифм в знаменателе: <span class="math">log<sub>a</sub>b≠0</span>.</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="workspace">
+        <div class="content">
+            <div class="banner">Сначала ограничения. Потом любые красивые преобразования.</div>
+
+            <section class="card" id="odz">
+                <h2>1. ОДЗ: входной контроль</h2>
+                <div class="cols">
+                    <div class="mini">
+                        <strong>Для логарифма</strong>
+                        <p><span class="math">log<sub>a</sub>b</span>: основание положительно и не равно 1, аргумент положителен.</p>
+                        <p><span class="math">a&gt;0, a≠1, b&gt;0</span></p>
+                    </div>
+                    <div class="mini">
+                        <strong>Для знаменателя</strong>
+                        <p>Если логарифм стоит внизу дроби, он не может быть нулём.</p>
+                        <p><span class="math">log<sub>a</sub>b≠0 ⇔ b≠1</span></p>
+                    </div>
+                </div>
+                <h3>Микро-пример</h3>
+                <p>Для <span class="math">1 / log<sub>2</sub>x</span> получаем: <span class="math">x&gt;0</span> и <span class="math">x≠1</span>. Точка <span class="math">x=1</span> запрещена, потому что знаменатель станет нулём.</p>
+            </section>
+
+            <section class="card" id="algo">
+                <h2>2. Алгоритм решения</h2>
+                <div class="steps" id="stepsBox">
+                    <div class="step">Записать ОДЗ: основания, аргументы, знаменатели.</div>
+                    <div class="step">Привести логарифмы к одному виду: чаще всего к <span class="math">log<sub>2</sub>x</span>.</div>
+                    <div class="step">Сделать замену: <span class="math">t = log<sub>2</sub>x</span>.</div>
+                    <div class="step hidden-step">Решить рациональное или квадратное неравенство по <span class="math">t</span> методом интервалов.</div>
+                    <div class="step hidden-step">Записать промежутки через систему и совокупность.</div>
+                    <div class="step hidden-step">Вернуться к <span class="math">x</span> и обязательно сверить ответ с ОДЗ.</div>
+                </div>
+                <button class="no-print" id="revealSteps" type="button">Показать все шаги</button>
+            </section>
+
+            <section class="card">
+                <h2>3. Формулы и приёмы</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Приём</th><th>Как читать</th><th>Зачем нужен</th></tr></thead>
+                        <tbody>
+                        <tr><td><span class="math">log<sub>a</sub>(bc)=log<sub>a</sub>b+log<sub>a</sub>c</span></td><td>Произведение → сумма</td><td>Разобрать сложный аргумент</td></tr>
+                        <tr><td><span class="math">log<sub>a</sub>(b/c)=log<sub>a</sub>b−log<sub>a</sub>c</span></td><td>Частное → разность</td><td>Убрать дробь в аргументе</td></tr>
+                        <tr><td><span class="math">log<sub>a</sub>b<sup>n</sup>=n·log<sub>a</sub>b</span></td><td>Степень выходит множителем</td><td>Получить повторяющийся элемент</td></tr>
+                        <tr><td><span class="math">log<sub>a</sub>b=1/log<sub>b</sub>a</span></td><td>Аргумент и основание меняются местами</td><td>Избавиться от неудобного основания</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p><strong class="red">Важно:</strong> <span class="math">log<sub>a</sub>x² = 2log<sub>a</sub>|x|</span>. Если по ОДЗ уже известно <span class="math">x&gt;0</span>, модуль можно убрать.</p>
+            </section>
+
+            <section class="card" id="mistakes">
+                <h2>4. Ошибки, которые снимают баллы</h2>
+                <div class="cols">
+                    <div class="mini"><strong>Домножение</strong><p>Нельзя домножать неравенство на переменное выражение без знания его знака.</p></div>
+                    <div class="mini"><strong>Знаменатель</strong><p>Критическая точка знаменателя не входит в ответ, даже если метод интервалов даёт нужный знак.</p></div>
+                    <div class="mini"><strong>Система</strong><p>Отрезок задаётся двумя условиями одновременно: это система.</p></div>
+                    <div class="mini"><strong>Совокупность</strong><p>Объединение разных промежутков: это «или», то есть совокупность.</p></div>
+                </div>
+            </section>
+
+            <section class="card" id="finance">
+                <h2>5. Финансовые задачи</h2>
+                <p>Для кредитов почти всегда выгодно строить таблицу по годам: долг в начале года → начисление процентов → платёж → остаток.</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Долг в начале</th><th>После процентов</th><th>Платёж</th><th>Остаток</th></tr></thead>
+                        <tbody><tr><td><span class="math">S</span></td><td><span class="math">S·k</span></td><td><span class="math">P</span></td><td><span class="math">S·k − P</span></td></tr></tbody>
+                    </table>
+                </div>
+                <p>Здесь <span class="math">p = r/100</span>, <span class="math">k = 1+p</span>. Если долг после платежа не меняется, платёж равен начисленным процентам: <span class="math">S·p</span>.</p>
+            </section>
+
+            <section class="card" id="training">
+                <h2>6. Тренировка</h2>
+                <p>Сгенерируйте задание и попробуйте сначала решить его самостоятельно. Ответ раскрывается кнопкой.</p>
+                <div class="taskbox" id="taskBox">Нажмите «Новое задание».</div>
+                <button type="button" id="newTask">Новое задание</button>
+                <button type="button" id="showAnswer">Показать ответ</button>
+                <div class="answer" id="answerBox"></div>
+            </section>
+
+            <section class="card">
+                <h2>7. Мини-квиз</h2>
+                <div id="quiz"></div>
+                <button type="button" id="resetQuiz">Сбросить квиз</button>
+            </section>
+
+            <section class="card print-note">
+                <h2>Печатная памятка</h2>
+                <ol>
+                    <li>ОДЗ пишем до преобразований.</li>
+                    <li>Знаменатель не равен нулю.</li>
+                    <li>На переменное выражение без знака не домножаем.</li>
+                    <li>Дробные неравенства решаем методом интервалов.</li>
+                    <li>В кредитах строим таблицу и проверяем остаток долга.</li>
+                </ol>
+            </section>
+        </div>
+
+        <aside class="side">
+            <section class="panel">
+                <h2>Интерактивная модель</h2>
+                <div class="tabs">
+                    <button class="tab active" data-tab="interval">Интервалы</button>
+                    <button class="tab" data-tab="financeCalc">Кредит</button>
+                    <button class="tab" data-tab="quick">Памятка</button>
+                </div>
+
+                <div class="tab-content active" id="interval">
+                    <p>Модель для неравенства:</p>
+                    <p><span class="math">((t−a)(t+b))/t ≤ 0</span></p>
+                    <div class="control"><label>Правая точка a: <b id="aVal">5</b></label><input id="aRange" type="range" min="1" max="8" value="5" /></div>
+                    <div class="control"><label>Левая точка −b: <b id="bVal">−3</b></label><input id="bRange" type="range" min="1" max="8" value="3" /></div>
+                    <div class="axisbox"><svg id="axisSvg" viewBox="0 0 380 120" role="img" aria-label="Числовая прямая с промежутками"></svg></div>
+                    <p id="intervalAnswer" class="result"></p>
+                </div>
+
+                <div class="tab-content" id="financeCalc">
+                    <p>Если долг не меняется, платёж равен процентам.</p>
+                    <div class="control"><label>Сумма S, млн</label><input id="sumInput" type="number" value="6.6" step="0.1"></div>
+                    <div class="control"><label>Ставка r, %</label><input id="rateInput" type="number" value="25" step="1"></div>
+                    <button type="button" id="calcPay">Рассчитать</button>
+                    <div class="taskbox" id="payResult">Платёж: 1,65 млн</div>
+                </div>
+
+                <div class="tab-content" id="quick">
+                    <ul>
+                        <li><strong>ОДЗ:</strong> основание, аргумент, знаменатель.</li>
+                        <li><strong>Замена:</strong> повторяющийся логарифм обозначаем через t.</li>
+                        <li><strong>Интервалы:</strong> нули числителя и знаменателя на ось.</li>
+                        <li><strong>Кредит:</strong> последний остаток равен 0.</li>
+                    </ul>
+                </div>
+            </section>
+        </aside>
+    </div>
+
+    <footer class="footer">Артём Александрович Лёвин эксклюзивно для Ивана Необутова</footer>
+</main>
+
+<script>
+    // Простые комментарии по-русски: здесь храним состояние темы, вкладок, задач и квиза.
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('logFinanceTheme');
+    if(savedTheme){ document.body.dataset.theme = savedTheme; }
+
+    document.getElementById('themeBtn').addEventListener('click', () => {
+        const next = document.body.dataset.theme === 'dark' ? '' : 'dark';
+        if(next){ document.body.dataset.theme = next; } else { delete document.body.dataset.theme; }
+        localStorage.setItem('logFinanceTheme', next);
+    });
+
+    // Показываем скрытые шаги алгоритма.
+    document.getElementById('revealSteps').addEventListener('click', () => {
+        document.getElementById('stepsBox').classList.toggle('revealed');
+        document.getElementById('revealSteps').textContent = document.getElementById('stepsBox').classList.contains('revealed') ? 'Скрыть дополнительные шаги' : 'Показать все шаги';
+    });
+
+    // Вкладки в правой интерактивной панели.
+    document.querySelectorAll('.tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    const axisSvg = document.getElementById('axisSvg');
+    const aRange = document.getElementById('aRange');
+    const bRange = document.getElementById('bRange');
+    const aVal = document.getElementById('aVal');
+    const bVal = document.getElementById('bVal');
+    const intervalAnswer = document.getElementById('intervalAnswer');
+
+    function xMap(t, min, max){ return 35 + (t - min) * (310 / (max - min)); }
+    function drawAxis(){
+        const a = Number(aRange.value);
+        const b = Number(bRange.value);
+        aVal.textContent = a;
+        bVal.textContent = '−' + b;
+        const pts = [-b,0,a];
+        const min = -Math.max(b+2, 6);
+        const max = Math.max(a+2, 6);
+        const y = 62;
+        const xLeft = xMap(min,min,max), xRight = xMap(max,min,max);
+        const xNegB = xMap(-b,min,max), xZero = xMap(0,min,max), xA = xMap(a,min,max);
+        axisSvg.innerHTML = `
+    <defs>
+      <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="currentColor"></path></marker>
+    </defs>
+    <line x1="${xLeft}" y1="${y}" x2="${xRight}" y2="${y}" stroke="currentColor" stroke-width="3" marker-end="url(#arr)"/>
+    <line x1="${xLeft}" y1="${y}" x2="${xNegB}" y2="${y}" stroke="var(--accent)" stroke-width="8" opacity=".8"/>
+    <line x1="${xZero}" y1="${y}" x2="${xA}" y2="${y}" stroke="var(--accent)" stroke-width="8" opacity=".8"/>
+    ${pts.map(t=>`<line x1="${xMap(t,min,max)}" y1="48" x2="${xMap(t,min,max)}" y2="76" stroke="currentColor" stroke-width="2"/>`).join('')}
+    <circle cx="${xNegB}" cy="${y}" r="7" fill="var(--accent3)" stroke="currentColor" stroke-width="3"/>
+    <circle cx="${xZero}" cy="${y}" r="7" fill="var(--paper)" stroke="currentColor" stroke-width="3"/>
+    <circle cx="${xA}" cy="${y}" r="7" fill="var(--accent3)" stroke="currentColor" stroke-width="3"/>
+    <text x="${xNegB}" y="102" text-anchor="middle" fill="currentColor" font-weight="900">−${b}</text>
+    <text x="${xZero}" y="102" text-anchor="middle" fill="currentColor" font-weight="900">0</text>
+    <text x="${xA}" y="102" text-anchor="middle" fill="currentColor" font-weight="900">${a}</text>
+    <text x="18" y="38" fill="currentColor" font-weight="900">−∞</text>
+    <text x="338" y="38" fill="currentColor" font-weight="900">+∞</text>
+  `;
+        intervalAnswer.innerHTML = `Ответ по t: <span class="math">t ∈ (−∞; −${b}] ∪ (0; ${a}]</span>`;
+    }
+    aRange.addEventListener('input', drawAxis);
+    bRange.addEventListener('input', drawAxis);
+    drawAxis();
+
+    // Кредитный мини-калькулятор.
+    function calcPay(){
+        const S = Number(document.getElementById('sumInput').value);
+        const r = Number(document.getElementById('rateInput').value);
+        const p = r / 100;
+        const pay = S * p;
+        document.getElementById('payResult').textContent = `Платёж: ${pay.toLocaleString('ru-RU', {maximumFractionDigits:3})} млн; коэффициент k = ${(1+p).toLocaleString('ru-RU', {maximumFractionDigits:3})}`;
+    }
+    document.getElementById('calcPay').addEventListener('click', calcPay);
+    calcPay();
+
+    // Генератор задач: параметры выбраны так, чтобы ответ был красивым.
+    const tasks = [
+        {
+            text:'Решите неравенство: ((log₂x − 4)(log₂x + 1)) / log₂x ≤ 0.',
+            ans:'Ответ: x ∈ (0; 1/2] ∪ (1; 16].'
+        },
+        {
+            text:'Решите неравенство: (log₃x − 2)(log₃x + 3) / (log₃x − 1) < 0.',
+            ans:'Ответ: x ∈ (1/27; 3) ∪ (9; +∞) при корректной проверке знаков для t.'
+        },
+        {
+            text:'Кредит 5 млн взят под 20% годовых. После первого и второго года долг остаётся 5 млн, в третий год он полностью погашается. Найдите сумму выплат.',
+            ans:'Первые два платежа по 1 млн, последний платёж 6 млн. Итого 8 млн.'
+        },
+        {
+            text:'Решите неравенство: (log₂x − 1)/(log₂x + 2) ≥ 0.',
+            ans:'Ответ: x ∈ (0; 1/4) ∪ [2; +∞). Точка x=1/4 запрещена.'
+        }
+    ];
+    let currentTask = null;
+    document.getElementById('newTask').addEventListener('click', () => {
+        currentTask = tasks[Math.floor(Math.random()*tasks.length)];
+        document.getElementById('taskBox').textContent = currentTask.text;
+        document.getElementById('answerBox').textContent = currentTask.ans;
+        document.getElementById('answerBox').classList.remove('show');
+    });
+    document.getElementById('showAnswer').addEventListener('click', () => {
+        if(!currentTask){ document.getElementById('newTask').click(); }
+        document.getElementById('answerBox').classList.add('show');
+    });
+
+    // Мини-квиз.
+    const quizData = [
+        {q:'Что пишем первым в логарифмическом неравенстве?', opts:['Замена t','ОДЗ','Ответ','Таблица'], right:1, why:'Сначала ограничения, иначе можно включить запрещённые значения.'},
+        {q:'Можно ли домножить неравенство на t, если знак t неизвестен?', opts:['Да','Нет','Только если t красивое','Только в ЕГЭ'], right:1, why:'При отрицательном множителе знак неравенства меняется.'},
+        {q:'Если долг после платежа не меняется, что платит заёмщик?', opts:['Весь долг','Только проценты','Ничего','Половину долга'], right:1, why:'Платёж равен начисленным процентам S·p.'},
+        {q:'Объединение промежутков — это...', opts:['система','совокупность','ОДЗ','замена'], right:1, why:'Подходит один промежуток или другой: это логика «или».'}
+    ];
+    function renderQuiz(){
+        const box = document.getElementById('quiz');
+        box.innerHTML = '';
+        quizData.forEach((item, i) => {
+            const div = document.createElement('div');
+            div.className = 'quiz-item';
+            div.innerHTML = `<strong>${i+1}. ${item.q}</strong>`;
+            item.opts.forEach((opt, idx) => {
+                const lab = document.createElement('div');
+                lab.className = 'option';
+                lab.textContent = opt;
+                lab.addEventListener('click', () => {
+                    div.querySelectorAll('.option').forEach(o => o.classList.remove('correct','wrong'));
+                    lab.classList.add(idx === item.right ? 'correct' : 'wrong');
+                    const old = div.querySelector('.result');
+                    if(old) old.remove();
+                    const res = document.createElement('div');
+                    res.className = 'result';
+                    res.textContent = (idx === item.right ? 'Верно. ' : 'Проверьте. ') + item.why;
+                    div.appendChild(res);
+                });
+                div.appendChild(lab);
+            });
+            box.appendChild(div);
+        });
+    }
+    document.getElementById('resetQuiz').addEventListener('click', renderQuiz);
+    renderQuiz();
+</script>
+</body>
+</html>
