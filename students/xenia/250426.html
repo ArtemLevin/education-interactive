@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web-тренажёр: окружность и касательные</title>
+    <style>
+        :root{
+            --bg:#F4F4F0;
+            --paper:#FFFDF4;
+            --ink:#111111;
+            --muted:#5f5f58;
+            --red:#C9342D;
+            --blue:#2D6CDF;
+            --green:#16825D;
+            --yellow:#F4C542;
+            --shadow:#111111;
+            --line:#111111;
+            --soft:#ECE9DD;
+            --ok:#138A5B;
+            --bad:#C9342D;
+        }
+        [data-theme="dark"]{
+            --bg:#121212;
+            --paper:#1F1F1B;
+            --ink:#F6F1E6;
+            --muted:#C9C2B4;
+            --red:#FF5A4F;
+            --blue:#7EA8FF;
+            --green:#45D08F;
+            --yellow:#FFD75A;
+            --shadow:#000000;
+            --line:#F6F1E6;
+            --soft:#2D2D27;
+            --ok:#45D08F;
+            --bad:#FF6B60;
+        }
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            background:
+            radial-gradient(circle at 20% 10%, rgba(201,52,45,.08), transparent 28%),
+            radial-gradient(circle at 80% 30%, rgba(45,108,223,.08), transparent 26%),
+            var(--bg);
+            color:var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height:1.55;
+        }
+        body:before{
+            content:"";
+            position:fixed;
+            inset:0;
+            pointer-events:none;
+            opacity:.18;
+            background-image:
+            linear-gradient(90deg, rgba(0,0,0,.05) 1px, transparent 1px),
+            linear-gradient(rgba(0,0,0,.04) 1px, transparent 1px);
+            background-size:26px 26px;
+            mix-blend-mode:multiply;
+        }
+        a{color:inherit}
+        .wrap{max-width:1240px;margin:0 auto;padding:18px}
+        .topbar{
+            position:sticky;
+            top:0;
+            z-index:50;
+            background:var(--paper);
+            border:2px solid var(--line);
+            box-shadow:6px 6px 0 var(--shadow);
+            margin:12px auto 22px;
+            padding:10px;
+            display:flex;
+            gap:10px;
+            align-items:center;
+            justify-content:space-between;
+            flex-wrap:wrap;
+        }
+        .brand{
+            display:flex;
+            gap:10px;
+            align-items:center;
+            font-weight:900;
+            text-transform:uppercase;
+            letter-spacing:.04em;
+        }
+        .brand-mark{
+            width:34px;height:34px;
+            border:2px solid var(--line);
+            background:var(--red);
+            box-shadow:3px 3px 0 var(--shadow);
+            display:grid;
+            place-items:center;
+            color:#fff;
+            font-weight:900;
+        }
+        .nav{display:flex;gap:8px;flex-wrap:wrap}
+        .btn, button{
+            border:2px solid var(--line);
+            background:var(--paper);
+            color:var(--ink);
+            padding:9px 12px;
+            font-weight:800;
+            cursor:pointer;
+            box-shadow:3px 3px 0 var(--shadow);
+            transition:transform .08s ease, box-shadow .08s ease, background .12s ease;
+            text-decoration:none;
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            font-size:14px;
+        }
+        .btn:hover, button:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--shadow)}
+        .btn:active, button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow)}
+        .btn.red, button.red{background:var(--red);color:white}
+        .btn.yellow, button.yellow{background:var(--yellow);color:#111}
+        .btn.green, button.green{background:var(--green);color:white}
+        .hero{
+            display:grid;
+            grid-template-columns:1.1fr .9fr;
+            gap:22px;
+            align-items:stretch;
+            margin-bottom:24px;
+        }
+        .panel{
+            background:var(--paper);
+            border:2px solid var(--line);
+            box-shadow:8px 8px 0 var(--shadow);
+            padding:22px;
+        }
+        h1,h2,h3{line-height:1.05;margin:0 0 14px}
+        h1{
+            font-size:clamp(42px,7vw,86px);
+            letter-spacing:-.05em;
+            text-transform:uppercase;
+        }
+        .accent{color:var(--red)}
+        .sub{
+            font-size:clamp(18px,2vw,24px);
+            color:var(--muted);
+            max-width:760px;
+            font-weight:700;
+        }
+        .banner{
+            background:var(--ink);
+            color:var(--paper);
+            padding:12px 16px;
+            font-weight:900;
+            text-transform:uppercase;
+            letter-spacing:.07em;
+            margin:18px 0;
+            border:2px solid var(--line);
+        }
+        .hero-list{display:grid;gap:10px;margin-top:16px}
+        .hero-list div{
+            border:2px solid var(--line);
+            padding:10px 12px;
+            background:var(--soft);
+            font-weight:800;
+        }
+        .stats{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:12px;
+        }
+        .stat{
+            border:2px solid var(--line);
+            padding:14px;
+            background:var(--soft);
+            min-height:106px;
+        }
+        .stat strong{font-size:32px;display:block;color:var(--red)}
+        .grid{
+            display:grid;
+            grid-template-columns:minmax(0,1fr) 430px;
+            gap:22px;
+            align-items:start;
+        }
+        .sticky{
+            position:sticky;
+            top:98px;
+        }
+        .section{margin-bottom:22px}
+        .section h2{
+            font-size:clamp(28px,3vw,44px);
+            text-transform:uppercase;
+            border-bottom:5px solid var(--red);
+            display:inline-block;
+            padding-bottom:4px;
+        }
+        .cards{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:14px;
+            margin-top:14px;
+        }
+        .card{
+            border:2px solid var(--line);
+            background:var(--paper);
+            box-shadow:5px 5px 0 var(--shadow);
+            padding:16px;
+        }
+        .card h3{
+            font-size:24px;
+            color:var(--red);
+            text-transform:uppercase;
+        }
+        .card ul{margin:8px 0 0;padding-left:20px}
+        .card li{margin:6px 0}
+        .formula{
+            border:2px dashed var(--line);
+            padding:10px 12px;
+            margin:10px 0;
+            background:var(--soft);
+            font-weight:900;
+            font-size:18px;
+        }
+        .trainer-box{
+            border:2px solid var(--line);
+            background:var(--paper);
+            box-shadow:8px 8px 0 var(--shadow);
+            padding:14px;
+            overflow:hidden;
+        }
+        .mode-tabs{
+            display:grid;
+            grid-template-columns:repeat(2,1fr);
+            gap:8px;
+            margin-bottom:12px;
+        }
+        .mode-tabs button{justify-content:center;padding:8px;font-size:13px}
+        .mode-tabs button.active{background:var(--red);color:white}
+        .svg-wrap{
+            border:2px solid var(--line);
+            background:#fffaf0;
+            height:360px;
+            overflow:hidden;
+            position:relative;
+            cursor:grab;
+        }
+        [data-theme="dark"] .svg-wrap{background:#171714}
+        .svg-wrap:active{cursor:grabbing}
+        svg{width:100%;height:100%;display:block}
+        .ctrls{
+            display:grid;
+            gap:10px;
+            margin-top:12px;
+        }
+        .ctrl-row{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+            align-items:center;
+        }
+        .ctrl-row label{font-weight:900}
+        input[type="range"]{width:160px;accent-color:var(--red)}
+        .legend{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:8px;
+            font-size:13px;
+            margin-top:10px;
+        }
+        .legend span{
+            border:2px solid var(--line);
+            padding:6px;
+            background:var(--soft);
+            font-weight:700;
+        }
+        .step{
+            border:2px solid var(--line);
+            background:var(--paper);
+            box-shadow:4px 4px 0 var(--shadow);
+            padding:14px;
+            margin:12px 0;
+            cursor:pointer;
+        }
+        .step.active{background:var(--yellow);color:#111}
+        .step h3{font-size:22px;margin-bottom:8px}
+        .task-area{
+            display:grid;
+            grid-template-columns:1fr;
+            gap:14px;
+        }
+        .task-card{
+            border:2px solid var(--line);
+            box-shadow:5px 5px 0 var(--shadow);
+            background:var(--paper);
+            padding:16px;
+        }
+        .task-title{
+            display:flex;
+            justify-content:space-between;
+            gap:10px;
+            align-items:center;
+            flex-wrap:wrap;
+            margin-bottom:10px;
+        }
+        .pill{
+            display:inline-flex;
+            border:2px solid var(--line);
+            background:var(--yellow);
+            color:#111;
+            padding:4px 8px;
+            font-weight:900;
+            text-transform:uppercase;
+            font-size:12px;
+        }
+        .answer-row{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+            align-items:center;
+            margin-top:12px;
+        }
+        input[type="text"], select{
+            border:2px solid var(--line);
+            background:var(--paper);
+            color:var(--ink);
+            padding:10px 12px;
+            font-size:16px;
+            font-weight:700;
+            min-width:180px;
+        }
+        .feedback{
+            margin-top:10px;
+            font-weight:900;
+            min-height:26px;
+        }
+        .feedback.ok{color:var(--ok)}
+        .feedback.bad{color:var(--bad)}
+        .quiz-grid{
+            display:grid;
+            gap:12px;
+            margin-top:12px;
+        }
+        .choice{
+            width:100%;
+            justify-content:flex-start;
+            text-align:left;
+            background:var(--paper);
+        }
+        .choice.correct{background:var(--green);color:white}
+        .choice.wrong{background:var(--red);color:white}
+        details{
+            border:2px solid var(--line);
+            background:var(--paper);
+            box-shadow:4px 4px 0 var(--shadow);
+            padding:12px;
+            margin:10px 0;
+        }
+        summary{font-weight:900;cursor:pointer}
+        .footer{
+            margin:26px 0 10px;
+            border:2px solid var(--line);
+            box-shadow:6px 6px 0 var(--shadow);
+            background:var(--paper);
+            padding:16px;
+            display:flex;
+            justify-content:space-between;
+            gap:12px;
+            flex-wrap:wrap;
+            font-weight:900;
+        }
+        .tagline{color:var(--red);text-transform:uppercase}
+        .modal{
+            position:fixed;
+            inset:0;
+            z-index:100;
+            background:rgba(0,0,0,.72);
+            display:none;
+            align-items:center;
+            justify-content:center;
+            padding:18px;
+        }
+        .modal.open{display:flex}
+        .modal-content{
+            width:min(1100px,96vw);
+            height:min(760px,86vh);
+            background:var(--paper);
+            border:2px solid var(--line);
+            box-shadow:10px 10px 0 #000;
+            padding:12px;
+            display:grid;
+            grid-template-rows:auto 1fr;
+            gap:10px;
+        }
+        .modal-head{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:10px;
+            font-weight:900;
+        }
+        .modal-svg{height:100%;border:2px solid var(--line);background:#fffaf0}
+        [data-theme="dark"] .modal-svg{background:#171714}
+        .print-only{display:none}
+        @media(max-width:960px){
+            .hero,.grid{grid-template-columns:1fr}
+            .sticky{position:static}
+            .cards{grid-template-columns:1fr}
+            .svg-wrap{height:320px}
+        }
+        @media(max-width:560px){
+            .wrap{padding:10px}
+            .topbar{position:static}
+            .stats{grid-template-columns:1fr}
+            .mode-tabs{grid-template-columns:1fr}
+            .panel{padding:16px}
+            h1{font-size:42px}
+        }
+        @media print{
+            body{background:#fff;color:#000}
+            body:before,.topbar,.ctrls,.mode-tabs,.answer-row,.quiz-grid button,.modal{display:none!important}
+            .wrap{max-width:none;padding:0}
+            .panel,.card,.trainer-box,.step,.task-card,details,.footer{
+                box-shadow:none!important;
+                border:1px solid #000;
+                break-inside:avoid;
+            }
+            .grid,.hero{grid-template-columns:1fr}
+            .sticky{position:static}
+            .print-only{display:block}
+        }
+    </style>
+</head>
+<body data-theme="light">
+<div class="wrap">
+    <header class="topbar">
+        <div class="brand"><span class="brand-mark">О</span> Web-тренажёр ОГЭ</div>
+        <nav class="nav">
+            <a class="btn" href="#theory">Теория</a>
+            <a class="btn" href="#model">Модель</a>
+            <a class="btn" href="#tasks">Тренировка</a>
+            <a class="btn" href="#quiz">Квиз</a>
+            <button id="themeBtn" class="yellow" type="button">LIGHT / DARK</button>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="panel">
+            <h1><span class="accent">Окружность</span><br>и касательные</h1>
+            <p class="sub">Интерактивный тренажёр по важнейшему содержимому чек-листа: касательная, диаметр, две касательные, линия центров и стандартные дополнительные построения.</p>
+            <div class="banner">Главная стратегия: достроить так, чтобы появились прямые углы</div>
+            <div class="hero-list">
+                <div>1. Радиус к точке касания даёт угол 90°.</div>
+                <div>2. Угол, опирающийся на диаметр, — прямой.</div>
+                <div>3. Касательные из одной точки равны.</div>
+                <div>4. Для двух окружностей решает линия центров.</div>
+            </div>
+        </div>
+        <div class="panel">
+            <h2>Ваш прогресс</h2>
+            <div class="stats">
+                <div class="stat"><strong id="solvedCount">0</strong>решено задач</div>
+                <div class="stat"><strong id="quizCount">0</strong>ответов в квизе</div>
+                <div class="stat"><strong id="streakCount">0</strong>подряд верно</div>
+                <div class="stat"><strong id="modeName">касательная</strong>активная модель</div>
+            </div>
+        </div>
+    </section>
+
+    <main class="grid">
+        <div>
+            <section id="theory" class="section panel">
+                <h2>Чек-лист</h2>
+                <div class="cards">
+                    <article class="card">
+                        <h3>Касательная</h3>
+                        <p>Радиус, проведённый в точку касания, перпендикулярен касательной.</p>
+                        <div class="formula">OT ⟂ касательной</div>
+                        <ul>
+                            <li>Сразу отмечайте угол 90°.</li>
+                            <li>Ищите прямоугольный треугольник.</li>
+                        </ul>
+                    </article>
+                    <article class="card">
+                        <h3>Диаметр</h3>
+                        <p>Если сторона вписанного треугольника — диаметр, то угол напротив неё прямой.</p>
+                        <div class="formula">если AB — диаметр, то ∠AMB = 90°</div>
+                        <ul>
+                            <li>Диаметр почти всегда нужен для прямого угла.</li>
+                            <li>Не верьте рисунку без обоснования.</li>
+                        </ul>
+                    </article>
+                    <article class="card">
+                        <h3>Две касательные</h3>
+                        <p>Из одной точки к окружности касательные равны.</p>
+                        <div class="formula">AB = AC</div>
+                        <ul>
+                            <li>AO — биссектриса угла между касательными.</li>
+                            <li>Треугольники ABO и ACO равны.</li>
+                        </ul>
+                    </article>
+                    <article class="card">
+                        <h3>Две окружности</h3>
+                        <p>Для общей касательной обязательно проводим радиусы и линию центров.</p>
+                        <div class="formula">внешняя: d = 2(R − r), внутренняя: d = 2(R + r), если угол 30°</div>
+                        <ul>
+                            <li>Внешняя касательная: берём разность радиусов.</li>
+                            <li>Внутренняя касательная: берём сумму радиусов.</li>
+                        </ul>
+                    </article>
+                </div>
+            </section>
+
+            <section id="steps" class="section panel">
+                <h2>Алгоритм</h2>
+                <div class="step active" data-step="0">
+                    <h3>Шаг 1. Найдите касательные</h3>
+                    <p>При слове «касательная» сразу проводите радиус в точку касания.</p>
+                </div>
+                <div class="step" data-step="1">
+                    <h3>Шаг 2. Отметьте прямые углы</h3>
+                    <p>Радиус к касательной перпендикулярен ей. Угол напротив диаметра тоже прямой.</p>
+                </div>
+                <div class="step" data-step="2">
+                    <h3>Шаг 3. Ищите равенства</h3>
+                    <p>Касательные из одной точки равны: AB = AC. Радиусы одной окружности равны.</p>
+                </div>
+                <div class="step" data-step="3">
+                    <h3>Шаг 4. Выберите инструмент</h3>
+                    <p>Пифагор, подобие, высота к гипотенузе, равнобедренный треугольник или линия центров.</p>
+                </div>
+            </section>
+
+            <section id="tasks" class="section panel">
+                <h2>Тренировка</h2>
+                <div class="task-area">
+                    <div class="task-card">
+                        <div class="task-title">
+                            <h3 id="taskType">Задача</h3>
+                            <span class="pill" id="difficulty">средняя</span>
+                        </div>
+                        <p id="taskText">Нажмите «Новая задача».</p>
+                        <div class="answer-row">
+                            <input id="answerInput" type="text" placeholder="Ваш ответ" />
+                            <button class="green" id="checkTaskBtn" type="button">Проверить</button>
+                            <button class="red" id="newTaskBtn" type="button">Новая задача</button>
+                            <button id="hintBtn" type="button">Подсказка</button>
+                        </div>
+                        <div class="feedback" id="taskFeedback"></div>
+                        <details id="solutionBox">
+                            <summary>Показать решение</summary>
+                            <div id="solutionText"></div>
+                        </details>
+                    </div>
+                </div>
+            </section>
+
+            <section id="quiz" class="section panel">
+                <h2>Мини-квиз</h2>
+                <div class="task-card">
+                    <div class="task-title">
+                        <h3 id="quizQuestion">Вопрос</h3>
+                        <span class="pill">быстрая проверка</span>
+                    </div>
+                    <div class="quiz-grid" id="quizChoices"></div>
+                    <div class="feedback" id="quizFeedback"></div>
+                    <button class="red" id="newQuizBtn" type="button">Новый вопрос</button>
+                </div>
+            </section>
+
+            <section class="section panel">
+                <h2>Типичные ошибки</h2>
+                <details open>
+                    <summary>Ошибка 1. Не провели радиус к точке касания</summary>
+                    <p>Без этого часто не видно прямого угла. В любой задаче на касательную первым делом соединяйте центр с точкой касания.</p>
+                </details>
+                <details>
+                    <summary>Ошибка 2. Прямой угол берётся «по рисунку»</summary>
+                    <p>Нужно обоснование: либо радиус перпендикулярен касательной, либо угол опирается на диаметр.</p>
+                </details>
+                <details>
+                    <summary>Ошибка 3. Путают внешнюю и внутреннюю касательную</summary>
+                    <p>Для двух окружностей: если центры по одну сторону от касательной — разность радиусов; если по разные стороны — сумма радиусов.</p>
+                </details>
+            </section>
+        </div>
+
+        <aside id="model" class="sticky">
+            <div class="trainer-box">
+                <h2>Интерактивная модель</h2>
+                <div class="mode-tabs">
+                    <button class="active" data-mode="tangent" type="button">Касательная</button>
+                    <button data-mode="diameter" type="button">Диаметр</button>
+                    <button data-mode="twoTangents" type="button">2 касательные</button>
+                    <button data-mode="twoCircles" type="button">2 окружности</button>
+                </div>
+                <div class="svg-wrap" id="svgWrap" title="Кликните для увеличения. Колесо мыши — зум, перетаскивание — сдвиг.">
+                    <svg id="mainSvg" viewBox="0 0 430 360" role="img" aria-label="Интерактивная геометрическая модель"></svg>
+                </div>
+                <div class="ctrls">
+                    <div class="ctrl-row">
+                        <label for="zoomRange">Зум</label>
+                        <input id="zoomRange" type="range" min="60" max="180" value="100">
+                        <button id="zoomMinus" type="button">−</button>
+                        <button id="zoomPlus" type="button">+</button>
+                        <button id="resetView" type="button">Сброс</button>
+                    </div>
+                    <div class="ctrl-row">
+                        <label><input id="showAngles" type="checkbox" checked> углы</label>
+                        <label><input id="showAux" type="checkbox" checked> достроения</label>
+                        <label><input id="showLabels" type="checkbox" checked> подписи</label>
+                    </div>
+                </div>
+                <div class="legend">
+                    <span>Красное — ключевой вывод</span>
+                    <span>Пунктир — достроение</span>
+                    <span>Квадрат — угол 90°</span>
+                    <span>Чёрное — основная фигура</span>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <footer class="footer">
+        <div>Артём Александрович Лёвин эксклюзивно для Ксении Клыковой</div>
+        <div class="tagline">Математика. Наглядно.</div>
+    </footer>
+</div>
+
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <div class="modal-head">
+            <span>Увеличенная модель</span>
+            <button class="red" id="closeModal" type="button">Закрыть</button>
+        </div>
+        <div class="modal-svg">
+            <svg id="modalSvg" viewBox="0 0 900 620" role="img" aria-label="Увеличенная геометрическая модель"></svg>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Состояние страницы: здесь храним всё, что меняется при кликах.
+    const state = {
+        theme: localStorage.getItem('circleTrainerTheme') || 'light',
+        mode: 'tangent',
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        activeStep: 0,
+        showAngles: true,
+        showAux: true,
+        showLabels: true,
+        solved: Number(localStorage.getItem('circleTrainerSolved') || 0),
+        quiz: Number(localStorage.getItem('circleTrainerQuiz') || 0),
+        streak: Number(localStorage.getItem('circleTrainerStreak') || 0),
+        currentTask: null,
+        currentQuiz: null
+    };
+
+    document.body.dataset.theme = state.theme;
+
+    const mainSvg = document.getElementById('mainSvg');
+    const modalSvg = document.getElementById('modalSvg');
+    const modeName = document.getElementById('modeName');
+    const solvedCount = document.getElementById('solvedCount');
+    const quizCount = document.getElementById('quizCount');
+    const streakCount = document.getElementById('streakCount');
+
+    // Небольшой помощник: округляем числа красиво.
+    function fmt(x){
+        if (Math.abs(x - Math.round(x)) < 1e-9) return String(Math.round(x));
+        return String(Math.round(x * 100) / 100).replace('.', ',');
+    }
+
+    // Проверяем ответ: принимаем запятую и точку.
+    function parseAnswer(v){
+        return Number(String(v).trim().replace(',', '.').replace('°',''));
+    }
+
+    function updateStats(){
+        solvedCount.textContent = state.solved;
+        quizCount.textContent = state.quiz;
+        streakCount.textContent = state.streak;
+        const names = {
+            tangent:'касательная',
+            diameter:'диаметр',
+            twoTangents:'2 касательные',
+            twoCircles:'2 окружности'
+        };
+        modeName.textContent = names[state.mode];
+        localStorage.setItem('circleTrainerSolved', state.solved);
+        localStorage.setItem('circleTrainerQuiz', state.quiz);
+        localStorage.setItem('circleTrainerStreak', state.streak);
+    }
+
+    function svgEl(name, attrs = {}, children = ''){
+        const attr = Object.entries(attrs).map(([k,v]) => `${k}="${v}"`).join(' ');
+        return `<${name} ${attr}>${children}</${name}>`;
+    }
+
+    // Общие стили прямо внутри SVG, чтобы модель работала автономно.
+    function svgDefs(){
+        const ink = getComputedStyle(document.body).getPropertyValue('--ink').trim();
+        const red = getComputedStyle(document.body).getPropertyValue('--red').trim();
+        const blue = getComputedStyle(document.body).getPropertyValue('--blue').trim();
+        const green = getComputedStyle(document.body).getPropertyValue('--green').trim();
+        return `
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="${red}"></path>
+        </marker>
+      </defs>
+      <style>
+        .ink{stroke:${ink};fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+        .thin{stroke:${ink};fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+        .red{stroke:${red};fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+        .blue{stroke:${blue};fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+        .green{stroke:${green};fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+        .dash{stroke-dasharray:8 7}
+        .label{fill:${ink};font:700 18px Arial, sans-serif}
+        .small{fill:${ink};font:700 13px Arial, sans-serif}
+        .dot{fill:${ink};stroke:none}
+        .redfill{fill:${red};stroke:none}
+      </style>`;
+    }
+
+    function rightAngle(x,y,rot=0,s=18){
+        return `<g transform="translate(${x},${y}) rotate(${rot})">
+      <path class="red" d="M0 0 L${s} 0 L${s} ${s}" />
+    </g>`;
+    }
+
+    // Рисуем модель касательной.
+    function drawTangent(big=false){
+        const labels = state.showLabels;
+        const angles = state.showAngles;
+        const aux = state.showAux;
+        const scale = big ? 1.45 : 1;
+        const tx = big ? 210 : 0;
+        const ty = big ? 115 : 0;
+        return `
+      ${svgDefs()}
+      <g transform="translate(${tx + state.panX},${ty + state.panY}) scale(${state.zoom * scale})">
+        <circle class="ink" cx="205" cy="155" r="85"></circle>
+        ${aux ? '<line class="thin" x1="205" y1="155" x2="260" y2="220"></line>' : ''}
+        <line class="red" x1="90" y1="260" x2="365" y2="184" marker-end="url(#arrow)"></line>
+        <circle class="dot" cx="205" cy="155" r="5"></circle>
+        <circle class="dot" cx="260" cy="220" r="5"></circle>
+        ${angles ? rightAngle(260,220,-38,16) : ''}
+        ${labels ? `
+          <text class="label" x="188" y="148">O</text>
+          <text class="label" x="266" y="245">T</text>
+          <text class="small" x="106" y="280">касательная</text>
+          <text class="small" x="210" y="198">радиус</text>
+        ` : ''}
+        <path class="green dash" d="M115 310 C170 285, 230 300, 300 270"></path>
+        <text class="small" x="105" y="330">Вывод: радиус ⟂ касательной</text>
+      </g>`;
+    }
+
+    // Рисуем модель диаметра.
+    function drawDiameter(big=false){
+        const labels = state.showLabels;
+        const angles = state.showAngles;
+        const scale = big ? 1.45 : 1;
+        const tx = big ? 210 : 0;
+        const ty = big ? 115 : 0;
+        return `
+      ${svgDefs()}
+      <g transform="translate(${tx + state.panX},${ty + state.panY}) scale(${state.zoom * scale})">
+        <circle class="ink" cx="215" cy="175" r="95"></circle>
+        <line class="red" x1="120" y1="175" x2="310" y2="175"></line>
+        <line class="ink" x1="120" y1="175" x2="205" y2="84"></line>
+        <line class="ink" x1="205" y1="84" x2="310" y2="175"></line>
+        <circle class="dot" cx="215" cy="175" r="5"></circle>
+        <circle class="dot" cx="120" cy="175" r="5"></circle>
+        <circle class="dot" cx="310" cy="175" r="5"></circle>
+        <circle class="dot" cx="205" cy="84" r="5"></circle>
+        ${angles ? rightAngle(205,84,42,15) : ''}
+        ${labels ? `
+          <text class="label" x="96" y="195">A</text>
+          <text class="label" x="319" y="195">B</text>
+          <text class="label" x="196" y="72">M</text>
+          <text class="label" x="224" y="198">O</text>
+          <text class="small" x="155" y="162">диаметр</text>
+        ` : ''}
+        <text class="small" x="88" y="315">Вывод: ∠AMB = 90°</text>
+      </g>`;
+    }
+
+    // Рисуем модель двух касательных.
+    function drawTwoTangents(big=false){
+        const labels = state.showLabels;
+        const angles = state.showAngles;
+        const aux = state.showAux;
+        const scale = big ? 1.38 : 1;
+        const tx = big ? 190 : 0;
+        const ty = big ? 120 : 0;
+        return `
+      ${svgDefs()}
+      <g transform="translate(${tx + state.panX},${ty + state.panY}) scale(${state.zoom * scale})">
+        <circle class="ink" cx="155" cy="180" r="75"></circle>
+        <line class="red" x1="315" y1="92" x2="192" y2="114"></line>
+        <line class="red" x1="315" y1="268" x2="192" y2="246"></line>
+        ${aux ? `
+          <line class="thin dash" x1="155" y1="180" x2="192" y2="114"></line>
+          <line class="thin dash" x1="155" y1="180" x2="192" y2="246"></line>
+          <line class="blue dash" x1="155" y1="180" x2="315" y2="180"></line>
+          <line class="thin" x1="192" y1="114" x2="192" y2="246"></line>
+        ` : ''}
+        <circle class="dot" cx="155" cy="180" r="5"></circle>
+        <circle class="dot" cx="192" cy="114" r="5"></circle>
+        <circle class="dot" cx="192" cy="246" r="5"></circle>
+        <circle class="dot" cx="315" cy="180" r="5"></circle>
+        ${angles ? `
+          ${rightAngle(192,114,80,13)}
+          ${rightAngle(192,246,190,13)}
+          <path class="red" d="M291 162 Q305 180 291 198"></path>
+          <path class="red" d="M282 154 Q300 180 282 206"></path>
+          <path class="green" d="M240 106 l10 8 m-10 -8 l12 -2"></path>
+          <path class="green" d="M240 254 l10 -8 m-10 8 l12 2"></path>
+        ` : ''}
+        ${labels ? `
+          <text class="label" x="136" y="173">O</text>
+          <text class="label" x="193" y="102">B</text>
+          <text class="label" x="193" y="270">C</text>
+          <text class="label" x="324" y="186">A</text>
+          <text class="small" x="223" y="89">AB</text>
+          <text class="small" x="223" y="286">AC</text>
+        ` : ''}
+        <text class="small" x="64" y="325">Вывод: AB = AC, AO — биссектриса</text>
+      </g>`;
+    }
+
+    // Рисуем модель двух окружностей.
+    function drawTwoCircles(big=false){
+        const labels = state.showLabels;
+        const angles = state.showAngles;
+        const aux = state.showAux;
+        const scale = big ? 1.35 : 1;
+        const tx = big ? 175 : 0;
+        const ty = big ? 115 : 0;
+        return `
+      ${svgDefs()}
+      <g transform="translate(${tx + state.panX},${ty + state.panY}) scale(${state.zoom * scale})">
+        <line class="red" x1="60" y1="270" x2="370" y2="270"></line>
+        <circle class="ink" cx="140" cy="175" r="95"></circle>
+        <circle class="ink" cx="285" cy="215" r="55"></circle>
+        ${aux ? `
+          <line class="thin dash" x1="140" y1="175" x2="140" y2="270"></line>
+          <line class="thin dash" x1="285" y1="215" x2="285" y2="270"></line>
+          <line class="blue" x1="140" y1="175" x2="285" y2="215"></line>
+          <path class="green dash" d="M140 175 L285 175 L285 215"></path>
+        ` : ''}
+        <circle class="dot" cx="140" cy="175" r="5"></circle>
+        <circle class="dot" cx="285" cy="215" r="5"></circle>
+        <circle class="dot" cx="140" cy="270" r="4"></circle>
+        <circle class="dot" cx="285" cy="270" r="4"></circle>
+        ${angles ? `
+          ${rightAngle(140,270,180,13)}
+          ${rightAngle(285,270,180,13)}
+          <path class="red" d="M152 179 Q175 185 190 189"></path>
+          <text class="small" x="178" y="174">30°</text>
+        ` : ''}
+        ${labels ? `
+          <text class="label" x="112" y="164">O₁</text>
+          <text class="label" x="293" y="209">O₂</text>
+          <text class="small" x="102" y="223">R</text>
+          <text class="small" x="296" y="248">r</text>
+          <text class="small" x="168" y="202">линия центров</text>
+          <text class="small" x="120" y="294">касательная</text>
+        ` : ''}
+        <text class="small" x="50" y="326">Если угол 30°: внешняя d = 2(R − r), внутренняя d = 2(R + r)</text>
+      </g>`;
+    }
+
+    function render(){
+        const map = {
+            tangent: drawTangent,
+            diameter: drawDiameter,
+            twoTangents: drawTwoTangents,
+            twoCircles: drawTwoCircles
+        };
+        mainSvg.innerHTML = map[state.mode](false);
+        modalSvg.innerHTML = map[state.mode](true);
+        updateStats();
+    }
+
+    function setMode(mode){
+        state.mode = mode;
+        document.querySelectorAll('.mode-tabs button').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+        render();
+    }
+
+    document.querySelectorAll('.mode-tabs button').forEach(btn=>{
+        btn.addEventListener('click',()=>setMode(btn.dataset.mode));
+    });
+
+    document.getElementById('themeBtn').addEventListener('click',()=>{
+        state.theme = state.theme === 'light' ? 'dark' : 'light';
+        document.body.dataset.theme = state.theme;
+        localStorage.setItem('circleTrainerTheme', state.theme);
+        render();
+    });
+
+    document.getElementById('zoomRange').addEventListener('input',e=>{
+        state.zoom = Number(e.target.value)/100;
+        render();
+    });
+    document.getElementById('zoomPlus').addEventListener('click',()=>{
+        state.zoom = Math.min(1.8, state.zoom + 0.1);
+        document.getElementById('zoomRange').value = Math.round(state.zoom*100);
+        render();
+    });
+    document.getElementById('zoomMinus').addEventListener('click',()=>{
+        state.zoom = Math.max(0.6, state.zoom - 0.1);
+        document.getElementById('zoomRange').value = Math.round(state.zoom*100);
+        render();
+    });
+    document.getElementById('resetView').addEventListener('click',()=>{
+        state.zoom = 1; state.panX = 0; state.panY = 0;
+        document.getElementById('zoomRange').value = 100;
+        render();
+    });
+    document.getElementById('showAngles').addEventListener('change',e=>{state.showAngles=e.target.checked;render();});
+    document.getElementById('showAux').addEventListener('change',e=>{state.showAux=e.target.checked;render();});
+    document.getElementById('showLabels').addEventListener('change',e=>{state.showLabels=e.target.checked;render();});
+
+    // Перетаскивание модели мышью.
+    function enablePan(el){
+        let dragging=false, lastX=0, lastY=0;
+        el.addEventListener('mousedown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;});
+        window.addEventListener('mousemove',e=>{
+            if(!dragging) return;
+            state.panX += e.clientX-lastX;
+            state.panY += e.clientY-lastY;
+            lastX=e.clientX; lastY=e.clientY;
+            render();
+        });
+        window.addEventListener('mouseup',()=>dragging=false);
+        el.addEventListener('wheel',e=>{
+            e.preventDefault();
+            state.zoom = Math.max(0.6, Math.min(1.8, state.zoom + (e.deltaY < 0 ? 0.08 : -0.08)));
+            document.getElementById('zoomRange').value = Math.round(state.zoom*100);
+            render();
+        },{passive:false});
+    }
+    enablePan(document.getElementById('svgWrap'));
+
+    document.getElementById('svgWrap').addEventListener('dblclick',()=>document.getElementById('modal').classList.add('open'));
+    document.getElementById('svgWrap').addEventListener('click',e=>{
+        if(e.detail === 1){
+            clearTimeout(window.__modalTimer);
+            window.__modalTimer = setTimeout(()=>document.getElementById('modal').classList.add('open'), 180);
+        }
+    });
+    document.getElementById('closeModal').addEventListener('click',()=>document.getElementById('modal').classList.remove('open'));
+    document.getElementById('modal').addEventListener('click',e=>{
+        if(e.target.id === 'modal') document.getElementById('modal').classList.remove('open');
+    });
+    window.addEventListener('keydown',e=>{
+        if(e.key === 'Escape') document.getElementById('modal').classList.remove('open');
+    });
+
+    document.querySelectorAll('.step').forEach(step=>{
+        step.addEventListener('click',()=>{
+            state.activeStep = Number(step.dataset.step);
+            document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+            step.classList.add('active');
+            if(state.activeStep===0) setMode('tangent');
+            if(state.activeStep===1) setMode('diameter');
+            if(state.activeStep===2) setMode('twoTangents');
+            if(state.activeStep===3) setMode('twoCircles');
+        });
+    });
+
+    const taskTemplates = [
+        () => {
+            const R = [3,4,5,6,7,8,9,10][Math.floor(Math.random()*8)];
+            const AO = R + [4,5,6,8,10][Math.floor(Math.random()*5)];
+            const ans = Math.sqrt(AO*AO - R*R);
+            return {
+                type:'Касательная',
+                diff:'средняя',
+                text:`Радиус окружности равен ${R}. Из точки A проведена касательная AB, точка B — точка касания. AO = ${AO}. Найдите AB.`,
+                answer:ans,
+                hint:'Проведите OB. Получится прямоугольный треугольник AOB, потому что OB ⟂ AB.',
+                solution:`OB ⟂ AB, значит треугольник AOB прямоугольный. AB² = AO² − OB² = ${AO}² − ${R}². AB = ${fmt(ans)}.`
+            };
+        },
+        () => {
+            const a = [30,40,50,60,70,80,100,120][Math.floor(Math.random()*8)];
+            return {
+                type:'Две касательные',
+                diff:'средняя',
+                text:`Из точки C проведены две касательные к окружности. Центральный угол между радиусами к точкам касания равен ${a}°. Найдите угол между касательными.`,
+                answer:180-a,
+                hint:'В четырёхугольнике два угла по 90°. Поэтому угол между касательными равен 180° минус центральный угол.',
+                solution:`Углы при точках касания равны 90°. Значит угол между касательными: 180° − ${a}° = ${180-a}°.`
+            };
+        },
+        () => {
+            const ang = [25,30,35,40,50,55,60][Math.floor(Math.random()*7)];
+            return {
+                type:'Диаметр',
+                diff:'средняя',
+                text:`AB — диаметр окружности, точка M лежит на окружности. ∠MAB = ${ang}°. Найдите ∠MBA.`,
+                answer:90-ang,
+                hint:'Так как AB — диаметр, ∠AMB = 90°.',
+                solution:`∠AMB = 90°, потому что угол опирается на диаметр. Тогда ∠MBA = 180° − 90° − ${ang}° = ${90-ang}°.`
+            };
+        },
+        () => {
+            const R = [8,9,10,11,12,13][Math.floor(Math.random()*6)];
+            const r = [2,3,4,5,6][Math.floor(Math.random()*5)];
+            const external = Math.random() > .5;
+            return {
+                type:'Две окружности',
+                diff:'выше средней',
+                text:`Две окружности радиусов R = ${R} и r = ${r} касаются общей прямой. Линия центров образует с этой прямой угол 30°. Касательная ${external ? 'внешняя' : 'внутренняя'}. Найдите расстояние между центрами.`,
+                answer: external ? 2*(R-r) : 2*(R+r),
+                hint: external ? 'Для внешней общей касательной берётся разность радиусов.' : 'Для внутренней общей касательной берётся сумма радиусов.',
+                solution: external
+                ? `При внешней касательной катет против 30° равен R − r = ${R-r}. Гипотенуза, то есть расстояние между центрами, в 2 раза больше: ${2*(R-r)}.`
+                : `При внутренней касательной катет против 30° равен R + r = ${R+r}. Гипотенуза, то есть расстояние между центрами, в 2 раза больше: ${2*(R+r)}.`
+            };
+        },
+        () => {
+            const half = [6,7,8,9,10,12][Math.floor(Math.random()*6)];
+            const tangent = [10,12,15,18,20][Math.floor(Math.random()*5)];
+            const AH = Math.sqrt(tangent*tangent - half*half);
+            const R = tangent*half/AH;
+            return {
+                type:'Касательные и хорда',
+                diff:'сложная',
+                text:`Из точки A проведены две касательные AB и AC к окружности. AB = AC = ${tangent}, расстояние между точками касания BC = ${2*half}. Найдите радиус окружности. Ответ можно округлить до сотых.`,
+                answer:R,
+                hint:'AO — серединный перпендикуляр к BC, значит BH = BC/2. В прямоугольном треугольнике ABH найдите AH, затем используйте подобие: AB/R = AH/BH.',
+                solution:`BH = ${half}. AH = √(${tangent}² − ${half}²) = ${fmt(AH)}. Из подобия AB/R = AH/BH, поэтому R = AB·BH/AH = ${fmt(R)}.`
+            };
+        }
+    ];
+
+    function newTask(){
+        const t = taskTemplates[Math.floor(Math.random()*taskTemplates.length)]();
+        state.currentTask = t;
+        document.getElementById('taskType').textContent = t.type;
+        document.getElementById('difficulty').textContent = t.diff;
+        document.getElementById('taskText').textContent = t.text;
+        document.getElementById('answerInput').value = '';
+        document.getElementById('taskFeedback').textContent = '';
+        document.getElementById('taskFeedback').className = 'feedback';
+        document.getElementById('solutionText').textContent = t.solution;
+        document.getElementById('solutionBox').open = false;
+    }
+
+    document.getElementById('newTaskBtn').addEventListener('click',newTask);
+    document.getElementById('hintBtn').addEventListener('click',()=>{
+        if(!state.currentTask) newTask();
+        const fb = document.getElementById('taskFeedback');
+        fb.textContent = 'Подсказка: ' + state.currentTask.hint;
+        fb.className = 'feedback';
+    });
+    document.getElementById('checkTaskBtn').addEventListener('click',()=>{
+        if(!state.currentTask) newTask();
+        const user = parseAnswer(document.getElementById('answerInput').value);
+        const correct = state.currentTask.answer;
+        const fb = document.getElementById('taskFeedback');
+        if(Number.isFinite(user) && Math.abs(user-correct) <= 0.05){
+            fb.textContent = 'Верно! Отлично: ключевая идея выбрана правильно.';
+            fb.className = 'feedback ok';
+            state.solved++;
+            state.streak++;
+            updateStats();
+            document.getElementById('solutionBox').open = true;
+        } else {
+            fb.textContent = `Пока нет. Проверьте построение. Правильный ответ: ${fmt(correct)}.`;
+            fb.className = 'feedback bad';
+            state.streak = 0;
+            updateStats();
+        }
+    });
+
+    const quizBank = [
+        {
+            q:'Что нужно сделать первым делом при виде касательной?',
+            c:['Провести радиус в точку касания','Провести произвольную хорду','Сразу применять синусы'],
+            a:0,
+            e:'Радиус к точке касания перпендикулярен касательной.'
+        },
+        {
+            q:'Если AB — диаметр, а M лежит на окружности, чему равен ∠AMB?',
+            c:['45°','90°','180°'],
+            a:1,
+            e:'Вписанный угол, опирающийся на диаметр, прямой.'
+        },
+        {
+            q:'Что верно для двух касательных AB и AC из одной точки A?',
+            c:['AB = AC','AB всегда больше AC','AO не имеет смысла проводить'],
+            a:0,
+            e:'Касательные, проведённые из одной точки, равны.'
+        },
+        {
+            q:'Для внешней общей касательной двух окружностей при угле 30° расстояние между центрами равно...',
+            c:['2(R + r)','2(R − r)','R + r'],
+            a:1,
+            e:'При внешней касательной используется разность расстояний до прямой: R − r.'
+        },
+        {
+            q:'Для внутренней общей касательной двух окружностей при угле 30° расстояние между центрами равно...',
+            c:['2(R + r)','2(R − r)','R − r'],
+            a:0,
+            e:'При внутренней касательной расстояния до прямой складываются: R + r.'
+        }
+    ];
+
+    function newQuiz(){
+        const q = quizBank[Math.floor(Math.random()*quizBank.length)];
+        state.currentQuiz = q;
+        document.getElementById('quizQuestion').textContent = q.q;
+        document.getElementById('quizFeedback').textContent = '';
+        document.getElementById('quizFeedback').className = 'feedback';
+        const box = document.getElementById('quizChoices');
+        box.innerHTML = '';
+        q.c.forEach((choice,idx)=>{
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'choice';
+            b.textContent = choice;
+            b.addEventListener('click',()=>{
+                document.querySelectorAll('.choice').forEach(x=>x.disabled=true);
+                if(idx===q.a){
+                    b.classList.add('correct');
+                    document.getElementById('quizFeedback').textContent = 'Верно! ' + q.e;
+                    document.getElementById('quizFeedback').className = 'feedback ok';
+                    state.quiz++;
+                    state.streak++;
+                } else {
+                    b.classList.add('wrong');
+                    document.querySelectorAll('.choice')[q.a].classList.add('correct');
+                    document.getElementById('quizFeedback').textContent = 'Ошибка. ' + q.e;
+                    document.getElementById('quizFeedback').className = 'feedback bad';
+                    state.quiz++;
+                    state.streak = 0;
+                }
+                updateStats();
+            });
+            box.appendChild(b);
+        });
+    }
+
+    document.getElementById('newQuizBtn').addEventListener('click',newQuiz);
+
+    render();
+    newTask();
+    newQuiz();
+</script>
+</body>
+</html>
