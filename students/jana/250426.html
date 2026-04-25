@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Интерактивное пособие: цилиндр и конус</title>
+    <style>
+        /* Простые переменные: здесь лежат главные цвета страницы */
+        :root{
+            --bg:#F4F1E8;
+            --paper:#FFF9EC;
+            --ink:#161616;
+            --muted:#56534A;
+            --accent:#B51F1F;
+            --accent2:#0B6B66;
+            --line:#171717;
+            --soft:#E9DFCC;
+            --yellow:#F6D66B;
+            --blue:#B9DCE4;
+            --shadow:8px 8px 0 #161616;
+            --shadow-small:4px 4px 0 #161616;
+            --radius:0px;
+        }
+        body.dark{
+            --bg:#151515;
+            --paper:#232323;
+            --ink:#F7F0DF;
+            --muted:#CFC6B3;
+            --accent:#FF5B55;
+            --accent2:#5BC7BD;
+            --line:#F7F0DF;
+            --soft:#33302A;
+            --yellow:#E3B946;
+            --blue:#365A63;
+            --shadow:8px 8px 0 #000;
+            --shadow-small:4px 4px 0 #000;
+        }
+
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            font-family:Arial, Helvetica, sans-serif;
+            background:
+            radial-gradient(circle at 10% 20%, rgba(0,0,0,.035) 0 1px, transparent 1px),
+            radial-gradient(circle at 70% 80%, rgba(0,0,0,.025) 0 1px, transparent 1px),
+            var(--bg);
+            background-size:22px 22px, 31px 31px, auto;
+            color:var(--ink);
+            line-height:1.55;
+        }
+
+        .wrap{max-width:1220px;margin:0 auto;padding:18px}
+        .topbar{
+            position:sticky;
+            top:0;
+            z-index:20;
+            background:var(--paper);
+            border-bottom:2px solid var(--line);
+            box-shadow:0 3px 0 rgba(0,0,0,.18);
+        }
+        .topbar-inner{
+            max-width:1220px;
+            margin:0 auto;
+            padding:10px 18px;
+            display:flex;
+            gap:10px;
+            align-items:center;
+            justify-content:space-between;
+            flex-wrap:wrap;
+        }
+        .brand{
+            font-weight:900;
+            letter-spacing:.03em;
+            text-transform:uppercase;
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+        .brand-mark{
+            width:30px;height:30px;
+            border:2px solid var(--line);
+            background:var(--accent);
+            box-shadow:var(--shadow-small);
+            transform:rotate(-4deg);
+        }
+        nav{display:flex;gap:8px;flex-wrap:wrap}
+        button, .navlink{
+            border:2px solid var(--line);
+            background:var(--paper);
+            color:var(--ink);
+            padding:8px 10px;
+            font-weight:800;
+            cursor:pointer;
+            text-decoration:none;
+            box-shadow:3px 3px 0 var(--line);
+            transition:.12s transform,.12s box-shadow,.12s background;
+        }
+        button:hover,.navlink:hover{transform:translate(1px,1px);box-shadow:2px 2px 0 var(--line)}
+        button.active,.navlink.active{background:var(--yellow);color:#111}
+        .theme-btn{background:var(--accent2);color:#fff}
+
+        .hero{
+            margin-top:24px;
+            border:2px solid var(--line);
+            background:var(--paper);
+            padding:28px;
+            box-shadow:var(--shadow);
+            position:relative;
+            overflow:hidden;
+        }
+        .hero:after{
+            content:"";
+            position:absolute;
+            right:-70px;top:-70px;
+            width:210px;height:210px;
+            border:2px dashed var(--line);
+            border-radius:50%;
+            opacity:.32;
+        }
+        .eyebrow{
+            display:inline-block;
+            border:2px solid var(--line);
+            padding:5px 10px;
+            background:var(--yellow);
+            font-weight:900;
+            text-transform:uppercase;
+            transform:rotate(-1deg);
+        }
+        h1{
+            margin:18px 0 8px;
+            font-size:clamp(42px,8vw,92px);
+            line-height:.92;
+            letter-spacing:-.06em;
+            text-transform:uppercase;
+        }
+        .red{color:var(--accent)}
+        .subtitle{
+            max-width:800px;
+            font-size:clamp(18px,2.2vw,25px);
+            color:var(--muted);
+            font-weight:700;
+        }
+        .banner{
+            margin:18px 0 0;
+            background:var(--line);
+            color:var(--bg);
+            padding:12px 16px;
+            font-weight:900;
+            text-transform:uppercase;
+            letter-spacing:.04em;
+        }
+
+        .grid{
+            display:grid;
+            grid-template-columns:minmax(0,1.05fr) minmax(330px,.95fr);
+            gap:22px;
+            align-items:start;
+            margin-top:24px;
+        }
+        .left{display:grid;gap:18px}
+        .sticky{
+            position:sticky;
+            top:74px;
+            display:grid;
+            gap:14px;
+        }
+        .card{
+            border:2px solid var(--line);
+            background:var(--paper);
+            box-shadow:var(--shadow-small);
+            padding:18px;
+        }
+        .card h2,.card h3{
+            margin:0 0 10px;
+            line-height:1.1;
+            letter-spacing:-.03em;
+        }
+        .card h2{font-size:32px;text-transform:uppercase}
+        .card h3{font-size:24px}
+        .tag{
+            display:inline-block;
+            background:var(--soft);
+            border:2px solid var(--line);
+            padding:3px 8px;
+            font-weight:900;
+            margin-bottom:10px;
+        }
+        .formula{
+            border-left:6px solid var(--accent);
+            padding:10px 12px;
+            background:color-mix(in srgb, var(--soft) 70%, transparent);
+            font-size:20px;
+            font-weight:800;
+            margin:10px 0;
+            overflow-x:auto;
+        }
+        .formula small{font-weight:700;color:var(--muted)}
+        .steps{display:grid;gap:8px}
+        .step{
+            border:2px solid var(--line);
+            padding:10px;
+            background:var(--bg);
+            cursor:pointer;
+        }
+        .step.active{background:var(--yellow);color:#111}
+        .step b{display:block}
+        .two{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:12px;
+        }
+
+        .scene-card{
+            border:2px solid var(--line);
+            background:var(--paper);
+            box-shadow:var(--shadow);
+            padding:14px;
+        }
+        .scene-head{
+            display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+            margin-bottom:10px;
+        }
+        .mode-tabs{display:flex;gap:8px;flex-wrap:wrap}
+        .canvas-wrap{
+            border:2px solid var(--line);
+            background:
+            linear-gradient(90deg, rgba(0,0,0,.05) 1px, transparent 1px),
+            linear-gradient(rgba(0,0,0,.05) 1px, transparent 1px),
+            var(--paper);
+            background-size:22px 22px;
+            height:410px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            overflow:hidden;
+            cursor:grab;
+            touch-action:none;
+        }
+        .canvas-wrap:active{cursor:grabbing}
+        svg{max-width:100%;max-height:100%;overflow:visible}
+        .controls{
+            display:grid;
+            grid-template-columns:1fr auto auto auto;
+            gap:8px;
+            align-items:center;
+            margin-top:10px;
+        }
+        input[type="range"]{width:100%}
+        .mini-note{
+            color:var(--muted);
+            font-size:14px;
+            font-weight:700;
+        }
+        .legend{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:8px;
+            margin-top:10px;
+            font-size:14px;
+        }
+        .legend div{border:2px solid var(--line);padding:6px;background:var(--bg)}
+        .pill{display:inline-block;width:12px;height:12px;border:2px solid var(--line);vertical-align:middle;margin-right:5px}
+        .p-red{background:var(--accent)}
+        .p-blue{background:var(--blue)}
+        .p-yellow{background:var(--yellow)}
+
+        .trainer{
+            display:grid;
+            gap:12px;
+        }
+        .problem{
+            border:2px solid var(--line);
+            background:var(--bg);
+            padding:14px;
+            font-weight:800;
+            font-size:18px;
+        }
+        .answer-row{display:flex;gap:8px;flex-wrap:wrap}
+        input{
+            border:2px solid var(--line);
+            background:var(--paper);
+            color:var(--ink);
+            padding:10px;
+            font-size:16px;
+            font-weight:800;
+            min-width:180px;
+            flex:1;
+        }
+        .feedback{font-weight:900;min-height:28px}
+        .ok{color:var(--accent2)}
+        .bad{color:var(--accent)}
+
+        .quiz-option{
+            display:block;
+            width:100%;
+            text-align:left;
+            margin:8px 0;
+            background:var(--bg);
+        }
+        .quiz-option.correct{background:#b9e8cb;color:#111}
+        .quiz-option.wrong{background:#ffc4be;color:#111}
+
+        details{
+            border:2px solid var(--line);
+            background:var(--bg);
+            padding:10px 12px;
+            margin:8px 0;
+        }
+        summary{cursor:pointer;font-weight:900}
+        ul{padding-left:22px}
+        li{margin:6px 0}
+
+        .footer{
+            margin:24px 0 10px;
+            text-align:center;
+            border-top:2px solid var(--line);
+            padding-top:16px;
+            font-weight:900;
+            color:var(--muted);
+        }
+
+        .modal{
+            position:fixed;
+            inset:0;
+            display:none;
+            place-items:center;
+            background:rgba(0,0,0,.72);
+            z-index:60;
+            padding:18px;
+        }
+        .modal.open{display:grid}
+        .modal-box{
+            width:min(1000px,96vw);
+            background:var(--paper);
+            color:var(--ink);
+            border:2px solid var(--line);
+            box-shadow:var(--shadow);
+            padding:12px;
+        }
+        .modal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+        .modal-canvas{height:70vh}
+
+        .print-only{display:none}
+
+        @media (max-width:920px){
+            .grid{grid-template-columns:1fr}
+            .sticky{position:static}
+            .canvas-wrap{height:360px}
+            .two{grid-template-columns:1fr}
+            h1{font-size:52px}
+        }
+        @media (max-width:560px){
+            .wrap{padding:10px}
+            .hero{padding:18px}
+            .card{padding:14px}
+            .controls{grid-template-columns:1fr 1fr 1fr}
+            .controls input{grid-column:1/-1}
+            .legend{grid-template-columns:1fr}
+            .canvas-wrap{height:300px}
+        }
+
+        @media print{
+            .topbar,.controls,.mode-tabs,.trainer button,.answer-row button,.modal{display:none!important}
+            body{background:white;color:black}
+            .wrap{max-width:none;padding:0}
+            .hero,.card,.scene-card{box-shadow:none;break-inside:avoid}
+            .grid{grid-template-columns:1fr}
+            .sticky{position:static}
+            .print-only{display:block}
+        }
+    </style>
+</head>
+<body>
+<header class="topbar">
+    <div class="topbar-inner">
+        <div class="brand"><span class="brand-mark"></span> Наглядное пособие</div>
+        <nav>
+            <a class="navlink" href="#checklist">Чек-лист</a>
+            <a class="navlink" href="#visual">Визуализация</a>
+            <a class="navlink" href="#trainer">Тренажёр</a>
+            <a class="navlink" href="#quiz">Квиз</a>
+            <button class="theme-btn" id="themeBtn">LIGHT / DARK</button>
+        </nav>
+    </div>
+</header>
+
+<main class="wrap">
+    <section class="hero">
+        <span class="eyebrow">ЕГЭ профиль · стереометрия</span>
+        <h1><span class="red">Цилиндр</span> и <span class="red">конус</span></h1>
+        <p class="subtitle">Интерактивное пособие по объёмам, площадям, сечениям, отношениям объёмов, переливанию жидкости и подобным конусам.</p>
+        <div class="banner">Главная идея: радиус влияет как r², высота как h, а у подобных тел объёмы меняются как k³.</div>
+    </section>
+
+    <section class="grid">
+        <div class="left">
+            <article class="card" id="checklist">
+                <span class="tag">01 · Формулы</span>
+                <h2>Базовый чек-лист</h2>
+
+                <div class="two">
+                    <div>
+                        <h3>Цилиндр</h3>
+                        <div class="formula">V = πr²h</div>
+                        <div class="formula">S<sub>бок</sub> = 2πrh</div>
+                        <div class="formula">S<sub>полн</sub> = 2πr² + 2πrh</div>
+                        <div class="formula">S<sub>осев. сеч.</sub> = 2rh</div>
+                    </div>
+                    <div>
+                        <h3>Конус</h3>
+                        <div class="formula">V = 1/3 · πr²h</div>
+                        <div class="formula">S<sub>бок</sub> = πrl</div>
+                        <div class="formula">l² = r² + h²</div>
+                        <div class="formula">Сечение через ось — треугольник</div>
+                    </div>
+                </div>
+
+                <details open>
+                    <summary>Что обязательно помнить</summary>
+                    <ul>
+                        <li>Диаметр и радиус не одно и то же: d = 2r.</li>
+                        <li>Если радиус увеличился в k раз, площадь основания увеличилась в k² раз.</li>
+                        <li>У конуса в объёме всегда стоит множитель 1/3.</li>
+                        <li>π лучше не округлять до конца: часто нужно найти V/π.</li>
+                        <li>Для подобных конусов отношение объёмов равно k³.</li>
+                    </ul>
+                </details>
+            </article>
+
+            <article class="card">
+                <span class="tag">02 · Алгоритмы</span>
+                <h2>Типовые задачи</h2>
+                <div class="steps" id="steps">
+                    <div class="step active" data-step="transfer"><b>Переливание воды</b>Объём сохраняется: V₁ = V₂. Если сосуд шире, уровень воды становится ниже.</div>
+                    <div class="step" data-step="detail"><b>Погружение детали</b>Объём детали равен объёму вытесненной жидкости: Vдет = Vисх · Δh / h.</div>
+                    <div class="step" data-step="sector"><b>Часть цилиндра</b>Берём долю по углу: Vчасти = Vцилиндра · α / 360°.</div>
+                    <div class="step" data-step="similar"><b>Подобные конусы</b>Если линейный размер изменился в k раз, объём изменился в k³ раз.</div>
+                </div>
+            </article>
+
+            <article class="card" id="trainer">
+                <span class="tag">03 · Тренажёр</span>
+                <h2>Генератор задач</h2>
+                <div class="trainer">
+                    <div class="problem" id="problemText">Нажмите «Новая задача».</div>
+                    <div class="answer-row">
+                        <input id="userAnswer" placeholder="Введите ответ числом" />
+                        <button id="checkAnswer">Проверить</button>
+                        <button id="newProblem">Новая задача</button>
+                    </div>
+                    <div class="feedback" id="feedback"></div>
+                    <details>
+                        <summary>Показать подсказку</summary>
+                        <p id="hintText">Подсказка появится вместе с задачей.</p>
+                    </details>
+                </div>
+            </article>
+
+            <article class="card" id="quiz">
+                <span class="tag">04 · Самопроверка</span>
+                <h2>Мини-квиз</h2>
+                <div id="quizBox"></div>
+                <button id="nextQuiz">Следующий вопрос</button>
+            </article>
+
+            <article class="card">
+                <span class="tag">05 · Ошибки</span>
+                <h2>Типичные ловушки</h2>
+                <ul>
+                    <li><b>Ошибка:</b> писать V = πrh вместо V = πr²h.</li>
+                    <li><b>Ошибка:</b> забыть, что (2r)² = 4r².</li>
+                    <li><b>Ошибка:</b> считать объём детали как полный новый объём жидкости.</li>
+                    <li><b>Ошибка:</b> для подобных конусов использовать k² вместо k³.</li>
+                    <li><b>Ошибка:</b> округлять π, когда в ответе требуется V/π.</li>
+                </ul>
+            </article>
+        </div>
+
+        <aside class="sticky" id="visual">
+            <section class="scene-card">
+                <div class="scene-head">
+                    <h2 style="margin:0">Визуальная модель</h2>
+                    <div class="mode-tabs">
+                        <button class="active" data-mode="cylinder">Цилиндр</button>
+                        <button data-mode="cone">Конус</button>
+                    </div>
+                </div>
+                <div class="canvas-wrap" id="canvasWrap" title="Клик — увеличить. Колесо мыши — масштаб. Перетаскивание — сдвиг.">
+                    <svg id="scene" width="520" height="390" viewBox="0 0 520 390" aria-label="Интерактивная схема"></svg>
+                </div>
+                <div class="controls">
+                    <input id="zoomRange" type="range" min="60" max="180" value="100" />
+                    <button id="zoomOut">−</button>
+                    <button id="zoomIn">+</button>
+                    <button id="resetView">Сброс</button>
+                </div>
+                <div class="mini-note">Колесо мыши масштабирует, перетаскивание двигает схему, клик открывает увеличенный режим.</div>
+                <div class="legend">
+                    <div><span class="pill p-red"></span>r — радиус</div>
+                    <div><span class="pill p-blue"></span>h — высота</div>
+                    <div><span class="pill p-yellow"></span>l — образующая</div>
+                    <div><span class="pill"></span>пунктир — скрытая линия</div>
+                </div>
+            </section>
+        </aside>
+    </section>
+
+    <div class="footer">
+        Артём Александрович Лёвин эксклюзивно для Яны Плиско
+    </div>
+</main>
+
+<div class="modal" id="modal">
+    <div class="modal-box">
+        <div class="modal-top">
+            <b>Увеличенная визуализация</b>
+            <button id="closeModal">Закрыть</button>
+        </div>
+        <div class="canvas-wrap modal-canvas" id="modalCanvas">
+            <svg id="modalScene" width="900" height="620" viewBox="0 0 900 620" aria-label="Увеличенная интерактивная схема"></svg>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Здесь храним состояние страницы: режим, масштаб и сдвиг схемы
+    const state = {
+        mode: "cylinder",
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        dragging: false,
+        dragStart: {x:0,y:0},
+        panStart: {x:0,y:0},
+        activeStep: "transfer"
+    };
+
+    const body = document.body;
+    const themeBtn = document.getElementById("themeBtn");
+    const savedTheme = localStorage.getItem("theme");
+    if(savedTheme === "dark") body.classList.add("dark");
+
+    themeBtn.addEventListener("click", () => {
+        body.classList.toggle("dark");
+        localStorage.setItem("theme", body.classList.contains("dark") ? "dark" : "light");
+        renderScenes();
+    });
+
+    const scene = document.getElementById("scene");
+    const modalScene = document.getElementById("modalScene");
+    const canvasWrap = document.getElementById("canvasWrap");
+    const modal = document.getElementById("modal");
+    const modalCanvas = document.getElementById("modalCanvas");
+    const zoomRange = document.getElementById("zoomRange");
+
+    function css(name){return getComputedStyle(document.body).getPropertyValue(name).trim();}
+
+    // Рисуем схему цилиндра или конуса в SVG
+    function drawSVG(svg, large=false){
+        const w = large ? 900 : 520;
+        const h = large ? 620 : 390;
+        const scale = state.zoom * (large ? 1.35 : 1);
+        const cx = w/2 + state.panX;
+        const cy = h/2 + state.panY;
+
+        svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+        svg.innerHTML = "";
+
+        const line = css("--line");
+        const accent = css("--accent");
+        const accent2 = css("--accent2");
+        const yellow = css("--yellow");
+        const blue = css("--blue");
+        const paper = css("--paper");
+
+        function el(name, attrs){
+            const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+            for(const k in attrs) node.setAttribute(k, attrs[k]);
+            svg.appendChild(node);
+            return node;
+        }
+
+        const g = el("g", {transform:`translate(${cx},${cy}) scale(${scale}) translate(${-w/2},${-h/2})`});
+
+        function add(name, attrs){
+            const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+            for(const k in attrs) node.setAttribute(k, attrs[k]);
+            g.appendChild(node);
+            return node;
+        }
+
+        if(state.mode === "cylinder"){
+            const x=w/2-95, y=h/2-135, width=190, height=250, eh=46;
+            add("ellipse",{cx:x+width/2,cy:y,rx:width/2,ry:eh/2,fill:paper,stroke:line,"stroke-width":4});
+            add("path",{d:`M ${x} ${y} L ${x} ${y+height} M ${x+width} ${y} L ${x+width} ${y+height}`,stroke:line,"stroke-width":4,fill:"none"});
+            add("ellipse",{cx:x+width/2,cy:y+height,rx:width/2,ry:eh/2,fill:blue,opacity:.65,stroke:line,"stroke-width":4});
+            add("path",{d:`M ${x} ${y+height} A ${width/2} ${eh/2} 0 0 0 ${x+width} ${y+height}`,stroke:line,"stroke-width":4,fill:"none"});
+            add("path",{d:`M ${x} ${y+height} A ${width/2} ${eh/2} 0 0 1 ${x+width} ${y+height}`,stroke:line,"stroke-width":3,fill:"none","stroke-dasharray":"8 8"});
+            add("line",{x1:x+width/2,y1:y,x2:x+width/2,y2:y+height,stroke:blue,"stroke-width":4,"stroke-dasharray":"9 8"});
+            add("line",{x1:x+width/2,y1:y+height,x2:x+width-18,y2:y+height,stroke:accent,"stroke-width":5});
+            add("circle",{cx:x+width/2,cy:y+height,r:5,fill:line});
+            label(g,"h",x+width/2+12,y+height/2,blue,26);
+            label(g,"r",x+width/2+55,y+height-10,accent,26);
+            label(g,"V = πr²h",x+width/2-76,y+height+68,line,29);
+        } else {
+            const apexX=w/2, apexY=h/2-145, baseY=h/2+135, rx=125, ry=42;
+            add("path",{d:`M ${apexX} ${apexY} L ${apexX-rx} ${baseY} M ${apexX} ${apexY} L ${apexX+rx} ${baseY}`,stroke:line,"stroke-width":4,fill:"none"});
+            add("ellipse",{cx:apexX,cy:baseY,rx,ry,fill:paper,stroke:line,"stroke-width":4});
+            add("path",{d:`M ${apexX-rx} ${baseY} A ${rx} ${ry} 0 0 0 ${apexX+rx} ${baseY}`,stroke:line,"stroke-width":4,fill:"none"});
+            add("path",{d:`M ${apexX-rx} ${baseY} A ${rx} ${ry} 0 0 1 ${apexX+rx} ${baseY}`,stroke:line,"stroke-width":3,fill:"none","stroke-dasharray":"8 8"});
+            add("line",{x1:apexX,y1:apexY,x2:apexX,y2:baseY,stroke:blue,"stroke-width":4,"stroke-dasharray":"9 8"});
+            add("line",{x1:apexX,y1:baseY,x2:apexX+rx-18,y2:baseY,stroke:accent,"stroke-width":5});
+            add("line",{x1:apexX,y1:apexY,x2:apexX+rx,y2:baseY,stroke:yellow,"stroke-width":6,opacity:.8});
+            add("circle",{cx:apexX,cy:baseY,r:5,fill:line});
+            label(g,"h",apexX+14,(apexY+baseY)/2,blue,26);
+            label(g,"r",apexX+65,baseY-10,accent,26);
+            label(g,"l",apexX+78,apexY+115,yellow,26);
+            label(g,"V = 1/3 · πr²h",apexX-120,baseY+78,line,29);
+        }
+    }
+
+    // Подписываем элементы схемы
+    function label(parent,text,x,y,color,size){
+        const node = document.createElementNS("http://www.w3.org/2000/svg","text");
+        node.setAttribute("x",x);
+        node.setAttribute("y",y);
+        node.setAttribute("fill",color);
+        node.setAttribute("font-size",size);
+        node.setAttribute("font-weight","900");
+        node.setAttribute("font-family","Arial, sans-serif");
+        node.textContent = text;
+        parent.appendChild(node);
+    }
+
+    function renderScenes(){
+        drawSVG(scene,false);
+        drawSVG(modalScene,true);
+    }
+    renderScenes();
+
+    document.querySelectorAll("[data-mode]").forEach(btn=>{
+        btn.addEventListener("click",()=>{
+            document.querySelectorAll("[data-mode]").forEach(b=>b.classList.remove("active"));
+            btn.classList.add("active");
+            state.mode = btn.dataset.mode;
+            renderScenes();
+        });
+    });
+
+    zoomRange.addEventListener("input",()=>{
+        state.zoom = Number(zoomRange.value)/100;
+        renderScenes();
+    });
+    document.getElementById("zoomOut").onclick=()=>{state.zoom=Math.max(.6,state.zoom-.1);zoomRange.value=state.zoom*100;renderScenes();}
+    document.getElementById("zoomIn").onclick=()=>{state.zoom=Math.min(1.8,state.zoom+.1);zoomRange.value=state.zoom*100;renderScenes();}
+    document.getElementById("resetView").onclick=()=>{state.zoom=1;state.panX=0;state.panY=0;zoomRange.value=100;renderScenes();}
+
+    function addPanZoom(box){
+        box.addEventListener("wheel",e=>{
+            e.preventDefault();
+            state.zoom += e.deltaY < 0 ? .07 : -.07;
+            state.zoom = Math.max(.6, Math.min(1.8, state.zoom));
+            zoomRange.value = state.zoom*100;
+            renderScenes();
+        }, {passive:false});
+
+        box.addEventListener("pointerdown",e=>{
+            state.dragging = true;
+            state.dragStart = {x:e.clientX,y:e.clientY};
+            state.panStart = {x:state.panX,y:state.panY};
+            box.setPointerCapture(e.pointerId);
+        });
+        box.addEventListener("pointermove",e=>{
+            if(!state.dragging) return;
+            state.panX = state.panStart.x + (e.clientX-state.dragStart.x);
+            state.panY = state.panStart.y + (e.clientY-state.dragStart.y);
+            renderScenes();
+        });
+        box.addEventListener("pointerup",()=>{state.dragging=false;});
+    }
+    addPanZoom(canvasWrap);
+    addPanZoom(modalCanvas);
+
+    canvasWrap.addEventListener("click",e=>{
+        if(Math.abs(e.clientX-state.dragStart.x)+Math.abs(e.clientY-state.dragStart.y) < 4){
+            modal.classList.add("open");
+            renderScenes();
+        }
+    });
+    document.getElementById("closeModal").onclick=()=>modal.classList.remove("open");
+    modal.addEventListener("click",e=>{if(e.target===modal) modal.classList.remove("open");});
+    document.addEventListener("keydown",e=>{if(e.key==="Escape") modal.classList.remove("open");});
+
+    document.querySelectorAll(".step").forEach(step=>{
+        step.addEventListener("click",()=>{
+            document.querySelectorAll(".step").forEach(s=>s.classList.remove("active"));
+            step.classList.add("active");
+            state.activeStep = step.dataset.step;
+        });
+    });
+
+    // Генератор задач: задачи сделаны так, чтобы ответы были аккуратными
+    const generators = [
+        () => {
+            const r = rand(2,9), h = rand(3,12);
+            return {
+                text:`Цилиндр имеет радиус ${r} и высоту ${h}. Найдите V/π.`,
+                answer:r*r*h,
+                hint:"Используйте V = πr²h, затем разделите на π."
+            };
+        },
+        () => {
+            const h = rand(8,27);
+            const k = [2,3][rand(0,1)];
+            return {
+                text:`Воду высотой ${h} см перелили в цилиндрический сосуд, диаметр которого в ${k} раза больше. Найдите новую высоту воды.`,
+                answer:h/(k*k),
+                hint:"Объём сохраняется. Радиус вырос в k раз, площадь основания выросла в k² раз."
+            };
+        },
+        () => {
+            const v = [600,900,1200,1500,1800,2400][rand(0,5)];
+            const h = [6,8,10,12][rand(0,3)];
+            const dh = [2,3,4,5][rand(0,3)];
+            return {
+                text:`В цилиндре ${v} см³ воды, уровень равен ${h} см. После погружения детали уровень поднялся на ${dh} см. Найдите объём детали.`,
+                answer:v*dh/h,
+                hint:"Объём детали равен добавочному объёму: Vдет = Vисх · Δh / h."
+            };
+        },
+        () => {
+            const r = [3,4,5,6,8][rand(0,4)];
+            const h = [4,5,6,7,8][rand(0,4)];
+            const angle = [60,90,120,180][rand(0,3)];
+            return {
+                text:`Радиус цилиндра ${r}, высота ${h}. Найдите V/π части цилиндра, соответствующей углу ${angle}°.`,
+                answer:r*r*h*angle/360,
+                hint:"Сначала найдите V/π всего цилиндра, затем умножьте на α/360°."
+            };
+        },
+        () => {
+            const small = [1,2,3,4,5][rand(0,4)];
+            const k = [2,3][rand(0,1)];
+            return {
+                text:`Высота большого конуса в ${k} раза больше высоты малого, конусы подобны. Объём малого конуса равен ${small}. Найдите объём большого.`,
+                answer:small*k*k*k,
+                hint:"Для подобных тел объёмы относятся как k³."
+            };
+        }
+    ];
+
+    let current = null;
+    function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+    function nice(x){return Math.round(x*1000)/1000;}
+    function newProblem(){
+        current = generators[rand(0,generators.length-1)]();
+        document.getElementById("problemText").textContent = current.text;
+        document.getElementById("hintText").textContent = current.hint;
+        document.getElementById("feedback").textContent = "";
+        document.getElementById("userAnswer").value = "";
+    }
+    document.getElementById("newProblem").onclick = newProblem;
+    document.getElementById("checkAnswer").onclick = () => {
+        const raw = document.getElementById("userAnswer").value.replace(",",".").trim();
+        const val = Number(raw);
+        const fb = document.getElementById("feedback");
+        if(!current || Number.isNaN(val)){fb.textContent="Введите числовой ответ."; fb.className="feedback bad"; return;}
+        if(Math.abs(val-current.answer) < 0.001){
+            fb.textContent="Верно! Отличная работа.";
+            fb.className="feedback ok";
+        } else {
+            fb.textContent=`Пока нет. Правильный ответ: ${nice(current.answer)}.`;
+            fb.className="feedback bad";
+        }
+    };
+    newProblem();
+
+    const quiz = [
+        {
+            q:"Что произойдёт с объёмом цилиндра, если радиус увеличить в 2 раза, а высоту не менять?",
+            options:["Увеличится в 2 раза","Увеличится в 4 раза","Увеличится в 8 раз"],
+            correct:1
+        },
+        {
+            q:"Какой множитель обязательно есть в формуле объёма конуса?",
+            options:["1/2","1/3","2π"],
+            correct:1
+        },
+        {
+            q:"При переливании воды из одного сосуда в другой что сохраняется?",
+            options:["Высота воды","Радиус сосуда","Объём воды"],
+            correct:2
+        },
+        {
+            q:"Как относятся объёмы подобных конусов при коэффициенте подобия k?",
+            options:["как k","как k²","как k³"],
+            correct:2
+        },
+        {
+            q:"Что равно объёму полностью погружённой детали?",
+            options:["Объём вытесненной жидкости","Полный объём сосуда","Высота подъёма жидкости"],
+            correct:0
+        }
+    ];
+    let quizIndex = 0;
+
+    function renderQuiz(){
+        const item = quiz[quizIndex];
+        const box = document.getElementById("quizBox");
+        box.innerHTML = `<div class="problem">${item.q}</div>`;
+        item.options.forEach((opt,i)=>{
+            const b = document.createElement("button");
+            b.className = "quiz-option";
+            b.textContent = opt;
+            b.onclick = () => {
+                [...box.querySelectorAll("button")].forEach(btn=>btn.disabled=true);
+                b.classList.add(i===item.correct ? "correct" : "wrong");
+                if(i!==item.correct) box.querySelectorAll("button")[item.correct].classList.add("correct");
+            };
+            box.appendChild(b);
+        });
+    }
+    document.getElementById("nextQuiz").onclick=()=>{
+        quizIndex = (quizIndex+1)%quiz.length;
+        renderQuiz();
+    };
+    renderQuiz();
+</script>
+</body>
+</html>
