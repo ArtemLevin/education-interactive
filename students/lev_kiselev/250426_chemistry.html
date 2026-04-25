@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Химия: интерактивный чек-лист</title>
+    <style>
+        :root {
+            --bg: #f4f4f0;
+            --paper: #fffdf4;
+            --ink: #151515;
+            --muted: #555;
+            --accent: #c9332b;
+            --accent-2: #008080;
+            --soft: #ece7d8;
+            --line: #151515;
+            --shadow: 7px 7px 0 #151515;
+            --ok: #0f7b4f;
+            --bad: #b3261e;
+        }
+
+        [data-theme="dark"] {
+            --bg: #171717;
+            --paper: #24211d;
+            --ink: #f6f0df;
+            --muted: #d1c7b5;
+            --accent: #ff6b5f;
+            --accent-2: #57d0c8;
+            --soft: #302c25;
+            --line: #f6f0df;
+            --shadow: 7px 7px 0 #000;
+            --ok: #7ee2aa;
+            --bad: #ff8178;
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            background:
+            radial-gradient(circle at 12% 18%, rgba(201, 51, 43, 0.07), transparent 24%),
+            radial-gradient(circle at 88% 12%, rgba(0, 128, 128, 0.09), transparent 26%),
+            linear-gradient(135deg, rgba(0,0,0,0.025) 25%, transparent 25%) 0 0 / 18px 18px,
+            var(--bg);
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.55;
+        }
+
+        .wrap {
+            width: min(1180px, calc(100% - 28px));
+            margin: 0 auto;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            background: color-mix(in srgb, var(--bg) 88%, transparent);
+            backdrop-filter: blur(8px);
+            border-bottom: 2px solid var(--line);
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 0;
+        }
+
+        .brand {
+            font-weight: 950;
+            letter-spacing: -0.04em;
+            text-transform: uppercase;
+            font-size: clamp(18px, 2.6vw, 30px);
+        }
+
+        .brand span { color: var(--accent); }
+
+        .navlinks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .chip,
+        button,
+        select,
+        input {
+            border: 2px solid var(--line);
+            background: var(--paper);
+            color: var(--ink);
+            font: inherit;
+            font-weight: 800;
+            box-shadow: 3px 3px 0 var(--line);
+        }
+
+        .chip,
+        button {
+            cursor: pointer;
+            padding: 8px 10px;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        button:hover,
+        .chip:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--line); }
+        button:active,
+        .chip:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--line); }
+
+        .hero {
+            padding: 34px 0 18px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+            gap: 18px;
+            align-items: stretch;
+        }
+
+        .panel {
+            background: var(--paper);
+            border: 2px solid var(--line);
+            box-shadow: var(--shadow);
+            padding: clamp(18px, 3vw, 32px);
+        }
+
+        .title {
+            margin: 0;
+            font-size: clamp(42px, 8vw, 92px);
+            line-height: 0.88;
+            letter-spacing: -0.075em;
+            text-transform: uppercase;
+            font-weight: 950;
+        }
+
+        .title .red { color: var(--accent); }
+        .title .black { color: var(--ink); }
+
+        .subtitle {
+            margin: 18px 0 0;
+            max-width: 820px;
+            font-size: clamp(17px, 2vw, 22px);
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .banner {
+            margin-top: 20px;
+            background: var(--ink);
+            color: var(--bg);
+            border: 2px solid var(--line);
+            padding: 12px 16px;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .quick-card {
+            display: grid;
+            gap: 12px;
+            min-height: 100%;
+        }
+
+        .mini-stat {
+            border: 2px solid var(--line);
+            background: var(--soft);
+            padding: 14px;
+        }
+
+        .mini-stat b {
+            color: var(--accent);
+            display: block;
+            font-size: 28px;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        main {
+            padding: 24px 0 60px;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 390px;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .content {
+            display: grid;
+            gap: 18px;
+        }
+
+        .side {
+            position: sticky;
+            top: 86px;
+            display: grid;
+            gap: 18px;
+        }
+
+        h2, h3 {
+            margin: 0 0 12px;
+            line-height: 1.08;
+            letter-spacing: -0.045em;
+            text-transform: uppercase;
+        }
+
+        h2 { font-size: clamp(28px, 4.4vw, 48px); }
+        h3 { font-size: clamp(21px, 2.6vw, 30px); }
+
+        .section-card {
+            background: var(--paper);
+            border: 2px solid var(--line);
+            box-shadow: var(--shadow);
+            padding: clamp(18px, 2.6vw, 26px);
+            scroll-margin-top: 100px;
+        }
+
+        .section-head {
+            display: flex;
+            gap: 14px;
+            align-items: start;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            border-bottom: 2px solid var(--line);
+            padding-bottom: 12px;
+        }
+
+        .num {
+            display: inline-grid;
+            place-items: center;
+            min-width: 48px;
+            height: 48px;
+            border: 2px solid var(--line);
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 4px 4px 0 var(--line);
+            font-weight: 950;
+            font-size: 24px;
+        }
+
+        .lead {
+            font-weight: 800;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .note {
+            border: 2px solid var(--line);
+            padding: 14px;
+            background: var(--soft);
+        }
+
+        .note strong {
+            color: var(--accent);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .formula {
+            display: inline-block;
+            padding: 8px 10px;
+            border: 2px solid var(--line);
+            background: var(--paper);
+            box-shadow: 3px 3px 0 var(--line);
+            font-size: 20px;
+            font-weight: 900;
+            margin: 4px 0;
+            white-space: nowrap;
+        }
+
+        .steps {
+            counter-reset: step;
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .step {
+            position: relative;
+            border: 2px solid var(--line);
+            padding: 12px 12px 12px 54px;
+            background: var(--bg);
+        }
+
+        .step::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            width: 28px;
+            height: 28px;
+            display: grid;
+            place-items: center;
+            border: 2px solid var(--line);
+            background: var(--accent-2);
+            color: #fff;
+            font-weight: 950;
+        }
+
+        .viz {
+            min-height: 300px;
+            background: var(--paper);
+            border: 2px solid var(--line);
+            box-shadow: var(--shadow);
+            padding: 18px;
+        }
+
+        .viz h3 { margin-bottom: 8px; }
+
+        .reaction-box {
+            border: 2px dashed var(--line);
+            background: var(--soft);
+            padding: 16px;
+            font-size: 25px;
+            font-weight: 950;
+            text-align: center;
+            margin: 14px 0;
+            overflow-x: auto;
+        }
+
+        .heat-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .heat-card {
+            border: 2px solid var(--line);
+            padding: 12px;
+            background: var(--bg);
+            min-height: 112px;
+        }
+
+        .heat-card.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .doodle {
+            width: 100%;
+            height: 135px;
+            border: 2px solid var(--line);
+            background: var(--soft);
+            display: block;
+        }
+
+        .controls {
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .controls label {
+            display: grid;
+            gap: 5px;
+            font-weight: 850;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            box-shadow: none;
+            font-weight: 700;
+        }
+
+        .result {
+            margin-top: 12px;
+            border: 2px solid var(--line);
+            background: var(--soft);
+            padding: 12px;
+            font-weight: 850;
+            min-height: 52px;
+        }
+
+        .quiz-item {
+            border: 2px solid var(--line);
+            background: var(--soft);
+            padding: 14px;
+            margin-top: 12px;
+        }
+
+        .answers {
+            display: grid;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .answer {
+            text-align: left;
+            background: var(--paper);
+        }
+
+        .answer.correct { background: color-mix(in srgb, var(--ok) 24%, var(--paper)); }
+        .answer.wrong { background: color-mix(in srgb, var(--bad) 24%, var(--paper)); }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .tab.active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .hidden { display: none !important; }
+
+        .footer {
+            padding: 26px 0 36px;
+            border-top: 2px solid var(--line);
+            background: var(--paper);
+            font-weight: 950;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .signature {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 14px;
+            text-transform: none;
+            font-weight: 800;
+        }
+
+        @media (max-width: 920px) {
+            .hero-grid, .workspace, .grid-2 { grid-template-columns: 1fr; }
+            .side { position: static; }
+            header { position: static; }
+            .nav { align-items: flex-start; flex-direction: column; }
+            .navlinks { justify-content: flex-start; }
+        }
+
+        @media print {
+            header, .controls, .tabs, button, .quiz-item .answers { display: none !important; }
+            body { background: #fff; color: #000; }
+            .wrap { width: 100%; }
+            .hero, main { padding: 0; }
+            .hero-grid, .workspace, .grid-2 { grid-template-columns: 1fr; }
+            .panel, .section-card, .viz, .note, .step {
+                box-shadow: none;
+                break-inside: avoid;
+                background: #fff;
+            }
+            .side { position: static; }
+        }
+    </style>
+</head>
+<body data-theme="light">
+<header>
+    <div class="wrap nav">
+        <div class="brand"><span>Химия</span> / чек-лист</div>
+        <nav class="navlinks" aria-label="Навигация по пособию">
+            <a class="chip" href="#heat">Тепловой эффект</a>
+            <a class="chip" href="#eq">Уравнения</a>
+            <a class="chip" href="#calc">Расчёты</a>
+            <a class="chip" href="#solutions">Растворы</a>
+            <a class="chip" href="#trainer">Тренажёр</a>
+            <button id="themeBtn" type="button">Dark</button>
+            <button onclick="window.print()" type="button">Печать</button>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="wrap hero-grid">
+        <div class="panel">
+            <h1 class="title"><span class="red">Химия:</span><br><span class="black">интерактивный чек-лист</span></h1>
+            <p class="subtitle">Короткое web-пособие по тепловому эффекту реакций, уравнениям, расчётам по реакции и массовой доле вещества в растворе.</p>
+            <div class="banner">Для Льва Киселёва · 8 класс · повторение перед задачами</div>
+        </div>
+        <aside class="panel quick-card" aria-label="Главные опоры">
+            <div class="mini-stat"><b>+Q</b>Экзотермическая реакция выделяет тепло.</div>
+            <div class="mini-stat"><b>22,4</b>Молярный объём газа при нормальных условиях.</div>
+            <div class="mini-stat"><b>ω</b>Массовая доля: часть вещества в растворе.</div>
+        </aside>
+    </div>
+</section>
+
+<main class="wrap workspace">
+    <div class="content">
+        <section id="heat" class="section-card">
+            <div class="section-head">
+                <div>
+                    <h2><span class="num">1</span> Тепловой эффект</h2>
+                    <p class="lead">Смотрим, выделяется или поглощается теплота.</p>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="note">
+                    <strong>Экзотермическая</strong>
+                    Теплота выходит наружу. Колба нагревается. В уравнении часто пишут <span class="formula">+Q</span>.
+                </div>
+                <div class="note">
+                    <strong>Эндотермическая</strong>
+                    Теплота поглощается реакцией. Окружающая среда охлаждается. Часто пишут <span class="formula">−Q</span>.
+                </div>
+            </div>
+            <div class="steps">
+                <div class="step">Горение — типичный пример экзотермической реакции.</div>
+                <div class="step">Если кислород стоит слева как реагент, это может быть реакция горения.</div>
+                <div class="step">Если кислород стоит справа как продукт, это не горение, а, например, разложение.</div>
+            </div>
+        </section>
+
+        <section id="eq" class="section-card">
+            <div class="section-head">
+                <div>
+                    <h2><span class="num">2</span> Уравнения реакций</h2>
+                    <p class="lead">Сначала формулы веществ, потом коэффициенты.</p>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="note">
+                    <strong>Горение</strong>
+                    Общая схема: <span class="formula">вещество + O₂ → оксиды</span>
+                </div>
+                <div class="note">
+                    <strong>Двухатомные простые вещества</strong>
+                    <span class="formula">H₂ O₂ N₂ F₂ Cl₂ Br₂ I₂</span>
+                </div>
+            </div>
+            <div class="steps">
+                <div class="step">При горении углерода: C + O₂ → CO₂.</div>
+                <div class="step">При горении серы: S + O₂ → SO₂.</div>
+                <div class="step">При горении метана: CH₄ + 2O₂ → CO₂ + 2H₂O.</div>
+                <div class="step">Металл + кислота: 2Al + 6HCl → 2AlCl₃ + 3H₂.</div>
+            </div>
+        </section>
+
+        <section id="calc" class="section-card">
+            <div class="section-head">
+                <div>
+                    <h2><span class="num">3</span> Расчёты по уравнению</h2>
+                    <p class="lead">Коэффициенты связывают вещества в реакции.</p>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="note"><strong>Масса</strong><span class="formula">n = m / M</span></div>
+                <div class="note"><strong>Объём газа</strong><span class="formula">n = V / 22,4</span></div>
+            </div>
+            <div class="steps">
+                <div class="step">Запишите и уравняйте реакцию.</div>
+                <div class="step">Над веществами поставьте данные из условия и неизвестное x.</div>
+                <div class="step">Под веществами поставьте: коэффициент × M или коэффициент × 22,4.</div>
+                <div class="step">Составьте пропорцию и найдите x.</div>
+            </div>
+            <div class="note" style="margin-top:12px;">
+                <strong>Лайфхак</strong>
+                Если по объёму газа ищем объём другого газа при одинаковых условиях, можно смотреть только на коэффициенты: 22,4 сократится.
+            </div>
+        </section>
+
+        <section id="solutions" class="section-card">
+            <div class="section-head">
+                <div>
+                    <h2><span class="num">4</span> Растворы</h2>
+                    <p class="lead">Массовая доля показывает, какая часть раствора — это вещество.</p>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="note"><strong>Массовая доля</strong><span class="formula">ω = m вещества / m раствора</span></div>
+                <div class="note"><strong>Масса раствора</strong><span class="formula">m раствора = m воды + m вещества</span></div>
+            </div>
+            <div class="steps">
+                <div class="step">Чистая вода имеет массовую долю растворённого вещества 0.</div>
+                <div class="step">Чистая соль или сахар имеют массовую долю 1.</div>
+                <div class="step">Чтобы получить проценты, умножьте десятичную долю на 100%.</div>
+            </div>
+        </section>
+
+        <section id="mistakes" class="section-card">
+            <h2>Частые ошибки</h2>
+            <div class="grid-2">
+                <div class="note"><strong>Ошибка 1</strong>Не уравняли реакцию перед расчётом.</div>
+                <div class="note"><strong>Ошибка 2</strong>Перепутали молярную массу M и молярный объём 22,4.</div>
+                <div class="note"><strong>Ошибка 3</strong>Назвали горением реакцию, где O₂ стоит справа.</div>
+                <div class="note"><strong>Ошибка 4</strong>В задаче на раствор взяли только массу воды, а не массу всего раствора.</div>
+            </div>
+        </section>
+
+        <section id="trainer" class="section-card">
+            <h2>Тренажёр</h2>
+            <div class="tabs" role="tablist" aria-label="Выбор тренажёра">
+                <button class="tab active" data-tab="gas" type="button">Газовые расчёты</button>
+                <button class="tab" data-tab="solution" type="button">Растворы</button>
+                <button class="tab" data-tab="quiz" type="button">Мини-квиз</button>
+            </div>
+
+            <div id="tab-gas" class="tab-page">
+                <h3>Расчёт по реакции</h3>
+                <p class="lead">Выберите тип задачи и подставьте число. Тренажёр покажет пропорцию.</p>
+                <div class="controls">
+                    <label>Задача
+                        <select id="gasType">
+                            <option value="carbon">C + O₂ → CO₂: найти массу C по объёму CO₂</option>
+                            <option value="sulfur">S + O₂ → SO₂: найти массу S по объёму SO₂</option>
+                            <option value="ammonia">N₂ + 3H₂ → 2NH₃: найти объём NH₃ по объёму H₂</option>
+                            <option value="methane">CH₄ + 2O₂ → CO₂ + 2H₂O: найти объём O₂ по массе CH₄</option>
+                        </select>
+                    </label>
+                    <label>Исходное число
+                        <input id="gasInput" type="number" step="0.01" value="22.4" />
+                    </label>
+                    <button id="gasBtn" type="button">Рассчитать</button>
+                </div>
+                <div id="gasResult" class="result">Результат появится здесь.</div>
+            </div>
+
+            <div id="tab-solution" class="tab-page hidden">
+                <h3>Массовая доля</h3>
+                <div class="controls">
+                    <label>Масса воды, г
+                        <input id="waterMass" type="number" step="0.01" value="120" />
+                    </label>
+                    <label>Масса вещества, г
+                        <input id="soluteMass" type="number" step="0.01" value="30" />
+                    </label>
+                    <button id="solutionBtn" type="button">Найти ω</button>
+                </div>
+                <div id="solutionResult" class="result">Результат появится здесь.</div>
+            </div>
+
+            <div id="tab-quiz" class="tab-page hidden">
+                <h3>Мини-квиз</h3>
+                <div id="quizBox"></div>
+            </div>
+        </section>
+    </div>
+
+    <aside class="side">
+        <section class="viz" aria-label="Интерактивная визуализация">
+            <h3>Живая подсказка</h3>
+            <p class="lead">Переключайте реакцию и смотрите, где кислород и какие коэффициенты.</p>
+            <div class="reaction-box" id="reactionView">CH₄ + 2O₂ → CO₂ + 2H₂O</div>
+            <svg class="doodle" viewBox="0 0 420 135" role="img" aria-label="Схема реакции">
+                <rect x="0" y="0" width="420" height="135" fill="none"></rect>
+                <circle id="molA" cx="90" cy="70" r="34" fill="none" stroke="currentColor" stroke-width="4"></circle>
+                <text x="90" y="79" text-anchor="middle" font-size="28" font-weight="900" fill="currentColor">C</text>
+                <line x1="132" y1="70" x2="185" y2="70" stroke="currentColor" stroke-width="4"></line>
+                <circle cx="215" cy="70" r="26" fill="none" stroke="currentColor" stroke-width="4"></circle>
+                <text x="215" y="79" text-anchor="middle" font-size="25" font-weight="900" fill="currentColor">O</text>
+                <circle cx="278" cy="70" r="26" fill="none" stroke="currentColor" stroke-width="4"></circle>
+                <text x="278" y="79" text-anchor="middle" font-size="25" font-weight="900" fill="currentColor">O</text>
+                <path d="M305 70 L365 70 M344 52 L365 70 L344 88" stroke="currentColor" stroke-width="4" fill="none"></path>
+            </svg>
+            <div class="controls">
+                <label>Реакция
+                    <select id="reactionSelect">
+                        <option value="methane">Горение метана</option>
+                        <option value="carbon">Горение углерода</option>
+                        <option value="water">Разложение воды</option>
+                        <option value="aluminium">Алюминий + HCl</option>
+                    </select>
+                </label>
+            </div>
+            <div class="heat-row" style="margin-top:12px;">
+                <div id="exoCard" class="heat-card active"><b>Экзо</b><br>тепло выделяется</div>
+                <div id="endoCard" class="heat-card"><b>Эндо</b><br>тепло поглощается</div>
+            </div>
+        </section>
+
+        <section class="viz">
+            <h3>Памятка</h3>
+            <div class="note"><strong>1</strong>Уравняйте реакцию.</div>
+            <div class="note" style="margin-top:10px;"><strong>2</strong>Масса → M, объём газа → 22,4.</div>
+            <div class="note" style="margin-top:10px;"><strong>3</strong>В растворах считайте массу всего раствора.</div>
+        </section>
+    </aside>
+</main>
+
+<footer class="footer">
+    МАТЕМАТИКА И ХИМИЯ. НАГЛЯДНО.
+    <div class="signature">Артём Александрович Лёвин эксклюзивно для Льва Киселёва</div>
+</footer>
+
+<script>
+    const body = document.body;
+    const themeBtn = document.getElementById('themeBtn');
+    const savedTheme = localStorage.getItem('chemTheme') || 'light';
+    body.dataset.theme = savedTheme;
+    themeBtn.textContent = savedTheme === 'dark' ? 'Light' : 'Dark';
+
+    themeBtn.addEventListener('click', () => {
+        const next = body.dataset.theme === 'dark' ? 'light' : 'dark';
+        body.dataset.theme = next;
+        localStorage.setItem('chemTheme', next);
+        themeBtn.textContent = next === 'dark' ? 'Light' : 'Dark';
+    });
+
+    const reactions = {
+        methane: {
+            text: 'CH₄ + 2O₂ → CO₂ + 2H₂O',
+            type: 'exo'
+        },
+        carbon: {
+            text: 'C + O₂ → CO₂',
+            type: 'exo'
+        },
+        water: {
+            text: '2H₂O → 2H₂ + O₂',
+            type: 'endo'
+        },
+        aluminium: {
+            text: '2Al + 6HCl → 2AlCl₃ + 3H₂',
+            type: 'neutral'
+        }
+    };
+
+    const reactionView = document.getElementById('reactionView');
+    const reactionSelect = document.getElementById('reactionSelect');
+    const exoCard = document.getElementById('exoCard');
+    const endoCard = document.getElementById('endoCard');
+
+    reactionSelect.addEventListener('change', () => {
+        const data = reactions[reactionSelect.value];
+        reactionView.textContent = data.text;
+        exoCard.classList.toggle('active', data.type === 'exo');
+        endoCard.classList.toggle('active', data.type === 'endo');
+        if (data.type === 'neutral') {
+            exoCard.classList.remove('active');
+            endoCard.classList.remove('active');
+        }
+    });
+
+    document.querySelectorAll('.tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const key = btn.dataset.tab;
+            document.querySelectorAll('.tab-page').forEach(page => page.classList.add('hidden'));
+            document.getElementById('tab-' + key).classList.remove('hidden');
+        });
+    });
+
+    function fmt(x) {
+        return Number.isInteger(x) ? String(x) : String(Math.round(x * 100) / 100).replace('.', ',');
+    }
+
+    document.getElementById('gasBtn').addEventListener('click', () => {
+        const type = document.getElementById('gasType').value;
+        const value = Number(document.getElementById('gasInput').value);
+        const out = document.getElementById('gasResult');
+        if (!Number.isFinite(value) || value < 0) {
+            out.textContent = 'Введите неотрицательное число.';
+            return;
+        }
+        let text = '';
+        if (type === 'carbon') {
+            const x = value * 12 / 22.4;
+            text = `C + O₂ → CO₂. Пропорция: x / 12 = ${fmt(value)} / 22,4. Ответ: ${fmt(x)} г C.`;
+        }
+        if (type === 'sulfur') {
+            const x = value * 32 / 22.4;
+            text = `S + O₂ → SO₂. Пропорция: x / 32 = ${fmt(value)} / 22,4. Ответ: ${fmt(x)} г S.`;
+        }
+        if (type === 'ammonia') {
+            const x = value * 2 / 3;
+            text = `N₂ + 3H₂ → 2NH₃. По объёму: ${fmt(value)} / 3 = x / 2. Ответ: ${fmt(x)} л NH₃.`;
+        }
+        if (type === 'methane') {
+            const molesMethane = value / 16;
+            const oxygenVolume = molesMethane * 2 * 22.4;
+            text = `CH₄ + 2O₂ → CO₂ + 2H₂O. M(CH₄)=16. n(CH₄)=${fmt(molesMethane)} моль. Ответ: ${fmt(oxygenVolume)} л O₂.`;
+        }
+        out.textContent = text;
+    });
+
+    document.getElementById('solutionBtn').addEventListener('click', () => {
+        const water = Number(document.getElementById('waterMass').value);
+        const solute = Number(document.getElementById('soluteMass').value);
+        const out = document.getElementById('solutionResult');
+        if (!Number.isFinite(water) || !Number.isFinite(solute) || water < 0 || solute < 0 || water + solute === 0) {
+            out.textContent = 'Введите корректные массы. Сумма масс должна быть больше нуля.';
+            return;
+        }
+        const total = water + solute;
+        const omega = solute / total;
+        out.textContent = `m раствора = ${fmt(water)} + ${fmt(solute)} = ${fmt(total)} г. ω = ${fmt(solute)} / ${fmt(total)} = ${fmt(omega)} = ${fmt(omega * 100)}%.`;
+    });
+
+    const quiz = [
+        {
+            q: 'Какая реакция выделяет тепло?',
+            a: ['Экзотермическая', 'Эндотермическая', 'Нейтральная'],
+            ok: 0
+        },
+        {
+            q: 'Что используют для объёма газа при нормальных условиях?',
+            a: ['M', '22,4 л/моль', 'ω'],
+            ok: 1
+        },
+        {
+            q: 'В 80 г воды растворили 20 г соли. Массовая доля соли равна:',
+            a: ['20%', '25%', '80%'],
+            ok: 0
+        },
+        {
+            q: 'Горение — это реакция, где кислород обычно:',
+            a: ['стоит слева среди реагентов', 'стоит только справа', 'не участвует'],
+            ok: 0
+        }
+    ];
+
+    const quizBox = document.getElementById('quizBox');
+    quiz.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-item';
+        div.innerHTML = `<b>${index + 1}. ${item.q}</b><div class="answers"></div>`;
+        const answers = div.querySelector('.answers');
+        item.a.forEach((ans, i) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'answer';
+            b.textContent = ans;
+            b.addEventListener('click', () => {
+                answers.querySelectorAll('button').forEach(x => x.disabled = true);
+                b.classList.add(i === item.ok ? 'correct' : 'wrong');
+                if (i !== item.ok) answers.children[item.ok].classList.add('correct');
+            });
+            answers.appendChild(b);
+        });
+        quizBox.appendChild(div);
+    });
+</script>
+</body>
+</html>
