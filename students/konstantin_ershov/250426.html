@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Призмы — интерактивный чек-лист</title>
+    <style>
+        :root{
+            --bg:#0f1518;
+            --panel:#151f23;
+            --panel2:#10191d;
+            --paper:#f3ead8;
+            --ink:#f6f2e8;
+            --muted:#b9c7c4;
+            --accent:#21b6a8;
+            --accent2:#ef6f61;
+            --accent3:#ffd166;
+            --line:rgba(255,255,255,.16);
+            --shadow:0 20px 60px rgba(0,0,0,.35);
+            --radius:24px;
+            --mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+            --sans:Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        }
+        [data-theme="light"]{
+            --bg:#f4f4f0;
+            --panel:#fff8ea;
+            --panel2:#f7ecd8;
+            --ink:#161616;
+            --muted:#4c5656;
+            --line:rgba(0,0,0,.18);
+            --shadow:8px 8px 0 rgba(0,0,0,.15);
+        }
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            background:
+            radial-gradient(circle at 10% 10%,rgba(33,182,168,.16),transparent 35%),
+            radial-gradient(circle at 85% 12%,rgba(239,111,97,.13),transparent 30%),
+            linear-gradient(180deg,var(--bg),#0a0d0f 120%);
+            color:var(--ink);
+            font-family:var(--sans);
+            line-height:1.5;
+            overflow-x:hidden;
+        }
+        [data-theme="light"] body,
+        body[data-theme="light"]{
+            background:
+            radial-gradient(circle at 15% 15%,rgba(33,182,168,.12),transparent 35%),
+            radial-gradient(circle at 80% 12%,rgba(239,111,97,.12),transparent 30%),
+            #f4f4f0;
+        }
+        a{color:inherit}
+        .wrap{width:min(1180px,calc(100% - 32px));margin:0 auto}
+        .topbar{
+            position:sticky;top:0;z-index:50;
+            backdrop-filter: blur(14px);
+            background:color-mix(in srgb,var(--bg) 82%,transparent);
+            border-bottom:1px solid var(--line);
+        }
+        .topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
+        .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.03em;text-transform:uppercase}
+        .brand-mark{width:34px;height:34px;border:2px solid var(--accent);display:grid;place-items:center;border-radius:10px;color:var(--accent);font-weight:900}
+        .nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+        .nav button,.btn{
+            border:1px solid var(--line);background:var(--panel);color:var(--ink);
+            padding:9px 12px;border-radius:999px;cursor:pointer;font-weight:700;
+            transition:.18s transform,.18s border-color,.18s background;
+        }
+        .nav button:hover,.btn:hover{transform:translateY(-1px);border-color:var(--accent)}
+        .nav button.active{background:var(--accent);color:#061010;border-color:var(--accent)}
+        .theme-toggle{white-space:nowrap}
+
+        .hero{padding:42px 0 26px}
+        .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:26px;align-items:stretch}
+        .hero-card{
+            background:linear-gradient(145deg,var(--panel),var(--panel2));
+            border:1px solid var(--line);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+        }
+        .hero-card:before{
+            content:"";position:absolute;inset:-40%;background:radial-gradient(circle,rgba(33,182,168,.12),transparent 48%);transform:rotate(18deg);pointer-events:none;
+        }
+        .kicker{color:var(--accent);font-weight:900;letter-spacing:.14em;text-transform:uppercase;font-size:.8rem}
+        h1{font-size:clamp(2.3rem,6vw,5.2rem);line-height:.92;margin:12px 0 16px;letter-spacing:-.05em;position:relative}
+        h1 span{color:var(--accent2)}
+        .lead{font-size:clamp(1.05rem,1.5vw,1.25rem);color:var(--muted);max-width:66ch;position:relative}
+        .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;position:relative}
+        .btn.primary{background:var(--accent2);border-color:var(--accent2);color:#160806}
+        .btn.secondary{background:transparent}
+        .mini-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:22px;position:relative}
+        .mini{border:1px solid var(--line);border-radius:18px;padding:13px;background:rgba(255,255,255,.04)}
+        .mini strong{display:block;color:var(--accent3);font-size:1.05rem}
+        .mini small{color:var(--muted)}
+        .banner{margin:12px 0 28px;background:#050707;color:#fff;border:2px solid var(--accent);border-radius:0;padding:12px 16px;text-transform:uppercase;font-weight:900;letter-spacing:.08em;text-align:center;box-shadow:6px 6px 0 rgba(33,182,168,.28)}
+
+        .workspace{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:24px;align-items:start;padding-bottom:44px}
+        .content{display:grid;gap:18px}
+        .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+        h2{margin:0 0 12px;font-size:clamp(1.45rem,2.4vw,2.1rem);letter-spacing:-.03em}
+        h3{margin:18px 0 8px;color:var(--accent);font-size:1.12rem}
+        .section-tag{display:inline-flex;gap:8px;align-items:center;color:var(--accent2);font-weight:900;text-transform:uppercase;letter-spacing:.08em;font-size:.78rem;margin-bottom:8px}
+        .section-tag:before{content:"";width:10px;height:10px;background:var(--accent2);border-radius:50%}
+        .formula-list{display:grid;gap:10px;margin-top:12px}
+        .formula{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px dashed var(--line);border-radius:16px;padding:12px 14px;background:rgba(255,255,255,.035)}
+        .formula code{font-family:var(--mono);font-size:1.05rem;color:var(--accent3);white-space:nowrap}
+        .formula span{color:var(--muted)}
+        .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+        .card{border:1px solid var(--line);border-radius:18px;padding:14px;background:rgba(255,255,255,.035)}
+        .card b{color:var(--accent3)}
+        .steps{counter-reset:step;display:grid;gap:10px;margin:10px 0}
+        .step{counter-increment:step;border-left:4px solid var(--accent);padding:12px 14px;background:rgba(33,182,168,.08);border-radius:0 16px 16px 0;cursor:pointer;transition:.15s}
+        .step:hover,.step.active{background:rgba(33,182,168,.18);transform:translateX(3px)}
+        .step:before{content:counter(step);display:inline-grid;place-items:center;width:28px;height:28px;margin-right:10px;background:var(--accent);color:#061010;border-radius:50%;font-weight:900}
+        .warn-list li{margin-bottom:8px}
+        .warn-list b{color:var(--accent2)}
+        .note{border:1px solid var(--accent);border-radius:18px;padding:14px;background:rgba(33,182,168,.08);color:var(--muted)}
+        .calc-box{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+        label{display:grid;gap:6px;color:var(--muted);font-weight:700;font-size:.92rem}
+        input,select{
+            width:100%;padding:11px 12px;border-radius:14px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:inherit;
+        }
+        .result{margin-top:12px;border-radius:18px;background:rgba(239,111,97,.11);border:1px solid rgba(239,111,97,.45);padding:14px;font-weight:800}
+        .task{font-size:1.05rem;color:var(--muted);margin:10px 0 14px}
+        .quiz-options{display:grid;gap:8px;margin-top:10px}
+        .quiz-options button{text-align:left;border-radius:16px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);padding:12px;cursor:pointer;font-weight:700}
+        .quiz-options button.correct{border-color:var(--accent);background:rgba(33,182,168,.18)}
+        .quiz-options button.wrong{border-color:var(--accent2);background:rgba(239,111,97,.16)}
+
+        .visual-shell{position:sticky;top:78px;display:grid;gap:14px}
+        .visual-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+        .visual-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+        .visual-head strong{font-size:1.05rem;color:var(--accent3)}
+        .mode-row,.controls{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+        .mode-row button,.controls button{font-size:.85rem;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);cursor:pointer;font-weight:800}
+        .mode-row button.active,.controls button.active{background:var(--accent);color:#061010;border-color:var(--accent)}
+        .scene-wrap{position:relative;border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.12));border:1px solid var(--line);overflow:hidden;aspect-ratio:1/1;cursor:grab}
+        .scene-wrap:active{cursor:grabbing}
+        svg{display:block;width:100%;height:100%}
+        .edge{stroke:var(--ink);stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+        .hidden{stroke-dasharray:7 7;opacity:.45}
+        .face{fill:rgba(33,182,168,.10);stroke:rgba(33,182,168,.45);stroke-width:1.4}
+        .accent-face{fill:rgba(239,111,97,.12);stroke:rgba(239,111,97,.65);stroke-width:1.4}
+        .label{fill:var(--ink);font-size:15px;font-weight:900;font-family:var(--sans)}
+        .hl{stroke:var(--accent2)!important;stroke-width:4!important;filter:drop-shadow(0 0 8px rgba(239,111,97,.55))}
+        .status{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+        .pill{border:1px solid var(--line);border-radius:14px;padding:9px;background:rgba(255,255,255,.035);font-size:.9rem;color:var(--muted)}
+        .pill b{color:var(--accent3)}
+        input[type="range"]{accent-color:var(--accent);padding:0}
+        .footer{padding:24px 0 40px;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+        .footer b{color:var(--accent)}
+
+        .modal{position:fixed;inset:0;background:rgba(0,0,0,.74);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+        .modal.open{display:flex}
+        .modal-card{width:min(920px,96vw);background:var(--panel);border:1px solid var(--line);border-radius:26px;padding:16px;box-shadow:var(--shadow)}
+        .modal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+        .close{font-size:1.4rem;border:1px solid var(--line);background:var(--panel2);color:var(--ink);width:42px;height:42px;border-radius:50%;cursor:pointer}
+        .modal .scene-wrap{aspect-ratio:16/10;max-height:72vh}
+
+        .print-note{display:none}
+        @media (max-width:980px){
+            .hero-grid,.workspace{grid-template-columns:1fr}
+            .visual-shell{position:relative;top:auto;order:-1}
+            .cards,.calc-box,.mini-grid{grid-template-columns:1fr}
+            .nav{display:none}
+        }
+        @media print{
+            body{background:#fff;color:#111}
+            .topbar,.visual-shell,.hero-actions,.quiz-options,.controls,.mode-row,.footer{display:none!important}
+            .wrap{width:auto;margin:0}
+            .hero,.workspace{padding:0;display:block}
+            .hero-card,.panel{box-shadow:none;border:1px solid #bbb;break-inside:avoid;margin-bottom:12px;background:#fff;color:#111}
+            .banner{box-shadow:none;color:#111;background:#fff;border-color:#111}
+            .print-note{display:block;color:#111}
+        }
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <div class="wrap">
+        <div class="brand"><div class="brand-mark">V</div><span>Призмы</span></div>
+        <div class="nav" id="nav">
+            <button data-target="formulas" class="active">Формулы</button>
+            <button data-target="areas">Основания</button>
+            <button data-target="method">Метод</button>
+            <button data-target="practice">Практика</button>
+            <button data-target="errors">Ошибки</button>
+        </div>
+        <button class="btn theme-toggle" id="themeBtn">LIGHT / DARK</button>
+    </div>
+</div>
+
+<header class="hero">
+    <div class="wrap hero-grid">
+        <section class="hero-card">
+            <div class="kicker">ЕГЭ профиль · стереометрия</div>
+            <h1>Призмы: <span>объём</span>, поверхность, отсечения</h1>
+            <p class="lead">Интерактивный чек-лист по мотивам пособия: формулы, площади оснований, алгоритм решения, визуальная модель и тренировка на типичных задачах.</p>
+            <div class="hero-actions">
+                <a class="btn primary" href="#practice">Перейти к тренировке</a>
+                <a class="btn secondary" href="#method">Посмотреть алгоритм</a>
+            </div>
+            <div class="mini-grid">
+                <div class="mini"><strong>V = Sосн · h</strong><small>объём любой призмы</small></div>
+                <div class="mini"><strong>Sбок = Pосн · h</strong><small>для прямой призмы</small></div>
+                <div class="mini"><strong>Sполн = 2Sосн + Sбок</strong><small>два основания обязательны</small></div>
+                <div class="mini"><strong>делим формулы</strong><small>для отсечений и сравнений</small></div>
+            </div>
+        </section>
+        <section class="hero-card">
+            <div class="kicker">Главная идея</div>
+            <h2>Стереометрия здесь сводится к планиметрии основания</h2>
+            <p class="lead">В прямой призме высота совпадает с боковым ребром. Значит, нужно уверенно распознавать фигуру в основании и выбирать правильную формулу площади.</p>
+            <div class="banner">МАТЕМАТИКА. НАГЛЯДНО</div>
+            <p class="note">Кликните по визуализации справа: откроется увеличенная модель. Колесо мыши меняет масштаб, перетаскивание двигает чертёж.</p>
+        </section>
+    </div>
+</header>
+
+<main class="wrap workspace">
+    <div class="content">
+        <section class="panel" id="formulas">
+            <div class="section-tag">раздел 1</div>
+            <h2>Главные формулы</h2>
+            <div class="formula-list">
+                <div class="formula" data-focus="volume"><span>Объём призмы</span><code>V = S<sub>осн</sub> · h</code></div>
+                <div class="formula" data-focus="side"><span>Боковая поверхность прямой призмы</span><code>S<sub>бок</sub> = P<sub>осн</sub> · h</code></div>
+                <div class="formula" data-focus="full"><span>Полная поверхность</span><code>S<sub>полн</sub> = 2S<sub>осн</sub> + S<sub>бок</sub></code></div>
+                <div class="formula" data-focus="height"><span>В прямой призме</span><code>h = боковое ребро</code></div>
+            </div>
+        </section>
+
+        <section class="panel" id="areas">
+            <div class="section-tag">раздел 2</div>
+            <h2>Площади оснований</h2>
+            <div class="cards">
+                <div class="card"><b>Равносторонний треугольник</b><br>S = a²√3 / 4</div>
+                <div class="card"><b>Прямоугольный треугольник</b><br>S = ab / 2</div>
+                <div class="card"><b>Квадрат</b><br>S = a² или S = d² / 2</div>
+                <div class="card"><b>Ромб</b><br>S = d₁d₂ / 2; сторона через половины диагоналей</div>
+            </div>
+            <h3>Ромб: главный нюанс</h3>
+            <p>Диагонали ромба перпендикулярны и делятся пополам, поэтому сторона ромба находится по теореме Пифагора:</p>
+            <div class="formula"><span>Сторона ромба</span><code>a = √((d₁/2)² + (d₂/2)²)</code></div>
+        </section>
+
+        <section class="panel" id="method">
+            <div class="section-tag">раздел 3</div>
+            <h2>Как решать задачи на призмы</h2>
+            <div class="steps" id="steps">
+                <div class="step" data-step="1" data-focus="base">Определить фигуру в основании.</div>
+                <div class="step" data-step="2" data-focus="baseArea">Найти площадь основания Sосн.</div>
+                <div class="step" data-step="3" data-focus="height">Найти высоту h: в прямой призме это боковое ребро.</div>
+                <div class="step" data-step="4" data-focus="volume">Подставить в нужную формулу: объём, боковая или полная поверхность.</div>
+            </div>
+            <h3>Метод деления формул</h3>
+            <p>Если по объёму нужно найти объём или по площади нужно найти площадь, записываем две формулы и делим одну на другую. Всё лишнее обычно сокращается.</p>
+            <div class="formula"><span>При общей высоте</span><code>V₁ / V₂ = S₁ / S₂</code></div>
+            <div class="formula"><span>Средняя линия треугольника</span><code>длины × 1/2, площади × 1/4</code></div>
+        </section>
+
+        <section class="panel" id="practice">
+            <div class="section-tag">раздел 4</div>
+            <h2>Интерактивная тренировка</h2>
+            <h3>Калькулятор базовой призмы</h3>
+            <div class="calc-box">
+                <label>Основание
+                    <select id="baseType">
+                        <option value="rightTriangle">прямоугольный треугольник</option>
+                        <option value="equilateral">равносторонний треугольник</option>
+                        <option value="square">квадрат</option>
+                        <option value="rhombus">ромб по диагоналям</option>
+                    </select>
+                </label>
+                <label>Что найти
+                    <select id="calcGoal">
+                        <option value="volume">объём</option>
+                        <option value="full">полную поверхность</option>
+                    </select>
+                </label>
+                <label>Параметр 1: a / d₁ / катет 1<input id="p1" type="number" min="0.1" step="0.1" value="6"></label>
+                <label>Параметр 2: b / d₂ / катет 2<input id="p2" type="number" min="0.1" step="0.1" value="8"></label>
+                <label>Высота h<input id="hInput" type="number" min="0.1" step="0.1" value="5"></label>
+                <label>Автообновление<input id="autoInfo" value="включено" disabled></label>
+            </div>
+            <div class="result" id="calcResult">Результат появится здесь.</div>
+
+            <h3>Генератор похожих задач</h3>
+            <p class="task" id="genTask"></p>
+            <button class="btn primary" id="newTask">Новая задача</button>
+            <button class="btn secondary" id="showAnswer">Показать ответ</button>
+            <div class="result" id="genAnswer" hidden></div>
+
+            <h3>Мини-квиз</h3>
+            <p class="task" id="quizQuestion"></p>
+            <div class="quiz-options" id="quizOptions"></div>
+            <button class="btn secondary" id="nextQuiz" style="margin-top:10px">Следующий вопрос</button>
+        </section>
+
+        <section class="panel" id="errors">
+            <div class="section-tag">раздел 5</div>
+            <h2>Типичные ошибки</h2>
+            <ul class="warn-list">
+                <li><b>Путают Sбок и Sполн.</b> Если сказано «площадь поверхности», обычно нужна полная площадь.</li>
+                <li><b>Забывают два основания.</b> В полной поверхности всегда есть 2Sосн.</li>
+                <li><b>Считают диагональ ромба стороной.</b> Сторону ромба ищем через половины диагоналей.</li>
+                <li><b>Не делят формулы в задачах на отсечение.</b> Из-за этого появляются лишние неизвестные.</li>
+                <li><b>Путают линейный и площадной коэффициент.</b> Если длина в 2 раза меньше, площадь в 4 раза меньше.</li>
+            </ul>
+            <div class="print-note">При печати сохраните эту страницу как PDF: Ctrl/Cmd + P.</div>
+        </section>
+    </div>
+
+    <aside class="visual-shell">
+        <div class="visual-card">
+            <div class="visual-head"><strong>Интерактивная модель</strong><button class="btn secondary" id="openModal">Увеличить</button></div>
+            <div class="mode-row" id="modelModes">
+                <button data-model="tri" class="active">Треугольная</button>
+                <button data-model="box">Куб</button>
+                <button data-model="rhombus">Ромб</button>
+                <button data-model="cut">Отсечение</button>
+            </div>
+            <div class="scene-wrap" id="sceneWrap" title="Колесо — масштаб, перетаскивание — сдвиг, клик — увеличить">
+                <svg id="scene" viewBox="0 0 420 420" role="img" aria-label="Интерактивная схема призмы"></svg>
+            </div>
+            <div class="controls">
+                <button id="zoomMinus">−</button><button id="zoomPlus">+</button><button id="resetView">Сброс</button>
+                <button id="toggleHidden" class="active">Пунктир</button>
+            </div>
+            <label>Масштаб
+                <input id="zoomRange" type="range" min="0.65" max="1.8" step="0.01" value="1">
+            </label>
+            <div class="status">
+                <div class="pill">модель: <b id="statusModel">треугольная</b></div>
+                <div class="pill">фокус: <b id="statusFocus">формулы</b></div>
+                <div class="pill">zoom: <b id="statusZoom">1.00</b></div>
+                <div class="pill">режим: <b>учебный</b></div>
+            </div>
+        </div>
+    </aside>
+</main>
+
+<footer class="footer">
+    <div class="wrap"><b>Артём Александрович Лёвин</b> эксклюзивно для Константина Ершова</div>
+</footer>
+
+<div class="modal" id="modal">
+    <div class="modal-card">
+        <div class="modal-top"><strong>Увеличенная визуализация</strong><button class="close" id="closeModal" aria-label="Закрыть">×</button></div>
+        <div class="scene-wrap" id="modalSceneWrap"><svg id="modalScene" viewBox="0 0 760 470" role="img" aria-label="Увеличенная схема призмы"></svg></div>
+    </div>
+</div>
+
+<script>
+    // Храним состояние страницы в одном объекте, чтобы визуализация и модальное окно были синхронны.
+    const state = {
+        theme: localStorage.getItem('prismTheme') || 'dark',
+        model: 'tri',
+        focus: 'formulas',
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        showHidden: true,
+        dragging: false,
+        lastX: 0,
+        lastY: 0,
+        generatedAnswer: ''
+    };
+
+    const scene = document.getElementById('scene');
+    const modalScene = document.getElementById('modalScene');
+    const statusModel = document.getElementById('statusModel');
+    const statusFocus = document.getElementById('statusFocus');
+    const statusZoom = document.getElementById('statusZoom');
+    const zoomRange = document.getElementById('zoomRange');
+
+    document.body.dataset.theme = state.theme;
+
+    function fmt(x){
+        if(Math.abs(x - Math.round(x)) < 1e-9) return String(Math.round(x));
+        return String(Math.round(x * 100) / 100).replace('.', ',');
+    }
+
+    function line(x1,y1,x2,y2,cls='edge',id=''){
+        return `<line ${id ? `data-part="${id}"` : ''} class="${cls}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
+    }
+    function poly(points,cls='face'){
+        return `<polygon class="${cls}" points="${points.map(p=>p.join(',')).join(' ')}"/>`;
+    }
+    function text(x,y,t,cls='label'){
+        return `<text class="${cls}" x="${x}" y="${y}">${t}</text>`;
+    }
+    function circle(x,y,r,cls='edge'){
+        return `<circle class="${cls}" cx="${x}" cy="${y}" r="${r}"/>`;
+    }
+
+    function transformGroup(inner, modal=false){
+        const cx = modal ? 380 : 210;
+        const cy = modal ? 235 : 210;
+        return `<g transform="translate(${cx + state.panX} ${cy + state.panY}) scale(${state.zoom}) translate(${-cx} ${-cy})">${inner}</g>`;
+    }
+
+    function renderTri(modal=false){
+        const k = modal ? 1.25 : 1;
+        const shift = modal ? 170 : 0;
+        const A=[80+shift,250*k], B=[210+shift,300*k], C=[155+shift,145*k];
+        const dx=105*k, dy=-72*k;
+        const A1=[A[0]+dx,A[1]+dy], B1=[B[0]+dx,B[1]+dy], C1=[C[0]+dx,C[1]+dy];
+        const hiddenCls = state.showHidden ? 'edge hidden' : 'edge';
+        let html='';
+        html += poly([A,B,C],'face');
+        html += poly([A1,B1,C1],'accent-face');
+        html += line(...A,...B,'edge','base'); html += line(...B,...C,'edge','base'); html += line(...C,...A,'edge','base');
+        html += line(...A1,...B1,'edge','top'); html += line(...B1,...C1,'edge','top'); html += line(...C1,...A1,'edge','top');
+        html += line(...A,...A1,'edge','height'); html += line(...B,...B1,'edge','height'); html += line(...C,...C1,hiddenCls,'height');
+        html += text(A[0]-18,A[1]+20,'A'); html += text(B[0]+8,B[1]+18,'B'); html += text(C[0]-8,C[1]-10,'C');
+        html += text(A1[0]-18,A1[1]+8,'A₁'); html += text(B1[0]+8,B1[1]+8,'B₁'); html += text(C1[0]-4,C1[1]-12,'C₁');
+        html += text((A[0]+A1[0])/2-22,(A[1]+A1[1])/2,'h');
+        html += text(42+shift,64,'V = Sосн · h');
+        return html;
+    }
+
+    function renderBox(modal=false){
+        const shift = modal ? 170 : 0;
+        const A=[95+shift,285], B=[245+shift,285], C=[245+shift,150], D=[95+shift,150];
+        const dx=70,dy=-48;
+        const A1=[A[0]+dx,A[1]+dy], B1=[B[0]+dx,B[1]+dy], C1=[C[0]+dx,C[1]+dy], D1=[D[0]+dx,D[1]+dy];
+        const hiddenCls = state.showHidden ? 'edge hidden' : 'edge';
+        let html='';
+        html += poly([A,B,C,D],'face'); html += poly([D,C,C1,D1],'accent-face'); html += poly([B,B1,C1,C],'face');
+        [ [A,B],[B,C],[C,D],[D,A],[B,B1],[B1,C1],[C1,D1],[D1,D],[C,C1] ].forEach(p=>html+=line(...p[0],...p[1],'edge','base'));
+        html += line(...A,...A1,hiddenCls,'height') + line(...A1,...B1,hiddenCls,'top') + line(...A1,...D1,hiddenCls,'top');
+        html += text(112+shift,306,'a'); html += text(285+shift,292,'b'); html += text(323+shift,205,'h');
+        html += text(42+shift,64,'Sполн = 2Sосн + Sбок');
+        return html;
+    }
+
+    function renderRhombus(modal=false){
+        const shift = modal ? 170 : 0;
+        const O=[210+shift,220], T=[210+shift,95], R=[330+shift,220], B=[210+shift,345], L=[90+shift,220];
+        let html='';
+        html += poly([T,R,B,L],'face');
+        html += line(...T,...R,'edge','base')+line(...R,...B,'edge','base')+line(...B,...L,'edge','base')+line(...L,...T,'edge','base');
+        html += line(...T,...B,'edge hidden','diag')+line(...L,...R,'edge hidden','diag');
+        html += `<path class="edge" d="M ${O[0]} ${O[1]} l 14 0 l 0 14 l -14 0 z"/>`;
+        html += text(222+shift,148,'d₁'); html += text(272+shift,207,'d₂');
+        html += text(68+shift,64,'Sромба = d₁d₂ / 2');
+        html += text(68+shift,90,'a = √((d₁/2)² + (d₂/2)²)');
+        return html;
+    }
+
+    function renderCut(modal=false){
+        const shift = modal ? 170 : 0;
+        const A=[75+shift,300], B=[285+shift,300], C=[145+shift,120];
+        const M=[(A[0]+B[0])/2,(A[1]+B[1])/2], N=[(A[0]+C[0])/2,(A[1]+C[1])/2];
+        const dx=70,dy=-50;
+        const Ap=[A[0]+dx,A[1]+dy], Mp=[M[0]+dx,M[1]+dy], Np=[N[0]+dx,N[1]+dy];
+        let html='';
+        html += poly([A,B,C],'face');
+        html += poly([A,M,N],'accent-face');
+        html += line(...A,...B,'edge','base')+line(...B,...C,'edge','base')+line(...C,...A,'edge','base');
+        html += line(...M,...N,'edge hl','midline');
+        html += line(...A,...Ap,'edge','height')+line(...M,...Mp,'edge','height')+line(...N,...Np,'edge','height');
+        html += line(...Ap,...Mp,'edge','top')+line(...Mp,...Np,'edge','top')+line(...Np,...Ap,'edge','top');
+        html += text(M[0]+8,M[1]-6,'M'); html += text(N[0]-24,N[1]-8,'N');
+        html += text(52+shift,64,'средняя линия: ×1/2');
+        html += text(52+shift,90,'площадь основания: ×1/4');
+        return html;
+    }
+
+    function applyFocus(svgEl){
+        svgEl.querySelectorAll('[data-part]').forEach(el=>el.classList.remove('hl'));
+        const map = {
+            base:['base','diag','midline'], baseArea:['base','diag'], height:['height'], volume:['base','height'], side:['base','height'], full:['base','height'], formulas:['base','height']
+        };
+        (map[state.focus] || []).forEach(part=> svgEl.querySelectorAll(`[data-part="${part}"]`).forEach(el=>el.classList.add('hl')));
+    }
+
+    function renderAll(){
+        const render = {tri:renderTri, box:renderBox, rhombus:renderRhombus, cut:renderCut}[state.model];
+        scene.innerHTML = transformGroup(render(false), false);
+        modalScene.innerHTML = transformGroup(render(true), true);
+        applyFocus(scene); applyFocus(modalScene);
+        statusModel.textContent = {tri:'треугольная',box:'куб',rhombus:'ромб',cut:'отсечение'}[state.model];
+        statusFocus.textContent = {formulas:'формулы',base:'основание',baseArea:'площадь основания',height:'высота',volume:'объём',side:'боковая',full:'полная'}[state.focus] || state.focus;
+        statusZoom.textContent = state.zoom.toFixed(2);
+        zoomRange.value = state.zoom;
+    }
+
+    document.querySelectorAll('#modelModes button').forEach(btn=>btn.addEventListener('click',()=>{
+        document.querySelectorAll('#modelModes button').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active'); state.model = btn.dataset.model; renderAll();
+    }));
+    document.querySelectorAll('[data-focus]').forEach(el=>el.addEventListener('mouseenter',()=>{state.focus=el.dataset.focus; renderAll();}));
+    document.querySelectorAll('.step').forEach(el=>el.addEventListener('click',()=>{
+        document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+        el.classList.add('active'); state.focus=el.dataset.focus; renderAll();
+    }));
+
+    function setZoom(z){state.zoom=Math.min(1.8,Math.max(.65,z));renderAll();}
+    document.getElementById('zoomPlus').onclick=()=>setZoom(state.zoom+.1);
+    document.getElementById('zoomMinus').onclick=()=>setZoom(state.zoom-.1);
+    document.getElementById('resetView').onclick=()=>{state.zoom=1;state.panX=0;state.panY=0;renderAll();};
+    document.getElementById('toggleHidden').onclick=(e)=>{state.showHidden=!state.showHidden;e.currentTarget.classList.toggle('active',state.showHidden);renderAll();};
+    zoomRange.addEventListener('input',e=>setZoom(+e.target.value));
+
+    function bindPan(wrap){
+        wrap.addEventListener('wheel',e=>{e.preventDefault();setZoom(state.zoom + (e.deltaY<0 ? .06 : -.06));},{passive:false});
+        wrap.addEventListener('pointerdown',e=>{state.dragging=true;state.lastX=e.clientX;state.lastY=e.clientY;wrap.setPointerCapture(e.pointerId);});
+        wrap.addEventListener('pointermove',e=>{if(!state.dragging)return;state.panX += e.clientX-state.lastX;state.panY += e.clientY-state.lastY;state.lastX=e.clientX;state.lastY=e.clientY;renderAll();});
+        wrap.addEventListener('pointerup',()=>state.dragging=false);
+    }
+    bindPan(document.getElementById('sceneWrap'));
+    bindPan(document.getElementById('modalSceneWrap'));
+
+    const modal=document.getElementById('modal');
+    document.getElementById('openModal').onclick=()=>modal.classList.add('open');
+    document.getElementById('sceneWrap').addEventListener('dblclick',()=>modal.classList.add('open'));
+    document.getElementById('closeModal').onclick=()=>modal.classList.remove('open');
+    modal.addEventListener('click',e=>{if(e.target===modal) modal.classList.remove('open');});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape') modal.classList.remove('open');});
+
+    document.getElementById('themeBtn').onclick=()=>{
+        state.theme = state.theme === 'dark' ? 'light' : 'dark';
+        document.body.dataset.theme = state.theme;
+        localStorage.setItem('prismTheme',state.theme);
+        renderAll();
+    };
+
+    document.querySelectorAll('#nav button').forEach(btn=>btn.addEventListener('click',()=>{
+        document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.target).scrollIntoView({behavior:'smooth',block:'start'});
+    }));
+
+    function baseArea(type,p1,p2){
+        if(type==='rightTriangle') return p1*p2/2;
+        if(type==='equilateral') return p1*p1*Math.sqrt(3)/4;
+        if(type==='square') return p1*p1;
+        if(type==='rhombus') return p1*p2/2;
+        return 0;
+    }
+    function perimeter(type,p1,p2){
+        if(type==='rightTriangle') return p1+p2+Math.sqrt(p1*p1+p2*p2);
+        if(type==='equilateral') return 3*p1;
+        if(type==='square') return 4*p1;
+        if(type==='rhombus') return 4*Math.sqrt((p1/2)**2+(p2/2)**2);
+        return 0;
+    }
+    function calc(){
+        const type=baseType.value, goal=calcGoal.value, p1=+document.getElementById('p1').value, p2=+document.getElementById('p2').value, h=+document.getElementById('hInput').value;
+        const s=baseArea(type,p1,p2), p=perimeter(type,p1,p2), v=s*h, full=2*s+p*h;
+        const name={rightTriangle:'прямоугольный треугольник',equilateral:'равносторонний треугольник',square:'квадрат',rhombus:'ромб'}[type];
+        calcResult.innerHTML = goal==='volume'
+        ? `Основание: ${name}. Sосн = <b>${fmt(s)}</b>. Объём: V = Sосн · h = <b>${fmt(v)}</b>.`
+        : `Основание: ${name}. Sосн = <b>${fmt(s)}</b>, Pосн = <b>${fmt(p)}</b>. Sполн = 2Sосн + Pосн·h = <b>${fmt(full)}</b>.`;
+    }
+    ['baseType','calcGoal','p1','p2','hInput'].forEach(id=>document.getElementById(id).addEventListener('input',calc));
+
+    const taskBank = [
+        ()=>{const a=3+Math.floor(Math.random()*6), b=4+Math.floor(Math.random()*7), h=2+Math.floor(Math.random()*8); return {q:`Основание прямой призмы — прямоугольный треугольник с катетами ${a} и ${b}. Высота ${h}. Найдите объём.`, a:fmt(a*b/2*h)}},
+        ()=>{const d1=6, d2=8, h=4+Math.floor(Math.random()*8); const s=d1*d2/2; const side=Math.sqrt((d1/2)**2+(d2/2)**2); return {q:`В основании прямой призмы ромб с диагоналями ${d1} и ${d2}. Боковое ребро ${h}. Найдите полную поверхность.`, a:fmt(2*s+4*side*h)}},
+        ()=>{const v=6*(1+Math.floor(Math.random()*5)); return {q:`Объём призмы равен ${v}. Сторону основания увеличили в 3 раза, высоту уменьшили в 2 раза. Найдите новый объём.`, a:fmt(v*9/2)}},
+        ()=>{const s=12*(1+Math.floor(Math.random()*5)); return {q:`Через среднюю линию основания треугольной призмы проведена плоскость, параллельная боковому ребру. Sбок исходной призмы = ${s}. Найдите Sбок отсечённой призмы.`, a:fmt(s/2)}}
+    ];
+    function newGenerated(){
+        const item = taskBank[Math.floor(Math.random()*taskBank.length)]();
+        genTask.textContent = item.q;
+        state.generatedAnswer = item.a;
+        genAnswer.hidden=true;
+        genAnswer.textContent='';
+    }
+    document.getElementById('newTask').onclick=newGenerated;
+    document.getElementById('showAnswer').onclick=()=>{genAnswer.hidden=false;genAnswer.innerHTML=`Ответ: <b>${state.generatedAnswer}</b>`;};
+
+    const quiz = [
+        {q:'Какая формула задаёт объём призмы?', opts:['V = Sосн · h','V = Pосн · h','V = 2Sосн + Sбок'], ok:0},
+        {q:'Если средняя линия в 2 раза меньше стороны, во сколько раз меньше площадь подобного треугольника?', opts:['в 2 раза','в 4 раза','в 8 раз'], ok:1},
+        {q:'Что обычно означает «площадь поверхности призмы» без уточнения?', opts:['только боковую','только одно основание','полную поверхность'], ok:2},
+        {q:'Как найти площадь ромба по диагоналям?', opts:['d₁d₂ / 2','d₁ + d₂','4a'], ok:0}
+    ];
+    let quizIndex=0;
+    function renderQuiz(){
+        const item=quiz[quizIndex%quiz.length];
+        quizQuestion.textContent=item.q;
+        quizOptions.innerHTML='';
+        item.opts.forEach((o,i)=>{
+            const b=document.createElement('button');
+            b.textContent=o;
+            b.onclick=()=>{document.querySelectorAll('#quizOptions button').forEach(x=>x.disabled=true); b.classList.add(i===item.ok?'correct':'wrong'); if(i!==item.ok) quizOptions.children[item.ok].classList.add('correct');};
+            quizOptions.appendChild(b);
+        });
+    }
+    document.getElementById('nextQuiz').onclick=()=>{quizIndex++;renderQuiz();};
+
+    calc(); newGenerated(); renderQuiz(); renderAll();
+</script>
+</body>
+</html>
