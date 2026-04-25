@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Тригонометрия: сложные уравнения — интерактивное пособие</title>
+    <style>
+        :root{
+            --bg:#f4f4f0; --paper:#fffaf0; --ink:#141414; --muted:#55524a; --red:#d7332f; --blue:#1f6feb; --green:#197b55; --yellow:#f2c94c; --shadow:#141414; --line:#141414; --soft:#ece7dc;
+            --card:#fff7e8; --accent:#d7332f; --ok:#12824c; --bad:#b91c1c;
+        }
+        [data-theme="dark"]{
+            --bg:#171717; --paper:#22201d; --ink:#f6f1e8; --muted:#c6bfb4; --red:#ff625d; --blue:#79a7ff; --green:#5ee0a1; --yellow:#ffd75a; --shadow:#000; --line:#f6f1e8; --soft:#2f2b27; --card:#26231f; --accent:#ff625d; --ok:#6ee7b7; --bad:#fb7185;
+        }
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial, Helvetica, sans-serif;line-height:1.55;background-image:radial-gradient(rgba(0,0,0,.045) 1px, transparent 1px);background-size:18px 18px}
+        a{color:inherit}
+        .wrap{max-width:1220px;margin:0 auto;padding:18px}
+        .topbar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:2px solid var(--line);box-shadow:0 4px 0 var(--shadow)}
+        .nav{display:flex;gap:8px;align-items:center;justify-content:space-between;max-width:1220px;margin:0 auto;padding:10px 18px;flex-wrap:wrap}
+        .brand{font-weight:900;text-transform:uppercase;letter-spacing:.06em}.navlinks{display:flex;gap:8px;flex-wrap:wrap}.btn,.chip,button{border:2px solid var(--line);background:var(--paper);color:var(--ink);box-shadow:4px 4px 0 var(--shadow);padding:9px 12px;font-weight:800;cursor:pointer;text-decoration:none;transition:.12s transform,.12s box-shadow}.btn:hover,button:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--shadow)}.btn.active{background:var(--yellow)}
+        .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:stretch;margin-top:20px}.heroBox{border:2px solid var(--line);background:var(--paper);box-shadow:8px 8px 0 var(--shadow);padding:26px}.kicker{display:inline-block;background:var(--ink);color:var(--bg);padding:6px 10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}.h1{font-size:clamp(38px,7vw,82px);line-height:.92;margin:0;text-transform:uppercase;letter-spacing:-.05em}.h1 span{color:var(--red)}.subtitle{font-size:clamp(18px,2.2vw,25px);color:var(--muted);font-weight:700;margin:16px 0 0}.banner{margin:18px 0;background:var(--ink);color:var(--bg);padding:14px 18px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;border:2px solid var(--line)}
+        .grid{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:18px;align-items:start}.left,.right{min-width:0}.sticky{position:sticky;top:86px}.card{border:2px solid var(--line);background:var(--card);box-shadow:6px 6px 0 var(--shadow);padding:18px;margin-bottom:18px}.card h2,.card h3{margin:0 0 10px;text-transform:uppercase;line-height:1.05}.card h2{font-size:30px}.card h3{font-size:22px;color:var(--red)}.step{border:2px solid var(--line);background:var(--paper);padding:14px;margin:12px 0}.step[data-active="true"]{outline:4px solid var(--yellow)}.tag{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--line);background:var(--soft);padding:4px 8px;font-weight:800;margin:3px}.formula{font-family:"Courier New",monospace;font-weight:700;background:var(--soft);border:2px solid var(--line);padding:10px;overflow:auto;white-space:nowrap}.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}.mini{font-size:14px;color:var(--muted)}.warn{border-left:8px solid var(--red)}.ok{border-left:8px solid var(--green)}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.tab{background:var(--paper)}.tab.active{background:var(--yellow)}
+        .viz{border:2px solid var(--line);background:var(--paper);box-shadow:6px 6px 0 var(--shadow);padding:14px}.vizHead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.vizTitle{font-weight:900;text-transform:uppercase}.canvasWrap{border:2px solid var(--line);background:linear-gradient(135deg,var(--paper),var(--soft));height:390px;position:relative;overflow:hidden;cursor:grab}.canvasWrap:active{cursor:grabbing}canvas{width:100%;height:100%;display:block}.controls{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin-top:10px}.controls input{width:100%}.smallBtn{padding:7px 9px}.legend{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.dot{width:12px;height:12px;border:2px solid var(--line);display:inline-block;vertical-align:middle;margin-right:5px}.dot.red{background:var(--red)}.dot.blue{background:var(--blue)}.dot.green{background:var(--green)}.dot.yellow{background:var(--yellow)}
+        .exercise{display:grid;gap:10px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.input{border:2px solid var(--line);background:var(--paper);color:var(--ink);padding:10px;font-weight:800;min-width:120px}.select{border:2px solid var(--line);background:var(--paper);color:var(--ink);padding:10px;font-weight:800}.result{font-weight:900;min-height:28px}.answer{display:none;border:2px dashed var(--line);padding:10px;background:var(--soft)}.answer.show{display:block}.quizItem{border:2px solid var(--line);padding:12px;background:var(--paper);margin:10px 0}.quizChoices{display:grid;gap:8px;margin-top:8px}.choice{width:100%;text-align:left}.choice.good{background:#c7f9cc;color:#0a3b1d}.choice.bad{background:#ffd6d6;color:#5f0f0f}
+        .modal{position:fixed;inset:0;background:rgba(0,0,0,.68);z-index:99;display:none;align-items:center;justify-content:center;padding:18px}.modal.open{display:flex}.modalInner{width:min(1100px,96vw);height:min(760px,88vh);background:var(--paper);border:2px solid var(--line);box-shadow:8px 8px 0 #000;padding:14px;display:grid;grid-template-rows:auto 1fr auto;gap:10px}.modalCanvas{height:100%;min-height:0}.close{justify-self:end}.footer{margin-top:28px;border-top:2px solid var(--line);padding:20px 0 32px;font-weight:900;text-align:center;color:var(--red);text-transform:uppercase;letter-spacing:.06em}
+        .printNote{display:none}
+        @media(max-width:980px){.hero,.grid{grid-template-columns:1fr}.sticky{position:static}.canvasWrap{height:330px}.navlinks{width:100%}.btn{flex:1;text-align:center}}
+        @media(max-width:560px){.wrap{padding:12px}.heroBox,.card,.viz{padding:13px}.cols{grid-template-columns:1fr}.h1{font-size:42px}.canvasWrap{height:300px}.controls{grid-template-columns:1fr 1fr 1fr}.nav{padding:8px 12px}.btn{font-size:13px;padding:8px}}
+        @media print{.topbar,.controls,.tabs,.modal,.quizChoices,.btn,button{display:none!important}body{background:#fff;color:#000}.wrap{max-width:none}.hero,.grid{display:block}.card,.heroBox,.viz{box-shadow:none;break-inside:avoid;background:#fff}.canvasWrap{height:280px}.printNote{display:block}.footer{color:#000}}
+    </style>
+</head>
+<body data-theme="light">
+<header class="topbar">
+    <nav class="nav">
+        <div class="brand">Тригонометрия · чек-лист</div>
+        <div class="navlinks">
+            <a class="btn" href="#theory">Теория</a>
+            <a class="btn" href="#algorithm">Алгоритм</a>
+            <a class="btn" href="#trainer">Тренажёр</a>
+            <a class="btn" href="#quiz">Квиз</a>
+            <button id="themeBtn" class="smallBtn">LIGHT / DARK</button>
+        </div>
+    </nav>
+</header>
+
+<main class="wrap">
+    <section class="hero">
+        <div class="heroBox">
+            <div class="kicker">Интерактивное web-пособие</div>
+            <h1 class="h1"><span>Тригонометрия</span><br>сложные уравнения</h1>
+            <p class="subtitle">Как приводить углы, раскладывать на множители, делать замену, учитывать ограничения и отбирать корни на промежутке.</p>
+        </div>
+        <div class="heroBox">
+            <h2 style="margin-top:0;text-transform:uppercase">Карта занятия</h2>
+            <p><span class="tag">формулы сложения</span><span class="tag">двойной угол</span><span class="tag">замена</span><span class="tag">ОДЗ</span><span class="tag">отбор корней</span></p>
+            <div class="formula">sin 2x = 2 sin x cos x<br>cos 2x = 1 − 2sin²x = 2cos²x − 1<br>sin²x + cos²x = 1</div>
+        </div>
+    </section>
+
+    <div class="banner">Сначала приводим выражение к понятному виду — только потом решаем.</div>
+
+    <section class="grid">
+        <div class="left">
+            <article class="card" id="theory">
+                <h2>1. Главная идея</h2>
+                <p>В сложных тригонометрических уравнениях редко достаточно «узнать формулу». Нужно последовательно привести уравнение к простым ветвям.</p>
+                <div class="cols">
+                    <div class="step" data-step="angle"><h3>Углы</h3><p>Если есть <b>2x</b> и <b>x</b>, обычно уходим от большего аргумента к меньшему через формулы двойного угла.</p></div>
+                    <div class="step" data-step="factor"><h3>Множители</h3><p>Если получили произведение, не делим на переменную, а раскладываем на ветви: <span class="formula">A(x)B(x)=0</span></p></div>
+                </div>
+            </article>
+
+            <article class="card">
+                <h2>2. Базовые формулы</h2>
+                <div class="step" data-step="formulas"><h3>Двойной угол</h3><div class="formula">sin 2x = 2 sin x cos x<br>cos 2x = 1 − 2sin²x = 2cos²x − 1</div></div>
+                <div class="step" data-step="identity"><h3>Основное тождество</h3><div class="formula">sin²x + cos²x = 1</div><p>Используем, когда надо заменить квадрат одной функции через другую.</p></div>
+                <div class="step" data-step="sum"><h3>Формула сложения</h3><div class="formula">cos(a+b)=cos a cos b − sin a sin b</div><p>Например, <b>cos(2x+3π/2)=sin 2x</b>.</p></div>
+            </article>
+
+            <article class="card" id="algorithm">
+                <h2>3. Алгоритм решения</h2>
+                <div class="tabs" id="stepTabs">
+                    <button class="tab active" data-tab="0">1</button><button class="tab" data-tab="1">2</button><button class="tab" data-tab="2">3</button><button class="tab" data-tab="3">4</button><button class="tab" data-tab="4">5</button>
+                </div>
+                <div id="algoText" class="step ok"></div>
+            </article>
+
+            <article class="card warn">
+                <h2>4. Что нельзя терять</h2>
+                <ul>
+                    <li><b>Не делим</b> на sin x, cos x и другие выражения с переменной без проверки.</li>
+                    <li>При замене <b>t = sin x</b> или <b>t = cos x</b> обязательно: <b>t ∈ [−1; 1]</b>.</li>
+                    <li>Для логарифма всегда проверяем: <b>аргумент &gt; 0</b>.</li>
+                    <li>При отборе корней <b>n — не ответ</b>. Ответ — это значение x после подстановки n.</li>
+                </ul>
+            </article>
+
+            <article class="card" id="trainer">
+                <h2>5. Тренажёр</h2>
+                <p>Сгенерируйте задачу, решите её на бумаге, затем откройте ответ. Визуализация справа обновится под задачу.</p>
+                <div class="exercise">
+                    <div class="row">
+                        <label>Тип:</label>
+                        <select id="taskType" class="select">
+                            <option value="basic">Простейшее уравнение</option>
+                            <option value="double">Двойной угол</option>
+                            <option value="interval">Отбор корней</option>
+                            <option value="log">Логарифм + тригонометрия</option>
+                        </select>
+                        <button id="genTask">Сгенерировать</button>
+                        <button id="showAnswer">Показать ответ</button>
+                    </div>
+                    <div id="taskBox" class="step"></div>
+                    <div id="answerBox" class="answer"></div>
+                </div>
+            </article>
+
+            <article class="card" id="quiz">
+                <h2>6. Самопроверка</h2>
+                <div id="quizBox"></div>
+                <button id="resetQuiz">Сбросить квиз</button>
+            </article>
+
+            <article class="card">
+                <h2>7. Памятка перед экзаменом</h2>
+                <ol>
+                    <li>Проверьте ОДЗ до активных преобразований.</li>
+                    <li>Сведите разные аргументы к одному, если это возможно.</li>
+                    <li>Выносите общий множитель, но не сокращайте опасные множители.</li>
+                    <li>После замены проверьте, подходит ли найденное t.</li>
+                    <li>При отборе корней работайте через двойное неравенство.</li>
+                </ol>
+            </article>
+        </div>
+
+        <aside class="right sticky">
+            <section class="viz">
+                <div class="vizHead"><div class="vizTitle">Интерактивная модель</div><button id="openModal" class="smallBtn">Увеличить</button></div>
+                <div class="canvasWrap" id="canvasWrap"><canvas id="scene"></canvas></div>
+                <div class="controls">
+                    <input id="zoom" type="range" min="0.65" max="2.2" value="1" step="0.01" />
+                    <button id="minus" class="smallBtn">−</button>
+                    <button id="plus" class="smallBtn">+</button>
+                    <button id="resetView" class="smallBtn">Сброс</button>
+                    <button id="toggleGraph" class="smallBtn">График</button>
+                    <button id="toggleCircle" class="smallBtn">Окружность</button>
+                </div>
+                <div class="legend">
+                    <span class="tag"><span class="dot red"></span>активный угол</span>
+                    <span class="tag"><span class="dot blue"></span>cos x</span>
+                    <span class="tag"><span class="dot green"></span>sin x</span>
+                </div>
+                <p class="mini">Колесо мыши — zoom, перетаскивание — pan. Клик по схеме открывает крупный режим.</p>
+            </section>
+        </aside>
+    </section>
+
+    <div class="footer">МАТЕМАТИКА. НАГЛЯДНО · Артём Александрович Лёвин эксклюзивно для Николь</div>
+</main>
+
+<div class="modal" id="modal">
+    <div class="modalInner">
+        <button id="closeModal" class="close">Закрыть ×</button>
+        <div class="canvasWrap modalCanvas"><canvas id="sceneModal"></canvas></div>
+        <div class="controls">
+            <input id="zoomModal" type="range" min="0.65" max="2.2" value="1" step="0.01" />
+            <button id="modalMinus" class="smallBtn">−</button>
+            <button id="modalPlus" class="smallBtn">+</button>
+            <button id="modalReset" class="smallBtn">Сброс</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Простое состояние: здесь храним всё, что меняется на странице.
+    const state = {
+        theme: localStorage.getItem('trig-theme') || 'light',
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        angle: Math.PI/6,
+        showGraph: true,
+        showCircle: true,
+        activeStep: 'angle',
+        currentTask: null
+    };
+
+    document.body.dataset.theme = state.theme;
+
+    const $ = (id) => document.getElementById(id);
+    const canvases = [$('scene'), $('sceneModal')];
+
+    // Рисуем чёткую линию с учётом масштаба экрана.
+    function setupCanvas(canvas){
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.max(1, Math.floor(rect.width*dpr));
+        canvas.height = Math.max(1, Math.floor(rect.height*dpr));
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr,0,0,dpr,0,0);
+        return {ctx,w:rect.width,h:rect.height};
+    }
+
+    function css(name){ return getComputedStyle(document.body).getPropertyValue(name).trim(); }
+
+    // Главная визуализация: единичная окружность и график синуса.
+    function draw(canvas){
+        const {ctx,w,h} = setupCanvas(canvas);
+        ctx.clearRect(0,0,w,h);
+        ctx.save();
+        ctx.translate(w/2 + state.panX, h/2 + state.panY);
+        ctx.scale(state.zoom,state.zoom);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = css('--line');
+        ctx.fillStyle = css('--ink');
+        ctx.font = '700 15px Arial';
+
+        const R = Math.min(w,h)*0.23;
+        if(state.showCircle){
+            ctx.beginPath(); ctx.arc(-R*0.55,0,R,0,Math.PI*2); ctx.stroke();
+            // Оси для окружности.
+            ctx.beginPath(); ctx.moveTo(-R*1.8,0); ctx.lineTo(R*.75,0); ctx.moveTo(-R*.55,-R*1.25); ctx.lineTo(-R*.55,R*1.25); ctx.stroke();
+            const cx = -R*0.55, cy = 0;
+            const px = cx + R*Math.cos(state.angle), py = cy - R*Math.sin(state.angle);
+            // Радиус.
+            ctx.strokeStyle = css('--red'); ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke();
+            // Проекции.
+            ctx.setLineDash([7,5]); ctx.strokeStyle = css('--blue'); ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,cy); ctx.stroke();
+            ctx.strokeStyle = css('--green'); ctx.beginPath(); ctx.moveTo(px,cy); ctx.lineTo(px,py); ctx.stroke(); ctx.setLineDash([]);
+            // Точка.
+            ctx.fillStyle = css('--red'); ctx.beginPath(); ctx.arc(px,py,6,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle = css('--ink'); ctx.fillText('cos x', (cx+px)/2-18, cy+22); ctx.fillText('sin x', px+10, (cy+py)/2); ctx.fillText('x', cx+28, cy-10);
+        }
+
+        if(state.showGraph){
+            const gx = R*1.1, gy = R*.85, gw = R*2.6, gh = R*1.15;
+            ctx.strokeStyle = css('--line'); ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(gx,gy); ctx.lineTo(gx+gw,gy); ctx.moveTo(gx,gy-gh); ctx.lineTo(gx,gy+gh); ctx.stroke();
+            ctx.fillStyle = css('--ink'); ctx.fillText('y=sin x', gx+12, gy-gh-10);
+            ctx.strokeStyle = css('--red'); ctx.lineWidth = 3; ctx.beginPath();
+            for(let i=0;i<=240;i++){
+                const t = i/240*Math.PI*2;
+                const x = gx + t/(Math.PI*2)*gw;
+                const y = gy - Math.sin(t)*gh*.75;
+                if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+            }
+            ctx.stroke();
+            const tx = gx + ((state.angle%(Math.PI*2)+Math.PI*2)%(Math.PI*2))/(Math.PI*2)*gw;
+            const ty = gy - Math.sin(state.angle)*gh*.75;
+            ctx.fillStyle = css('--red'); ctx.beginPath(); ctx.arc(tx,ty,6,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle = css('--ink'); ctx.fillText('0', gx-5, gy+18); ctx.fillText('2π', gx+gw-16, gy+18);
+        }
+        ctx.restore();
+    }
+
+    function redraw(){ canvases.forEach(c => { if(c.offsetParent !== null || c.id === 'scene') draw(c); }); $('zoom').value = state.zoom; $('zoomModal').value = state.zoom; }
+
+    function setAngle(a){ state.angle = a; redraw(); }
+
+    const algos = [
+        ['Проверить ОДЗ', 'Логарифм требует аргумент > 0; при замене через sin или cos не забываем промежуток [−1; 1].'],
+        ['Привести углы', 'Если есть 2x и x, используем формулы двойного угла. Если есть сумма углов, раскрываем формулу сложения.'],
+        ['Разложить или заменить', 'Произведение даёт ветви. Повторяющийся элемент даёт замену: t = sin x, t = cos x или t = logₐ f(x).'],
+        ['Решить простые уравнения', 'Используем окружность, табличные значения и общие формулы корней.'],
+        ['Отобрать корни', 'Подставляем серию в двойное неравенство. Найденное n не является ответом: его нужно вернуть в x.']
+    ];
+
+    function renderAlgo(i=0){
+        const box = $('algoText');
+        box.innerHTML = `<h3>${algos[i][0]}</h3><p>${algos[i][1]}</p>`;
+        document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active', Number(b.dataset.tab)===i));
+        const steps = ['angle','sum','factor','formulas','identity'];
+        state.activeStep = steps[i] || 'angle';
+        document.querySelectorAll('.step[data-step]').forEach(el=>el.dataset.active = el.dataset.step === state.activeStep);
+    }
+
+    document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>renderAlgo(Number(b.dataset.tab))));
+    renderAlgo(0);
+
+    $('themeBtn').onclick = () => { state.theme = state.theme === 'light' ? 'dark' : 'light'; localStorage.setItem('trig-theme', state.theme); document.body.dataset.theme = state.theme; redraw(); };
+    $('zoom').oninput = e => { state.zoom = Number(e.target.value); redraw(); };
+    $('zoomModal').oninput = e => { state.zoom = Number(e.target.value); redraw(); };
+    $('plus').onclick = $('modalPlus').onclick = () => { state.zoom = Math.min(2.2, state.zoom + .1); redraw(); };
+    $('minus').onclick = $('modalMinus').onclick = () => { state.zoom = Math.max(.65, state.zoom - .1); redraw(); };
+    $('resetView').onclick = $('modalReset').onclick = () => { state.zoom=1; state.panX=0; state.panY=0; redraw(); };
+    $('toggleGraph').onclick = () => { state.showGraph=!state.showGraph; redraw(); };
+    $('toggleCircle').onclick = () => { state.showCircle=!state.showCircle; redraw(); };
+
+    function addPanZoom(canvas){
+        let drag=false, sx=0, sy=0, px=0, py=0;
+        canvas.parentElement.addEventListener('wheel', e=>{ e.preventDefault(); state.zoom = Math.min(2.2, Math.max(.65, state.zoom + (e.deltaY<0 ? .08 : -.08))); redraw(); }, {passive:false});
+        canvas.parentElement.addEventListener('pointerdown', e=>{ drag=true; sx=e.clientX; sy=e.clientY; px=state.panX; py=state.panY; canvas.parentElement.setPointerCapture(e.pointerId); });
+        canvas.parentElement.addEventListener('pointermove', e=>{ if(!drag) return; state.panX = px + e.clientX - sx; state.panY = py + e.clientY - sy; redraw(); });
+        canvas.parentElement.addEventListener('pointerup', ()=>drag=false);
+    }
+    canvases.forEach(addPanZoom);
+
+    $('openModal').onclick = () => { $('modal').classList.add('open'); setTimeout(redraw,30); };
+    $('canvasWrap').onclick = (e) => { if(e.detail === 1 && Math.abs(state.panX) < 9999){ $('modal').classList.add('open'); setTimeout(redraw,30); } };
+    $('closeModal').onclick = () => $('modal').classList.remove('open');
+    $('modal').addEventListener('click', e => { if(e.target === $('modal')) $('modal').classList.remove('open'); });
+    window.addEventListener('keydown', e => { if(e.key === 'Escape') $('modal').classList.remove('open'); });
+
+    const taskData = {
+        basic: [
+            {q:'Решите: cos x = √3 / 2', a:'x = ±π/6 + 2πn, n ∈ Z', angle:Math.PI/6},
+            {q:'Решите: sin x = √3 / 2', a:'x = π/3 + 2πn или x = 2π/3 + 2πn, n ∈ Z', angle:Math.PI/3},
+            {q:'Решите: cos x = 0', a:'x = π/2 + πn, n ∈ Z', angle:Math.PI/2}
+        ],
+        double: [
+            {q:'Решите: 2sin x cos x = 1', a:'sin 2x = 1, поэтому 2x = π/2 + 2πn, x = π/4 + πn, n ∈ Z', angle:Math.PI/4},
+            {q:'Решите: cos(2x + 3π/2) = sin 2x', a:'Так как cos(2x+3π/2)=sin2x, верно при любом x. Ответ: x ∈ R.', angle:Math.PI/6},
+            {q:'Решите: cos x · cos(π/2+x) + 1/2 = 0', a:'cos(π/2+x)=-sin x, значит −sin x cos x + 1/2=0; sin2x=1; x=π/4+πn.', angle:Math.PI/4}
+        ],
+        interval: [
+            {q:'Отберите корни sin x = √3/2 на [−5π/2; −π/2]', a:'x = −7π/3, −5π/3, −4π/3, −2π/3.', angle:-2*Math.PI/3},
+            {q:'Отберите корни cos x = 0 на [−3π; −π/2]', a:'x = −5π/2, −3π/2, −π/2.', angle:-Math.PI/2},
+            {q:'Отберите корни cos x = √3/2 на [−2π; 0]', a:'x = −11π/6, −π/6.', angle:-Math.PI/6}
+        ],
+        log: [
+            {q:'Решите: log₄(cos 2x) = −1/2', a:'ОДЗ: cos2x>0. cos2x=4^(−1/2)=1/2. Тогда 2x=±π/3+2πn, x=±π/6+πn.', angle:Math.PI/6},
+            {q:'Преобразуйте: log_{4^(−2)}(cos2x)', a:'log_{4^(−2)}(cos2x)=−1/2 · log₄(cos2x). Степень основания выходит в знаменатель.', angle:Math.PI/6},
+            {q:'Какое ОДЗ у log₄(cos2x)?', a:'cos2x > 0.', angle:0}
+        ]
+    };
+
+    function genTask(){
+        const type = $('taskType').value;
+        const arr = taskData[type];
+        const item = arr[Math.floor(Math.random()*arr.length)];
+        state.currentTask = item;
+        $('taskBox').innerHTML = `<h3>Задача</h3><p class="formula">${item.q}</p>`;
+        $('answerBox').classList.remove('show');
+        $('answerBox').innerHTML = `<b>Ответ:</b> ${item.a}`;
+        setAngle(item.angle);
+    }
+    $('genTask').onclick = genTask;
+    $('showAnswer').onclick = () => $('answerBox').classList.toggle('show');
+    genTask();
+
+    const quiz = [
+        {q:'Можно ли делить уравнение на sin x без проверки?', choices:['Да, всегда можно','Нет, можно потерять корни','Можно только в логарифмах'], good:1},
+        {q:'Если t = cos x, какое ограничение обязательно?', choices:['t > 0','t ∈ [−1; 1]','t ≠ 1'], good:1},
+        {q:'Что означает cos x = 0?', choices:['x = πn','x = π/2 + πn','x = 2πn'], good:1},
+        {q:'Что нужно для log₄(cos 2x)?', choices:['cos 2x > 0','cos 2x ≥ 0','cos 2x ≠ 1'], good:0}
+    ];
+    function renderQuiz(){
+        $('quizBox').innerHTML = quiz.map((item,i)=>`<div class="quizItem"><b>${i+1}. ${item.q}</b><div class="quizChoices">${item.choices.map((c,j)=>`<button class="choice" data-i="${i}" data-j="${j}">${c}</button>`).join('')}</div></div>`).join('');
+        document.querySelectorAll('.choice').forEach(btn=>btn.onclick = () => {
+            const item = quiz[Number(btn.dataset.i)];
+            const good = Number(btn.dataset.j) === item.good;
+            btn.classList.add(good ? 'good' : 'bad');
+            btn.textContent += good ? ' ✓' : ' ✗';
+        });
+    }
+    $('resetQuiz').onclick = renderQuiz;
+    renderQuiz();
+
+    window.addEventListener('resize', redraw);
+    redraw();
+</script>
+</body>
+</html>
