@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Интерактивное пособие: параллельные, перпендикулярные, проценты и дроби</title>
+    <style>
+        :root{
+            --bg:#F4F4F0; --paper:#FFFDF4; --ink:#111; --muted:#4F4A42;
+            --accent:#C63D2F; --teal:#008080; --yellow:#F2C94C; --soft:#ECE8DD;
+            --shadow:#111; --ok:#177245; --bad:#A62922; --panel:#FFF8E4;
+        }
+        [data-theme="dark"]{
+            --bg:#151515; --paper:#202020; --ink:#F4F4F0; --muted:#C8C0B5;
+            --accent:#FF6D5F; --teal:#63D2D2; --yellow:#FFD866; --soft:#303030;
+            --shadow:#000; --ok:#6BDD9A; --bad:#FF928A; --panel:#262626;
+        }
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif;line-height:1.55}
+        body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.16;background-image:radial-gradient(circle at 25% 20%,rgba(0,0,0,.12) 0 1px,transparent 1.8px),linear-gradient(90deg,rgba(0,0,0,.04) 1px,transparent 1px),linear-gradient(0deg,rgba(0,0,0,.04) 1px,transparent 1px);background-size:31px 31px,48px 48px,48px 48px}
+        .wrap{width:min(1180px,calc(100% - 28px));margin:0 auto}
+        .topbar{position:sticky;top:0;z-index:60;background:var(--paper);border-bottom:2px solid var(--ink);box-shadow:0 4px 0 var(--shadow)}
+        .topbar-inner{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:10px 0}
+        .brand{font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+        .nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+        button,.nav a{border:2px solid var(--ink);background:var(--paper);color:var(--ink);box-shadow:3px 3px 0 var(--shadow);padding:8px 11px;font-weight:900;text-decoration:none;text-transform:uppercase;font-size:12px;cursor:pointer;transition:.08s}
+        button:hover,.nav a:hover{transform:translate(1px,1px);box-shadow:2px 2px 0 var(--shadow);background:var(--yellow);color:#111}
+        button:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--shadow)}
+        button:disabled{opacity:.55;cursor:not-allowed}
+        .hero{padding:34px 0 20px}
+        .hero-card{border:2px solid var(--ink);background:var(--paper);box-shadow:8px 8px 0 var(--shadow);padding:26px;display:grid;grid-template-columns:1.25fr .75fr;gap:20px;align-items:center}
+        .kicker{font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:13px}
+        h1{font-size:clamp(34px,6vw,72px);line-height:.94;margin:8px 0 15px;text-transform:uppercase;letter-spacing:-.045em}
+        .subtitle{font-size:clamp(17px,2vw,22px);color:var(--muted);font-weight:700;max-width:820px}
+        .banner{display:inline-block;margin-top:18px;padding:10px 14px;background:var(--ink);color:var(--bg);font-weight:900;text-transform:uppercase;transform:rotate(-1deg)}
+        .hero-doodle{min-height:260px;border:2px dashed var(--ink);background:var(--panel);display:grid;place-items:center;overflow:hidden}
+        .hero-doodle svg{width:100%;height:100%;min-height:250px;color:var(--ink)}
+        .layout{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:22px;align-items:start;padding:24px 0 60px}
+        main{display:grid;gap:20px}
+        .card,.visual-card{border:2px solid var(--ink);background:var(--paper);box-shadow:6px 6px 0 var(--shadow);padding:20px}
+        .card h2{font-size:clamp(24px,3vw,36px);margin:0 0 12px;text-transform:uppercase;letter-spacing:-.03em}
+        .card h3{font-size:20px;margin:18px 0 8px;text-transform:uppercase}
+        .note{border-left:8px solid var(--teal);background:var(--soft);padding:10px 12px;font-weight:800}
+        .formula{display:inline-block;border:2px solid var(--ink);background:var(--panel);box-shadow:4px 4px 0 var(--shadow);padding:8px 12px;margin:4px 0;font-weight:900;font-size:18px}
+        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .mini,.task-box,.quiz-q{border:2px solid var(--ink);background:var(--panel);padding:14px}
+        ul.clean{padding-left:20px;margin:8px 0 0}
+        .steps{display:grid;gap:10px;margin-top:12px}
+        .step{border:2px solid var(--ink);background:var(--panel);padding:12px;display:grid;grid-template-columns:34px 1fr;gap:10px;cursor:pointer}
+        .step.active{background:var(--yellow);color:#111}
+        .num{width:30px;height:30px;border:2px solid #111;background:var(--yellow);color:#111;display:grid;place-items:center;font-weight:900}
+        .sticky{position:sticky;top:74px;display:grid;gap:14px}
+        .visual-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}.visual-head strong{text-transform:uppercase;font-size:14px}
+        .scene-wrap{height:390px;border:2px solid var(--ink);background:var(--panel);overflow:hidden;touch-action:none;cursor:grab;position:relative}.scene-wrap:active{cursor:grabbing}
+        .scene{width:100%;height:100%;display:block;user-select:none}.scene text{font-family:Arial,Helvetica,sans-serif;font-weight:900;dominant-baseline:middle}.scene .gridline{stroke:var(--ink);stroke-opacity:.16;stroke-width:1;stroke-dasharray:5 9}.scene .mainline{stroke:var(--teal);stroke-width:6;stroke-linecap:round}.scene .auxline{stroke:var(--ink);stroke-width:6;stroke-linecap:round}.scene .accent{stroke:var(--accent);fill:none;stroke-width:5;stroke-linecap:round}.scene .fillaccent{fill:var(--accent)}.scene .label{fill:var(--ink)}.scene .yellow{fill:var(--yellow);stroke:var(--ink);stroke-width:2}.scene .point{fill:var(--accent);stroke:var(--ink);stroke-width:2}
+        .controls{display:grid;gap:10px;margin-top:12px}label{font-size:13px;font-weight:900;text-transform:uppercase}select,input[type=range],input[type=text]{width:100%;border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:9px;font-weight:800}input[type=range]{accent-color:var(--accent);padding:0;border:0;background:transparent}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.status{border:2px solid var(--ink);background:var(--soft);padding:10px;font-weight:900;font-size:14px}.pills{display:flex;gap:8px;flex-wrap:wrap}.pill{border:2px solid var(--ink);background:var(--panel);padding:7px 9px;font-weight:900;font-size:12px}.pill.red{background:var(--accent);color:#fff}.pill.teal{background:var(--teal);color:#fff}.pill.yellow{background:var(--yellow);color:#111}
+        .trainer-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.solution{display:none;margin-top:10px;border-top:2px dashed var(--ink);padding-top:10px;font-weight:800}.solution.open{display:block}.answers{display:grid;gap:8px;margin-top:10px}.answer-btn{text-align:left;text-transform:none;font-size:14px}.answer-btn.correct{background:#DDF5E8;color:#111}.answer-btn.wrong{background:#FFDAD6;color:#111}.feedback{min-height:22px;margin-top:8px;font-weight:900}.checkline{display:flex;gap:9px;margin:8px 0}.checkline span:first-child{font-weight:900;color:var(--teal)}
+        .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:none;align-items:center;justify-content:center;padding:18px}.modal.open{display:flex}.modal-card{width:min(1000px,100%);height:min(790px,88vh);background:var(--paper);border:2px solid var(--ink);box-shadow:8px 8px 0 #000;display:grid;grid-template-rows:auto 1fr}.modal-head{display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:2px solid var(--ink);font-weight:900;text-transform:uppercase}.modal-scene{height:100%;border:0}
+        .footer{padding:28px 0 42px;text-align:center;font-weight:900;color:var(--accent);text-transform:uppercase}.small{font-size:13px;color:var(--muted);font-weight:700}.print-note{display:none}
+        @media(max-width:980px){.hero-card,.layout{grid-template-columns:1fr}.sticky{position:relative;top:auto}.scene-wrap{height:330px}.two-col,.trainer-grid{grid-template-columns:1fr}.nav{display:none}}
+        @media print{.topbar,.controls,.modal{display:none!important}body{background:#fff;color:#000}.wrap{width:100%}.hero-card,.card,.visual-card,.mini,.task-box{box-shadow:none;break-inside:avoid}.layout{grid-template-columns:1fr}.sticky{position:static}.scene-wrap{height:280px}.print-note{display:block}}
+    </style>
+</head>
+<body data-theme="light">
+<div class="topbar"><div class="wrap topbar-inner"><div class="brand">Наглядное пособие • 6 класс</div><nav class="nav"><a href="#geometry">Геометрия</a><a href="#angles">Углы</a><a href="#percent">Проценты</a><a href="#fractions">Дроби</a><a href="#trainer">Тренажёр</a><a href="#quiz">Квиз</a></nav><button id="themeBtn" type="button">Dark</button></div></div>
+<header class="hero"><div class="wrap hero-card"><div><div class="kicker">Интерактивный чек-лист</div><h1>Параллельные, перпендикулярные, проценты и дроби</h1><p class="subtitle">Повторяем главное: построение прямых, равенство соответственных углов, задачи на проценты и аккуратные вычисления с дробями.</p><div class="banner">Артём Александрович Лёвин эксклюзивно для Кирилла Зиновьева</div></div><div class="hero-doodle" aria-hidden="true"><svg viewBox="0 0 420 280"><rect x="18" y="18" width="384" height="244" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="8 7"/><line x1="65" y1="90" x2="235" y2="90" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><line x1="65" y1="135" x2="235" y2="135" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><text x="255" y="96" font-size="32" font-weight="900" fill="currentColor">a ∥ b</text><line x1="85" y1="205" x2="215" y2="205" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><line x1="150" y1="160" x2="150" y2="245" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><rect x="150" y="183" width="22" height="22" fill="none" stroke="currentColor" stroke-width="4"/><text x="245" y="220" font-size="34" font-weight="900" fill="var(--accent)">90°</text><circle cx="330" cy="70" r="24" fill="var(--yellow)" stroke="currentColor" stroke-width="3"/><text x="316" y="83" font-size="35" font-weight="900" fill="#111">%</text></svg></div></div></header>
+<div class="wrap layout"><main>
+    <section id="geometry" class="card"><h2>1. Параллельные и перпендикулярные прямые</h2><div class="note">Параллельные прямые не пересекаются. Перпендикулярные прямые пересекаются под углом 90°.</div><div class="two-col" style="margin-top:14px"><div class="mini"><h3>Параллельные</h3><div class="formula">a ∥ b</div><ul class="clean"><li>не имеют общей точки;</li><li>идут в одном направлении;</li><li>не пересекутся при продолжении.</li></ul></div><div class="mini"><h3>Перпендикулярные</h3><div class="formula">a ⟂ b</div><ul class="clean"><li>пересекаются;</li><li>образуют угол 90°;</li><li>прямой угол отмечают квадратиком.</li></ul></div></div><div class="steps"><div class="step active" data-mode="parallel"><div class="num">1</div><div><strong>Построить параллельную.</strong><br>Через точку проведите прямую в том же направлении, что и данная.</div></div><div class="step" data-mode="perpendicular"><div class="num">2</div><div><strong>Построить перпендикуляр.</strong><br>Новая прямая должна образовать с данной угол 90°.</div></div><div class="step" data-mode="not90"><div class="num">3</div><div><strong>Проверить ошибку.</strong><br>Если угол не 90°, это просто пересекающиеся прямые.</div></div></div></section>
+    <section id="angles" class="card"><h2>2. Соответственные углы</h2><p>Если две параллельные прямые пересекаются третьей прямой, то соответственные углы равны.</p><div class="formula">если a ∥ b, то соответствующие углы равны</div><h3>Как узнать</h3><div class="checkline"><span>✓</span><div>Углы находятся при разных точках пересечения.</div></div><div class="checkline"><span>✓</span><div>Они занимают одинаковое положение относительно секущей и параллельных прямых.</div></div><div class="checkline"><span>✓</span><div>Если один угол равен 50°, то соответствующий ему угол тоже равен 50°.</div></div><button type="button" data-jump-mode="corresponding">Показать на модели</button></section>
+    <section id="percent" class="card"><h2>3. Проценты в задачах про цену</h2><p>Исходную цену принимаем за 100%. Новую цену сравниваем с исходной через пропорцию.</p><div class="steps"><div class="step" data-percent-step="1"><div class="num">1</div><div><strong>Исходная цена = 100%.</strong><br>Например, 300 рублей — это 100%.</div></div><div class="step" data-percent-step="2"><div class="num">2</div><div><strong>Составляем пропорцию.</strong><br>300 → 100%, 480 → x%.</div></div><div class="step" data-percent-step="3"><div class="num">3</div><div><strong>Находим новый процент.</strong><br>x = 480 · 100 : 300 = 160%.</div></div><div class="step" data-percent-step="4"><div class="num">4</div><div><strong>На сколько выросло?</strong><br>160% − 100% = 60%.</div></div></div></section>
+    <section id="fractions" class="card"><h2>4. Дроби и вычисления</h2><div class="two-col"><div class="mini"><h3>Полезные переводы</h3><p><span class="formula">1/10 = 0,1</span></p><p><span class="formula">1/100 = 0,01</span></p><p><span class="formula">1/250 = 0,004</span></p></div><div class="mini"><h3>Деление на дробь</h3><p><span class="formula">a/b : c/d = a/b · d/c</span></p><p class="small">Вторую дробь переворачиваем. Делить на ноль нельзя.</p></div></div><ul class="clean"><li>Если больше десятичных дробей — часто удобно перевести всё в десятичные.</li><li>Если десятичная дробь неудобная — лучше перейти к обыкновенным дробям.</li><li>Если можно сократить — сокращайте сразу.</li></ul></section>
+    <section id="trainer" class="card"><h2>5. Тренажёр</h2><div class="trainer-grid"><div class="task-box"><h3>Генератор процентов</h3><p id="percentTask"></p><div class="row"><button id="newPercentTask" type="button">Новая задача</button><button id="showPercentSolution" type="button">Показать ответ</button></div><div id="percentSolution" class="solution"></div></div><div class="task-box"><h3>Генератор дробей</h3><p id="fractionTask"></p><div class="row"><button id="newFractionTask" type="button">Новая задача</button><button id="showFractionSolution" type="button">Показать ответ</button></div><div id="fractionSolution" class="solution"></div></div></div></section>
+    <section id="quiz" class="card"><h2>6. Мини-квиз</h2><div id="quizBox"></div><button id="resetQuiz" type="button">Сбросить квиз</button></section>
+    <section class="card"><h2>7. Типичные ошибки</h2><ol><li>Назвать любые пересекающиеся прямые перпендикулярными без проверки угла 90°.</li><li>Отметить обычный угол квадратиком вместо дуги.</li><li>На вопрос «на сколько процентов выросло?» ответить новым процентом, а не приростом.</li><li>При делении на дробь забыть перевернуть вторую дробь.</li><li>При умножении десятичных дробей ошибиться с количеством знаков после запятой.</li></ol></section>
+</main><aside class="sticky"><div class="visual-card"><div class="visual-head"><strong>Интерактивная модель</strong><button id="openModal" type="button">Увеличить</button></div><div class="scene-wrap" id="sceneWrap" title="Колесо мыши — зум, перетаскивание — сдвиг"><svg id="scene" class="scene" viewBox="0 0 640 440" preserveAspectRatio="xMidYMid meet" aria-label="Интерактивная геометрическая модель"></svg></div><div class="controls"><label for="modeSelect">Режим</label><select id="modeSelect"><option value="parallel">Параллельные прямые</option><option value="perpendicular">Перпендикулярные прямые</option><option value="corresponding">Соответственные углы</option><option value="not90">Не перпендикуляр</option></select><label for="angleRange">Угол / наклон</label><input id="angleRange" type="range" min="25" max="155" value="62" /><label for="zoomRange">Масштаб</label><input id="zoomRange" type="range" min="70" max="190" value="100" /><div class="row"><button id="zoomMinus" type="button">−</button><button id="zoomPlus" type="button">+</button><button id="resetView" type="button">Сброс</button></div><div class="pills"><span class="pill teal">a ∥ b</span><span class="pill yellow">90°</span><span class="pill red">100%</span></div><div class="status" id="sceneStatus"></div></div></div><div class="visual-card print-note">Для печати используйте Ctrl+P. Интерактивные элементы скрываются, правила остаются.</div></aside></div>
+<div class="modal" id="modal"><div class="modal-card" role="dialog" aria-modal="true" aria-label="Увеличенная визуализация"><div class="modal-head"><span>Увеличенная модель</span><button id="closeModal" type="button">Закрыть</button></div><div class="scene-wrap modal-scene" id="modalSceneWrap"><svg id="modalScene" class="scene" viewBox="0 0 640 440" preserveAspectRatio="xMidYMid meet"></svg></div></div></div>
+<footer class="footer"><div class="wrap">МАТЕМАТИКА. НАГЛЯДНО.</div></footer>
+<script>
+    'use strict';
+    // Всё состояние хранится в одном объекте: так проще синхронизировать обычную и модальную модели.
+    const state = { theme: localStorage.getItem('theme') || 'light', mode:'parallel', angle:62, zoom:1, panX:0, panY:0, dragging:false, lastX:0, lastY:0 };
+    const $ = (id)=>document.getElementById(id);
+    const body = document.body, themeBtn=$('themeBtn'), modeSelect=$('modeSelect'), angleRange=$('angleRange'), zoomRange=$('zoomRange'), statusBox=$('sceneStatus'), modal=$('modal');
+    const NS='http://www.w3.org/2000/svg';
+    function make(tag, attrs={}, parent=null){ const el=document.createElementNS(NS,tag); for(const [k,v] of Object.entries(attrs)) el.setAttribute(k,String(v)); if(parent) parent.appendChild(el); return el; }
+    function line(g,x1,y1,x2,y2,cls='auxline',extra={}){ return make('line',{x1,y1,x2,y2,class:cls,...extra},g); }
+    function text(g,txt,x,y,size=24,cls='label',anchor='middle'){ const t=make('text',{x,y,'font-size':size,class:cls,'text-anchor':anchor},g); t.textContent=txt; return t; }
+    function arcPath(cx,cy,r,a1,a2){ const p1=[cx+r*Math.cos(a1),cy+r*Math.sin(a1)], p2=[cx+r*Math.cos(a2),cy+r*Math.sin(a2)]; const large=Math.abs(a2-a1)>Math.PI?1:0; return `M ${p1[0].toFixed(2)} ${p1[1].toFixed(2)} A ${r} ${r} 0 ${large} 1 ${p2[0].toFixed(2)} ${p2[1].toFixed(2)}`; }
+    function grid(g){ for(let x=40;x<=600;x+=40) line(g,x,0,x,440,'gridline'); for(let y=40;y<=400;y+=40) line(g,0,y,640,y,'gridline'); }
+    function drawOne(svg){
+        svg.innerHTML=''; grid(svg);
+        const g=make('g',{transform:`translate(${state.panX} ${state.panY}) translate(320 220) scale(${state.zoom}) translate(-320 -220)`},svg);
+        const cx=320, cy=220;
+        if(state.mode==='parallel'){
+            line(g,80,cy-55,560,cy-55,'mainline'); line(g,80,cy+55,560,cy+55,'mainline');
+            text(g,'a',575,cy-72,28); text(g,'b',575,cy+38,28); text(g,'a ∥ b',cx,65,38,'fillaccent'); text(g,'не пересекаются',cx,375,26);
+            statusBox.textContent='Параллельные прямые не пересекаются и идут в одном направлении.';
+        }
+        if(state.mode==='perpendicular'){
+            line(g,90,cy,550,cy,'mainline'); line(g,cx,70,cx,370,'auxline');
+            make('path',{d:`M ${cx} ${cy} L ${cx+34} ${cy} L ${cx+34} ${cy-34} L ${cx} ${cy-34}`,'class':'accent'},g);
+            text(g,'90°',cx+78,cy-45,32,'fillaccent'); text(g,'a ⟂ b',cx,65,38,'fillaccent');
+            statusBox.textContent='Перпендикулярные прямые пересекаются под углом 90°.';
+        }
+        if(state.mode==='not90'){
+            line(g,90,cy,550,cy,'mainline');
+            const rad=state.angle*Math.PI/180, len=255;
+            line(g,cx-len*Math.cos(rad),cy+len*Math.sin(rad),cx+len*Math.cos(rad),cy-len*Math.sin(rad),'auxline');
+            const acute=Math.round(Math.min(state.angle,180-state.angle));
+            make('path',{d:arcPath(cx,cy,52,-rad,0),'class':'accent'},g);
+            text(g,acute+'°',cx+78,cy-30,30,'fillaccent'); text(g,'не 90°',cx,65,38,'fillaccent');
+            statusBox.textContent=`Угол ${acute}°, поэтому прямые пересекаются, но не являются перпендикулярными.`;
+        }
+        if(state.mode==='corresponding'){
+            const yTop=160,yBot=280; line(g,75,yTop,565,yTop,'mainline'); line(g,75,yBot,565,yBot,'mainline'); text(g,'a',575,yTop-22,28); text(g,'b',575,yBot-22,28);
+            const rad=state.angle*Math.PI/180, m=-Math.tan(rad), xTop=275, xBot=xTop+(yBot-yTop)/m;
+            line(g,xTop-125,yTop+125*m,xTop+155,yTop-155*m,'auxline');
+            make('path',{d:arcPath(xTop,yTop,42,0.08,0.78),'class':'accent'},g); make('path',{d:arcPath(xBot,yBot,42,0.08,0.78),'class':'accent'},g);
+            text(g,'α',xTop+64,yTop+26,30,'fillaccent'); text(g,'α',xBot+64,yBot+26,30,'fillaccent'); text(g,'соответственные углы равны',cx,65,30,'fillaccent');
+            statusBox.textContent='Если a ∥ b, то соответственные углы при секущей равны.';
+        }
+    }
+    function drawAll(){ drawOne($('scene')); if(modal.classList.contains('open')) drawOne($('modalScene')); }
+    function setMode(m){ state.mode=m; modeSelect.value=m; document.querySelectorAll('[data-mode]').forEach(el=>el.classList.toggle('active',el.dataset.mode===m)); drawAll(); }
+    function applyTheme(){ body.dataset.theme=state.theme; themeBtn.textContent=state.theme==='dark'?'Light':'Dark'; localStorage.setItem('theme',state.theme); drawAll(); }
+    themeBtn.addEventListener('click',()=>{ state.theme=state.theme==='dark'?'light':'dark'; applyTheme(); });
+    modeSelect.addEventListener('change',e=>setMode(e.target.value)); angleRange.addEventListener('input',e=>{state.angle=+e.target.value; drawAll();}); zoomRange.addEventListener('input',e=>{state.zoom=+e.target.value/100; drawAll();});
+    $('zoomMinus').addEventListener('click',()=>{state.zoom=Math.max(.7,state.zoom-.1);zoomRange.value=Math.round(state.zoom*100);drawAll();}); $('zoomPlus').addEventListener('click',()=>{state.zoom=Math.min(1.9,state.zoom+.1);zoomRange.value=Math.round(state.zoom*100);drawAll();}); $('resetView').addEventListener('click',()=>{state.zoom=1;state.panX=0;state.panY=0;zoomRange.value=100;drawAll();});
+    document.querySelectorAll('[data-mode]').forEach(el=>el.addEventListener('click',()=>setMode(el.dataset.mode))); document.querySelectorAll('[data-jump-mode]').forEach(el=>el.addEventListener('click',()=>setMode(el.dataset.jumpMode)));
+    document.querySelectorAll('[data-percent-step]').forEach(el=>el.addEventListener('click',()=>{document.querySelectorAll('[data-percent-step]').forEach(x=>x.classList.remove('active')); el.classList.add('active');}));
+    function attachPan(el){
+        el.addEventListener('pointerdown',e=>{state.dragging=true;state.lastX=e.clientX;state.lastY=e.clientY;el.setPointerCapture?.(e.pointerId);});
+        el.addEventListener('pointermove',e=>{if(!state.dragging)return;state.panX+=e.clientX-state.lastX;state.panY+=e.clientY-state.lastY;state.lastX=e.clientX;state.lastY=e.clientY;drawAll();});
+        el.addEventListener('pointerup',()=>{state.dragging=false;}); el.addEventListener('pointercancel',()=>{state.dragging=false;}); el.addEventListener('pointerleave',()=>{state.dragging=false;});
+        el.addEventListener('wheel',e=>{e.preventDefault();state.zoom=Math.min(1.9,Math.max(.7,state.zoom+(e.deltaY>0?-.08:.08)));zoomRange.value=Math.round(state.zoom*100);drawAll();},{passive:false});
+    }
+    attachPan($('sceneWrap')); attachPan($('modalSceneWrap'));
+    $('openModal').addEventListener('click',()=>{modal.classList.add('open');drawAll();}); $('closeModal').addEventListener('click',()=>modal.classList.remove('open')); modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open');}); window.addEventListener('keydown',e=>{if(e.key==='Escape')modal.classList.remove('open');});
+    // Генераторы задач.
+    const percentTask=$('percentTask'), percentSolution=$('percentSolution'); let currentPercent=null;
+    function newPercent(){const base=[240,300,320,360,400,450,500,560,600,720][Math.floor(Math.random()*10)], growth=[20,25,40,50,60,75,80][Math.floor(Math.random()*7)], sale=Math.round(base*(100+growth)/100); currentPercent={base,growth,sale,total:100+growth}; percentTask.textContent=`Товар купили за ${base} рублей и продали за ${sale} рублей. Сколько процентов составляет цена продажи от исходной? На сколько процентов выросла цена?`; percentSolution.classList.remove('open'); percentSolution.textContent='';}
+    $('newPercentTask').addEventListener('click',newPercent); $('showPercentSolution').addEventListener('click',()=>{if(!currentPercent)newPercent(); percentSolution.textContent=`Цена продажи составляет ${currentPercent.total}%. Прирост: ${currentPercent.total}% − 100% = ${currentPercent.growth}%.`; percentSolution.classList.add('open');});
+    const fractionExamples=[{t:'(2,4 · 0,5 − 0,2) : 0,1',a:'10'},{t:'(3/4 + 0,25) · 2',a:'2'},{t:'(2 1/4 − 0,75) · 4',a:'6'},{t:'1,6 : 0,4 + 3/5',a:'4,6'},{t:'(0,9 − 0,15) : 0,25',a:'3'}]; let currentFraction=null;
+    function newFraction(){currentFraction=fractionExamples[Math.floor(Math.random()*fractionExamples.length)]; $('fractionTask').textContent=`Вычислите: ${currentFraction.t}`; $('fractionSolution').classList.remove('open'); $('fractionSolution').textContent='';}
+    $('newFractionTask').addEventListener('click',newFraction); $('showFractionSolution').addEventListener('click',()=>{if(!currentFraction)newFraction(); $('fractionSolution').textContent=`Ответ: ${currentFraction.a}.`; $('fractionSolution').classList.add('open');});
+    const quizData=[{q:'Какие прямые называются параллельными?',a:['Те, которые не пересекаются','Те, которые пересекаются под любым углом','Те, которые образуют 90°'],c:0,w:'Параллельные прямые не имеют общей точки.'},{q:'Какой угол образуют перпендикулярные прямые?',a:['45°','90°','180°'],c:1,w:'Перпендикулярность означает прямой угол.'},{q:'Если соответственный угол равен 50°, то второй соответственный угол равен...',a:['40°','90°','50°'],c:2,w:'При параллельных прямых соответственные углы равны.'},{q:'Цена стала 160% от исходной. На сколько процентов она выросла?',a:['60%','160%','260%'],c:0,w:'Прирост равен 160% − 100% = 60%.'},{q:'Чтобы разделить на дробь, нужно...',a:['умножить на эту же дробь','умножить на обратную дробь','сложить числители'],c:1,w:'Деление на дробь заменяется умножением на обратную.'}];
+    function renderQuiz(){const box=$('quizBox'); box.innerHTML=''; quizData.forEach((item,idx)=>{const div=document.createElement('div');div.className='quiz-q';div.innerHTML=`<strong>${idx+1}. ${item.q}</strong><div class="answers"></div><div class="feedback"></div>`;const answers=div.querySelector('.answers');item.a.forEach((ans,i)=>{const b=document.createElement('button');b.type='button';b.className='answer-btn';b.textContent=ans;b.addEventListener('click',()=>{answers.querySelectorAll('button').forEach(btn=>btn.disabled=true);b.classList.add(i===item.c?'correct':'wrong');if(i!==item.c)answers.children[item.c].classList.add('correct');div.querySelector('.feedback').textContent=(i===item.c?'Верно. ':'Исправляем. ')+item.w;});answers.appendChild(b);});box.appendChild(div);});}
+    $('resetQuiz').addEventListener('click',renderQuiz);
+    applyTheme(); setMode('parallel'); newPercent(); newFraction(); renderQuiz();
+</script>
+</body>
+</html>
