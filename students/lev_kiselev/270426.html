@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Степени с отрицательным показателем — интерактивное пособие</title>
+    <style>
+        :root{
+            --bg:#f4f4f0;
+            --paper:#fffdf4;
+            --ink:#111111;
+            --muted:#57534e;
+            --red:#d83a2e;
+            --teal:#008080;
+            --yellow:#ffd166;
+            --blue:#8ecae6;
+            --green:#a7c957;
+            --shadow:#111111;
+            --line:2px solid var(--ink);
+        }
+        [data-theme="dark"]{
+            --bg:#151515;
+            --paper:#232323;
+            --ink:#f3f1e8;
+            --muted:#c8c2b8;
+            --red:#ff5a4f;
+            --teal:#27c7c7;
+            --yellow:#ffd166;
+            --blue:#78bde0;
+            --green:#b6d36a;
+            --shadow:#000000;
+            --line:2px solid var(--ink);
+        }
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            background:var(--bg);
+            color:var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height:1.55;
+            background-image:
+            radial-gradient(circle at 10% 10%, rgba(0,0,0,.035) 0 1px, transparent 1px),
+            radial-gradient(circle at 85% 30%, rgba(0,0,0,.025) 0 1px, transparent 1px);
+            background-size:18px 18px, 26px 26px;
+        }
+        .wrap{max-width:1180px;margin:0 auto;padding:18px}
+        .topbar{
+            position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:var(--line);
+            display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 18px;
+        }
+        .brand{font-weight:900;letter-spacing:.05em;text-transform:uppercase}
+        .nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+        .nav a,.btn{
+            border:var(--line);background:var(--paper);color:var(--ink);text-decoration:none;
+            padding:8px 10px;font-weight:800;box-shadow:4px 4px 0 var(--shadow);cursor:pointer;
+            text-transform:uppercase;font-size:13px;
+        }
+        .nav a:hover,.btn:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--shadow)}
+        .hero{
+            margin-top:18px;border:var(--line);background:var(--paper);box-shadow:8px 8px 0 var(--shadow);
+            padding:26px;display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:center;
+        }
+        .kicker{display:inline-block;background:var(--red);color:#fff;border:var(--line);padding:5px 10px;font-weight:900;text-transform:uppercase;box-shadow:4px 4px 0 var(--shadow)}
+        h1{font-size:clamp(36px,7vw,78px);line-height:.95;margin:18px 0 14px;text-transform:uppercase;letter-spacing:-.04em}
+        h1 span{color:var(--red)}
+        h2{font-size:32px;margin:0 0 10px;text-transform:uppercase;letter-spacing:-.02em}
+        h3{font-size:22px;margin:18px 0 8px;text-transform:uppercase}
+        .lead{font-size:20px;color:var(--muted);max-width:720px}
+        .banner{background:var(--ink);color:var(--paper);padding:12px 16px;font-weight:900;text-transform:uppercase;margin-top:16px;letter-spacing:.04em}
+        .formula-big{
+            border:var(--line);background:var(--yellow);padding:20px;text-align:center;font-size:clamp(25px,5vw,48px);font-weight:900;box-shadow:6px 6px 0 var(--shadow)
+        }
+        .formula{font-family:Georgia, 'Times New Roman', serif;font-weight:700;white-space:nowrap}
+        .workspace{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:22px;margin-top:24px;align-items:start}
+        .panel,.card{
+            border:var(--line);background:var(--paper);box-shadow:6px 6px 0 var(--shadow);padding:18px;margin-bottom:18px;
+        }
+        .sticky{position:sticky;top:76px}
+        .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+        .tab{border:var(--line);background:var(--paper);padding:8px 10px;font-weight:900;cursor:pointer;box-shadow:3px 3px 0 var(--shadow)}
+        .tab.active{background:var(--teal);color:#fff}
+        .step{border-left:6px solid var(--teal);padding:12px 14px;background:rgba(0,128,128,.08);margin:10px 0}
+        .step strong{color:var(--teal)}
+        .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .mini{border:var(--line);padding:14px;background:var(--bg)}
+        .mini b{color:var(--red)}
+        .visual{
+            min-height:450px;border:var(--line);background:linear-gradient(135deg,var(--paper),var(--bg));position:relative;overflow:hidden;padding:16px;cursor:pointer;
+        }
+        .visual-title{font-weight:900;text-transform:uppercase;margin-bottom:10px}
+        .frac-box{display:grid;grid-template-columns:1fr 54px 1fr;gap:10px;align-items:center;margin:28px 0}
+        .frac-card{border:var(--line);padding:18px;background:var(--paper);box-shadow:4px 4px 0 var(--shadow);text-align:center;font-size:28px;font-family:Georgia,serif;font-weight:700}
+        .arrow{font-size:42px;text-align:center;color:var(--red);font-weight:900}
+        .flipper{transition:.55s transform}.visual.flip .flipper{transform:rotateY(180deg)}
+        .power-ladder{display:flex;gap:8px;justify-content:center;align-items:flex-end;margin:20px 0}
+        .block{width:48px;border:var(--line);background:var(--blue);box-shadow:3px 3px 0 var(--shadow);display:flex;align-items:center;justify-content:center;font-weight:900}
+        .block:nth-child(1){height:45px}.block:nth-child(2){height:60px}.block:nth-child(3){height:78px}.block:nth-child(4){height:96px}
+        label{font-weight:900;display:block;margin-top:10px}
+        input,select{
+            width:100%;border:var(--line);background:var(--paper);color:var(--ink);padding:10px;font-size:16px;font-weight:700;
+        }
+        .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .out{border:var(--line);background:var(--bg);padding:12px;margin-top:12px;font-weight:800;min-height:48px}
+        .correct{background:rgba(167,201,87,.25)}.wrong{background:rgba(216,58,46,.15)}
+        .quiz-option{display:block;width:100%;text-align:left;margin:8px 0;text-transform:none;font-size:16px}
+        .warning{border-left:8px solid var(--red);background:rgba(216,58,46,.08)}
+        .note{font-size:14px;color:var(--muted)}
+        .footer{margin:28px 0 14px;text-align:center;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+        .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+        .modal.open{display:flex}
+        .modal-content{width:min(900px,96vw);max-height:90vh;overflow:auto;background:var(--paper);color:var(--ink);border:var(--line);box-shadow:10px 10px 0 #000;padding:18px;position:relative}
+        .close{position:absolute;right:14px;top:12px;font-size:28px;background:var(--red);color:#fff;border:var(--line);font-weight:900;cursor:pointer}
+        .print-card{display:none}
+        @media (max-width:900px){
+            .hero,.workspace{grid-template-columns:1fr}.sticky{position:static}.topbar{position:static;display:block}.nav{margin-top:10px;justify-content:flex-start}.grid2{grid-template-columns:1fr}
+        }
+        @media print{
+            .topbar,.sticky,.btn,.tabs,.trainer-only,.modal{display:none!important}
+            body{background:#fff;color:#000}.hero,.panel,.card{box-shadow:none;break-inside:avoid}.workspace{display:block}.wrap{max-width:none}.print-card{display:block}
+        }
+    </style>
+</head>
+<body data-theme="light">
+<header class="topbar">
+    <div class="brand">ЕГЭМАТ · 8 класс</div>
+    <nav class="nav">
+        <a href="#idea">Идея</a><a href="#rules">Правила</a><a href="#examples">Примеры</a><a href="#trainer">Тренажёр</a><a href="#quiz">Квиз</a><a href="#memo">Памятка</a>
+    </nav>
+    <button class="btn" id="themeBtn">Dark / Light</button>
+</header>
+
+<main class="wrap">
+    <section class="hero">
+        <div>
+            <span class="kicker">Степени с минусом</span>
+            <h1>Отрицательный <span>показатель</span></h1>
+            <p class="lead">Главная мысль: минус в показателе не делает число отрицательным. Он превращает выражение в обратное.</p>
+            <div class="banner">Сначала смысл → потом правила → потом аккуратное упрощение</div>
+        </div>
+        <div class="formula-big formula">a<sup>−n</sup> = 1 / a<sup>n</sup><br><small style="font-size:18px">a ≠ 0</small></div>
+    </section>
+
+    <section class="workspace">
+        <div>
+            <section class="panel" id="idea">
+                <h2>1. Идея решения</h2>
+                <p>Отрицательный показатель говорит: возьмите <b>обратное число</b>. Поэтому:</p>
+                <div class="grid2">
+                    <div class="mini"><b>Было:</b><br><span class="formula">2<sup>−3</sup></span></div>
+                    <div class="mini"><b>Стало:</b><br><span class="formula">1 / 2<sup>3</sup> = 1/8</span></div>
+                </div>
+                <div class="step"><strong>Важно:</strong> <span class="formula">2<sup>−3</sup> ≠ −8</span>. Минус стоит не перед числом, а в показателе.</div>
+            </section>
+
+            <section class="panel" id="rules">
+                <h2>2. Главные правила</h2>
+                <div class="tabs">
+                    <button class="tab active" data-tab="neg">Минус</button>
+                    <button class="tab" data-tab="frac">Дробь</button>
+                    <button class="tab" data-tab="mul">Умножение</button>
+                    <button class="tab" data-tab="div">Деление</button>
+                    <button class="tab" data-tab="pow">Степень степени</button>
+                </div>
+                <div id="tabContent" class="card" style="box-shadow:none;margin-bottom:0"></div>
+            </section>
+
+            <section class="panel" id="examples">
+                <h2>3. Пошаговые примеры</h2>
+                <h3>Пример A</h3>
+                <p class="formula">(2/3)<sup>−2</sup></p>
+                <div class="step"><strong>Шаг 1.</strong> Дробь переворачивается: <span class="formula">(3/2)<sup>2</sup></span>.</div>
+                <div class="step"><strong>Шаг 2.</strong> Возводим числитель и знаменатель: <span class="formula">9/4</span>.</div>
+
+                <h3>Пример B</h3>
+                <p class="formula">(a<sup>−2</sup>b<sup>3</sup> / ab<sup>−1</sup>)<sup>−1</sup></p>
+                <div class="step"><strong>Шаг 1.</strong> Упрощаем внутри скобок: <span class="formula">a<sup>−2−1</sup>b<sup>3−(−1)</sup> = a<sup>−3</sup>b<sup>4</sup></span>.</div>
+                <div class="step"><strong>Шаг 2.</strong> Внешняя степень <span class="formula">−1</span> умножает показатели: <span class="formula">a<sup>3</sup>b<sup>−4</sup></span>.</div>
+                <div class="step"><strong>Ответ.</strong> <span class="formula">a<sup>3</sup>/b<sup>4</sup></span>.</div>
+            </section>
+
+            <section class="panel warning">
+                <h2>4. Типичные ошибки</h2>
+                <ul>
+                    <li><span class="formula">a<sup>−n</sup></span> — это не <span class="formula">−a<sup>n</sup></span>.</li>
+                    <li>При делении степеней показатели <b>вычитаются</b>, а не складываются.</li>
+                    <li>Сокращать можно множители, но нельзя «выдирать» слагаемые из суммы.</li>
+                    <li>Если есть знаменатель или отрицательная степень, проверяйте: основание не равно нулю.</li>
+                </ul>
+            </section>
+
+            <section class="panel trainer-only" id="trainer">
+                <h2>5. Тренажёр</h2>
+                <p>Сгенерируйте пример, решите в тетради и откройте ответ.</p>
+                <div class="row">
+                    <button class="btn" id="genTask">Новый пример</button>
+                    <button class="btn" id="showAnswer">Показать ответ</button>
+                </div>
+                <div class="out" id="taskBox"></div>
+                <div class="out" id="answerBox"></div>
+            </section>
+
+            <section class="panel trainer-only" id="quiz">
+                <h2>6. Мини-квиз</h2>
+                <div id="quizBox"></div>
+                <div class="out" id="quizResult">Выберите ответ.</div>
+            </section>
+
+            <section class="panel" id="memo">
+                <h2>7. Памятка</h2>
+                <ul>
+                    <li><span class="formula">a<sup>−n</sup> = 1/a<sup>n</sup></span>, если <span class="formula">a ≠ 0</span>.</li>
+                    <li><span class="formula">(a/b)<sup>−n</sup> = (b/a)<sup>n</sup></span>, если <span class="formula">a ≠ 0, b ≠ 0</span>.</li>
+                    <li><span class="formula">a<sup>m</sup>·a<sup>n</sup> = a<sup>m+n</sup></span>.</li>
+                    <li><span class="formula">a<sup>m</sup>:a<sup>n</sup> = a<sup>m−n</sup></span>.</li>
+                    <li><span class="formula">(a<sup>m</sup>)<sup>n</sup> = a<sup>mn</sup></span>.</li>
+                </ul>
+            </section>
+        </div>
+
+        <aside class="sticky">
+            <div class="panel">
+                <h2>Визуальная модель</h2>
+                <div class="visual" id="visual" title="Нажмите, чтобы открыть крупно">
+                    <div class="visual-title">Минус переворачивает</div>
+                    <div class="frac-box">
+                        <div class="frac-card flipper formula">a<sup>−n</sup></div>
+                        <div class="arrow">→</div>
+                        <div class="frac-card formula">1 / a<sup>n</sup></div>
+                    </div>
+                    <div class="power-ladder">
+                        <div class="block">a</div><div class="block">a²</div><div class="block">a³</div><div class="block">a⁴</div>
+                    </div>
+                    <p class="note">Положительная степень поднимает «этажи» умножения, отрицательная отправляет выражение в знаменатель.</p>
+                    <button class="btn" id="flipBtn">Показать переворот</button>
+                </div>
+            </div>
+
+            <div class="panel trainer-only">
+                <h2>Проверка значения</h2>
+                <div class="row">
+                    <div><label>Основание a</label><input id="baseInput" type="number" value="2"></div>
+                    <div><label>Показатель n</label><input id="expInput" type="number" value="-3"></div>
+                </div>
+                <button class="btn" id="calcBtn" style="margin-top:12px">Посчитать</button>
+                <div class="out" id="calcOut"></div>
+            </div>
+        </aside>
+    </section>
+
+    <div class="footer">ЕГЭМАТ · интерактивное web-пособие</div>
+</main>
+
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <button class="close" id="closeModal">×</button>
+        <h2>Крупная визуальная модель</h2>
+        <div class="formula-big formula">a<sup>−n</sup> = 1 / a<sup>n</sup></div>
+        <p>Когда показатель отрицательный, выражение становится обратным. Для дроби это выглядит как переворот:</p>
+        <div class="frac-box">
+            <div class="frac-card formula">(a/b)<sup>−n</sup></div><div class="arrow">→</div><div class="frac-card formula">(b/a)<sup>n</sup></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const body = document.body;
+    const themeBtn = document.getElementById('themeBtn');
+    themeBtn.addEventListener('click', () => {
+        body.dataset.theme = body.dataset.theme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('negExpTheme', body.dataset.theme);
+    });
+    body.dataset.theme = localStorage.getItem('negExpTheme') || 'light';
+
+    const tabs = {
+        neg: {title:'Отрицательный показатель', html:'<p class="formula">a<sup>−n</sup> = 1/a<sup>n</sup></p><p>Минус в показателе означает обратное число. Обязательно: <span class="formula">a ≠ 0</span>.</p>'},
+        frac:{title:'Дробь в отрицательной степени', html:'<p class="formula">(a/b)<sup>−n</sup> = (b/a)<sup>n</sup></p><p>Дробь переворачивается, а показатель становится положительным.</p>'},
+        mul:{title:'Произведение степеней', html:'<p class="formula">a<sup>m</sup> · a<sup>n</sup> = a<sup>m+n</sup></p><p>Одинаковые основания — показатели складываем.</p>'},
+        div:{title:'Деление степеней', html:'<p class="formula">a<sup>m</sup> : a<sup>n</sup> = a<sup>m−n</sup></p><p>Одинаковые основания — показатели вычитаем.</p>'},
+        pow:{title:'Степень степени', html:'<p class="formula">(a<sup>m</sup>)<sup>n</sup> = a<sup>mn</sup></p><p>Показатели перемножаются.</p>'}
+    };
+    const tabContent = document.getElementById('tabContent');
+    function setTab(name){
+        document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+        tabContent.innerHTML = `<h3>${tabs[name].title}</h3>${tabs[name].html}`;
+    }
+    document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>setTab(t.dataset.tab)));
+    setTab('neg');
+
+    const visual = document.getElementById('visual');
+    document.getElementById('flipBtn').addEventListener('click', (e)=>{e.stopPropagation(); visual.classList.toggle('flip')});
+    const modal = document.getElementById('modal');
+    visual.addEventListener('click',()=>modal.classList.add('open'));
+    document.getElementById('closeModal').addEventListener('click',()=>modal.classList.remove('open'));
+    modal.addEventListener('click',(e)=>{if(e.target===modal) modal.classList.remove('open')});
+    window.addEventListener('keydown',(e)=>{if(e.key==='Escape') modal.classList.remove('open')});
+
+    const calcOut = document.getElementById('calcOut');
+    document.getElementById('calcBtn').addEventListener('click',()=>{
+        const a = Number(document.getElementById('baseInput').value);
+        const n = Number(document.getElementById('expInput').value);
+        if(a===0 && n<=0){calcOut.innerHTML='Ошибка: при отрицательной или нулевой степени основание не может быть 0.'; calcOut.className='out wrong'; return;}
+        const val = Math.pow(a,n);
+        const explanation = n<0 ? `${a}<sup>${n}</sup> = 1 / ${a}<sup>${-n}</sup> = ${val}` : `${a}<sup>${n}</sup> = ${val}`;
+        calcOut.innerHTML = explanation; calcOut.className='out correct';
+    });
+
+    const tasks = [
+        {q:'Упростите: 3<sup>−2</sup>', a:'1/9'},
+        {q:'Упростите: (2/5)<sup>−1</sup>', a:'5/2'},
+        {q:'Упростите: x<sup>−3</sup> / x<sup>−7</sup>', a:'x<sup>4</sup>'},
+        {q:'Упростите: 7<sup>2</sup> · 7<sup>−5</sup> · 7<sup>4</sup>', a:'7'},
+        {q:'Упростите: (a<sup>−4</sup>b<sup>2</sup>)<sup>−2</sup>', a:'a<sup>8</sup>/b<sup>4</sup>'},
+        {q:'Упростите: (2/3)<sup>−2</sup>', a:'9/4'},
+        {q:'Упростите: (a<sup>−2</sup>b<sup>3</sup> / ab<sup>−1</sup>)<sup>−1</sup>', a:'a<sup>3</sup>/b<sup>4</sup>'}
+    ];
+    let currentTask = tasks[0];
+    function newTask(){currentTask = tasks[Math.floor(Math.random()*tasks.length)]; document.getElementById('taskBox').innerHTML=currentTask.q; document.getElementById('answerBox').innerHTML='Ответ скрыт.';}
+    document.getElementById('genTask').addEventListener('click',newTask);
+    document.getElementById('showAnswer').addEventListener('click',()=>{document.getElementById('answerBox').innerHTML='Ответ: <span class="formula">'+currentTask.a+'</span>';});
+    newTask();
+
+    const quiz = {
+        q:'Чему равно 2<sup>−3</sup>?',
+        opts:['−8','1/8','−1/8','8'],
+        ok:1
+    };
+    const quizBox = document.getElementById('quizBox');
+    quizBox.innerHTML = '<h3>'+quiz.q+'</h3>'+quiz.opts.map((o,i)=>`<button class="btn quiz-option" data-i="${i}">${o}</button>`).join('');
+    document.querySelectorAll('.quiz-option').forEach(btn=>btn.addEventListener('click',()=>{
+        const ok = Number(btn.dataset.i)===quiz.ok;
+        const res = document.getElementById('quizResult');
+        res.className = 'out ' + (ok?'correct':'wrong');
+        res.innerHTML = ok ? 'Верно: отрицательный показатель даёт обратное число.' : 'Пока нет: минус в показателе не делает число отрицательным.';
+    }));
+</script>
+</body>
+</html>
