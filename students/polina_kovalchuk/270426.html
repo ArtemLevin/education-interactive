@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Задание 19: прогрессии — интерактивное пособие</title>
+    <style>
+        :root{
+            --bg:#f4f4f0;
+            --ink:#171717;
+            --muted:#5a5a52;
+            --paper:#fffaf0;
+            --red:#d94135;
+            --teal:#008080;
+            --teal-dark:#004d4d;
+            --yellow:#ffd84d;
+            --blue:#7db9de;
+            --green:#86c06a;
+            --shadow:7px 7px 0 #171717;
+            --border:2px solid #171717;
+            --soft:#ece7db;
+            --ok:#1b7f3a;
+            --bad:#b12a2a;
+        }
+        [data-theme="dark"]{
+            --bg:#11120f;
+            --ink:#f4f4f0;
+            --muted:#cac4b5;
+            --paper:#1d1f1a;
+            --red:#ff6a5f;
+            --teal:#36c6c6;
+            --teal-dark:#8ee8e8;
+            --yellow:#f6cf4f;
+            --blue:#89c7ff;
+            --green:#9fd783;
+            --shadow:7px 7px 0 #000;
+            --border:2px solid #f4f4f0;
+            --soft:#2a2b24;
+            --ok:#78d68b;
+            --bad:#ff8a8a;
+        }
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            font-family:Arial, Helvetica, sans-serif;
+            background:var(--bg);
+            color:var(--ink);
+            line-height:1.55;
+        }
+        body::before{
+            content:"";
+            position:fixed;
+            inset:0;
+            pointer-events:none;
+            opacity:.12;
+            background-image:
+            radial-gradient(circle at 12px 16px, var(--ink) 1px, transparent 1.4px),
+            radial-gradient(circle at 52px 42px, var(--ink) .8px, transparent 1.2px);
+            background-size:76px 76px;
+            mix-blend-mode:multiply;
+        }
+        a{color:inherit}
+        .topbar{
+            position:sticky;
+            top:0;
+            z-index:20;
+            background:var(--paper);
+            border-bottom:var(--border);
+            padding:10px 18px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:12px;
+        }
+        .brand{
+            font-weight:900;
+            letter-spacing:.04em;
+            text-transform:uppercase;
+        }
+        .nav{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+            justify-content:flex-end;
+        }
+        .nav a,.btn,.tab-btn{
+            border:var(--border);
+            background:var(--paper);
+            color:var(--ink);
+            padding:8px 10px;
+            font-weight:800;
+            text-decoration:none;
+            box-shadow:3px 3px 0 var(--ink);
+            cursor:pointer;
+            transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+            font-size:14px;
+        }
+        .nav a:hover,.btn:hover,.tab-btn:hover{transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink)}
+        .btn.red{background:var(--red); color:#fff}
+        .btn.yellow{background:var(--yellow); color:#111}
+        .btn.teal{background:var(--teal); color:#fff}
+        .btn.small{padding:6px 8px; font-size:13px}
+        .wrap{max-width:1180px; margin:0 auto; padding:26px 18px 70px}
+        .hero{
+            border:var(--border);
+            background:var(--paper);
+            box-shadow:var(--shadow);
+            padding:28px;
+            display:grid;
+            grid-template-columns:1.1fr .9fr;
+            gap:26px;
+            align-items:center;
+            margin-bottom:28px;
+            position:relative;
+            overflow:hidden;
+        }
+        .hero::after{
+            content:"";
+            position:absolute;
+            width:230px;height:230px;
+            right:-90px;top:-90px;
+            border:var(--border);
+            background:repeating-linear-gradient(45deg, transparent 0 10px, rgba(217,65,53,.22) 10px 20px);
+            transform:rotate(16deg);
+        }
+        .kicker{font-weight:900; color:var(--red); text-transform:uppercase; letter-spacing:.08em}
+        h1{font-size:clamp(38px,6vw,76px); line-height:.94; margin:8px 0 14px; text-transform:uppercase; letter-spacing:-.04em}
+        .subtitle{font-size:20px; color:var(--muted); max-width:780px}
+        .banner{
+            background:var(--ink);
+            color:var(--bg);
+            font-weight:900;
+            text-transform:uppercase;
+            padding:12px 16px;
+            display:inline-block;
+            transform:rotate(-1deg);
+            margin-top:16px;
+        }
+        .hero-card{
+            border:var(--border);
+            background:var(--yellow);
+            box-shadow:5px 5px 0 var(--ink);
+            padding:18px;
+            position:relative;
+            z-index:2;
+        }
+        .hero-card svg{width:100%; height:auto; display:block}
+        .grid{
+            display:grid;
+            grid-template-columns:minmax(0,1fr) 390px;
+            gap:24px;
+            align-items:start;
+        }
+        .main{min-width:0}
+        .sticky{
+            position:sticky;
+            top:86px;
+            display:flex;
+            flex-direction:column;
+            gap:16px;
+        }
+        section.card,.panel,.toolbox,.quiz-card{
+            border:var(--border);
+            background:var(--paper);
+            box-shadow:var(--shadow);
+            padding:22px;
+            margin-bottom:22px;
+        }
+        h2{font-size:34px; margin:0 0 14px; line-height:1; text-transform:uppercase; letter-spacing:-.02em}
+        h3{font-size:22px; margin:18px 0 10px; text-transform:uppercase}
+        .lead{font-size:18px; color:var(--muted)}
+        .tag{display:inline-block; border:var(--border); padding:4px 8px; margin:2px; background:var(--soft); font-weight:800}
+        .formula{
+            border:var(--border);
+            background:var(--soft);
+            padding:12px 14px;
+            margin:10px 0;
+            font-size:20px;
+            font-weight:800;
+            overflow-x:auto;
+        }
+        .formula .red{color:var(--red)}
+        .steps{display:grid; gap:10px; margin-top:12px}
+        .step{
+            border:var(--border);
+            background:var(--paper);
+            padding:12px;
+            cursor:pointer;
+            box-shadow:4px 4px 0 var(--ink);
+        }
+        .step.active{background:var(--yellow); transform:translate(2px,2px); box-shadow:2px 2px 0 var(--ink)}
+        .step strong{color:var(--red)}
+        .two{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+        .calc-row{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0}
+        label{font-weight:800; display:block; margin-bottom:4px}
+        input,select{
+            width:100%;
+            border:var(--border);
+            background:var(--bg);
+            color:var(--ink);
+            padding:10px;
+            font-size:16px;
+            font-weight:700;
+        }
+        .result{
+            border:var(--border);
+            background:var(--soft);
+            padding:12px;
+            min-height:44px;
+            font-weight:800;
+            margin-top:10px;
+        }
+        .ok{color:var(--ok)}
+        .bad{color:var(--bad)}
+        .muted{color:var(--muted)}
+        .tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px}
+        .tab-btn.active{background:var(--red); color:#fff}
+        .tab-panel{display:none}
+        .tab-panel.active{display:block}
+        .visual{
+            border:var(--border);
+            background:var(--bg);
+            padding:10px;
+            box-shadow:5px 5px 0 var(--ink);
+        }
+        #viz{width:100%; height:250px; display:block; background:var(--paper); border:var(--border); cursor:grab}
+        #viz:active{cursor:grabbing}
+        .controls{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:center}
+        .range{flex:1; min-width:130px}
+        .legend{font-size:14px; color:var(--muted); margin-top:8px}
+        .checklist li{margin-bottom:6px}
+        .practice-item{
+            border-left:6px solid var(--red);
+            padding:12px 14px;
+            background:var(--soft);
+            margin:10px 0;
+            border-top:var(--border);
+            border-right:var(--border);
+            border-bottom:var(--border);
+        }
+        .answer{display:none; margin-top:8px; font-weight:800; color:var(--teal-dark)}
+        .answer.show{display:block}
+        .quiz-options{display:grid; gap:8px; margin-top:10px}
+        .option{border:var(--border); padding:10px; background:var(--bg); cursor:pointer; font-weight:800}
+        .option.correct{background:var(--green); color:#111}
+        .option.wrong{background:var(--red); color:#fff}
+        .footer{
+            border-top:var(--border);
+            background:var(--ink);
+            color:var(--bg);
+            padding:24px 18px;
+            text-align:center;
+            font-weight:900;
+            text-transform:uppercase;
+        }
+        .print-note{display:none}
+        @media(max-width:930px){
+            .hero{grid-template-columns:1fr}
+            .grid{grid-template-columns:1fr}
+            .sticky{position:static}
+            .topbar{align-items:flex-start; flex-direction:column}
+            .nav{justify-content:flex-start}
+            .two,.calc-row{grid-template-columns:1fr}
+        }
+        @media print{
+            .topbar,.sticky .toolbox,.controls,.btn,.tabs{display:none!important}
+            body{background:#fff;color:#000}
+            .wrap{max-width:none;padding:0}
+            .hero,section.card,.panel,.quiz-card{box-shadow:none;break-inside:avoid;background:#fff}
+            .grid,.hero{display:block}
+            .print-note{display:block}
+            a{text-decoration:none}
+        }
+    </style>
+</head>
+<body data-theme="light">
+<header class="topbar">
+    <div class="brand">ЕГЭ · задание 19 · прогрессии</div>
+    <nav class="nav" aria-label="Навигация">
+        <a href="#idea">Идея</a>
+        <a href="#arith">Арифметическая</a>
+        <a href="#tools">Тренажёр</a>
+        <a href="#geo">Геометрическая</a>
+        <a href="#quiz">Квиз</a>
+        <button class="btn small" id="themeBtn" type="button">DARK</button>
+    </nav>
+</header>
+
+<main class="wrap">
+    <section class="hero">
+        <div>
+            <div class="kicker">Интерактивное web-пособие</div>
+            <h1>Задание 19:<br><span style="color:var(--red)">прогрессии</span></h1>
+            <p class="subtitle">Короткая, наглядная и практическая версия чек-листа: формулы, ограничения, делимость, максимум через минимальную сумму и проверка геометрической прогрессии.</p>
+            <div class="banner">Смысл: формула + ограничения + здравый перебор</div>
+        </div>
+        <div class="hero-card" aria-label="Схема прогрессии">
+            <svg viewBox="0 0 420 300" role="img">
+                <defs>
+                    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M0,0 L10,5 L0,10 z" fill="currentColor"></path>
+                    </marker>
+                </defs>
+                <rect x="18" y="30" width="384" height="220" fill="none" stroke="currentColor" stroke-width="4"></rect>
+                <text x="42" y="74" font-size="26" font-weight="900" fill="currentColor">1, 2, 3, ... , n</text>
+                <path d="M60 100 C110 148,150 145,190 104" fill="none" stroke="var(--red)" stroke-width="5" marker-end="url(#arr)"></path>
+                <path d="M195 100 C240 148,285 145,330 104" fill="none" stroke="var(--red)" stroke-width="5" marker-end="url(#arr)"></path>
+                <circle cx="92" cy="188" r="38" fill="var(--paper)" stroke="currentColor" stroke-width="4"></circle>
+                <text x="74" y="198" font-size="34" font-weight="900" fill="currentColor">Σ</text>
+                <text x="150" y="180" font-size="23" font-weight="900" fill="currentColor">Sₙ = n(a₁+aₙ)/2</text>
+                <text x="150" y="214" font-size="20" font-weight="900" fill="var(--red)">n | 2Sₙ</text>
+            </svg>
+        </div>
+    </section>
+
+    <div class="grid">
+        <div class="main">
+            <section class="card" id="idea">
+                <h2>1. Главная идея</h2>
+                <p class="lead">В 19-м задании часто решает не «сложная теория», а точная фиксация ограничений.</p>
+                <div>
+                    <span class="tag">натуральность</span>
+                    <span class="tag">различность</span>
+                    <span class="tag">делимость</span>
+                    <span class="tag">чётность</span>
+                    <span class="tag">минимальная сумма</span>
+                    <span class="tag">обоснованный перебор</span>
+                </div>
+                <div class="formula">Если члены разные и натуральные: <span class="red">a₁ ≥ 1</span>, <span class="red">d ≥ 1</span>, <span class="red">n ∈ ℕ</span>.</div>
+                <div class="steps" id="steps">
+                    <div class="step active" data-step="0"><strong>Шаг 1.</strong> Записать прогрессию через первый член и разность.</div>
+                    <div class="step" data-step="1"><strong>Шаг 2.</strong> Подставить условие в формулу суммы или крайнего члена.</div>
+                    <div class="step" data-step="2"><strong>Шаг 3.</strong> Использовать делимость, чётность, положительность.</div>
+                    <div class="step" data-step="3"><strong>Шаг 4.</strong> Проверить кандидатов и привести пример или доказать невозможность.</div>
+                </div>
+            </section>
+
+            <section class="card" id="arith">
+                <h2>2. Арифметическая прогрессия</h2>
+                <div class="two">
+                    <div>
+                        <h3>Формулы</h3>
+                        <div class="formula">aₙ = a₁ + (n − 1)d</div>
+                        <div class="formula">Sₙ = ((2a₁ + (n − 1)d) / 2) · n</div>
+                        <div class="formula">Sₙ / n = (a₁ + aₙ) / 2</div>
+                    </div>
+                    <div>
+                        <h3>Ограничения</h3>
+                        <ul class="checklist">
+                            <li>Если числа натуральные: a₁ ≥ 1.</li>
+                            <li>Если числа разные и идут по возрастанию: d ≥ 1.</li>
+                            <li>Если Sₙ = M, то n · (2a₁ + (n − 1)d) = 2M.</li>
+                            <li>Следовательно, <strong>n делит 2M</strong>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>3. Минимальная сумма</h2>
+                <p>Чтобы сделать количество членов максимальным, берём самый «дешёвый» вариант:</p>
+                <div class="formula">1 + 2 + ... + n = n(n + 1) / 2</div>
+                <p>Это нижняя граница суммы для n разных натуральных членов арифметической прогрессии.</p>
+                <div class="practice-item"><strong>Пример.</strong> Если Sₙ &lt; 900, решаем n(n+1)/2 &lt; 900. Получаем максимум n = 41.</div>
+            </section>
+
+            <section class="card" id="geo">
+                <h2>4. Геометрическая прогрессия</h2>
+                <div class="formula">bₙ = b₁ · qⁿ⁻¹</div>
+                <div class="formula">Для 5 членов: b₁ · b₂ · b₃ · b₄ · b₅ = b₃⁵</div>
+                <p class="lead">Если пять натуральных чисел образуют геометрическую прогрессию, их произведение обязано быть пятой степенью натурального числа.</p>
+                <div class="practice-item"><strong>Пример.</strong> 1512 = 2³ · 3³ · 7. Это не пятая степень, значит такой прогрессии нет.</div>
+            </section>
+
+            <section class="card" id="practice">
+                <h2>5. Закрепление</h2>
+                <div class="practice-item">
+                    <strong>Задача 1.</strong> Даны 4 различных натуральных числа в арифметической прогрессии. Может ли сумма быть равна 18?
+                    <button class="btn small" type="button" data-answer="a1">Показать ответ</button>
+                    <div class="answer" id="a1">Да: 3, 4, 5, 6.</div>
+                </div>
+                <div class="practice-item">
+                    <strong>Задача 2.</strong> Найдите наибольшее n, если сумма n разных натуральных членов арифметической прогрессии меньше 300.
+                    <button class="btn small" type="button" data-answer="a2">Показать ответ</button>
+                    <div class="answer" id="a2">n = 23, так как 23·24/2 = 276, а 24·25/2 = 300.</div>
+                </div>
+                <div class="practice-item">
+                    <strong>Задача 3.</strong> Может ли произведение пяти натуральных членов геометрической прогрессии быть равно 1024?
+                    <button class="btn small" type="button" data-answer="a3">Показать ответ</button>
+                    <div class="answer" id="a3">Нет: 1024 = 2¹⁰, показатель 10 не делится на 5.</div>
+                </div>
+            </section>
+
+            <section class="quiz-card" id="quiz">
+                <h2>6. Мини-квиз</h2>
+                <div id="quizBox"></div>
+                <div class="controls">
+                    <button class="btn teal" id="nextQuiz" type="button">Следующий вопрос</button>
+                    <span id="quizScore" class="tag">Счёт: 0</span>
+                </div>
+            </section>
+        </div>
+
+        <aside class="sticky" id="tools">
+            <div class="toolbox">
+                <h2>Тренажёр</h2>
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="sum">Сумма</button>
+                    <button class="tab-btn" data-tab="maxn">Макс. n</button>
+                    <button class="tab-btn" data-tab="divs">Делители</button>
+                    <button class="tab-btn" data-tab="geo5">5-я степень</button>
+                </div>
+
+                <div class="tab-panel active" id="tab-sum">
+                    <div class="calc-row">
+                        <div><label>a₁</label><input id="calcA1" type="number" value="2" min="1"></div>
+                        <div><label>d</label><input id="d" type="number" value="1" min="1"></div>
+                        <div><label>n</label><input id="n" type="number" value="4" min="1"></div>
+                    </div>
+                    <button class="btn red" id="calcSum" type="button">Посчитать</button>
+                    <div class="result" id="sumResult"></div>
+                </div>
+
+                <div class="tab-panel" id="tab-maxn">
+                    <label>Ограничение: Sₙ &lt;</label>
+                    <input id="limit" type="number" value="900" min="1">
+                    <button class="btn red" id="calcMax" type="button">Найти максимум</button>
+                    <div class="result" id="maxResult"></div>
+                </div>
+
+                <div class="tab-panel" id="tab-divs">
+                    <label>Сумма M</label>
+                    <input id="M" type="number" value="123" min="1">
+                    <button class="btn red" id="calcDivs" type="button">Кандидаты n</button>
+                    <div class="result" id="divResult"></div>
+                </div>
+
+                <div class="tab-panel" id="tab-geo5">
+                    <label>Произведение P</label>
+                    <input id="P" type="number" value="1512" min="1">
+                    <button class="btn red" id="calcGeo" type="button">Проверить</button>
+                    <div class="result" id="geoResult"></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Визуализация</h2>
+                <div class="visual">
+                    <canvas id="viz" width="700" height="500" aria-label="Визуализация арифметической прогрессии"></canvas>
+                    <div class="controls">
+                        <button class="btn small" id="zoomOut" type="button">−</button>
+                        <input class="range" id="zoom" type="range" min="60" max="180" value="100">
+                        <button class="btn small" id="zoomIn" type="button">+</button>
+                        <button class="btn small" id="resetView" type="button">Сброс</button>
+                    </div>
+                    <div class="legend">Колесо мыши — масштаб. Перетаскивание — сдвиг.</div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</main>
+
+<footer class="footer">Артём Александрович Лёвин эксклюзивно для Полины Ковальчук · Математика. Наглядно.</footer>
+
+<script>
+    const state = {
+        theme: localStorage.getItem('theme') || 'light',
+        activeStep: 0,
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        dragging: false,
+        lastX: 0,
+        lastY: 0,
+        quizIndex: 0,
+        quizScore: 0
+    };
+
+    document.body.dataset.theme = state.theme;
+    document.getElementById('themeBtn').textContent = state.theme === 'dark' ? 'LIGHT' : 'DARK';
+
+    function num(id){ return Number(document.getElementById(id).value); }
+    function field(id){ return document.getElementById(id); }
+    function divisors(x){
+        const res=[];
+        for(let i=1;i*i<=x;i++){
+            if(x%i===0){ res.push(i); if(i*i!==x) res.push(x/i); }
+        }
+        return res.sort((a,b)=>a-b);
+    }
+    function isFifthPower(x){
+        const root = Math.round(Math.pow(x,1/5));
+        return {ok: root**5 === x, root};
+    }
+    function arithTerms(a,d,n){ return Array.from({length:n},(_,i)=>a+i*d); }
+    function sumArith(a,d,n){ return n*(2*a+(n-1)*d)/2; }
+
+    function drawViz(){
+        const canvas=document.getElementById('viz');
+        const ctx=canvas.getContext('2d');
+        const a=num('calcA1')||1, d=num('d')||1, n=Math.max(1, Math.min(num('n')||4, 12));
+        const terms=arithTerms(a,d,n);
+        const w=canvas.width, h=canvas.height;
+        const css = getComputedStyle(document.body);
+        const ink=css.getPropertyValue('--ink').trim();
+        const red=css.getPropertyValue('--red').trim();
+        const paper=css.getPropertyValue('--paper').trim();
+        const teal=css.getPropertyValue('--teal').trim();
+        ctx.clearRect(0,0,w,h);
+        ctx.fillStyle=paper; ctx.fillRect(0,0,w,h);
+        ctx.save();
+        ctx.translate(state.panX,state.panY);
+        ctx.scale(state.zoom,state.zoom);
+        ctx.lineWidth=4;
+        ctx.strokeStyle=ink;
+        const startX=70, y=250, gap= n>1 ? Math.min(90, 560/(n-1)) : 0;
+        ctx.beginPath(); ctx.moveTo(45,y); ctx.lineTo(650,y); ctx.stroke();
+        ctx.fillStyle=ink; ctx.font='bold 28px Arial';
+        ctx.fillText('a₁, a₁+d, ..., aₙ', 60, 70);
+        ctx.font='bold 18px Arial';
+        terms.forEach((t,i)=>{
+            const x=startX+i*gap;
+            ctx.beginPath(); ctx.arc(x,y,20,0,Math.PI*2); ctx.fillStyle=i===state.activeStep%Math.max(1,n)?red:teal; ctx.fill(); ctx.strokeStyle=ink; ctx.stroke();
+            ctx.fillStyle=paper; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(t),x,y);
+            ctx.fillStyle=ink; ctx.textBaseline='alphabetic'; ctx.fillText('a'+(i+1),x,y+52);
+            if(i<n-1){
+                ctx.strokeStyle=red; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x+26,y-36); ctx.quadraticCurveTo(x+gap/2,y-76,x+gap-26,y-36); ctx.stroke();
+                ctx.fillStyle=red; ctx.fillText('+d',x+gap/2,y-78);
+            }
+        });
+        ctx.textAlign='left'; ctx.fillStyle=ink; ctx.font='bold 22px Arial';
+        ctx.fillText('Sₙ = '+sumArith(a,d,n), 60, 405);
+        ctx.fillText('n = '+n+', d = '+d, 60, 438);
+        ctx.restore();
+    }
+
+    function calcSum(){
+        const a=num('calcA1'), d=num('d'), n=num('n');
+        const terms=arithTerms(a,d,n);
+        const s=sumArith(a,d,n);
+        document.getElementById('sumResult').innerHTML = `Члены: ${terms.join(', ')}<br>Сумма Sₙ = <span class="ok">${s}</span>`;
+        drawViz();
+    }
+    function calcMax(){
+        const lim=num('limit');
+        let n=0;
+        while((n+1)*(n+2)/2 < lim) n++;
+        const next=n+1;
+        document.getElementById('maxResult').innerHTML = `Максимум: <span class="ok">n = ${n}</span><br>${n}·${n+1}/2 = ${n*(n+1)/2}; ${next}·${next+1}/2 = ${next*(next+1)/2}.`;
+    }
+    function calcDivs(){
+        const M=num('M');
+        const ds=divisors(2*M).filter(x=>x>=3);
+        document.getElementById('divResult').innerHTML = `Так как n | 2M, смотрим делители ${2*M}.<br>Кандидаты n ≥ 3: <span class="ok">${ds.join(', ') || 'нет'}</span><br><span class="muted">Важно: это только кандидаты; их ещё нужно проверить.</span>`;
+    }
+    function calcGeo(){
+        const P=num('P');
+        const ans=isFifthPower(P);
+        if(ans.ok){
+            document.getElementById('geoResult').innerHTML = `<span class="ok">Да, P = ${ans.root}⁵.</span><br>Это необходимое условие для 5 членов геометрической прогрессии.`;
+        } else {
+            document.getElementById('geoResult').innerHTML = `<span class="bad">Нет, ${P} не является пятой степенью натурального числа.</span><br>Ближайший корень пятой степени: ${ans.root}.`;
+        }
+    }
+
+    document.getElementById('themeBtn').addEventListener('click',()=>{
+        state.theme = state.theme === 'dark' ? 'light' : 'dark';
+        document.body.dataset.theme = state.theme;
+        localStorage.setItem('theme', state.theme);
+        document.getElementById('themeBtn').textContent = state.theme === 'dark' ? 'LIGHT' : 'DARK';
+        drawViz();
+    });
+
+    document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>{
+        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    }));
+
+    document.querySelectorAll('.step').forEach(step=>step.addEventListener('click',()=>{
+        document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+        step.classList.add('active');
+        state.activeStep=Number(step.dataset.step);
+        drawViz();
+    }));
+
+    document.querySelectorAll('[data-answer]').forEach(btn=>btn.addEventListener('click',()=>{
+        document.getElementById(btn.dataset.answer).classList.toggle('show');
+    }));
+
+    const canvas=document.getElementById('viz');
+    canvas.addEventListener('mousedown',e=>{state.dragging=true; state.lastX=e.clientX; state.lastY=e.clientY;});
+    window.addEventListener('mouseup',()=>state.dragging=false);
+    window.addEventListener('mousemove',e=>{
+        if(!state.dragging) return;
+        state.panX += e.clientX-state.lastX; state.panY += e.clientY-state.lastY;
+        state.lastX=e.clientX; state.lastY=e.clientY;
+        drawViz();
+    });
+    canvas.addEventListener('wheel',e=>{
+        e.preventDefault();
+        state.zoom = Math.max(.6, Math.min(1.8, state.zoom + (e.deltaY<0 ? .08 : -.08)));
+        document.getElementById('zoom').value = Math.round(state.zoom*100);
+        drawViz();
+    }, {passive:false});
+    document.getElementById('zoom').addEventListener('input',e=>{state.zoom=Number(e.target.value)/100; drawViz();});
+    document.getElementById('zoomIn').addEventListener('click',()=>{state.zoom=Math.min(1.8,state.zoom+.1); document.getElementById('zoom').value=Math.round(state.zoom*100); drawViz();});
+    document.getElementById('zoomOut').addEventListener('click',()=>{state.zoom=Math.max(.6,state.zoom-.1); document.getElementById('zoom').value=Math.round(state.zoom*100); drawViz();});
+    document.getElementById('resetView').addEventListener('click',()=>{state.zoom=1; state.panX=0; state.panY=0; document.getElementById('zoom').value=100; drawViz();});
+
+    document.getElementById('calcSum').addEventListener('click',calcSum);
+    document.getElementById('calcMax').addEventListener('click',calcMax);
+    document.getElementById('calcDivs').addEventListener('click',calcDivs);
+    document.getElementById('calcGeo').addEventListener('click',calcGeo);
+    ['calcA1','d','n'].forEach(id=>document.getElementById(id).addEventListener('input',drawViz));
+
+    const quiz = [
+        {q:'Если Sₙ = M для арифметической прогрессии, какое условие обязательно?', opts:['n делит M','n делит 2M','d делит n','a₁ делит M'], correct:1},
+        {q:'Минимальная сумма n разных натуральных членов равна:', opts:['n²','n(n+1)/2','2n+1','n(n−1)/2'], correct:1},
+        {q:'Для максимального n нужно брать:', opts:['a₁=1, d=1','a₁=10, d=1','a₁=1, d=10','любой d'], correct:0},
+        {q:'Произведение 5 членов геометрической прогрессии равно:', opts:['b₁⁵','b₂⁵','b₃⁵','q⁵'], correct:2},
+        {q:'Для ответа «да, существует» достаточно:', opts:['доказать все случаи','привести один пример','найти все n','разложить на множители'], correct:1}
+    ];
+    function renderQuiz(){
+        const item=quiz[state.quizIndex%quiz.length];
+        const box=document.getElementById('quizBox');
+        box.innerHTML=`<h3>${item.q}</h3><div class="quiz-options">${item.opts.map((o,i)=>`<div class="option" data-i="${i}">${o}</div>`).join('')}</div>`;
+        box.querySelectorAll('.option').forEach(opt=>opt.addEventListener('click',()=>{
+            const i=Number(opt.dataset.i);
+            box.querySelectorAll('.option').forEach((el,j)=>{
+                el.classList.toggle('correct',j===item.correct);
+                if(j===i && i!==item.correct) el.classList.add('wrong');
+            });
+            if(i===item.correct){state.quizScore++; document.getElementById('quizScore').textContent='Счёт: '+state.quizScore;}
+        },{once:true}));
+    }
+    document.getElementById('nextQuiz').addEventListener('click',()=>{state.quizIndex++; renderQuiz();});
+
+    calcSum(); calcMax(); calcDivs(); calcGeo(); renderQuiz(); drawViz();
+</script>
+</body>
+</html>
