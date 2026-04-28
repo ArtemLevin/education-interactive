@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Теория вероятностей — интерактивное пособие</title>
+    <style>
+        :root{
+            --bg:#f4f4f0;
+            --ink:#111;
+            --muted:#555;
+            --card:#fffdf5;
+            --card2:#ebe7d8;
+            --accent:#ff4b2b;
+            --accent2:#2f6bff;
+            --green:#15803d;
+            --red:#b91c1c;
+            --yellow:#facc15;
+            --line:#111;
+            --shadow:6px 6px 0 #111;
+            --shadow-sm:3px 3px 0 #111;
+            --radius:0px;
+            --mono:"Courier New", monospace;
+            --sans:Arial, Helvetica, sans-serif;
+        }
+
+        [data-theme="dark"]{
+            --bg:#11110f;
+            --ink:#f5f1e6;
+            --muted:#c8c0ad;
+            --card:#1d1c18;
+            --card2:#29271f;
+            --accent:#ff6547;
+            --accent2:#78a6ff;
+            --green:#5ee082;
+            --red:#ff7777;
+            --yellow:#ffe45c;
+            --line:#f5f1e6;
+            --shadow:6px 6px 0 #f5f1e6;
+            --shadow-sm:3px 3px 0 #f5f1e6;
+        }
+
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            font-family:var(--sans);
+            background:
+            linear-gradient(90deg, rgba(0,0,0,.035) 1px, transparent 1px),
+            linear-gradient(rgba(0,0,0,.035) 1px, transparent 1px),
+            var(--bg);
+            background-size:24px 24px;
+            color:var(--ink);
+            line-height:1.5;
+        }
+
+        button,input,select{
+            font:inherit;
+            color:var(--ink);
+        }
+
+        .topbar{
+            position:sticky;
+            top:0;
+            z-index:50;
+            background:var(--card);
+            border-bottom:2px solid var(--line);
+            box-shadow:0 3px 0 var(--line);
+        }
+
+        .topbar-inner{
+            max-width:1320px;
+            margin:0 auto;
+            padding:10px 16px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:12px;
+            flex-wrap:wrap;
+        }
+
+        .brand{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            font-weight:900;
+            text-transform:uppercase;
+            letter-spacing:.05em;
+        }
+
+        .brand-mark{
+            width:36px;
+            height:36px;
+            border:2px solid var(--line);
+            display:grid;
+            place-items:center;
+            background:var(--yellow);
+            box-shadow:var(--shadow-sm);
+            font-weight:900;
+            transform:rotate(-2deg);
+        }
+
+        .nav{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+            align-items:center;
+        }
+
+        .btn{
+            border:2px solid var(--line);
+            background:var(--card);
+            padding:8px 12px;
+            cursor:pointer;
+            font-weight:800;
+            text-transform:uppercase;
+            box-shadow:var(--shadow-sm);
+            transition:.12s transform ease, .12s box-shadow ease, .12s background ease;
+        }
+
+        .btn:hover{
+            transform:translate(-1px,-1px);
+            box-shadow:4px 4px 0 var(--line);
+        }
+
+        .btn:active{
+            transform:translate(2px,2px);
+            box-shadow:1px 1px 0 var(--line);
+        }
+
+        .btn.primary{background:var(--accent); color:white}
+        .btn.blue{background:var(--accent2); color:white}
+        .btn.good{background:var(--green); color:white}
+        .btn.warn{background:var(--yellow); color:#111}
+        .btn.small{padding:6px 9px; font-size:13px}
+        .btn.active{background:var(--ink); color:var(--bg)}
+
+        .wrap{
+            max-width:1320px;
+            margin:0 auto;
+            padding:24px 16px 80px;
+        }
+
+        .hero{
+            display:grid;
+            grid-template-columns:1.25fr .75fr;
+            gap:24px;
+            align-items:stretch;
+            margin:18px 0 24px;
+        }
+
+        .hero-card,.panel,.exercise,.answer-card,.stat-card,.modal-box{
+            background:var(--card);
+            border:2px solid var(--line);
+            box-shadow:var(--shadow);
+        }
+
+        .hero-card{
+            padding:28px;
+            min-height:280px;
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+            position:relative;
+            overflow:hidden;
+        }
+
+        .hero-card::after{
+            content:"P(A)";
+            position:absolute;
+            right:-18px;
+            bottom:-42px;
+            font-family:var(--mono);
+            font-size:120px;
+            font-weight:900;
+            opacity:.08;
+            transform:rotate(-8deg);
+        }
+
+        h1{
+            margin:0;
+            font-size:clamp(34px,6vw,76px);
+            line-height:.92;
+            letter-spacing:-.05em;
+            text-transform:uppercase;
+        }
+
+        .subtitle{
+            margin:18px 0 0;
+            font-size:19px;
+            max-width:780px;
+            color:var(--muted);
+            font-weight:700;
+        }
+
+        .black-banner{
+            margin-top:22px;
+            background:var(--ink);
+            color:var(--bg);
+            padding:12px 14px;
+            font-weight:900;
+            text-transform:uppercase;
+            letter-spacing:.08em;
+            display:inline-block;
+            border:2px solid var(--line);
+            transform:rotate(-1deg);
+        }
+
+        .hero-side{
+            display:grid;
+            gap:14px;
+        }
+
+        .stat-card{
+            padding:18px;
+            background:var(--card2);
+        }
+
+        .stat-num{
+            font-size:44px;
+            font-weight:900;
+            line-height:1;
+        }
+
+        .stat-label{
+            margin-top:5px;
+            color:var(--muted);
+            font-weight:800;
+            text-transform:uppercase;
+            font-size:13px;
+            letter-spacing:.06em;
+        }
+
+        .toolbar{
+            display:grid;
+            grid-template-columns:1.1fr auto auto auto;
+            gap:12px;
+            align-items:center;
+            margin:18px 0 24px;
+        }
+
+        .search{
+            width:100%;
+            border:2px solid var(--line);
+            padding:12px 14px;
+            background:var(--card);
+            box-shadow:var(--shadow-sm);
+            outline:none;
+            font-weight:700;
+        }
+
+        .select{
+            border:2px solid var(--line);
+            padding:12px 14px;
+            background:var(--card);
+            box-shadow:var(--shadow-sm);
+            font-weight:800;
+            cursor:pointer;
+        }
+
+        .layout{
+            display:grid;
+            grid-template-columns:minmax(0,1fr) 360px;
+            gap:24px;
+            align-items:start;
+        }
+
+        .main{
+            min-width:0;
+        }
+
+        .side{
+            position:sticky;
+            top:78px;
+            display:grid;
+            gap:16px;
+        }
+
+        .panel{
+            padding:16px;
+        }
+
+        .panel-title{
+            margin:0 0 10px;
+            font-size:18px;
+            font-weight:900;
+            text-transform:uppercase;
+            letter-spacing:.03em;
+        }
+
+        .part-tabs{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+            margin:0 0 18px;
+        }
+
+        .part-section{
+            margin:0 0 28px;
+        }
+
+        .part-title{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+            margin:0 0 14px;
+            padding:12px 14px;
+            border:2px solid var(--line);
+            background:var(--ink);
+            color:var(--bg);
+            text-transform:uppercase;
+            letter-spacing:.06em;
+            box-shadow:var(--shadow-sm);
+        }
+
+        .exercise-grid{
+            display:grid;
+            gap:14px;
+        }
+
+        .exercise{
+            padding:16px;
+            position:relative;
+            transition:.15s transform ease;
+        }
+
+        .exercise:hover{
+            transform:translate(-2px,-2px);
+        }
+
+        .exercise-head{
+            display:flex;
+            align-items:flex-start;
+            gap:10px;
+            justify-content:space-between;
+            margin-bottom:10px;
+        }
+
+        .num{
+            min-width:42px;
+            height:42px;
+            display:grid;
+            place-items:center;
+            border:2px solid var(--line);
+            background:var(--yellow);
+            color:#111;
+            font-weight:900;
+            box-shadow:var(--shadow-sm);
+            font-size:18px;
+        }
+
+        .tags{
+            display:flex;
+            gap:6px;
+            flex-wrap:wrap;
+            justify-content:flex-end;
+        }
+
+        .tag{
+            border:2px solid var(--line);
+            background:var(--card2);
+            padding:3px 7px;
+            font-size:12px;
+            font-weight:900;
+            text-transform:uppercase;
+        }
+
+        .text{
+            font-size:17px;
+        }
+
+        .answer-row{
+            margin-top:14px;
+            display:grid;
+            grid-template-columns:1fr auto auto;
+            gap:8px;
+            align-items:center;
+        }
+
+        .answer-input{
+            border:2px solid var(--line);
+            padding:10px 12px;
+            background:var(--card);
+            outline:none;
+            box-shadow:var(--shadow-sm);
+            font-weight:800;
+            min-width:0;
+        }
+
+        .feedback{
+            margin-top:10px;
+            font-weight:900;
+            min-height:24px;
+        }
+
+        .feedback.ok{color:var(--green)}
+        .feedback.bad{color:var(--red)}
+        .feedback.hint{color:var(--accent2)}
+
+        .hidden{display:none !important}
+
+        .progress-wrap{
+            border:2px solid var(--line);
+            background:var(--card2);
+            height:28px;
+            position:relative;
+            box-shadow:var(--shadow-sm);
+            overflow:hidden;
+        }
+
+        .progress-bar{
+            height:100%;
+            width:0%;
+            background:var(--green);
+            transition:.2s width ease;
+        }
+
+        .progress-text{
+            position:absolute;
+            inset:0;
+            display:grid;
+            place-items:center;
+            font-weight:900;
+            font-size:13px;
+            color:var(--ink);
+            mix-blend-mode:difference;
+        }
+
+        .formula-list{
+            display:grid;
+            gap:8px;
+            font-weight:800;
+        }
+
+        .formula{
+            border:2px solid var(--line);
+            background:var(--card2);
+            padding:10px;
+        }
+
+        .answer-table{
+            width:100%;
+            border-collapse:collapse;
+            background:var(--card);
+            border:2px solid var(--line);
+            box-shadow:var(--shadow);
+            margin-top:12px;
+        }
+
+        .answer-table th,.answer-table td{
+            border:2px solid var(--line);
+            padding:9px 10px;
+            text-align:center;
+            font-weight:800;
+        }
+
+        .answer-table th{
+            background:var(--ink);
+            color:var(--bg);
+            text-transform:uppercase;
+        }
+
+        .answer-table tr:nth-child(even) td{
+            background:var(--card2);
+        }
+
+        .mode-badge{
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            font-weight:900;
+            text-transform:uppercase;
+        }
+
+        .lamp{
+            width:12px;
+            height:12px;
+            border:2px solid var(--line);
+            background:var(--green);
+            display:inline-block;
+            border-radius:50%;
+        }
+
+        .mini-map{
+            display:grid;
+            grid-template-columns:repeat(6,1fr);
+            gap:6px;
+        }
+
+        .mini{
+            border:2px solid var(--line);
+            background:var(--card2);
+            height:32px;
+            display:grid;
+            place-items:center;
+            cursor:pointer;
+            font-size:12px;
+            font-weight:900;
+        }
+
+        .mini.solved{background:var(--green); color:white}
+        .mini.active{background:var(--accent); color:white}
+
+        .quiz-card{
+            border:2px solid var(--line);
+            background:var(--card2);
+            padding:12px;
+            box-shadow:var(--shadow-sm);
+        }
+
+        .quiz-options{
+            display:grid;
+            gap:8px;
+            margin-top:10px;
+        }
+
+        .quiz-options button{
+            text-align:left;
+        }
+
+        .print-note{
+            font-size:14px;
+            color:var(--muted);
+            font-weight:700;
+        }
+
+        .modal{
+            position:fixed;
+            inset:0;
+            z-index:100;
+            background:rgba(0,0,0,.72);
+            display:none;
+            align-items:center;
+            justify-content:center;
+            padding:18px;
+        }
+
+        .modal.open{display:flex}
+
+        .modal-box{
+            width:min(980px,100%);
+            max-height:90vh;
+            overflow:auto;
+            padding:20px;
+            background:var(--card);
+        }
+
+        .modal-head{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:12px;
+            margin-bottom:12px;
+        }
+
+        .modal-title{
+            margin:0;
+            font-size:28px;
+            text-transform:uppercase;
+        }
+
+        .solution{
+            border:2px solid var(--line);
+            background:var(--card2);
+            padding:14px;
+            font-size:18px;
+            font-weight:700;
+        }
+
+        mark{
+            background:var(--yellow);
+            color:#111;
+            padding:0 2px;
+        }
+
+        .footer{
+            margin-top:50px;
+            border-top:2px solid var(--line);
+            padding-top:18px;
+            font-weight:900;
+            color:var(--accent);
+            text-transform:uppercase;
+            letter-spacing:.08em;
+        }
+
+        @media (max-width:1000px){
+            .hero,.layout{grid-template-columns:1fr}
+            .side{position:static}
+            .toolbar{grid-template-columns:1fr 1fr}
+        }
+
+        @media (max-width:640px){
+            .toolbar{grid-template-columns:1fr}
+            .answer-row{grid-template-columns:1fr}
+            .part-title{display:block}
+            .wrap{padding-left:12px;padding-right:12px}
+            .hero-card{padding:20px}
+        }
+
+        @media print{
+            body{
+                background:white;
+                color:#000;
+            }
+            .topbar,.toolbar,.side,.answer-row,.feedback,.part-tabs,.footer,.btn,.modal{
+                display:none !important;
+            }
+            .wrap{max-width:none;padding:0}
+            .hero{display:block}
+            .hero-side{display:none}
+            .hero-card,.exercise,.answer-table{
+                box-shadow:none;
+                border:1px solid #000;
+            }
+            .hero-card{
+                min-height:auto;
+                margin-bottom:12mm;
+            }
+            .hero-card::after{display:none}
+            .black-banner{border:1px solid #000}
+            .part-title{
+                color:#000;
+                background:white;
+                border:1px solid #000;
+                box-shadow:none;
+            }
+            .exercise{
+                break-inside:avoid;
+                page-break-inside:avoid;
+            }
+            .answer-table{
+                break-before:page;
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="topbar">
+    <div class="topbar-inner">
+        <div class="brand">
+            <div class="brand-mark">P</div>
+            <div>Вероятность / ЕГЭ</div>
+        </div>
+        <nav class="nav">
+            <button class="btn small active" data-view="study">Учить</button>
+            <button class="btn small" data-view="practice">Тренировка</button>
+            <button class="btn small" data-view="answers">Ответы</button>
+            <button class="btn small" id="themeBtn">Dark</button>
+            <button class="btn small blue" id="printBtn">Печать</button>
+        </nav>
+    </div>
+</header>
+
+<main class="wrap">
+    <section class="hero">
+        <div class="hero-card">
+            <div>
+                <h1>Теория вероятностей</h1>
+                <p class="subtitle">36 задач в формате ЕГЭ: проверка событий, дополнение до единицы, частота, равновозможные исходы, жеребьёвка, кости, монеты и классические вероятностные модели.</p>
+                <div class="black-banner">Математика. Наглядно. Интерактивно.</div>
+            </div>
+        </div>
+
+        <div class="hero-side">
+            <div class="stat-card">
+                <div class="stat-num">36</div>
+                <div class="stat-label">упражнений</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="solvedCount">0</div>
+                <div class="stat-label">решено верно</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="accuracy">0%</div>
+                <div class="stat-label">прогресс</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="toolbar">
+        <input class="search" id="searchInput" placeholder="Поиск по тексту задачи, например: кости, автобус, Россия..." />
+        <select class="select" id="partFilter">
+            <option value="all">Все части</option>
+            <option value="1">Часть 1</option>
+            <option value="2">Часть 2</option>
+            <option value="3">Часть 3</option>
+            <option value="4">Часть 4</option>
+        </select>
+        <select class="select" id="typeFilter">
+            <option value="all">Все типы</option>
+            <option value="difference">Разность вероятностей</option>
+            <option value="classic">Классическая вероятность</option>
+            <option value="complement">Дополнение</option>
+            <option value="draw">Жеребьёвка</option>
+            <option value="frequency">Частота</option>
+        </select>
+        <button class="btn warn" id="shuffleBtn">Перемешать</button>
+    </section>
+
+    <section class="layout">
+        <div class="main">
+            <div class="part-tabs" id="partTabs"></div>
+            <div id="exerciseRoot"></div>
+            <div id="answersRoot" class="hidden"></div>
+        </div>
+
+        <aside class="side">
+            <div class="panel">
+                <h3 class="panel-title">Режим</h3>
+                <div class="mode-badge"><span class="lamp"></span><span id="modeText">Учить: ответы можно открыть</span></div>
+            </div>
+
+            <div class="panel">
+                <h3 class="panel-title">Прогресс</h3>
+                <div class="progress-wrap">
+                    <div class="progress-bar" id="progressBar"></div>
+                    <div class="progress-text" id="progressText">0 / 36</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3 class="panel-title">Карта задач</h3>
+                <div class="mini-map" id="miniMap"></div>
+            </div>
+
+            <div class="panel">
+                <h3 class="panel-title">Мини-шпаргалка</h3>
+                <div class="formula-list">
+                    <div class="formula">Событие «ровно n»: разность двух вложенных событий.</div>
+                    <div class="formula">Противоположное событие: <b>1 − P(A)</b>.</div>
+                    <div class="formula">Классическая вероятность: благоприятные исходы / все исходы.</div>
+                    <div class="formula">Жеребьёвка: фиксируем одного участника и считаем возможных соседей / соперников.</div>
+                </div>
+            </div>
+
+            <div class="panel" id="quizPanel">
+                <h3 class="panel-title">Быстрая проверка</h3>
+                <div class="quiz-card">
+                    <div id="quizQuestion"></div>
+                    <div class="quiz-options" id="quizOptions"></div>
+                    <div class="feedback" id="quizFeedback"></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3 class="panel-title">Печать</h3>
+                <p class="print-note">При печати автоматически скрываются кнопки, поля ввода и боковая панель. Остаются упражнения и таблица ответов.</p>
+                <button class="btn blue" onclick="window.print()">Открыть печать</button>
+            </div>
+        </aside>
+    </section>
+
+    <footer class="footer">Математика. Наглядно.</footer>
+</main>
+
+<div class="modal" id="solutionModal" aria-hidden="true">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h2 class="modal-title" id="modalTitle">Решение</h2>
+            <button class="btn small" id="closeModal">Закрыть</button>
+        </div>
+        <div class="solution" id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+    const exercises = [
+        {n:1, part:1, type:"difference", answer:"0,06", text:"Вероятность того, что на тестировании по физике учащийся К. верно решит больше 9 задач, равна 0,79. Вероятность того, что К. верно решит больше 8 задач, равна 0,85. Найдите вероятность того, что К. верно решит ровно 9 задач.", solution:"Событие «больше 8 задач» включает случаи: ровно 9 задач и больше 9 задач. Поэтому искомая вероятность равна 0,85 − 0,79 = 0,06."},
+        {n:2, part:1, type:"difference", answer:"0,12", text:"Вероятность того, что на тестировании по химии учащийся П. верно решит больше 10 задач, равна 0,63. Вероятность того, что П. верно решит больше 9 задач, равна 0,75. Найдите вероятность того, что П. верно решит ровно 10 задач.", solution:"Событие «больше 9 задач» включает «ровно 10 задач» и «больше 10 задач». Значит, вероятность равна 0,75 − 0,63 = 0,12."},
+        {n:3, part:1, type:"difference", answer:"0,37", text:"Из районного центра в деревню ежедневно ходит автобус. Вероятность того, что в понедельник в автобусе окажется меньше 21 пассажира, равна 0,83. Вероятность того, что окажется меньше 10 пассажиров, равна 0,46. Найдите вероятность того, что число пассажиров будет от 10 до 20 включительно.", solution:"Событие «меньше 21» состоит из двух частей: «меньше 10» и «от 10 до 20 включительно». Поэтому 0,83 − 0,46 = 0,37."},
+        {n:4, part:1, type:"difference", answer:"0,24", text:"Из районного центра в деревню ежедневно ходит автобус. Вероятность того, что в понедельник в автобусе окажется меньше 18 пассажиров, равна 0,9. Вероятность того, что окажется меньше 9 пассажиров, равна 0,66. Найдите вероятность того, что число пассажиров будет от 9 до 17 включительно.", solution:"Событие «меньше 18» включает «меньше 9» и «от 9 до 17 включительно». Искомая вероятность: 0,9 − 0,66 = 0,24."},
+        {n:5, part:1, type:"frequency", answer:"0,004", text:"Вероятность того, что новый принтер в течение года поступит в гарантийный ремонт, равна 0,097. В некотором городе из 1000 проданных принтеров в течение года в мастерские по гарантии поступила 101 штука. На сколько отличается частота события «гарантийный ремонт» от его вероятности в этом городе?", solution:"Частота события равна 101 / 1000 = 0,101. Отличие от вероятности: |0,101 − 0,097| = 0,004."},
+        {n:6, part:1, type:"frequency", answer:"0,006", text:"Вероятность того, что новый блендер в течение года поступит в гарантийный ремонт, равна 0,06. В некотором городе из 1000 проданных блендеров в течение года в мастерские по гарантии поступило 54 штуки. На сколько отличается частота события «гарантийный ремонт» от его вероятности в этом городе?", solution:"Частота равна 54 / 1000 = 0,054. Отличие от вероятности: |0,054 − 0,06| = 0,006."},
+        {n:7, part:1, type:"classic", answer:"0,2", text:"В группе туристов 25 человек. Их вертолётом доставляют в труднодоступный район, перевозя по 5 человек за рейс. Порядок, в котором вертолёт перевозит туристов, случаен. Найдите вероятность того, что турист Н. полетит вторым рейсом вертолёта.", solution:"Вторым рейсом летят 5 человек из 25. Для любого конкретного туриста вероятность попасть во второй рейс равна 5 / 25 = 0,2."},
+        {n:8, part:1, type:"classic", answer:"0,125", text:"В группе туристов 32 человека. Их вертолётом доставляют в труднодоступный район, перевозя по 4 человека за рейс. Порядок, в котором вертолёт перевозит туристов, случаен. Найдите вероятность того, что турист Г. полетит четвёртым рейсом вертолёта.", solution:"В четвёртом рейсе 4 места из 32. Вероятность для конкретного туриста: 4 / 32 = 0,125."},
+        {n:9, part:1, type:"classic", answer:"0,01", text:"Какова вероятность того, что последние три цифры номера случайно выбранного паспорта одинаковы?", solution:"Всего вариантов трёх последних цифр: 1000. Подходящие: 000, 111, ..., 999 — всего 10. Вероятность 10 / 1000 = 0,01."},
+        {n:10, part:1, type:"complement", answer:"0,28", text:"Рассмотрим случайный телефонный номер. Какова вероятность того, что среди трёх последних цифр этого номера хотя бы две цифры одинаковы?", solution:"Удобно взять противоположное событие: все три цифры разные. Его вероятность: 10·9·8 / 10³ = 720 / 1000 = 0,72. Тогда искомая вероятность: 1 − 0,72 = 0,28."},
+
+        {n:11, part:2, type:"classic", answer:"0,25", text:"На экзамене по геометрии школьник отвечает на один вопрос из списка экзаменационных вопросов. Вероятность того, что это вопрос по теме «Тригонометрия», равна 0,1. Вероятность того, что это вопрос по теме «Внешние углы», равна 0,15. Вопросов, которые одновременно относятся к этим двум темам, нет. Найдите вероятность того, что на экзамене школьнику достанется вопрос по одной из этих двух тем.", solution:"Темы не пересекаются, поэтому вероятности складываются: 0,1 + 0,15 = 0,25."},
+        {n:12, part:2, type:"classic", answer:"0,55", text:"На экзамене по геометрии школьник отвечает на один вопрос из списка экзаменационных вопросов. Вероятность того, что это вопрос по теме «Вписанная окружность», равна 0,25. Вероятность того, что это вопрос по теме «Площадь», равна 0,3. Вопросов, которые одновременно относятся к этим двум темам, нет. Найдите вероятность того, что на экзамене школьнику достанется вопрос по одной из этих двух тем.", solution:"События несовместны, значит P = 0,25 + 0,3 = 0,55."},
+        {n:13, part:2, type:"classic", answer:"0,4", text:"На клавиатуре телефона 10 цифр, от 0 до 9. Какова вероятность того, что случайно нажатая цифра будет чётной и меньше 7?", solution:"Подходящие цифры: 0, 2, 4, 6. Всего 4 из 10. Вероятность 4 / 10 = 0,4."},
+        {n:14, part:2, type:"classic", answer:"6/23", aliases:["0,26087","0.26087","6/23"], text:"Из множества натуральных чисел от 58 до 80 включительно наудачу выбирают одно число. Какова вероятность того, что оно делится на 4?", solution:"Всего чисел от 58 до 80 включительно: 23. Делятся на 4: 60, 64, 68, 72, 76, 80 — всего 6. Вероятность 6 / 23."},
+        {n:15, part:2, type:"complement", answer:"0,014", text:"При изготовлении подшипников диаметром 62 мм вероятность того, что диаметр будет отличаться от заданного не больше чем на 0,01 мм, равна 0,986. Найдите вероятность того, что случайный подшипник будет иметь диаметр меньше чем 61,99 мм или больше чем 62,01 мм.", solution:"Нужно противоположное событие к «отличается не больше чем на 0,01 мм». Поэтому вероятность равна 1 − 0,986 = 0,014."},
+        {n:16, part:2, type:"complement", answer:"0,29", text:"Вероятность того, что в случайный момент времени температура тела здорового человека окажется ниже чем 36,8 °C, равна 0,71. Найдите вероятность того, что в случайный момент времени у здорового человека температура окажется 36,8 °C или выше.", solution:"Событие «36,8 °C или выше» противоположно событию «ниже 36,8 °C». Получаем 1 − 0,71 = 0,29."},
+        {n:17, part:2, type:"draw", answer:"0,08", text:"Перед началом первого тура чемпионата по шашкам участников разбивают на игровые пары случайным образом с помощью жребия. Всего в чемпионате участвует 26 шашистов, среди которых 3 спортсмена из России, в том числе Василий Лукин. Найдите вероятность того, что в первом туре Василий Лукин будет играть с каким-либо шашистом из России.", solution:"У Василия 25 возможных соперников. Из них 2 — шашисты из России. Вероятность равна 2 / 25 = 0,08."},
+
+        {n:18, part:3, type:"draw", answer:"0,2", text:"Перед началом первого тура чемпионата по шахматам участников разбивают на игровые пары случайным образом с помощью жребия. Всего в чемпионате участвует 16 шахматистов, среди которых 4 спортсмена из России, в том числе Фёдор Волков. Найдите вероятность того, что в первом туре Фёдор Волков будет играть с каким-либо шахматистом из России.", solution:"У Фёдора 15 возможных соперников. Из них 3 — шахматисты из России. Вероятность 3 / 15 = 0,2."},
+        {n:19, part:3, type:"classic", answer:"0,25", text:"Механические часы с двенадцатичасовым циферблатом в какой-то момент сломались и перестали идти. Найдите вероятность того, что часовая стрелка остановилась, достигнув отметки 7, но не дойдя до отметки 10.", solution:"От 7 до 10 — это 3 часовых деления из 12. Вероятность 3 / 12 = 0,25."},
+        {n:20, part:3, type:"classic", answer:"0,75", text:"Механические часы с двенадцатичасовым циферблатом в какой-то момент сломались и перестали идти. Найдите вероятность того, что часовая стрелка остановилась, достигнув отметки 2, но не дойдя до отметки 11.", solution:"От 2 до 11 — это 9 часовых делений из 12. Вероятность 9 / 12 = 0,75."},
+        {n:21, part:3, type:"draw", answer:"0,2", text:"В классе 16 учащихся, среди них два друга — Михаил и Андрей. Класс случайным образом разбивают на 4 равные группы. Найдите вероятность того, что Михаил и Андрей окажутся в одной группе.", solution:"Фиксируем группу Михаила. В ней осталось 3 места из 15 возможных мест для Андрея. Вероятность 3 / 15 = 0,2."},
+        {n:22, part:3, type:"draw", answer:"0,3", text:"Всего в группе туристов 21 человек, в том числе Женя и Саша. Группу случайным образом делят на три подгруппы по 7 человек для посадки в три микроавтобуса. Какова вероятность того, что Женя и Саша случайно окажутся в одном микроавтобусе?", solution:"Фиксируем микроавтобус Жени. В нём осталось 6 мест из 20 возможных мест для Саши. Вероятность 6 / 20 = 0,3."},
+        {n:23, part:3, type:"draw", answer:"0,25", text:"В гонке с раздельным стартом участвуют 25 лыжников, среди которых 7 спортсменов из Норвегии. Порядок старта определяется с помощью жребия случайным образом. Один из норвежских лыжников получил стартовый номер 5. Найдите вероятность того, что он будет стартовать непосредственно после своего соотечественника.", solution:"Перед номером 5 непосредственно стартует участник с номером 4. Среди оставшихся 24 лыжников есть 6 норвежцев. Вероятность, что номер 4 — норвежец, равна 6 / 24 = 0,25."},
+        {n:24, part:3, type:"draw", answer:"0,2", text:"В гонке с раздельным стартом участвуют 16 лыжников, среди которых 4 спортсмена из Швеции. Порядок старта определяется с помощью жребия случайным образом. Один из шведских лыжников получил стартовый номер 10. Найдите вероятность того, что он будет стартовать непосредственно после своего соотечественника.", solution:"Перед ним непосредственно стартует номер 9. Среди оставшихся 15 лыжников есть 3 шведа. Вероятность 3 / 15 = 0,2."},
+        {n:25, part:3, type:"complement", answer:"0,18", text:"В магазине в одной коробке лежат вперемешку ручки с чёрными, синими или красными чернилами, одинаковые на вид. Покупатель случайным образом выбирает одну ручку. Вероятность того, что она окажется чёрной, равна 0,37, а того, что она окажется синей, равна 0,45. Найдите вероятность того, что ручка окажется красной.", solution:"Есть только три цвета. Вероятность красной ручки: 1 − 0,37 − 0,45 = 0,18."},
+        {n:26, part:3, type:"complement", answer:"0,38", text:"В магазине в одной коробке лежат вперемешку ручки с чёрными, синими или красными чернилами, одинаковые на вид. Покупатель случайным образом выбирает одну ручку. Вероятность того, что она окажется чёрной, равна 0,36, а того, что она окажется красной, равна 0,26. Найдите вероятность того, что ручка окажется синей.", solution:"Вероятность синей ручки: 1 − 0,36 − 0,26 = 0,38."},
+
+        {n:27, part:4, type:"classic", answer:"0,14", aliases:["0,14","0.14"], text:"В случайном эксперименте бросают две игральные кости. Найдите вероятность того, что сумма выпавших очков равна 6. Результат округлите до сотых.", solution:"Всего 36 равновозможных исходов. Сумму 6 дают пары: (1,5), (2,4), (3,3), (4,2), (5,1), всего 5 исходов. 5 / 36 ≈ 0,1389, округляем до сотых: 0,14."},
+        {n:28, part:4, type:"classic", answer:"0,375", text:"В случайном эксперименте симметричную монету бросают трижды. Найдите вероятность того, что орёл выпадет ровно один раз.", solution:"Всего исходов 2³ = 8. Ровно один орёл может выпасть на первом, втором или третьем броске — 3 исхода. Вероятность 3 / 8 = 0,375."},
+        {n:29, part:4, type:"classic", answer:"0,24", text:"В чемпионате по гимнастике участвуют 50 спортсменок: 22 из США, 16 из Мексики, остальные — из Канады. Порядок, в котором выступают гимнастки, определяется жребием. Найдите вероятность того, что спортсменка, выступающая первой, окажется из Канады.", solution:"Из Канады: 50 − 22 − 16 = 12 спортсменок. Вероятность 12 / 50 = 0,24."},
+        {n:30, part:4, type:"classic", answer:"0,28", text:"В соревнованиях по толканию ядра участвуют спортсмены из четырёх стран: 5 из Японии, 4 из Кореи, 9 из Китая и 7 из Индии. Порядок, в котором выступают спортсмены, определяется жребием. Найдите вероятность того, что спортсмен, который выступает последним, окажется из Индии.", solution:"Всего спортсменов: 5 + 4 + 9 + 7 = 25. Из Индии 7. Вероятность 7 / 25 = 0,28."},
+        {n:31, part:4, type:"complement", answer:"0,98", text:"Фабрика выпускает сумки. В среднем 2 сумки из 120 имеют скрытые дефекты. Найдите вероятность того, что купленная сумка окажется без дефектов. Результат округлите до сотых.", solution:"Вероятность дефекта: 2 / 120 = 1 / 60 ≈ 0,0167. Без дефекта: 1 − 0,0167 ≈ 0,9833. До сотых: 0,98."},
+        {n:32, part:4, type:"frequency", answer:"0,024", text:"При производстве в среднем на каждые 1500 насосов приходится 36 неисправных. Найдите вероятность того, что случайно выбранный насос окажется неисправным.", solution:"Вероятность неисправности: 36 / 1500 = 0,024."},
+        {n:33, part:4, type:"classic", answer:"0,28", text:"Научная конференция проводится в 3 дня. Всего запланировано 50 докладов: в первый день 22 доклада, остальные распределены поровну между вторым и третьим днями. На конференции планируется доклад профессора М. Порядок докладов определяется жеребьёвкой. Какова вероятность, что доклад профессора М. окажется запланированным на последний день конференции?", solution:"После первого дня остаётся 50 − 22 = 28 докладов. Поровну между вторым и третьим днями: по 14. Вероятность попасть на последний день: 14 / 50 = 0,28."},
+        {n:34, part:4, type:"classic", answer:"0,16", text:"Конкурс исполнителей проводится в 4 дня. Всего заявлено 50 выступлений: по одному от каждой страны, участвующей в конкурсе. Исполнитель из России участвует в конкурсе. В первый день 26 выступлений, остальные распределены поровну между оставшимися днями. Порядок выступлений определяется жеребьёвкой. Какова вероятность, что выступление представителя России состоится на третий день конкурса?", solution:"После первого дня остаётся 50 − 26 = 24 выступления. Они распределены поровну между тремя днями: по 8. Вероятность выступить в третий день: 8 / 50 = 0,16."},
+        {n:35, part:4, type:"complement", answer:"0,56", text:"В сборнике билетов по физике всего 25 билетов, в 11 из них встречается вопрос по теме «Конденсаторы». Найдите вероятность того, что в случайно выбранном на экзамене билете школьнику не достанется вопрос по теме «Конденсаторы».", solution:"Без вопроса по теме «Конденсаторы»: 25 − 11 = 14 билетов. Вероятность 14 / 25 = 0,56."},
+        {n:36, part:4, type:"classic", answer:"0,12", text:"В сборнике билетов по философии всего 50 билетов, в 6 из них встречается вопрос по теме «Кант». Найдите вероятность того, что в случайно выбранном на экзамене билете школьнику достанется вопрос по теме «Кант».", solution:"Подходящих билетов 6 из 50. Вероятность 6 / 50 = 0,12."}
+    ];
+
+    const typeNames = {
+        difference:"Разность",
+        classic:"Классика",
+        complement:"Дополнение",
+        draw:"Жеребьёвка",
+        frequency:"Частота"
+    };
+
+    let state = {
+        view:"study",
+        search:"",
+        part:"all",
+        type:"all",
+        order:exercises.map(e=>e.n),
+        solved: JSON.parse(localStorage.getItem("probabilitySolved") || "{}"),
+        theme: localStorage.getItem("probabilityTheme") || "light"
+    };
+
+    document.documentElement.dataset.theme = state.theme === "dark" ? "dark" : "light";
+
+    const root = document.getElementById("exerciseRoot");
+    const answersRoot = document.getElementById("answersRoot");
+    const searchInput = document.getElementById("searchInput");
+    const partFilter = document.getElementById("partFilter");
+    const typeFilter = document.getElementById("typeFilter");
+    const solvedCount = document.getElementById("solvedCount");
+    const accuracy = document.getElementById("accuracy");
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
+    const modeText = document.getElementById("modeText");
+    const miniMap = document.getElementById("miniMap");
+    const partTabs = document.getElementById("partTabs");
+    const modal = document.getElementById("solutionModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalBody = document.getElementById("modalBody");
+
+    function normalizeAnswer(value){
+        return String(value)
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g,"")
+            .replace(".",",")
+            .replace("−","-");
+    }
+
+    function isCorrect(ex, value){
+        const v = normalizeAnswer(value);
+        const answers = [ex.answer].concat(ex.aliases || []).map(normalizeAnswer);
+        return answers.includes(v);
+    }
+
+    function filteredExercises(){
+        const q = state.search.toLowerCase().trim();
+        return state.order
+            .map(n => exercises.find(e => e.n === n))
+            .filter(e => state.part === "all" || String(e.part) === String(state.part))
+            .filter(e => state.type === "all" || e.type === state.type)
+            .filter(e => !q || e.text.toLowerCase().includes(q) || String(e.n).includes(q) || typeNames[e.type].toLowerCase().includes(q));
+    }
+
+    function renderPartTabs(){
+        partTabs.innerHTML = "";
+        const tabs = [
+            ["all","Все"],
+            ["1","Часть 1"],
+            ["2","Часть 2"],
+            ["3","Часть 3"],
+            ["4","Часть 4"]
+        ];
+        tabs.forEach(([value,label])=>{
+            const b = document.createElement("button");
+            b.className = "btn small" + (String(state.part) === value ? " active" : "");
+            b.textContent = label;
+            b.onclick = () => {
+                state.part = value;
+                partFilter.value = value;
+                render();
+            };
+            partTabs.appendChild(b);
+        });
+    }
+
+    function renderExercises(){
+        root.classList.toggle("hidden", state.view === "answers");
+        answersRoot.classList.toggle("hidden", state.view !== "answers");
+
+        if(state.view === "answers"){
+            renderAnswers();
+            return;
+        }
+
+        const list = filteredExercises();
+        const grouped = [1,2,3,4].map(part => ({
+            part,
+            items:list.filter(e => e.part === part)
+        })).filter(g => g.items.length);
+
+        root.innerHTML = "";
+
+        if(!grouped.length){
+            root.innerHTML = '<div class="panel"><h3 class="panel-title">Ничего не найдено</h3><p>Попробуйте изменить поиск или фильтр.</p></div>';
+            return;
+        }
+
+        grouped.forEach(group=>{
+            const section = document.createElement("section");
+            section.className = "part-section";
+            section.innerHTML = `
+          <h2 class="part-title">
+            <span>Теория вероятностей. Часть ${group.part}</span>
+            <span>${group.items.length} задач</span>
+          </h2>
+          <div class="exercise-grid"></div>
+        `;
+            const grid = section.querySelector(".exercise-grid");
+
+            group.items.forEach(ex=>{
+                const card = document.createElement("article");
+                card.className = "exercise";
+                card.id = "task-" + ex.n;
+                const isSolved = !!state.solved[ex.n];
+
+                card.innerHTML = `
+            <div class="exercise-head">
+              <div class="num">${ex.n}</div>
+              <div class="tags">
+                <span class="tag">Часть ${ex.part}</span>
+                <span class="tag">${typeNames[ex.type]}</span>
+                ${isSolved ? '<span class="tag" style="background:var(--green);color:white">Решено</span>' : ''}
+              </div>
+            </div>
+            <div class="text">${highlight(ex.text)}</div>
+            <div class="answer-row">
+              <input class="answer-input" inputmode="decimal" placeholder="Введите ответ, например 0,25" data-input="${ex.n}">
+              <button class="btn good" data-check="${ex.n}">Проверить</button>
+              <button class="btn" data-solution="${ex.n}">${state.view === "practice" ? "Подсказка" : "Решение"}</button>
+            </div>
+            <div class="feedback" data-feedback="${ex.n}"></div>
+          `;
+
+                grid.appendChild(card);
+            });
+
+            root.appendChild(section);
+        });
+
+        bindExerciseButtons();
+    }
+
+    function highlight(text){
+        const q = state.search.trim();
+        if(!q) return text;
+        const safe = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        return text.replace(new RegExp(safe, "gi"), match => `<mark>${match}</mark>`);
+    }
+
+    function bindExerciseButtons(){
+        document.querySelectorAll("[data-check]").forEach(btn=>{
+            btn.onclick = () => {
+                const n = Number(btn.dataset.check);
+                const ex = exercises.find(e=>e.n===n);
+                const input = document.querySelector(`[data-input="${n}"]`);
+                const fb = document.querySelector(`[data-feedback="${n}"]`);
+                if(!input.value.trim()){
+                    fb.className = "feedback hint";
+                    fb.textContent = "Введите ответ.";
+                    return;
+                }
+                if(isCorrect(ex, input.value)){
+                    fb.className = "feedback ok";
+                    fb.textContent = "Верно! Отлично.";
+                    state.solved[n] = true;
+                    saveSolved();
+                    render();
+                }else{
+                    fb.className = "feedback bad";
+                    fb.textContent = "Пока неверно. Проверьте запись десятичной дроби и идею решения.";
+                }
+            };
+        });
+
+        document.querySelectorAll("[data-solution]").forEach(btn=>{
+            btn.onclick = () => {
+                const n = Number(btn.dataset.solution);
+                const ex = exercises.find(e=>e.n===n);
+                openSolution(ex);
+            };
+        });
+    }
+
+    function openSolution(ex){
+        modalTitle.textContent = `Задача ${ex.n}`;
+        const hiddenAnswer = state.view === "practice"
+        ? `<p><b>Идея:</b> ${ex.solution.replace(/Ответ[^.]*\./g,"")}</p><p><b>Ответ скрыт в режиме тренировки?</b> Нет: в пособии ответ можно сверить после попытки.</p>`
+        : `<p>${ex.solution}</p><p><b>Ответ:</b> ${ex.answer}</p>`;
+        modalBody.innerHTML = hiddenAnswer;
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden","false");
+    }
+
+    function renderAnswers(){
+        const rows = exercises.map(e=>`
+        <tr>
+          <td>${e.n}</td>
+          <td>${e.answer}</td>
+          <td>Часть ${e.part}</td>
+          <td>${typeNames[e.type]}</td>
+        </tr>
+      `).join("");
+
+        answersRoot.innerHTML = `
+        <section class="part-section">
+          <h2 class="part-title"><span>Таблица ответов</span><span>36 задач</span></h2>
+          <table class="answer-table">
+            <thead>
+              <tr>
+                <th>№</th>
+                <th>Ответ</th>
+                <th>Часть</th>
+                <th>Тип</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </section>
+      `;
+    }
+
+    function renderMiniMap(){
+        miniMap.innerHTML = "";
+        exercises.forEach(ex=>{
+            const b = document.createElement("button");
+            b.className = "mini" + (state.solved[ex.n] ? " solved" : "");
+            b.textContent = ex.n;
+            b.title = "Перейти к задаче " + ex.n;
+            b.onclick = () => {
+                state.view = "study";
+                state.part = "all";
+                partFilter.value = "all";
+                render();
+                setTimeout(()=>{
+                    const el = document.getElementById("task-" + ex.n);
+                    if(el) el.scrollIntoView({behavior:"smooth", block:"center"});
+                }, 40);
+            };
+            miniMap.appendChild(b);
+        });
+    }
+
+    function updateProgress(){
+        const count = Object.keys(state.solved).filter(k => state.solved[k]).length;
+        const percent = Math.round(count / exercises.length * 100);
+        solvedCount.textContent = count;
+        accuracy.textContent = percent + "%";
+        progressBar.style.width = percent + "%";
+        progressText.textContent = `${count} / ${exercises.length}`;
+    }
+
+    function saveSolved(){
+        localStorage.setItem("probabilitySolved", JSON.stringify(state.solved));
+    }
+
+    function renderQuiz(){
+        const q = exercises[Math.floor(Math.random()*exercises.length)];
+        document.getElementById("quizQuestion").innerHTML = `<b>Задача ${q.n}.</b> Выберите правильный ответ.`;
+        const options = makeOptions(q.answer);
+        const box = document.getElementById("quizOptions");
+        const fb = document.getElementById("quizFeedback");
+        fb.textContent = "";
+        fb.className = "feedback";
+        box.innerHTML = "";
+        options.forEach(opt=>{
+            const btn = document.createElement("button");
+            btn.className = "btn small";
+            btn.textContent = opt;
+            btn.onclick = () => {
+                if(normalizeAnswer(opt) === normalizeAnswer(q.answer)){
+                    fb.className = "feedback ok";
+                    fb.textContent = "Верно!";
+                }else{
+                    fb.className = "feedback bad";
+                    fb.textContent = `Нет. Правильный ответ: ${q.answer}`;
+                }
+            };
+            box.appendChild(btn);
+        });
+    }
+
+    function makeOptions(answer){
+        const pool = ["0,01","0,024","0,06","0,08","0,12","0,14","0,16","0,18","0,2","0,24","0,25","0,28","0,29","0,3","0,38","0,4","0,55","0,56","0,75","0,98","6/23"];
+        const set = new Set([answer]);
+        while(set.size < 4){
+            set.add(pool[Math.floor(Math.random()*pool.length)]);
+        }
+        return [...set].sort(()=>Math.random()-0.5);
+    }
+
+    function render(){
+        renderPartTabs();
+        renderExercises();
+        renderMiniMap();
+        updateProgress();
+        renderQuiz();
+        modeText.textContent = state.view === "practice"
+        ? "Тренировка: сначала решаем"
+        : state.view === "answers"
+        ? "Ответы: таблица для проверки"
+        : "Учить: ответы можно открыть";
+        document.querySelectorAll("[data-view]").forEach(b=>{
+            b.classList.toggle("active", b.dataset.view === state.view);
+        });
+    }
+
+    searchInput.addEventListener("input", e=>{
+        state.search = e.target.value;
+        render();
+    });
+
+    partFilter.addEventListener("change", e=>{
+        state.part = e.target.value;
+        render();
+    });
+
+    typeFilter.addEventListener("change", e=>{
+        state.type = e.target.value;
+        render();
+    });
+
+    document.querySelectorAll("[data-view]").forEach(btn=>{
+        btn.onclick = () => {
+            state.view = btn.dataset.view;
+            render();
+        };
+    });
+
+    document.getElementById("shuffleBtn").onclick = () => {
+        state.order = [...state.order].sort(()=>Math.random()-0.5);
+        render();
+    };
+
+    document.getElementById("themeBtn").onclick = () => {
+        state.theme = state.theme === "dark" ? "light" : "dark";
+        document.documentElement.dataset.theme = state.theme;
+        localStorage.setItem("probabilityTheme", state.theme);
+        document.getElementById("themeBtn").textContent = state.theme === "dark" ? "Light" : "Dark";
+    };
+
+    document.getElementById("themeBtn").textContent = state.theme === "dark" ? "Light" : "Dark";
+    document.getElementById("printBtn").onclick = () => window.print();
+
+    document.getElementById("closeModal").onclick = () => {
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden","true");
+    };
+
+    modal.addEventListener("click", e=>{
+        if(e.target === modal){
+            modal.classList.remove("open");
+            modal.setAttribute("aria-hidden","true");
+        }
+    });
+
+    window.addEventListener("keydown", e=>{
+        if(e.key === "Escape"){
+            modal.classList.remove("open");
+            modal.setAttribute("aria-hidden","true");
+        }
+    });
+
+    render();
+</script>
+</body>
+</html>
