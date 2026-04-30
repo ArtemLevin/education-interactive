@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Тригонометрические уравнения — интерактивное пособие</title>
+    <style>
+        :root {
+            --bg: #f4f4f0;
+            --paper: #fff9e8;
+            --ink: #111111;
+            --muted: #4a4a4a;
+            --accent: #b3261e;
+            --accent-2: #007777;
+            --accent-3: #f0c84b;
+            --line: #111111;
+            --soft: #eadfbd;
+            --shadow: 7px 7px 0 #111111;
+            --shadow-small: 4px 4px 0 #111111;
+            --good: #087f5b;
+            --bad: #b3261e;
+            --focus: #1d4ed8;
+        }
+
+        [data-theme="dark"] {
+            --bg: #171717;
+            --paper: #23211c;
+            --ink: #f3f0e8;
+            --muted: #d2cbbb;
+            --accent: #ff6b5f;
+            --accent-2: #4dd7d7;
+            --accent-3: #f6d365;
+            --line: #f3f0e8;
+            --soft: #3b372d;
+            --shadow: 7px 7px 0 #000000;
+            --shadow-small: 4px 4px 0 #000000;
+            --good: #73e6b1;
+            --bad: #ff7b72;
+            --focus: #93c5fd;
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            background: radial-gradient(circle at 10% 10%, rgba(179,38,30,0.08), transparent 25%), var(--bg);
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.55;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.18;
+            background-image:
+            linear-gradient(0deg, transparent 24px, rgba(0,0,0,0.08) 25px, transparent 26px),
+            linear-gradient(90deg, transparent 24px, rgba(0,0,0,0.06) 25px, transparent 26px);
+            background-size: 26px 26px;
+            mix-blend-mode: multiply;
+            z-index: -1;
+        }
+
+        a { color: inherit; }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            background: var(--paper);
+            border-bottom: 2px solid var(--line);
+            box-shadow: 0 3px 0 var(--line);
+        }
+
+        .nav {
+            max-width: 1360px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 16px;
+        }
+
+        .brand {
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .nav a, .nav button, .btn {
+            border: 2px solid var(--line);
+            background: var(--paper);
+            color: var(--ink);
+            padding: 8px 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 12px;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 3px 3px 0 var(--line);
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+        }
+
+        .nav a:hover, .nav button:hover, .btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 var(--line);
+            background: var(--accent-3);
+            color: #111;
+        }
+
+        .wrap {
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 28px 16px 56px;
+        }
+
+        .hero {
+            border: 2px solid var(--line);
+            background: var(--paper);
+            box-shadow: var(--shadow);
+            padding: clamp(20px, 4vw, 42px);
+            margin-bottom: 26px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            border: 2px solid var(--line);
+            padding: 6px 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: var(--shadow-small);
+            margin-bottom: 18px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(36px, 7vw, 86px);
+            line-height: 0.92;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+            max-width: 980px;
+        }
+
+        .hero-subtitle {
+            max-width: 820px;
+            margin: 20px 0 0;
+            font-size: clamp(18px, 2.2vw, 26px);
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .black-banner {
+            margin-top: 26px;
+            background: var(--ink);
+            color: var(--paper);
+            border: 2px solid var(--line);
+            padding: 14px 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(360px, 500px);
+            gap: 24px;
+            align-items: start;
+        }
+
+        .content {
+            display: grid;
+            gap: 22px;
+        }
+
+        .panel {
+            border: 2px solid var(--line);
+            background: var(--paper);
+            box-shadow: var(--shadow-small);
+            padding: 20px;
+        }
+
+        .panel h2 {
+            margin: 0 0 14px;
+            font-size: clamp(24px, 3vw, 38px);
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: -0.03em;
+        }
+
+        .panel h3 {
+            margin: 18px 0 8px;
+            font-size: 22px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .lead {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .card {
+            border: 2px solid var(--line);
+            background: var(--bg);
+            padding: 14px;
+            min-height: 100%;
+        }
+
+        .card strong {
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .formula {
+            display: block;
+            overflow-x: auto;
+            border: 2px solid var(--line);
+            background: var(--bg);
+            padding: 10px 12px;
+            margin: 10px 0;
+            font-family: "Arial", sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .formula.small { font-size: 16px; }
+
+        .tag {
+            display: inline-block;
+            border: 2px solid var(--line);
+            background: var(--accent-3);
+            color: #111;
+            padding: 3px 7px;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 12px;
+            margin: 3px 4px 3px 0;
+        }
+
+        .steps {
+            counter-reset: step;
+            display: grid;
+            gap: 10px;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .steps li {
+            counter-increment: step;
+            border: 2px solid var(--line);
+            background: var(--bg);
+            padding: 12px 12px 12px 54px;
+            position: relative;
+            font-weight: 700;
+        }
+
+        .steps li::before {
+            content: counter(step);
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border: 2px solid var(--line);
+            background: var(--accent);
+            color: #fff;
+            font-weight: 900;
+        }
+
+        .sticky-lab {
+            position: sticky;
+            top: 74px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .lab-card {
+            border: 2px solid var(--line);
+            background: var(--paper);
+            box-shadow: var(--shadow);
+            padding: 16px;
+        }
+
+        .lab-card h2 {
+            margin: 0 0 12px;
+            text-transform: uppercase;
+            font-size: 25px;
+            line-height: 1;
+        }
+
+        .canvas-shell {
+            border: 2px solid var(--line);
+            background: var(--bg);
+            position: relative;
+            overflow: hidden;
+            min-height: 360px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .canvas-shell:active { cursor: grabbing; }
+
+        svg { display: block; width: 100%; height: 100%; }
+
+        #unitSvg, #unitSvgModal { min-height: 360px; }
+
+        .controls {
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        input[type="range"] { width: 160px; accent-color: var(--accent); }
+
+        select, input[type="number"], input[type="text"] {
+            border: 2px solid var(--line);
+            background: var(--paper);
+            color: var(--ink);
+            padding: 9px;
+            font-weight: 700;
+            min-width: 0;
+        }
+
+        .pill-output {
+            border: 2px solid var(--line);
+            background: var(--accent-3);
+            color: #111;
+            padding: 8px 10px;
+            font-weight: 900;
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .toggle-list {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        label.toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 2px solid var(--line);
+            padding: 7px 9px;
+            background: var(--bg);
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .solution-box {
+            border: 2px solid var(--line);
+            background: var(--bg);
+            padding: 14px;
+            margin-top: 12px;
+        }
+
+        .solution-step {
+            display: none;
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--line);
+        }
+
+        .solution-step.active, .solution-step.visible { display: block; }
+        .solution-step:last-child { border-bottom: 0; }
+
+        .step-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+        .quiz-item {
+            border: 2px solid var(--line);
+            background: var(--bg);
+            padding: 14px;
+            margin-top: 12px;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quiz-options button {
+            text-align: left;
+            border: 2px solid var(--line);
+            background: var(--paper);
+            color: var(--ink);
+            padding: 10px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .quiz-options button.correct { background: var(--good); color: #fff; }
+        .quiz-options button.wrong { background: var(--bad); color: #fff; }
+
+        .generator-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .result {
+            border: 2px solid var(--line);
+            background: var(--bg);
+            padding: 14px;
+            margin-top: 12px;
+            font-weight: 800;
+        }
+
+        .mistake-list li { margin-bottom: 8px; }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 80;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.72);
+            padding: 20px;
+        }
+
+        .modal.open { display: flex; }
+
+        .modal-card {
+            width: min(1100px, 96vw);
+            height: min(820px, 90vh);
+            background: var(--paper);
+            border: 2px solid var(--line);
+            box-shadow: var(--shadow);
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            padding: 14px;
+        }
+
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .modal-head h2 { margin: 0; text-transform: uppercase; }
+
+        .footer {
+            margin-top: 34px;
+            border: 2px solid var(--line);
+            background: var(--ink);
+            color: var(--paper);
+            padding: 18px;
+            box-shadow: var(--shadow-small);
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .print-note { display: none; }
+
+        .highlight {
+            outline: 4px solid var(--accent-3);
+            outline-offset: 3px;
+        }
+
+        .axis-label, .math-label { font-weight: 800; fill: var(--ink); }
+        .red-fill { fill: var(--accent); }
+        .teal-stroke { stroke: var(--accent-2); }
+        .main-stroke { stroke: var(--line); }
+        .soft-fill { fill: var(--paper); }
+
+        @media (max-width: 980px) {
+            .workspace { grid-template-columns: 1fr; }
+            .sticky-lab { position: static; order: -1; }
+            .grid-2, .grid-3, .generator-grid { grid-template-columns: 1fr; }
+            .nav { align-items: flex-start; flex-direction: column; }
+            .brand { white-space: normal; }
+            .canvas-shell { min-height: 300px; }
+        }
+
+        @media print {
+            body { background: #fff; color: #000; }
+            .topbar, .controls, .step-controls, .quiz-options button, .modal { display: none !important; }
+            .wrap { max-width: none; padding: 0; }
+            .hero, .panel, .lab-card, .card, .formula, .solution-box, .quiz-item, .result {
+                box-shadow: none;
+                border-color: #000;
+                background: #fff;
+            }
+            .workspace { display: block; }
+            .sticky-lab { position: static; }
+            .solution-step { display: block; }
+            .print-note { display: block; }
+            .footer { color: #000; background: #fff; box-shadow: none; }
+        }
+    </style>
+</head>
+<body data-theme="light">
+<header class="topbar">
+    <nav class="nav" aria-label="Навигация по пособию">
+        <div class="brand">Тригонометрические уравнения • ЕГЭ</div>
+        <div class="nav-links">
+            <a href="#idea">Идея</a>
+            <a href="#base">База</a>
+            <a href="#formulas">Формулы</a>
+            <a href="#methods">Методы</a>
+            <a href="#practice">Практика</a>
+            <a href="#quiz">Квиз</a>
+            <button id="themeBtn" type="button">Dark</button>
+        </div>
+    </nav>
+</header>
+
+<main class="wrap">
+    <section class="hero">
+        <span class="eyebrow">Наглядное web-пособие</span>
+        <h1>Тригонометрические уравнения</h1>
+        <p class="hero-subtitle">Интерактивный конспект по базовым уравнениям, формулам сложения, двойному углу, разложению на множители и типичным ошибкам.</p>
+        <div class="black-banner">
+            <span>МАТЕМАТИКА. НАГЛЯДНО.</span>
+            <span>Артём Александрович Лёвин • для Яны Плиско</span>
+        </div>
+    </section>
+
+    <div class="workspace">
+        <section class="content">
+            <article class="panel" id="idea">
+                <h2>1. Идея решения</h2>
+                <p class="lead">Тригонометрическое уравнение удобно решать так: сначала преобразовать его к простому виду, а затем применить базовое уравнение для <strong>sin</strong> или <strong>cos</strong>.</p>
+                <div class="grid-3">
+                    <div class="card" data-focus="sin">
+                        <strong>sin α</strong>
+                        <p>Это y-координата точки на единичной окружности.</p>
+                    </div>
+                    <div class="card" data-focus="cos">
+                        <strong>cos α</strong>
+                        <p>Это x-координата точки на единичной окружности.</p>
+                    </div>
+                    <div class="card" data-focus="period">
+                        <strong>2π</strong>
+                        <p>Полный оборот. Поэтому в ответе появляется целый параметр n ∈ Z.</p>
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel" id="base">
+                <h2>2. Базовые уравнения</h2>
+                <p class="lead">Эти шесть формул — фундамент. Их важно не просто запомнить, а понимать через окружность.</p>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Синус</h3>
+                        <span class="formula">sin α = 1 ⇒ α = π/2 + 2πn</span>
+                        <span class="formula">sin α = −1 ⇒ α = −π/2 + 2πn</span>
+                        <span class="formula">sin α = 0 ⇒ α = πn</span>
+                    </div>
+                    <div class="card">
+                        <h3>Косинус</h3>
+                        <span class="formula">cos α = 1 ⇒ α = 2πn</span>
+                        <span class="formula">cos α = −1 ⇒ α = π + 2πn</span>
+                        <span class="formula">cos α = 0 ⇒ α = π/2 + πn</span>
+                    </div>
+                </div>
+                <p><span class="tag">важно</span> Если вместо α стоит 4x, 10x или другой аргумент, сначала решаем относительно всего аргумента, а потом делим каждое слагаемое.</p>
+            </article>
+
+            <article class="panel" id="formulas">
+                <h2>3. Формулы, которые нужно узнавать</h2>
+                <p class="lead">Формулы работают в обе стороны: можно раскрывать, а можно сворачивать выражение.</p>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Сложение и разность</h3>
+                        <span class="formula small">sin(α + β) = sinα·cosβ + cosα·sinβ</span>
+                        <span class="formula small">sin(α − β) = sinα·cosβ − cosα·sinβ</span>
+                        <span class="formula small">cos(α − β) = cosα·cosβ + sinα·sinβ</span>
+                        <span class="formula small">cos(α + β) = cosα·cosβ − sinα·sinβ</span>
+                    </div>
+                    <div class="card">
+                        <h3>Двойной угол и тождество</h3>
+                        <span class="formula small">sin 2α = 2sinα·cosα</span>
+                        <span class="formula small">cos 2α = cos²α − sin²α</span>
+                        <span class="formula small">sin²α + cos²α = 1</span>
+                        <p><span class="tag">подсказка</span> Если видите cosA·cosB + sinA·sinB, думайте о cos(A − B).</p>
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel" id="methods">
+                <h2>4. Алгоритм решения</h2>
+                <ol class="steps">
+                    <li>Перенесите всё в одну сторону, чтобы справа был ноль.</li>
+                    <li>Проверьте, можно ли вынести общий множитель.</li>
+                    <li>Проверьте формулы сокращённого умножения и тригонометрические формулы.</li>
+                    <li>Если получилось произведение, приравняйте к нулю каждый множитель.</li>
+                    <li>Сведите к простым уравнениям вида sinα = a или cosα = a.</li>
+                    <li>Аккуратно разделите на коэффициент при x и допишите n ∈ Z.</li>
+                </ol>
+            </article>
+
+            <article class="panel" id="examples">
+                <h2>5. Пошаговый пример</h2>
+                <p class="lead">Разберём пример из чек-листа: выражение сначала сворачивается по формуле, затем решается базовое уравнение.</p>
+                <span class="formula">1 − cos3x·cos2x = sin3x·sin2x</span>
+                <div class="solution-box" aria-live="polite">
+                    <div class="solution-step active">
+                        <strong>Шаг 1.</strong> Переносим всё влево:<br>
+                        <span class="formula small">1 − cos3x·cos2x − sin3x·sin2x = 0</span>
+                    </div>
+                    <div class="solution-step">
+                        <strong>Шаг 2.</strong> Группируем тригонометрическую часть:<br>
+                        <span class="formula small">1 − (cos3x·cos2x + sin3x·sin2x) = 0</span>
+                    </div>
+                    <div class="solution-step">
+                        <strong>Шаг 3.</strong> Узнаём формулу cos(A − B):<br>
+                        <span class="formula small">cos3x·cos2x + sin3x·sin2x = cos(3x − 2x) = cosx</span>
+                    </div>
+                    <div class="solution-step">
+                        <strong>Шаг 4.</strong> Получаем простое уравнение:<br>
+                        <span class="formula small">1 − cosx = 0 ⇒ cosx = 1</span>
+                    </div>
+                    <div class="solution-step">
+                        <strong>Шаг 5.</strong> Записываем ответ:<br>
+                        <span class="formula small">x = 2πn, n ∈ Z</span>
+                    </div>
+                </div>
+                <div class="step-controls">
+                    <button class="btn" id="prevStep" type="button">← назад</button>
+                    <button class="btn" id="nextStep" type="button">вперёд →</button>
+                    <button class="btn" id="showAllSteps" type="button">показать всё</button>
+                </div>
+            </article>
+
+            <article class="panel" id="mistakes">
+                <h2>6. Типичные ошибки</h2>
+                <ul class="mistake-list">
+                    <li><strong>Забыть n ∈ Z.</strong> Без этого ответ неполный.</li>
+                    <li><strong>Путать πn и 2πn.</strong> Например, cosα = 0 имеет шаг π, а cosα = 1 — шаг 2π.</li>
+                    <li><strong>Делить только первое слагаемое.</strong> Из 4x = π/2 + 2πn получается x = π/8 + πn/2.</li>
+                    <li><strong>Не узнавать формулу справа налево.</strong> Именно это часто мешает увидеть короткое решение.</li>
+                    <li><strong>Делить на выражение с переменной.</strong> Так можно потерять корни, если выражение равно нулю.</li>
+                </ul>
+            </article>
+
+            <article class="panel" id="practice">
+                <h2>7. Генератор похожих задач</h2>
+                <p class="lead">Выберите тип уравнения. Генератор создаёт корректную задачу и показывает ответ.</p>
+                <div class="generator-grid">
+                    <label>Тип
+                        <select id="taskType">
+                            <option value="cos1">cos(kx) = 1</option>
+                            <option value="cos0">cos(kx) = 0</option>
+                            <option value="sin1">sin(kx) = 1</option>
+                            <option value="sin0">sin(kx) = 0</option>
+                            <option value="double">2sin(kx)cos(kx) = 1</option>
+                        </select>
+                    </label>
+                    <label>Коэффициент k
+                        <input id="coefK" type="number" min="1" max="12" value="4" />
+                    </label>
+                    <button class="btn" id="generateTask" type="button">создать</button>
+                </div>
+                <div class="result" id="taskResult"></div>
+            </article>
+
+            <article class="panel" id="quiz">
+                <h2>8. Самопроверка</h2>
+                <p class="lead">Нажмите на вариант ответа. После выбора сразу появится проверка.</p>
+                <div class="quiz-item">
+                    <strong>1. Решите: cos 4x = 1</strong>
+                    <div class="quiz-options" data-answer="b">
+                        <button data-id="a">x = π/4 + πn/2</button>
+                        <button data-id="b">x = πn/2</button>
+                        <button data-id="c">x = π/8 + πn/2</button>
+                    </div>
+                </div>
+                <div class="quiz-item">
+                    <strong>2. Чему равно cosA·cosB + sinA·sinB?</strong>
+                    <div class="quiz-options" data-answer="c">
+                        <button data-id="a">cos(A + B)</button>
+                        <button data-id="b">sin(A − B)</button>
+                        <button data-id="c">cos(A − B)</button>
+                    </div>
+                </div>
+                <div class="quiz-item">
+                    <strong>3. Решите: sin 5x = 0</strong>
+                    <div class="quiz-options" data-answer="a">
+                        <button data-id="a">x = πn/5</button>
+                        <button data-id="b">x = π/10 + 2πn/5</button>
+                        <button data-id="c">x = 2πn</button>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <aside class="sticky-lab">
+            <section class="lab-card" aria-label="Интерактивная единичная окружность">
+                <h2>Интерактивная окружность</h2>
+                <p>Переключайте уравнение и смотрите, какие точки окружности дают нужное значение.</p>
+                <div class="canvas-shell" id="circleShell" title="Нажмите, чтобы открыть крупно">
+                    <svg id="unitSvg" viewBox="-240 -240 480 480" role="img" aria-label="Единичная окружность"></svg>
+                </div>
+                <div class="controls">
+                    <div class="control-row">
+                        <label>Уравнение
+                            <select id="equationSelect">
+                                <option value="sin1">sin α = 1</option>
+                                <option value="sin-1">sin α = −1</option>
+                                <option value="sin0">sin α = 0</option>
+                                <option value="cos1">cos α = 1</option>
+                                <option value="cos-1">cos α = −1</option>
+                                <option value="cos0">cos α = 0</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="control-row">
+                        <button class="btn" id="zoomOut" type="button">−</button>
+                        <input id="zoomRange" type="range" min="0.75" max="1.8" step="0.05" value="1" aria-label="Масштаб" />
+                        <button class="btn" id="zoomIn" type="button">+</button>
+                        <button class="btn" id="resetView" type="button">reset</button>
+                    </div>
+                    <div class="toggle-list">
+                        <label class="toggle"><input type="checkbox" id="showAxes" checked /> оси</label>
+                        <label class="toggle"><input type="checkbox" id="showLabels" checked /> подписи</label>
+                        <label class="toggle"><input type="checkbox" id="showRadius" checked /> радиусы</label>
+                    </div>
+                    <div class="pill-output" id="equationOutput">α = π/2 + 2πn, n ∈ Z</div>
+                </div>
+            </section>
+
+            <section class="lab-card">
+                <h2>Памятка</h2>
+                <p><span class="tag">sin</span> смотрим на вертикаль y.</p>
+                <p><span class="tag">cos</span> смотрим на горизонталь x.</p>
+                <p><span class="tag">n ∈ Z</span> означает любое целое число: ..., −2, −1, 0, 1, 2, ...</p>
+            </section>
+        </aside>
+    </div>
+
+    <footer class="footer">
+        <span>МАТЕМАТИКА. НАГЛЯДНО</span>
+        <span>Артём Александрович Лёвин эксклюзивно для Яны Плиско</span>
+    </footer>
+</main>
+
+<div class="modal" id="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-label="Увеличенная единичная окружность">
+        <div class="modal-head">
+            <h2>Единичная окружность крупно</h2>
+            <button class="btn" id="closeModal" type="button">закрыть ×</button>
+        </div>
+        <div class="canvas-shell" id="modalShell">
+            <svg id="unitSvgModal" viewBox="-240 -240 480 480" role="img" aria-label="Увеличенная единичная окружность"></svg>
+        </div>
+        <div class="controls">
+            <div class="pill-output" id="modalOutput">α = π/2 + 2πn, n ∈ Z</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Простое состояние страницы: здесь храним тему, масштаб и выбранное уравнение.
+    const state = {
+        theme: localStorage.getItem('trigTheme') || 'light',
+        equation: 'sin1',
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        showAxes: true,
+        showLabels: true,
+        showRadius: true,
+        step: 0,
+        modalOpen: false
+    };
+
+    const equations = {
+        'sin1': {
+            text: 'sin α = 1',
+            answer: 'α = π/2 + 2πn, n ∈ Z',
+            points: [{x: 0, y: -150, label: 'π/2'}]
+        },
+        'sin-1': {
+            text: 'sin α = −1',
+            answer: 'α = −π/2 + 2πn, n ∈ Z',
+            points: [{x: 0, y: 150, label: '−π/2'}]
+        },
+        'sin0': {
+            text: 'sin α = 0',
+            answer: 'α = πn, n ∈ Z',
+            points: [{x: 150, y: 0, label: '0'}, {x: -150, y: 0, label: 'π'}]
+        },
+        'cos1': {
+            text: 'cos α = 1',
+            answer: 'α = 2πn, n ∈ Z',
+            points: [{x: 150, y: 0, label: '0'}]
+        },
+        'cos-1': {
+            text: 'cos α = −1',
+            answer: 'α = π + 2πn, n ∈ Z',
+            points: [{x: -150, y: 0, label: 'π'}]
+        },
+        'cos0': {
+            text: 'cos α = 0',
+            answer: 'α = π/2 + πn, n ∈ Z',
+            points: [{x: 0, y: -150, label: 'π/2'}, {x: 0, y: 150, label: '−π/2'}]
+        }
+    };
+
+    const body = document.body;
+    const themeBtn = document.getElementById('themeBtn');
+    const equationSelect = document.getElementById('equationSelect');
+    const zoomRange = document.getElementById('zoomRange');
+    const showAxes = document.getElementById('showAxes');
+    const showLabels = document.getElementById('showLabels');
+    const showRadius = document.getElementById('showRadius');
+    const equationOutput = document.getElementById('equationOutput');
+    const modalOutput = document.getElementById('modalOutput');
+    const unitSvg = document.getElementById('unitSvg');
+    const unitSvgModal = document.getElementById('unitSvgModal');
+
+    function applyTheme() {
+        body.dataset.theme = state.theme;
+        themeBtn.textContent = state.theme === 'light' ? 'Dark' : 'Light';
+        localStorage.setItem('trigTheme', state.theme);
+        renderAllCircles();
+    }
+
+    function getCssVar(name) {
+        return getComputedStyle(document.body).getPropertyValue(name).trim();
+    }
+
+    function svgText(x, y, text, cls = 'math-label', size = 18) {
+        return `<text x="${x}" y="${y}" class="${cls}" font-size="${size}" text-anchor="middle" dominant-baseline="middle">${text}</text>`;
+    }
+
+    function renderCircle(svg) {
+        const eq = equations[state.equation];
+        const ink = getCssVar('--ink');
+        const accent = getCssVar('--accent');
+        const accent2 = getCssVar('--accent-2');
+        const paper = getCssVar('--paper');
+        const grid = getCssVar('--soft');
+        const scale = state.zoom;
+        const tx = state.panX;
+        const ty = state.panY;
+
+        const axes = state.showAxes ? `
+        <line x1="-190" y1="0" x2="195" y2="0" stroke="${ink}" stroke-width="3" marker-end="url(#arrow)" />
+        <line x1="0" y1="190" x2="0" y2="-195" stroke="${ink}" stroke-width="3" marker-end="url(#arrow)" />
+        ${svgText(210, 0, 'x', 'axis-label', 20)}
+        ${svgText(0, -212, 'y', 'axis-label', 20)}
+      ` : '';
+
+        const labels = state.showLabels ? `
+        ${svgText(172, 20, '0', 'math-label', 18)}
+        ${svgText(-172, 20, 'π', 'math-label', 18)}
+        ${svgText(30, -168, 'π/2', 'math-label', 18)}
+        ${svgText(36, 170, '−π/2', 'math-label', 18)}
+      ` : '';
+
+        const radii = state.showRadius ? eq.points.map(p => `
+        <line x1="0" y1="0" x2="${p.x}" y2="${p.y}" stroke="${accent2}" stroke-width="3" stroke-dasharray="8 8" />
+      `).join('') : '';
+
+        const pointEls = eq.points.map(p => `
+        <circle cx="${p.x}" cy="${p.y}" r="10" fill="${accent}" stroke="${ink}" stroke-width="3" />
+        ${state.showLabels ? svgText(p.x + (p.x >= 0 ? 30 : -30), p.y + (p.y >= 0 ? 30 : -30), p.label, 'math-label', 18) : ''}
+      `).join('');
+
+        svg.innerHTML = `
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L6,3 z" fill="${ink}" />
+          </marker>
+        </defs>
+        <rect x="-240" y="-240" width="480" height="480" fill="${paper}" />
+        <g transform="translate(${tx} ${ty}) scale(${scale})">
+          <circle cx="0" cy="0" r="150" fill="none" stroke="${ink}" stroke-width="4" />
+          <circle cx="0" cy="0" r="4" fill="${ink}" />
+          <path d="M -210 -210 L 210 210 M 210 -210 L -210 210" stroke="${grid}" stroke-width="1" opacity="0.35" />
+          ${axes}
+          ${radii}
+          <circle cx="150" cy="0" r="6" fill="${ink}" />
+          <circle cx="-150" cy="0" r="6" fill="${ink}" />
+          <circle cx="0" cy="-150" r="6" fill="${ink}" />
+          <circle cx="0" cy="150" r="6" fill="${ink}" />
+          ${labels}
+          ${pointEls}
+        </g>
+        <text x="-222" y="-205" fill="${accent}" font-size="22" font-weight="900">${eq.text}</text>
+      `;
+
+        equationOutput.textContent = eq.answer;
+        modalOutput.textContent = eq.answer;
+    }
+
+    function renderAllCircles() {
+        renderCircle(unitSvg);
+        renderCircle(unitSvgModal);
+    }
+
+    function updateZoom(value) {
+        state.zoom = Math.max(0.75, Math.min(1.8, value));
+        zoomRange.value = state.zoom;
+        renderAllCircles();
+    }
+
+    themeBtn.addEventListener('click', () => {
+        state.theme = state.theme === 'light' ? 'dark' : 'light';
+        applyTheme();
+    });
+
+    equationSelect.addEventListener('change', (event) => {
+        state.equation = event.target.value;
+        renderAllCircles();
+    });
+
+    zoomRange.addEventListener('input', (event) => updateZoom(Number(event.target.value)));
+    document.getElementById('zoomIn').addEventListener('click', () => updateZoom(state.zoom + 0.1));
+    document.getElementById('zoomOut').addEventListener('click', () => updateZoom(state.zoom - 0.1));
+    document.getElementById('resetView').addEventListener('click', () => {
+        state.zoom = 1;
+        state.panX = 0;
+        state.panY = 0;
+        zoomRange.value = 1;
+        renderAllCircles();
+    });
+
+    showAxes.addEventListener('change', () => { state.showAxes = showAxes.checked; renderAllCircles(); });
+    showLabels.addEventListener('change', () => { state.showLabels = showLabels.checked; renderAllCircles(); });
+    showRadius.addEventListener('change', () => { state.showRadius = showRadius.checked; renderAllCircles(); });
+
+    // Drag-pan для окружности: можно двигать рисунок мышью.
+    function attachPan(shell) {
+        let dragging = false;
+        let startX = 0;
+        let startY = 0;
+        let oldX = 0;
+        let oldY = 0;
+
+        shell.addEventListener('mousedown', (event) => {
+            dragging = true;
+            startX = event.clientX;
+            startY = event.clientY;
+            oldX = state.panX;
+            oldY = state.panY;
+        });
+
+        window.addEventListener('mousemove', (event) => {
+            if (!dragging) return;
+            state.panX = oldX + (event.clientX - startX) / state.zoom;
+            state.panY = oldY + (event.clientY - startY) / state.zoom;
+            renderAllCircles();
+        });
+
+        window.addEventListener('mouseup', () => { dragging = false; });
+
+        shell.addEventListener('wheel', (event) => {
+            event.preventDefault();
+            const delta = event.deltaY > 0 ? -0.08 : 0.08;
+            updateZoom(state.zoom + delta);
+        }, { passive: false });
+    }
+
+    attachPan(document.getElementById('circleShell'));
+    attachPan(document.getElementById('modalShell'));
+
+    const modal = document.getElementById('modal');
+    document.getElementById('circleShell').addEventListener('dblclick', openModal);
+    document.getElementById('circleShell').addEventListener('click', (event) => {
+        if (event.detail === 1) setTimeout(() => { if (event.detail === 1) openModal(); }, 180);
+    });
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    modal.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
+    window.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeModal(); });
+
+    function openModal() {
+        state.modalOpen = true;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        renderAllCircles();
+    }
+
+    function closeModal() {
+        state.modalOpen = false;
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    // Пошаговый разбор: показываем один шаг или все сразу.
+    const solutionSteps = Array.from(document.querySelectorAll('.solution-step'));
+
+    function renderSteps(showAll = false) {
+        solutionSteps.forEach((step, index) => {
+            step.classList.toggle('active', !showAll && index === state.step);
+            step.classList.toggle('visible', showAll);
+        });
+    }
+
+    document.getElementById('nextStep').addEventListener('click', () => {
+        state.step = Math.min(solutionSteps.length - 1, state.step + 1);
+        renderSteps(false);
+    });
+
+    document.getElementById('prevStep').addEventListener('click', () => {
+        state.step = Math.max(0, state.step - 1);
+        renderSteps(false);
+    });
+
+    document.getElementById('showAllSteps').addEventListener('click', () => renderSteps(true));
+
+    // Генератор: создаёт безопасные задачи только из заранее проверенных шаблонов.
+    function makeAnswer(type, k) {
+        if (type === 'cos1') return `Задача: cos(${k}x) = 1. Ответ: x = 2πn/${k}, n ∈ Z.`;
+        if (type === 'cos0') return `Задача: cos(${k}x) = 0. Ответ: x = π/(2·${k}) + πn/${k}, n ∈ Z.`;
+        if (type === 'sin1') return `Задача: sin(${k}x) = 1. Ответ: x = π/(2·${k}) + 2πn/${k}, n ∈ Z.`;
+        if (type === 'sin0') return `Задача: sin(${k}x) = 0. Ответ: x = πn/${k}, n ∈ Z.`;
+        return `Задача: 2sin(${k}x)cos(${k}x) = 1. Так как sin(2·${k}x) = 1, ответ: x = π/(4·${k}) + πn/${k}, n ∈ Z.`;
+    }
+
+    function updateTask() {
+        const type = document.getElementById('taskType').value;
+        const kInput = document.getElementById('coefK');
+        let k = Number(kInput.value);
+        if (!Number.isInteger(k) || k < 1) k = 1;
+        if (k > 12) k = 12;
+        kInput.value = k;
+        document.getElementById('taskResult').textContent = makeAnswer(type, k);
+    }
+
+    document.getElementById('generateTask').addEventListener('click', updateTask);
+    document.getElementById('taskType').addEventListener('change', updateTask);
+    document.getElementById('coefK').addEventListener('input', updateTask);
+
+    // Квиз: зелёным отмечаем верный ответ, красным — ошибочный.
+    document.querySelectorAll('.quiz-options').forEach(group => {
+        group.addEventListener('click', (event) => {
+            if (event.target.tagName !== 'BUTTON') return;
+            const right = group.dataset.answer;
+            group.querySelectorAll('button').forEach(btn => {
+                btn.classList.remove('correct', 'wrong');
+                if (btn.dataset.id === right) btn.classList.add('correct');
+            });
+            if (event.target.dataset.id !== right) event.target.classList.add('wrong');
+        });
+    });
+
+    // Связь текста и визуализации: при наведении на карточки подсвечиваем окружность.
+    document.querySelectorAll('[data-focus]').forEach(el => {
+        el.addEventListener('mouseenter', () => document.querySelector('.lab-card').classList.add('highlight'));
+        el.addEventListener('mouseleave', () => document.querySelector('.lab-card').classList.remove('highlight'));
+    });
+
+    applyTheme();
+    renderSteps(false);
+    updateTask();
+</script>
+</body>
+</html>
