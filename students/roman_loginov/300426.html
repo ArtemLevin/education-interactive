@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наглядное пособие: задача с параметром</title>
+    <style>
+        /* Простые переменные: ими удобно управлять цветами всей страницы */
+        :root {
+            --bg: #f4f1e8;
+            --paper: #fffaf0;
+            --ink: #151515;
+            --muted: #555047;
+            --line: #151515;
+            --accent: #9b1c1c;
+            --accent2: #0f6b68;
+            --soft: #eadfca;
+            --shadow: rgba(0,0,0,.22);
+            --good: #116149;
+            --bad: #9b1c1c;
+            --warn: #b66a00;
+        }
+
+        /* Тёмная тема включается кнопкой */
+        body.dark {
+            --bg: #171615;
+            --paper: #23201b;
+            --ink: #f3ead8;
+            --muted: #c9bfae;
+            --line: #f3ead8;
+            --accent: #ff6b5f;
+            --accent2: #6dd1ca;
+            --soft: #363126;
+            --shadow: rgba(0,0,0,.5);
+            --good: #70d29c;
+            --bad: #ff6b5f;
+            --warn: #f0bc62;
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            background:
+            radial-gradient(circle at 12% 18%, rgba(155,28,28,.08), transparent 26%),
+            radial-gradient(circle at 82% 8%, rgba(15,107,104,.08), transparent 22%),
+            linear-gradient(135deg, var(--bg), var(--paper));
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.55;
+        }
+
+        .wrap {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        header {
+            padding: 28px 0 18px;
+            border-bottom: 3px solid var(--line);
+            background: rgba(255,255,255,.05);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(8px);
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            font-weight: 900;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            font-size: clamp(18px, 3vw, 34px);
+        }
+
+        .brand span { color: var(--accent); }
+
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        nav a, button, .mini-btn {
+            border: 2px solid var(--line);
+            background: var(--paper);
+            color: var(--ink);
+            padding: 8px 12px;
+            box-shadow: 4px 4px 0 var(--shadow);
+            text-decoration: none;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform .12s ease, box-shadow .12s ease;
+        }
+
+        nav a:hover, button:hover, .mini-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 var(--shadow);
+        }
+
+        .hero {
+            padding: 38px 0 26px;
+        }
+
+        .hero-card {
+            border: 3px solid var(--line);
+            background: var(--paper);
+            box-shadow: 9px 9px 0 var(--shadow);
+            padding: clamp(18px, 4vw, 38px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::after {
+            content: "МАТЕМАТИКА. НАГЛЯДНО";
+            position: absolute;
+            right: 14px;
+            bottom: 10px;
+            color: var(--accent);
+            opacity: .16;
+            font-weight: 900;
+            font-size: clamp(22px, 5vw, 56px);
+            letter-spacing: .04em;
+            pointer-events: none;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: clamp(34px, 6vw, 76px);
+            line-height: .95;
+            text-transform: uppercase;
+            letter-spacing: .02em;
+        }
+
+        h1 b { color: var(--accent); }
+
+        h2 {
+            margin: 0 0 14px;
+            font-size: clamp(24px, 4vw, 40px);
+            line-height: 1.05;
+            text-transform: uppercase;
+        }
+
+        h3 {
+            margin: 0 0 10px;
+            font-size: 22px;
+            line-height: 1.15;
+            color: var(--accent);
+        }
+
+        .subtitle {
+            font-size: clamp(17px, 2vw, 23px);
+            max-width: 850px;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .banner {
+            margin-top: 18px;
+            background: var(--ink);
+            color: var(--paper);
+            border: 3px solid var(--line);
+            padding: 12px 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 430px;
+            gap: 22px;
+            align-items: start;
+            padding: 20px 0 44px;
+        }
+
+        .left {
+            display: grid;
+            gap: 18px;
+        }
+
+        .card {
+            border: 3px solid var(--line);
+            background: var(--paper);
+            box-shadow: 7px 7px 0 var(--shadow);
+            padding: 18px;
+        }
+
+        .sticky {
+            position: sticky;
+            top: 112px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .formula {
+            display: inline-block;
+            border: 2px solid var(--line);
+            background: var(--soft);
+            padding: 4px 8px;
+            font-weight: 900;
+            white-space: nowrap;
+            margin: 2px 0;
+        }
+
+        .grid2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .note {
+            border-left: 6px solid var(--accent);
+            padding: 10px 12px;
+            background: var(--soft);
+            font-weight: 700;
+        }
+
+        ol, ul {
+            margin: 8px 0 0;
+            padding-left: 24px;
+        }
+
+        li { margin: 7px 0; }
+
+        .steps {
+            display: grid;
+            gap: 10px;
+        }
+
+        .step {
+            border: 2px solid var(--line);
+            padding: 12px;
+            background: rgba(255,255,255,.07);
+        }
+
+        .step.active {
+            outline: 4px solid var(--accent);
+            background: var(--soft);
+        }
+
+        .viz {
+            border: 3px solid var(--line);
+            background: var(--paper);
+            box-shadow: 7px 7px 0 var(--shadow);
+            padding: 14px;
+        }
+
+        .canvas-box {
+            border: 2px solid var(--line);
+            background: #fffdf8;
+            height: 410px;
+            cursor: zoom-in;
+            position: relative;
+        }
+
+        body.dark .canvas-box { background: #191713; }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls {
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .control-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .stat {
+            border: 2px solid var(--line);
+            padding: 9px;
+            background: var(--soft);
+            font-weight: 900;
+        }
+
+        .result.good { color: var(--good); }
+        .result.bad { color: var(--bad); }
+        .result.warn { color: var(--warn); }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tabs button.active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .hidden { display: none; }
+
+        .quiz {
+            display: grid;
+            gap: 10px;
+        }
+
+        .quiz button {
+            text-align: left;
+            background: var(--paper);
+        }
+
+        .quiz button.correct {
+            border-color: var(--good);
+            color: var(--good);
+        }
+
+        .quiz button.wrong {
+            border-color: var(--bad);
+            color: var(--bad);
+        }
+
+        .footer {
+            border-top: 3px solid var(--line);
+            padding: 22px 0 38px;
+            color: var(--muted);
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            place-items: center;
+            background: rgba(0,0,0,.74);
+            z-index: 50;
+            padding: 18px;
+        }
+
+        .modal.open { display: grid; }
+
+        .modal-inner {
+            width: min(1100px, 96vw);
+            height: min(760px, 86vh);
+            border: 3px solid var(--line);
+            background: var(--paper);
+            box-shadow: 10px 10px 0 rgba(0,0,0,.5);
+            padding: 14px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 2;
+        }
+
+        .modal-canvas-box {
+            height: 100%;
+            border: 2px solid var(--line);
+            background: #fffdf8;
+        }
+
+        body.dark .modal-canvas-box { background: #191713; }
+
+        .answer {
+            font-size: 20px;
+            font-weight: 900;
+            border: 3px solid var(--accent);
+            padding: 12px;
+            background: var(--soft);
+        }
+
+        @media (max-width: 980px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .sticky {
+                position: static;
+            }
+
+            .canvas-box {
+                height: 360px;
+            }
+        }
+
+        @media (max-width: 680px) {
+            .wrap {
+            width: min(100% - 18px, 1180px);
+        }
+
+            header {
+                position: static;
+            }
+
+            .grid2, .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .canvas-box {
+                height: 320px;
+            }
+
+            nav a, button {
+                padding: 7px 9px;
+            }
+        }
+
+        @media print {
+            header, .controls, .tabs, .quiz button, .modal {
+                display: none !important;
+            }
+
+            body {
+                background: #fff;
+                color: #000;
+            }
+
+            .workspace {
+                display: block;
+            }
+
+            .card, .viz, .hero-card {
+                box-shadow: none;
+                break-inside: avoid;
+            }
+
+            .sticky {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="wrap topbar">
+        <div class="brand">Параметр <span>• графика</span></div>
+        <nav aria-label="Навигация по пособию">
+            <a href="#task">Задача</a>
+            <a href="#idea">Идея</a>
+            <a href="#solution">Решение</a>
+            <a href="#mistakes">Ошибки</a>
+            <a href="#quiz">Проверка</a>
+            <button id="themeBtn" type="button">LIGHT / DARK</button>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <section class="hero">
+        <div class="wrap">
+            <div class="hero-card">
+                <h1>Наглядное пособие: <b>параметр</b></h1>
+                <p class="subtitle">
+                    Разбираем систему с ромбом и верхней полуокружностью: как построить графики,
+                    как двигать параметр и как не потерять граничные случаи.
+                </p>
+                <div class="banner">Главный вопрос: при каких a система имеет ровно одно решение?</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="wrap workspace">
+        <div class="left">
+            <article id="task" class="card">
+                <h2>1. Условие</h2>
+                <p>Найдите все значения параметра <span class="formula">a</span>, при каждом из которых система имеет ровно одно решение:</p>
+                <p>
+                    <span class="formula">|x − a| + |y| = 2</span>
+                    <br />
+                    <span class="formula">y = √(4 − x²)</span>
+                </p>
+                <div class="note">
+                    Решение системы — это точка пересечения двух графиков. Поэтому задача превращается в подсчёт пересечений.
+                </div>
+            </article>
+
+            <article id="idea" class="card">
+                <h2>2. Идея решения</h2>
+                <div class="grid2">
+                    <div class="step" data-step="diamond">
+                        <h3>Первый график</h3>
+                        <p><span class="formula">|x − a| + |y| = 2</span> — ромб с центром <span class="formula">(a; 0)</span>.</p>
+                        <p>Параметр <span class="formula">a</span> двигает ромб только по горизонтали.</p>
+                    </div>
+                    <div class="step" data-step="arc">
+                        <h3>Второй график</h3>
+                        <p><span class="formula">y = √(4 − x²)</span> — верхняя полуокружность радиуса 2.</p>
+                        <p>Важно: не вся окружность, а только часть с <span class="formula">y ≥ 0</span>.</p>
+                    </div>
+                </div>
+            </article>
+
+            <article id="solution" class="card">
+                <h2>3. Строгий разбор</h2>
+                <div class="steps">
+                    <div class="step" data-step="semicircle">
+                        <h3>Шаг 1. Преобразуем корень</h3>
+                        <p>
+                            Из <span class="formula">y = √(4 − x²)</span> получаем:
+                            <span class="formula">x² + y² = 4, y ≥ 0</span>.
+                        </p>
+                        <p>Это верхняя полуокружность с концами <span class="formula">(-2;0)</span> и <span class="formula">(2;0)</span>.</p>
+                    </div>
+
+                    <div class="step" data-step="upper">
+                        <h3>Шаг 2. Берём верхнюю часть ромба</h3>
+                        <p>Так как на полуокружности <span class="formula">y ≥ 0</span>, уравнение ромба превращается в:</p>
+                        <p><span class="formula">|x − a| + y = 2</span>, то есть <span class="formula">y = 2 − |x − a|</span>.</p>
+                        <p>Это две стороны верхней половины ромба.</p>
+                    </div>
+
+                    <div class="step" data-step="critical">
+                        <h3>Шаг 3. Критические положения</h3>
+                        <p>Количество пересечений меняется только в особых моментах:</p>
+                        <ul>
+                            <li>край ромба попадает в конец полуокружности: <span class="formula">a = -4</span> и <span class="formula">a = 4</span>;</li>
+                            <li>сторона ромба касается полуокружности: <span class="formula">a = 2 − 2√2</span> и <span class="formula">a = -2 + 2√2</span>.</li>
+                        </ul>
+                    </div>
+
+                    <div class="step" data-step="answer">
+                        <h3>Шаг 4. Ответ</h3>
+                        <p>Ровно одно решение получается, когда ромб пересекает верхнюю полуокружность один раз:</p>
+                        <div class="answer">a ∈ [−4; 2 − 2√2) ∪ (−2 + 2√2; 4]</div>
+                        <p>В точках <span class="formula">2 − 2√2</span> и <span class="formula">−2 + 2√2</span> решений уже два, поэтому они не входят.</p>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card">
+                <h2>4. Почему ответ именно такой?</h2>
+                <p>
+                    Когда ромб далеко слева или справа, пересечений нет. При касании крайней вершиной появляется одна точка.
+                    Затем одна сторона ромба пересекает полуокружность в одной точке. В момент касания второй стороны появляется ещё одна точка,
+                    поэтому количество решений становится два, а затем три.
+                </p>
+                <div class="note">
+                    Самая частая ловушка: включить значения <span class="formula">2 − 2√2</span> и <span class="formula">−2 + 2√2</span>.
+                    Но в этих положениях уже есть две точки пересечения.
+                </div>
+            </article>
+
+            <article id="mistakes" class="card">
+                <h2>5. Типичные ошибки</h2>
+                <ul>
+                    <li>Построить всю окружность вместо верхней полуокружности.</li>
+                    <li>Забыть условие <span class="formula">y ≥ 0</span> после возведения в квадрат.</li>
+                    <li>Считать, что параметр двигает ромб вверх-вниз. Здесь он двигает ромб только вправо-влево.</li>
+                    <li>Не проверить отдельно касания и крайние положения.</li>
+                    <li>Включить внутренние точки касания, где решений не одно, а два.</li>
+                </ul>
+            </article>
+
+            <article id="quiz" class="card">
+                <h2>6. Самопроверка</h2>
+                <div class="tabs">
+                    <button class="tab active" data-tab="q1" type="button">Вопрос 1</button>
+                    <button class="tab" data-tab="q2" type="button">Вопрос 2</button>
+                    <button class="tab" data-tab="q3" type="button">Вопрос 3</button>
+                </div>
+
+                <div class="quiz tabpane" id="q1">
+                    <h3>Что задаёт уравнение |x − a| + |y| = 2?</h3>
+                    <button data-ok="0" type="button">Окружность радиуса 2</button>
+                    <button data-ok="1" type="button">Ромб с центром (a; 0)</button>
+                    <button data-ok="0" type="button">Параболу, сдвинутую на a</button>
+                    <p class="feedback"></p>
+                </div>
+
+                <div class="quiz tabpane hidden" id="q2">
+                    <h3>Почему y = √(4 − x²) — не вся окружность?</h3>
+                    <button data-ok="1" type="button">Потому что корень всегда неотрицателен, значит y ≥ 0</button>
+                    <button data-ok="0" type="button">Потому что x всегда положителен</button>
+                    <button data-ok="0" type="button">Потому что окружность имеет радиус 4</button>
+                    <p class="feedback"></p>
+                </div>
+
+                <div class="quiz tabpane hidden" id="q3">
+                    <h3>Входит ли a = 2 − 2√2 в ответ?</h3>
+                    <button data-ok="0" type="button">Да, там ровно одно решение</button>
+                    <button data-ok="1" type="button">Нет, там уже две точки пересечения</button>
+                    <button data-ok="0" type="button">Нет, там нет решений</button>
+                    <p class="feedback"></p>
+                </div>
+            </article>
+
+            <article class="card">
+                <h2>7. Генератор наблюдений</h2>
+                <p>Нажмите кнопку, чтобы получить значение параметра и самостоятельно предсказать число решений. Затем проверьте по интерактивному графику справа.</p>
+                <button id="randomA" type="button">Сгенерировать a</button>
+                <p id="generatedTask" class="note">Пока значение не выбрано.</p>
+            </article>
+        </div>
+
+        <aside class="sticky">
+            <div class="viz">
+                <h2>Интерактивная модель</h2>
+                <p>Двигайте параметр <span class="formula">a</span>. Клик по графику откроет увеличенный режим.</p>
+                <div class="canvas-box" id="canvasBox">
+                    <canvas id="plot" aria-label="График ромба и верхней полуокружности"></canvas>
+                </div>
+
+                <div class="controls">
+                    <div>
+                        <label for="aRange"><b>Параметр a:</b> <span id="aLabel">0.00</span></label>
+                        <input id="aRange" type="range" min="-5" max="5" value="0" step="0.01" />
+                    </div>
+                    <div class="control-row">
+                        <span><b>Масштаб:</b> <span id="zoomLabel">1.00</span></span>
+                        <div>
+                            <button class="mini-btn" id="zoomMinus" type="button">−</button>
+                            <button class="mini-btn" id="zoomPlus" type="button">+</button>
+                            <button class="mini-btn" id="resetView" type="button">reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat">Решений: <span id="countLabel">3</span></div>
+                    <div class="stat result" id="statusLabel">не подходит</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Итог</h3>
+                <p class="answer">a ∈ [−4; 2 − 2√2) ∪ (−2 + 2√2; 4]</p>
+                <p>При этих значениях система имеет ровно одну точку пересечения.</p>
+            </div>
+        </aside>
+    </section>
+</main>
+
+<div class="modal" id="modal" aria-hidden="true">
+    <div class="modal-inner">
+        <button class="close" id="closeModal" type="button">×</button>
+        <div class="modal-canvas-box">
+            <canvas id="plotBig" aria-label="Увеличенный график"></canvas>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="wrap">Артём Александрович Лёвин эксклюзивно для Романа Логинова • ЕГЭ • Алгебра</div>
+</footer>
+
+<script>
+    // Храним всё важное состояние в одном объекте, чтобы основной и большой график были синхронны
+    const state = {
+        a: 0,
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        dragging: false,
+        lastX: 0,
+        lastY: 0
+    };
+
+    const refs = {
+        plot: document.getElementById("plot"),
+        plotBig: document.getElementById("plotBig"),
+        aRange: document.getElementById("aRange"),
+        aLabel: document.getElementById("aLabel"),
+        zoomLabel: document.getElementById("zoomLabel"),
+        countLabel: document.getElementById("countLabel"),
+        statusLabel: document.getElementById("statusLabel"),
+        canvasBox: document.getElementById("canvasBox"),
+        modal: document.getElementById("modal"),
+        closeModal: document.getElementById("closeModal")
+    };
+
+    // Считаем пересечения аналитически, чтобы не зависеть от пикселей графика
+    function intersections(a) {
+        const eps = 1e-7;
+        const pts = [];
+
+        function addPoint(x, y) {
+            if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+            if (y < -eps) return;
+            if (Math.abs(x * x + y * y - 4) > 1e-5) return;
+            const duplicate = pts.some(p => Math.hypot(p.x - x, p.y - y) < 1e-5);
+            if (!duplicate) pts.push({ x, y: Math.max(0, y) });
+        }
+
+        // Левая верхняя сторона ромба: y = x - a + 2, x от a-2 до a
+        const c = a - 2;
+        let D = 32 - 4 * c * c;
+        if (D >= -eps) {
+            D = Math.max(0, D);
+            const r = Math.sqrt(D);
+            [(2 * c + r) / 4, (2 * c - r) / 4].forEach(x => {
+                const y = x - a + 2;
+                if (x >= a - 2 - eps && x <= a + eps) addPoint(x, y);
+            });
+        }
+
+        // Правая верхняя сторона ромба: y = -x + a + 2, x от a до a+2
+        const d = a + 2;
+        D = 32 - 4 * d * d;
+        if (D >= -eps) {
+            D = Math.max(0, D);
+            const r = Math.sqrt(D);
+            [(2 * d + r) / 4, (2 * d - r) / 4].forEach(x => {
+                const y = -x + a + 2;
+                if (x >= a - eps && x <= a + 2 + eps) addPoint(x, y);
+            });
+        }
+
+        return pts;
+    }
+
+    // Рисуем график на выбранном canvas
+    function draw(canvas) {
+        const ctx = canvas.getContext("2d");
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+        canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const w = rect.width;
+        const h = rect.height;
+        ctx.clearRect(0, 0, w, h);
+
+        const styles = getComputedStyle(document.body);
+        const ink = styles.getPropertyValue("--ink").trim();
+        const accent = styles.getPropertyValue("--accent").trim();
+        const accent2 = styles.getPropertyValue("--accent2").trim();
+        const muted = styles.getPropertyValue("--muted").trim();
+
+        const baseScale = Math.min(w, h) / 8.2 * state.zoom;
+
+        function X(x) { return w / 2 + state.panX + x * baseScale; }
+        function Y(y) { return h / 2 + state.panY - y * baseScale; }
+
+        function line(x1, y1, x2, y2, color = ink, width = 2, dash = []) {
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.setLineDash(dash);
+            ctx.beginPath();
+            ctx.moveTo(X(x1), Y(y1));
+            ctx.lineTo(X(x2), Y(y2));
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function label(text, x, y, color = ink, align = "center") {
+            ctx.save();
+            ctx.fillStyle = color;
+            ctx.font = "700 14px Arial";
+            ctx.textAlign = align;
+            ctx.textBaseline = "middle";
+            ctx.fillText(text, X(x), Y(y));
+            ctx.restore();
+        }
+
+        // Сетка
+        ctx.save();
+        ctx.strokeStyle = "rgba(120,120,120,.25)";
+        ctx.lineWidth = 1;
+        for (let t = -6; t <= 6; t++) {
+            line(t, -4, t, 4, "rgba(120,120,120,.18)", 1);
+            line(-6, t, 6, t, "rgba(120,120,120,.18)", 1);
+        }
+        ctx.restore();
+
+        // Оси
+        line(-6, 0, 6, 0, ink, 2);
+        line(0, -3.2, 0, 3.2, ink, 2);
+        label("x", 5.7, -0.25, ink);
+        label("y", 0.25, 3.0, ink);
+        [-4,-2,0,2,4].forEach(t => {
+            line(t, -0.06, t, 0.06, ink, 1.5);
+            if (t !== 0) label(String(t), t, -0.28, muted);
+        });
+        [2].forEach(t => {
+            line(-0.06, t, 0.06, t, ink, 1.5);
+            label(String(t), -0.28, t, muted);
+        });
+
+        // Верхняя полуокружность
+        ctx.save();
+        ctx.strokeStyle = accent2;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        for (let i = 0; i <= 240; i++) {
+            const x = -2 + 4 * i / 240;
+            const y = Math.sqrt(Math.max(0, 4 - x * x));
+            if (i === 0) ctx.moveTo(X(x), Y(y));
+            else ctx.lineTo(X(x), Y(y));
+        }
+        ctx.stroke();
+        ctx.restore();
+
+        // Ромб
+        const a = state.a;
+        const top = {x:a, y:2};
+        const right = {x:a+2, y:0};
+        const bottom = {x:a, y:-2};
+        const left = {x:a-2, y:0};
+
+        ctx.save();
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(X(left.x), Y(left.y));
+        ctx.lineTo(X(top.x), Y(top.y));
+        ctx.lineTo(X(right.x), Y(right.y));
+        ctx.lineTo(X(bottom.x), Y(bottom.y));
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
+
+        // Верхняя половина ромба чуть толще
+        line(left.x, left.y, top.x, top.y, accent, 5);
+        line(top.x, top.y, right.x, right.y, accent, 5);
+
+        // Подписи и вспомогательные линии
+        line(a, -2.2, a, 2.25, muted, 1.5, [6, 5]);
+        label("(a;0)", a + 0.55, 0.35, ink, "left");
+        label("верхняя полуокружность", -1.2, 2.55, accent2);
+        label("ромб", a + 1.35, -1.5, accent);
+
+        // Точки пересечения
+        const pts = intersections(a);
+        pts.forEach(p => {
+            ctx.save();
+            ctx.fillStyle = "#fff";
+            ctx.strokeStyle = accent;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(X(p.x), Y(p.y), 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+        });
+
+        // Критические вертикальные положения по a
+        const a1 = -4;
+        const a2 = 2 - 2 * Math.sqrt(2);
+        const a3 = -2 + 2 * Math.sqrt(2);
+        const a4 = 4;
+        ctx.save();
+        ctx.fillStyle = muted;
+        ctx.font = "700 12px Arial";
+        ctx.textAlign = "left";
+        ctx.fillText("Критические a: −4, 2−2√2, −2+2√2, 4", 10, h - 12);
+        ctx.restore();
+
+        return pts.length;
+    }
+
+    function update() {
+        refs.aLabel.textContent = state.a.toFixed(2);
+        refs.zoomLabel.textContent = state.zoom.toFixed(2);
+
+        const count = draw(refs.plot);
+        if (refs.modal.classList.contains("open")) draw(refs.plotBig);
+
+        refs.countLabel.textContent = String(count);
+        refs.statusLabel.className = "stat result";
+        if (count === 1) {
+            refs.statusLabel.textContent = "подходит";
+            refs.statusLabel.classList.add("good");
+        } else if (count === 0) {
+            refs.statusLabel.textContent = "нет решений";
+            refs.statusLabel.classList.add("bad");
+        } else {
+            refs.statusLabel.textContent = "не подходит";
+            refs.statusLabel.classList.add("warn");
+        }
+    }
+
+    refs.aRange.addEventListener("input", () => {
+        state.a = Number(refs.aRange.value);
+        update();
+    });
+
+    document.getElementById("zoomPlus").addEventListener("click", () => {
+        state.zoom = Math.min(2.4, state.zoom + 0.1);
+        update();
+    });
+
+    document.getElementById("zoomMinus").addEventListener("click", () => {
+        state.zoom = Math.max(0.65, state.zoom - 0.1);
+        update();
+    });
+
+    document.getElementById("resetView").addEventListener("click", () => {
+        state.zoom = 1;
+        state.panX = 0;
+        state.panY = 0;
+        update();
+    });
+
+    function attachPan(canvas) {
+        canvas.addEventListener("pointerdown", e => {
+            state.dragging = true;
+            state.lastX = e.clientX;
+            state.lastY = e.clientY;
+            canvas.setPointerCapture(e.pointerId);
+        });
+
+        canvas.addEventListener("pointermove", e => {
+            if (!state.dragging) return;
+            state.panX += e.clientX - state.lastX;
+            state.panY += e.clientY - state.lastY;
+            state.lastX = e.clientX;
+            state.lastY = e.clientY;
+            update();
+        });
+
+        canvas.addEventListener("pointerup", () => {
+            state.dragging = false;
+        });
+
+        canvas.addEventListener("wheel", e => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.08 : 0.08;
+            state.zoom = Math.max(0.65, Math.min(2.4, state.zoom + delta));
+            update();
+        }, { passive: false });
+    }
+
+    attachPan(refs.plot);
+    attachPan(refs.plotBig);
+
+    refs.canvasBox.addEventListener("click", e => {
+        if (Math.abs(e.movementX) > 3 || Math.abs(e.movementY) > 3) return;
+        refs.modal.classList.add("open");
+        refs.modal.setAttribute("aria-hidden", "false");
+        setTimeout(update, 0);
+    });
+
+    refs.closeModal.addEventListener("click", () => {
+        refs.modal.classList.remove("open");
+        refs.modal.setAttribute("aria-hidden", "true");
+    });
+
+    refs.modal.addEventListener("click", e => {
+        if (e.target === refs.modal) {
+            refs.modal.classList.remove("open");
+            refs.modal.setAttribute("aria-hidden", "true");
+        }
+    });
+
+    window.addEventListener("keydown", e => {
+        if (e.key === "Escape") {
+            refs.modal.classList.remove("open");
+            refs.modal.setAttribute("aria-hidden", "true");
+        }
+    });
+
+    document.getElementById("themeBtn").addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+        localStorage.setItem("theme-param-guide", document.body.classList.contains("dark") ? "dark" : "light");
+        update();
+    });
+
+    if (localStorage.getItem("theme-param-guide") === "dark") {
+        document.body.classList.add("dark");
+    }
+
+    document.querySelectorAll(".tab").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".tabpane").forEach(p => p.classList.add("hidden"));
+            btn.classList.add("active");
+            document.getElementById(btn.dataset.tab).classList.remove("hidden");
+        });
+    });
+
+    document.querySelectorAll(".quiz button[data-ok]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const box = btn.closest(".quiz");
+            box.querySelectorAll("button[data-ok]").forEach(b => {
+                b.classList.remove("correct", "wrong");
+            });
+            const ok = btn.dataset.ok === "1";
+            btn.classList.add(ok ? "correct" : "wrong");
+            box.querySelector(".feedback").textContent = ok ? "Верно." : "Проверьте условие ещё раз.";
+        });
+    });
+
+    document.getElementById("randomA").addEventListener("click", () => {
+        const variants = [-4, -3.2, -1, 2 - 2 * Math.sqrt(2), 0, -2 + 2 * Math.sqrt(2), 2.4, 4, 4.6];
+        const a = variants[Math.floor(Math.random() * variants.length)];
+        state.a = a;
+        refs.aRange.value = String(a);
+        const count = intersections(a).length;
+        document.getElementById("generatedTask").textContent =
+        "Сгенерировано: a = " + a.toFixed(3) + ". Число решений: " + count + ". Проверьте это на графике.";
+        update();
+    });
+
+    window.addEventListener("resize", update);
+
+    // Подсветка логических шагов при наведении
+    document.querySelectorAll("[data-step]").forEach(el => {
+        el.addEventListener("mouseenter", () => el.classList.add("active"));
+        el.addEventListener("mouseleave", () => el.classList.remove("active"));
+    });
+
+    update();
+</script>
+</body>
+</html>
