@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Теория чисел — web-чек-лист | Полина Ковальчук</title>
+    <style>
+        /* Простые переменные: тут собраны главные цвета страницы */
+        :root {
+            --bg: #f4f0df;
+            --paper: #fff9e8;
+            --ink: #141414;
+            --muted: #4c4c4c;
+            --red: #b82020;
+            --blue: #1c54d9;
+            --yellow: #ffda3d;
+            --green: #00a878;
+            --shadow: #141414;
+            --line: #141414;
+            --soft: #eadfbd;
+            --white: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg: #141414;
+            --paper: #222222;
+            --ink: #f8f2df;
+            --muted: #d8ceb1;
+            --red: #ff5555;
+            --blue: #7ea2ff;
+            --yellow: #ffd84d;
+            --green: #39dca3;
+            --shadow: #000000;
+            --line: #f8f2df;
+            --soft: #333333;
+            --white: #181818;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+            radial-gradient(circle at 12% 18%, rgba(184, 32, 32, 0.14) 0 7%, transparent 8%),
+            radial-gradient(circle at 90% 8%, rgba(28, 84, 217, 0.10) 0 8%, transparent 9%),
+            linear-gradient(135deg, var(--bg), var(--soft));
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        body::before {
+        /* Лёгкая "бумажная" сетка, без картинок и библиотек */
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.12;
+            background-image:
+            linear-gradient(var(--ink) 1px, transparent 1px),
+            linear-gradient(90deg, var(--ink) 1px, transparent 1px);
+            background-size: 42px 42px;
+            z-index: -1;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .wrap {
+            width: min(1180px, calc(100% - 28px));
+            margin: 0 auto;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            border-bottom: 3px solid var(--line);
+            background: var(--paper);
+            box-shadow: 0 6px 0 var(--shadow);
+        }
+
+        .topbar-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 950;
+            letter-spacing: -0.06em;
+            text-transform: uppercase;
+        }
+
+        .brand-mark {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            background: var(--yellow);
+            color: #141414;
+            border: 3px solid var(--line);
+            box-shadow: 4px 4px 0 var(--shadow);
+            transform: rotate(-4deg);
+        }
+
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .nav a,
+        .btn {
+            border: 3px solid var(--line);
+            background: var(--white);
+            color: var(--ink);
+            padding: 8px 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 12px;
+            box-shadow: 4px 4px 0 var(--shadow);
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .nav a:hover,
+        .btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 var(--shadow);
+        }
+
+        .hero {
+            padding: 52px 0 26px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.08fr 0.92fr;
+            gap: 22px;
+            align-items: stretch;
+        }
+
+        .hero-card {
+            background: var(--paper);
+            border: 4px solid var(--line);
+            box-shadow: 12px 12px 0 var(--shadow);
+            padding: clamp(22px, 5vw, 44px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::after {
+            content: "ЕГЭ";
+            position: absolute;
+            right: 22px;
+            bottom: -8px;
+            font-size: clamp(64px, 12vw, 148px);
+            font-weight: 1000;
+            color: rgba(184, 32, 32, 0.14);
+            letter-spacing: -0.09em;
+            pointer-events: none;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            margin-bottom: 18px;
+            border: 3px solid var(--line);
+            background: var(--yellow);
+            color: #141414;
+            font-weight: 1000;
+            text-transform: uppercase;
+            box-shadow: 5px 5px 0 var(--shadow);
+        }
+
+        h1 {
+            margin: 0;
+            max-width: 780px;
+            font-size: clamp(42px, 8vw, 96px);
+            line-height: 0.86;
+            letter-spacing: -0.08em;
+            text-transform: uppercase;
+            font-weight: 1000;
+        }
+
+        .red {
+            color: var(--red);
+        }
+
+        .lead {
+            margin: 20px 0 0;
+            font-size: clamp(17px, 2vw, 22px);
+            line-height: 1.35;
+            color: var(--muted);
+            max-width: 780px;
+            font-weight: 700;
+        }
+
+        .side-card {
+            display: grid;
+            gap: 16px;
+        }
+
+        .stat {
+            background: var(--white);
+            border: 4px solid var(--line);
+            box-shadow: 9px 9px 0 var(--shadow);
+            padding: 22px;
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 52px;
+            line-height: 0.85;
+            letter-spacing: -0.08em;
+            color: var(--red);
+            margin-bottom: 8px;
+        }
+
+        .stat span {
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .banner {
+            margin: 28px 0 24px;
+            background: var(--ink);
+            color: var(--paper);
+            border: 4px solid var(--line);
+            padding: 16px 18px;
+            font-weight: 1000;
+            text-transform: uppercase;
+            letter-spacing: -0.03em;
+            font-size: clamp(20px, 4vw, 38px);
+            box-shadow: 8px 8px 0 var(--red);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 22px;
+            align-items: start;
+            padding-bottom: 60px;
+        }
+
+        .toc {
+            position: sticky;
+            top: 86px;
+            background: var(--paper);
+            border: 4px solid var(--line);
+            box-shadow: 8px 8px 0 var(--shadow);
+            padding: 14px;
+        }
+
+        .toc h2 {
+            margin: 0 0 12px;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: -0.04em;
+        }
+
+        .toc a {
+            display: block;
+            border: 3px solid var(--line);
+            padding: 10px;
+            margin-bottom: 8px;
+            background: var(--white);
+            font-weight: 900;
+            box-shadow: 3px 3px 0 var(--shadow);
+        }
+
+        .toc a:hover {
+            background: var(--yellow);
+            color: #141414;
+        }
+
+        .content {
+            display: grid;
+            gap: 22px;
+        }
+
+        .section {
+            background: var(--paper);
+            border: 4px solid var(--line);
+            box-shadow: 10px 10px 0 var(--shadow);
+            padding: clamp(18px, 3vw, 30px);
+            scroll-margin-top: 100px;
+        }
+
+        .section-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .num {
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            width: 52px;
+            height: 52px;
+            border: 4px solid var(--line);
+            background: var(--red);
+            color: #fff;
+            box-shadow: 5px 5px 0 var(--shadow);
+            font-size: 24px;
+            font-weight: 1000;
+            transform: rotate(-3deg);
+        }
+
+        h2 {
+            margin: 0;
+            font-size: clamp(26px, 4vw, 44px);
+            line-height: 0.95;
+            letter-spacing: -0.07em;
+            text-transform: uppercase;
+        }
+
+        h3 {
+            margin: 22px 0 10px;
+            font-size: 22px;
+            letter-spacing: -0.04em;
+            text-transform: uppercase;
+        }
+
+        p {
+            font-size: 17px;
+            line-height: 1.48;
+            font-weight: 650;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .mini {
+            border: 3px solid var(--line);
+            background: var(--white);
+            box-shadow: 5px 5px 0 var(--shadow);
+            padding: 16px;
+        }
+
+        .mini.yellow { background: var(--yellow); color: #141414; }
+        .mini.red { background: var(--red); color: #fff; }
+        .mini.green { background: var(--green); color: #071b14; }
+        .mini.blue { background: var(--blue); color: #fff; }
+
+        .formula {
+            display: inline-block;
+            border: 3px solid var(--line);
+            background: var(--white);
+            padding: 7px 10px;
+            margin: 4px 2px;
+            font-weight: 1000;
+            font-size: 20px;
+            box-shadow: 4px 4px 0 var(--shadow);
+            white-space: nowrap;
+        }
+
+        .over {
+            text-decoration: overline;
+            text-decoration-thickness: 2px;
+        }
+
+        .note {
+            border: 3px dashed var(--line);
+            background: var(--yellow);
+            color: #141414;
+            padding: 14px;
+            font-weight: 900;
+            transform: rotate(-1deg);
+        }
+
+        ul.clean {
+            margin: 8px 0 0;
+            padding-left: 0;
+            list-style: none;
+            display: grid;
+            gap: 9px;
+        }
+
+        ul.clean li {
+            border-left: 8px solid var(--red);
+            background: var(--white);
+            border-top: 3px solid var(--line);
+            border-right: 3px solid var(--line);
+            border-bottom: 3px solid var(--line);
+            padding: 10px 12px;
+            font-weight: 800;
+            box-shadow: 4px 4px 0 var(--shadow);
+        }
+
+        .flow {
+            display: grid;
+            gap: 10px;
+            counter-reset: step;
+        }
+
+        .flow div {
+            counter-increment: step;
+            display: grid;
+            grid-template-columns: 44px 1fr;
+            gap: 10px;
+            align-items: center;
+            background: var(--white);
+            border: 3px solid var(--line);
+            box-shadow: 4px 4px 0 var(--shadow);
+            padding: 10px;
+            font-weight: 900;
+        }
+
+        .flow div::before {
+            content: counter(step);
+            display: grid;
+            place-items: center;
+            width: 34px;
+            height: 34px;
+            background: var(--red);
+            color: #fff;
+            border: 3px solid var(--line);
+            font-weight: 1000;
+        }
+
+        .residue-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .controls {
+            display: grid;
+            gap: 12px;
+        }
+
+        label {
+            font-weight: 1000;
+            text-transform: uppercase;
+            font-size: 13px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            border: 3px solid var(--line);
+            background: var(--white);
+            color: var(--ink);
+            padding: 11px 12px;
+            font-size: 18px;
+            font-weight: 900;
+            box-shadow: 4px 4px 0 var(--shadow);
+        }
+
+        .result {
+            min-height: 120px;
+            border: 4px solid var(--line);
+            background: var(--yellow);
+            color: #141414;
+            box-shadow: 6px 6px 0 var(--shadow);
+            padding: 18px;
+            font-size: 20px;
+            font-weight: 1000;
+            line-height: 1.35;
+        }
+
+        .parity-row {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 8px;
+            margin: 14px 0;
+        }
+
+        .cell {
+            display: grid;
+            place-items: center;
+            min-height: 48px;
+            border: 3px solid var(--line);
+            box-shadow: 4px 4px 0 var(--shadow);
+            font-weight: 1000;
+            background: var(--white);
+        }
+
+        .cell.odd {
+            background: var(--yellow);
+            color: #141414;
+        }
+
+        .cell.even {
+            background: var(--blue);
+            color: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border: 4px solid var(--line);
+            box-shadow: 6px 6px 0 var(--shadow);
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            border-bottom: 3px solid var(--line);
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+            font-weight: 850;
+        }
+
+        th {
+            background: var(--red);
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .quiz {
+            display: grid;
+            gap: 12px;
+        }
+
+        .q-card {
+            border: 3px solid var(--line);
+            background: var(--white);
+            box-shadow: 5px 5px 0 var(--shadow);
+            padding: 15px;
+        }
+
+        .answers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .answers button {
+            border: 3px solid var(--line);
+            background: var(--paper);
+            color: var(--ink);
+            padding: 8px 12px;
+            font-weight: 1000;
+            box-shadow: 3px 3px 0 var(--shadow);
+            cursor: pointer;
+        }
+
+        .answers button[data-state="good"] {
+            background: var(--green);
+            color: #071b14;
+        }
+
+        .answers button[data-state="bad"] {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .task {
+            border: 4px solid var(--line);
+            background: var(--yellow);
+            color: #141414;
+            padding: 18px;
+            box-shadow: 6px 6px 0 var(--shadow);
+            font-weight: 1000;
+            font-size: 20px;
+            line-height: 1.35;
+        }
+
+        details {
+            border: 3px solid var(--line);
+            background: var(--white);
+            box-shadow: 5px 5px 0 var(--shadow);
+            padding: 12px;
+            font-weight: 850;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 1000;
+            text-transform: uppercase;
+            color: var(--red);
+        }
+
+        .footer {
+            border-top: 4px solid var(--line);
+            background: var(--paper);
+            padding: 24px 0;
+            font-weight: 950;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .tag {
+            display: inline-block;
+            border: 3px solid var(--line);
+            background: var(--red);
+            color: #fff;
+            padding: 8px 12px;
+            box-shadow: 4px 4px 0 var(--shadow);
+            transform: rotate(1deg);
+        }
+
+        @media (max-width: 920px) {
+            .hero-grid,
+            .layout,
+            .grid-2,
+            .residue-box {
+                grid-template-columns: 1fr;
+            }
+
+            .toc {
+                position: static;
+            }
+
+            .nav {
+                display: none;
+            }
+
+            .parity-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media print {
+            .topbar,
+            .toc,
+            .btn,
+            .answers,
+            .controls {
+                display: none !important;
+            }
+
+            body {
+                background: #fff;
+            }
+
+            body::before {
+                display: none;
+            }
+
+            .layout,
+            .hero-grid,
+            .grid-2,
+            .residue-box {
+                display: block;
+            }
+
+            .section,
+            .hero-card,
+            .stat {
+                box-shadow: none;
+                break-inside: avoid;
+                margin-bottom: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="topbar">
+    <div class="wrap topbar-inner">
+        <a href="#top" class="brand">
+            <span class="brand-mark">19</span>
+            <span>Теория чисел</span>
+        </a>
+        <nav class="nav" aria-label="Навигация">
+            <a href="#digits">Цифры</a>
+            <a href="#algo">Алгоритм</a>
+            <a href="#residues">Остатки</a>
+            <a href="#parity">Чётность</a>
+            <a href="#divisibility">Делимость</a>
+            <a href="#practice">Практика</a>
+        </nav>
+        <button class="btn" id="themeBtn" type="button">Dark</button>
+    </div>
+</header>
+
+<main id="top">
+    <section class="hero">
+        <div class="wrap hero-grid">
+            <div class="hero-card">
+                <div class="eyebrow">ЕГЭ • алгебра • задание 19</div>
+                <h1><span class="red">Теория чисел:</span><br>формулы и методы</h1>
+                <p class="lead">
+                    Web-эквивалент чек-листа для Полины Ковальчук: десятичная запись числа,
+                    произведение цифр, остатки, сравнения, чётность и признаки делимости.
+                </p>
+            </div>
+            <aside class="side-card">
+                <div class="stat">
+                    <strong>6</strong>
+                    <span>ключевых блоков для повторения</span>
+                </div>
+                <div class="stat">
+                    <strong>0</strong>
+                    <span>угадывания: только цифры, остатки и логика</span>
+                </div>
+                <div class="stat">
+                    <strong>1</strong>
+                    <span>главная идея: переводите текст условия на язык математики</span>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <div class="wrap">
+        <div class="banner">Сначала модель → потом уравнение → затем ограничения → в конце проверка</div>
+    </div>
+
+    <div class="wrap layout">
+        <aside class="toc">
+            <h2>Карта страницы</h2>
+            <a href="#digits">1. Десятичная запись</a>
+            <a href="#algo">2. Задачи на цифры</a>
+            <a href="#residues">3. Остатки и сравнения</a>
+            <a href="#parity">4. Чётность</a>
+            <a href="#divisibility">5. Признаки делимости</a>
+            <a href="#mistakes">6. Частые ошибки</a>
+            <a href="#practice">Практика и квиз</a>
+        </aside>
+
+        <div class="content">
+            <section class="section" id="digits">
+                <div class="section-head">
+                    <div>
+                        <h2>Десятичная запись числа</h2>
+                        <p>Цифры числа нужно переводить в обычную алгебраическую запись.</p>
+                    </div>
+                    <div class="num">1</div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="mini">
+                        <h3>Двузначное число</h3>
+                        <p><span class="formula"><span class="over">ab</span> = 10a + b</span></p>
+                        <p>Ограничения: <span class="formula">a = 1…9</span> <span class="formula">b = 0…9</span></p>
+                        <p>Пример: <span class="formula">32 = 10 · 3 + 2</span></p>
+                    </div>
+
+                    <div class="mini">
+                        <h3>Трёхзначное число</h3>
+                        <p><span class="formula"><span class="over">abc</span> = 100a + 10b + c</span></p>
+                        <p>Ограничения: <span class="formula">a = 1…9</span> <span class="formula">b,c = 0…9</span></p>
+                        <p>Пример: <span class="formula">321 = 100 · 3 + 10 · 2 + 1</span></p>
+                    </div>
+                </div>
+
+                <p class="note">Важно: запись <span class="over">ab</span> — это число, а запись a · b — произведение цифр. Их нельзя путать.</p>
+            </section>
+
+            <section class="section" id="algo">
+                <div class="section-head">
+                    <div>
+                        <h2>Как решать задачи на цифры</h2>
+                        <p>Алгоритм нужен, чтобы не потерять ограничения и не начать бесконечный перебор.</p>
+                    </div>
+                    <div class="num">2</div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="flow">
+                        <div>Обозначьте цифры буквами.</div>
+                        <div>Запишите число через цифры.</div>
+                        <div>Переведите условие в уравнение.</div>
+                        <div>Учтите ограничения на цифры.</div>
+                        <div>Проверьте найденный вариант.</div>
+                    </div>
+
+                    <div class="mini yellow">
+                        <h3>Пример</h3>
+                        <p>Произведение цифр двузначного числа равно половине числа:</p>
+                        <p><span class="formula">ab = (10a + b) / 2</span></p>
+                        <p><span class="formula">10a = b(2a − 1)</span></p>
+                        <p>При <span class="formula">a = 3</span> получаем <span class="formula">b = 6</span>, значит число <span class="formula">36</span>.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section" id="residues">
+                <div class="section-head">
+                    <div>
+                        <h2>Остатки и сравнения</h2>
+                        <p>Если число при делении на m даёт остаток r, то его удобно записать через период.</p>
+                    </div>
+                    <div class="num">3</div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="mini">
+                        <h3>Главная формула</h3>
+                        <p><span class="formula">n = mk + r</span></p>
+                        <p><span class="formula">0 ≤ r &lt; m</span></p>
+                        <p>Короткая запись: <span class="formula">n ≡ r (mod m)</span></p>
+                    </div>
+                    <div class="mini red">
+                        <h3>Мини-пример</h3>
+                        <p><span class="formula">15 = 2 · 7 + 1</span></p>
+                        <p>Значит, <span class="formula">15 ≡ 1 (mod 2)</span>.</p>
+                    </div>
+                </div>
+
+                <h3>Интерактив: найдите остатки</h3>
+                <div class="residue-box">
+                    <div class="controls">
+                        <label for="numberInput">Число n</label>
+                        <input id="numberInput" type="number" value="173" />
+                        <label for="modInput">Модуль m</label>
+                        <input id="modInput" type="number" value="30" min="1" />
+                        <button class="btn" type="button" id="calcResidue">Посчитать остаток</button>
+                    </div>
+                    <div class="result" id="residueResult">
+                        173 = 30 · 5 + 23<br>остаток: 23
+                    </div>
+                </div>
+
+                <p class="note">Если условия: n ≡ 1 (mod 2), n ≡ 2 (mod 3), n ≡ 3 (mod 5), то базовый остаток — 23, период — 30, поэтому n = 30k + 23.</p>
+            </section>
+
+            <section class="section" id="parity">
+                <div class="section-head">
+                    <div>
+                        <h2>Чётность</h2>
+                        <p>Чётность помогает быстро доказывать возможность или невозможность конструкции.</p>
+                    </div>
+                    <div class="num">4</div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="mini">
+                        <h3>Формы чисел</h3>
+                        <p><span class="formula">чётное = 2k</span></p>
+                        <p><span class="formula">нечётное = 2k + 1</span></p>
+                    </div>
+                    <div class="mini blue">
+                        <h3>Главное правило</h3>
+                        <p>Если сумма соседних чисел нечётна, то соседние числа имеют разную чётность.</p>
+                    </div>
+                </div>
+
+                <div class="parity-row" aria-label="Чередование чётности">
+                    <div class="cell odd">1<br>неч.</div>
+                    <div class="cell even">2<br>чёт.</div>
+                    <div class="cell odd">1<br>неч.</div>
+                    <div class="cell even">2<br>чёт.</div>
+                    <div class="cell odd">1<br>неч.</div>
+                    <div class="cell even">2<br>чёт.</div>
+                    <div class="cell odd">1<br>неч.</div>
+                    <div class="cell even">2<br>чёт.</div>
+                    <div class="cell odd">1<br>неч.</div>
+                </div>
+
+                <p class="note">Если чисел 2025, первое и последнее места имеют одинаковую чётность по номеру. Поэтому при чередовании первое и последнее числа будут одинаковой чётности.</p>
+            </section>
+
+            <section class="section" id="divisibility">
+                <div class="section-head">
+                    <div>
+                        <h2>Признаки делимости</h2>
+                        <p>Перед сложными рассуждениями проверьте простые признаки: они часто сокращают задачу.</p>
+                    </div>
+                    <div class="num">5</div>
+                </div>
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Делитель</th>
+                        <th>Признак</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr><td>2</td><td>последняя цифра чётная</td></tr>
+                    <tr><td>3</td><td>сумма цифр делится на 3</td></tr>
+                    <tr><td>4</td><td>число из двух последних цифр делится на 4</td></tr>
+                    <tr><td>5</td><td>последняя цифра равна 0 или 5</td></tr>
+                    <tr><td>6</td><td>число делится и на 2, и на 3</td></tr>
+                    <tr><td>9</td><td>сумма цифр делится на 9</td></tr>
+                    <tr><td>11</td><td>разность сумм цифр на нечётных и чётных местах делится на 11</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="mini yellow" style="margin-top:16px;">
+                    <h3>Пример на 11</h3>
+                    <p>Для числа 123456789:</p>
+                    <p><span class="formula">(1+3+5+7+9) − (2+4+6+8) = 5</span></p>
+                    <p>5 не делится на 11, значит число не делится на 11.</p>
+                </div>
+            </section>
+
+            <section class="section" id="mistakes">
+                <div class="section-head">
+                    <div>
+                        <h2>Частые ошибки</h2>
+                        <p>Это чек-лист самопроверки перед финальным ответом.</p>
+                    </div>
+                    <div class="num">6</div>
+                </div>
+
+                <ul class="clean">
+                    <li>Первая цифра многозначного числа не может быть 0.</li>
+                    <li>Не путайте число <span class="over">ab</span> и произведение a · b.</li>
+                    <li>Остаток r всегда должен удовлетворять условию 0 ≤ r &lt; m.</li>
+                    <li>Если произведение цифр положительно, участвующие цифры не равны 0.</li>
+                    <li>В задачах на чётность ищите противоречие: «одновременно чётное и нечётное».</li>
+                    <li>В конце обязательно проверяйте найденное число в исходном условии.</li>
+                </ul>
+            </section>
+
+            <section class="section" id="practice">
+                <div class="section-head">
+                    <div>
+                        <h2>Практика</h2>
+                        <p>Короткая интерактивная тренировка по теме чек-листа.</p>
+                    </div>
+                    <div class="num">★</div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="mini">
+                        <h3>Генератор похожей задачи</h3>
+                        <div class="task" id="taskBox">
+                            Найдите двузначное число, если произведение его цифр равно половине этого числа.
+                        </div>
+                        <button class="btn" type="button" id="newTask" style="margin-top:14px;">Новая задача</button>
+                        <details style="margin-top:14px;">
+                            <summary>Показать идею</summary>
+                            <p id="taskHint">Запишите число как 10a + b и составьте уравнение по условию.</p>
+                        </details>
+                    </div>
+
+                    <div class="mini">
+                        <h3>Мини-квиз</h3>
+                        <div class="quiz" id="quiz"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="wrap">
+        <span class="tag">Артём Александрович Лёвин эксклюзивно для Полины Ковальчук</span>
+    </div>
+</footer>
+
+<script>
+    // Переключаем тему: светлая/тёмная. Сохраняем выбор в браузере.
+    const themeBtn = document.getElementById('themeBtn');
+    const savedTheme = localStorage.getItem('numTheme') || 'light';
+    document.documentElement.dataset.theme = savedTheme;
+    themeBtn.textContent = savedTheme === 'dark' ? 'Light' : 'Dark';
+
+    themeBtn.addEventListener('click', () => {
+        const current = document.documentElement.dataset.theme;
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        localStorage.setItem('numTheme', next);
+        themeBtn.textContent = next === 'dark' ? 'Light' : 'Dark';
+    });
+
+    // Считаем остаток аккуратно, чтобы он всегда был от 0 до m-1.
+    const numberInput = document.getElementById('numberInput');
+    const modInput = document.getElementById('modInput');
+    const residueResult = document.getElementById('residueResult');
+    const calcResidue = document.getElementById('calcResidue');
+
+    function positiveMod(n, m) {
+        return ((n % m) + m) % m;
+    }
+
+    function renderResidue() {
+        const n = Number(numberInput.value);
+        const m = Number(modInput.value);
+
+        if (!Number.isFinite(n) || !Number.isFinite(m) || m <= 0) {
+            residueResult.innerHTML = 'Введите целое число n и положительный модуль m.';
+            return;
+        }
+
+        const r = positiveMod(n, m);
+        const k = (n - r) / m;
+        residueResult.innerHTML = `${n} = ${m} · ${k} + ${r}<br>остаток: ${r}<br>${n} ≡ ${r} (mod ${m})`;
+    }
+
+    calcResidue.addEventListener('click', renderResidue);
+    numberInput.addEventListener('input', renderResidue);
+    modInput.addEventListener('input', renderResidue);
+
+    // Генератор безопасных задач: задачи подобраны так, чтобы ответ был школьно проверяемым.
+    const tasks = [
+        {
+            text: 'Найдите двузначное число, если произведение его цифр равно половине этого числа.',
+            hint: 'Запишите число как 10a + b. Получится 10a = b(2a − 1). Подходит 36.'
+        },
+        {
+            text: 'Найдите наименьшее число n > 100, если n ≡ 1 (mod 2), n ≡ 2 (mod 3), n ≡ 3 (mod 5).',
+            hint: 'Базовый остаток 23, период 30. Проверяйте числа вида n = 30k + 23.'
+        },
+        {
+            text: 'Можно ли записать 2024 числа так, чтобы суммы соседних были нечётными, а первое и последнее имели одинаковую чётность?',
+            hint: 'Соседние числа должны чередовать чётность. При чётном количестве мест первое и последнее будут разной чётности.'
+        },
+        {
+            text: 'Найдите цифру x, при которой число 45x76 делится на 11.',
+            hint: 'Используйте признак делимости на 11: (4 + x + 6) − (5 + 7) должно делиться на 11.'
+        }
+    ];
+
+    const taskBox = document.getElementById('taskBox');
+    const taskHint = document.getElementById('taskHint');
+    const newTask = document.getElementById('newTask');
+    let taskIndex = 0;
+
+    newTask.addEventListener('click', () => {
+        taskIndex = (taskIndex + 1) % tasks.length;
+        taskBox.textContent = tasks[taskIndex].text;
+        taskHint.textContent = tasks[taskIndex].hint;
+    });
+
+    // Квиз: кнопки сразу показывают, правильный ли выбран ответ.
+    const quizData = [
+        {
+            q: 'Как записывается двузначное число с цифрами a и b?',
+            answers: ['a + b', '10a + b', 'ab'],
+            correct: 1
+        },
+        {
+            q: 'Какой остаток может быть при делении на m?',
+            answers: ['любой', '0 ≤ r < m', 'только 1'],
+            correct: 1
+        },
+        {
+            q: 'Если сумма двух чисел нечётна, то их чётности...',
+            answers: ['одинаковые', 'разные', 'не определить'],
+            correct: 1
+        },
+        {
+            q: 'Для делимости на 9 нужно проверить...',
+            answers: ['последнюю цифру', 'сумму цифр', 'первые две цифры'],
+            correct: 1
+        }
+    ];
+
+    const quiz = document.getElementById('quiz');
+
+    quizData.forEach((item, qIndex) => {
+        const card = document.createElement('div');
+        card.className = 'q-card';
+        card.innerHTML = `<strong>${qIndex + 1}. ${item.q}</strong>`;
+
+        const answers = document.createElement('div');
+        answers.className = 'answers';
+
+        item.answers.forEach((answer, aIndex) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = answer;
+
+            button.addEventListener('click', () => {
+                [...answers.children].forEach(btn => btn.removeAttribute('data-state'));
+                button.dataset.state = aIndex === item.correct ? 'good' : 'bad';
+            });
+
+            answers.appendChild(button);
+        });
+
+        card.appendChild(answers);
+        quiz.appendChild(card);
+    });
+</script>
+</body>
+</html>
