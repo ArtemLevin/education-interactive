@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Химические формулы, массовая доля и количество вещества</title>
+    <style>
+        :root {
+            --bg: #f3ead5;
+            --paper: #fff8e8;
+            --ink: #121212;
+            --muted: #4d463b;
+            --accent: #8b0015;
+            --accent2: #008080;
+            --accent3: #ffcc33;
+            --blue: #1b5f8f;
+            --green: #2e7d32;
+            --bad: #b00020;
+            --line: #121212;
+            --shadow: 8px 8px 0 #121212;
+            --soft: rgba(18,18,18,0.07);
+            --grid: rgba(18,18,18,0.09);
+        }
+
+        body.dark {
+            --bg: #111111;
+            --paper: #1e1e1e;
+            --ink: #fff4dc;
+            --muted: #d8cdb7;
+            --accent: #ff4d6d;
+            --accent2: #29d3d3;
+            --accent3: #ffd447;
+            --blue: #6ec6ff;
+            --green: #8be28b;
+            --bad: #ff6b6b;
+            --line: #fff4dc;
+            --shadow: 8px 8px 0 #fff4dc;
+            --soft: rgba(255,244,220,0.08);
+            --grid: rgba(255,244,220,0.1);
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+            radial-gradient(circle at 10% 5%, rgba(139,0,21,0.10), transparent 30%),
+            radial-gradient(circle at 90% 20%, rgba(0,128,128,0.10), transparent 28%),
+            linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+            linear-gradient(0deg, var(--grid) 1px, transparent 1px),
+            var(--bg);
+            background-size: auto, auto, 30px 30px, 30px 30px, auto;
+            line-height: 1.45;
+        }
+
+        button, input, select {
+            font: inherit;
+        }
+
+        .page {
+            width: min(1200px, calc(100% - 28px));
+            margin: 0 auto;
+            padding: 18px 0 50px;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 24px;
+            background: var(--paper);
+            border: 3px solid var(--line);
+            box-shadow: 5px 5px 0 var(--line);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 1000;
+            text-transform: uppercase;
+            letter-spacing: -0.04em;
+        }
+
+        .brand-mark {
+            display: grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            background: var(--accent);
+            color: #fff8e8;
+            border: 2px solid var(--line);
+            transform: rotate(-3deg);
+            font-weight: 1000;
+        }
+
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .btn, .nav a {
+            appearance: none;
+            border: 2px solid var(--line);
+            color: var(--ink);
+            background: var(--paper);
+            padding: 9px 11px;
+            box-shadow: 3px 3px 0 var(--line);
+            text-decoration: none;
+            text-transform: uppercase;
+            font-weight: 900;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.12s ease;
+        }
+
+        .btn:hover, .nav a:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 var(--line);
+            background: var(--accent3);
+            color: #111;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.08fr 0.92fr;
+            gap: 22px;
+            align-items: stretch;
+        }
+
+        .card {
+            background: var(--paper);
+            border: 3px solid var(--line);
+            box-shadow: var(--shadow);
+        }
+
+        .hero-main {
+            padding: clamp(22px, 4vw, 46px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-main::after {
+            content: "HNO₃";
+            position: absolute;
+            right: -20px;
+            bottom: -38px;
+            font-size: clamp(90px, 14vw, 180px);
+            font-weight: 1000;
+            color: rgba(139,0,21,0.09);
+            transform: rotate(-8deg);
+            pointer-events: none;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .badge {
+            display: inline-flex;
+            padding: 7px 10px;
+            border: 2px solid var(--line);
+            background: var(--accent3);
+            color: #111;
+            font-weight: 1000;
+            text-transform: uppercase;
+            transform: rotate(-1deg);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(44px, 7vw, 104px);
+            line-height: 0.9;
+            letter-spacing: -0.075em;
+            text-transform: uppercase;
+            font-weight: 1000;
+        }
+
+        .accent-word {
+            color: var(--accent);
+            -webkit-text-stroke: 1px var(--line);
+            text-shadow: 4px 4px 0 var(--accent3);
+        }
+
+        .subtitle {
+            margin: 22px 0 0;
+            max-width: 780px;
+            color: var(--muted);
+            font-size: clamp(18px, 2.1vw, 26px);
+            font-weight: 750;
+        }
+
+        .hero-strip {
+            margin-top: 26px;
+            padding: 12px 14px;
+            background: var(--line);
+            color: var(--paper);
+            font-weight: 1000;
+            text-transform: uppercase;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .hero-side {
+            padding: 18px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .formula-stack {
+            display: grid;
+            gap: 10px;
+        }
+
+        .formula-chip {
+            border: 2px solid var(--line);
+            background: var(--bg);
+            padding: 12px;
+            font-weight: 900;
+            box-shadow: 4px 4px 0 var(--line);
+        }
+
+        .formula-chip strong {
+            display: block;
+            color: var(--accent);
+            font-size: 18px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+            margin-top: 24px;
+        }
+
+        .section {
+            padding: 20px;
+            min-height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section::after {
+            content: attr(data-num);
+            position: absolute;
+            right: 10px;
+            bottom: -34px;
+            font-size: 160px;
+            line-height: 1;
+            font-weight: 1000;
+            color: rgba(139,0,21,0.10);
+            pointer-events: none;
+        }
+
+        .kicker {
+            display: inline-block;
+            margin-bottom: 12px;
+            padding: 5px 9px;
+            border: 2px solid var(--line);
+            background: var(--accent);
+            color: #fff8e8;
+            font-weight: 1000;
+            text-transform: uppercase;
+            transform: rotate(-1deg);
+        }
+
+        h2 {
+            margin: 0 0 14px;
+            font-size: clamp(28px, 4vw, 44px);
+            line-height: 0.96;
+            letter-spacing: -0.06em;
+            text-transform: uppercase;
+            font-weight: 1000;
+        }
+
+        h3 {
+            margin: 18px 0 8px;
+            font-size: 20px;
+            text-transform: uppercase;
+            letter-spacing: -0.035em;
+        }
+
+        .lead {
+            margin: 0 0 14px;
+            color: var(--muted);
+            font-size: 18px;
+            font-weight: 760;
+        }
+
+        .pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .pill {
+            border: 2px solid var(--line);
+            background: var(--bg);
+            color: var(--ink);
+            padding: 7px 9px;
+            font-weight: 900;
+            box-shadow: 2px 2px 0 var(--line);
+        }
+
+        .chem-formula {
+            display: inline-block;
+            border: 2px solid var(--line);
+            background: var(--accent3);
+            color: #111;
+            padding: 8px 11px;
+            margin: 4px 5px 4px 0;
+            box-shadow: 3px 3px 0 var(--line);
+            font-size: 20px;
+            font-weight: 1000;
+        }
+
+        .mini-list {
+            list-style: none;
+            margin: 12px 0 0;
+            padding: 0;
+            display: grid;
+            gap: 10px;
+        }
+
+        .mini-list li {
+            display: grid;
+            grid-template-columns: 28px 1fr;
+            gap: 10px;
+            align-items: start;
+            font-weight: 760;
+            font-size: 17px;
+        }
+
+        .dot {
+            display: grid;
+            place-items: center;
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--line);
+            background: var(--accent2);
+            color: #fff;
+            font-weight: 1000;
+            font-size: 13px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border: 2px solid var(--line);
+            background: var(--bg);
+            margin-top: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 520px;
+            font-weight: 760;
+        }
+
+        th, td {
+            border-bottom: 2px solid var(--line);
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: var(--line);
+            color: var(--paper);
+            text-transform: uppercase;
+            font-size: 13px;
+        }
+
+        tr:last-child td { border-bottom: 0; }
+
+        .wide {
+            grid-column: 1 / -1;
+        }
+
+        .scheme {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .scheme-card {
+            border: 2px solid var(--line);
+            background: var(--bg);
+            padding: 14px;
+            min-height: 132px;
+            box-shadow: 3px 3px 0 var(--line);
+        }
+
+        .scheme-card strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .calc-zone {
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: 22px;
+            margin-top: 24px;
+        }
+
+        .calculator {
+            padding: 20px;
+        }
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        label {
+            display: grid;
+            gap: 5px;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 11px;
+            background: var(--paper);
+            color: var(--ink);
+            border: 2px solid var(--line);
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .result-box {
+            margin-top: 14px;
+            border: 2px dashed var(--line);
+            padding: 14px;
+            min-height: 92px;
+            background: var(--soft);
+            font-weight: 780;
+        }
+
+        .trainer {
+            padding: 20px;
+        }
+
+        .task-card {
+            border: 2px solid var(--line);
+            padding: 16px;
+            background: var(--bg);
+            box-shadow: 4px 4px 0 var(--line);
+            margin-top: 14px;
+            font-weight: 800;
+        }
+
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .quiz-card {
+            border: 2px solid var(--line);
+            padding: 14px;
+            background: var(--bg);
+            min-height: 170px;
+        }
+
+        .quiz-card strong {
+            display: block;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-size: 17px;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 8px;
+        }
+
+        .quiz-options .btn {
+            text-align: left;
+        }
+
+        .quiz-result {
+            margin-top: 10px;
+            min-height: 24px;
+            font-weight: 1000;
+        }
+
+        .footer {
+            margin-top: 24px;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .footer-title {
+            margin: 0;
+            font-size: 26px;
+            line-height: 1;
+            font-weight: 1000;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+        }
+
+        .name { color: var(--accent); font-weight: 1000; }
+
+        .print-note {
+            margin-top: 10px;
+            color: var(--muted);
+            font-weight: 760;
+        }
+
+        @media (max-width: 980px) {
+            .hero,
+            .section-grid,
+            .calc-zone,
+            .quiz-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav { display: none; }
+
+            .scheme { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 560px) {
+            .page { width: min(100% - 18px, 1200px); }
+            .topbar { padding: 9px; }
+            .brand span:last-child { display: none; }
+            .hero-main, .hero-side, .section, .calculator, .trainer, .footer { padding: 15px; }
+            .field-grid { grid-template-columns: 1fr; }
+        }
+
+        @media print {
+            body { background: white; color: black; }
+            .topbar, .btn, input, select, .quiz-options { display: none !important; }
+            .page { width: 100%; padding: 0; }
+            .card { box-shadow: none; break-inside: avoid; }
+            .hero, .section-grid, .calc-zone, .quiz-grid { grid-template-columns: 1fr 1fr; }
+            .wide { grid-column: 1 / -1; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-mark">8</div>
+            <span>Химия / чек-лист</span>
+        </div>
+        <nav class="nav" aria-label="Разделы">
+            <a href="#formulas">Формулы</a>
+            <a href="#acids">Кислоты</a>
+            <a href="#molar">Масса</a>
+            <a href="#omega">Доля</a>
+            <a href="#amount">Моль</a>
+            <a href="#trainer">Тренажёр</a>
+        </nav>
+        <button class="btn" id="themeBtn" type="button">Dark</button>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-main card">
+                <div class="badge-row">
+                    <span class="badge">8 класс</span>
+                    <span class="badge">химия</span>
+                    <span class="badge">формулы + расчёты</span>
+                </div>
+                <h1><span class="accent-word">Химия:</span><br>главное</h1>
+                <p class="subtitle">Как составлять формулы веществ, считать молярную массу, массовую долю кислорода и переходить между массой, объёмом газа, числом частиц и количеством вещества.</p>
+                <div class="hero-strip">
+                    <span>формула → M</span>
+                    <span>индексы учитываем</span>
+                    <span>n — главная величина</span>
+                </div>
+            </div>
+
+            <aside class="hero-side card">
+                <span class="kicker">быстрый доступ</span>
+                <div class="formula-stack">
+                    <div class="formula-chip"><strong>Массовая доля</strong>ω = N · Ar / M</div>
+                    <div class="formula-chip"><strong>По массе</strong>n = m / M, &nbsp; m = n · M</div>
+                    <div class="formula-chip"><strong>По объёму газа</strong>n = V / Vm, &nbsp; V = n · Vm</div>
+                    <div class="formula-chip"><strong>По частицам</strong>n = N / NA, &nbsp; N = n · NA</div>
+                </div>
+                <p class="print-note">Vm = 22,4 л/моль при н.у.; NA = 6,02 · 10²³ моль⁻¹.</p>
+            </aside>
+        </section>
+
+        <section class="section-grid">
+            <article class="section card" id="formulas" data-num="1">
+                <span class="kicker">1 / формулы</span>
+                <h2>Как составить формулу</h2>
+                <p class="lead">Сначала символы, затем валентности, потом индексы.</p>
+                <ul class="mini-list">
+                    <li><span class="dot">1</span><span>Запишите элементы или группы атомов.</span></li>
+                    <li><span class="dot">2</span><span>Укажите валентности или заряды.</span></li>
+                    <li><span class="dot">3</span><span>Найдите НОК валентностей.</span></li>
+                    <li><span class="dot">4</span><span>Получите индексы. Индекс 1 не пишется.</span></li>
+                </ul>
+                <div class="pill-row">
+                    <span class="chem-formula">FeS</span>
+                    <span class="chem-formula">Ca(OH)₂</span>
+                    <span class="chem-formula">Ca(NO₃)₂</span>
+                    <span class="chem-formula">BaSO₄</span>
+                    <span class="chem-formula">Al₂(SO₄)₃</span>
+                </div>
+            </article>
+
+            <article class="section card" id="acids" data-num="2">
+                <span class="kicker">2 / остатки</span>
+                <h2>Кислоты и остатки</h2>
+                <p class="lead">Эти формулы лучше знать: они часто встречаются в задачах.</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr><th>Кислота</th><th>Формула</th><th>Остаток</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td>Азотная</td><td>HNO₃</td><td>NO₃⁻, нитрат</td></tr>
+                        <tr><td>Серная</td><td>H₂SO₄</td><td>SO₄²⁻, сульфат</td></tr>
+                        <tr><td>Соляная</td><td>HCl</td><td>Cl⁻, хлорид</td></tr>
+                        <tr><td>Угольная</td><td>H₂CO₃</td><td>CO₃²⁻, карбонат</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="lead" style="margin-top:12px;">Важно: HNO₃ — азотная кислота, не H₂NO₃.</p>
+            </article>
+
+            <article class="section card" id="molar" data-num="3">
+                <span class="kicker">3 / M</span>
+                <h2>Молярная масса</h2>
+                <p class="lead">Молярная масса — сумма атомных масс всех атомов в формуле.</p>
+                <div class="formula-chip">M(HNO₃) = 1 + 14 + 3·16 = 63 г/моль</div>
+                <div class="formula-chip">M(CaCO₃) = 40 + 12 + 3·16 = 100 г/моль</div>
+                <div class="formula-chip">M(Ba(OH)₂) = 137 + 2·(16 + 1) = 171 г/моль</div>
+                <ul class="mini-list">
+                    <li><span class="dot">!</span><span>Индекс обязательно умножает атомную массу.</span></li>
+                </ul>
+            </article>
+
+            <article class="section card" id="omega" data-num="4">
+                <span class="kicker">4 / ω</span>
+                <h2>Массовая доля</h2>
+                <p class="lead">Показывает, какая часть массы вещества приходится на элемент.</p>
+                <span class="chem-formula">ω = N·Ar / M</span>
+                <span class="chem-formula">ω% = ω·100%</span>
+                <h3>Примеры</h3>
+                <div class="formula-chip">ω(O) в HNO₃ = 3·16 / 63 ≈ 0,762 ≈ 76,2%</div>
+                <div class="formula-chip">ω(O) в CaCO₃ = 3·16 / 100 = 48%</div>
+            </article>
+
+            <article class="section card wide" id="amount" data-num="5">
+                <span class="kicker">5 / количество вещества</span>
+                <h2>n — универсальная величина</h2>
+                <p class="lead">Через количество вещества можно переходить между массой, объёмом газа и числом частиц.</p>
+                <div class="scheme">
+                    <div class="scheme-card">
+                        <strong>Масса</strong>
+                        <div class="chem-formula">n = m / M</div>
+                        <div class="chem-formula">m = n·M</div>
+                        <p>m — граммы, M — г/моль.</p>
+                    </div>
+                    <div class="scheme-card">
+                        <strong>Объём газа</strong>
+                        <div class="chem-formula">n = V / Vm</div>
+                        <div class="chem-formula">V = n·Vm</div>
+                        <p>Vm = 22,4 л/моль при нормальных условиях.</p>
+                    </div>
+                    <div class="scheme-card">
+                        <strong>Число частиц</strong>
+                        <div class="chem-formula">n = N / NA</div>
+                        <div class="chem-formula">N = n·NA</div>
+                        <p>NA = 6,02·10²³ моль⁻¹.</p>
+                    </div>
+                </div>
+            </article>
+
+            <article class="section card" id="errors" data-num="6">
+                <span class="kicker">6 / контроль</span>
+                <h2>Типичные ошибки</h2>
+                <ul class="mini-list">
+                    <li><span class="dot">×</span><span>Путают нитрат NO₃⁻ и другие кислотные остатки.</span></li>
+                    <li><span class="dot">×</span><span>Забывают скобки: Ca(NO₃)₂, Fe(NO₃)₂.</span></li>
+                    <li><span class="dot">×</span><span>Не учитывают индексы при расчётах M и ω.</span></li>
+                    <li><span class="dot">×</span><span>Используют Vm для веществ, которые не являются газами.</span></li>
+                    <li><span class="dot">✓</span><span>Всегда пишите единицы: моль, г, л, молекулы.</span></li>
+                </ul>
+            </article>
+        </section>
+
+        <section class="calc-zone" id="trainer">
+            <article class="calculator card">
+                <span class="kicker">интерактив</span>
+                <h2>Калькулятор ω(O)</h2>
+                <p class="lead">Выберите вещество — получите молярную массу и массовую долю кислорода.</p>
+                <div class="field-grid">
+                    <label>Вещество
+                        <select id="substanceSelect">
+                            <option value="HNO3">HNO₃</option>
+                            <option value="CaCO3">CaCO₃</option>
+                            <option value="H2SO4">H₂SO₄</option>
+                            <option value="BaOH2">Ba(OH)₂</option>
+                            <option value="CaOH2">Ca(OH)₂</option>
+                            <option value="AgNO3">AgNO₃</option>
+                            <option value="FeNO32">Fe(NO₃)₂</option>
+                        </select>
+                    </label>
+                    <label>Количество вещества, моль
+                        <input id="molInput" type="number" value="0.25" min="0" step="0.01" />
+                    </label>
+                </div>
+                <div class="result-box" id="omegaResult"></div>
+            </article>
+
+            <article class="trainer card">
+                <span class="kicker">тренажёр</span>
+                <h2>Быстрая задача</h2>
+                <p class="lead">Сгенерируйте задачу по теме и проверьте себя по ответу.</p>
+                <button class="btn" id="taskBtn" type="button">Новая задача</button>
+                <button class="btn" id="answerBtn" type="button">Показать ответ</button>
+                <div class="task-card" id="taskText"></div>
+                <div class="result-box" id="taskAnswer"></div>
+            </article>
+        </section>
+
+        <section class="section card wide" style="margin-top:24px;" aria-label="Самопроверка">
+            <span class="kicker">самопроверка</span>
+            <h2>Проверьте себя</h2>
+            <div class="quiz-grid">
+                <div class="quiz-card">
+                    <strong>1. Формула нитрата кальция?</strong>
+                    <div class="quiz-options" data-answer="b">
+                        <button class="btn" type="button" data-value="a">CaNO₃</button>
+                        <button class="btn" type="button" data-value="b">Ca(NO₃)₂</button>
+                        <button class="btn" type="button" data-value="c">Ca₂NO₃</button>
+                    </div>
+                    <div class="quiz-result"></div>
+                </div>
+                <div class="quiz-card">
+                    <strong>2. M(CaCO₃) равна?</strong>
+                    <div class="quiz-options" data-answer="c">
+                        <button class="btn" type="button" data-value="a">88 г/моль</button>
+                        <button class="btn" type="button" data-value="b">74 г/моль</button>
+                        <button class="btn" type="button" data-value="c">100 г/моль</button>
+                    </div>
+                    <div class="quiz-result"></div>
+                </div>
+                <div class="quiz-card">
+                    <strong>3. Как найти n по объёму газа?</strong>
+                    <div class="quiz-options" data-answer="a">
+                        <button class="btn" type="button" data-value="a">n = V / Vm</button>
+                        <button class="btn" type="button" data-value="b">n = V · Vm</button>
+                        <button class="btn" type="button" data-value="c">n = m / V</button>
+                    </div>
+                    <div class="quiz-result"></div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer card">
+            <p class="footer-title">Химия. Формулы. Расчёты. Без хаоса.</p>
+            <p><span class="name">Артём Александрович Лёвин</span> эксклюзивно для <span class="name">Льва Киселёва</span></p>
+        </footer>
+    </main>
+</div>
+
+<script>
+    const themeBtn = document.getElementById('themeBtn');
+    const savedTheme = localStorage.getItem('chem-theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark');
+        themeBtn.textContent = 'Light';
+    }
+
+    themeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        themeBtn.textContent = isDark ? 'Light' : 'Dark';
+        localStorage.setItem('chem-theme', isDark ? 'dark' : 'light');
+    });
+
+    const substances = {
+        HNO3: { label: 'HNO₃', M: 63, oxygen: 48, note: 'M = 1 + 14 + 3·16 = 63 г/моль' },
+        CaCO3: { label: 'CaCO₃', M: 100, oxygen: 48, note: 'M = 40 + 12 + 3·16 = 100 г/моль' },
+        H2SO4: { label: 'H₂SO₄', M: 98, oxygen: 64, note: 'M = 2·1 + 32 + 4·16 = 98 г/моль' },
+        BaOH2: { label: 'Ba(OH)₂', M: 171, oxygen: 32, note: 'M = 137 + 2·(16 + 1) = 171 г/моль' },
+        CaOH2: { label: 'Ca(OH)₂', M: 74, oxygen: 32, note: 'M = 40 + 2·(16 + 1) = 74 г/моль' },
+        AgNO3: { label: 'AgNO₃', M: 170, oxygen: 48, note: 'M = 108 + 14 + 3·16 = 170 г/моль' },
+        FeNO32: { label: 'Fe(NO₃)₂', M: 180, oxygen: 96, note: 'M = 56 + 2·(14 + 3·16) = 180 г/моль' }
+    };
+
+    const substanceSelect = document.getElementById('substanceSelect');
+    const molInput = document.getElementById('molInput');
+    const omegaResult = document.getElementById('omegaResult');
+
+    function formatNumber(value, digits = 2) {
+        return Number(value.toFixed(digits)).toString().replace('.', ',');
+    }
+
+    function updateOmega() {
+        const item = substances[substanceSelect.value];
+        const n = Math.max(0, Number(molInput.value || 0));
+        const omega = item.oxygen / item.M;
+        const percent = omega * 100;
+        const mass = n * item.M;
+        omegaResult.innerHTML = `
+        <strong>${item.label}</strong><br>
+        ${item.note}<br>
+        ω(O) = ${item.oxygen} / ${item.M} = ${formatNumber(omega, 3)} = <strong>${formatNumber(percent, 1)}%</strong><br>
+        При n = ${formatNumber(n, 2)} моль: m = n·M = ${formatNumber(n, 2)}·${item.M} = <strong>${formatNumber(mass, 2)} г</strong>.
+      `;
+    }
+
+    substanceSelect.addEventListener('change', updateOmega);
+    molInput.addEventListener('input', updateOmega);
+    updateOmega();
+
+    const tasks = [
+        {
+            text: 'Вычислите массовую долю кислорода в CaCO₃.',
+            answer: 'M(CaCO₃) = 40 + 12 + 3·16 = 100 г/моль. ω(O) = 48 / 100 = 48%.'
+        },
+        {
+            text: 'Дано V(N₂) = 2,24 л при н.у. Найдите количество вещества.',
+            answer: 'n = V / Vm = 2,24 / 22,4 = 0,1 моль.'
+        },
+        {
+            text: 'Дано n(Fe) = 0,45 моль. Найдите массу железа.',
+            answer: 'M(Fe) = 56 г/моль. m = n·M = 0,45·56 = 25,2 г.'
+        },
+        {
+            text: 'Дано N(F₂) = 3,01·10²³ молекул. Найдите n, m и V при н.у.',
+            answer: 'n = N/NA = 0,5 моль. M(F₂)=38 г/моль. m=0,5·38=19 г. V=0,5·22,4=11,2 л.'
+        },
+        {
+            text: 'Составьте формулу сульфата алюминия.',
+            answer: 'Al имеет валентность III, SO₄ — II. НОК(3,2)=6, поэтому Al₂(SO₄)₃.'
+        }
+    ];
+
+    let currentTask = 0;
+    const taskText = document.getElementById('taskText');
+    const taskAnswer = document.getElementById('taskAnswer');
+
+    function showTask() {
+        currentTask = Math.floor(Math.random() * tasks.length);
+        taskText.textContent = tasks[currentTask].text;
+        taskAnswer.textContent = 'Ответ скрыт. Сначала попробуйте решить самостоятельно.';
+    }
+
+    document.getElementById('taskBtn').addEventListener('click', showTask);
+    document.getElementById('answerBtn').addEventListener('click', () => {
+        taskAnswer.textContent = tasks[currentTask].answer;
+    });
+    showTask();
+
+    document.querySelectorAll('.quiz-options button').forEach((button) => {
+        button.addEventListener('click', () => {
+            const group = button.parentElement;
+            const result = group.nextElementSibling;
+            const ok = button.dataset.value === group.dataset.answer;
+            result.textContent = ok ? 'Верно!' : 'Пока нет. Сверьтесь с блоком выше.';
+            result.style.color = ok ? 'var(--green)' : 'var(--bad)';
+        });
+    });
+</script>
+</body>
+</html>
