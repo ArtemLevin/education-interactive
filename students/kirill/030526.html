@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Координатная плоскость — веб-пособие</title>
+    <style>
+        /* Простая система цветов: все цвета собраны в одном месте */
+        :root {
+            --bg: #f5f0df;
+            --paper: #fff9e8;
+            --ink: #111111;
+            --muted: #4a4a4a;
+            --accent: #8b0015;
+            --accent-2: #ffcc33;
+            --accent-3: #00a6a6;
+            --grid: rgba(17, 17, 17, 0.14);
+            --shadow: 8px 8px 0 #111111;
+            --small-shadow: 4px 4px 0 #111111;
+            --border: 3px solid #111111;
+            --radius: 0px;
+            --section-gap: 22px;
+        }
+
+        body.dark {
+            --bg: #111111;
+            --paper: #1f1f1f;
+            --ink: #f8f1dc;
+            --muted: #d0c8ad;
+            --accent: #ff4d6d;
+            --accent-2: #ffd447;
+            --accent-3: #31d6d6;
+            --grid: rgba(248, 241, 220, 0.16);
+            --shadow: 8px 8px 0 #f8f1dc;
+            --small-shadow: 4px 4px 0 #f8f1dc;
+            --border: 3px solid #f8f1dc;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+            radial-gradient(circle at 20% 10%, rgba(139, 0, 21, 0.08), transparent 28%),
+            linear-gradient(90deg, rgba(17,17,17,0.035) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(17,17,17,0.035) 1px, transparent 1px),
+            var(--bg);
+            background-size: auto, 28px 28px, 28px 28px, auto;
+            color: var(--ink);
+            font-family: Inter, Arial, Helvetica, sans-serif;
+            line-height: 1.45;
+            transition: background 0.25s ease, color 0.25s ease;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        .page {
+            width: min(1180px, calc(100% - 28px));
+            margin: 0 auto;
+            padding: 22px 0 46px;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 0 auto 26px;
+            padding: 12px;
+            background: var(--paper);
+            border: var(--border);
+            box-shadow: var(--small-shadow);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: -0.03em;
+        }
+
+        .brand-mark {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            background: var(--accent);
+            color: #fff9e8;
+            border: 2px solid var(--ink);
+            transform: rotate(-3deg);
+        }
+
+        .nav {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .nav a,
+        .btn {
+            appearance: none;
+            border: 2px solid var(--ink);
+            background: var(--paper);
+            color: var(--ink);
+            padding: 9px 11px;
+            font-weight: 850;
+            text-transform: uppercase;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 3px 3px 0 var(--ink);
+            text-decoration: none;
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+        }
+
+        .nav a:hover,
+        .btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 var(--ink);
+            background: var(--accent-2);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: var(--section-gap);
+            align-items: stretch;
+            margin-bottom: 24px;
+        }
+
+        .hero-card,
+        .visual-card,
+        .section-card,
+        .footer-card {
+            background: var(--paper);
+            border: var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .hero-card {
+            padding: clamp(20px, 4vw, 42px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 10px;
+            border: 2px solid var(--ink);
+            background: var(--accent-2);
+            color: #111;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 12px;
+            transform: rotate(-1deg);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(48px, 8vw, 112px);
+            line-height: 0.88;
+            letter-spacing: -0.08em;
+            text-transform: uppercase;
+            font-weight: 1000;
+        }
+
+        .accent-word {
+            color: var(--accent);
+            -webkit-text-stroke: 1px var(--ink);
+            text-shadow: 4px 4px 0 var(--accent-2);
+        }
+
+        .subtitle {
+            margin: 22px 0 0;
+            max-width: 720px;
+            color: var(--muted);
+            font-size: clamp(18px, 2.1vw, 26px);
+            font-weight: 760;
+        }
+
+        .hero-strip {
+            margin-top: 24px;
+            padding: 13px 16px;
+            background: var(--ink);
+            color: var(--paper);
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .visual-card {
+            padding: 16px;
+            min-height: 430px;
+            position: sticky;
+            top: 92px;
+            align-self: start;
+        }
+
+        .visual-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .visual-title {
+            font-weight: 950;
+            font-size: 22px;
+            text-transform: uppercase;
+            letter-spacing: -0.04em;
+            margin: 0;
+        }
+
+        .canvas-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border: 3px solid var(--ink);
+            background: repeating-linear-gradient(0deg, transparent 0 23px, var(--grid) 24px),
+            repeating-linear-gradient(90deg, transparent 0 23px, var(--grid) 24px),
+            var(--paper);
+            overflow: hidden;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .canvas-wrap:active {
+            cursor: grabbing;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .control-wide {
+            grid-column: span 2;
+        }
+
+        .range-row {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 10px;
+            align-items: center;
+            padding: 8px 10px;
+            border: 2px solid var(--ink);
+            font-weight: 850;
+            text-transform: uppercase;
+            background: var(--paper);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+
+        .status {
+            margin-top: 12px;
+            padding: 10px;
+            border: 2px dashed var(--ink);
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 750;
+        }
+
+        .grid-main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--section-gap);
+            margin-top: 24px;
+        }
+
+        .section-card {
+            padding: 20px;
+            min-height: 270px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-card::after {
+            content: attr(data-number);
+            position: absolute;
+            right: 10px;
+            bottom: -26px;
+            color: rgba(139, 0, 21, 0.1);
+            font-size: 150px;
+            font-weight: 1000;
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        .section-kicker {
+            display: inline-block;
+            margin-bottom: 12px;
+            padding: 5px 9px;
+            background: var(--accent);
+            color: #fff9e8;
+            border: 2px solid var(--ink);
+            font-weight: 950;
+            text-transform: uppercase;
+            transform: rotate(-1.5deg);
+        }
+
+        h2 {
+            margin: 0 0 14px;
+            font-size: clamp(28px, 4vw, 44px);
+            line-height: 0.96;
+            letter-spacing: -0.06em;
+            text-transform: uppercase;
+            font-weight: 1000;
+        }
+
+        .lead {
+            font-size: 19px;
+            font-weight: 800;
+            color: var(--muted);
+            margin: 0 0 16px;
+        }
+
+        .formula {
+            display: inline-block;
+            padding: 9px 12px;
+            margin: 5px 6px 5px 0;
+            border: 2px solid var(--ink);
+            background: var(--accent-2);
+            color: #111;
+            font-size: 20px;
+            font-weight: 950;
+            box-shadow: 3px 3px 0 var(--ink);
+        }
+
+        .mini-list {
+            list-style: none;
+            padding: 0;
+            margin: 12px 0 0;
+            display: grid;
+            gap: 9px;
+        }
+
+        .mini-list li {
+            display: grid;
+            grid-template-columns: 26px 1fr;
+            gap: 9px;
+            align-items: start;
+            font-weight: 760;
+            font-size: 17px;
+        }
+
+        .dot {
+            display: inline-grid;
+            place-items: center;
+            width: 25px;
+            height: 25px;
+            border: 2px solid var(--ink);
+            background: var(--accent-3);
+            color: #111;
+            font-size: 14px;
+            font-weight: 1000;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .note {
+            padding: 12px;
+            border: 2px solid var(--ink);
+            background: rgba(255, 204, 51, 0.25);
+            font-weight: 780;
+        }
+
+        .quiz {
+            margin-top: 24px;
+            background: var(--paper);
+            border: var(--border);
+            box-shadow: var(--shadow);
+            padding: 22px;
+        }
+
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .quiz-card {
+            border: 2px solid var(--ink);
+            padding: 14px;
+            background: var(--bg);
+            min-height: 148px;
+        }
+
+        .quiz-card strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 8px;
+        }
+
+        .quiz-options button {
+            text-align: left;
+        }
+
+        .result {
+            margin-top: 8px;
+            font-weight: 950;
+            min-height: 22px;
+        }
+
+        .footer-card {
+            margin-top: 24px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-title {
+            font-size: 26px;
+            font-weight: 1000;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .footer-name {
+            font-weight: 900;
+            color: var(--accent);
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.72);
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-box {
+            width: min(900px, 100%);
+            background: var(--paper);
+            color: var(--ink);
+            border: var(--border);
+            box-shadow: 12px 12px 0 var(--accent);
+            padding: 14px;
+        }
+
+        .modal-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .modal-canvas {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border: 3px solid var(--ink);
+            background: var(--paper);
+        }
+
+        .pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .pill {
+            border: 2px solid var(--ink);
+            padding: 6px 8px;
+            font-weight: 850;
+            background: var(--bg);
+        }
+
+        @media (max-width: 920px) {
+            .hero,
+            .grid-main,
+            .quiz-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .visual-card {
+                position: static;
+            }
+
+            .nav {
+                display: none;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .page {
+            width: min(100% - 18px, 1180px);
+        }
+
+            .topbar {
+                padding: 9px;
+            }
+
+            .brand span:last-child {
+                display: none;
+            }
+
+            .hero-card,
+            .section-card,
+            .quiz,
+            .footer-card {
+                padding: 16px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+
+            .topbar,
+            .controls,
+            .quiz-options,
+            .modal {
+                display: none !important;
+            }
+
+            .page {
+                width: 100%;
+                padding: 0;
+            }
+
+            .hero,
+            .grid-main,
+            .quiz-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .hero-card,
+            .visual-card,
+            .section-card,
+            .quiz,
+            .footer-card {
+                box-shadow: none;
+                break-inside: avoid;
+            }
+
+            .visual-card {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header class="topbar" aria-label="Навигация по пособию">
+        <div class="brand">
+            <div class="brand-mark">XY</div>
+            <span>Координаты / 6 класс</span>
+        </div>
+        <nav class="nav">
+            <a href="#point">Точка</a>
+            <a href="#signs">Знаки</a>
+            <a href="#polyline">Ломаная</a>
+            <a href="#intersections">Пересечения</a>
+            <a href="#symmetry">Симметрия</a>
+            <a href="#errors">Ошибки</a>
+        </nav>
+        <button class="btn" id="themeBtn" type="button">Dark</button>
+    </header>
+
+    <main>
+        <section class="hero" aria-label="Главный экран">
+            <div class="hero-card">
+                <div class="badge-row">
+                    <span class="badge">6 класс</span>
+                    <span class="badge">математика</span>
+                    <span class="badge">web-плакат</span>
+                </div>
+                <h1><span class="accent-word">Координатная</span><br />плоскость</h1>
+                <p class="subtitle">Точки, ломаные, пересечения и симметрия — коротко, строго и визуально. Сначала смотрите на оси, потом на знаки, затем соединяйте точки по порядку.</p>
+                <div class="hero-strip" aria-label="Главные правила">
+                    <span>A(x; y)</span>
+                    <span>x — горизонталь</span>
+                    <span>y — вертикаль</span>
+                    <span>минус = влево / вниз</span>
+                </div>
+            </div>
+
+            <aside class="visual-card" aria-label="Интерактивная координатная плоскость">
+                <div class="visual-head">
+                    <div>
+                        <p class="visual-title">Живая сетка</p>
+                        <div class="pill-row">
+                            <span class="pill">drag — двигать</span>
+                            <span class="pill">wheel — zoom</span>
+                        </div>
+                    </div>
+                    <button class="btn" id="openModal" type="button">На весь экран</button>
+                </div>
+                <div class="canvas-wrap" id="canvasWrap">
+                    <canvas id="plane" width="720" height="720" aria-label="Координатная плоскость с точками и ломаной"></canvas>
+                </div>
+                <div class="controls">
+                    <button class="btn" id="zoomOut" type="button">−</button>
+                    <button class="btn" id="zoomIn" type="button">+</button>
+                    <button class="btn control-wide" id="resetView" type="button">Сброс</button>
+                    <div class="range-row">
+                        <span>zoom</span>
+                        <input id="zoomRange" type="range" min="22" max="78" value="42" />
+                        <span id="zoomLabel">42</span>
+                    </div>
+                </div>
+                <div class="status" id="statusText">На сетке показаны точки M, N, A, P и ломаная M → N → A → P.</div>
+            </aside>
+        </section>
+
+        <section class="grid-main" aria-label="Основные секции пособия">
+            <article class="section-card" id="point" data-number="1">
+                <span class="section-kicker">1 / база</span>
+                <h2>Координаты точки</h2>
+                <p class="lead">Точка записывается как пара чисел:</p>
+                <span class="formula">A(x; y)</span>
+                <ul class="mini-list">
+                    <li><span class="dot">x</span><span>первая координата: движение по горизонтали.</span></li>
+                    <li><span class="dot">y</span><span>вторая координата: движение по вертикали.</span></li>
+                    <li><span class="dot">0</span><span>начало координат: O(0; 0).</span></li>
+                </ul>
+            </article>
+
+            <article class="section-card" id="signs" data-number="2">
+                <span class="section-kicker">2 / навигация</span>
+                <h2>Правило знаков</h2>
+                <div class="two-col">
+                    <div class="note"><strong>x &gt; 0</strong><br />идём вправо</div>
+                    <div class="note"><strong>x &lt; 0</strong><br />идём влево</div>
+                    <div class="note"><strong>y &gt; 0</strong><br />идём вверх</div>
+                    <div class="note"><strong>y &lt; 0</strong><br />идём вниз</div>
+                </div>
+                <p class="lead" style="margin-top: 16px;">Сначала откладывайте x, потом y. Не наоборот.</p>
+            </article>
+
+            <article class="section-card" id="polyline" data-number="3">
+                <span class="section-kicker">3 / построение</span>
+                <h2>Как построить ломаную</h2>
+                <p class="lead">Ломаная MNAP строится строго в указанном порядке:</p>
+                <span class="formula">M → N → A → P</span>
+                <ul class="mini-list">
+                    <li><span class="dot">1</span><span>поставьте все точки на координатной плоскости;</span></li>
+                    <li><span class="dot">2</span><span>подпишите точки;</span></li>
+                    <li><span class="dot">3</span><span>соедините соседние точки отрезками по порядку.</span></li>
+                </ul>
+            </article>
+
+            <article class="section-card" id="intersections" data-number="4">
+                <span class="section-kicker">4 / общая точка</span>
+                <h2>Точки пересечения</h2>
+                <p class="lead">Точка пересечения лежит сразу на двух линиях.</p>
+                <span class="formula">Q ∈ l₁</span>
+                <span class="formula">Q ∈ l₂</span>
+                <ul class="mini-list">
+                    <li><span class="dot">Ox</span><span>если точка на оси Ox, то y = 0;</span></li>
+                    <li><span class="dot">Oy</span><span>если точка на оси Oy, то x = 0;</span></li>
+                    <li><span class="dot">≈</span><span>если точка не попала в узел сетки, координаты можно оценить приблизительно.</span></li>
+                </ul>
+            </article>
+
+            <article class="section-card" id="symmetry" data-number="5">
+                <span class="section-kicker">5 / отражение</span>
+                <h2>Симметрия</h2>
+                <p class="lead">Запомните, какой знак меняется.</p>
+                <ul class="mini-list">
+                    <li><span class="dot">O</span><span><span class="formula">(x; y) → (−x; −y)</span> относительно начала координат.</span></li>
+                    <li><span class="dot">Oy</span><span><span class="formula">(x; y) → (−x; y)</span> относительно оси ординат.</span></li>
+                    <li><span class="dot">Ox</span><span><span class="formula">(x; y) → (x; −y)</span> относительно оси абсцисс.</span></li>
+                </ul>
+            </article>
+
+            <article class="section-card" id="errors" data-number="6">
+                <span class="section-kicker">6 / контроль</span>
+                <h2>Типичные ошибки</h2>
+                <ul class="mini-list">
+                    <li><span class="dot">!</span><span>путают x и y местами;</span></li>
+                    <li><span class="dot">!</span><span>забывают знак минус;</span></li>
+                    <li><span class="dot">!</span><span>соединяют точки не по порядку;</span></li>
+                    <li><span class="dot">✓</span><span>обязательно подписывайте точки.</span></li>
+                </ul>
+            </article>
+        </section>
+
+        <section class="quiz" aria-label="Самопроверка">
+            <span class="section-kicker">самопроверка</span>
+            <h2>Проверьте себя</h2>
+            <div class="quiz-grid">
+                <div class="quiz-card">
+                    <strong>1. Где лежит точка A(0; 5)?</strong>
+                    <div class="quiz-options" data-answer="b">
+                        <button class="btn" type="button" data-value="a">на Ox</button>
+                        <button class="btn" type="button" data-value="b">на Oy</button>
+                        <button class="btn" type="button" data-value="c">не на оси</button>
+                    </div>
+                    <div class="result"></div>
+                </div>
+                <div class="quiz-card">
+                    <strong>2. Отразите (3; −2) относительно Oy.</strong>
+                    <div class="quiz-options" data-answer="a">
+                        <button class="btn" type="button" data-value="a">(−3; −2)</button>
+                        <button class="btn" type="button" data-value="b">(3; 2)</button>
+                        <button class="btn" type="button" data-value="c">(−3; 2)</button>
+                    </div>
+                    <div class="result"></div>
+                </div>
+                <div class="quiz-card">
+                    <strong>3. На оси Ox какая координата равна нулю?</strong>
+                    <div class="quiz-options" data-answer="c">
+                        <button class="btn" type="button" data-value="a">x</button>
+                        <button class="btn" type="button" data-value="b">обе</button>
+                        <button class="btn" type="button" data-value="c">y</button>
+                    </div>
+                    <div class="result"></div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer-card">
+            <p class="footer-title">Математика. Наглядно. Без каши.</p>
+            <p><span class="footer-name">Артём Александрович Лёвин</span> эксклюзивно для <span class="footer-name">Кирилла Зиновьева</span></p>
+        </footer>
+    </main>
+</div>
+
+<div class="modal" id="modal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-label="Увеличенная координатная плоскость">
+        <div class="modal-top">
+            <p class="visual-title">Координатная плоскость</p>
+            <button class="btn" id="closeModal" type="button">Закрыть</button>
+        </div>
+        <canvas class="modal-canvas" id="planeModal" width="900" height="900"></canvas>
+    </div>
+</div>
+
+<script>
+    // Храним состояние картинки: масштаб и сдвиг
+    const state = {
+        scale: 42,
+        offsetX: 0,
+        offsetY: 0,
+        dragging: false,
+        lastX: 0,
+        lastY: 0
+    };
+
+    const points = [
+        { name: 'M', x: -3, y: -1 },
+        { name: 'N', x: -1, y: 2 },
+        { name: 'A', x: 1, y: 3 },
+        { name: 'P', x: 3, y: -2 }
+    ];
+
+    const canvas = document.getElementById('plane');
+    const ctx = canvas.getContext('2d');
+    const modalCanvas = document.getElementById('planeModal');
+    const modalCtx = modalCanvas.getContext('2d');
+    const zoomRange = document.getElementById('zoomRange');
+    const zoomLabel = document.getElementById('zoomLabel');
+    const wrap = document.getElementById('canvasWrap');
+
+    function cssVar(name) {
+        return getComputedStyle(document.body).getPropertyValue(name).trim();
+    }
+
+    function resizeCanvasToDisplaySize(targetCanvas) {
+        // Делаем canvas чётким на retina-экранах
+        const rect = targetCanvas.getBoundingClientRect();
+        const dpr = Math.max(1, window.devicePixelRatio || 1);
+        const width = Math.round(rect.width * dpr);
+        const height = Math.round(rect.height * dpr);
+        if (targetCanvas.width !== width || targetCanvas.height !== height) {
+            targetCanvas.width = width;
+            targetCanvas.height = height;
+        }
+        return { width, height, dpr };
+    }
+
+    function worldToScreen(x, y, width, height) {
+        // Переводим математические координаты в координаты экрана
+        return {
+            x: width / 2 + state.offsetX + x * state.scale,
+            y: height / 2 + state.offsetY - y * state.scale
+        };
+    }
+
+    function drawPlane(targetCanvas, targetCtx) {
+        const { width, height } = resizeCanvasToDisplaySize(targetCanvas);
+        targetCtx.clearRect(0, 0, width, height);
+        targetCtx.fillStyle = cssVar('--paper');
+        targetCtx.fillRect(0, 0, width, height);
+
+        const ink = cssVar('--ink');
+        const accent = cssVar('--accent');
+        const accent3 = cssVar('--accent-3');
+        const grid = cssVar('--grid');
+
+        const origin = worldToScreen(0, 0, width, height);
+        const step = state.scale;
+
+        // Рисуем сетку
+        targetCtx.strokeStyle = grid;
+        targetCtx.lineWidth = 1;
+        targetCtx.beginPath();
+        for (let x = origin.x % step; x < width; x += step) {
+            targetCtx.moveTo(x, 0);
+            targetCtx.lineTo(x, height);
+        }
+        for (let y = origin.y % step; y < height; y += step) {
+            targetCtx.moveTo(0, y);
+            targetCtx.lineTo(width, y);
+        }
+        targetCtx.stroke();
+
+        // Рисуем оси
+        targetCtx.strokeStyle = ink;
+        targetCtx.lineWidth = 4;
+        targetCtx.beginPath();
+        targetCtx.moveTo(0, origin.y);
+        targetCtx.lineTo(width, origin.y);
+        targetCtx.moveTo(origin.x, height);
+        targetCtx.lineTo(origin.x, 0);
+        targetCtx.stroke();
+
+        // Стрелки осей
+        drawArrow(targetCtx, width - 26, origin.y, width - 5, origin.y, ink);
+        drawArrow(targetCtx, origin.x, 26, origin.x, 5, ink);
+
+        targetCtx.font = '800 22px Arial';
+        targetCtx.fillStyle = ink;
+        targetCtx.fillText('x', width - 30, origin.y - 12);
+        targetCtx.fillText('y', origin.x + 12, 28);
+        targetCtx.fillText('0', origin.x + 8, origin.y + 24);
+
+        // Подписываем числа на осях
+        targetCtx.font = '700 14px Arial';
+        targetCtx.fillStyle = ink;
+        const maxIndex = Math.ceil(Math.max(width, height) / step / 2) + 2;
+        for (let i = -maxIndex; i <= maxIndex; i++) {
+            if (i === 0) continue;
+            const px = worldToScreen(i, 0, width, height);
+            const py = worldToScreen(0, i, width, height);
+            if (px.x > 0 && px.x < width) targetCtx.fillText(String(i), px.x - 5, origin.y + 21);
+            if (py.y > 0 && py.y < height) targetCtx.fillText(String(i), origin.x + 8, py.y + 5);
+        }
+
+        // Рисуем ломаную
+        targetCtx.strokeStyle = accent;
+        targetCtx.lineWidth = 5;
+        targetCtx.beginPath();
+        points.forEach((p, index) => {
+            const s = worldToScreen(p.x, p.y, width, height);
+            if (index === 0) targetCtx.moveTo(s.x, s.y);
+            else targetCtx.lineTo(s.x, s.y);
+        });
+        targetCtx.stroke();
+
+        // Рисуем точки и пунктиры до осей
+        points.forEach((p) => {
+            const s = worldToScreen(p.x, p.y, width, height);
+            const sx = worldToScreen(p.x, 0, width, height);
+            const sy = worldToScreen(0, p.y, width, height);
+
+            targetCtx.setLineDash([8, 7]);
+            targetCtx.strokeStyle = accent3;
+            targetCtx.lineWidth = 2;
+            targetCtx.beginPath();
+            targetCtx.moveTo(s.x, s.y);
+            targetCtx.lineTo(sx.x, sx.y);
+            targetCtx.moveTo(s.x, s.y);
+            targetCtx.lineTo(sy.x, sy.y);
+            targetCtx.stroke();
+            targetCtx.setLineDash([]);
+
+            targetCtx.fillStyle = accent;
+            targetCtx.strokeStyle = ink;
+            targetCtx.lineWidth = 3;
+            targetCtx.beginPath();
+            targetCtx.arc(s.x, s.y, 9, 0, Math.PI * 2);
+            targetCtx.fill();
+            targetCtx.stroke();
+
+            targetCtx.fillStyle = ink;
+            targetCtx.font = '900 22px Arial';
+            targetCtx.fillText(`${p.name}(${p.x}; ${p.y})`, s.x + 12, s.y - 12);
+        });
+    }
+
+    function drawArrow(ctx, x1, y1, x2, y2, color) {
+        // Маленькая стрелка для осей
+        const angle = Math.atan2(y2 - y1, x2 - x1);
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - 12 * Math.cos(angle - Math.PI / 6), y2 - 12 * Math.sin(angle - Math.PI / 6));
+        ctx.lineTo(x2 - 12 * Math.cos(angle + Math.PI / 6), y2 - 12 * Math.sin(angle + Math.PI / 6));
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function renderAll() {
+        zoomRange.value = String(state.scale);
+        zoomLabel.textContent = String(Math.round(state.scale));
+        drawPlane(canvas, ctx);
+        drawPlane(modalCanvas, modalCtx);
+    }
+
+    function changeZoom(delta) {
+        state.scale = Math.min(78, Math.max(22, state.scale + delta));
+        renderAll();
+    }
+
+    document.getElementById('zoomIn').addEventListener('click', () => changeZoom(5));
+    document.getElementById('zoomOut').addEventListener('click', () => changeZoom(-5));
+    document.getElementById('resetView').addEventListener('click', () => {
+        state.scale = 42;
+        state.offsetX = 0;
+        state.offsetY = 0;
+        renderAll();
+    });
+
+    zoomRange.addEventListener('input', (event) => {
+        state.scale = Number(event.target.value);
+        renderAll();
+    });
+
+    wrap.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        changeZoom(event.deltaY < 0 ? 3 : -3);
+    }, { passive: false });
+
+    function pointerDown(event) {
+        state.dragging = true;
+        state.lastX = event.clientX;
+        state.lastY = event.clientY;
+        wrap.setPointerCapture(event.pointerId);
+    }
+
+    function pointerMove(event) {
+        if (!state.dragging) return;
+        const dx = event.clientX - state.lastX;
+        const dy = event.clientY - state.lastY;
+        state.offsetX += dx * (window.devicePixelRatio || 1);
+        state.offsetY += dy * (window.devicePixelRatio || 1);
+        state.lastX = event.clientX;
+        state.lastY = event.clientY;
+        renderAll();
+    }
+
+    function pointerUp() {
+        state.dragging = false;
+    }
+
+    wrap.addEventListener('pointerdown', pointerDown);
+    wrap.addEventListener('pointermove', pointerMove);
+    wrap.addEventListener('pointerup', pointerUp);
+    wrap.addEventListener('pointercancel', pointerUp);
+
+    const themeBtn = document.getElementById('themeBtn');
+    const savedTheme = localStorage.getItem('coordinate-theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark');
+        themeBtn.textContent = 'Light';
+    }
+
+    themeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        themeBtn.textContent = isDark ? 'Light' : 'Dark';
+        localStorage.setItem('coordinate-theme', isDark ? 'dark' : 'light');
+        renderAll();
+    });
+
+    const modal = document.getElementById('modal');
+    document.getElementById('openModal').addEventListener('click', () => {
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        renderAll();
+    });
+
+    function closeModal() {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    modal.addEventListener('click', (event) => {
+        if (event.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeModal();
+    });
+
+    document.querySelectorAll('.quiz-options button').forEach((button) => {
+        button.addEventListener('click', () => {
+            const group = button.parentElement;
+            const answer = group.dataset.answer;
+            const result = group.nextElementSibling;
+            const ok = button.dataset.value === answer;
+            result.textContent = ok ? 'Верно. Отлично!' : 'Пока нет. Проверьте правило выше.';
+            result.style.color = ok ? 'var(--accent-3)' : 'var(--accent)';
+        });
+    });
+
+    window.addEventListener('resize', renderAll);
+    renderAll();
+</script>
+</body>
+</html>
