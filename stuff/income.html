@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Учёт занятий и дохода</title>
+    <style>
+        :root {
+            --bg: #f4f4f0;
+            --card: #ffffff;
+            --ink: #101010;
+            --muted: #626262;
+            --line: #101010;
+            --accent: #e94937;
+            --accent-2: #f6c443;
+            --good: #1f8a4c;
+            --bad: #c7342b;
+            --shadow: 6px 6px 0 #101010;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.45;
+        }
+
+        header {
+            border-bottom: 2px solid var(--line);
+            background: var(--card);
+            padding: 22px 18px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .wrap {
+            width: min(1180px, calc(100% - 28px));
+            margin: 0 auto;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(26px, 4vw, 46px);
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            margin-top: 8px;
+            color: var(--muted);
+            max-width: 760px;
+            font-size: 15px;
+        }
+
+        .banner {
+            margin: 18px 0 0;
+            padding: 10px 14px;
+            background: var(--ink);
+            color: white;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: .6px;
+            display: inline-block;
+        }
+
+        main {
+            padding: 26px 0 42px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 390px 1fr;
+            gap: 22px;
+            align-items: start;
+        }
+
+        .panel, .metric, .table-card {
+            background: var(--card);
+            border: 2px solid var(--line);
+            box-shadow: var(--shadow);
+        }
+
+        .panel {
+            padding: 18px;
+            position: sticky;
+            top: 118px;
+        }
+
+        h2, h3 {
+            margin: 0 0 14px;
+            text-transform: uppercase;
+            letter-spacing: -.3px;
+        }
+
+        label {
+            display: block;
+            font-weight: 800;
+            font-size: 13px;
+            text-transform: uppercase;
+            margin: 12px 0 6px;
+        }
+
+        input, select, textarea, button {
+            font: inherit;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            border: 2px solid var(--line);
+            background: white;
+            color: var(--ink);
+            padding: 10px 11px;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 72px;
+            resize: vertical;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            box-shadow: 3px 3px 0 var(--accent-2);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        button {
+            border: 2px solid var(--line);
+            background: var(--accent-2);
+            color: var(--ink);
+            padding: 10px 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 3px 3px 0 var(--line);
+            transition: transform .08s ease, box-shadow .08s ease;
+        }
+
+        button:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0 var(--line);
+        }
+
+        button:active {
+            transform: translate(3px, 3px);
+            box-shadow: none;
+        }
+
+        .danger {
+            background: var(--accent);
+            color: white;
+        }
+
+        .secondary {
+            background: white;
+        }
+
+        .content {
+            display: grid;
+            gap: 20px;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        .metric {
+            padding: 15px;
+            min-height: 112px;
+        }
+
+        .metric .label {
+            color: var(--muted);
+            text-transform: uppercase;
+            font-size: 12px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .metric .value {
+            font-size: clamp(24px, 3vw, 36px);
+            font-weight: 900;
+            line-height: 1;
+            overflow-wrap: anywhere;
+        }
+
+        .metric .hint {
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: end;
+            background: var(--card);
+            border: 2px solid var(--line);
+            padding: 14px;
+            box-shadow: var(--shadow);
+        }
+
+        .table-card {
+            overflow: hidden;
+        }
+
+        .table-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 2px solid var(--line);
+            background: #fff8dd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            border-bottom: 1.5px solid #d6d6d0;
+            padding: 11px 10px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 14px;
+        }
+
+        th {
+            text-transform: uppercase;
+            font-size: 12px;
+            background: #f7f7f3;
+            border-bottom: 2px solid var(--line);
+        }
+
+        tr:hover td {
+            background: #fffdf0;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 2px solid var(--line);
+            padding: 3px 7px;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .paid { background: #dff5e8; color: var(--good); }
+        .unpaid { background: #ffe3df; color: var(--bad); }
+
+        .mini-btn {
+            padding: 5px 8px;
+            box-shadow: 2px 2px 0 var(--line);
+            font-size: 12px;
+            margin: 0 4px 4px 0;
+        }
+
+        .empty {
+            padding: 30px 18px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .student-card {
+            border: 2px solid var(--line);
+            background: white;
+            padding: 14px;
+            box-shadow: 4px 4px 0 var(--line);
+        }
+
+        .student-card strong {
+            font-size: 18px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .student-card p {
+            margin: 4px 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .money-good { color: var(--good); font-weight: 900; }
+        .money-bad { color: var(--bad); font-weight: 900; }
+
+        footer {
+            border-top: 2px solid var(--line);
+            padding: 18px;
+            text-align: center;
+            color: var(--muted);
+            background: white;
+        }
+
+        @media (max-width: 980px) {
+            .grid { grid-template-columns: 1fr; }
+            .panel { position: static; }
+            .metrics { grid-template-columns: repeat(2, 1fr); }
+            .toolbar { grid-template-columns: 1fr 1fr; }
+            .students-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 640px) {
+            .metrics, .toolbar, .students-grid, .row { grid-template-columns: 1fr; }
+            header { position: static; }
+            table, thead, tbody, th, td, tr { display: block; }
+            thead { display: none; }
+            tr { border-bottom: 2px solid var(--line); }
+            td { border-bottom: 1px solid #e6e6df; }
+            td::before {
+                content: attr(data-label);
+                display: block;
+                text-transform: uppercase;
+                font-weight: 900;
+                font-size: 11px;
+                color: var(--muted);
+                margin-bottom: 3px;
+            }
+        }
+
+        @media print {
+            header, .panel, .toolbar, .buttons, .mini-btn, footer { display: none !important; }
+            body { background: white; }
+            .wrap { width: 100%; }
+            .grid { display: block; }
+            .metric, .table-card, .student-card { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="wrap">
+        <div class="topbar">
+            <div>
+                <h1>Учёт занятий</h1>
+                <div class="tagline">Мини-приложение для репетитора: занятия, оплаты, долги, фактическая ставка и экспорт в CSV.</div>
+            </div>
+            <div class="banner">Деньги любят учёт</div>
+        </div>
+    </div>
+</header>
+
+<main class="wrap grid">
+    <aside class="panel">
+        <h2 id="formTitle">Добавить занятие</h2>
+        <form id="lessonForm">
+            <input type="hidden" id="lessonId" />
+
+            <label for="date">Дата</label>
+            <input id="date" type="date" required />
+
+            <label for="student">Ученик</label>
+            <input id="student" type="text" placeholder="Например: Лев" required />
+
+            <label for="topic">Тема</label>
+            <input id="topic" type="text" placeholder="Например: квадратные уравнения" />
+
+            <div class="row">
+                <div>
+                    <label for="duration">Минуты</label>
+                    <input id="duration" type="number" min="1" step="1" value="60" required />
+                </div>
+                <div>
+                    <label for="price">Стоимость, ₽</label>
+                    <input id="price" type="number" min="0" step="50" required />
+                </div>
+            </div>
+
+            <label for="paid">Оплата</label>
+            <select id="paid">
+                <option value="yes">Оплачено</option>
+                <option value="no">Не оплачено</option>
+            </select>
+
+            <label for="comment">Комментарий</label>
+            <textarea id="comment" placeholder="Например: хорошо решил самостоятельную часть"></textarea>
+
+            <div class="buttons">
+                <button type="submit">Сохранить</button>
+                <button type="button" class="secondary" id="resetForm">Очистить</button>
+            </div>
+        </form>
+    </aside>
+
+    <section class="content">
+        <section class="metrics" id="metrics"></section>
+
+        <section class="toolbar">
+            <div>
+                <label for="search">Поиск</label>
+                <input id="search" type="search" placeholder="Ученик, тема, комментарий" />
+            </div>
+            <div>
+                <label for="monthFilter">Месяц</label>
+                <input id="monthFilter" type="month" />
+            </div>
+            <div>
+                <label for="paidFilter">Оплата</label>
+                <select id="paidFilter">
+                    <option value="all">Все</option>
+                    <option value="yes">Оплачено</option>
+                    <option value="no">Долги</option>
+                </select>
+            </div>
+            <div class="buttons">
+                <button type="button" class="secondary" id="exportCsv">CSV</button>
+                <button type="button" class="danger" id="clearAll">Сброс</button>
+            </div>
+        </section>
+
+        <section class="table-card">
+            <div class="table-head">
+                <h3>Журнал занятий</h3>
+                <span id="lessonsCount"></span>
+            </div>
+            <div id="tableRoot"></div>
+        </section>
+
+        <section class="table-card">
+            <div class="table-head">
+                <h3>Сводка по ученикам</h3>
+            </div>
+            <div id="studentsRoot" style="padding: 16px;"></div>
+        </section>
+    </section>
+</main>
+
+<footer>Локальное приложение: данные хранятся только в браузере на этом устройстве.</footer>
+
+<script>
+    // Ключ, по которому браузер хранит наши занятия.
+    const STORAGE_KEY = "lessons_money_web_app_v1";
+
+    // Находим важные элементы страницы.
+    const form = document.getElementById("lessonForm");
+    const formTitle = document.getElementById("formTitle");
+    const lessonId = document.getElementById("lessonId");
+    const dateInput = document.getElementById("date");
+    const studentInput = document.getElementById("student");
+    const topicInput = document.getElementById("topic");
+    const durationInput = document.getElementById("duration");
+    const priceInput = document.getElementById("price");
+    const paidInput = document.getElementById("paid");
+    const commentInput = document.getElementById("comment");
+    const resetFormBtn = document.getElementById("resetForm");
+    const searchInput = document.getElementById("search");
+    const monthFilter = document.getElementById("monthFilter");
+    const paidFilter = document.getElementById("paidFilter");
+    const exportCsvBtn = document.getElementById("exportCsv");
+    const clearAllBtn = document.getElementById("clearAll");
+    const metricsRoot = document.getElementById("metrics");
+    const tableRoot = document.getElementById("tableRoot");
+    const studentsRoot = document.getElementById("studentsRoot");
+    const lessonsCount = document.getElementById("lessonsCount");
+
+    // Ставим сегодняшнюю дату по умолчанию.
+    dateInput.valueAsDate = new Date();
+
+    function loadLessons() {
+        // Берём данные из localStorage.
+        // Если данных нет, возвращаем пустой список.
+        try {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function saveLessons(lessons) {
+        // Сохраняем список занятий в браузер.
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(lessons));
+    }
+
+    function rub(value) {
+        // Красиво форматируем рубли.
+        return new Intl.NumberFormat("ru-RU").format(Math.round(value)) + " ₽";
+    }
+
+    function escapeHtml(text) {
+        // Защищаем страницу от случайного HTML в пользовательском вводе.
+        return String(text || "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function getFilteredLessons() {
+        const query = searchInput.value.trim().toLowerCase();
+        const month = monthFilter.value;
+        const paid = paidFilter.value;
+
+        return loadLessons()
+            .filter(lesson => {
+            // Фильтр по тексту: ищем по ученику, теме и комментарию.
+            const haystack = `${lesson.student} ${lesson.topic} ${lesson.comment}`.toLowerCase();
+            const matchesQuery = !query || haystack.includes(query);
+
+            // Фильтр по месяцу: дата начинается с YYYY-MM.
+            const matchesMonth = !month || lesson.date.startsWith(month);
+
+            // Фильтр по оплате.
+            const matchesPaid = paid === "all" || lesson.paid === paid;
+
+            return matchesQuery && matchesMonth && matchesPaid;
+        })
+            .sort((a, b) => b.date.localeCompare(a.date));
+    }
+
+    function calculateStats(lessons) {
+        let earned = 0;
+        let debt = 0;
+        let minutes = 0;
+
+        lessons.forEach(lesson => {
+            const price = Number(lesson.price) || 0;
+            const duration = Number(lesson.duration) || 0;
+
+            minutes += duration;
+
+            if (lesson.paid === "yes") {
+                earned += price;
+            } else {
+                debt += price;
+            }
+        });
+
+        const hours = minutes / 60;
+        const potential = earned + debt;
+        const hourly = hours > 0 ? earned / hours : 0;
+
+        return { earned, debt, minutes, hours, potential, hourly };
+    }
+
+    function renderMetrics(lessons) {
+        const stats = calculateStats(lessons);
+
+        const cards = [
+            ["Получено", rub(stats.earned), "Фактически оплаченные занятия"],
+            ["Долги", rub(stats.debt), "Деньги, которые ещё нужно забрать"],
+            ["Потенциал", rub(stats.potential), "Оплачено + неоплачено"],
+            ["Ставка/час", rub(stats.hourly), `${stats.hours.toFixed(1)} ч. учтённой работы`]
+        ];
+
+        metricsRoot.innerHTML = cards.map(([label, value, hint]) => `
+        <article class="metric">
+          <div class="label">${label}</div>
+          <div class="value">${value}</div>
+          <div class="hint">${hint}</div>
+        </article>
+      `).join("");
+    }
+
+    function renderTable(lessons) {
+        lessonsCount.textContent = `${lessons.length} записей`;
+
+        if (lessons.length === 0) {
+            tableRoot.innerHTML = `<div class="empty">Пока нет занятий по выбранным фильтрам.</div>`;
+            return;
+        }
+
+        tableRoot.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Ученик</th>
+              <th>Тема</th>
+              <th>Мин.</th>
+              <th>Сумма</th>
+              <th>Статус</th>
+              <th>Комментарий</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${lessons.map(lesson => `
+              <tr>
+                <td data-label="Дата">${escapeHtml(lesson.date)}</td>
+                <td data-label="Ученик"><strong>${escapeHtml(lesson.student)}</strong></td>
+                <td data-label="Тема">${escapeHtml(lesson.topic)}</td>
+                <td data-label="Мин.">${escapeHtml(lesson.duration)}</td>
+                <td data-label="Сумма"><strong>${rub(Number(lesson.price) || 0)}</strong></td>
+                <td data-label="Статус">
+                  <span class="status ${lesson.paid === "yes" ? "paid" : "unpaid"}">
+                    ${lesson.paid === "yes" ? "Оплачено" : "Долг"}
+                  </span>
+                </td>
+                <td data-label="Комментарий">${escapeHtml(lesson.comment)}</td>
+                <td data-label="Действия">
+                  <button class="mini-btn secondary" onclick="editLesson('${lesson.id}')">Изм.</button>
+                  <button class="mini-btn secondary" onclick="togglePaid('${lesson.id}')">Оплата</button>
+                  <button class="mini-btn danger" onclick="deleteLesson('${lesson.id}')">Удал.</button>
+                </td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function renderStudents(lessons) {
+        const byStudent = new Map();
+
+        lessons.forEach(lesson => {
+            const name = lesson.student || "Без имени";
+            const current = byStudent.get(name) || { lessons: 0, minutes: 0, earned: 0, debt: 0 };
+            current.lessons += 1;
+            current.minutes += Number(lesson.duration) || 0;
+            if (lesson.paid === "yes") current.earned += Number(lesson.price) || 0;
+            if (lesson.paid === "no") current.debt += Number(lesson.price) || 0;
+            byStudent.set(name, current);
+        });
+
+        const cards = [...byStudent.entries()]
+            .sort((a, b) => (b[1].earned + b[1].debt) - (a[1].earned + a[1].debt));
+
+        if (cards.length === 0) {
+            studentsRoot.innerHTML = `<div class="empty">Сводка появится после добавления занятий.</div>`;
+            return;
+        }
+
+        studentsRoot.innerHTML = `<div class="students-grid">
+        ${cards.map(([name, data]) => `
+          <article class="student-card">
+            <strong>${escapeHtml(name)}</strong>
+            <p>Занятий: ${data.lessons}</p>
+            <p>Часов: ${(data.minutes / 60).toFixed(1)}</p>
+            <p>Получено: <span class="money-good">${rub(data.earned)}</span></p>
+            <p>Долг: <span class="money-bad">${rub(data.debt)}</span></p>
+          </article>
+        `).join("")}
+      </div>`;
+    }
+
+    function render() {
+        // Перерисовываем всё приложение после любого изменения.
+        const lessons = getFilteredLessons();
+        renderMetrics(lessons);
+        renderTable(lessons);
+        renderStudents(lessons);
+    }
+
+    function resetForm() {
+        // Возвращаем форму в режим добавления нового занятия.
+        form.reset();
+        lessonId.value = "";
+        formTitle.textContent = "Добавить занятие";
+        dateInput.valueAsDate = new Date();
+        durationInput.value = 60;
+        paidInput.value = "yes";
+        studentInput.focus();
+    }
+
+    form.addEventListener("submit", event => {
+        event.preventDefault();
+
+        const lessons = loadLessons();
+        const id = lessonId.value || crypto.randomUUID();
+
+        const lesson = {
+            id,
+            date: dateInput.value,
+            student: studentInput.value.trim(),
+            topic: topicInput.value.trim() || "Без темы",
+            duration: Number(durationInput.value),
+            price: Number(priceInput.value),
+            paid: paidInput.value,
+            comment: commentInput.value.trim()
+        };
+
+        // Если id уже есть, обновляем запись. Если нет — добавляем новую.
+        const index = lessons.findIndex(item => item.id === id);
+        if (index >= 0) {
+            lessons[index] = lesson;
+        } else {
+            lessons.push(lesson);
+        }
+
+        saveLessons(lessons);
+        resetForm();
+        render();
+    });
+
+    resetFormBtn.addEventListener("click", resetForm);
+    searchInput.addEventListener("input", render);
+    monthFilter.addEventListener("input", render);
+    paidFilter.addEventListener("change", render);
+
+    window.editLesson = function(id) {
+        // Загружаем занятие в форму для редактирования.
+        const lesson = loadLessons().find(item => item.id === id);
+        if (!lesson) return;
+
+        lessonId.value = lesson.id;
+        dateInput.value = lesson.date;
+        studentInput.value = lesson.student;
+        topicInput.value = lesson.topic;
+        durationInput.value = lesson.duration;
+        priceInput.value = lesson.price;
+        paidInput.value = lesson.paid;
+        commentInput.value = lesson.comment;
+        formTitle.textContent = "Редактировать занятие";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    window.togglePaid = function(id) {
+        // Быстро меняем статус оплаты.
+        const lessons = loadLessons().map(lesson => {
+            if (lesson.id === id) {
+                return { ...lesson, paid: lesson.paid === "yes" ? "no" : "yes" };
+            }
+            return lesson;
+        });
+        saveLessons(lessons);
+        render();
+    };
+
+    window.deleteLesson = function(id) {
+        // Удаляем одно занятие после подтверждения.
+        if (!confirm("Удалить это занятие?")) return;
+        const lessons = loadLessons().filter(lesson => lesson.id !== id);
+        saveLessons(lessons);
+        render();
+    };
+
+    exportCsvBtn.addEventListener("click", () => {
+        const lessons = getFilteredLessons();
+        const headers = ["date", "student", "topic", "duration", "price", "paid", "comment"];
+        const rows = lessons.map(lesson => headers.map(key => `"${String(lesson[key] ?? "").replaceAll('"', '""')}"`).join(","));
+        const csv = [headers.join(","), ...rows].join("\n");
+        const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "lessons_money.csv";
+        link.click();
+        URL.revokeObjectURL(url);
+    });
+
+    clearAllBtn.addEventListener("click", () => {
+        // Полная очистка базы.
+        if (!confirm("Точно удалить все занятия? Это действие нельзя отменить.")) return;
+        localStorage.removeItem(STORAGE_KEY);
+        resetForm();
+        render();
+    });
+
+    // Первый запуск приложения.
+    render();
+</script>
+</body>
+</html>

@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Хранилище промптов</title>
+    <style>
+        :root {
+            --bg: #f4f4f0;
+            --panel: #ffffff;
+            --panel-2: #ecece6;
+            --text: #111111;
+            --muted: #626262;
+            --line: #111111;
+            --accent: #ff5a3c;
+            --accent-2: #ffd23f;
+            --good: #1f8f4d;
+            --danger: #d72638;
+            --shadow: 6px 6px 0 #111111;
+            --small-shadow: 3px 3px 0 #111111;
+        }
+
+        [data-theme="dark"] {
+            --bg: #151515;
+            --panel: #222222;
+            --panel-2: #2f2f2f;
+            --text: #f4f4f0;
+            --muted: #bebebe;
+            --line: #f4f4f0;
+            --accent: #ff795f;
+            --accent-2: #ffe066;
+            --good: #59d98e;
+            --danger: #ff6b78;
+            --shadow: 6px 6px 0 #f4f4f0;
+            --small-shadow: 3px 3px 0 #f4f4f0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .app {
+            width: min(1280px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 24px 0 48px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .brand {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: clamp(28px, 5vw, 56px);
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.06em;
+        }
+
+        .brand p {
+            margin: 0;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .top-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .banner {
+            border: 2px solid var(--line);
+            background: var(--text);
+            color: var(--bg);
+            padding: 14px 18px;
+            margin-bottom: 22px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 390px minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .panel {
+            border: 2px solid var(--line);
+            background: var(--panel);
+            box-shadow: var(--shadow);
+            padding: 18px;
+        }
+
+        .panel h2,
+        .panel h3 {
+            margin: 0 0 14px;
+            text-transform: uppercase;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .field {
+            display: grid;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .field input,
+        .field textarea,
+        .field select {
+            width: 100%;
+            border: 2px solid var(--line);
+            background: var(--bg);
+            color: var(--text);
+            padding: 11px 12px;
+            outline: none;
+        }
+
+        .field textarea {
+            min-height: 170px;
+            resize: vertical;
+        }
+
+        .field input:focus,
+        .field textarea:focus,
+        .field select:focus {
+            box-shadow: 0 0 0 3px var(--accent-2);
+        }
+
+        .btn {
+            border: 2px solid var(--line);
+            background: var(--panel-2);
+            color: var(--text);
+            padding: 10px 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: var(--small-shadow);
+            transition: transform 0.08s ease, box-shadow 0.08s ease;
+        }
+
+        .btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 5px 5px 0 var(--line);
+        }
+
+        .btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: none;
+        }
+
+        .btn.primary {
+            background: var(--accent);
+            color: #111111;
+        }
+
+        .btn.good {
+            background: var(--good);
+            color: #111111;
+        }
+
+        .btn.danger {
+            background: var(--danger);
+            color: #ffffff;
+        }
+
+        .btn.ghost {
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) 180px 160px;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .stat {
+            border: 2px solid var(--line);
+            background: var(--panel-2);
+            padding: 12px;
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 26px;
+            line-height: 1;
+        }
+
+        .stat span {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .prompt-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .prompt-card {
+            border: 2px solid var(--line);
+            background: var(--panel);
+            padding: 16px;
+            box-shadow: var(--small-shadow);
+            display: grid;
+            gap: 12px;
+        }
+
+        .prompt-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .prompt-title {
+            margin: 0;
+            font-size: 22px;
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+        }
+
+        .prompt-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .prompt-text {
+            white-space: pre-wrap;
+            border: 2px solid var(--line);
+            background: var(--bg);
+            padding: 12px;
+            max-height: 240px;
+            overflow: auto;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            border: 2px solid var(--line);
+            background: var(--accent-2);
+            color: #111111;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .empty {
+            border: 2px dashed var(--line);
+            padding: 28px;
+            text-align: center;
+            color: var(--muted);
+            font-weight: 800;
+        }
+
+        .toast {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            z-index: 20;
+            border: 2px solid var(--line);
+            background: var(--accent-2);
+            color: #111111;
+            box-shadow: var(--shadow);
+            padding: 14px 16px;
+            font-weight: 900;
+            transform: translateY(140%);
+            transition: transform 0.2s ease;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+
+        .footer {
+            margin-top: 32px;
+            color: var(--muted);
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 940px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .app {
+            width: min(100% - 20px, 1280px);
+            padding-top: 14px;
+        }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .prompt-head {
+                flex-direction: column;
+            }
+        }
+
+        @media print {
+            body {
+                background: #ffffff;
+                color: #000000;
+            }
+
+            .top-actions,
+            .left-panel,
+            .filters,
+            .prompt-actions,
+            .toast,
+            .banner {
+                display: none !important;
+            }
+
+            .app {
+                width: 100%;
+                padding: 0;
+            }
+
+            .workspace {
+                display: block;
+            }
+
+            .panel,
+            .prompt-card,
+            .prompt-text,
+            .stat {
+                box-shadow: none;
+                border-color: #000000;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="app" data-theme="light">
+    <header class="topbar">
+        <div class="brand">
+            <h1>Хранилище промптов</h1>
+            <p>Локальная база: всё хранится только в браузере.</p>
+        </div>
+
+        <div class="top-actions">
+            <button class="btn" id="themeBtn" type="button">Тема</button>
+            <button class="btn" id="exportBtn" type="button">Экспорт JSON</button>
+            <label class="btn" for="importInput">Импорт JSON</label>
+            <input class="hidden" id="importInput" type="file" accept="application/json" />
+        </div>
+    </header>
+
+    <div class="banner">PROMPT VAULT — СОЗДАВАЙТЕ, ИЩИТЕ, КОПИРУЙТЕ, РЕДАКТИРУЙТЕ</div>
+
+    <section class="workspace">
+        <aside class="panel left-panel">
+            <h2 id="formTitle">Новый промпт</h2>
+
+            <form class="form-grid" id="promptForm">
+                <input id="promptId" type="hidden" />
+
+                <div class="field">
+                    <label for="titleInput">Название</label>
+                    <input id="titleInput" type="text" placeholder="Например: Генератор задач по пределам" required />
+                </div>
+
+                <div class="field">
+                    <label for="categoryInput">Категория</label>
+                    <select id="categoryInput">
+                        <option value="Общее">Общее</option>
+                        <option value="Математика">Математика</option>
+                        <option value="HTML">HTML</option>
+                        <option value="LaTeX">LaTeX</option>
+                        <option value="Отчёты">Отчёты</option>
+                        <option value="Код">Код</option>
+                        <option value="Другое">Другое</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="tagsInput">Теги через запятую</label>
+                    <input id="tagsInput" type="text" placeholder="егэ, ученик, интерактив" />
+                </div>
+
+                <div class="field">
+                    <label for="bodyInput">Текст промпта</label>
+                    <textarea id="bodyInput" placeholder="Вставьте промпт сюда..." required></textarea>
+                </div>
+
+                <div class="row">
+                    <button class="btn primary" type="submit" id="saveBtn">Сохранить</button>
+                    <button class="btn ghost" type="button" id="clearBtn">Очистить</button>
+                </div>
+            </form>
+        </aside>
+
+        <section class="panel">
+            <h2>Библиотека</h2>
+
+            <div class="stats">
+                <div class="stat">
+                    <strong id="totalCount">0</strong>
+                    <span>Всего</span>
+                </div>
+                <div class="stat">
+                    <strong id="favoriteCount">0</strong>
+                    <span>Избранные</span>
+                </div>
+                <div class="stat">
+                    <strong id="categoryCount">0</strong>
+                    <span>Категории</span>
+                </div>
+            </div>
+
+            <div class="filters">
+                <div class="field">
+                    <label for="searchInput">Поиск</label>
+                    <input id="searchInput" type="search" placeholder="Название, текст, тег..." />
+                </div>
+
+                <div class="field">
+                    <label for="filterCategory">Категория</label>
+                    <select id="filterCategory">
+                        <option value="all">Все</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="filterFavorite">Фильтр</label>
+                    <select id="filterFavorite">
+                        <option value="all">Все</option>
+                        <option value="favorite">Только избранные</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="prompt-list" id="promptList"></div>
+        </section>
+    </section>
+
+    <footer class="footer">Данные сохраняются в localStorage. Для резервной копии используйте экспорт JSON.</footer>
+</main>
+
+<div class="toast" id="toast">Готово</div>
+
+<script>
+    // Это ключ, под которым браузер будет хранить наши промпты.
+    const STORAGE_KEY = 'prompt_vault_items_v1';
+    const THEME_KEY = 'prompt_vault_theme_v1';
+
+    // Здесь мы собираем все важные элементы страницы, чтобы потом быстро к ним обращаться.
+    const app = document.querySelector('.app');
+    const form = document.getElementById('promptForm');
+    const promptId = document.getElementById('promptId');
+    const titleInput = document.getElementById('titleInput');
+    const categoryInput = document.getElementById('categoryInput');
+    const tagsInput = document.getElementById('tagsInput');
+    const bodyInput = document.getElementById('bodyInput');
+    const formTitle = document.getElementById('formTitle');
+    const clearBtn = document.getElementById('clearBtn');
+    const promptList = document.getElementById('promptList');
+    const searchInput = document.getElementById('searchInput');
+    const filterCategory = document.getElementById('filterCategory');
+    const filterFavorite = document.getElementById('filterFavorite');
+    const totalCount = document.getElementById('totalCount');
+    const favoriteCount = document.getElementById('favoriteCount');
+    const categoryCount = document.getElementById('categoryCount');
+    const exportBtn = document.getElementById('exportBtn');
+    const importInput = document.getElementById('importInput');
+    const themeBtn = document.getElementById('themeBtn');
+    const toast = document.getElementById('toast');
+
+    // Это стартовые промпты. Они появятся только при первом открытии сайта.
+    const demoPrompts = [
+        {
+            id: crypto.randomUUID(),
+            title: 'Наглядная математика',
+            category: 'HTML',
+            tags: ['математика', 'html', 'интерактив'],
+            body: 'Создай один автономный index.html без внешних зависимостей. Сделай подробное пошаговое объяснение, крупную интерактивную визуализацию, генератор похожих задач и блок типичных ошибок.',
+            favorite: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        },
+        {
+            id: crypto.randomUUID(),
+            title: 'Отчёт родителю',
+            category: 'Отчёты',
+            tags: ['whatsapp', 'ученик', 'отчёт'],
+            body: 'Составь короткий доброжелательный отчёт родителю по занятию: тема, что делали, ошибки, уровень понимания, сильные стороны, что доработать, планы на следующее занятие.',
+            favorite: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        }
+    ];
+
+    // Загружаем промпты из памяти браузера. Если памяти ещё нет — берём демо-примеры.
+    let prompts = loadPrompts();
+
+    // Сразу включаем сохранённую тему и рисуем список.
+    applySavedTheme();
+    render();
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        savePrompt();
+    });
+
+    clearBtn.addEventListener('click', resetForm);
+    searchInput.addEventListener('input', render);
+    filterCategory.addEventListener('change', render);
+    filterFavorite.addEventListener('change', render);
+    exportBtn.addEventListener('click', exportPrompts);
+    importInput.addEventListener('change', importPrompts);
+    themeBtn.addEventListener('click', toggleTheme);
+
+    function loadPrompts() {
+        // Пробуем взять данные из localStorage.
+        const raw = localStorage.getItem(STORAGE_KEY);
+
+        // Если данных нет, сохраняем демо-примеры.
+        if (!raw) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(demoPrompts));
+            return demoPrompts;
+        }
+
+        try {
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+            // Если данные сломались, не падаем, а начинаем с пустой базы.
+            console.error(error);
+            return [];
+        }
+    }
+
+    function persist() {
+        // Сохраняем весь массив промптов в браузер.
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(prompts));
+    }
+
+    function savePrompt() {
+        const now = new Date().toISOString();
+        const tags = tagsInput.value
+            .split(',')
+            .map(tag => tag.trim())
+            .filter(Boolean);
+
+        const data = {
+            title: titleInput.value.trim(),
+            category: categoryInput.value,
+            tags,
+            body: bodyInput.value.trim(),
+            updatedAt: now
+        };
+
+        // Если id уже есть, значит мы редактируем старый промпт.
+        if (promptId.value) {
+            prompts = prompts.map(item => {
+                if (item.id !== promptId.value) return item;
+                return { ...item, ...data };
+            });
+            showToast('Промпт обновлён');
+        } else {
+            // Если id нет, создаём новый промпт.
+            prompts.unshift({
+                id: crypto.randomUUID(),
+                ...data,
+                favorite: false,
+                createdAt: now
+            });
+            showToast('Промпт сохранён');
+        }
+
+        persist();
+        resetForm();
+        render();
+    }
+
+    function resetForm() {
+        // Возвращаем форму в режим создания нового промпта.
+        promptId.value = '';
+        formTitle.textContent = 'Новый промпт';
+        form.reset();
+        categoryInput.value = 'Общее';
+    }
+
+    function editPrompt(id) {
+        const item = prompts.find(prompt => prompt.id === id);
+        if (!item) return;
+
+        // Заполняем форму данными выбранного промпта.
+        promptId.value = item.id;
+        titleInput.value = item.title;
+        categoryInput.value = item.category;
+        tagsInput.value = item.tags.join(', ');
+        bodyInput.value = item.body;
+        formTitle.textContent = 'Редактирование';
+        titleInput.focus();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deletePrompt(id) {
+        const item = prompts.find(prompt => prompt.id === id);
+        if (!item) return;
+
+        // Подтверждение защищает от случайного удаления.
+        const confirmed = confirm(`Удалить промпт «${item.title}»?`);
+        if (!confirmed) return;
+
+        prompts = prompts.filter(prompt => prompt.id !== id);
+        persist();
+        render();
+        showToast('Промпт удалён');
+    }
+
+    function toggleFavorite(id) {
+        prompts = prompts.map(prompt => {
+            if (prompt.id !== id) return prompt;
+            return { ...prompt, favorite: !prompt.favorite, updatedAt: new Date().toISOString() };
+        });
+
+        persist();
+        render();
+    }
+
+    async function copyPrompt(id) {
+        const item = prompts.find(prompt => prompt.id === id);
+        if (!item) return;
+
+        try {
+            // Копируем текст промпта в буфер обмена.
+            await navigator.clipboard.writeText(item.body);
+            showToast('Текст скопирован');
+        } catch (error) {
+            // Старый запасной способ, если Clipboard API недоступен.
+            const temp = document.createElement('textarea');
+            temp.value = item.body;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            temp.remove();
+            showToast('Текст скопирован');
+        }
+    }
+
+    function getFilteredPrompts() {
+        const query = searchInput.value.trim().toLowerCase();
+        const category = filterCategory.value;
+        const favoriteMode = filterFavorite.value;
+
+        return prompts.filter(item => {
+            const searchable = [
+                item.title,
+                item.category,
+                item.body,
+                item.tags.join(' ')
+            ].join(' ').toLowerCase();
+
+            const matchesQuery = !query || searchable.includes(query);
+            const matchesCategory = category === 'all' || item.category === category;
+            const matchesFavorite = favoriteMode === 'all' || item.favorite;
+
+            return matchesQuery && matchesCategory && matchesFavorite;
+        });
+    }
+
+    function render() {
+        renderStats();
+        renderCategoryFilter();
+        renderPromptList();
+    }
+
+    function renderStats() {
+        const categories = new Set(prompts.map(item => item.category));
+
+        totalCount.textContent = prompts.length;
+        favoriteCount.textContent = prompts.filter(item => item.favorite).length;
+        categoryCount.textContent = categories.size;
+    }
+
+    function renderCategoryFilter() {
+        const currentValue = filterCategory.value;
+        const categories = [...new Set(prompts.map(item => item.category))].sort((a, b) => a.localeCompare(b, 'ru'));
+
+        filterCategory.innerHTML = '<option value="all">Все</option>';
+
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            filterCategory.appendChild(option);
+        });
+
+        // Возвращаем старое значение фильтра, если такая категория ещё есть.
+        if ([...filterCategory.options].some(option => option.value === currentValue)) {
+            filterCategory.value = currentValue;
+        }
+    }
+
+    function renderPromptList() {
+        const filtered = getFilteredPrompts();
+        promptList.innerHTML = '';
+
+        if (filtered.length === 0) {
+            promptList.innerHTML = '<div class="empty">Ничего не найдено. Создайте новый промпт или измените фильтр.</div>';
+            return;
+        }
+
+        filtered.forEach(item => {
+            const card = document.createElement('article');
+            card.className = 'prompt-card';
+
+            const created = formatDate(item.createdAt);
+            const updated = formatDate(item.updatedAt);
+            const safeTitle = escapeHtml(item.title);
+            const safeBody = escapeHtml(item.body);
+            const safeCategory = escapeHtml(item.category);
+            const tagsHtml = item.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('');
+
+            card.innerHTML = `
+          <div class="prompt-head">
+            <div>
+              <h3 class="prompt-title">${item.favorite ? '★ ' : ''}${safeTitle}</h3>
+              <div class="prompt-meta">
+                <span>${safeCategory}</span>
+                <span>Создано: ${created}</span>
+                <span>Обновлено: ${updated}</span>
+              </div>
+            </div>
+            <div class="row prompt-actions">
+              <button class="btn" type="button" data-action="favorite" data-id="${item.id}">${item.favorite ? 'Убрать ★' : 'В избранное'}</button>
+              <button class="btn good" type="button" data-action="copy" data-id="${item.id}">Копировать</button>
+            </div>
+          </div>
+          <div class="tags">${tagsHtml || '<span class="tag">без тегов</span>'}</div>
+          <div class="prompt-text">${safeBody}</div>
+          <div class="row prompt-actions">
+            <button class="btn" type="button" data-action="edit" data-id="${item.id}">Редактировать</button>
+            <button class="btn danger" type="button" data-action="delete" data-id="${item.id}">Удалить</button>
+          </div>
+        `;
+
+            promptList.appendChild(card);
+        });
+    }
+
+    promptList.addEventListener('click', function (event) {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+
+        const action = button.dataset.action;
+        const id = button.dataset.id;
+
+        if (action === 'favorite') toggleFavorite(id);
+        if (action === 'copy') copyPrompt(id);
+        if (action === 'edit') editPrompt(id);
+        if (action === 'delete') deletePrompt(id);
+    });
+
+    function exportPrompts() {
+        // Создаём JSON-файл с текущей базой промптов.
+        const data = JSON.stringify(prompts, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.download = `prompts-${new Date().toISOString().slice(0, 10)}.json`;
+        link.click();
+
+        URL.revokeObjectURL(url);
+        showToast('Экспорт готов');
+    }
+
+    function importPrompts(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = function () {
+            try {
+                const imported = JSON.parse(reader.result);
+
+                if (!Array.isArray(imported)) {
+                    throw new Error('JSON должен быть массивом промптов');
+                }
+
+                // Нормализуем данные, чтобы импортированный файл не сломал сайт.
+                const normalized = imported.map(item => ({
+                    id: item.id || crypto.randomUUID(),
+                    title: String(item.title || 'Без названия'),
+                    category: String(item.category || 'Общее'),
+                    tags: Array.isArray(item.tags) ? item.tags.map(String) : [],
+                    body: String(item.body || ''),
+                    favorite: Boolean(item.favorite),
+                    createdAt: item.createdAt || new Date().toISOString(),
+                    updatedAt: item.updatedAt || new Date().toISOString()
+                }));
+
+                prompts = normalized;
+                persist();
+                render();
+                showToast('Импорт завершён');
+            } catch (error) {
+                alert('Не удалось импортировать файл. Проверьте формат JSON.');
+                console.error(error);
+            } finally {
+                importInput.value = '';
+            }
+        };
+
+        reader.readAsText(file);
+    }
+
+    function applySavedTheme() {
+        const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+        app.dataset.theme = savedTheme;
+        document.body.dataset.theme = savedTheme;
+        themeBtn.textContent = savedTheme === 'dark' ? 'Light' : 'Dark';
+    }
+
+    function toggleTheme() {
+        const nextTheme = app.dataset.theme === 'dark' ? 'light' : 'dark';
+        app.dataset.theme = nextTheme;
+        document.body.dataset.theme = nextTheme;
+        localStorage.setItem(THEME_KEY, nextTheme);
+        themeBtn.textContent = nextTheme === 'dark' ? 'Light' : 'Dark';
+    }
+
+    function formatDate(value) {
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) return '—';
+
+        return date.toLocaleDateString('ru-RU', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+    }
+
+    function escapeHtml(value) {
+        // Защищаем страницу: текст пользователя показываем как текст, а не как HTML-код.
+        return String(value)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add('show');
+
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 1800);
+    }
+</script>
+</body>
+</html>
