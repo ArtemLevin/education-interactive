@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Расстояние от вершины пирамиды до прямой основания — web-версия решения</title>
+    <style>
+        :root{
+            --bg:#fff9fb;
+            --bg-soft:#fff3f7;
+            --panel:#ffffff;
+            --panel-2:#fff7fa;
+            --ink:#2f2430;
+            --muted:#6e5c69;
+            --accent:#b5567f;
+            --accent-2:#7f4d7a;
+            --accent-3:#e7bfd0;
+            --line:#ecd9e2;
+            --ok:#4d7a67;
+            --warn:#b06a3c;
+            --shadow:0 18px 40px rgba(124,82,109,.12);
+            --radius:22px;
+            --radius-sm:16px;
+            --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:
+        radial-gradient(circle at top left, #fffdfd 0, #fff9fb 36%, #fff4f8 100%);
+            color:var(--ink);
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height:1.55;
+            scroll-behavior:smooth;
+        }
+
+        body{
+            min-height:100vh;
+            background-image:
+            radial-gradient(rgba(181,86,127,.05) 1px, transparent 1px),
+            radial-gradient(rgba(127,77,122,.04) 1px, transparent 1px);
+            background-position:0 0, 14px 14px;
+            background-size:28px 28px;
+        }
+
+        .page{
+            width:min(1380px, calc(100vw - 28px));
+            margin:18px auto 36px;
+        }
+
+        .hero{
+            background:linear-gradient(135deg, rgba(255,255,255,.92), rgba(255,246,250,.98));
+            border:1px solid var(--line);
+            box-shadow:var(--shadow);
+            border-radius:30px;
+            padding:28px 28px 22px;
+            position:relative;
+            overflow:hidden;
+        }
+
+        .hero::before,
+        .hero::after{
+            content:"";
+            position:absolute;
+            border-radius:50%;
+            filter:blur(6px);
+            opacity:.45;
+            pointer-events:none;
+        }
+        .hero::before{
+            width:220px;height:220px;
+            right:-60px;top:-80px;
+            background:radial-gradient(circle, rgba(181,86,127,.18), transparent 70%);
+        }
+        .hero::after{
+            width:170px;height:170px;
+            left:-40px;bottom:-60px;
+            background:radial-gradient(circle, rgba(127,77,122,.18), transparent 70%);
+        }
+
+        .eyebrow{
+            display:inline-flex;
+            gap:10px;
+            align-items:center;
+            font-size:13px;
+            letter-spacing:.08em;
+            text-transform:uppercase;
+            color:var(--accent-2);
+            background:rgba(181,86,127,.08);
+            border:1px solid rgba(181,86,127,.16);
+            border-radius:999px;
+            padding:8px 12px;
+            margin-bottom:12px;
+            font-weight:700;
+        }
+
+        h1{
+            margin:0 0 10px;
+            font-size:clamp(30px, 4.4vw, 54px);
+            line-height:1.06;
+            letter-spacing:-.02em;
+            max-width:900px;
+        }
+
+        .hero p{
+            margin:0;
+            max-width:940px;
+            color:var(--muted);
+            font-size:17px;
+        }
+
+        .hero-meta{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            margin-top:18px;
+        }
+        .chip{
+            background:var(--panel);
+            border:1px solid var(--line);
+            border-radius:999px;
+            padding:8px 12px;
+            font-size:14px;
+            color:var(--muted);
+            box-shadow:0 6px 18px rgba(127,77,122,.06);
+        }
+
+        .layout{
+            display:grid;
+            grid-template-columns:minmax(0, 1.08fr) minmax(360px, .92fr);
+            gap:22px;
+            margin-top:22px;
+            align-items:start;
+        }
+
+        .content{
+            min-width:0;
+            display:flex;
+            flex-direction:column;
+            gap:18px;
+        }
+
+        .panel{
+            background:rgba(255,255,255,.92);
+            border:1px solid var(--line);
+            border-radius:var(--radius);
+            box-shadow:var(--shadow);
+            padding:22px;
+            backdrop-filter: blur(8px);
+        }
+
+        .panel h2{
+            margin:0 0 14px;
+            font-size:24px;
+            line-height:1.15;
+        }
+
+        .panel h3{
+            margin:0 0 10px;
+            font-size:18px;
+            color:var(--accent-2);
+        }
+
+        .subtle{
+            color:var(--muted);
+            font-size:15px;
+        }
+
+        .facts{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:14px;
+        }
+
+        .fact-card{
+            background:linear-gradient(180deg, var(--panel), var(--panel-2));
+            border:1px solid var(--line);
+            border-radius:18px;
+            padding:16px;
+        }
+        .fact-card strong{
+            display:block;
+            margin-bottom:8px;
+            color:var(--accent-2);
+        }
+
+        .mini-formula{
+            margin-top:8px;
+            padding:10px 12px;
+            border-radius:14px;
+            background:rgba(127,77,122,.06);
+            border:1px dashed rgba(127,77,122,.22);
+            font-family:var(--mono);
+            font-size:14px;
+            overflow:auto;
+        }
+
+        .steps{
+            display:grid;
+            gap:12px;
+        }
+
+        .step{
+            border:1px solid var(--line);
+            border-radius:18px;
+            padding:16px 16px 14px;
+            background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,247,250,.92));
+            transition:.2s ease;
+            cursor:pointer;
+            position:relative;
+        }
+        .step:hover{
+            transform:translateY(-1px);
+            box-shadow:0 12px 24px rgba(127,77,122,.08);
+        }
+        .step.active{
+            border-color:rgba(181,86,127,.45);
+            box-shadow:0 0 0 3px rgba(181,86,127,.11);
+            background:linear-gradient(180deg, #fffefe, #fff2f7);
+        }
+
+        .step-num{
+            width:30px;height:30px;
+            border-radius:50%;
+            display:grid;place-items:center;
+            background:linear-gradient(180deg, var(--accent), var(--accent-2));
+            color:#fff;
+            font-size:14px;
+            font-weight:700;
+            position:absolute;
+            top:14px;left:14px;
+            box-shadow:0 10px 18px rgba(181,86,127,.22);
+        }
+        .step-body{padding-left:42px}
+        .step-body p{margin:0 0 8px}
+        .math{
+            display:block;
+            margin-top:8px;
+            padding:12px 14px;
+            border-radius:14px;
+            background:rgba(181,86,127,.06);
+            border:1px solid rgba(181,86,127,.14);
+            font-family:var(--mono);
+            font-size:15px;
+            overflow:auto;
+            white-space:nowrap;
+        }
+
+        .answer{
+            display:grid;
+            gap:12px;
+            grid-template-columns:1.2fr .8fr;
+            align-items:center;
+        }
+
+        .answer-box{
+            background:linear-gradient(135deg, rgba(181,86,127,.12), rgba(127,77,122,.08));
+            border:1px solid rgba(181,86,127,.22);
+            border-radius:20px;
+            padding:16px 18px;
+        }
+
+        .answer-big{
+            font-size:34px;
+            font-weight:800;
+            color:var(--accent-2);
+            line-height:1;
+            margin-top:8px;
+        }
+
+        .mistakes ul,
+        .checklist ul{
+            margin:8px 0 0 0;
+            padding-left:20px;
+        }
+
+        .mistakes li,
+        .checklist li{
+            margin:6px 0;
+        }
+
+        .quiz{
+            display:grid;
+            gap:14px;
+        }
+        .quiz-card{
+            border:1px solid var(--line);
+            border-radius:18px;
+            padding:16px;
+            background:var(--panel);
+        }
+        .quiz-options{
+            display:grid;
+            gap:8px;
+            margin-top:10px;
+        }
+        .quiz-options button{
+            text-align:left;
+            border:1px solid var(--line);
+            border-radius:12px;
+            padding:10px 12px;
+            background:#fff;
+            cursor:pointer;
+            transition:.18s ease;
+            color:var(--ink);
+            font:inherit;
+        }
+        .quiz-options button:hover{border-color:var(--accent-3); background:#fff8fb}
+        .quiz-options button.correct{border-color:rgba(77,122,103,.45); background:rgba(77,122,103,.10)}
+        .quiz-options button.wrong{border-color:rgba(176,106,60,.45); background:rgba(176,106,60,.10)}
+        .quiz-feedback{font-size:14px;color:var(--muted);margin-top:10px;min-height:20px}
+
+        .sticky-side{
+            position:sticky;
+            top:18px;
+            min-width:0;
+            display:flex;
+            flex-direction:column;
+            gap:16px;
+        }
+
+        .scene-card{
+            padding:18px;
+        }
+
+        .scene-head{
+            display:flex;
+            align-items:flex-start;
+            justify-content:space-between;
+            gap:12px;
+            margin-bottom:12px;
+        }
+
+        .scene-title{
+            margin:0;
+            font-size:21px;
+            line-height:1.1;
+        }
+
+        .scene-sub{
+            margin:6px 0 0;
+            color:var(--muted);
+            font-size:14px;
+        }
+
+        .controls{
+            display:grid;
+            gap:10px;
+            margin-top:12px;
+        }
+
+        .control-row{
+            display:grid;
+            grid-template-columns:auto 1fr auto;
+            gap:10px;
+            align-items:center;
+            font-size:14px;
+            color:var(--muted);
+        }
+
+        .control-row input[type="range"]{
+            width:100%;
+            accent-color:var(--accent);
+            cursor:pointer;
+        }
+
+        .toggle-row{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+        }
+
+        .toggle{
+            border:1px solid var(--line);
+            background:#fff;
+            color:var(--muted);
+            border-radius:999px;
+            padding:8px 12px;
+            font-size:13px;
+            cursor:pointer;
+            transition:.18s ease;
+        }
+        .toggle.active{
+            background:rgba(181,86,127,.10);
+            color:var(--accent-2);
+            border-color:rgba(181,86,127,.22);
+        }
+
+        .scene-wrap{
+            border:1px solid var(--line);
+            background:
+            linear-gradient(180deg, rgba(255,252,253,.9), rgba(255,247,250,.95));
+            border-radius:22px;
+            padding:10px;
+            position:relative;
+            box-shadow:inset 0 0 0 1px rgba(255,255,255,.55);
+        }
+
+        .scene-tip{
+            position:absolute;
+            right:14px;
+            top:14px;
+            background:rgba(255,255,255,.88);
+            border:1px solid var(--line);
+            padding:7px 10px;
+            border-radius:999px;
+            font-size:12px;
+            color:var(--muted);
+            backdrop-filter:blur(8px);
+            z-index:2;
+        }
+
+        svg{
+            width:100%;
+            height:auto;
+            display:block;
+            border-radius:16px;
+        }
+
+        .legend{
+            display:grid;
+            gap:8px;
+            margin-top:12px;
+            font-size:14px;
+            color:var(--muted);
+        }
+        .legend-item{
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+        .swatch{
+            width:26px;height:4px;border-radius:999px;background:#999;flex:0 0 auto;
+        }
+
+        .btn-row{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            margin-top:12px;
+        }
+
+        .btn{
+            appearance:none;
+            border:none;
+            border-radius:14px;
+            padding:11px 14px;
+            font:inherit;
+            font-weight:600;
+            cursor:pointer;
+            transition:.2s ease;
+        }
+        .btn-primary{
+            background:linear-gradient(135deg, var(--accent), var(--accent-2));
+            color:#fff;
+            box-shadow:0 10px 22px rgba(181,86,127,.22);
+        }
+        .btn-primary:hover{transform:translateY(-1px)}
+        .btn-soft{
+            background:#fff;
+            color:var(--muted);
+            border:1px solid var(--line);
+        }
+        .btn-soft:hover{background:#fff8fb}
+
+        .formula-list{
+            display:grid;
+            gap:12px;
+        }
+        .formula-item{
+            border:1px solid var(--line);
+            border-radius:18px;
+            padding:14px 16px;
+            background:var(--panel);
+        }
+        .formula-item strong{
+            color:var(--accent-2);
+            display:block;
+            margin-bottom:6px;
+        }
+
+        .footer-note{
+            margin-top:10px;
+            text-align:center;
+            color:var(--muted);
+            font-size:14px;
+        }
+
+        .modal{
+            position:fixed;
+            inset:0;
+            background:rgba(31, 20, 30, .58);
+            backdrop-filter:blur(12px);
+            display:none;
+            align-items:center;
+            justify-content:center;
+            padding:18px;
+            z-index:1000;
+        }
+        .modal.open{display:flex}
+
+        .modal-card{
+            width:min(1180px, 100%);
+            max-height:min(92vh, 940px);
+            overflow:auto;
+            background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,247,250,.98));
+            border:1px solid rgba(255,255,255,.6);
+            border-radius:28px;
+            box-shadow:0 24px 60px rgba(41,20,38,.28);
+            padding:18px;
+            position:relative;
+        }
+
+        .modal-top{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:12px;
+            margin-bottom:12px;
+        }
+
+        .modal-title{
+            margin:0;
+            font-size:22px;
+        }
+
+        .modal-sub{
+            margin:4px 0 0;
+            color:var(--muted);
+            font-size:14px;
+        }
+
+        .close{
+            width:42px;height:42px;
+            border-radius:50%;
+            border:1px solid var(--line);
+            background:#fff;
+            color:var(--muted);
+            font-size:22px;
+            cursor:pointer;
+        }
+
+        .modal-grid{
+            display:grid;
+            grid-template-columns:minmax(0,1fr) 320px;
+            gap:16px;
+            align-items:start;
+        }
+
+        .modal-scene{
+            border:1px solid var(--line);
+            background:linear-gradient(180deg, rgba(255,252,253,.95), rgba(255,246,250,.98));
+            border-radius:22px;
+            padding:12px;
+            min-height:420px;
+            position:relative;
+        }
+
+        .modal-help{
+            background:#fff;
+            border:1px solid var(--line);
+            border-radius:22px;
+            padding:16px;
+        }
+
+        .help-list{
+            margin:0;
+            padding-left:18px;
+            color:var(--muted);
+        }
+        .help-list li{margin:8px 0}
+
+        .hint{
+            font-size:13px;
+            color:var(--muted);
+        }
+
+        .badge{
+            display:inline-block;
+            padding:5px 9px;
+            border-radius:999px;
+            font-size:12px;
+            color:var(--accent-2);
+            background:rgba(181,86,127,.08);
+            border:1px solid rgba(181,86,127,.16);
+            margin-bottom:8px;
+        }
+
+        .print-only{display:none}
+
+        @media (max-width: 1080px){
+            .layout{grid-template-columns:1fr}
+            .sticky-side{position:static}
+            .modal-grid{grid-template-columns:1fr}
+        }
+
+        @media (max-width: 720px){
+            .page{width:min(100vw - 16px, 100%)}
+            .hero,.panel{padding:18px}
+            .facts{grid-template-columns:1fr}
+            .answer{grid-template-columns:1fr}
+            h1{font-size:34px}
+            .control-row{grid-template-columns:1fr}
+            .scene-tip{display:none}
+        }
+
+        @media print{
+            :root{
+                --bg:#fff;
+                --panel:#fff;
+                --panel-2:#fff;
+                --bg-soft:#fff;
+                --line:#d9d9d9;
+                --shadow:none;
+            }
+            body{
+                background:#fff !important;
+                background-image:none !important;
+                color:#111;
+            }
+            .page{width:100%; margin:0}
+            .hero,.panel{
+                box-shadow:none;
+                border-color:#d8d8d8;
+                background:#fff;
+            }
+            .btn-row,.controls,.scene-tip,.modal,.quiz, .footer-note.screen-only{display:none !important}
+            .print-only{display:block}
+            .layout{grid-template-columns:1fr}
+            .sticky-side{position:static}
+            a{color:#111;text-decoration:none}
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <section class="hero">
+        <div class="eyebrow">ЕГЭ • стереометрия • интерактивный разбор</div>
+        <h1>Расстояние от вершины пирамиды до прямой основания</h1>
+        <p>
+            Разберём задачу без метода координат. Главное — сначала найти расстояние от точки <b>B</b> до прямой
+            <b>AC</b> в основании, а затем перейти к прямоугольному треугольнику <b>SBH</b> в пространстве.
+        </p>
+        <div class="hero-meta">
+            <div class="chip">Основание: прямоугольный треугольник ABC</div>
+            <div class="chip">AB = BC = 4√3</div>
+            <div class="chip">SB ⟂ плоскости основания</div>
+            <div class="chip">SB = 5</div>
+            <div class="chip">Найти: d(S, AC)</div>
+        </div>
+    </section>
+
+    <section class="layout">
+        <main class="content">
+            <article class="panel">
+                <h2>Что дано и что нужно найти</h2>
+                <div class="facts">
+                    <div class="fact-card">
+                        <strong>Дано</strong>
+                        <div>Треугольник <b>ABC</b> — прямоугольный.</div>
+                        <div>Причём <b>AB = BC = 4√3</b>, значит прямой угол находится при <b>B</b>.</div>
+                        <div>Ребро <b>SB</b> перпендикулярно плоскости основания.</div>
+                        <div><b>SB = 5</b>.</div>
+                    </div>
+                    <div class="fact-card">
+                        <strong>Найти</strong>
+                        <div>Расстояние от вершины <b>S</b> до прямой <b>AC</b>.</div>
+                        <div class="mini-formula">d(S, AC) = SH</div>
+                        <div class="subtle">Здесь H — основание перпендикуляра из S на прямую AC.</div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel">
+                <h2>Идея решения</h2>
+                <p>
+                    Так как <b>SB ⟂ (ABC)</b>, ребро <b>SB</b> перпендикулярно любой прямой плоскости основания,
+                    проходящей через точку <b>B</b>. Если в основании опустить <b>BH ⟂ AC</b>, то треугольник
+                    <b>SBH</b> будет прямоугольным, и искомое расстояние окажется равным <b>SH</b>.
+                </p>
+
+                <div class="formula-list">
+                    <div class="formula-item">
+                        <strong>Ключевой переход</strong>
+                        <div>Сначала находим <b>BH</b> в плоскости основания, а уже потом — <b>SH</b> в пространстве.</div>
+                    </div>
+                    <div class="formula-item">
+                        <strong>Высота к гипотенузе</strong>
+                        <div>В прямоугольном треугольнике: <span class="math" style="display:inline-block; padding:4px 8px;">h = ab / c</span></div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel">
+                <h2>Пошаговое решение</h2>
+                <div class="steps" id="steps">
+                    <div class="step" data-highlight="base-right">
+                        <div class="step-num">1</div>
+                        <div class="step-body">
+                            <p><b>Определяем тип основания.</b></p>
+                            <p>
+                                Так как <b>AB = BC</b> и треугольник <b>ABC</b> прямоугольный, это равнобедренный прямоугольный
+                                треугольник с прямым углом при <b>B</b>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="step" data-highlight="ac">
+                        <div class="step-num">2</div>
+                        <div class="step-body">
+                            <p><b>Находим гипотенузу основания.</b></p>
+                            <span class="math">AC = √(AB² + BC²) = √((4√3)² + (4√3)²) = √(48 + 48) = √96 = 4√6</span>
+                        </div>
+                    </div>
+
+                    <div class="step" data-highlight="bh">
+                        <div class="step-num">3</div>
+                        <div class="step-body">
+                            <p><b>Ищем расстояние от точки B до прямой AC.</b></p>
+                            <p>Пусть <b>BH ⟂ AC</b>. Тогда <b>BH</b> — высота к гипотенузе в прямоугольном треугольнике <b>ABC</b>.</p>
+                            <span class="math">BH = (AB · BC) / AC = (4√3 · 4√3) / (4√6) = 48 / (4√6) = 12/√6 = 2√6</span>
+                        </div>
+                    </div>
+
+                    <div class="step" data-highlight="sbh">
+                        <div class="step-num">4</div>
+                        <div class="step-body">
+                            <p><b>Строим прямоугольный треугольник SBH.</b></p>
+                            <p>
+                                Так как <b>SB ⟂ (ABC)</b>, а отрезок <b>BH</b> лежит в этой плоскости и проходит через <b>B</b>,
+                                то <b>SB ⟂ BH</b>. Значит, треугольник <b>SBH</b> — прямоугольный.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="step" data-highlight="sh">
+                        <div class="step-num">5</div>
+                        <div class="step-body">
+                            <p><b>Находим искомое расстояние.</b></p>
+                            <span class="math">SH = √(SB² + BH²) = √(5² + (2√6)²) = √(25 + 24) = √49 = 7</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel">
+                <h2>Проверка и вывод</h2>
+                <div class="answer">
+                    <div class="answer-box">
+                        <div><b>Итог:</b> расстояние от вершины <b>S</b> до прямой <b>AC</b> равно длине перпендикуляра <b>SH</b>.</div>
+                        <div class="answer-big">SH = 7</div>
+                    </div>
+                    <div class="checklist">
+                        <h3>Почему ответ логичен</h3>
+                        <ul>
+                            <li>BH найдено в основании корректно: это высота к гипотенузе.</li>
+                            <li>Треугольник SBH действительно прямоугольный.</li>
+                            <li>Искомое расстояние должно быть больше SB или сравнимо с ним — получили 7, что разумно.</li>
+                        </ul>
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel mistakes">
+                <h2>Типичные ошибки</h2>
+                <ul>
+                    <li><b>Считать, что расстояние от S до AC равно SB.</b> Это неверно, потому что прямая AC не проходит через точку B.</li>
+                    <li><b>Не строить BH.</b> Сначала обязательно нужен перпендикуляр в основании.</li>
+                    <li><b>Путать SH и SB.</b> Искомый отрезок — именно <b>SH</b>, а не высота пирамиды <b>SB</b>.</li>
+                    <li><b>Ошибиться в AC.</b> Здесь важно верно применить теорему Пифагора к основанию.</li>
+                </ul>
+            </article>
+
+            <article class="panel">
+                <h2>Мини-проверка</h2>
+                <div class="quiz" id="quiz"></div>
+            </article>
+
+            <article class="panel print-only">
+                <h2>Краткая памятка</h2>
+                <ul>
+                    <li>Если ребро пирамиды перпендикулярно плоскости основания, используйте это для построения прямоугольного треугольника.</li>
+                    <li>Если нужно расстояние от вершины до прямой в основании, сначала найдите расстояние от основания высоты до этой прямой.</li>
+                    <li>В прямоугольном треугольнике высота к гипотенузе: <b>h = ab / c</b>.</li>
+                </ul>
+            </article>
+        </main>
+
+        <aside class="sticky-side">
+            <section class="panel scene-card">
+                <div class="scene-head">
+                    <div>
+                        <h2 class="scene-title">Интерактивный чертёж</h2>
+                        <p class="scene-sub">
+                            Аккуратная корректная изометрия. Нажмите на чертёж, чтобы открыть большое окно.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="scene-wrap">
+                    <div class="scene-tip">Нажмите для увеличения</div>
+                    <svg id="mainScene" viewBox="0 0 720 520" aria-label="Изометрический чертёж пирамиды"></svg>
+                </div>
+
+                <div class="controls">
+                    <div class="control-row">
+                        <span>Поворот</span>
+                        <input id="yawRange" type="range" min="-80" max="80" step="1" value="-24" />
+                        <span id="yawValue">−24°</span>
+                    </div>
+
+                    <div class="control-row">
+                        <span>Масштаб</span>
+                        <input id="zoomRange" type="range" min="70" max="160" step="1" value="100" />
+                        <span id="zoomValue">100%</span>
+                    </div>
+
+                    <div class="toggle-row">
+                        <button class="toggle active" data-toggle="labels">Подписи</button>
+                        <button class="toggle active" data-toggle="helpers">Вспомогательные линии</button>
+                        <button class="toggle active" data-toggle="angles">Прямые углы</button>
+                    </div>
+
+                    <div class="btn-row">
+                        <button class="btn btn-primary" id="openModalBtn">Открыть модель</button>
+                        <button class="btn btn-soft" id="resetViewBtn">Сбросить вид</button>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item"><span class="swatch" style="background:var(--accent-2)"></span> искомое расстояние SH</div>
+                    <div class="legend-item"><span class="swatch" style="background:#34303a"></span> видимые рёбра пирамиды</div>
+                    <div class="legend-item"><span class="swatch" style="background:#9e8d98; border:1px dashed transparent"></span> вспомогательный перпендикуляр BH</div>
+                </div>
+
+                <div class="footer-note screen-only">
+                    Артём Александрович Лёвин эксклюзивно для Николь
+                </div>
+            </section>
+        </aside>
+    </section>
+</div>
+
+<div class="modal" id="modal">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-top">
+            <div>
+                <div class="badge">увеличенная модель</div>
+                <h2 class="modal-title" id="modalTitle">Изометрический чертёж задачи</h2>
+                <p class="modal-sub">
+                    В этом окне можно крутить модель по горизонтали: потяните мышью или пальцем влево и вправо.
+                </p>
+            </div>
+            <button class="close" id="closeModalBtn" aria-label="Закрыть">×</button>
+        </div>
+
+        <div class="modal-grid">
+            <div class="modal-scene" id="modalSceneWrap">
+                <svg id="modalScene" viewBox="0 0 900 640" aria-label="Большой интерактивный чертёж"></svg>
+            </div>
+
+            <div class="modal-help">
+                <h3 style="margin-top:0">Управление</h3>
+                <ol class="help-list">
+                    <li>Тяните чертёж по горизонтали, чтобы поворачивать модель вокруг вертикальной оси.</li>
+                    <li>Пользуйтесь ползунками — они синхронизированы с основным окном.</li>
+                    <li>Нажмите на шаг решения слева, чтобы подсветить нужный объект на чертеже.</li>
+                </ol>
+
+                <div class="controls" style="margin-top:14px">
+                    <div class="control-row">
+                        <span>Поворот</span>
+                        <input id="yawRangeModal" type="range" min="-80" max="80" step="1" value="-24" />
+                        <span id="yawValueModal">−24°</span>
+                    </div>
+                    <div class="control-row">
+                        <span>Масштаб</span>
+                        <input id="zoomRangeModal" type="range" min="70" max="180" step="1" value="100" />
+                        <span id="zoomValueModal">100%</span>
+                    </div>
+                </div>
+
+                <div class="hint" style="margin-top:12px">
+                    Формулы на чертеже:
+                    <div class="mini-formula">AC = 4√6 &nbsp;&nbsp;•&nbsp;&nbsp; BH = 2√6 &nbsp;&nbsp;•&nbsp;&nbsp; SB = 5 &nbsp;&nbsp;•&nbsp;&nbsp; SH = 7</div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-primary" id="resetModalBtn">Сбросить вид</button>
+                    <button class="btn btn-soft" id="closeModalBtn2">Закрыть</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            Артём Александрович Лёвин эксклюзивно для Николь
+        </div>
+    </div>
+</div>
+
+<script>
+    const state = {
+        yaw: -24,
+        zoom: 1,
+        showLabels: true,
+        showHelpers: true,
+        showAngles: true,
+        activeHighlight: null,
+        draggingMain: false,
+        draggingModal: false,
+        dragStartX: 0,
+        dragStartYaw: -24
+    };
+
+    const colors = {
+        edge: '#34303a',
+        helper: '#9e8d98',
+        accent: '#7f4d7a',
+        accentSoft: '#b5567f',
+        fillBase: 'rgba(181,86,127,.09)',
+        fillSide: 'rgba(127,77,122,.07)',
+        angle: '#c785a1',
+        label: '#2f2430',
+        muted: '#6e5c69',
+        point: '#7f4d7a',
+        pointLight: '#ffffff'
+    };
+
+    // 3D coordinates: correct geometry
+    const a = 4.2;                    // proportional to 4√3
+    const h = 4.55;                   // proportional to 5
+    const pts = {
+        A: {x: -a, y: 0, z: 0},
+        B: {x: 0, y: 0, z: 0},
+        C: {x: 0, y: a, z: 0},
+        H: {x: -a/2, y: a/2, z: 0},
+        S: {x: 0, y: 0, z: h}
+    };
+
+    const mainScene = document.getElementById('mainScene');
+    const modalScene = document.getElementById('modalScene');
+    const modal = document.getElementById('modal');
+
+    const toggles = [...document.querySelectorAll('.toggle')];
+    const yawRange = document.getElementById('yawRange');
+    const zoomRange = document.getElementById('zoomRange');
+    const yawRangeModal = document.getElementById('yawRangeModal');
+    const zoomRangeModal = document.getElementById('zoomRangeModal');
+    const yawValue = document.getElementById('yawValue');
+    const zoomValue = document.getElementById('zoomValue');
+    const yawValueModal = document.getElementById('yawValueModal');
+    const zoomValueModal = document.getElementById('zoomValueModal');
+
+    function project(p, w, hBox, scaleMul = 1) {
+        const yaw = state.yaw * Math.PI / 180;
+        const cos = Math.cos(yaw);
+        const sin = Math.sin(yaw);
+
+        // Rotate in horizontal plane around z-axis
+        const xr = p.x * cos - p.y * sin;
+        const yr = p.x * sin + p.y * cos;
+        const zr = p.z;
+
+        // Beautiful isometric-like projection with vertical axis
+        const isoX = (xr - yr) * 0.95;
+        const isoY = (xr + yr) * 0.44 - zr * 1.6;
+
+        const baseScale = Math.min(w, hBox) * 0.115 * state.zoom * scaleMul;
+        return {
+            x: w * 0.52 + isoX * baseScale,
+            y: hBox * 0.62 + isoY * baseScale
+        };
+    }
+
+    function mid(a, b, t = 0.5){
+        return {
+            x: a.x + (b.x - a.x) * t,
+            y: a.y + (b.y - a.y) * t,
+            z: a.z + (b.z - a.z) * t
+        };
+    }
+
+    function lineIntersection2D(A, B, C, D){
+        const a1 = B.y - A.y;
+        const b1 = A.x - B.x;
+        const c1 = a1 * A.x + b1 * A.y;
+        const a2 = D.y - C.y;
+        const b2 = C.x - D.x;
+        const c2 = a2 * C.x + b2 * C.y;
+        const det = a1 * b2 - a2 * b1;
+        if (Math.abs(det) < 1e-9) return null;
+        return {
+            x: (b2 * c1 - b1 * c2) / det,
+            y: (a1 * c2 - a2 * c1) / det
+        };
+    }
+
+    function vec2(a,b){ return {x:b.x-a.x, y:b.y-a.y}; }
+    function norm(v){
+        const m = Math.hypot(v.x, v.y) || 1;
+        return {x:v.x/m, y:v.y/m};
+    }
+
+    function rightAnglePath(origin, p1, p2, size = 16){
+        const v1 = norm(vec2(origin,p1));
+        const v2 = norm(vec2(origin,p2));
+        const q1 = {x: origin.x + v1.x * size, y: origin.y + v1.y * size};
+        const q2 = {x: origin.x + v2.x * size, y: origin.y + v2.y * size};
+        const q12 = {x: q1.x + v2.x * size, y: q1.y + v2.y * size};
+        return `M ${q1.x} ${q1.y} L ${q12.x} ${q12.y} L ${q2.x} ${q2.y}`;
+    }
+
+    function createSVGEl(tag, attrs = {}, text = null){
+        const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
+        if (text != null) el.textContent = text;
+        return el;
+    }
+
+    function drawLabel(svg, x, y, text, opts = {}){
+        const g = createSVGEl('g');
+        const padX = opts.padX ?? 8;
+        const padY = opts.padY ?? 5;
+        const fontSize = opts.fontSize ?? 16;
+
+        const t = createSVGEl('text', {
+            x, y,
+            'font-size': fontSize,
+            'font-weight': opts.weight || 600,
+            'font-family': 'Inter, system-ui, sans-serif',
+            fill: opts.color || colors.label,
+            'text-anchor': opts.anchor || 'middle',
+            'dominant-baseline': 'middle'
+        }, text);
+
+        svg.appendChild(t);
+        const bbox = t.getBBox();
+        svg.removeChild(t);
+
+        const rect = createSVGEl('rect', {
+            x: bbox.x - padX,
+            y: bbox.y - padY,
+            width: bbox.width + padX * 2,
+            height: bbox.height + padY * 2,
+            rx: 12,
+            fill: opts.boxFill || 'rgba(255,255,255,.82)',
+            stroke: opts.boxStroke || 'rgba(236,217,226,.95)',
+            'stroke-width': 1
+        });
+
+        g.appendChild(rect);
+        g.appendChild(t);
+        svg.appendChild(g);
+        return g;
+    }
+
+    function highlightMap(name){
+        return {
+            'base-right': ['AB','BC','B-right'],
+            'ac': ['AC'],
+            'bh': ['BH','H-right'],
+            'sbh': ['SB','BH','SBH-right'],
+            'sh': ['SH']
+        }[name] || [];
+    }
+
+    function drawScene(svg, large = false){
+        const vb = svg.viewBox.baseVal;
+        const W = vb.width || (large ? 900 : 720);
+        const H = vb.height || (large ? 640 : 520);
+        svg.innerHTML = '';
+
+        const projected = {};
+        for (const [k,p] of Object.entries(pts)){
+            projected[k] = project(p, W, H, large ? 1.18 : 1);
+        }
+
+        // Compute draw order by average z-like depth after rotation
+        const yaw = state.yaw * Math.PI / 180;
+        const depth = (p) => p.x * Math.sin(yaw) + p.y * Math.cos(yaw);
+
+        const faces = [
+            {name:'base', pts:['A','B','C'], fill: colors.fillBase, stroke:'none', avg: (depth(pts.A)+depth(pts.B)+depth(pts.C))/3},
+            {name:'SAB', pts:['S','A','B'], fill:'rgba(255,255,255,.20)', stroke:'none', avg:(depth(pts.S)+depth(pts.A)+depth(pts.B))/3},
+            {name:'SBC', pts:['S','B','C'], fill:'rgba(181,86,127,.05)', stroke:'none', avg:(depth(pts.S)+depth(pts.B)+depth(pts.C))/3},
+            {name:'SAC', pts:['S','A','C'], fill: colors.fillSide, stroke:'none', avg:(depth(pts.S)+depth(pts.A)+depth(pts.C))/3}
+        ].sort((u,v) => u.avg - v.avg);
+
+        faces.forEach(face => {
+            const d = face.pts.map((n,i) => `${i?'L':'M'} ${projected[n].x} ${projected[n].y}`).join(' ') + ' Z';
+            svg.appendChild(createSVGEl('path', { d, fill: face.fill, stroke: face.stroke }));
+        });
+
+        // Soft ground shadow
+        const shadow = createSVGEl('ellipse', {
+            cx: W * 0.53, cy: H * 0.76,
+            rx: large ? 200 : 150, ry: large ? 28 : 20,
+            fill: 'rgba(127,77,122,.08)'
+        });
+        svg.appendChild(shadow);
+
+        // lines helper
+        const activeParts = highlightMap(state.activeHighlight);
+
+        function line(name, p, q, options={}){
+            const isActive = activeParts.includes(name);
+            const el = createSVGEl('line', {
+                x1: projected[p].x, y1: projected[p].y,
+                x2: projected[q].x, y2: projected[q].y,
+                stroke: isActive ? colors.accentSoft : (options.stroke || colors.edge),
+                'stroke-width': isActive ? (options.activeWidth || 4) : (options.width || 2.4),
+                'stroke-linecap': 'round',
+                'stroke-dasharray': options.dash || '',
+                opacity: options.opacity || 1
+            });
+            svg.appendChild(el);
+        }
+
+        // Base and pyramid edges
+        line('AB', 'A','B', {width:2.6});
+        line('BC', 'B','C', {width:2.6});
+        line('AC', 'A','C', {width:3.2, activeWidth:4.6});
+        line('SA', 'S','A', {width:2.5});
+        line('SB', 'S','B', {width:3.1, activeWidth:4.5});
+        line('SC', 'S','C', {width:2.5});
+
+        if (state.showHelpers) {
+            line('BH', 'B','H', {width:2.3, dash:'7 7', stroke:colors.helper, activeWidth:4.2});
+        }
+        line('SH', 'S','H', {width:3.5, stroke:colors.accent, activeWidth:5.2});
+
+        // Right angles
+        if (state.showAngles) {
+            // angle ABC = 90
+            const pA = projected.A, pB = projected.B, pC = projected.C;
+            svg.appendChild(createSVGEl('path', {
+                d: rightAnglePath(pB, pA, pC, large ? 18 : 14),
+                stroke: activeParts.includes('B-right') ? colors.accentSoft : colors.angle,
+                'stroke-width': 2,
+                fill: 'none'
+            }));
+
+            // angle BHC = 90 (BH ⟂ AC)
+            const pH = projected.H;
+            svg.appendChild(createSVGEl('path', {
+                d: rightAnglePath(pH, pB, pC, large ? 16 : 13),
+                stroke: activeParts.includes('H-right') ? colors.accentSoft : colors.angle,
+                'stroke-width': 2,
+                fill: 'none'
+            }));
+
+            // angle SBH = 90
+            svg.appendChild(createSVGEl('path', {
+                d: rightAnglePath(projected.B, projected.S, projected.H, large ? 16 : 13),
+                stroke: activeParts.includes('SBH-right') ? colors.accentSoft : colors.angle,
+                'stroke-width': 2,
+                fill: 'none'
+            }));
+        }
+
+        // Points
+        Object.entries(projected).forEach(([name,p]) => {
+            const isStrong = ['S','H'].includes(name);
+            svg.appendChild(createSVGEl('circle', {
+                cx:p.x, cy:p.y, r:isStrong ? (large ? 5.4 : 4.4) : (large ? 5 : 4),
+                fill: colors.point,
+                stroke: colors.pointLight,
+                'stroke-width': 2
+            }));
+        });
+
+        // Labels for points
+        if (state.showLabels) {
+            const offsets = large
+            ? {A:[-18,16],B:[-8,18],C:[16,14],H:[18,-10],S:[0,-22]}
+            : {A:[-16,14],B:[-7,16],C:[16,12],H:[16,-8],S:[0,-18]};
+            Object.entries(offsets).forEach(([k,[dx,dy]]) => {
+                drawLabel(svg, projected[k].x + dx, projected[k].y + dy, k, {
+                    fontSize: large ? 18 : 15,
+                    weight: 700
+                });
+            });
+
+            const midAB = {
+                x:(projected.A.x + projected.B.x)/2 - (large?10:8),
+                y:(projected.A.y + projected.B.y)/2 + (large?26:20)
+            };
+            const midBC = {
+                x:(projected.B.x + projected.C.x)/2 + (large?20:14),
+                y:(projected.B.y + projected.C.y)/2 + (large?20:14)
+            };
+            const midAC = {
+                x:(projected.A.x + projected.C.x)/2,
+                y:(projected.A.y + projected.C.y)/2 + (large?34:26)
+            };
+            const midBH = {
+                x:(projected.B.x + projected.H.x)/2 - (large?18:14),
+                y:(projected.B.y + projected.H.y)/2 - (large?10:8)
+            };
+            const midSB = {
+                x:(projected.S.x + projected.B.x)/2 - (large?24:18),
+                y:(projected.S.y + projected.B.y)/2
+            };
+            const midSH = {
+                x:(projected.S.x + projected.H.x)/2 + (large?20:16),
+                y:(projected.S.y + projected.H.y)/2 - (large?4:2)
+            };
+
+            drawLabel(svg, midAB.x, midAB.y, 'AB = 4√3', {fontSize: large ? 16 : 14});
+            drawLabel(svg, midBC.x, midBC.y, 'BC = 4√3', {fontSize: large ? 16 : 14});
+            drawLabel(svg, midAC.x, midAC.y, 'AC = 4√6', {fontSize: large ? 16 : 14});
+            if (state.showHelpers) {
+                drawLabel(svg, midBH.x, midBH.y, 'BH = 2√6', {
+                    fontSize: large ? 16 : 14,
+                    boxFill:'rgba(255,255,255,.9)'
+                });
+            }
+            drawLabel(svg, midSB.x, midSB.y, 'SB = 5', {fontSize: large ? 16 : 14});
+            drawLabel(svg, midSH.x, midSH.y, 'SH = 7', {
+                fontSize: large ? 17 : 14,
+                color: colors.accent,
+                boxStroke:'rgba(181,86,127,.22)'
+            });
+
+            drawLabel(svg, large ? 700 : 570, large ? 118 : 94, 'SB ⟂ (ABC)', {
+                fontSize: large ? 16 : 13,
+                anchor:'middle'
+            });
+            drawLabel(svg, large ? 690 : 545, large ? 154 : 126, 'BH ⟂ AC', {
+                fontSize: large ? 16 : 13,
+                anchor:'middle'
+            });
+        }
+    }
+
+    function syncControls(){
+        yawRange.value = state.yaw;
+        yawRangeModal.value = state.yaw;
+        zoomRange.value = Math.round(state.zoom * 100);
+        zoomRangeModal.value = Math.round(state.zoom * 100);
+
+        const yawTxt = `${state.yaw > 0 ? '+' : state.yaw < 0 ? '−' : ''}${Math.abs(Math.round(state.yaw))}°`;
+        yawValue.textContent = yawTxt;
+        yawValueModal.textContent = yawTxt;
+        zoomValue.textContent = `${Math.round(state.zoom * 100)}%`;
+        zoomValueModal.textContent = `${Math.round(state.zoom * 100)}%`;
+
+        toggles.forEach(btn => {
+            const key = btn.dataset.toggle;
+            const map = {labels:'showLabels', helpers:'showHelpers', angles:'showAngles'};
+            btn.classList.toggle('active', state[map[key]]);
+        });
+    }
+
+    function renderAll(){
+        syncControls();
+        drawScene(mainScene, false);
+        drawScene(modalScene, true);
+        document.querySelectorAll('.step').forEach(step => {
+            step.classList.toggle('active', step.dataset.highlight === state.activeHighlight);
+        });
+    }
+
+    // Steps hover/click highlight
+    document.querySelectorAll('.step').forEach(step => {
+        step.addEventListener('mouseenter', () => {
+            state.activeHighlight = step.dataset.highlight;
+            renderAll();
+        });
+        step.addEventListener('mouseleave', () => {
+            state.activeHighlight = null;
+            renderAll();
+        });
+        step.addEventListener('click', () => {
+            state.activeHighlight = state.activeHighlight === step.dataset.highlight ? null : step.dataset.highlight;
+            renderAll();
+        });
+    });
+
+    // Controls
+    function setYaw(v){ state.yaw = +v; renderAll(); }
+    function setZoom(v){ state.zoom = (+v) / 100; renderAll(); }
+
+    yawRange.addEventListener('input', e => setYaw(e.target.value));
+    zoomRange.addEventListener('input', e => setZoom(e.target.value));
+    yawRangeModal.addEventListener('input', e => setYaw(e.target.value));
+    zoomRangeModal.addEventListener('input', e => setZoom(e.target.value));
+
+    toggles.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const map = {labels:'showLabels', helpers:'showHelpers', angles:'showAngles'};
+            const key = map[btn.dataset.toggle];
+            state[key] = !state[key];
+            renderAll();
+        });
+    });
+
+    // Modal
+    function openModal(){
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        renderAll();
+    }
+    function closeModal(){
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    document.getElementById('openModalBtn').addEventListener('click', openModal);
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    document.getElementById('closeModalBtn2').addEventListener('click', closeModal);
+    mainScene.addEventListener('click', openModal);
+    modal.addEventListener('click', e => {
+        if (e.target === modal) closeModal();
+    });
+    window.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeModal();
+    });
+
+    // Drag to rotate
+    function attachDrag(target, modalMode){
+        const start = (clientX) => {
+            state[modalMode ? 'draggingModal' : 'draggingMain'] = true;
+            state.dragStartX = clientX;
+            state.dragStartYaw = state.yaw;
+        };
+        const move = (clientX) => {
+            if (!state[modalMode ? 'draggingModal' : 'draggingMain']) return;
+            const dx = clientX - state.dragStartX;
+            state.yaw = Math.max(-80, Math.min(80, state.dragStartYaw + dx * 0.28));
+            renderAll();
+        };
+        const end = () => {
+            state.draggingMain = false;
+            state.draggingModal = false;
+        };
+
+        target.addEventListener('mousedown', e => start(e.clientX));
+        window.addEventListener('mousemove', e => move(e.clientX));
+        window.addEventListener('mouseup', end);
+
+        target.addEventListener('touchstart', e => {
+            if (!e.touches[0]) return;
+            start(e.touches[0].clientX);
+        }, {passive:true});
+        target.addEventListener('touchmove', e => {
+            if (!e.touches[0]) return;
+            move(e.touches[0].clientX);
+        }, {passive:true});
+        target.addEventListener('touchend', end);
+    }
+
+    attachDrag(mainScene, false);
+    attachDrag(document.getElementById('modalSceneWrap'), true);
+
+    document.getElementById('resetViewBtn').addEventListener('click', () => {
+        state.yaw = -24;
+        state.zoom = 1;
+        state.activeHighlight = null;
+        renderAll();
+    });
+    document.getElementById('resetModalBtn').addEventListener('click', () => {
+        state.yaw = -24;
+        state.zoom = 1;
+        renderAll();
+    });
+
+    // Quiz
+    const quizData = [
+        {
+            q: 'Почему нельзя сразу принять SB за расстояние от S до AC?',
+            options: [
+                'Потому что SB не лежит в плоскости основания',
+                'Потому что AC не проходит через B, а расстояние до прямой нужно опускать перпендикуляром именно на эту прямую',
+                'Потому что в пирамиде нельзя использовать перпендикуляры'
+            ],
+            correct: 1,
+            explain: 'Верно: расстояние от точки до прямой — это длина перпендикуляра к этой прямой, а SB не опущен на AC.'
+        },
+        {
+            q: 'Как находится BH в этой задаче?',
+            options: [
+                'По формуле высоты к гипотенузе: BH = AB·BC / AC',
+                'По формуле BH = AB + BC',
+                'По формуле BH = AC − SB'
+            ],
+            correct: 0,
+            explain: 'Верно: в прямоугольном треугольнике высота к гипотенузе равна произведению катетов, делённому на гипотенузу.'
+        }
+    ];
+
+    function renderQuiz(){
+        const root = document.getElementById('quiz');
+        root.innerHTML = '';
+        quizData.forEach((item, i) => {
+            const card = document.createElement('div');
+            card.className = 'quiz-card';
+            card.innerHTML = `
+          <div><b>Вопрос ${i+1}.</b> ${item.q}</div>
+          <div class="quiz-options"></div>
+          <div class="quiz-feedback" aria-live="polite"></div>
+        `;
+            const opts = card.querySelector('.quiz-options');
+            const fb = card.querySelector('.quiz-feedback');
+            item.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.textContent = opt;
+                btn.addEventListener('click', () => {
+                    [...opts.children].forEach((b, j) => {
+                        b.disabled = true;
+                        if (j === item.correct) b.classList.add('correct');
+                    });
+                    if (idx !== item.correct) btn.classList.add('wrong');
+                    fb.textContent = item.explain;
+                });
+                opts.appendChild(btn);
+            });
+            root.appendChild(card);
+        });
+    }
+
+    renderQuiz();
+    renderAll();
+</script>
+</body>
+</html>
