@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Чек-лист: Медианы треугольника — web-эквивалент</title>
+    <style>
+        /* =========================
+           БАЗОВЫЕ ПЕРЕМЕННЫЕ ТЕМЫ
+           ========================= */
+        :root{
+            --bg:#f4efe6;
+            --paper:#fffaf3;
+            --card:#fffdf8;
+            --ink:#111111;
+            --muted:#4a4a4a;
+            --line:#111111;
+            --accent:#8b1e2d;       /* бордовый */
+            --accent-2:#1d4d4f;     /* графитово-бирюзовый */
+            --accent-3:#f4c54b;     /* мягкий жёлтый */
+            --shadow:8px 8px 0 #111111;
+            --shadow-soft:5px 5px 0 #8b1e2d;
+            --radius:0px;
+            --maxw:1400px;
+        }
+
+        /* Тёмная тема — бонус для удобства */
+        body[data-theme="dark"]{
+            --bg:#151515;
+            --paper:#1d1d1d;
+            --card:#202020;
+            --ink:#f2f2f2;
+            --muted:#c8c8c8;
+            --line:#f2f2f2;
+            --accent:#ff5a6f;
+            --accent-2:#7ce0d4;
+            --accent-3:#ffd45d;
+            --shadow:8px 8px 0 #ff5a6f;
+            --shadow-soft:5px 5px 0 #7ce0d4;
+        }
+
+        /* =========================
+           ОБЩИЕ СТИЛИ
+           ========================= */
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            font-family: "Trebuchet MS", "Arial", sans-serif;
+            background:
+            linear-gradient(transparent 0 97%, rgba(0,0,0,.03) 97% 100%),
+            var(--bg);
+            color:var(--ink);
+            line-height:1.45;
+        }
+
+        .page{
+            max-width:var(--maxw);
+            margin:0 auto;
+            padding:20px 16px 48px;
+        }
+
+        .ink{color:var(--ink)}
+        .accent{color:var(--accent)}
+        .accent2{color:var(--accent-2)}
+        .muted{color:var(--muted)}
+        .small{font-size:.95rem}
+        .tiny{font-size:.86rem}
+
+        /* =========================
+           HERO
+           ========================= */
+        .hero{
+            background:var(--paper);
+            border:3px solid var(--line);
+            box-shadow:var(--shadow);
+            padding:22px;
+            margin-bottom:20px;
+            position:relative;
+            overflow:hidden;
+        }
+
+        .hero::before,
+        .hero::after{
+            content:"";
+            position:absolute;
+            border:3px solid var(--line);
+            width:94px;
+            height:22px;
+            transform:rotate(-8deg);
+            background:var(--accent-3);
+            opacity:.95;
+        }
+        .hero::before{top:14px; right:18px;}
+        .hero::after{bottom:18px; left:18px; transform:rotate(7deg);}
+
+        .hero-top{
+            display:flex;
+            gap:12px;
+            flex-wrap:wrap;
+            align-items:center;
+            margin-bottom:14px;
+            position:relative;
+            z-index:1;
+        }
+
+        .badge{
+            display:inline-block;
+            padding:6px 10px;
+            border:2px solid var(--line);
+            background:var(--accent-3);
+            font-weight:800;
+            text-transform:uppercase;
+            letter-spacing:.04em;
+            transform:rotate(-1.5deg);
+        }
+
+        .badge.alt{
+            background:var(--paper);
+            transform:rotate(1deg);
+        }
+
+        h1{
+            margin:0 0 8px;
+            font-size:clamp(2rem, 4vw, 4rem);
+            line-height:1;
+            text-transform:uppercase;
+            letter-spacing:.03em;
+            font-weight:900;
+            position:relative;
+            z-index:1;
+        }
+
+        .hero-subtitle{
+            margin:0;
+            font-size:clamp(1rem, 1.6vw, 1.25rem);
+            font-weight:700;
+            color:var(--muted);
+            max-width:980px;
+            position:relative;
+            z-index:1;
+        }
+
+        .hero-meta{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+            gap:10px;
+            margin-top:18px;
+            position:relative;
+            z-index:1;
+        }
+
+        .meta-card{
+            border:2px solid var(--line);
+            padding:10px 12px;
+            background:var(--card);
+            font-size:.95rem;
+            font-weight:700;
+        }
+
+        /* =========================
+           ПАНЕЛЬ УПРАВЛЕНИЯ
+           ========================= */
+        .toolbar{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            margin:18px 0 20px;
+        }
+
+        .btn, .jump{
+            appearance:none;
+            border:3px solid var(--line);
+            background:var(--paper);
+            color:var(--ink);
+            padding:10px 14px;
+            font-size:.95rem;
+            font-weight:800;
+            cursor:pointer;
+            text-transform:uppercase;
+            letter-spacing:.03em;
+            box-shadow:4px 4px 0 var(--accent-2);
+            transition:transform .12s ease, box-shadow .12s ease;
+        }
+
+        .btn:hover, .jump:hover{
+            transform:translate(-2px,-2px);
+            box-shadow:6px 6px 0 var(--accent-2);
+        }
+
+        .btn:active, .jump:active{
+            transform:translate(1px,1px);
+            box-shadow:2px 2px 0 var(--accent-2);
+        }
+
+        .jump-wrap{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+            margin-left:auto;
+        }
+
+        /* =========================
+           ОСНОВНАЯ СЕТКА
+           ========================= */
+        .layout{
+            display:grid;
+            grid-template-columns:minmax(0, 1.65fr) minmax(300px, .95fr);
+            gap:20px;
+            align-items:start;
+        }
+
+        .main{
+            display:grid;
+            gap:18px;
+        }
+
+        .sidebar{
+            display:grid;
+            gap:18px;
+        }
+
+        .sticky{
+            position:sticky;
+            top:16px;
+        }
+
+        /* =========================
+           КАРТОЧКИ
+           ========================= */
+        .card{
+            background:var(--card);
+            border:3px solid var(--line);
+            box-shadow:var(--shadow);
+            padding:18px;
+        }
+
+        .card.soft{
+            box-shadow:var(--shadow-soft);
+        }
+
+        .card-title{
+            margin:0 0 12px;
+            font-size:clamp(1.25rem, 2.3vw, 1.75rem);
+            line-height:1.05;
+            text-transform:uppercase;
+            font-weight:900;
+            display:flex;
+            gap:10px;
+            align-items:flex-start;
+            flex-wrap:wrap;
+        }
+
+        .num{
+            display:inline-grid;
+            place-items:center;
+            min-width:38px;
+            height:38px;
+            border:3px solid var(--line);
+            background:var(--accent);
+            color:#fff;
+            font-size:1.05rem;
+            font-weight:900;
+            line-height:1;
+        }
+
+        .section-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+            gap:14px;
+        }
+
+        .mini-card{
+            border:2px solid var(--line);
+            padding:12px;
+            background:var(--paper);
+        }
+
+        .mini-card h4{
+            margin:0 0 8px;
+            font-size:1rem;
+            text-transform:uppercase;
+            letter-spacing:.03em;
+        }
+
+        ul.clean{
+            margin:8px 0 0 0;
+            padding-left:18px;
+        }
+
+        ul.clean li{ margin:6px 0; }
+
+        .keyline{
+            border-left:6px solid var(--accent);
+            padding-left:12px;
+            margin:12px 0;
+            font-weight:700;
+        }
+
+        .callout{
+            border:3px solid var(--line);
+            background:linear-gradient(135deg, var(--paper), rgba(244,197,75,.18));
+            padding:12px;
+            margin-top:12px;
+            font-weight:700;
+        }
+
+        .formula{
+            border:2px solid var(--line);
+            background:#fff;
+            color:#111;
+            padding:12px 14px;
+            margin:10px 0;
+            font-size:clamp(1rem, 1.4vw, 1.15rem);
+            font-weight:800;
+            overflow-x:auto;
+        }
+
+        body[data-theme="dark"] .formula{
+            background:#fff7ef;
+            color:#111;
+        }
+
+        .formula-row{
+            display:grid;
+            gap:10px;
+            grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+        }
+
+        .formula small{
+            display:block;
+            color:#444;
+            font-size:.85rem;
+            font-weight:700;
+            margin-top:6px;
+        }
+
+        .frac{
+            display:inline-block;
+            vertical-align:middle;
+            text-align:center;
+            line-height:1.12;
+            min-width:2.2em;
+        }
+        .frac > span{
+            display:block;
+            padding:0 .15em;
+        }
+        .frac .bottom{
+            border-top:2px solid currentColor;
+            margin-top:2px;
+            padding-top:2px;
+        }
+
+        .tagline{
+            display:inline-block;
+            padding:3px 8px;
+            border:2px solid var(--line);
+            font-size:.83rem;
+            text-transform:uppercase;
+            font-weight:900;
+            margin-bottom:10px;
+            background:var(--accent-3);
+        }
+
+        .accordion{
+            display:grid;
+            gap:10px;
+        }
+
+        details{
+            border:2px solid var(--line);
+            background:var(--paper);
+        }
+
+        summary{
+            cursor:pointer;
+            padding:12px 14px;
+            font-weight:900;
+            text-transform:uppercase;
+            letter-spacing:.03em;
+            list-style:none;
+            position:relative;
+            padding-right:44px;
+        }
+
+        summary::-webkit-details-marker{display:none}
+        summary::after{
+            content:"+";
+            position:absolute;
+            right:12px;
+            top:50%;
+            transform:translateY(-50%);
+            font-size:1.4rem;
+            line-height:1;
+            font-weight:900;
+        }
+
+        details[open] summary::after{ content:"–"; }
+
+        .details-body{
+            padding:0 14px 14px;
+            border-top:2px solid var(--line);
+        }
+
+        .steps{
+            counter-reset:step;
+            display:grid;
+            gap:10px;
+        }
+
+        .step{
+            display:grid;
+            grid-template-columns:44px 1fr;
+            gap:10px;
+            align-items:start;
+            border:2px solid var(--line);
+            background:var(--paper);
+            padding:10px;
+        }
+
+        .step::before{
+            counter-increment:step;
+            content:counter(step);
+            display:grid;
+            place-items:center;
+            width:34px;
+            height:34px;
+            border:2px solid var(--line);
+            background:var(--accent-3);
+            font-weight:900;
+        }
+
+        .table-like{
+            display:grid;
+            gap:8px;
+        }
+
+        .table-row{
+            display:grid;
+            grid-template-columns:minmax(120px, 170px) 1fr;
+            gap:10px;
+            border:2px solid var(--line);
+            background:var(--paper);
+            padding:10px;
+        }
+
+        .table-row strong{
+            text-transform:uppercase;
+        }
+
+        .warning-list li::marker{ color:var(--accent); }
+
+        /* =========================
+           КВИЗ
+           ========================= */
+        .quiz-list{
+            display:grid;
+            gap:14px;
+        }
+
+        .quiz-card{
+            border:2px solid var(--line);
+            background:var(--paper);
+            padding:12px;
+        }
+
+        .quiz-q{
+            font-weight:900;
+            margin-bottom:8px;
+        }
+
+        .options{
+            display:grid;
+            gap:8px;
+        }
+
+        .option{
+            border:2px solid var(--line);
+            background:var(--card);
+            padding:10px;
+            cursor:pointer;
+            font-weight:700;
+        }
+
+        .option.correct{
+            background:#d9f6e7;
+        }
+
+        .option.wrong{
+            background:#ffe0e4;
+        }
+
+        .quiz-feedback{
+            margin-top:8px;
+            font-weight:800;
+            min-height:1.4em;
+        }
+
+        /* =========================
+           ГЕНЕРАТОР ЗАДАЧ
+           ========================= */
+        .generator-box{
+            border:2px solid var(--line);
+            background:var(--paper);
+            padding:14px;
+            display:grid;
+            gap:12px;
+        }
+
+        .generated{
+            border:2px dashed var(--line);
+            padding:12px;
+            min-height:120px;
+            background:var(--card);
+        }
+
+        .answer{
+            margin-top:8px;
+            padding:10px;
+            border:2px solid var(--line);
+            background:rgba(244,197,75,.23);
+            display:none;
+            font-weight:800;
+        }
+
+        .answer.show{display:block}
+
+        /* =========================
+           ФУТЕР
+           ========================= */
+        footer{
+            margin-top:24px;
+            border:3px solid var(--line);
+            background:var(--paper);
+            box-shadow:var(--shadow-soft);
+            padding:16px;
+            font-size:1rem;
+            font-weight:900;
+            text-align:center;
+            text-transform:uppercase;
+            letter-spacing:.02em;
+        }
+
+        /* =========================
+           ПЕЧАТЬ
+           ========================= */
+        @media print{
+            :root{
+                --bg:#ffffff;
+                --paper:#ffffff;
+                --card:#ffffff;
+                --ink:#000000;
+                --muted:#222222;
+                --line:#000000;
+                --shadow:none;
+                --shadow-soft:none;
+            }
+            body{
+                background:#fff;
+            }
+            .toolbar,
+            .jump-wrap button,
+            #generatorControls,
+            #quizControls{
+                display:none !important;
+            }
+            .layout{
+                grid-template-columns:1fr;
+            }
+            .sticky{
+                position:static;
+            }
+            .card, .hero, footer{
+                break-inside:avoid;
+                box-shadow:none !important;
+            }
+            .answer{
+                display:block !important;
+            }
+            a{
+                color:#000;
+                text-decoration:none;
+            }
+        }
+
+        /* =========================
+           МОБИЛЬНАЯ ВЕРСИЯ
+           ========================= */
+        @media (max-width: 980px){
+            .layout{
+                grid-template-columns:1fr;
+            }
+            .jump-wrap{
+                margin-left:0;
+            }
+            .sticky{
+                position:static;
+            }
+        }
+
+        @media (max-width: 640px){
+            .page{padding:14px 10px 30px;}
+            .hero, .card{padding:14px;}
+            .table-row{grid-template-columns:1fr;}
+            .toolbar{gap:8px;}
+            .btn, .jump{width:100%;}
+            .jump-wrap{width:100%;}
+        }
+    </style>
+</head>
+<body data-theme="light">
+<div class="page">
+    <!-- =========================
+         ШАПКА
+         ========================= -->
+    <header class="hero">
+        <div class="hero-top">
+            <span class="badge">WEB-эквивалент</span>
+            <span class="badge alt">Чек-лист</span>
+            <span class="badge">ЕГЭ · планиметрия</span>
+        </div>
+
+        <h1>
+            <span class="accent">Чек-лист:</span>
+            медианы треугольника
+        </h1>
+
+        <p class="hero-subtitle">
+            Удвоение медианы, теорема синусов, теорема косинусов, формула медианы,
+            центр тяжести и площади — в коротком, читаемом и интерактивном формате.
+        </p>
+
+        <div class="hero-meta">
+            <div class="meta-card"><strong>Ученик:</strong> Иван Необутов</div>
+            <div class="meta-card"><strong>Учитель:</strong> Артём Александрович Лёвин</div>
+            <div class="meta-card"><strong>Формат:</strong> краткие тезисы + мини-алгоритмы</div>
+            <div class="meta-card"><strong>Акцент:</strong> максимум читаемости, без перегруза</div>
+        </div>
+    </header>
+
+    <!-- =========================
+         КНОПКИ УПРАВЛЕНИЯ
+         ========================= -->
+    <div class="toolbar">
+        <button class="btn" id="themeToggle">Переключить тему</button>
+        <button class="btn" onclick="window.print()">Печать / PDF</button>
+        <button class="btn" id="openAllBtn">Открыть все блоки</button>
+        <button class="btn" id="closeAllBtn">Свернуть все блоки</button>
+
+        <div class="jump-wrap">
+            <button class="jump" data-scroll="#s1">1. Удвоение</button>
+            <button class="jump" data-scroll="#s2">2. Синусы</button>
+            <button class="jump" data-scroll="#s3">3. Косинусы</button>
+            <button class="jump" data-scroll="#s4">4. Центр и площади</button>
+            <button class="jump" data-scroll="#quiz">Квиз</button>
+            <button class="jump" data-scroll="#generator">Генератор</button>
+        </div>
+    </div>
+
+    <div class="layout">
+        <!-- =========================
+             ОСНОВНОЙ КОНТЕНТ
+             ========================= -->
+        <main class="main">
+            <!-- 1 -->
+            <section class="card" id="s1">
+                <h2 class="card-title">
+                    <span class="num">1</span>
+                    <span>Удвоение медианы</span>
+                </h2>
+
+                <div class="tagline">Главная идея</div>
+                <p class="keyline">
+                    Если <strong>AD</strong> — медиана треугольника <strong>ABC</strong>, то
+                    <strong>BD = DC</strong>. Если продолжить медиану за точку <strong>D</strong>
+                    до точки <strong>F</strong> так, что <strong>AD = DF</strong>, то
+                    четырёхугольник <strong>ABFC</strong> — параллелограмм.
+                </p>
+
+                <div class="formula-row">
+                    <div class="formula">
+                        BD = DC
+                        <small>Потому что AD — медиана.</small>
+                    </div>
+                    <div class="formula">
+                        AD = DF
+                        <small>Это дополнительное построение.</small>
+                    </div>
+                    <div class="formula">
+                        ABFC — параллелограмм
+                        <small>Диагонали AF и BC делятся в точке D пополам.</small>
+                    </div>
+                </div>
+
+                <div class="section-grid" style="margin-top:12px;">
+                    <div class="mini-card">
+                        <h4>Что сразу получаем</h4>
+                        <ul class="clean">
+                            <li><strong>AB ∥ CF</strong></li>
+                            <li><strong>AC ∥ BF</strong></li>
+                            <li><strong>AB = CF</strong></li>
+                            <li><strong>AC = BF</strong></li>
+                            <li><strong>AF = 2AD</strong></li>
+                        </ul>
+                    </div>
+                    <div class="mini-card">
+                        <h4>Полезный угловой факт</h4>
+                        <div class="formula">∠BAF = ∠AFC</div>
+                        <p class="small muted">
+                            Это накрест лежащие углы при параллельных прямых
+                            <strong>AB ∥ CF</strong> и секущей <strong>AF</strong>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="callout">
+                    В задачах про медиану сначала проверяйте:
+                    <strong>«А не помогает ли удвоение медианы?»</strong>
+                </div>
+            </section>
+
+            <!-- 2 -->
+            <section class="card" id="s2">
+                <h2 class="card-title">
+                    <span class="num">2</span>
+                    <span>Теорема синусов</span>
+                </h2>
+
+                <div class="accordion">
+                    <details open>
+                        <summary>Формулировка</summary>
+                        <div class="details-body">
+                            <div class="formula">
+                                <span class="frac"><span>a</span><span class="bottom">sin A</span></span>
+                                =
+                                <span class="frac"><span>b</span><span class="bottom">sin B</span></span>
+                                =
+                                <span class="frac"><span>c</span><span class="bottom">sin C</span></span>
+                                = 2R
+                            </div>
+                            <p class="small">
+                                Здесь <strong>a, b, c</strong> — стороны треугольника,
+                                лежащие напротив углов <strong>A, B, C</strong>.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details open>
+                        <summary>Когда применять</summary>
+                        <div class="details-body">
+                            <div class="keyline">
+                                Теорема синусов особенно удобна, когда известны
+                                <strong>два угла и одна сторона</strong>.
+                            </div>
+                        </div>
+                    </details>
+
+                    <details open>
+                        <summary>Формулы для задачи с медианой</summary>
+                        <div class="details-body">
+                            <p>
+                                Пусть <strong>AD = m</strong>, <strong>∠BAD = α</strong>,
+                                <strong>∠DAC = β</strong>. После удвоения медианы рассматриваем
+                                треугольник <strong>AFC</strong>.
+                            </p>
+
+                            <div class="formula-row">
+                                <div class="formula">
+                                    AC =
+                                    <span class="frac">
+                      <span>2m · sin α</span>
+                      <span class="bottom">sin(α + β)</span>
+                    </span>
+                                </div>
+                                <div class="formula">
+                                    AB =
+                                    <span class="frac">
+                      <span>2m · sin β</span>
+                      <span class="bottom">sin(α + β)</span>
+                    </span>
+                                </div>
+                            </div>
+
+                            <p class="small muted">
+                                Важно: в теореме синусов сторона делится на синус
+                                <strong>противолежащего</strong> угла.
+                            </p>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <!-- 3 -->
+            <section class="card" id="s3">
+                <h2 class="card-title">
+                    <span class="num">3</span>
+                    <span>Теорема косинусов и формула медианы</span>
+                </h2>
+
+                <div class="section-grid">
+                    <div class="mini-card">
+                        <h4>Теорема косинусов</h4>
+                        <div class="formula">
+                            a<sup>2</sup> = b<sup>2</sup> + c<sup>2</sup> − 2bc · cos A
+                        </div>
+                        <p class="small muted">
+                            Угол <strong>A</strong> — это угол между сторонами
+                            <strong>b</strong> и <strong>c</strong>.
+                        </p>
+                    </div>
+
+                    <div class="mini-card">
+                        <h4>Когда применять</h4>
+                        <ul class="clean">
+                            <li>Если известны <strong>2 стороны и угол между ними</strong>.</li>
+                            <li>Если известны <strong>3 стороны</strong> и нужно найти угол.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tagline" style="margin-top:14px;">Угол через медиану</div>
+                <p>
+                    Если в треугольнике <strong>ABC</strong> известны
+                    <strong>AB = c</strong>, <strong>AC = b</strong> и
+                    <strong>AD = m</strong> — медиана к стороне <strong>BC</strong>, то
+                </p>
+
+                <div class="formula">
+                    cos ∠BAC =
+                    <span class="frac">
+              <span>4m<sup>2</sup> − b<sup>2</sup> − c<sup>2</sup></span>
+              <span class="bottom">2bc</span>
+            </span>
+                </div>
+
+                <div class="tagline">Формула медианы</div>
+                <div class="formula-row">
+                    <div class="formula">
+                        m<sub>a</sub><sup>2</sup> =
+                        <span class="frac">
+                <span>2b<sup>2</sup> + 2c<sup>2</sup> − a<sup>2</sup></span>
+                <span class="bottom">4</span>
+              </span>
+                    </div>
+                    <div class="formula">
+                        a<sup>2</sup> = 2b<sup>2</sup> + 2c<sup>2</sup> − 4m<sub>a</sub><sup>2</sup>
+                    </div>
+                </div>
+
+                <div class="callout">
+                    Если даны две стороны и медиана к третьей стороне, то чаще всего
+                    нужно использовать именно <strong>формулу медианы</strong>.
+                </div>
+            </section>
+
+            <!-- 4 -->
+            <section class="card" id="s4">
+                <h2 class="card-title">
+                    <span class="num">4</span>
+                    <span>Центр тяжести и площади</span>
+                </h2>
+
+                <div class="section-grid">
+                    <div class="mini-card">
+                        <h4>Центр тяжести</h4>
+                        <p>
+                            Три медианы треугольника пересекаются в одной точке
+                            <strong>G</strong>.
+                        </p>
+                        <div class="formula">AG : GM = 2 : 1</div>
+                        <p class="small muted">
+                            От вершины до точки пересечения медиан — две части,
+                            от точки пересечения до середины стороны — одна часть.
+                        </p>
+                    </div>
+
+                    <div class="mini-card">
+                        <h4>Площади</h4>
+                        <div class="formula">
+                            S<sub>ABD</sub> = S<sub>ACD</sub> =
+                            <span class="frac">
+                  <span>1</span><span class="bottom">2</span>
+                </span>
+                            S<sub>ABC</sub>
+                        </div>
+                        <div class="formula">
+                            Каждая из 6 частей при трёх медианах =
+                            <span class="frac">
+                  <span>1</span><span class="bottom">6</span>
+                </span>
+                            S<sub>ABC</sub>
+                        </div>
+                        <div class="formula">
+                            Если фигура состоит из 2 маленьких треугольников, то её площадь =
+                            <span class="frac">
+                  <span>1</span><span class="bottom">3</span>
+                </span>
+                            S<sub>ABC</sub>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion" style="margin-top:12px;">
+                    <details>
+                        <summary>Быстрые выводы</summary>
+                        <div class="details-body">
+                            <ul class="clean">
+                                <li>Если <strong>AM = 18</strong>, то <strong>AG = 12</strong>, <strong>GM = 6</strong>.</li>
+                                <li>Если <strong>GM = 5</strong>, то <strong>AM = 15</strong>, <strong>AG = 10</strong>.</li>
+                                <li>Если <strong>S<sub>ABC</sub> = 48</strong>, то каждая маленькая часть при трёх медианах равна <strong>8</strong>.</li>
+                            </ul>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <!-- Мини-алгоритмы -->
+            <section class="card soft">
+                <h2 class="card-title">
+                    <span class="num">5</span>
+                    <span>Мини-алгоритмы</span>
+                </h2>
+
+                <div class="steps">
+                    <div class="step">
+                        <div>
+                            <strong>Если дана медиана и углы при ней</strong><br>
+                            Удвойте медиану → получите параллелограмм → перейдите к треугольнику
+                            с известными углами и стороной <strong>2m</strong> → примените теорему синусов.
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div>
+                            <strong>Если даны две стороны и медиана к третьей</strong><br>
+                            Обозначьте неизвестную сторону → примените формулу медианы →
+                            при необходимости найдите площадь по Герону.
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div>
+                            <strong>Если нужно найти угол</strong><br>
+                            Удвойте медиану → получите треугольник с тремя сторонами →
+                            примените теорему косинусов → учитывайте, что нужный угол
+                            может быть дополнительным.
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div>
+                            <strong>Если задача про точку пересечения медиан</strong><br>
+                            Сразу используйте отношение <strong>2 : 1</strong>.
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div>
+                            <strong>Если задача про площади</strong><br>
+                            Одна медиана делит треугольник пополам, три медианы делят его на
+                            <strong>6 равных</strong> по площади частей.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ошибки -->
+            <section class="card">
+                <h2 class="card-title">
+                    <span class="num">6</span>
+                    <span>Типичные ошибки</span>
+                </h2>
+
+                <ul class="clean warning-list">
+                    <li>Путать медиану с биссектрисой или высотой.</li>
+                    <li>Забывать доказать параллелограмм через диагонали, делящиеся пополам.</li>
+                    <li>В теореме синусов делить сторону не на синус противолежащего угла.</li>
+                    <li>В теореме косинусов брать не тот угол между сторонами.</li>
+                    <li>Путать формулы: <strong>sin(180° − x) = sin x</strong>, но <strong>cos(180° − x) = −cos x</strong>.</li>
+                    <li>Ошибаться в формуле медианы: верно<br>
+                        <span class="formula" style="display:inline-block; margin-top:8px;">
+                m<sub>a</sub><sup>2</sup> =
+                <span class="frac">
+                  <span>2b<sup>2</sup> + 2c<sup>2</sup> − a<sup>2</sup></span>
+                  <span class="bottom">4</span>
+                </span>
+              </span>
+                    </li>
+                    <li>Путать части в отношении <strong>2 : 1</strong> для центроида.</li>
+                    <li>Забывать, что три медианы дают ровно <strong>6</strong> равновеликих частей.</li>
+                </ul>
+            </section>
+
+            <!-- КВИЗ -->
+            <section class="card" id="quiz">
+                <h2 class="card-title">
+                    <span class="num">7</span>
+                    <span>Мини-квиз</span>
+                </h2>
+
+                <div id="quizControls" class="toolbar" style="margin:0 0 12px;">
+                    <button class="btn" id="resetQuizBtn">Сбросить ответы</button>
+                </div>
+
+                <div class="quiz-list">
+                    <div class="quiz-card" data-quiz>
+                        <div class="quiz-q">1) Если AD — медиана, а точку F взяли так, что AD = DF, то ABFC — это...</div>
+                        <div class="options">
+                            <button class="option" data-correct="false">прямоугольник</button>
+                            <button class="option" data-correct="true">параллелограмм</button>
+                            <button class="option" data-correct="false">трапеция</button>
+                        </div>
+                        <div class="quiz-feedback"></div>
+                    </div>
+
+                    <div class="quiz-card" data-quiz>
+                        <div class="quiz-q">2) Точка пересечения медиан делит каждую медиану в отношении...</div>
+                        <div class="options">
+                            <button class="option" data-correct="false">1 : 1</button>
+                            <button class="option" data-correct="true">2 : 1</button>
+                            <button class="option" data-correct="false">3 : 1</button>
+                        </div>
+                        <div class="quiz-feedback"></div>
+                    </div>
+
+                    <div class="quiz-card" data-quiz>
+                        <div class="quiz-q">3) Если три медианы разбили треугольник, то каждая маленькая часть равна...</div>
+                        <div class="options">
+                            <button class="option" data-correct="true">1/6 площади треугольника</button>
+                            <button class="option" data-correct="false">1/4 площади треугольника</button>
+                            <button class="option" data-correct="false">1/3 площади треугольника</button>
+                        </div>
+                        <div class="quiz-feedback"></div>
+                    </div>
+
+                    <div class="quiz-card" data-quiz>
+                        <div class="quiz-q">4) Когда особенно удобно применять теорему синусов?</div>
+                        <div class="options">
+                            <button class="option" data-correct="true">Когда известны два угла и одна сторона</button>
+                            <button class="option" data-correct="false">Когда известны три стороны</button>
+                            <button class="option" data-correct="false">Когда известна только одна сторона</button>
+                        </div>
+                        <div class="quiz-feedback"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ГЕНЕРАТОР -->
+            <section class="card" id="generator">
+                <h2 class="card-title">
+                    <span class="num">8</span>
+                    <span>Генератор похожих задач</span>
+                </h2>
+
+                <p class="muted">
+                    Генератор создаёт маленькие корректные задачи по теме:
+                    центр тяжести, площади, формула медианы и косинус угла через медиану.
+                </p>
+
+                <div class="generator-box">
+                    <div id="generatorControls" class="toolbar" style="margin:0;">
+                        <button class="btn" id="genBtn">Сгенерировать задачу</button>
+                        <button class="btn" id="showAnswerBtn">Показать ответ</button>
+                    </div>
+
+                    <div class="generated" id="generatedTask">
+                        Нажмите «Сгенерировать задачу», чтобы получить новый пример.
+                    </div>
+
+                    <div class="answer" id="generatedAnswer"></div>
+                </div>
+            </section>
+        </main>
+
+        <!-- =========================
+             БОКОВАЯ ПАНЕЛЬ
+             ========================= -->
+        <aside class="sidebar">
+            <div class="card sticky">
+                <h2 class="card-title">
+                    <span class="num">★</span>
+                    <span>Быстрый набор</span>
+                </h2>
+
+                <div class="table-like">
+                    <div class="table-row">
+                        <strong>Удвоение</strong>
+                        <div>Если <strong>AD = DF</strong>, то после достройки <strong>ABFC</strong> — параллелограмм.</div>
+                    </div>
+
+                    <div class="table-row">
+                        <strong>Синусы</strong>
+                        <div>Используйте, когда в треугольнике известны <strong>2 угла и 1 сторона</strong>.</div>
+                    </div>
+
+                    <div class="table-row">
+                        <strong>Косинусы</strong>
+                        <div>Используйте, когда известны <strong>2 стороны и угол между ними</strong> или <strong>3 стороны</strong>.</div>
+                    </div>
+
+                    <div class="table-row">
+                        <strong>Медиана</strong>
+                        <div>
+                <span class="formula" style="margin:0;">
+                  m<sub>a</sub><sup>2</sup> =
+                  <span class="frac">
+                    <span>2b<sup>2</sup> + 2c<sup>2</sup> − a<sup>2</sup></span>
+                    <span class="bottom">4</span>
+                  </span>
+                </span>
+                        </div>
+                    </div>
+
+                    <div class="table-row">
+                        <strong>Центроид</strong>
+                        <div><strong>2 : 1</strong> от вершины.</div>
+                    </div>
+
+                    <div class="table-row">
+                        <strong>Площади</strong>
+                        <div>Одна медиана → пополам; три медианы → на <strong>6</strong> равных частей.</div>
+                    </div>
+                </div>
+
+                <div class="callout">
+                    Главный вопрос на старте:
+                    <br><strong>«Можно ли здесь удвоить медиану?»</strong>
+                </div>
+            </div>
+
+            <div class="card soft">
+                <h2 class="card-title">
+                    <span class="num">!</span>
+                    <span>Микро-памятка</span>
+                </h2>
+
+                <ul class="clean">
+                    <li><strong>AB = CF</strong> и <strong>AC = BF</strong> — это свойства параллелограмма после удвоения медианы.</li>
+                    <li><strong>AF = 2AD</strong>.</li>
+                    <li>Не забывайте знаки у формул приведения для косинуса.</li>
+                    <li>Если задача про площадь — сначала подумайте, нельзя ли разбить фигуру на части по медианам.</li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+
+    <footer>
+        Артём Александрович Лёвин эксклюзивно для Ивана Необутова
+    </footer>
+</div>
+
+<script>
+    // =========================================
+    // ПРОСТОЙ JS ДЛЯ ИНТЕРАКТИВА
+    // Всё внутри файла, без библиотек.
+    // =========================================
+
+    // --- Переключение темы ---
+    const body = document.body;
+    const themeToggle = document.getElementById('themeToggle');
+
+    // Сначала пробуем взять тему из памяти браузера
+    const savedTheme = localStorage.getItem('median-checklist-theme');
+    if(savedTheme){
+        body.setAttribute('data-theme', savedTheme);
+    }
+
+    themeToggle.addEventListener('click', () => {
+        const nextTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        body.setAttribute('data-theme', nextTheme);
+        localStorage.setItem('median-checklist-theme', nextTheme);
+    });
+
+    // --- Плавные переходы по кнопкам ---
+    document.querySelectorAll('[data-scroll]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = document.querySelector(btn.dataset.scroll);
+            if(target){
+                target.scrollIntoView({behavior:'smooth', block:'start'});
+            }
+        });
+    });
+
+    // --- Открыть / закрыть все details ---
+    const openAllBtn = document.getElementById('openAllBtn');
+    const closeAllBtn = document.getElementById('closeAllBtn');
+
+    openAllBtn.addEventListener('click', () => {
+        document.querySelectorAll('details').forEach(el => el.open = true);
+    });
+
+    closeAllBtn.addEventListener('click', () => {
+        document.querySelectorAll('details').forEach(el => el.open = false);
+    });
+
+    // --- Логика мини-квиза ---
+    const quizCards = document.querySelectorAll('[data-quiz]');
+    const resetQuizBtn = document.getElementById('resetQuizBtn');
+
+    quizCards.forEach(card => {
+        const options = card.querySelectorAll('.option');
+        const feedback = card.querySelector('.quiz-feedback');
+
+        options.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Если уже ответили, повторно не подсвечиваем
+                if(card.dataset.answered === 'true') return;
+
+                card.dataset.answered = 'true';
+
+                const isCorrect = btn.dataset.correct === 'true';
+                options.forEach(op => op.disabled = true);
+
+                if(isCorrect){
+                    btn.classList.add('correct');
+                    feedback.textContent = 'Верно.';
+                    feedback.style.color = 'var(--accent-2)';
+                }else{
+                    btn.classList.add('wrong');
+                    feedback.textContent = 'Пока нет. Посмотрите ещё раз на правило.';
+                    feedback.style.color = 'var(--accent)';
+                    const correctBtn = [...options].find(op => op.dataset.correct === 'true');
+                    if(correctBtn) correctBtn.classList.add('correct');
+                }
+            });
+        });
+    });
+
+    resetQuizBtn.addEventListener('click', () => {
+        quizCards.forEach(card => {
+            card.dataset.answered = 'false';
+            card.querySelectorAll('.option').forEach(op => {
+                op.disabled = false;
+                op.classList.remove('correct', 'wrong');
+            });
+            const feedback = card.querySelector('.quiz-feedback');
+            feedback.textContent = '';
+        });
+    });
+
+    // --- Генератор похожих задач ---
+    // Здесь только заранее проверенные шаблоны,
+    // чтобы не было математических ошибок.
+    const taskBox = document.getElementById('generatedTask');
+    const answerBox = document.getElementById('generatedAnswer');
+    const genBtn = document.getElementById('genBtn');
+    const showAnswerBtn = document.getElementById('showAnswerBtn');
+
+    const tasks = [
+        {
+            text: '1) В треугольнике ABC медиана AM равна 24. Точка G — точка пересечения медиан. Найдите AG и GM.',
+            answer: 'Ответ: AG = 16, GM = 8. Используем отношение 2 : 1.'
+        },
+        {
+            text: '2) В треугольнике ABC точка G — точка пересечения медиан. Известно, что GM = 7,5, где M — середина стороны BC. Найдите AM и AG.',
+            answer: 'Ответ: AM = 22,5, AG = 15. Одна часть = 7,5; вся медиана = 3 части.'
+        },
+        {
+            text: '3) Площадь треугольника ABC равна 54. Медианы пересекаются в точке G. Найдите площадь каждого из 6 маленьких треугольников.',
+            answer: 'Ответ: 54 / 6 = 9.'
+        },
+        {
+            text: '4) В треугольнике ABC даны AB = 13, AC = 14, AD = 10, где AD — медиана к стороне BC. Найдите cos ∠BAC.',
+            answer: 'Ответ: cos ∠BAC = (4·10² − 14² − 13²) / (2·14·13) = (400 − 196 − 169) / 364 = 35 / 364 = 5 / 52.'
+        },
+        {
+            text: '5) В треугольнике ABC даны AB = 10, AC = 17, BC = 21. Найдите медиану mₐ, проведённую к стороне BC.',
+            answer: 'Ответ: mₐ² = (2·17² + 2·10² − 21²) / 4 = (578 + 200 − 441) / 4 = 337 / 4, значит mₐ = √337 / 2.'
+        },
+        {
+            text: '6) В треугольнике ABC даны AB = 15, AC = 13, AD = 10, где AD — медиана к стороне BC. Найдите BC.',
+            answer: 'Ответ: BC² = 2·13² + 2·15² − 4·10² = 338 + 450 − 400 = 388, значит BC = √388 = 2√97.'
+        }
+    ];
+
+    let currentTaskIndex = null;
+
+    function generateTask(){
+        // Выбираем случайный индекс
+        const idx = Math.floor(Math.random() * tasks.length);
+        currentTaskIndex = idx;
+
+        // Пишем условие
+        taskBox.textContent = tasks[idx].text;
+
+        // Прячем ответ до отдельной кнопки
+        answerBox.classList.remove('show');
+        answerBox.textContent = tasks[idx].answer;
+    }
+
+    genBtn.addEventListener('click', generateTask);
+
+    showAnswerBtn.addEventListener('click', () => {
+        if(currentTaskIndex === null){
+            generateTask();
+        }
+        answerBox.classList.add('show');
+    });
+</script>
+</body>
+</html>

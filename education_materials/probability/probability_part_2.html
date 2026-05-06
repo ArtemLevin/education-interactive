@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Вероятность — web-пособие</title>
+    <style>
+        :root{
+            --bg:#f4f4f0;
+            --panel:#ffffff;
+            --ink:#111111;
+            --muted:#4b4b4b;
+            --line:#111111;
+            --accent:#00b3a4;
+            --accent-2:#ff5a36;
+            --accent-3:#ffe44d;
+            --shadow:6px 6px 0 #111111;
+            --shadow-sm:3px 3px 0 #111111;
+            --radius:0px;
+            --maxw:1280px;
+        }
+
+        :root.dark{
+            --bg:#151515;
+            --panel:#222222;
+            --ink:#f4f4f0;
+            --muted:#c9c9c9;
+            --line:#f4f4f0;
+            --accent:#00d5c4;
+            --accent-2:#ff7a59;
+            --accent-3:#ffe44d;
+            --shadow:6px 6px 0 #000000;
+            --shadow-sm:3px 3px 0 #000000;
+        }
+
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            margin:0;
+            font-family: Arial, Helvetica, sans-serif;
+            background:var(--bg);
+            color:var(--ink);
+            line-height:1.55;
+        }
+
+        .page{
+            max-width:var(--maxw);
+            margin:0 auto;
+            padding:24px 16px 80px;
+        }
+
+        .hero{
+            border:2px solid var(--line);
+            background:var(--panel);
+            box-shadow:var(--shadow);
+            padding:20px;
+            margin-bottom:18px;
+        }
+
+        .hero-top{
+            display:flex;
+            gap:12px;
+            flex-wrap:wrap;
+            align-items:center;
+            justify-content:space-between;
+            margin-bottom:18px;
+        }
+
+        .badge-row{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+        }
+
+        .badge{
+            border:2px solid var(--line);
+            padding:6px 10px;
+            font-weight:700;
+            font-size:12px;
+            text-transform:uppercase;
+            background:var(--accent-3);
+            box-shadow:var(--shadow-sm);
+            letter-spacing:.04em;
+        }
+
+        .theme-btn{
+            border:2px solid var(--line);
+            background:var(--panel);
+            color:var(--ink);
+            font-weight:800;
+            padding:10px 14px;
+            cursor:pointer;
+            box-shadow:var(--shadow-sm);
+            text-transform:uppercase;
+        }
+
+        h1{
+            margin:0;
+            font-size:clamp(32px,5vw,64px);
+            line-height:1;
+            text-transform:uppercase;
+            letter-spacing:.03em;
+        }
+
+        .subhero{
+            display:grid;
+            grid-template-columns: 1.2fr .8fr;
+            gap:16px;
+            margin-top:16px;
+        }
+
+        .hero-copy, .hero-side{
+            border:2px solid var(--line);
+            padding:16px;
+            background:var(--bg);
+        }
+
+        .hero-copy p, .hero-side p{
+            margin:0 0 10px;
+        }
+
+        .blackbar{
+            margin-top:14px;
+            background:var(--line);
+            color:var(--bg);
+            padding:12px 14px;
+            font-weight:800;
+            text-transform:uppercase;
+            letter-spacing:.04em;
+        }
+
+        .controls{
+            display:grid;
+            grid-template-columns: 1.4fr repeat(4, auto);
+            gap:10px;
+            align-items:center;
+            margin:20px 0 18px;
+        }
+
+        .search{
+            width:100%;
+            border:2px solid var(--line);
+            background:var(--panel);
+            color:var(--ink);
+            padding:14px 16px;
+            font-size:16px;
+            box-shadow:var(--shadow-sm);
+            outline:none;
+        }
+
+        .ctrl-btn{
+            border:2px solid var(--line);
+            background:var(--panel);
+            color:var(--ink);
+            font-weight:800;
+            padding:14px 14px;
+            cursor:pointer;
+            box-shadow:var(--shadow-sm);
+            text-transform:uppercase;
+            font-size:12px;
+            letter-spacing:.03em;
+            min-height:52px;
+        }
+
+        .ctrl-btn.active{
+            background:var(--accent);
+        }
+
+        .stats{
+            display:grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap:14px;
+            margin-bottom:20px;
+        }
+
+        .stat{
+            border:2px solid var(--line);
+            background:var(--panel);
+            box-shadow:var(--shadow-sm);
+            padding:14px;
+        }
+
+        .stat .label{
+            text-transform:uppercase;
+            font-weight:800;
+            font-size:12px;
+            color:var(--muted);
+            margin-bottom:8px;
+        }
+
+        .stat .value{
+            font-size:34px;
+            font-weight:900;
+            line-height:1;
+        }
+
+        .layout{
+            display:grid;
+            grid-template-columns: 1fr 340px;
+            gap:18px;
+            align-items:start;
+        }
+
+        .main-column{
+            min-width:0;
+        }
+
+        .sidebar{
+            position:sticky;
+            top:16px;
+            display:flex;
+            flex-direction:column;
+            gap:16px;
+        }
+
+        .panel{
+            border:2px solid var(--line);
+            background:var(--panel);
+            box-shadow:var(--shadow);
+            padding:16px;
+        }
+
+        .panel h2, .panel h3{
+            margin:0 0 12px;
+            text-transform:uppercase;
+            line-height:1;
+        }
+
+        .toc a{
+            display:block;
+            color:var(--ink);
+            text-decoration:none;
+            padding:8px 10px;
+            border:2px solid transparent;
+            font-weight:700;
+            margin-bottom:6px;
+            background:var(--bg);
+        }
+
+        .toc a:hover{
+            border-color:var(--line);
+            box-shadow:var(--shadow-sm);
+        }
+
+        .legend-item{
+            display:flex;
+            gap:8px;
+            align-items:flex-start;
+            margin-bottom:8px;
+        }
+
+        .dot{
+            width:14px;
+            height:14px;
+            border:2px solid var(--line);
+            flex:0 0 auto;
+            margin-top:4px;
+        }
+
+        .dot.task{ background:var(--accent-3); }
+        .dot.answer{ background:var(--accent); }
+        .dot.note{ background:var(--accent-2); }
+
+        .section-title{
+            margin:0 0 14px;
+            border:2px solid var(--line);
+            background:var(--accent-2);
+            color:#111;
+            box-shadow:var(--shadow-sm);
+            padding:14px 16px;
+            text-transform:uppercase;
+            font-size:24px;
+            line-height:1;
+        }
+
+        .task-list{
+            display:grid;
+            gap:14px;
+        }
+
+        .task-card{
+            border:2px solid var(--line);
+            background:var(--panel);
+            box-shadow:var(--shadow);
+            padding:18px;
+            scroll-margin-top:20px;
+        }
+
+        .task-head{
+            display:flex;
+            gap:12px;
+            align-items:center;
+            justify-content:space-between;
+            flex-wrap:wrap;
+            margin-bottom:10px;
+        }
+
+        .task-no{
+            display:inline-block;
+            border:2px solid var(--line);
+            background:var(--accent-3);
+            box-shadow:var(--shadow-sm);
+            padding:6px 10px;
+            font-weight:900;
+            min-width:64px;
+            text-align:center;
+        }
+
+        .task-tags{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+        }
+
+        .tag{
+            border:2px solid var(--line);
+            padding:4px 8px;
+            font-size:12px;
+            font-weight:800;
+            text-transform:uppercase;
+            background:var(--bg);
+        }
+
+        .task-text{
+            margin:0 0 14px;
+            white-space:normal;
+        }
+
+        .task-actions{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-bottom:10px;
+        }
+
+        .mini-btn{
+            border:2px solid var(--line);
+            background:var(--panel);
+            color:var(--ink);
+            box-shadow:var(--shadow-sm);
+            font-weight:800;
+            padding:9px 12px;
+            cursor:pointer;
+            text-transform:uppercase;
+            font-size:12px;
+        }
+
+        .answer-box, .note-box{
+            border:2px solid var(--line);
+            background:var(--bg);
+            padding:12px;
+            margin-top:10px;
+            display:none;
+        }
+
+        .answer-box.open, .note-box.open{
+            display:block;
+        }
+
+        .answer-title, .note-title{
+            font-weight:900;
+            text-transform:uppercase;
+            margin-bottom:8px;
+        }
+
+        .answer-inline{
+            font-size:20px;
+            font-weight:900;
+            color:var(--accent-2);
+        }
+
+        .answers-table-wrap{
+            overflow:auto;
+            border:2px solid var(--line);
+            background:var(--panel);
+            box-shadow:var(--shadow);
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            min-width:560px;
+        }
+
+        th, td{
+            border-bottom:2px solid var(--line);
+            padding:12px 14px;
+            text-align:left;
+            vertical-align:top;
+        }
+
+        th{
+            background:var(--accent);
+            color:#111;
+            text-transform:uppercase;
+            letter-spacing:.03em;
+        }
+
+        tr:nth-child(even) td{
+            background:rgba(0,0,0,0.03);
+        }
+
+        .footnote{
+            margin-top:12px;
+            border:2px solid var(--line);
+            background:var(--bg);
+            padding:12px;
+            font-size:14px;
+        }
+
+        .muted{
+            color:var(--muted);
+        }
+
+        .hidden{
+            display:none !important;
+        }
+
+        .answer-col-global{
+            display:none;
+        }
+
+        .show-all-answers .answer-col-global{
+            display:table-cell;
+        }
+
+        .show-all-answers .answer-box{
+            display:block;
+        }
+
+        .show-notes .note-box{
+            display:block;
+        }
+
+        .footer{
+            margin-top:26px;
+            border:2px solid var(--line);
+            background:var(--panel);
+            box-shadow:var(--shadow);
+            padding:18px;
+        }
+
+        .footer strong{
+            color:var(--accent-2);
+            text-transform:uppercase;
+        }
+
+        @media (max-width: 1080px){
+            .layout{
+                grid-template-columns: 1fr;
+            }
+            .sidebar{
+                position:static;
+            }
+            .subhero{
+                grid-template-columns:1fr;
+            }
+        }
+
+        @media (max-width: 860px){
+            .controls{
+                grid-template-columns:1fr 1fr;
+            }
+            .stats{
+                grid-template-columns:1fr 1fr;
+            }
+        }
+
+        @media (max-width: 560px){
+            .controls{
+                grid-template-columns:1fr;
+            }
+            .stats{
+                grid-template-columns:1fr;
+            }
+            .page{
+                padding:14px 10px 50px;
+            }
+            .task-card, .panel, .hero{
+                box-shadow:var(--shadow-sm);
+            }
+            h1{
+                font-size:32px;
+            }
+        }
+
+        @media print{
+            :root, :root.dark{
+                --bg:#ffffff;
+                --panel:#ffffff;
+                --ink:#000000;
+                --muted:#333333;
+                --line:#000000;
+                --accent:#d9f2ef;
+                --accent-2:#efefef;
+                --accent-3:#f7f7f7;
+                --shadow:none;
+                --shadow-sm:none;
+            }
+            .theme-btn, .controls, .sidebar, .task-actions{
+                display:none !important;
+            }
+            .answer-box, .note-box{
+                display:block !important;
+            }
+            .page{
+                max-width:none;
+                padding:0;
+            }
+            .task-card, .hero, .panel, .answers-table-wrap, .footer{
+                break-inside:avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page" id="app">
+    <section class="hero">
+        <div class="hero-top">
+            <div class="badge-row">
+                <div class="badge">ЕГЭ</div>
+                <div class="badge">Теория вероятностей</div>
+                <div class="badge">Web-пособие</div>
+                <div class="badge">Young brutalism</div>
+            </div>
+            <button class="theme-btn" id="themeBtn" type="button">dark / light</button>
+        </div>
+
+        <h1>Вероятность</h1>
+
+        <div class="blackbar">банк задач + быстрые ответы + удобная навигация</div>
+
+        <div class="subhero">
+            <div class="hero-copy">
+                <p><strong>Что внутри:</strong> полный web-эквивалент пособия по задачам на вероятность. Все задачи собраны в одном месте, а ответы можно открывать по одной карточке или показать сразу все.</p>
+                <p><strong>Как пользоваться:</strong> ищите по словам, фильтруйте карточки по номеру, открывайте ответы локально, а в конце сверяйтесь с общей таблицей.</p>
+            </div>
+            <div class="hero-side">
+                <p><strong>Особенности:</strong></p>
+                <p>• автономная страница без внешних библиотек</p>
+                <p>• print-friendly режим</p>
+                <p>• быстрый показ ответов</p>
+                <p>• заметка к неоднозначной задаче №18</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="controls">
+        <input class="search" id="searchInput" type="text" placeholder="Поиск по номеру, теме или фразе..." />
+        <button class="ctrl-btn" id="showAllAnswersBtn" type="button">показать все ответы</button>
+        <button class="ctrl-btn" id="showNotesBtn" type="button">показать заметки</button>
+        <button class="ctrl-btn" id="expandAllBtn" type="button">открыть все карточки</button>
+        <button class="ctrl-btn" id="collapseAllBtn" type="button">свернуть всё</button>
+    </section>
+
+    <section class="stats">
+        <div class="stat">
+            <div class="label">Всего задач</div>
+            <div class="value" id="totalCount">36</div>
+        </div>
+        <div class="stat">
+            <div class="label">Показано</div>
+            <div class="value" id="visibleCount">36</div>
+        </div>
+        <div class="stat">
+            <div class="label">Ответов</div>
+            <div class="value">36</div>
+        </div>
+        <div class="stat">
+            <div class="label">Формат</div>
+            <div class="value" style="font-size:22px">brutal web</div>
+        </div>
+    </section>
+
+    <div class="layout">
+        <main class="main-column">
+            <h2 class="section-title" id="tasks">Задачи</h2>
+            <div class="task-list" id="taskList"></div>
+
+            <h2 class="section-title" id="answers">Таблица ответов</h2>
+            <div class="answers-table-wrap">
+                <table id="answersTable">
+                    <thead>
+                    <tr>
+                        <th style="width:110px">Номер</th>
+                        <th>Ответ</th>
+                        <th class="answer-col-global">Комментарий</th>
+                    </tr>
+                    </thead>
+                    <tbody id="answersBody"></tbody>
+                </table>
+            </div>
+            <div class="footnote">
+                <strong>Примечание.</strong> В исходной подборке номер 32 встречался дважды. Здесь они обозначены как <strong>32A</strong> и <strong>32B</strong>. Для задачи 18 добавлена поясняющая заметка, потому что без правила остановки формулировка неоднозначна.
+            </div>
+        </main>
+
+        <aside class="sidebar">
+            <div class="panel">
+                <h2>Навигация</h2>
+                <nav class="toc">
+                    <a href="#tasks">К задачам</a>
+                    <a href="#answers">К таблице ответов</a>
+                    <a href="#task-1">Старт с №1</a>
+                    <a href="#task-18">Смотреть №18</a>
+                    <a href="#task-32A">Смотреть №32A</a>
+                    <a href="#task-32B">Смотреть №32B</a>
+                    <a href="#task-36">Смотреть №36</a>
+                </nav>
+            </div>
+
+            <div class="panel">
+                <h3>Легенда</h3>
+                <div class="legend-item"><span class="dot task"></span><span>карточка задачи</span></div>
+                <div class="legend-item"><span class="dot answer"></span><span>ответ / сверка</span></div>
+                <div class="legend-item"><span class="dot note"></span><span>методическая заметка</span></div>
+            </div>
+
+            <div class="panel">
+                <h3>Быстрые подсказки</h3>
+                <p class="muted">Нажмите на кнопку <strong>«показать ответ»</strong> внутри карточки, если хотите сверяться по одной задаче.</p>
+                <p class="muted">Кнопка <strong>«показать все ответы»</strong> открывает сразу всё пособие для проверки.</p>
+                <p class="muted">Поиск понимает номер, например: <strong>11</strong>, <strong>32a</strong>, <strong>батарейка</strong>, <strong>кубик</strong>.</p>
+            </div>
+        </aside>
+    </div>
+
+    <footer class="footer">
+        <strong>математика. наглядно.</strong>
+        <div style="margin-top:8px">Автономный web-эквивалент пособия в стиле молодёжного брутализма: жёсткие рамки, контраст, крупные заголовки, чистая структура и быстрый доступ к ответам.</div>
+    </footer>
+</div>
+
+<script>
+    const tasks = [
+        {
+            id: "1",
+            title: "1",
+            tags: ["хлеб", "вероятность", "события"],
+            text: "При выпечке хлеба производится контрольное взвешивание свежей буханки. Известно, что вероятность того, что её масса окажется меньше 810 г, равна 0,96. Вероятность того, что её масса окажется больше 790 г, равна 0,93. Найдите вероятность того, что масса буханки больше 790 г, но меньше 810 г.",
+            answer: "0,89"
+        },
+        {
+            id: "2",
+            title: "2",
+            tags: ["хлеб", "вероятность", "события"],
+            text: "При выпечке хлеба производится контрольное взвешивание свежей буханки. Известно, что вероятность того, что её масса окажется меньше 810 г, равна 0,97. Вероятность того, что её масса окажется больше 790 г, равна 0,94. Найдите вероятность того, что масса буханки больше 790 г, но меньше 810 г.",
+            answer: "0,91"
+        },
+        {
+            id: "3",
+            title: "3",
+            tags: ["монета", "биномиальная схема"],
+            text: "Перед началом футбольного матча судья бросает монетку, чтобы определить, какая из команд начнёт игру с мячом. Команда «Биолог» играет три матча с разными командами. Найдите вероятность того, что в этих играх «Биолог» выиграет жребий ровно два раза.",
+            answer: "0,375"
+        },
+        {
+            id: "4",
+            title: "4",
+            tags: ["жребий", "независимые испытания"],
+            text: "Перед началом волейбольного матча капитаны команд тянут честный жребий, чтобы определить, какая из команд начнёт игру с мячом. Команда «Статер» по очереди играет с командами «Ротор», «Мотор» и «Монтёр». Найдите вероятность того, что «Статер» будет начинать только вторую игру.",
+            answer: "0,125"
+        },
+        {
+            id: "5",
+            title: "5",
+            tags: ["батарейки", "независимость"],
+            text: "Вероятность того, что батарейка бракованная, равна 0,03. Покупатель в магазине выбирает случайную упаковку, в которой две таких батарейки. Найдите вероятность того, что обе батарейки окажутся исправными.",
+            answer: "0,9409"
+        },
+        {
+            id: "6",
+            title: "6",
+            tags: ["батарейки", "независимость"],
+            text: "Вероятность того, что батарейка бракованная, равна 0,08. Покупатель в магазине выбирает случайную упаковку, в которой две таких батарейки. Найдите вероятность того, что обе батарейки окажутся исправными.",
+            answer: "0,8464"
+        },
+        {
+            id: "7",
+            title: "7",
+            tags: ["кость", "сумма"],
+            text: "Игральную кость бросали до тех пор, пока сумма всех выпавших очков не превысила число 5. Какова вероятность того, что для этого потребовалось два броска? Ответ округлите до сотых.",
+            answer: "0,56"
+        },
+        {
+            id: "8",
+            title: "8",
+            tags: ["кость", "сумма"],
+            text: "Игральную кость бросали до тех пор, пока сумма всех выпавших очков не превысила число 9. Какова вероятность того, что для этого потребовалось три броска? Ответ округлите до сотых.",
+            answer: "0,46"
+        },
+        {
+            id: "9",
+            title: "9",
+            tags: ["футбол", "очки"],
+            text: "Чтобы пройти в следующий круг соревнований, футбольной команде нужно набрать хотя бы 9 очков в двух играх. Если команда выигрывает, она получает 7 очков, в случае ничьей — 2 очка, если проигрывает — 0 очков. Найдите вероятность того, что команде удастся выйти в следующий круг соревнований. Считайте, что в каждой игре вероятности выигрыша и проигрыша одинаковы и равны 0,2.",
+            answer: "0,28"
+        },
+        {
+            id: "10",
+            title: "10",
+            tags: ["шахматы", "независимость"],
+            text: "Если шахматист А. играет белыми фигурами, то он выигрывает у шахматиста Б. с вероятностью 0,5. Если А. играет чёрными, то А. выигрывает у Б. с вероятностью 0,34. Шахматисты А. и Б. играют две партии, причём во второй партии меняют цвет фигур. Найдите вероятность того, что А. выиграет оба раза.",
+            answer: "0,17"
+        },
+        {
+            id: "11",
+            title: "11",
+            tags: ["формула полной вероятности", "фабрики"],
+            text: "Две фабрики выпускают одинаковые стёкла для автомобильных фар. Первая фабрика выпускает 30% этих стёкол, вторая — 70%, причём брак стёкол, изготовленных фабриками, составляет на первой фабрике 5%, на второй — 4%. Найдите вероятность того, что случайно купленное в магазине стекло окажется бракованным.",
+            answer: "0,043"
+        },
+        {
+            id: "12",
+            title: "12",
+            tags: ["формула полной вероятности", "фабрики"],
+            text: "Две фабрики выпускают одинаковые стёкла для автомобильных фар. Первая фабрика выпускает 25% этих стёкол, вторая — 75%, причём брак стёкол, изготовленных фабриками, составляет на первой фабрике 5%, на второй — 1%. Найдите вероятность того, что случайно купленное в магазине стекло окажется бракованным.",
+            answer: "0,02"
+        },
+        {
+            id: "13",
+            title: "13",
+            tags: ["автоматы", "кофе", "объединение событий"],
+            text: "В торговом центре два одинаковых автомата продают кофе. Вероятность того, что к концу дня в автомате закончится кофе, равна 0,25. Вероятность того, что кофе закончится в обоих автоматах, равна 0,1. Найдите вероятность того, что к концу дня кофе останется в обоих автоматах.",
+            answer: "0,6"
+        },
+        {
+            id: "14",
+            title: "14",
+            tags: ["автоматы", "чай", "объединение событий"],
+            text: "В торговом центре два одинаковых автомата продают чай. Вероятность того, что к концу дня в автомате закончится чай, равна 0,2. Вероятность того, что чай закончится в обоих автоматах, равна 0,18. Найдите вероятность того, что к концу дня чай останется в обоих автоматах.",
+            answer: "0,78"
+        },
+        {
+            id: "15",
+            title: "15",
+            tags: ["биатлон", "последовательность исходов"],
+            text: "Биатлонист 4 раза стреляет по мишеням. Вероятность попадания в мишень при одном выстреле равна 0,6. Найдите вероятность того, что биатлонист первые 2 раза попал в мишени, а последние 2 раза промахнулся. Результат округлите до сотых.",
+            answer: "0,06"
+        },
+        {
+            id: "16",
+            title: "16",
+            tags: ["биатлон", "последовательность исходов"],
+            text: "Биатлонист 5 раз стреляет по мишеням. Вероятность попадания в мишень при одном выстреле равна 0,8. Найдите вероятность того, что биатлонист первые 3 раза попал в мишени, а последние 2 раза промахнулся. Результат округлите до сотых.",
+            answer: "0,02"
+        },
+        {
+            id: "17",
+            title: "17",
+            tags: ["условная вероятность", "кубик"],
+            text: "Игральный кубик бросают дважды. Известно, что в сумме выпало 6 очков. Найдите вероятность того, что в первый раз выпало 2 очка.",
+            answer: "0,2"
+        },
+        {
+            id: "18",
+            title: "18",
+            tags: ["кубик", "условная вероятность"],
+            text: "Игральный кубик бросили один или несколько раз. Оказалось, что сумма всех выпавших очков равна 3. Какова вероятность того, что было сделано два броска? Ответ округлите до сотых.",
+            answer: "0,24",
+            note: "Формулировка без правила остановки неоднозначна. Ответ 0,24 получается в естественной модели: кубик бросают до тех пор, пока сумма не станет не меньше 3, и известно, что итоговая сумма равна 3."
+        },
+        {
+            id: "19",
+            title: "19",
+            tags: ["комбинаторика", "разбиение"],
+            text: "В классе 26 учащихся, среди них три подружки — Оля, Аня и Юля. Класс случайным образом разбивают на две равные группы. Найдите вероятность того, что все три девочки окажутся в одной группе.",
+            answer: "0,22"
+        },
+        {
+            id: "20",
+            title: "20",
+            tags: ["комбинаторика", "разбиение"],
+            text: "В группе туристов 15 человек, в том числе три друга — Юра, Боря и Егор. Группу случайным образом разбивают на три равные подгруппы. Найдите вероятность того, что все трое окажутся в разных подгруппах. Ответ округлите до сотых.",
+            answer: "0,27"
+        },
+        {
+            id: "21",
+            title: "21",
+            tags: ["дополнение", "лампы"],
+            text: "Помещение освещается фонарём с тремя лампами. Вероятность перегорания одной лампы в течение года равна 0,3. Найдите вероятность того, что в течение года хотя бы одна лампа не перегорит.",
+            answer: "0,973"
+        },
+        {
+            id: "22",
+            title: "22",
+            tags: ["дополнение", "лампы"],
+            text: "Помещение освещается фонарём с двумя лампами. Вероятность перегорания одной лампы в течение года равна 0,16. Найдите вероятность того, что в течение года хотя бы одна лампа не перегорит.",
+            answer: "0,9744"
+        },
+        {
+            id: "23",
+            title: "23",
+            tags: ["байес", "яйца"],
+            text: "Агрофирма закупает куриные яйца в двух домашних хозяйствах. 95% яиц из первого хозяйства — яйца высшей категории, а из второго хозяйства — 45% яиц высшей категории. Всего высшую категорию получает 60% яиц. Найдите вероятность того, что яйцо, купленное у этой агрофирмы, окажется из первого хозяйства.",
+            answer: "0,3"
+        },
+        {
+            id: "24",
+            title: "24",
+            tags: ["дефект", "контроль качества"],
+            text: "На фабрике керамической посуды 30% произведённых тарелок имеют дефект. При контроле качества продукции выявляется 50% дефектных тарелок. Остальные тарелки поступают в продажу. Найдите вероятность того, что случайно выбранная при покупке тарелка не имеет дефектов. Результат округлите до сотых.",
+            answer: "0,82"
+        },
+        {
+            id: "25",
+            title: "25",
+            tags: ["геометрическое распределение", "мишень"],
+            text: "Стрелок в тире стреляет по мишени до тех пор, пока не поразит её. Известно, что он попадает в цель с вероятностью 0,2 при каждом отдельном выстреле. Сколько раз стрелок должен выстрелить по мишени, чтобы он поразил цель с вероятностью не менее 0,4?",
+            answer: "3"
+        },
+        {
+            id: "26",
+            title: "26",
+            tags: ["повторные выстрелы", "цель"],
+            text: "При артиллерийской стрельбе автоматическая система делает выстрел по цели. Если цель не уничтожена, то система делает повторный выстрел. Выстрелы повторяются до тех пор, пока цель не будет уничтожена. Вероятность уничтожения некоторой цели при первом выстреле равна 0,3, а при каждом последующем — 0,6. Сколько выстрелов потребуется для того, чтобы вероятность уничтожения цели была не менее 0,97?",
+            answer: "5"
+        },
+        {
+            id: "27",
+            title: "27",
+            tags: ["интернет-магазины", "независимость"],
+            text: "По отзывам покупателей Игорь Игоревич оценил надёжность двух интернет-магазинов. Вероятность того, что нужный товар доставят из магазина А, равна 0,8. Вероятность того, что этот товар доставят из магазина Б, равна 0,85. Игорь Игоревич заказал товар сразу в обоих магазинах. Считая, что интернет-магазины работают независимо друг от друга, найдите вероятность того, что ни один магазин не доставит товар.",
+            answer: "0,03"
+        },
+        {
+            id: "28",
+            title: "28",
+            tags: ["интернет-магазины", "независимость"],
+            text: "По отзывам покупателей Пётр Петрович оценил надёжность двух интернет-магазинов. Вероятность того, что нужный товар доставят из магазина А, равна 0,92. Вероятность того, что этот товар доставят из магазина Б, равна 0,85. Пётр Петрович заказал товар сразу в обоих магазинах. Считая, что интернет-магазины работают независимо друг от друга, найдите вероятность того, что ни один магазин не доставит товар вовремя.",
+            answer: "0,012"
+        },
+        {
+            id: "29",
+            title: "29",
+            tags: ["круглый стол", "комбинаторика"],
+            text: "За круглый стол на 11 стульев в случайном порядке рассаживаются 9 мальчиков и 2 девочки. Найдите вероятность того, что между двумя девочками будет сидеть один мальчик.",
+            answer: "0,2"
+        },
+        {
+            id: "30",
+            title: "30",
+            tags: ["круглый стол", "комбинаторика"],
+            text: "За круглый стол на 6 стульев в случайном порядке рассаживаются 4 мальчика и 2 девочки. Найдите вероятность того, что обе девочки не будут сидеть рядом.",
+            answer: "0,6"
+        },
+        {
+            id: "32A",
+            title: "32A",
+            tags: ["фломастеры", "порядок"],
+            text: "В ящике четыре красных и два синих фломастера. Фломастеры вытаскивают по очереди в случайном порядке. Какова вероятность того, что первый раз синий фломастер появится третьим по счёту?",
+            answer: "0,2"
+        },
+        {
+            id: "32B",
+            title: "32B",
+            tags: ["фломастеры", "порядок"],
+            text: "В ящике три красных и три синих фломастера. Фломастеры вытаскивают по очереди в случайном порядке. Какова вероятность того, что первый раз синий фломастер появится третьим по счёту?",
+            answer: "0,15"
+        },
+        {
+            id: "33",
+            title: "33",
+            tags: ["батарейки", "полная вероятность"],
+            text: "Автоматическая линия изготавливает батарейки. Вероятность того, что готовая батарейка неисправна, равна 0,05. Перед упаковкой каждая батарейка проходит систему контроля. Вероятность того, что система забракует неисправную батарейку, равна 0,99. Вероятность того, что система по ошибке забракует исправную батарейку, равна 0,05. Найдите вероятность того, что случайно выбранная изготовленная батарейка будет забракована системой контроля.",
+            answer: "0,097"
+        },
+        {
+            id: "34",
+            title: "34",
+            tags: ["батарейки", "полная вероятность"],
+            text: "Автоматическая линия изготавливает батарейки. Вероятность того, что готовая батарейка неисправна, равна 0,04. Перед упаковкой каждая батарейка проходит систему контроля. Вероятность того, что система забракует неисправную батарейку, равна 0,98. Вероятность того, что система по ошибке забракует исправную батарейку, равна 0,03. Найдите вероятность того, что случайно выбранная изготовленная батарейка будет забракована системой контроля.",
+            answer: "0,068"
+        },
+        {
+            id: "35",
+            title: "35",
+            tags: ["мишени", "биномиальное распределение"],
+            text: "Стрелок стреляет по пяти одинаковым мишеням. На каждую мишень даётся не более двух выстрелов. Известно, что вероятность поразить мишень каждым отдельным выстрелом равна 0,5. Найдите отношение вероятностей событий «стрелок поразит ровно пять мишеней» и «стрелок поразит ровно три мишени».",
+            answer: "0,9"
+        },
+        {
+            id: "36",
+            title: "36",
+            tags: ["мишени", "биномиальное распределение"],
+            text: "Стрелок стреляет по пяти одинаковым мишеням. На каждую мишень даётся не более двух выстрелов. Известно, что вероятность поразить мишень каждым отдельным выстрелом равна 0,8. Во сколько раз вероятность события «стрелок поразит ровно четыре мишени» больше вероятности события «стрелок поразит ровно три мишени».",
+            answer: "12"
+        }
+    ];
+
+    const state = {
+        showAllAnswers: false,
+        showNotes: false,
+        query: ""
+    };
+
+    const taskList = document.getElementById("taskList");
+    const answersBody = document.getElementById("answersBody");
+    const searchInput = document.getElementById("searchInput");
+    const visibleCount = document.getElementById("visibleCount");
+    const totalCount = document.getElementById("totalCount");
+    const app = document.getElementById("app");
+
+    totalCount.textContent = tasks.length;
+
+    function matchesQuery(task, query){
+        if(!query) return true;
+        const q = query.trim().toLowerCase();
+        const hay = [
+            task.id,
+            task.title,
+            task.text,
+            ...(task.tags || []),
+            task.answer,
+            task.note || ""
+        ].join(" ").toLowerCase();
+        return hay.includes(q);
+    }
+
+    function renderTasks(){
+        taskList.innerHTML = "";
+        const filtered = tasks.filter(t => matchesQuery(t, state.query));
+        visibleCount.textContent = filtered.length;
+
+        filtered.forEach(task => {
+            const card = document.createElement("article");
+            card.className = "task-card";
+            card.id = `task-${task.id}`;
+
+            card.innerHTML = `
+          <div class="task-head">
+            <div class="task-no">№ ${task.title}</div>
+            <div class="task-tags">
+              ${(task.tags || []).map(tag => `<span class="tag">${tag}</span>`).join("")}
+            </div>
+          </div>
+          <p class="task-text">${task.text}</p>
+          <div class="task-actions">
+            <button class="mini-btn js-answer-btn" type="button">показать ответ</button>
+            ${task.note ? `<button class="mini-btn js-note-btn" type="button">заметка</button>` : ``}
+          </div>
+          <div class="answer-box ${state.showAllAnswers ? 'open' : ''}">
+            <div class="answer-title">Ответ</div>
+            <div class="answer-inline">${task.answer}</div>
+          </div>
+          ${task.note ? `
+            <div class="note-box ${(state.showNotes ? 'open' : '')}">
+              <div class="note-title">Заметка</div>
+              <div>${task.note}</div>
+            </div>
+          ` : ``}
+        `;
+
+            const answerBtn = card.querySelector(".js-answer-btn");
+            const answerBox = card.querySelector(".answer-box");
+            answerBtn.addEventListener("click", () => {
+                answerBox.classList.toggle("open");
+                answerBtn.textContent = answerBox.classList.contains("open")
+                ? "скрыть ответ"
+                : "показать ответ";
+            });
+
+            const noteBtn = card.querySelector(".js-note-btn");
+            if(noteBtn){
+                const noteBox = card.querySelector(".note-box");
+                noteBtn.addEventListener("click", () => {
+                    noteBox.classList.toggle("open");
+                    noteBtn.textContent = noteBox.classList.contains("open")
+                    ? "скрыть заметку"
+                    : "заметка";
+                });
+            }
+
+            taskList.appendChild(card);
+        });
+    }
+
+    function renderAnswersTable(){
+        answersBody.innerHTML = "";
+        tasks.forEach(task => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+          <td><strong>${task.title}</strong></td>
+          <td>${task.answer}</td>
+          <td class="answer-col-global">${task.note ? task.note : "—"}</td>
+        `;
+            answersBody.appendChild(tr);
+        });
+    }
+
+    function syncGlobalClasses(){
+        app.classList.toggle("show-all-answers", state.showAllAnswers);
+        app.classList.toggle("show-notes", state.showNotes);
+
+        document.getElementById("showAllAnswersBtn").classList.toggle("active", state.showAllAnswers);
+        document.getElementById("showNotesBtn").classList.toggle("active", state.showNotes);
+        document.getElementById("showAllAnswersBtn").textContent = state.showAllAnswers
+        ? "скрыть все ответы"
+        : "показать все ответы";
+        document.getElementById("showNotesBtn").textContent = state.showNotes
+        ? "скрыть заметки"
+        : "показать заметки";
+    }
+
+    function rerender(){
+        syncGlobalClasses();
+        renderTasks();
+        renderAnswersTable();
+    }
+
+    document.getElementById("showAllAnswersBtn").addEventListener("click", () => {
+        state.showAllAnswers = !state.showAllAnswers;
+        rerender();
+    });
+
+    document.getElementById("showNotesBtn").addEventListener("click", () => {
+        state.showNotes = !state.showNotes;
+        rerender();
+    });
+
+    document.getElementById("expandAllBtn").addEventListener("click", () => {
+        document.querySelectorAll(".answer-box").forEach(el => el.classList.add("open"));
+        document.querySelectorAll(".note-box").forEach(el => el.classList.add("open"));
+        document.querySelectorAll(".js-answer-btn").forEach(btn => btn.textContent = "скрыть ответ");
+        document.querySelectorAll(".js-note-btn").forEach(btn => btn.textContent = "скрыть заметку");
+    });
+
+    document.getElementById("collapseAllBtn").addEventListener("click", () => {
+        document.querySelectorAll(".answer-box").forEach(el => el.classList.remove("open"));
+        document.querySelectorAll(".note-box").forEach(el => el.classList.remove("open"));
+        document.querySelectorAll(".js-answer-btn").forEach(btn => btn.textContent = "показать ответ");
+        document.querySelectorAll(".js-note-btn").forEach(btn => btn.textContent = "заметка");
+    });
+
+    searchInput.addEventListener("input", (e) => {
+        state.query = e.target.value;
+        renderTasks();
+    });
+
+    const root = document.documentElement;
+    const themeBtn = document.getElementById("themeBtn");
+    const savedTheme = localStorage.getItem("prob-web-theme");
+    if(savedTheme === "dark"){
+        root.classList.add("dark");
+    }
+
+    themeBtn.addEventListener("click", () => {
+        root.classList.toggle("dark");
+        localStorage.setItem("prob-web-theme", root.classList.contains("dark") ? "dark" : "light");
+    });
+
+    rerender();
+</script>
+</body>
+</html>
