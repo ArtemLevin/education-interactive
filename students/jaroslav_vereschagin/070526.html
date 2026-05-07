@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Степени и стандартный вид числа — web-чек-лист</title>
+    <style>
+        /* Простые переменные: меняем цвета в одном месте */
+        :root {
+            --bg: #f4f1e8;
+            --paper: #fffdf3;
+            --ink: #111111;
+            --muted: #4b4b4b;
+            --red: #b5161a;
+            --blue: #1d4ed8;
+            --yellow: #ffd84d;
+            --green: #12b981;
+            --violet: #7c3aed;
+            --shadow: #111111;
+            --border: #111111;
+            --grid: rgba(0,0,0,0.08);
+        }
+
+        [data-theme="dark"] {
+            --bg: #0e0e10;
+            --paper: #18181b;
+            --ink: #f8f4e8;
+            --muted: #c9c2b3;
+            --red: #ff4d4d;
+            --blue: #60a5fa;
+            --yellow: #facc15;
+            --green: #34d399;
+            --violet: #c084fc;
+            --shadow: #000000;
+            --border: #f8f4e8;
+            --grid: rgba(255,255,255,0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--ink);
+            background:
+            linear-gradient(var(--grid) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+            radial-gradient(circle at 15% 10%, rgba(181,22,26,0.12), transparent 28%),
+            radial-gradient(circle at 82% 20%, rgba(29,78,216,0.12), transparent 25%),
+            radial-gradient(circle at 45% 90%, rgba(250,204,21,0.18), transparent 26%),
+            var(--bg);
+            background-size: 28px 28px, 28px 28px, auto, auto, auto, auto;
+            overflow-x: hidden;
+        }
+
+        .noise {
+            pointer-events: none;
+            position: fixed;
+            inset: 0;
+            opacity: 0.09;
+            z-index: 1000;
+            background-image:
+            repeating-radial-gradient(circle at 0 0, rgba(0,0,0,0.25) 0, rgba(0,0,0,0.25) 1px, transparent 1px, transparent 6px);
+            mix-blend-mode: multiply;
+        }
+
+        [data-theme="dark"] .noise {
+            mix-blend-mode: screen;
+            opacity: 0.06;
+        }
+
+        .wrap {
+            width: min(1180px, calc(100% - 28px));
+            margin: 0 auto;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--ink);
+            color: var(--bg);
+            border-bottom: 3px solid var(--border);
+        }
+
+        .topbar {
+            min-height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 10px 0;
+        }
+
+        .brand {
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .nav a,
+        button {
+            font: inherit;
+        }
+
+        .nav a,
+        .theme-btn,
+        .chaos-btn {
+            color: var(--bg);
+            background: transparent;
+            border: 2px solid var(--bg);
+            text-decoration: none;
+            padding: 7px 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .nav a:hover,
+        .theme-btn:hover,
+        .chaos-btn:hover {
+            background: var(--yellow);
+            color: #111;
+        }
+
+        .hero {
+            padding: 42px 0 24px;
+            position: relative;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 0.75fr;
+            gap: 22px;
+            align-items: stretch;
+        }
+
+        .title-card,
+        .side-card,
+        .card,
+        .formula-card,
+        .practice-card {
+            background: var(--paper);
+            border: 3px solid var(--border);
+            box-shadow: 8px 8px 0 var(--shadow);
+        }
+
+        .title-card {
+            padding: clamp(20px, 4vw, 42px);
+            position: relative;
+            overflow: hidden;
+            min-height: 360px;
+        }
+
+        .stamp {
+            display: inline-block;
+            padding: 8px 12px;
+            background: var(--red);
+            color: #fff;
+            border: 3px solid var(--border);
+            box-shadow: 4px 4px 0 var(--shadow);
+            transform: rotate(-2deg);
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: clamp(42px, 8vw, 94px);
+            line-height: 0.92;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: -0.06em;
+            max-width: 850px;
+        }
+
+        .glitch {
+            position: relative;
+            display: inline-block;
+            text-shadow:
+            3px 0 0 var(--red),
+            -3px 0 0 var(--blue);
+            animation: jitter 1.7s infinite steps(2, end);
+        }
+
+        .chaos .glitch {
+            animation: jitter 0.32s infinite steps(2, end);
+        }
+
+        @keyframes jitter {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(1px, -1px) rotate(-0.25deg); }
+            50% { transform: translate(-1px, 1px) rotate(0.18deg); }
+            75% { transform: translate(1px, 1px) rotate(-0.12deg); }
+        }
+
+        .subtitle {
+            margin: 18px 0 0;
+            max-width: 740px;
+            font-size: clamp(18px, 2.2vw, 28px);
+            font-weight: 800;
+            color: var(--muted);
+        }
+
+        .warning-strip {
+            margin-top: 26px;
+            display: inline-block;
+            background: var(--ink);
+            color: var(--bg);
+            padding: 12px 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            transform: rotate(1deg);
+        }
+
+        .side-card {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 18px;
+            min-height: 360px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lamp {
+            width: 100%;
+            min-height: 180px;
+            display: grid;
+            place-items: center;
+            background:
+            linear-gradient(135deg, transparent 0 45%, rgba(181,22,26,0.12) 45% 55%, transparent 55%),
+            var(--yellow);
+            border: 3px solid var(--border);
+            box-shadow: 5px 5px 0 var(--shadow);
+            font-size: 72px;
+            animation: pulse 1.4s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulse {
+            from { filter: saturate(0.9); transform: rotate(-1deg); }
+            to { filter: saturate(1.5); transform: rotate(1deg) scale(1.02); }
+        }
+
+        .side-card h2 {
+            margin: 0;
+            font-size: 28px;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        .side-card p {
+            margin: 0;
+            font-size: 18px;
+            line-height: 1.35;
+            font-weight: 700;
+        }
+
+        .ticker {
+            width: 100%;
+            overflow: hidden;
+            border-block: 3px solid var(--border);
+            background: var(--red);
+            color: #fff;
+            font-weight: 900;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .ticker span {
+            display: inline-block;
+            padding: 10px 0;
+            animation: move 16s linear infinite;
+        }
+
+        @keyframes move {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        main {
+            padding: 26px 0 60px;
+        }
+
+        .section {
+            scroll-margin-top: 92px;
+            margin: 34px 0;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .num {
+            flex: 0 0 auto;
+            width: 54px;
+            height: 54px;
+            display: grid;
+            place-items: center;
+            background: var(--red);
+            color: #fff;
+            border: 3px solid var(--border);
+            box-shadow: 5px 5px 0 var(--shadow);
+            font-size: 30px;
+            font-weight: 900;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: clamp(28px, 4vw, 50px);
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -0.04em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 18px;
+        }
+
+        .card {
+            padding: 20px;
+            grid-column: span 6;
+            position: relative;
+        }
+
+        .card.wide {
+            grid-column: span 12;
+        }
+
+        .card.third {
+            grid-column: span 4;
+        }
+
+        .card h3 {
+            margin: 0 0 12px;
+            font-size: 24px;
+            text-transform: uppercase;
+            line-height: 1;
+            color: var(--red);
+        }
+
+        p, li {
+            font-size: 18px;
+            line-height: 1.45;
+        }
+
+        .card p {
+            margin-top: 0;
+        }
+
+        .formula {
+            display: inline-block;
+            background: var(--yellow);
+            color: #111;
+            border: 2px solid #111;
+            padding: 4px 7px;
+            font-weight: 900;
+            white-space: nowrap;
+            margin: 2px 0;
+        }
+
+        .math-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .formula-card {
+            padding: 14px;
+            font-size: 20px;
+            font-weight: 900;
+            line-height: 1.35;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            transform: rotate(-0.3deg);
+        }
+
+        .formula-card:nth-child(even) {
+            transform: rotate(0.35deg);
+        }
+
+        .formula-card .tag {
+            background: var(--ink);
+            color: var(--bg);
+            padding: 5px 8px;
+            text-transform: uppercase;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        sup {
+            font-size: 0.7em;
+            line-height: 0;
+        }
+
+        .board {
+            background: var(--ink);
+            color: var(--bg);
+            border: 3px solid var(--border);
+            box-shadow: 8px 8px 0 var(--shadow);
+            padding: 20px;
+        }
+
+        .board h3 {
+            color: var(--yellow);
+            margin: 0 0 12px;
+            font-size: 28px;
+            text-transform: uppercase;
+        }
+
+        .board .formula {
+            background: var(--paper);
+            color: var(--ink);
+            border-color: var(--bg);
+        }
+
+        .steps {
+            counter-reset: step;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .steps li {
+            counter-increment: step;
+            padding: 12px 12px 12px 58px;
+            margin: 10px 0;
+            background: var(--paper);
+            border: 2px solid var(--border);
+            position: relative;
+            font-weight: 700;
+        }
+
+        .steps li::before {
+            content: counter(step);
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            background: var(--red);
+            color: #fff;
+            border: 2px solid var(--border);
+            font-weight: 900;
+        }
+
+        .interactive {
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: 18px;
+            align-items: stretch;
+        }
+
+        .panel {
+            background: var(--paper);
+            border: 3px solid var(--border);
+            box-shadow: 8px 8px 0 var(--shadow);
+            padding: 18px;
+        }
+
+        .panel h3 {
+            margin: 0 0 12px;
+            text-transform: uppercase;
+            color: var(--red);
+            font-size: 26px;
+        }
+
+        label {
+            display: block;
+            margin: 12px 0 6px;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg);
+            color: var(--ink);
+            border: 3px solid var(--border);
+            font-size: 18px;
+            font-weight: 800;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            box-shadow: 4px 4px 0 var(--red);
+        }
+
+        .big-btn {
+            margin-top: 14px;
+            width: 100%;
+            padding: 14px;
+            border: 3px solid var(--border);
+            background: var(--red);
+            color: #fff;
+            box-shadow: 5px 5px 0 var(--shadow);
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .big-btn:hover {
+            background: var(--yellow);
+            color: #111;
+        }
+
+        .result {
+            min-height: 180px;
+            background: var(--ink);
+            color: var(--bg);
+            border: 3px solid var(--border);
+            padding: 18px;
+            font-size: 22px;
+            font-weight: 900;
+            line-height: 1.45;
+            overflow-wrap: anywhere;
+        }
+
+        .quiz {
+            display: grid;
+            gap: 14px;
+        }
+
+        .quiz-card {
+            padding: 16px;
+            background: var(--paper);
+            border: 3px solid var(--border);
+            box-shadow: 5px 5px 0 var(--shadow);
+        }
+
+        .quiz-card strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .option {
+            color: var(--ink);
+            background: var(--bg);
+            border: 2px solid var(--border);
+            padding: 9px 12px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .option.correct {
+            background: var(--green);
+            color: #111;
+        }
+
+        .option.wrong {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .footer {
+            padding: 26px 0 38px;
+            background: var(--ink);
+            color: var(--bg);
+            border-top: 3px solid var(--border);
+            text-align: center;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .skew {
+            transform: rotate(-1deg);
+        }
+
+        .chaos .card:nth-child(odd),
+        .chaos .panel:nth-child(odd),
+        .chaos .formula-card:nth-child(odd) {
+            animation: tinyShake 0.5s infinite steps(2, end);
+        }
+
+        @keyframes tinyShake {
+            0%, 100% { transform: translate(0,0) rotate(-0.4deg); }
+            50% { transform: translate(1px,-1px) rotate(0.5deg); }
+        }
+
+        @media (max-width: 880px) {
+            .hero-grid,
+            .interactive {
+                grid-template-columns: 1fr;
+            }
+
+            .card,
+            .card.third {
+                grid-column: span 12;
+            }
+
+            .nav {
+                display: none;
+            }
+
+            h1 {
+                font-size: 48px;
+            }
+        }
+
+        @media print {
+            header,
+            .ticker,
+            .noise,
+            .interactive,
+            .quiz,
+            .theme-btn,
+            .chaos-btn {
+                display: none !important;
+            }
+
+            body {
+                background: #fff;
+                color: #000;
+            }
+
+            .card,
+            .title-card,
+            .side-card,
+            .board,
+            .formula-card {
+                box-shadow: none;
+                break-inside: avoid;
+            }
+
+            .section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="noise"></div>
+
+<header>
+    <div class="wrap topbar">
+        <div class="brand">8 класс · степени · стандартный вид</div>
+        <nav class="nav">
+            <a href="#rules">Правила</a>
+            <a href="#negative">Минус-степени</a>
+            <a href="#standard">Стандартный вид</a>
+            <a href="#trainer">Тренажёр</a>
+            <button class="theme-btn" id="themeBtn">LIGHT / DARK</button>
+            <button class="chaos-btn" id="chaosBtn">ХАОС</button>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="wrap hero-grid">
+        <div class="title-card">
+            <div class="stamp">чек-лист без паники</div>
+            <h1><span class="glitch">Степени</span><br>и стандартный<br>вид числа</h1>
+            <p class="subtitle">
+                Свойства степеней, отрицательные показатели, десятичные дроби через 10<sup>n</sup>
+                и запись чисел в научном формате.
+            </p>
+            <div class="warning-strip">если есть только умножение — группируем множители</div>
+        </div>
+
+        <aside class="side-card">
+            <div class="lamp">💡</div>
+            <h2>Главный нерв темы</h2>
+            <p>
+                Степень — это не магия. Это способ быстро управлять повторяющимся умножением:
+                показатели складываются, вычитаются или перемножаются строго по ситуации.
+            </p>
+        </aside>
+    </div>
+</section>
+
+<div class="ticker">
+    <span>
+      степень · основание · показатель · отрицательная степень · нулевая степень · стандартный вид · 1 ≤ a &lt; 10 ·
+      степень · основание · показатель · отрицательная степень · нулевая степень · стандартный вид · 1 ≤ a &lt; 10 ·
+    </span>
+</div>
+
+<main class="wrap">
+    <section class="section" id="rules">
+        <div class="section-title">
+            <div class="num">1</div>
+            <h2>Базовые свойства степеней</h2>
+        </div>
+
+        <div class="grid">
+            <div class="formula-card card third">
+                <span><span class="formula">a<sup>m</sup> · a<sup>n</sup> = a<sup>m+n</sup></span></span>
+                <span class="tag">умножение</span>
+            </div>
+
+            <div class="formula-card card third">
+                <span><span class="formula">a<sup>m</sup> / a<sup>n</sup> = a<sup>m−n</sup></span></span>
+                <span class="tag">деление</span>
+            </div>
+
+            <div class="formula-card card third">
+                <span><span class="formula">(a<sup>m</sup>)<sup>n</sup> = a<sup>mn</sup></span></span>
+                <span class="tag">степень степени</span>
+            </div>
+
+            <div class="card">
+                <h3>Нулевая степень</h3>
+                <p>
+                    Любое ненулевое число в нулевой степени равно единице:
+                    <span class="formula">a<sup>0</sup> = 1, a ≠ 0</span>.
+                </p>
+                <p>
+                    Поэтому <span class="formula">y<sup>−6</sup> / y<sup>−6</sup> = y<sup>0</sup> = 1</span>.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Отрицательная степень</h3>
+                <p>
+                    Минус в показателе не делает число отрицательным. Он переносит множитель в знаменатель:
+                    <span class="formula">a<sup>−n</sup> = 1 / a<sup>n</sup></span>.
+                </p>
+                <p>
+                    Например: <span class="formula">2<sup>−3</sup> = 1/8</span>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="negative">
+        <div class="section-title">
+            <div class="num">2</div>
+            <h2>Отрицательные показатели без ошибок</h2>
+        </div>
+
+        <div class="grid">
+            <div class="board card wide">
+                <h3>Классический пример</h3>
+                <p>
+                    <span class="formula">0,5<sup>−2</sup></span>
+                    лучше считать не как десятичную дробь, а как обыкновенную:
+                </p>
+                <p>
+                    <span class="formula">0,5 = 1/2</span>,
+                    значит
+                    <span class="formula">(1/2)<sup>−2</sup> = (2/1)<sup>2</sup> = 4</span>.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Правило для дроби</h3>
+                <p>
+                    Если степень отрицательная у дроби, дробь переворачивается:
+                </p>
+                <div class="math-row">
+                    <span class="formula">(a/b)<sup>−n</sup> = (b/a)<sup>n</sup></span>
+                </div>
+                <p>
+                    Это работает только если знаменатель не равен нулю.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Что лучше делать</h3>
+                <ol class="steps">
+                    <li>Десятичную дробь перевести в обыкновенную.</li>
+                    <li>Отрицательную степень заменить переворотом.</li>
+                    <li>Возвести числитель и знаменатель в нужную степень.</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-title">
+            <div class="num">3</div>
+            <h2>Упрощение одночленов</h2>
+        </div>
+
+        <div class="grid">
+            <div class="card wide">
+                <h3>Собираем похожие множители</h3>
+                <p>
+                    При умножении и делении одночленов отдельно работаем с числами, отдельно с каждой буквой.
+                </p>
+
+                <div class="board">
+                    <h3>Пример</h3>
+                    <p>
+                        <span class="formula">64x<sup>−8</sup>y<sup>−6</sup> / 16x<sup>−9</sup>y<sup>−6</sup></span>
+                    </p>
+                    <p>
+                        Числа: <span class="formula">64 / 16 = 4</span>
+                    </p>
+                    <p>
+                        Икс: <span class="formula">x<sup>−8</sup> / x<sup>−9</sup> = x<sup>−8−(−9)</sup> = x</span>
+                    </p>
+                    <p>
+                        Игрек: <span class="formula">y<sup>−6</sup> / y<sup>−6</sup> = y<sup>0</sup> = 1</span>
+                    </p>
+                    <p>
+                        Ответ: <span class="formula">4x</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Важный микро-вывод</h3>
+                <p>
+                    Если показатель стал нулём, множитель исчезает не потому, что он равен нулю,
+                    а потому что он равен единице.
+                </p>
+                <p><span class="formula">a<sup>0</sup> = 1</span></p>
+            </div>
+
+            <div class="card">
+                <h3>Главная ловушка</h3>
+                <p>
+                    При делении показатели вычитаются:
+                    <span class="formula">m − n</span>.
+                    Если второй показатель отрицательный, получается вычитание отрицательного числа.
+                </p>
+                <p><span class="formula">−8 − (−9) = 1</span></p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-title">
+            <div class="num">4</div>
+            <h2>Произведение как одна степень</h2>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>Алгоритм</h3>
+                <ol class="steps">
+                    <li>Разложите число на степень.</li>
+                    <li>Проверьте, есть ли общий показатель.</li>
+                    <li>Вынесите общую степень за скобки.</li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <h3>Пример 1</h3>
+                <p>
+                    <span class="formula">0,0001x<sup>−4</sup></span>
+                </p>
+                <p>
+                    <span class="formula">0,0001 = 10<sup>−4</sup></span>
+                </p>
+                <p>
+                    <span class="formula">10<sup>−4</sup>x<sup>−4</sup> = (10x)<sup>−4</sup></span>
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Пример 2</h3>
+                <p>
+                    <span class="formula">32y<sup>−5</sup></span>
+                </p>
+                <p>
+                    <span class="formula">32 = 2<sup>5</sup></span>
+                </p>
+                <p>
+                    <span class="formula">2<sup>5</sup>y<sup>−5</sup> = (2y<sup>−1</sup>)<sup>5</sup></span>
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>С параметром n</h3>
+                <p>
+                    <span class="formula">10<sup>n</sup>x<sup>−2n</sup>y<sup>3n</sup></span>
+                </p>
+                <p>
+                    Выносим общий показатель <span class="formula">n</span>:
+                </p>
+                <p>
+                    <span class="formula">(10x<sup>−2</sup>y<sup>3</sup>)<sup>n</sup></span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="standard">
+        <div class="section-title">
+            <div class="num">5</div>
+            <h2>Стандартный вид числа</h2>
+        </div>
+
+        <div class="grid">
+            <div class="card wide">
+                <h3>Определение</h3>
+                <p>
+                    Стандартный вид числа — это запись:
+                    <span class="formula">a · 10<sup>n</sup></span>,
+                    где <span class="formula">1 ≤ a &lt; 10</span>, а <span class="formula">n</span> — целое число.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Большое число</h3>
+                <p>
+                    <span class="formula">52000000 = 5,2 · 10<sup>7</sup></span>
+                </p>
+                <p>
+                    Запятую перенесли влево на 7 знаков, поэтому степень положительная.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Малое число</h3>
+                <p>
+                    <span class="formula">0,00281 = 2,81 · 10<sup>−3</sup></span>
+                </p>
+                <p>
+                    Запятую перенесли вправо на 3 знака, поэтому степень отрицательная.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Умножение стандартных видов</h3>
+                <p>
+                    <span class="formula">(3,25 · 10<sup>2</sup>)(1,4 · 10<sup>3</sup>)</span>
+                </p>
+                <p>
+                    Здесь только умножение, поэтому группируем:
+                </p>
+                <p>
+                    <span class="formula">(3,25 · 1,4)(10<sup>2</sup> · 10<sup>3</sup>) = 4,55 · 10<sup>5</sup></span>
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Не делайте «фонтанчик»</h3>
+                <p>
+                    Если между скобками стоит умножение, не нужно перемножать каждый элемент с каждым.
+                    Просто группируйте множители.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="trainer">
+        <div class="section-title">
+            <div class="num">6</div>
+            <h2>Тренажёр хаоса</h2>
+        </div>
+
+        <div class="interactive">
+            <div class="panel">
+                <h3>Генератор примеров</h3>
+
+                <label for="taskType">Тип задания</label>
+                <select id="taskType">
+                    <option value="multiply">Умножение степеней</option>
+                    <option value="divide">Деление степеней</option>
+                    <option value="negative">Отрицательная степень</option>
+                    <option value="standardBig">Стандартный вид: большое число</option>
+                    <option value="standardSmall">Стандартный вид: малое число</option>
+                </select>
+
+                <button class="big-btn" id="generateBtn">Сгенерировать</button>
+                <button class="big-btn" id="showAnswerBtn">Показать ответ</button>
+            </div>
+
+            <div class="result" id="taskBox">
+                Нажмите «Сгенерировать», и пример появится здесь.
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-title">
+            <div class="num">7</div>
+            <h2>Мини-квиз</h2>
+        </div>
+
+        <div class="quiz" id="quiz">
+            <div class="quiz-card" data-answer="b">
+                <strong>1. Чему равно 0,5<sup>−2</sup>?</strong>
+                <div class="options">
+                    <button class="option" data-choice="a">0,25</button>
+                    <button class="option" data-choice="b">4</button>
+                    <button class="option" data-choice="c">−0,25</button>
+                </div>
+            </div>
+
+            <div class="quiz-card" data-answer="c">
+                <strong>2. Как записать 0,00052 в стандартном виде?</strong>
+                <div class="options">
+                    <button class="option" data-choice="a">52 · 10<sup>−5</sup></button>
+                    <button class="option" data-choice="b">0,52 · 10<sup>−3</sup></button>
+                    <button class="option" data-choice="c">5,2 · 10<sup>−4</sup></button>
+                </div>
+            </div>
+
+            <div class="quiz-card" data-answer="a">
+                <strong>3. Чему равно x<sup>7</sup> · x<sup>−3</sup>?</strong>
+                <div class="options">
+                    <button class="option" data-choice="a">x<sup>4</sup></button>
+                    <button class="option" data-choice="b">x<sup>−21</sup></button>
+                    <button class="option" data-choice="c">x<sup>10</sup></button>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="footer">
+    Артём Александрович Лёвин · эксклюзивно для Ярослава Верещагина
+</footer>
+
+<script>
+    // Тут храним текущий пример, чтобы потом показать ответ.
+    let currentAnswer = "";
+
+    const body = document.body;
+    const themeBtn = document.getElementById("themeBtn");
+    const chaosBtn = document.getElementById("chaosBtn");
+    const generateBtn = document.getElementById("generateBtn");
+    const showAnswerBtn = document.getElementById("showAnswerBtn");
+    const taskType = document.getElementById("taskType");
+    const taskBox = document.getElementById("taskBox");
+
+    // Включаем сохранённую тему, чтобы после обновления страницы всё осталось как было.
+    const savedTheme = localStorage.getItem("theme") || "light";
+    document.documentElement.dataset.theme = savedTheme;
+
+    // Переключение светлой и тёмной темы.
+    themeBtn.addEventListener("click", () => {
+        const now = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+        document.documentElement.dataset.theme = now;
+        localStorage.setItem("theme", now);
+    });
+
+    // Хаос-режим просто добавляет больше дрожания.
+    chaosBtn.addEventListener("click", () => {
+        body.classList.toggle("chaos");
+    });
+
+    // Случайное целое число в диапазоне.
+    function rand(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // Красиво пишем степень в HTML.
+    function pow(base, exp) {
+        return `${base}<sup>${exp}</sup>`;
+    }
+
+    // Генератор примеров.
+    function generateTask() {
+        const type = taskType.value;
+
+        if (type === "multiply") {
+            const a = rand(-6, 8);
+            const b = rand(-6, 8);
+            const sum = a + b;
+            taskBox.innerHTML = `Упростите:<br><br><span class="formula">x<sup>${a}</sup> · x<sup>${b}</sup></span>`;
+            currentAnswer = `Показатели складываются: ${a} + ${b} = ${sum}.<br>Ответ: <span class="formula">x<sup>${sum}</sup></span>.`;
+        }
+
+        if (type === "divide") {
+            const a = rand(-4, 9);
+            const b = rand(-4, 9);
+            const diff = a - b;
+            taskBox.innerHTML = `Упростите:<br><br><span class="formula">x<sup>${a}</sup> / x<sup>${b}</sup></span>`;
+            currentAnswer = `Показатели вычитаются: ${a} − (${b}) = ${diff}.<br>Ответ: <span class="formula">x<sup>${diff}</sup></span>.`;
+        }
+
+        if (type === "negative") {
+            const base = rand(2, 7);
+            const exp = rand(2, 4);
+            const value = Math.pow(base, exp);
+            taskBox.innerHTML = `Вычислите:<br><br><span class="formula">${base}<sup>−${exp}</sup></span>`;
+            currentAnswer = `Отрицательная степень переносит в знаменатель:<br><span class="formula">${base}<sup>−${exp}</sup> = 1/${base}<sup>${exp}</sup> = 1/${value}</span>.`;
+        }
+
+        if (type === "standardBig") {
+            const a = rand(11, 98);
+            const zeros = rand(3, 7);
+            const num = String(a) + "0".repeat(zeros);
+            const first = String(a)[0] + "," + String(a).slice(1);
+            const power = zeros + 1;
+            taskBox.innerHTML = `Запишите в стандартном виде:<br><br><span class="formula">${num}</span>`;
+            currentAnswer = `Запятая уходит влево. Получаем:<br><span class="formula">${first} · 10<sup>${power}</sup></span>.`;
+        }
+
+        if (type === "standardSmall") {
+            const a = rand(11, 98);
+            const zeros = rand(2, 5);
+            const num = "0," + "0".repeat(zeros) + String(a);
+            const first = String(a)[0] + "," + String(a).slice(1);
+            const power = -(zeros + 1);
+            taskBox.innerHTML = `Запишите в стандартном виде:<br><br><span class="formula">${num}</span>`;
+            currentAnswer = `Запятая идёт вправо, поэтому степень отрицательная:<br><span class="formula">${first} · 10<sup>${power}</sup></span>.`;
+        }
+    }
+
+    generateBtn.addEventListener("click", generateTask);
+
+    showAnswerBtn.addEventListener("click", () => {
+        if (!currentAnswer) {
+            taskBox.innerHTML = "Сначала сгенерируйте пример.";
+            return;
+        }
+
+        taskBox.innerHTML += `<hr style="border:0;border-top:3px solid currentColor;margin:16px 0;">${currentAnswer}`;
+    });
+
+    // Проверка мини-квиза.
+    document.querySelectorAll(".quiz-card").forEach((card) => {
+        const answer = card.dataset.answer;
+
+        card.querySelectorAll(".option").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                card.querySelectorAll(".option").forEach((b) => {
+                    b.classList.remove("correct", "wrong");
+                });
+
+                if (btn.dataset.choice === answer) {
+                    btn.classList.add("correct");
+                } else {
+                    btn.classList.add("wrong");
+                    const right = card.querySelector(`[data-choice="${answer}"]`);
+                    right.classList.add("correct");
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
