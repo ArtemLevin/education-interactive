@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BASH-СКРИПТЫ: МОДУЛИ 1-2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #ffffff;
+            color: #000000;
+            line-height: 1.4;
+            font-size: 14px;
+            border: 8px solid #000;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 900;
+            text-transform: uppercase;
+            border-bottom: 8px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+
+        h2 {
+            font-size: 32px;
+            font-weight: 900;
+            text-transform: uppercase;
+            border: 4px solid #000;
+            padding: 15px;
+            margin: 40px 0 20px 0;
+            background-color: #000;
+            color: #fff;
+        }
+
+        h3 {
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-left: 8px solid #000;
+            padding-left: 15px;
+            margin: 30px 0 15px 0;
+        }
+
+        h4 {
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin: 25px 0 10px 0;
+            text-decoration: underline;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin: 15px 0 15px 30px;
+            padding-left: 20px;
+            border-left: 4px solid #000;
+        }
+
+        li {
+            margin-bottom: 10px;
+            padding-left: 10px;
+        }
+
+        .code-block {
+            background-color: #000;
+            color: #0f0;
+            padding: 20px;
+            margin: 20px 0;
+            border: 4px solid #000;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.5;
+        }
+
+        .inline-code {
+            background-color: #000;
+            color: #fff;
+            padding: 2px 6px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            border: 2px solid #000;
+        }
+
+        .warning {
+            background-color: #ff0000;
+            color: #fff;
+            border: 6px solid #000;
+            padding: 20px;
+            margin: 30px 0;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .warning::before {
+            content: "⚠️ ВНИМАНИЕ: ";
+            font-size: 20px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .tip {
+            background-color: #ffff00;
+            color: #000;
+            border: 6px solid #000;
+            padding: 20px;
+            margin: 30px 0;
+            font-weight: bold;
+        }
+
+        .tip::before {
+            content: "💡 СОВЕТ: ";
+            font-size: 20px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .nuance {
+            background-color: #ffa500;
+            color: #000;
+            border: 6px solid #000;
+            padding: 20px;
+            margin: 30px 0;
+            font-weight: bold;
+        }
+
+        .nuance::before {
+            content: "🔍 НЮАНС: ";
+            font-size: 20px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .checklist {
+            background-color: #e0e0e0;
+            border: 6px solid #000;
+            padding: 20px;
+            margin: 40px 0;
+        }
+
+        .checklist h3 {
+            margin-top: 0;
+            border: none;
+            padding: 0;
+            text-align: center;
+            font-size: 28px;
+            background-color: #000;
+            color: #fff;
+            padding: 10px;
+            margin: -20px -20px 20px -20px;
+        }
+
+        .checklist ol {
+            border: none;
+            margin-left: 0;
+        }
+
+        .checklist li {
+            padding: 10px;
+            margin-bottom: 15px;
+            background-color: #fff;
+            border: 3px solid #000;
+            list-style: none;
+            counter-increment: item;
+        }
+
+        .checklist li::before {
+            content: counter(item) ". ";
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .section-number {
+            display: inline-block;
+            background-color: #000;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            margin-right: 10px;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        strong {
+            background-color: #ffff00;
+            padding: 0 4px;
+        }
+
+        em {
+            text-decoration: underline;
+            font-style: normal;
+        }
+
+        .toc {
+            background-color: #000;
+            color: #fff;
+            padding: 30px;
+            margin: 40px 0;
+            border: 6px solid #000;
+        }
+
+        .toc h2 {
+            margin-top: 0;
+            background-color: #fff;
+            color: #000;
+            border: 4px solid #fff;
+        }
+
+        .toc ul {
+            border: none;
+            margin-left: 0;
+            list-style: none;
+        }
+
+        .toc li {
+            padding: 8px 0;
+            border-bottom: 2px dashed #666;
+            padding-left: 0;
+        }
+
+        .toc a {
+            color: #0f0;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            background-color: #0f0;
+            color: #000;
+        }
+
+        .footer {
+            background-color: #000;
+            color: #fff;
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+            border: 6px solid #000;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .footer-quote {
+            font-style: italic;
+            margin-top: 20px;
+            padding: 20px;
+            border: 4px solid #fff;
+            color: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 4px solid #000;
+        }
+
+        th, td {
+            border: 3px solid #000;
+            padding: 12px;
+            text-align: left;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        th {
+            background-color: #000;
+            color: #fff;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        tr:nth-child(even) {
+            background-color: #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                border: 4px solid #000;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .code-block {
+                font-size: 11px;
+                padding: 10px;
+            }
+        }
+
+        .highlight-red {
+            background-color: #ff0000;
+            color: #fff;
+            padding: 2px 6px;
+        }
+
+        .highlight-green {
+            background-color: #00ff00;
+            color: #000;
+            padding: 2px 6px;
+        }
+
+        .arrow {
+            display: inline-block;
+            margin: 0 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>BASH-СКРИПТЫ<br>МОДУЛИ 1–2</h1>
+
+    <p style="font-size: 18px; margin-bottom: 40px; border-bottom: 4px solid #000; padding-bottom: 20px;">
+        БАЗОВЫЙ СИНТАКСИС, ПЕРЕМЕННЫЕ, УСЛОВИЯ, ЦИКЛЫ И ФУНКЦИИ
+    </p>
+
+    <div class="toc">
+        <h2>СОДЕРЖАНИЕ</h2>
+        <ul>
+            <li><a href="#intro">0. ВВЕДЕНИЕ</a></li>
+            <li><a href="#structure">1. СТРУКТУРА СКРИПТА И ПРАВА ДОСТУПА</a></li>
+            <li><a href="#strict">2. СТРОГИЙ РЕЖИМ: SET -EUO PIPEFAIL</a></li>
+            <li><a href="#variables">3. ПЕРЕМЕННЫЕ, АРГУМЕНТЫ И ПОДСТАНОВКА</a></li>
+            <li><a href="#quotes">4. КАВЫЧКИ: ПРАВИЛА ВЫЖИВАНИЯ</a></li>
+            <li><a href="#conditions">5. УСЛОВИЯ И СОВРЕМЕННЫЕ ТЕСТЫ [[ ... ]]</a></li>
+            <li><a href="#loops">6. ЦИКЛЫ И БЕЗОПАСНЫЙ ПЕРЕБОР</a></li>
+            <li><a href="#functions">7. ФУНКЦИИ, ОБЛАСТЬ ВИДИМОСТИ И LOCAL</a></li>
+            <li><a href="#errors">8. ОБРАБОТКА ОШИБОК И ПОТОКИ ВЫВОДА</a></li>
+            <li><a href="#checklist">9. ЧЕК-ЛИСТ ЛУЧШИХ ПРАКТИК</a></li>
+        </ul>
+    </div>
+
+    <section id="intro">
+        <h2><span class="section-number">0</span>ВВЕДЕНИЕ</h2>
+        <p>Данное пособие систематизирует теорию и лучшие практики первых двух модулей обучения. Фокус сделан на <strong>БЕЗОПАСНОСТИ</strong>, <strong>ЧИТАЕМОСТИ</strong> и <strong>СОВРЕМЕННЫХ СТАНДАРТАХ BASH 4+/5</strong>. Все примеры предполагают запуск в изолированной директории (например, <span class="inline-code">mkdir -p ~/bash_sandbox</span>).</p>
+
+        <div class="warning">
+            НИКОГДА НЕ ТЕСТИРУЙТЕ СКРИПТЫ С <span class="inline-code">rm</span>, <span class="inline-code">curl</span> С ЗАПИСЬЮ В ФАЙЛ ИЛИ <span class="inline-code">sudo</span> В СИСТЕМНЫХ ПАПКАХ. ИСПОЛЬЗУЙТЕ <span class="inline-code">echo</span> ДЛЯ DRY-RUN ДО ПОЛНОЙ ОТЛАДКИ.
+        </div>
+    </section>
+
+    <section id="structure">
+        <h2><span class="section-number">1</span>СТРУКТУРА СКРИПТА И ПРАВА ДОСТУПА</h2>
+        <p>Каждый исполняемый Bash-скрипт начинается с двух обязательных элементов.</p>
+
+        <h3>1.1 Shebang</h3>
+        <div class="code-block">#!/bin/bash</div>
+        <ul>
+            <li>Должен быть <strong>ПЕРВОЙ СТРОКОЙ</strong> файла без пробелов или пустых строк до него.</li>
+            <li><span class="inline-code">#!/bin/bash</span> явно указывает на интерпретатор Bash. <span class="inline-code">#!/bin/sh</span> может ссылаться на <span class="inline-code">dash</span> (в Debian/Ubuntu), где отсутствуют Bash-специфичные фичи (<span class="inline-code">[[ ]]</span>, массивы, <span class="inline-code">pipefail</span>).</li>
+        </ul>
+
+        <h3>1.2 Права на выполнение</h3>
+        <div class="code-block">chmod +x script.sh   # БЕЗОПАСНО: добавляет бит исполнения
+            # chmod 777 script.sh  # ОПАСНО: даёт право на чтение/запись/выполнение ВСЕМ</div>
+        <p>Запуск: <span class="inline-code">./script.sh</span> (ищет в текущей директории) или <span class="inline-code">bash script.sh</span> (запускает как дочерний процесс, игнорируя права <span class="inline-code">+x</span>).</p>
+    </section>
+
+    <section id="strict">
+        <h2><span class="section-number">2</span>СТРОГИЙ РЕЖИМ: SET -EUO PIPEFAIL</h2>
+        <div class="code-block">set -euo pipefail</div>
+
+        <table>
+            <tr>
+                <th>ФЛАГ</th>
+                <th>ЧТО ДЕЛАЕТ</th>
+                <th>ПРИМЕР</th>
+            </tr>
+            <tr>
+                <td><span class="inline-code">-e</span></td>
+                <td>Скрипт прерывается при первом ненулевом коде возврата</td>
+                <td><span class="inline-code">false</span> <span class="arrow">→</span> скрипт остановится</td>
+            </tr>
+            <tr>
+                <td><span class="inline-code">-u</span></td>
+                <td>Ошибка при обращении к неопределённой переменной</td>
+                <td><span class="inline-code">$VRA</span> вместо <span class="inline-code">$VAR</span> <span class="arrow">→</span> ошибка</td>
+            </tr>
+            <tr>
+                <td><span class="inline-code">-o pipefail</span></td>
+                <td>Статус пайплайна = статус последней УПАВШЕЙ команды</td>
+                <td><span class="inline-code">false | true</span> <span class="arrow">→</span> вернёт 1</td>
+            </tr>
+        </table>
+
+        <div class="nuance">
+            ПРИМЕР БЕЗ <span class="inline-code">pipefail</span>: <span class="inline-code">false | true</span> вернёт <span class="inline-code">0</span> (успех), хотя <span class="inline-code">false</span> упал. С <span class="inline-code">pipefail</span> вернёт <span class="inline-code">1</span>, и <span class="inline-code">set -e</span> остановит скрипт.
+        </div>
+
+        <p><strong>Исключения:</strong> <span class="inline-code">set -e</span> автоматически отключается для команд в <span class="inline-code">if</span>, <span class="inline-code">while</span>, <span class="inline-code">||</span>, <span class="inline-code">&amp;&amp;</span>.</p>
+    </section>
+
+    <section id="variables">
+        <h2><span class="section-number">3</span>ПЕРЕМЕННЫЕ, АРГУМЕНТЫ И ПОДСТАНОВКА</h2>
+
+        <h3>3.1 Присваивание и доступ</h3>
+        <div class="code-block">VAR="значение"      # БЕЗ пробелов вокруг =
+            echo "$VAR"         # ПРАВИЛЬНО
+            echo $VAR           # ОПАСНО при пробелах</div>
+
+        <h3>3.2 Позиционные параметры</h3>
+        <ul>
+            <li><span class="inline-code">$1, $2, ...</span> — аргументы при запуске.</li>
+            <li><span class="inline-code">$@</span> — все аргументы как отдельные слова (сохраняет пробелы при <span class="inline-code">"$@"</span>).</li>
+            <li><span class="inline-code">$*</span> — все аргументы как одна строка (разделяется первым символом <span class="inline-code">IFS</span>, обычно пробелом).</li>
+            <li><span class="inline-code">$#</span> — количество аргументов.</li>
+            <li><span class="inline-code">$?</span> — код возврата последней команды (сбрасывается после каждой новой команды).</li>
+            <li><span class="inline-code">$0</span> — имя скрипта.</li>
+        </ul>
+
+        <h3>3.3 Модификаторы подстановки</h3>
+        <div class="code-block">${1:-GET}      # Если $1 пуст или не задан, подставить "GET"
+            ${1:?Ошибка!}  # Если $1 пуст, вывести ошибку и прервать скрипт
+            ${#VAR}        # Длина строки в переменной
+            ${VAR:0:5}     # Срез первых 5 символов</div>
+    </section>
+
+    <section id="quotes">
+        <h2><span class="section-number">4</span>КАВЫЧКИ: ПРАВИЛА ВЫЖИВАНИЯ</h2>
+
+        <table>
+            <tr>
+                <th>ТИП</th>
+                <th>ОПИСАНИЕ</th>
+                <th>ПРИМЕР</th>
+            </tr>
+            <tr>
+                <td><span class="inline-code">"..."</span></td>
+                <td>Подстановка переменных <span class="inline-code">$VAR</span> и команд <span class="inline-code">$(cmd)</span>. Защищает пробелы.</td>
+                <td><span class="inline-code">echo "$HOME"</span></td>
+            </tr>
+            <tr>
+                <td><span class="inline-code">'...'</span></td>
+                <td>ЛИТЕРАЛ. Ничего не подставляется.</td>
+                <td><span class="inline-code">echo '$HOME'</span> <span class="arrow">→</span> $HOME</td>
+            </tr>
+            <tr>
+                <td><span class="inline-code">$(cmd)</span></td>
+                <td>Командная подстановка (современный стандарт).</td>
+                <td><span class="inline-code">DATE=$(date)</span></td>
+            </tr>
+            <tr>
+                <td><span class="inline-code">`cmd`</span></td>
+                <td>Устаревшая командная подстановка.</td>
+                <td><span class="inline-code">DATE=`date`</span> (не рекомендуется)</td>
+            </tr>
+        </table>
+
+        <div class="warning">
+            ЗОЛОТОЕ ПРАВИЛО: ВСЕГДА ОБВОРАЧИВАЙТЕ ПЕРЕМЕННЫЕ В КАВЫЧКИ: <span class="inline-code">"$var"</span>. ИСКЛЮЧЕНИЯ: АРИФМЕТИКА <span class="inline-code">(( $var + 1 ))</span>, УСЛОВИЯ <span class="inline-code">[[ $var -eq 0 ]]</span>.
+        </div>
+    </section>
+
+    <section id="conditions">
+        <h2><span class="section-number">5</span>УСЛОВИЯ И СОВРЕМЕННЫЕ ТЕСТЫ [[ ... ]]</h2>
+
+        <div class="code-block">if [[ -z "$VAR" ]]; then
+            echo "ПУСТО"
+            elif [[ "$VAR" == "POST" ]]; then
+            echo "МЕТОД POST"
+            else
+            echo "ДРУГОЕ ЗНАЧЕНИЕ"
+            fi</div>
+
+        <h3>5.1 [[ ... ]] vs [ ... ]</h3>
+        <ul>
+            <li><span class="inline-code">[[ ... ]]</span> — встроенный синтаксис Bash. Не требует экранирования <span class="inline-code">&lt;</span>, <span class="inline-code">&gt;</span>, <span class="inline-code">&amp;&amp;</span>, <span class="inline-code">||</span>. Работает с <span class="inline-code">==</span>, <span class="inline-code">!=</span>, <span class="inline-code">=~</span> (regex).</li>
+            <li><span class="inline-code">[ ... ]</span> (или <span class="inline-code">test</span>) — устаревший POSIX-совместимый синтаксис. Требует экранирования, менее безопасен при пустых переменных.</li>
+        </ul>
+
+        <h3>5.2 Операторы сравнения</h3>
+        <table>
+            <tr>
+                <th>ОПЕРАТОР</th>
+                <th>ОПИСАНИЕ</th>
+                <th>ПРИМЕР</th>
+            </tr>
+            <tr>
+                <td><span class="inline-code">-z</span></td>
+                <td>Строка пуста</td>
+                <td><span class="inline-code">[[ -z "$VAR" ]]</span></td>
+            </tr>
+            <tr>
+                <td><span class="inline-code">-n</span></td>
+                <td>Строка не пуста</td>
+                <td><span class="inline-code">[[ -n "$VAR" ]]</span></td>
+            </tr>
+            <tr>
+                <td><span class="inline-code">-eq, -ne</span></td>
+                <td>Числовое равно / не равно</td>
+                <td><span class="inline-code">[[ $A -eq $B ]]</span></td>
+            </tr>
+            <tr>
+                <td><span class="inline-code">-gt, -ge, -lt, -le</span></td>
+                <td>Больше / больше или равно / меньше / меньше или равно</td>
+                <td><span class="inline-code">[[ $A -ge 400 ]]</span></td>
+            </tr>
+            <tr>
+                <td><span class="inline-code">==, !=</span></td>
+                <td>Строковое равно / не равно</td>
+                <td><span class="inline-code">[[ "$A" == "POST" ]]</span></td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            ВНУТРИ <span class="inline-code">[[ ]]</span> ЛОГИЧЕСКИЕ ОПЕРАТОРЫ ПИШУТСЯ КАК <span class="inline-code">&amp;&amp;</span>, <span class="inline-code">||</span>, <span class="inline-code">!</span>. НЕ ИСПОЛЬЗУЙТЕ <span class="inline-code">-a</span>, <span class="inline-code">-o</span> (DEPRECATED В POSIX).
+        </div>
+    </section>
+
+    <section id="loops">
+        <h2><span class="section-number">6</span>ЦИКЛЫ И БЕЗОПАСНЫЙ ПЕРЕБОР</h2>
+
+        <h3>6.1 Перебор аргументов</h3>
+        <div class="code-block">for ITEM in "$@"; do
+            echo "ОБРАБАТЫВАЮ: $ITEM"
+            done</div>
+
+        <div class="nuance">
+            <span class="inline-code">in "$@"</span> — СТАНДАРТ ДЛЯ ПЕРЕДАЧИ АРГУМЕНТОВ СКРИПТА В ЦИКЛ. КАВЫЧКИ ГАРАНТИРУЮТ, ЧТО СТРОКИ С ПРОБЕЛАМИ НЕ РАЗОБЬЮТСЯ НА ЧАСТИ. <span class="inline-code">in $*</span> ИЛИ <span class="inline-code">in $@</span> (БЕЗ КАВЫЧЕК) РАЗОБЬЁТ <span class="inline-code">"file name.txt"</span> НА ДВА ЭЛЕМЕНТА.
+        </div>
+
+        <h3>6.2 Перебор файлов (опасность пустой директории)</h3>
+        <div class="code-block">shopt -s nullglob  # Если *.txt нет, цикл не выполнится
+            for f in *.txt; do
+            echo "ФАЙЛ: $f"
+            done
+            shopt -u nullglob  # ВЕРНУТЬ СТАНДАРТНОЕ ПОВЕДЕНИЕ</div>
+
+        <p>Без <span class="inline-code">nullglob</span> при отсутствии файлов переменная получит литерал <span class="inline-code">"*.txt"</span>, что приведёт к ошибке.</p>
+    </section>
+
+    <section id="functions">
+        <h2><span class="section-number">7</span>ФУНКЦИИ, ОБЛАСТЬ ВИДИМОСТИ И LOCAL</h2>
+
+        <div class="code-block">my_func() {
+            local STATUS="$1"    # local ОБЯЗАТЕЛЕН для всех внутренних переменных
+            local MSG="$2"
+            echo "[$STATUS] $MSG"
+            return 0             # Код возврата 0-255
+            }</div>
+
+        <ul>
+            <li>В Bash переменные <strong>ГЛОБАЛЬНЫ ПО УМОЛЧАНИЮ</strong>. Без <span class="inline-code">local</span> функция перезапишет переменную с тем же именем в основном скрипте.</li>
+            <li>Аргументы функции: <span class="inline-code">$1</span>, <span class="inline-code">$@</span>, <span class="inline-code">$#</span> работают изолированно от аргументов скрипта.</li>
+            <li>Возврат данных: <span class="inline-code">return</span> возвращает <strong>КОД СТАТУСА</strong> (число 0-255). Для возврата текста используйте <span class="inline-code">echo "data"</span> и захват: <span class="inline-code">RESULT=$(my_func)</span>.</li>
+        </ul>
+    </section>
+
+    <section id="errors">
+        <h2><span class="section-number">8</span>ОБРАБОТКА ОШИБОК И ПОТОКИ ВЫВОДА</h2>
+
+        <h3>8.1 Стандартные потоки</h3>
+        <table>
+            <tr>
+                <th>ПОТОК</th>
+                <th>ОПИСАНИЕ</th>
+                <th>ПЕРЕНАПРАВЛЕНИЕ</th>
+            </tr>
+            <tr>
+                <td><span class="inline-code">stdout</span> (1)</td>
+                <td>Нормальный вывод</td>
+                <td><span class="inline-code">&gt;</span>, <span class="inline-code">&gt;&gt;</span></td>
+            </tr>
+            <tr>
+                <td><span class="inline-code">stderr</span> (2)</td>
+                <td>Ошибки</td>
+                <td><span class="inline-code">2&gt;</span>, <span class="inline-code">2&gt;&gt;</span></td>
+            </tr>
+        </table>
+
+        <p>Разделение критично для логирования, CI/CD и мониторинга: <span class="inline-code">./script.sh &gt; out.log 2&gt; err.log</span>.</p>
+
+        <h3>8.2 Паттерн || для мягкой обработки</h3>
+        <div class="code-block">risky_command || {
+            echo "❌ ОШИБКА ВЫПОЛНЕНИЯ" >&2
+            exit 1
+            }</div>
+
+        <div class="nuance">
+            <span class="inline-code">set -e</span> АВТОМАТИЧЕСКИ ОТКЛЮЧАЕТСЯ ДЛЯ КОМАНД, СВЯЗАННЫХ ЧЕРЕЗ <span class="inline-code">||</span>, <span class="inline-code">&amp;&amp;</span> ИЛИ НАХОДЯЩИХСЯ В <span class="inline-code">if/while</span>. ЭТО ПОЗВОЛЯЕТ ОБРАБАТЫВАТЬ ОШИБКИ БЕЗ ВРЕМЕННОГО <span class="inline-code">set +e</span>.
+        </div>
+    </section>
+
+    <section id="checklist">
+        <div class="checklist">
+            <h3>9. ЧЕК-ЛИСТ ЛУЧШИХ ПРАКТИК (МОДУЛИ 1–2)</h3>
+            <ol>
+                <li>Первая строка: <span class="inline-code">#!/bin/bash</span>, сразу под ней: <span class="inline-code">set -euo pipefail</span>.</li>
+                <li>Все переменные в кавычках: <span class="inline-code">"$var"</span>.</li>
+                <li>В функциях все внутренние переменные: <span class="inline-code">local</span>.</li>
+                <li>Условия: <span class="inline-code">[[ "$var" == "value" ]]</span> вместо <span class="inline-code">[ ]</span>.</li>
+                <li>Проверка аргументов: <span class="inline-code">${1:?msg}</span> или <span class="inline-code">${1:-default}</span>.</li>
+                <li>Циклы по аргументам: <span class="inline-code">for x in "$@"</span>.</li>
+                <li>Ошибки пишите в <span class="inline-code">stderr</span>: <span class="inline-code">echo "err" >&2</span>.</li>
+                <li>Завершайте скрипт явно: <span class="inline-code">exit 0</span> (для оркестраторов и systemd).</li>
+                <li>Форматируйте логи: префиксы <span class="inline-code">[INFO]</span>, <span class="inline-code">[ERROR]</span>, эмодзи или теги для <span class="inline-code">grep</span>/<span class="inline-code">awk</span>.</li>
+                <li>Тестируйте в песочнице. Используйте <span class="inline-code">echo</span> перед destructive-командами.</li>
+            </ol>
+        </div>
+    </section>
+
+    <div class="footer">
+        <p>ГОТОВО К ПРАКТИКЕ</p>
+        <p>ПЕРЕХОДИТЕ К СЛЕДУЮЩЕМУ МОДУЛЮ: CURL, ПАРСИНГ JSON, АУТЕНТИФИКАЦИЯ И АВТОМАТИЗАЦИЯ СЕТЕВЫХ ЗАДАЧ.</p>
+        <div class="footer-quote">
+            «НАДЁЖНЫЙ СКРИПТ — ЭТО СКРИПТ, КОТОРЫЙ ПАДАЕТ ПРЕДСКАЗУЕМО И ЛОГИРУЕТСЯ ПОНЯТНО.»
+        </div>
+        <p style="margin-top: 30px; font-size: 12px;">BASH-СКРИПТЫ: МОДУЛИ 1-2 | БРУТАЛИЗМ-ИЗДАНИЕ | 2026</p>
+    </div>
+</div>
+</body>
+</html>
