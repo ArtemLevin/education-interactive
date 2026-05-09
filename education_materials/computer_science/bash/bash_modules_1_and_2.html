@@ -1,640 +1,1377 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BASH-СКРИПТЫ: МОДУЛИ 1-2</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bash-скрипты: Модули 1–2</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #05070c;
+            --bg2: #080c14;
+            --panel: #111722;
+            --panel2: #151d2b;
+            --panel3: #1b2637;
+            --text: #f7fbff;
+            --muted: #9aa8bd;
+            --muted2: #6f7e93;
+            --blue: #4a9fff;
+            --blue2: #78b8ff;
+            --cyan: #54d7ff;
+            --green: #5ef0a5;
+            --orange: #ffba66;
+            --red: #ff6f86;
+            --line: rgba(255,255,255,.10);
+            --line2: rgba(255,255,255,.16);
+            --shadow: 0 24px 80px rgba(0,0,0,.55);
+            --shadow2: 0 16px 36px rgba(0,0,0,.35);
+            --radius: 34px;
+            --radius2: 22px;
+            --max: 1180px;
+            --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: #ffffff;
-            color: #000000;
-            line-height: 1.4;
-            font-size: 14px;
-            border: 8px solid #000;
+            margin: 0;
+            font-family: var(--sans);
+            background:
+            radial-gradient(circle at 12% 12%, rgba(74,159,255,.18), transparent 34%),
+            radial-gradient(circle at 86% 22%, rgba(84,215,255,.12), transparent 30%),
+            radial-gradient(circle at 50% 100%, rgba(74,159,255,.08), transparent 38%),
+            linear-gradient(180deg, var(--bg), #030407 72%);
+            color: var(--text);
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 900px;
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+            linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+            background-size: 44px 44px;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,.8), transparent 85%);
+            z-index: -1;
+        }
+
+        a { color: inherit; }
+
+        .app {
+            width: min(var(--max), calc(100% - 32px));
             margin: 0 auto;
-            padding: 20px;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 34px 0;
+        }
+
+        .shell {
+            width: 100%;
+            position: relative;
+        }
+
+        .shell::before,
+        .shell::after {
+            content: "";
+            position: absolute;
+            inset: auto 26px -18px 26px;
+            height: 80px;
+            background: rgba(17,23,34,.72);
+            border: 1px solid var(--line);
+            border-radius: 0 0 34px 34px;
+            filter: blur(.1px);
+            z-index: 0;
+        }
+
+        .shell::after {
+            inset: auto 52px -34px 52px;
+            background: rgba(11,16,25,.62);
+            opacity: .75;
+        }
+
+        .card {
+            position: relative;
+            z-index: 1;
+            min-height: 680px;
+            border: 1px solid var(--line2);
+            border-radius: var(--radius);
+            background:
+            linear-gradient(145deg, rgba(255,255,255,.085), transparent 30%),
+            linear-gradient(180deg, rgba(21,29,43,.98), rgba(13,18,28,.96));
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            width: 560px;
+            height: 560px;
+            right: -210px;
+            top: -220px;
+            background: radial-gradient(circle, rgba(74,159,255,.32), transparent 64%);
+            pointer-events: none;
+        }
+
+        .card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 70% 20%, rgba(255,255,255,.06), transparent 28%);
+            pointer-events: none;
+        }
+
+        .topbar {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 24px 28px 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+        }
+
+        .logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 15px;
+            background:
+            linear-gradient(135deg, rgba(84,215,255,.95), rgba(74,159,255,.95)),
+            #1d7cff;
+            box-shadow: 0 10px 28px rgba(74,159,255,.28);
+            display: grid;
+            place-items: center;
+            color: #061020;
+            font-family: var(--mono);
+            font-weight: 900;
+        }
+
+        .pills {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .pill {
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,.055);
+            color: var(--muted);
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 13px;
+            backdrop-filter: blur(14px);
+        }
+
+        .slide-wrap {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: 1.03fr .97fr;
+            gap: 28px;
+            padding: 54px 42px 26px;
+            align-items: center;
+        }
+
+        .copy {
+            max-width: 560px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(74,159,255,.38);
+            background: rgba(74,159,255,.10);
+            color: var(--blue2);
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .eyebrow i {
+            width: 7px;
+            height: 7px;
+            background: var(--cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 0 5px rgba(84,215,255,.11);
         }
 
         h1 {
-            font-size: 48px;
+            margin: 0;
+            font-size: clamp(42px, 6vw, 78px);
+            line-height: .94;
+            letter-spacing: -.065em;
+        }
+
+        .lead {
+            margin: 22px 0 0;
+            color: var(--muted);
+            font-size: clamp(16px, 2vw, 20px);
+            line-height: 1.65;
+            max-width: 640px;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .btn {
+            appearance: none;
+            border: 0;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 800;
+            border-radius: 16px;
+            padding: 14px 20px;
+            transition: transform .22s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease;
+        }
+
+        .btn-primary {
+            color: #061020;
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            box-shadow: 0 14px 32px rgba(74,159,255,.30);
+        }
+
+        .btn-secondary {
+            color: var(--text);
+            background: rgba(255,255,255,.06);
+            border: 1px solid var(--line2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 34px rgba(74,159,255,.24);
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .feature {
+            min-height: 150px;
+            border-radius: 24px;
+            border: 1px solid var(--line);
+            background:
+            linear-gradient(145deg, rgba(255,255,255,.08), transparent 42%),
+            rgba(255,255,255,.045);
+            padding: 18px;
+            box-shadow: var(--shadow2);
+            position: relative;
+            overflow: hidden;
+            transition: transform .25s ease, border-color .25s ease, background .25s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            border-color: rgba(74,159,255,.44);
+            background: rgba(74,159,255,.08);
+        }
+
+        .feature:nth-child(2),
+        .feature:nth-child(3) {
+            transform: translateY(26px);
+        }
+
+        .feature:nth-child(2):hover,
+        .feature:nth-child(3):hover {
+            transform: translateY(20px);
+        }
+
+        .feature-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 15px;
+            background: rgba(74,159,255,.14);
+            color: var(--blue2);
+            font-family: var(--mono);
             font-weight: 900;
-            text-transform: uppercase;
-            border-bottom: 8px solid #000;
-            padding-bottom: 20px;
-            margin-bottom: 40px;
-            letter-spacing: -2px;
-            line-height: 1;
+            margin-bottom: 18px;
         }
 
-        h2 {
-            font-size: 32px;
-            font-weight: 900;
-            text-transform: uppercase;
-            border: 4px solid #000;
-            padding: 15px;
-            margin: 40px 0 20px 0;
-            background-color: #000;
-            color: #fff;
+        .feature h3 {
+            margin: 0 0 8px;
+            font-size: 17px;
+            letter-spacing: -.02em;
         }
 
-        h3 {
-            font-size: 24px;
-            font-weight: 700;
-            text-transform: uppercase;
-            border-left: 8px solid #000;
-            padding-left: 15px;
-            margin: 30px 0 15px 0;
-        }
-
-        h4 {
-            font-size: 18px;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin: 25px 0 10px 0;
-            text-decoration: underline;
-        }
-
-        p {
-            margin-bottom: 15px;
-            text-align: justify;
-        }
-
-        ul, ol {
-            margin: 15px 0 15px 30px;
-            padding-left: 20px;
-            border-left: 4px solid #000;
-        }
-
-        li {
-            margin-bottom: 10px;
-            padding-left: 10px;
-        }
-
-        .code-block {
-            background-color: #000;
-            color: #0f0;
-            padding: 20px;
-            margin: 20px 0;
-            border: 4px solid #000;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 13px;
-            overflow-x: auto;
-            white-space: pre;
+        .feature p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
             line-height: 1.5;
         }
 
-        .inline-code {
-            background-color: #000;
-            color: #fff;
-            padding: 2px 6px;
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: bold;
-            border: 2px solid #000;
+        .feature .bar {
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            bottom: 14px;
+            height: 5px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.08);
+            overflow: hidden;
         }
 
-        .warning {
-            background-color: #ff0000;
-            color: #fff;
-            border: 6px solid #000;
-            padding: 20px;
-            margin: 30px 0;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .warning::before {
-            content: "⚠️ ВНИМАНИЕ: ";
-            font-size: 20px;
+        .feature .bar span {
             display: block;
-            margin-bottom: 10px;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--blue), var(--cyan));
+        width: var(--w, 70%);
         }
 
-        .tip {
-            background-color: #ffff00;
-            color: #000;
-            border: 6px solid #000;
-            padding: 20px;
-            margin: 30px 0;
-            font-weight: bold;
+        .controls {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 18px;
+            padding: 16px 28px 28px;
         }
 
-        .tip::before {
-            content: "💡 СОВЕТ: ";
+        .navbtns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .iconbtn {
+            border: 1px solid var(--line2);
+            background: rgba(255,255,255,.055);
+            color: var(--text);
+            width: 44px;
+            height: 44px;
+            border-radius: 15px;
+            cursor: pointer;
             font-size: 20px;
-            display: block;
-            margin-bottom: 10px;
+            transition: transform .2s ease, background .2s ease, border-color .2s ease;
         }
 
-        .nuance {
-            background-color: #ffa500;
-            color: #000;
-            border: 6px solid #000;
-            padding: 20px;
-            margin: 30px 0;
-            font-weight: bold;
+        .iconbtn:hover {
+            transform: translateY(-2px);
+            background: rgba(74,159,255,.12);
+            border-color: rgba(74,159,255,.38);
         }
 
-        .nuance::before {
-            content: "🔍 НЮАНС: ";
-            font-size: 20px;
-            display: block;
-            margin-bottom: 10px;
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .checklist {
-            background-color: #e0e0e0;
-            border: 6px solid #000;
-            padding: 20px;
-            margin: 40px 0;
+        .dot {
+            border: 0;
+            width: 9px;
+            height: 9px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.22);
+            cursor: pointer;
+            transition: width .25s ease, background .25s ease;
         }
 
-        .checklist h3 {
-            margin-top: 0;
-            border: none;
-            padding: 0;
-            text-align: center;
-            font-size: 28px;
-            background-color: #000;
-            color: #fff;
-            padding: 10px;
-            margin: -20px -20px 20px -20px;
+        .dot.active {
+            width: 32px;
+            background: var(--blue);
         }
 
-        .checklist ol {
-            border: none;
-            margin-left: 0;
+        .search {
+            position: relative;
+            min-width: min(320px, 100%);
         }
 
-        .checklist li {
-            padding: 10px;
-            margin-bottom: 15px;
-            background-color: #fff;
-            border: 3px solid #000;
-            list-style: none;
-            counter-increment: item;
+        .search input {
+            width: 100%;
+            height: 44px;
+            border: 1px solid var(--line2);
+            outline: 0;
+            border-radius: 999px;
+            background: rgba(255,255,255,.055);
+            color: var(--text);
+            padding: 0 42px 0 16px;
+            font: inherit;
+            transition: border-color .2s ease, background .2s ease;
         }
 
-        .checklist li::before {
-            content: counter(item) ". ";
-            font-weight: bold;
-            font-size: 18px;
+        .search input:focus {
+            border-color: rgba(74,159,255,.58);
+            background: rgba(74,159,255,.09);
         }
 
-        .section-number {
-            display: inline-block;
-            background-color: #000;
-            color: #fff;
-            width: 40px;
-            height: 40px;
-            text-align: center;
-            line-height: 40px;
-            margin-right: 10px;
-            font-weight: bold;
-            font-size: 20px;
+        .search span {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted2);
         }
 
-        strong {
-            background-color: #ffff00;
-            padding: 0 4px;
+        .content {
+            padding: 64px 0 90px;
         }
 
-        em {
-            text-decoration: underline;
-            font-style: normal;
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 24px;
+            margin-bottom: 22px;
+        }
+
+        .section-head h2 {
+            margin: 0;
+            font-size: clamp(30px, 4vw, 48px);
+            letter-spacing: -.045em;
+        }
+
+        .section-head p {
+            margin: 0;
+            color: var(--muted);
+            max-width: 560px;
+            line-height: 1.55;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 270px 1fr;
+            gap: 24px;
+            align-items: start;
         }
 
         .toc {
-            background-color: #000;
-            color: #fff;
-            padding: 30px;
-            margin: 40px 0;
-            border: 6px solid #000;
+            position: sticky;
+            top: 18px;
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            background: rgba(17,23,34,.72);
+            box-shadow: var(--shadow2);
+            padding: 14px;
+            backdrop-filter: blur(18px);
         }
 
-        .toc h2 {
-            margin-top: 0;
-            background-color: #fff;
-            color: #000;
-            border: 4px solid #fff;
-        }
-
-        .toc ul {
-            border: none;
-            margin-left: 0;
-            list-style: none;
-        }
-
-        .toc li {
-            padding: 8px 0;
-            border-bottom: 2px dashed #666;
-            padding-left: 0;
+        .toc strong {
+            display: block;
+            padding: 8px 10px 12px;
+            color: var(--text);
         }
 
         .toc a {
-            color: #0f0;
+            display: block;
             text-decoration: none;
+            color: var(--muted);
+            border-radius: 14px;
+            padding: 10px;
+            font-size: 14px;
+            line-height: 1.25;
+            transition: background .2s ease, color .2s ease, transform .2s ease;
         }
 
-        .toc a:hover {
-            background-color: #0f0;
-            color: #000;
+        .toc a:hover,
+        .toc a.active {
+            background: rgba(74,159,255,.12);
+            color: var(--text);
+            transform: translateX(3px);
         }
 
-        .footer {
-            background-color: #000;
-            color: #fff;
+        .chapters {
+            display: grid;
+            gap: 18px;
+        }
+
+        .chapter {
+            border: 1px solid var(--line);
+            border-radius: 26px;
+            background:
+            linear-gradient(145deg, rgba(255,255,255,.055), transparent 34%),
+            rgba(17,23,34,.74);
+            box-shadow: var(--shadow2);
+            overflow: hidden;
+        }
+
+        .chapter summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .chapter summary::-webkit-details-marker { display: none; }
+
+        .chapter-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .num {
+            min-width: 42px;
+            height: 42px;
+            border-radius: 15px;
+            display: grid;
+            place-items: center;
+            background: rgba(74,159,255,.14);
+            color: var(--blue2);
+            font-family: var(--mono);
+            font-weight: 900;
+            border: 1px solid rgba(74,159,255,.26);
+        }
+
+        .chapter h3 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: -.025em;
+        }
+
+        .chapter .meta {
+            color: var(--muted2);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .chev {
+            width: 38px;
+            height: 38px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: rgba(255,255,255,.055);
+            color: var(--muted);
+            transition: transform .25s ease, background .25s ease;
+        }
+
+        .chapter[open] .chev {
+            transform: rotate(180deg);
+            background: rgba(74,159,255,.12);
+            color: var(--blue2);
+        }
+
+        .chapter-body {
+            border-top: 1px solid var(--line);
+            padding: 0 24px 24px;
+            color: var(--muted);
+            line-height: 1.72;
+        }
+
+        .chapter-body h4 {
+            color: var(--text);
+            margin: 22px 0 8px;
+            font-size: 17px;
+        }
+
+        .chapter-body p {
+            margin: 12px 0;
+        }
+
+        .chapter-body ul,
+        .chapter-body ol {
+            padding-left: 20px;
+        }
+
+        .chapter-body li {
+            margin: 8px 0;
+        }
+
+        code,
+        .kbd {
+            font-family: var(--mono);
+            background: rgba(255,255,255,.08);
+            color: #dbeeff;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 8px;
+            padding: 2px 6px;
+            font-size: .92em;
+        }
+
+        pre {
+            margin: 14px 0;
+            border: 1px solid rgba(74,159,255,.20);
+            border-radius: 18px;
+            background: #070b12;
+            overflow: auto;
+            box-shadow: inset 0 1px rgba(255,255,255,.06);
+        }
+
+        pre code {
+            display: block;
+            padding: 17px 18px;
+            background: transparent;
+            border: 0;
+            color: #d8eaff;
+            line-height: 1.55;
+            font-size: 14px;
+            white-space: pre;
+        }
+
+        .box {
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            padding: 16px;
+            margin: 16px 0;
+            background: rgba(255,255,255,.045);
+        }
+
+        .box.tip {
+            border-color: rgba(74,159,255,.34);
+            background: rgba(74,159,255,.09);
+        }
+
+        .box.warn {
+            border-color: rgba(255,111,134,.34);
+            background: rgba(255,111,134,.085);
+        }
+
+        .box.nuance {
+            border-color: rgba(255,186,102,.34);
+            background: rgba(255,186,102,.08);
+        }
+
+        .box strong {
+            color: var(--text);
+        }
+
+        .check-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            padding-left: 0 !important;
+            list-style: none;
+        }
+
+        .check-grid li {
+            margin: 0;
+            padding: 14px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: rgba(255,255,255,.04);
+        }
+
+        .final-card {
+            margin-top: 22px;
+            border-radius: 28px;
+            border: 1px solid rgba(74,159,255,.24);
+            background:
+            radial-gradient(circle at 10% 0%, rgba(84,215,255,.18), transparent 35%),
+            rgba(17,23,34,.78);
+            padding: 28px;
+            box-shadow: var(--shadow2);
             text-align: center;
-            padding: 40px 20px;
-            margin-top: 60px;
-            border: 6px solid #000;
-            font-size: 16px;
-            font-weight: bold;
         }
 
-        .footer-quote {
-            font-style: italic;
-            margin-top: 20px;
-            padding: 20px;
-            border: 4px solid #fff;
-            color: #fff;
+        .final-card b {
+            display: block;
+            font-size: 24px;
+            margin-bottom: 8px;
+            letter-spacing: -.025em;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            border: 4px solid #000;
+        mark {
+            background: rgba(84,215,255,.22);
+            color: var(--text);
+            border-radius: 7px;
+            padding: 0 3px;
         }
 
-        th, td {
-            border: 3px solid #000;
-            padding: 12px;
-            text-align: left;
-            font-family: 'Courier New', Courier, monospace;
+        .hidden-by-search {
+            display: none;
         }
 
-        th {
-            background-color: #000;
-            color: #fff;
-            font-weight: bold;
-            text-transform: uppercase;
+        footer {
+            color: var(--muted2);
+            text-align: center;
+            padding: 30px 0 50px;
         }
 
-        tr:nth-child(even) {
-            background-color: #e0e0e0;
+        @media (max-width: 960px) {
+            .slide-wrap {
+                grid-template-columns: 1fr;
+                padding: 36px 24px 18px;
+            }
+
+            .copy {
+                max-width: none;
+            }
+
+            .preview-grid {
+                max-width: 720px;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .navbtns,
+            .dots {
+                justify-content: center;
+            }
+
+            .search {
+                width: 100%;
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .toc {
+                position: relative;
+                top: 0;
+            }
+
+            .toc nav {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 640px) {
+            .app {
+            width: min(100% - 20px, var(--max));
+            }
+
+            .card {
+                min-height: auto;
+                border-radius: 24px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 20px 20px 0;
+            }
+
+            .slide-wrap {
+                padding: 28px 18px 18px;
+            }
+
+            .preview-grid,
+            .check-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature:nth-child(2),
+            .feature:nth-child(3),
+            .feature:nth-child(2):hover,
+            .feature:nth-child(3):hover {
+                transform: none;
+            }
+
+            .chapter summary {
+                padding: 18px;
+                grid-template-columns: 1fr;
+            }
+
+            .chapter-body {
+                padding: 0 18px 18px;
+            }
+
+            .toc nav {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
             body {
-                border: 4px solid #000;
+                background: white;
+                color: black;
             }
 
-            h1 {
-                font-size: 32px;
+            .hero,
+            .toc,
+            .controls,
+            footer {
+                display: none;
             }
 
-            h2 {
-                font-size: 24px;
+            .app {
+                width: 100%;
             }
 
-            .code-block {
-                font-size: 11px;
-                padding: 10px;
+            .content {
+                padding: 0;
             }
-        }
 
-        .highlight-red {
-            background-color: #ff0000;
-            color: #fff;
-            padding: 2px 6px;
-        }
+            .layout {
+                display: block;
+            }
 
-        .highlight-green {
-            background-color: #00ff00;
-            color: #000;
-            padding: 2px 6px;
-        }
+            .chapter {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #bbb;
+                background: white;
+                color: black;
+            }
 
-        .arrow {
-            display: inline-block;
-            margin: 0 5px;
-            font-weight: bold;
+            .chapter,
+            .chapter-body,
+            .chapter h3,
+            .chapter-body h4 {
+                color: black;
+            }
+
+            .chapter-body {
+                color: #222;
+            }
+
+            .chapter[open] .chapter-body {
+                display: block;
+            }
+
+            pre {
+                background: #f5f5f5;
+                color: black;
+            }
+
+            pre code,
+            code {
+                color: black;
+                background: #f2f2f2;
+            }
         }
     </style>
 </head>
+
 <body>
-<div class="container">
-    <h1>BASH-СКРИПТЫ<br>МОДУЛИ 1–2</h1>
+<main class="app">
+    <section class="hero" aria-label="Onboarding">
+        <div class="shell">
+            <div class="card">
+                <div class="topbar">
+                    <div class="brand">
+                        <div class="logo">$_</div>
+                        <div>
+                            Bash-скрипты
+                            <div style="color:var(--muted2);font-size:13px;font-weight:600;">Модули 1–2 · web-пособие</div>
+                        </div>
+                    </div>
+                    <div class="pills" aria-label="Ключевые темы">
+                        <span class="pill">Bash 4+/5</span>
+                        <span class="pill">strict mode</span>
+                        <span class="pill">безопасность</span>
+                    </div>
+                </div>
 
-    <p style="font-size: 18px; margin-bottom: 40px; border-bottom: 4px solid #000; padding-bottom: 20px;">
-        БАЗОВЫЙ СИНТАКСИС, ПЕРЕМЕННЫЕ, УСЛОВИЯ, ЦИКЛЫ И ФУНКЦИИ
-    </p>
+                <div class="slide-wrap">
+                    <div class="copy">
+                        <div class="eyebrow"><i></i><span id="slideKicker">Современный Bash без хаоса</span></div>
+                        <h1 id="slideTitle">Пишите скрипты, которые падают предсказуемо.</h1>
+                        <p class="lead" id="slideText">
+                            Научитесь собирать Bash-скрипты с правильным shebang, строгим режимом,
+                            безопасными кавычками, условиями, циклами, функциями и понятной обработкой ошибок.
+                        </p>
+                        <div class="actions">
+                            <button class="btn btn-primary" onclick="document.querySelector('#guide').scrollIntoView()">Открыть пособие</button>
+                            <button class="btn btn-secondary" onclick="openAll()">Развернуть все темы</button>
+                        </div>
+                    </div>
 
-    <div class="toc">
-        <h2>СОДЕРЖАНИЕ</h2>
-        <ul>
-            <li><a href="#intro">0. ВВЕДЕНИЕ</a></li>
-            <li><a href="#structure">1. СТРУКТУРА СКРИПТА И ПРАВА ДОСТУПА</a></li>
-            <li><a href="#strict">2. СТРОГИЙ РЕЖИМ: SET -EUO PIPEFAIL</a></li>
-            <li><a href="#variables">3. ПЕРЕМЕННЫЕ, АРГУМЕНТЫ И ПОДСТАНОВКА</a></li>
-            <li><a href="#quotes">4. КАВЫЧКИ: ПРАВИЛА ВЫЖИВАНИЯ</a></li>
-            <li><a href="#conditions">5. УСЛОВИЯ И СОВРЕМЕННЫЕ ТЕСТЫ [[ ... ]]</a></li>
-            <li><a href="#loops">6. ЦИКЛЫ И БЕЗОПАСНЫЙ ПЕРЕБОР</a></li>
-            <li><a href="#functions">7. ФУНКЦИИ, ОБЛАСТЬ ВИДИМОСТИ И LOCAL</a></li>
-            <li><a href="#errors">8. ОБРАБОТКА ОШИБОК И ПОТОКИ ВЫВОДА</a></li>
-            <li><a href="#checklist">9. ЧЕК-ЛИСТ ЛУЧШИХ ПРАКТИК</a></li>
-        </ul>
-    </div>
+                    <div class="preview-grid" aria-label="Превью разделов">
+                        <article class="feature">
+                            <div class="feature-icon">01</div>
+                            <h3>Структура скрипта</h3>
+                            <p>Shebang, права на выполнение и корректный запуск.</p>
+                            <div class="bar"><span style="--w:78%"></span></div>
+                        </article>
+                        <article class="feature">
+                            <div class="feature-icon">02</div>
+                            <h3>Строгий режим</h3>
+                            <p><code>set -euo pipefail</code> как защита от тихих ошибок.</p>
+                            <div class="bar"><span style="--w:88%"></span></div>
+                        </article>
+                        <article class="feature">
+                            <div class="feature-icon">03</div>
+                            <h3>Кавычки и аргументы</h3>
+                            <p>Безопасная работа с пробелами, строками и позиционными параметрами.</p>
+                            <div class="bar"><span style="--w:72%"></span></div>
+                        </article>
+                        <article class="feature">
+                            <div class="feature-icon">04</div>
+                            <h3>Ошибки и stderr</h3>
+                            <p>Разделение нормального вывода, ошибок и логов.</p>
+                            <div class="bar"><span style="--w:84%"></span></div>
+                        </article>
+                    </div>
+                </div>
 
-    <section id="intro">
-        <h2><span class="section-number">0</span>ВВЕДЕНИЕ</h2>
-        <p>Данное пособие систематизирует теорию и лучшие практики первых двух модулей обучения. Фокус сделан на <strong>БЕЗОПАСНОСТИ</strong>, <strong>ЧИТАЕМОСТИ</strong> и <strong>СОВРЕМЕННЫХ СТАНДАРТАХ BASH 4+/5</strong>. Все примеры предполагают запуск в изолированной директории (например, <span class="inline-code">mkdir -p ~/bash_sandbox</span>).</p>
-
-        <div class="warning">
-            НИКОГДА НЕ ТЕСТИРУЙТЕ СКРИПТЫ С <span class="inline-code">rm</span>, <span class="inline-code">curl</span> С ЗАПИСЬЮ В ФАЙЛ ИЛИ <span class="inline-code">sudo</span> В СИСТЕМНЫХ ПАПКАХ. ИСПОЛЬЗУЙТЕ <span class="inline-code">echo</span> ДЛЯ DRY-RUN ДО ПОЛНОЙ ОТЛАДКИ.
+                <div class="controls">
+                    <div class="navbtns">
+                        <button class="iconbtn" id="prevBtn" aria-label="Назад">‹</button>
+                        <button class="iconbtn" id="nextBtn" aria-label="Вперёд">›</button>
+                    </div>
+                    <div class="dots" id="dots" aria-label="Слайды"></div>
+                    <label class="search">
+                        <input id="searchInput" type="search" placeholder="Поиск по пособию: pipefail, local, stderr..." />
+                        <span>⌕</span>
+                    </label>
+                </div>
+            </div>
         </div>
     </section>
 
-    <section id="structure">
-        <h2><span class="section-number">1</span>СТРУКТУРА СКРИПТА И ПРАВА ДОСТУПА</h2>
-        <p>Каждый исполняемый Bash-скрипт начинается с двух обязательных элементов.</p>
-
-        <h3>1.1 Shebang</h3>
-        <div class="code-block">#!/bin/bash</div>
-        <ul>
-            <li>Должен быть <strong>ПЕРВОЙ СТРОКОЙ</strong> файла без пробелов или пустых строк до него.</li>
-            <li><span class="inline-code">#!/bin/bash</span> явно указывает на интерпретатор Bash. <span class="inline-code">#!/bin/sh</span> может ссылаться на <span class="inline-code">dash</span> (в Debian/Ubuntu), где отсутствуют Bash-специфичные фичи (<span class="inline-code">[[ ]]</span>, массивы, <span class="inline-code">pipefail</span>).</li>
-        </ul>
-
-        <h3>1.2 Права на выполнение</h3>
-        <div class="code-block">chmod +x script.sh   # БЕЗОПАСНО: добавляет бит исполнения
-            # chmod 777 script.sh  # ОПАСНО: даёт право на чтение/запись/выполнение ВСЕМ</div>
-        <p>Запуск: <span class="inline-code">./script.sh</span> (ищет в текущей директории) или <span class="inline-code">bash script.sh</span> (запускает как дочерний процесс, игнорируя права <span class="inline-code">+x</span>).</p>
-    </section>
-
-    <section id="strict">
-        <h2><span class="section-number">2</span>СТРОГИЙ РЕЖИМ: SET -EUO PIPEFAIL</h2>
-        <div class="code-block">set -euo pipefail</div>
-
-        <table>
-            <tr>
-                <th>ФЛАГ</th>
-                <th>ЧТО ДЕЛАЕТ</th>
-                <th>ПРИМЕР</th>
-            </tr>
-            <tr>
-                <td><span class="inline-code">-e</span></td>
-                <td>Скрипт прерывается при первом ненулевом коде возврата</td>
-                <td><span class="inline-code">false</span> <span class="arrow">→</span> скрипт остановится</td>
-            </tr>
-            <tr>
-                <td><span class="inline-code">-u</span></td>
-                <td>Ошибка при обращении к неопределённой переменной</td>
-                <td><span class="inline-code">$VRA</span> вместо <span class="inline-code">$VAR</span> <span class="arrow">→</span> ошибка</td>
-            </tr>
-            <tr>
-                <td><span class="inline-code">-o pipefail</span></td>
-                <td>Статус пайплайна = статус последней УПАВШЕЙ команды</td>
-                <td><span class="inline-code">false | true</span> <span class="arrow">→</span> вернёт 1</td>
-            </tr>
-        </table>
-
-        <div class="nuance">
-            ПРИМЕР БЕЗ <span class="inline-code">pipefail</span>: <span class="inline-code">false | true</span> вернёт <span class="inline-code">0</span> (успех), хотя <span class="inline-code">false</span> упал. С <span class="inline-code">pipefail</span> вернёт <span class="inline-code">1</span>, и <span class="inline-code">set -e</span> остановит скрипт.
+    <section class="content" id="guide">
+        <div class="section-head">
+            <div>
+                <h2>Пособие по Bash</h2>
+                <p>Интерактивная web-версия: разделы раскрываются, поиск фильтрует главы, код сохранён в читаемом формате.</p>
+            </div>
         </div>
 
-        <p><strong>Исключения:</strong> <span class="inline-code">set -e</span> автоматически отключается для команд в <span class="inline-code">if</span>, <span class="inline-code">while</span>, <span class="inline-code">||</span>, <span class="inline-code">&amp;&amp;</span>.</p>
-    </section>
+        <div class="layout">
+            <aside class="toc">
+                <strong>Оглавление</strong>
+                <nav id="tocNav">
+                    <a href="#intro">Введение</a>
+                    <a href="#structure">Структура скрипта</a>
+                    <a href="#strict">Строгий режим</a>
+                    <a href="#vars">Переменные</a>
+                    <a href="#quotes">Кавычки</a>
+                    <a href="#conditions">Условия</a>
+                    <a href="#loops">Циклы</a>
+                    <a href="#functions">Функции</a>
+                    <a href="#errors">Ошибки и потоки</a>
+                    <a href="#checklist">Чек-лист</a>
+                </nav>
+            </aside>
 
-    <section id="variables">
-        <h2><span class="section-number">3</span>ПЕРЕМЕННЫЕ, АРГУМЕНТЫ И ПОДСТАНОВКА</h2>
+            <div class="chapters" id="chapters">
+                <details class="chapter" id="intro" open>
+                    <summary>
+                        <div class="chapter-title">
+                            <span class="num">00</span>
+                            <div>
+                                <h3>Введение</h3>
+                                <div class="meta">безопасность · читаемость · современные стандарты Bash</div>
+                            </div>
+                        </div>
+                        <span class="chev">⌄</span>
+                    </summary>
+                    <div class="chapter-body">
+                        <p>Данное пособие систематизирует теорию и лучшие практики первых двух модулей обучения. Фокус сделан на <strong>безопасности</strong>, <strong>читаемости</strong> и <strong>современных стандартах Bash 4+/5</strong>.</p>
+                        <p>Все примеры предполагают запуск в изолированной директории, например:</p>
+                        <pre><code>mkdir -p ~/bash_sandbox</code></pre>
+                        <div class="box warn"><strong>⚠️ Внимание.</strong> Никогда не тестируйте скрипты с <code>rm</code>, <code>curl</code> с записью в файл или <code>sudo</code> в системных папках. Используйте <code>echo</code> для dry-run до полной отладки.</div>
+                    </div>
+                </details>
 
-        <h3>3.1 Присваивание и доступ</h3>
-        <div class="code-block">VAR="значение"      # БЕЗ пробелов вокруг =
-            echo "$VAR"         # ПРАВИЛЬНО
-            echo $VAR           # ОПАСНО при пробелах</div>
+                <details class="chapter" id="structure" open>
+                    <summary>
+                        <div class="chapter-title">
+                            <span class="num">01</span>
+                            <div>
+                                <h3>Структура скрипта и права доступа</h3>
+                                <div class="meta">shebang · chmod · запуск</div>
+                            </div>
+                        </div>
+                        <span class="chev">⌄</span>
+                    </summary>
+                    <div class="chapter-body">
+                        <h4>Shebang</h4>
+                        <pre><code>#!/bin/bash</code></pre>
+                        <ul>
+                            <li>Должен быть <strong>первой строкой</strong> файла без пробелов или пустых строк до него.</li>
+                            <li><code>#!/bin/bash</code> явно указывает на интерпретатор Bash.</li>
+                            <li><code>#!/bin/sh</code> может ссылаться на <code>dash</code>, где отсутствуют Bash-специфичные возможности: <code>[[ ]]</code>, массивы, <code>pipefail</code>.</li>
+                        </ul>
 
-        <h3>3.2 Позиционные параметры</h3>
-        <ul>
-            <li><span class="inline-code">$1, $2, ...</span> — аргументы при запуске.</li>
-            <li><span class="inline-code">$@</span> — все аргументы как отдельные слова (сохраняет пробелы при <span class="inline-code">"$@"</span>).</li>
-            <li><span class="inline-code">$*</span> — все аргументы как одна строка (разделяется первым символом <span class="inline-code">IFS</span>, обычно пробелом).</li>
-            <li><span class="inline-code">$#</span> — количество аргументов.</li>
-            <li><span class="inline-code">$?</span> — код возврата последней команды (сбрасывается после каждой новой команды).</li>
-            <li><span class="inline-code">$0</span> — имя скрипта.</li>
-        </ul>
+                        <h4>Права на выполнение</h4>
+                        <pre><code>chmod +x script.sh   # Безопасно: добавляет бит исполнения
+# chmod 777 script.sh  # ОПАСНО: даёт чтение/запись/выполнение всем</code></pre>
+                        <p>Запуск: <code>./script.sh</code> ищет скрипт в текущей директории. Команда <code>bash script.sh</code> запускает файл как дочерний процесс и игнорирует права <code>+x</code>.</p>
+                    </div>
+                </details>
 
-        <h3>3.3 Модификаторы подстановки</h3>
-        <div class="code-block">${1:-GET}      # Если $1 пуст или не задан, подставить "GET"
-            ${1:?Ошибка!}  # Если $1 пуст, вывести ошибку и прервать скрипт
-            ${#VAR}        # Длина строки в переменной
-            ${VAR:0:5}     # Срез первых 5 символов</div>
-    </section>
+                <details class="chapter" id="strict">
+                    <summary>
+                        <div class="chapter-title">
+                            <span class="num">02</span>
+                            <div>
+                                <h3>Строгий режим: set -euo pipefail</h3>
+                                <div class="meta">errexit · nounset · pipefail</div>
+                            </div>
+                        </div>
+                        <span class="chev">⌄</span>
+                    </summary>
+                    <div class="chapter-body">
+                        <pre><code>set -euo pipefail</code></pre>
+                        <ul>
+                            <li><code>-e</code> / <code>errexit</code>: скрипт прерывается при первом ненулевом коде возврата. Исключения: команды в <code>if</code>, <code>while</code>, <code>||</code>, <code>&amp;&amp;</code>.</li>
+                            <li><code>-u</code> / <code>nounset</code>: ошибка при обращении к неопределённой переменной. Спасает от опечаток вроде <code>$VRA</code> вместо <code>$VAR</code>.</li>
+                            <li><code>-o pipefail</code>: статус пайплайна равен статусу последней упавшей команды, а не последней команды в цепочке.</li>
+                        </ul>
+                        <div class="box nuance"><strong>💡 Нюанс.</strong> Без <code>pipefail</code> команда <code>false | true</code> вернёт <code>0</code>, хотя <code>false</code> упала. С <code>pipefail</code> вернёт <code>1</code>, и <code>set -e</code> остановит скрипт.</div>
+                    </div>
+                </details>
 
-    <section id="quotes">
-        <h2><span class="section-number">4</span>КАВЫЧКИ: ПРАВИЛА ВЫЖИВАНИЯ</h2>
+                <details class="chapter" id="vars">
+                    <summary>
+                        <div class="chapter-title">
+                            <span class="num">03</span>
+                            <div>
+                                <h3>Переменные, аргументы и подстановка</h3>
+                                <div class="meta">VAR · $@ · $# · модификаторы</div>
+                            </div>
+                        </div>
+                        <span class="chev">⌄</span>
+                    </summary>
+                    <div class="chapter-body">
+                        <h4>Присваивание и доступ</h4>
+                        <pre><code>VAR="значение"      # БЕЗ пробелов вокруг =
+echo "$VAR"         # Правильно
+echo $VAR           # Опасно при пробелах</code></pre>
 
-        <table>
-            <tr>
-                <th>ТИП</th>
-                <th>ОПИСАНИЕ</th>
-                <th>ПРИМЕР</th>
-            </tr>
-            <tr>
-                <td><span class="inline-code">"..."</span></td>
-                <td>Подстановка переменных <span class="inline-code">$VAR</span> и команд <span class="inline-code">$(cmd)</span>. Защищает пробелы.</td>
-                <td><span class="inline-code">echo "$HOME"</span></td>
-            </tr>
-            <tr>
-                <td><span class="inline-code">'...'</span></td>
-                <td>ЛИТЕРАЛ. Ничего не подставляется.</td>
-                <td><span class="inline-code">echo '$HOME'</span> <span class="arrow">→</span> $HOME</td>
-            </tr>
-            <tr>
-                <td><span class="inline-code">$(cmd)</span></td>
-                <td>Командная подстановка (современный стандарт).</td>
-                <td><span class="inline-code">DATE=$(date)</span></td>
-            </tr>
-            <tr>
-                <td><span class="inline-code">`cmd`</span></td>
-                <td>Устаревшая командная подстановка.</td>
-                <td><span class="inline-code">DATE=`date`</span> (не рекомендуется)</td>
-            </tr>
-        </table>
+                        <h4>Позиционные параметры</h4>
+                        <ul>
+                            <li><code>$1, $2, ...</code> — аргументы при запуске.</li>
+                            <li><code>$@</code> — все аргументы как отдельные слова; при <code>"$@"</code> сохраняет пробелы.</li>
+                            <li><code>$*</code> — все аргументы как одна строка.</li>
+                            <li><code>$#</code> — количество аргументов.</li>
+                            <li><code>$?</code> — код возврата последней команды; сбрасывается после каждой новой команды.</li>
+                            <li><code>$0</code> — имя скрипта.</li>
+                        </ul>
 
-        <div class="warning">
-            ЗОЛОТОЕ ПРАВИЛО: ВСЕГДА ОБВОРАЧИВАЙТЕ ПЕРЕМЕННЫЕ В КАВЫЧКИ: <span class="inline-code">"$var"</span>. ИСКЛЮЧЕНИЯ: АРИФМЕТИКА <span class="inline-code">(( $var + 1 ))</span>, УСЛОВИЯ <span class="inline-code">[[ $var -eq 0 ]]</span>.
+                        <h4>Модификаторы подстановки</h4>
+                        <pre><code>${1:-GET}      # Если $1 пуст или не задан, подставить "GET"
+${1:?Ошибка!}  # Если $1 пуст, вывести ошибку и прервать скрипт
+${#VAR}        # Длина строки в переменной
+${VAR:0:5}     # Срез первых 5 символов</code></pre>
+                    </div>
+                </details>
+
+                <details class="chapter" id="quotes">
+                    <summary>
+                        <div class="chapter-title">
+                            <span class="num">04</span>
+                            <div>
+                                <h3>Кавычки: правила выживания</h3>
+                                <div class="meta">double quotes · single quotes · command substitution</div>
+                            </div>
+                        </div>
+                        <span class="chev">⌄</span>
+                    </summary>
+                    <div class="chapter-body">
+                        <ul>
+                            <li><code>"..."</code> — двойные кавычки: подстановка переменных <code>$VAR</code> и команд <code>$(cmd)</code>. Защищают пробелы и спецсимволы.</li>
+                            <li><code>'...'</code> — одинарные кавычки: литерал. Ничего не подставляется. Удобны для регулярных выражений и сырых строк.</li>
+                            <li><code>$(cmd)</code> лучше, чем <code>`cmd`</code>: поддерживает вложенность и читается аккуратнее.</li>
+                        </ul>
+                        <div class="box warn"><strong>⚠️ Золотое правило.</strong> Всегда оборачивайте переменные в кавычки: <code>"$var"</code>. Исключения возможны, но привычка к кавычкам резко снижает риск ошибок с пробелами и пустыми значениями.</div>
+                    </div>
+                </details>
+
+                <details class="chapter" id="conditions">
+                    <summary>
+                        <div class="chapter-title">
+                            <span class="num">05</span>
+                            <div>
+                                <h3>Условия и современные тесты [[ ... ]]</h3>
+                                <div class="meta">if · elif · regex · операторы</div>
+                            </div>
+                        </div>
+                        <span class="chev">⌄</span>
+                    </summary>
+                    <div class="chapter-body">
+              <pre><code>if [[ -z "$VAR" ]]; then
+    echo "Пусто"
+elif [[ "$VAR" == "POST" ]]; then
+    echo "Метод POST"
+else
+    echo "Другое значение"
+fi</code></pre>
+                        <ul>
+                            <li><code>[[ ... ]]</code> — встроенный синтаксис Bash. Не требует экранирования <code>&lt;</code>, <code>&gt;</code>, <code>&amp;&amp;</code>, <code>||</code>.</li>
+                            <li><code>[ ... ]</code> / <code>test</code> — POSIX-совместимый, но менее удобный и более хрупкий синтаксис.</li>
+                            <li>Операторы: <code>-z</code>, <code>-n</code>, <code>-eq</code>, <code>-ne</code>, <code>-gt</code>, <code>-ge</code>, <code>-lt</code>, <code>-le</code>, <code>==</code>, <code>!=</code>.</li>
+                        </ul>
+                        <div class="box tip"><strong>✅ Совет.</strong> Внутри <code>[[ ]]</code> логические операторы пишутся как <code>&amp;&amp;</code>, <code>||</code>, <code>!</code>. Не используйте <code>-a</code>, <code>-o</code>: это устаревший стиль.</div>
+                    </div>
+                </details>
+
+                <details class="chapter" id="loops">
+                    <summary>
+                        <div class="chapter-title">
+                            <span class="num">06</span>
+                            <div>
+                                <h3>Циклы и безопасный перебор</h3>
+                                <div class="meta">"$@" · nullglob · glob-паттерны</div>
+                            </div>
+                        </div>
+                        <span class="chev">⌄</span>
+                    </summary>
+                    <div class="chapter-body">
+                        <h4>Перебор аргументов</h4>
+                        <pre><code>for ITEM in "$@"; do
+    echo "Обрабатываю: $ITEM"
+done</code></pre>
+                        <div class="box nuance"><strong>💡 Нюанс.</strong> <code>in "$@"</code> — стандарт для передачи аргументов скрипта в цикл. Кавычки гарантируют, что строки с пробелами не разобьются на части.</div>
+
+                        <h4>Перебор файлов</h4>
+                        <pre><code>shopt -s nullglob  # Если *.txt нет, цикл не выполнится
+for f in *.txt; do
+    echo "Файл: $f"
+done
+shopt -u nullglob  # Вернуть стандартное поведение</code></pre>
+                        <p>Без <code>nullglob</code> при отсутствии файлов переменная получит литерал <code>"*.txt"</code>, что часто приводит к ошибке.</p>
+                    </div>
+                </details>
+
+                <details class="chapter" id="functions">
+                    <summary>
+                        <div class="chapter-title">
+                            <span class="num">07</span>
+                            <div>
+                                <h3>Функции, область видимости и local</h3>
+                                <div class="meta">function scope · local · return</div>
+                            </div>
+                        </div>
+                        <span class="chev">⌄</span>
+                    </summary>
+                    <div class="chapter-body">
+              <pre><code>my_func() {
+    local STATUS="$1"    # local обязателен для внутренних переменных
+    local MSG="$2"
+    echo "[$STATUS] $MSG"
+    return 0             # Код возврата 0-255
+}</code></pre>
+                        <ul>
+                            <li>В Bash переменные <strong>глобальны по умолчанию</strong>. Без <code>local</code> функция может перезаписать переменную из основного скрипта.</li>
+                            <li>Аргументы функции <code>$1</code>, <code>$@</code>, <code>$#</code> работают изолированно от аргументов скрипта.</li>
+                            <li><code>return</code> возвращает только код статуса. Для текста используйте <code>echo</code> и захват: <code>RESULT=$(my_func)</code>.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="chapter" id="errors">
+                    <summary>
+                        <div class="chapter-title">
+                            <span class="num">08</span>
+                            <div>
+                                <h3>Обработка ошибок и потоки вывода</h3>
+                                <div class="meta">stdout · stderr · exit codes</div>
+                            </div>
+                        </div>
+                        <span class="chev">⌄</span>
+                    </summary>
+                    <div class="chapter-body">
+                        <h4>Стандартные потоки</h4>
+                        <ul>
+                            <li><code>stdout</code> / <code>1</code> — нормальный вывод. Перенаправление: <code>&gt;</code>, <code>&gt;&gt;</code>.</li>
+                            <li><code>stderr</code> / <code>2</code> — ошибки. Перенаправление: <code>2&gt;</code>, <code>2&gt;&gt;</code>.</li>
+                            <li>Разделение критично для логирования, CI/CD и мониторинга: <code>./script.sh &gt; out.log 2&gt; err.log</code>.</li>
+                        </ul>
+
+                        <h4>Паттерн || для мягкой обработки</h4>
+                        <pre><code>risky_command || {
+    echo "❌ Ошибка выполнения" &gt;&amp;2
+    exit 1
+}</code></pre>
+                        <div class="box nuance"><strong>💡 Нюанс.</strong> <code>set -e</code> автоматически отключается для команд, связанных через <code>||</code>, <code>&amp;&amp;</code> или находящихся в <code>if/while</code>. Это позволяет обрабатывать ошибки явно.</div>
+                    </div>
+                </details>
+
+                <details class="chapter" id="checklist" open>
+                    <summary>
+                        <div class="chapter-title">
+                            <span class="num">09</span>
+                            <div>
+                                <h3>Чек-лист лучших практик</h3>
+                                <div class="meta">короткая памятка перед практикой</div>
+                            </div>
+                        </div>
+                        <span class="chev">⌄</span>
+                    </summary>
+                    <div class="chapter-body">
+                        <ol class="check-grid">
+                            <li>Первая строка: <code>#!/bin/bash</code>, сразу под ней: <code>set -euo pipefail</code>.</li>
+                            <li>Все переменные в кавычках: <code>"$var"</code>.</li>
+                            <li>В функциях все внутренние переменные объявляйте через <code>local</code>.</li>
+                            <li>Условия: <code>[[ "$var" == "value" ]]</code> вместо хрупких <code>[ ]</code>.</li>
+                            <li>Проверка аргументов: <code>${1:?msg}</code> или <code>${1:-default}</code>.</li>
+                            <li>Циклы по аргументам: <code>for x in "$@"</code>.</li>
+                            <li>Ошибки пишите в <code>stderr</code>: <code>echo "err" &gt;&amp;2</code>.</li>
+                            <li>Завершайте скрипт явно: <code>exit 0</code>.</li>
+                            <li>Форматируйте логи: <code>[INFO]</code>, <code>[ERROR]</code>, эмодзи или теги.</li>
+                            <li>Тестируйте в песочнице. Используйте <code>echo</code> перед destructive-командами.</li>
+                        </ol>
+                        <div class="final-card">
+                            <b>Готово к практике.</b>
+                            <p>Переходите к следующему модулю: <code>curl</code>, парсинг JSON, аутентификация и автоматизация сетевых задач.</p>
+                            <p><em>«Надёжный скрипт — это скрипт, который падает предсказуемо и логируется понятно.»</em></p>
+                        </div>
+                    </div>
+                </details>
+            </div>
         </div>
     </section>
+</main>
 
-    <section id="conditions">
-        <h2><span class="section-number">5</span>УСЛОВИЯ И СОВРЕМЕННЫЕ ТЕСТЫ [[ ... ]]</h2>
+<footer>
+    Web-версия пособия · автономный HTML · тёмный onboarding в стиле modern product carousel
+</footer>
 
-        <div class="code-block">if [[ -z "$VAR" ]]; then
-            echo "ПУСТО"
-            elif [[ "$VAR" == "POST" ]]; then
-            echo "МЕТОД POST"
-            else
-            echo "ДРУГОЕ ЗНАЧЕНИЕ"
-            fi</div>
+<script>
+    // Слайды onboarding: каждый объект меняет заголовок, описание и подсветку точек.
+    const slides = [
+        {
+            kicker: "Современный Bash без хаоса",
+            title: "Пишите скрипты, которые падают предсказуемо.",
+            text: "Научитесь собирать Bash-скрипты с правильным shebang, строгим режимом, безопасными кавычками, условиями, циклами, функциями и понятной обработкой ошибок."
+        },
+        {
+            kicker: "Безопасность по умолчанию",
+            title: "Strict mode — ваш ремень безопасности.",
+            text: "Разберём set -euo pipefail, почему пайплайны могут скрывать ошибки и как сделать поведение скрипта прозрачным для логов и CI/CD."
+        },
+        {
+            kicker: "Аргументы и кавычки",
+            title: "Пробелы в именах файлов больше не ломают логику.",
+            text: "Поймём разницу между $@ и $*, двойными и одинарными кавычками, а также безопасным перебором аргументов и файлов."
+        },
+        {
+            kicker: "Практичный стиль",
+            title: "Функции, stderr и чек-лист перед запуском.",
+            text: "Используйте local, разделяйте stdout/stderr, пишите читаемые логи и тестируйте опасные команды через dry-run."
+        }
+    ];
 
-        <h3>5.1 [[ ... ]] vs [ ... ]</h3>
-        <ul>
-            <li><span class="inline-code">[[ ... ]]</span> — встроенный синтаксис Bash. Не требует экранирования <span class="inline-code">&lt;</span>, <span class="inline-code">&gt;</span>, <span class="inline-code">&amp;&amp;</span>, <span class="inline-code">||</span>. Работает с <span class="inline-code">==</span>, <span class="inline-code">!=</span>, <span class="inline-code">=~</span> (regex).</li>
-            <li><span class="inline-code">[ ... ]</span> (или <span class="inline-code">test</span>) — устаревший POSIX-совместимый синтаксис. Требует экранирования, менее безопасен при пустых переменных.</li>
-        </ul>
+    let slide = 0;
+    const kicker = document.getElementById("slideKicker");
+    const title = document.getElementById("slideTitle");
+    const text = document.getElementById("slideText");
+    const dots = document.getElementById("dots");
 
-        <h3>5.2 Операторы сравнения</h3>
-        <table>
-            <tr>
-                <th>ОПЕРАТОР</th>
-                <th>ОПИСАНИЕ</th>
-                <th>ПРИМЕР</th>
-            </tr>
-            <tr>
-                <td><span class="inline-code">-z</span></td>
-                <td>Строка пуста</td>
-                <td><span class="inline-code">[[ -z "$VAR" ]]</span></td>
-            </tr>
-            <tr>
-                <td><span class="inline-code">-n</span></td>
-                <td>Строка не пуста</td>
-                <td><span class="inline-code">[[ -n "$VAR" ]]</span></td>
-            </tr>
-            <tr>
-                <td><span class="inline-code">-eq, -ne</span></td>
-                <td>Числовое равно / не равно</td>
-                <td><span class="inline-code">[[ $A -eq $B ]]</span></td>
-            </tr>
-            <tr>
-                <td><span class="inline-code">-gt, -ge, -lt, -le</span></td>
-                <td>Больше / больше или равно / меньше / меньше или равно</td>
-                <td><span class="inline-code">[[ $A -ge 400 ]]</span></td>
-            </tr>
-            <tr>
-                <td><span class="inline-code">==, !=</span></td>
-                <td>Строковое равно / не равно</td>
-                <td><span class="inline-code">[[ "$A" == "POST" ]]</span></td>
-            </tr>
-        </table>
+    function renderDots() {
+        dots.innerHTML = "";
+        slides.forEach((_, i) => {
+            const btn = document.createElement("button");
+            btn.className = "dot" + (i === slide ? " active" : "");
+            btn.setAttribute("aria-label", `Слайд ${i + 1}`);
+            btn.addEventListener("click", () => {
+                slide = i;
+                renderSlide();
+            });
+            dots.appendChild(btn);
+        });
+    }
 
-        <div class="tip">
-            ВНУТРИ <span class="inline-code">[[ ]]</span> ЛОГИЧЕСКИЕ ОПЕРАТОРЫ ПИШУТСЯ КАК <span class="inline-code">&amp;&amp;</span>, <span class="inline-code">||</span>, <span class="inline-code">!</span>. НЕ ИСПОЛЬЗУЙТЕ <span class="inline-code">-a</span>, <span class="inline-code">-o</span> (DEPRECATED В POSIX).
-        </div>
-    </section>
+    function renderSlide() {
+        const s = slides[slide];
+        kicker.textContent = s.kicker;
+        title.textContent = s.title;
+        text.textContent = s.text;
+        renderDots();
+    }
 
-    <section id="loops">
-        <h2><span class="section-number">6</span>ЦИКЛЫ И БЕЗОПАСНЫЙ ПЕРЕБОР</h2>
+    document.getElementById("prevBtn").addEventListener("click", () => {
+        slide = (slide - 1 + slides.length) % slides.length;
+        renderSlide();
+    });
 
-        <h3>6.1 Перебор аргументов</h3>
-        <div class="code-block">for ITEM in "$@"; do
-            echo "ОБРАБАТЫВАЮ: $ITEM"
-            done</div>
+    document.getElementById("nextBtn").addEventListener("click", () => {
+        slide = (slide + 1) % slides.length;
+        renderSlide();
+    });
 
-        <div class="nuance">
-            <span class="inline-code">in "$@"</span> — СТАНДАРТ ДЛЯ ПЕРЕДАЧИ АРГУМЕНТОВ СКРИПТА В ЦИКЛ. КАВЫЧКИ ГАРАНТИРУЮТ, ЧТО СТРОКИ С ПРОБЕЛАМИ НЕ РАЗОБЬЮТСЯ НА ЧАСТИ. <span class="inline-code">in $*</span> ИЛИ <span class="inline-code">in $@</span> (БЕЗ КАВЫЧЕК) РАЗОБЬЁТ <span class="inline-code">"file name.txt"</span> НА ДВА ЭЛЕМЕНТА.
-        </div>
+    renderSlide();
 
-        <h3>6.2 Перебор файлов (опасность пустой директории)</h3>
-        <div class="code-block">shopt -s nullglob  # Если *.txt нет, цикл не выполнится
-            for f in *.txt; do
-            echo "ФАЙЛ: $f"
-            done
-            shopt -u nullglob  # ВЕРНУТЬ СТАНДАРТНОЕ ПОВЕДЕНИЕ</div>
+    // Раскрывает все главы пособия.
+    function openAll() {
+        document.querySelectorAll(".chapter").forEach(ch => ch.open = true);
+        document.querySelector("#guide").scrollIntoView({ behavior: "smooth" });
+    }
 
-        <p>Без <span class="inline-code">nullglob</span> при отсутствии файлов переменная получит литерал <span class="inline-code">"*.txt"</span>, что приведёт к ошибке.</p>
-    </section>
+    window.openAll = openAll;
 
-    <section id="functions">
-        <h2><span class="section-number">7</span>ФУНКЦИИ, ОБЛАСТЬ ВИДИМОСТИ И LOCAL</h2>
+    // Поиск по тексту глав: неподходящие главы прячем, подходящие раскрываем.
+    const search = document.getElementById("searchInput");
+    const chapters = Array.from(document.querySelectorAll(".chapter"));
 
-        <div class="code-block">my_func() {
-            local STATUS="$1"    # local ОБЯЗАТЕЛЕН для всех внутренних переменных
-            local MSG="$2"
-            echo "[$STATUS] $MSG"
-            return 0             # Код возврата 0-255
-            }</div>
+    search.addEventListener("input", () => {
+        const q = search.value.trim().toLowerCase();
 
-        <ul>
-            <li>В Bash переменные <strong>ГЛОБАЛЬНЫ ПО УМОЛЧАНИЮ</strong>. Без <span class="inline-code">local</span> функция перезапишет переменную с тем же именем в основном скрипте.</li>
-            <li>Аргументы функции: <span class="inline-code">$1</span>, <span class="inline-code">$@</span>, <span class="inline-code">$#</span> работают изолированно от аргументов скрипта.</li>
-            <li>Возврат данных: <span class="inline-code">return</span> возвращает <strong>КОД СТАТУСА</strong> (число 0-255). Для возврата текста используйте <span class="inline-code">echo "data"</span> и захват: <span class="inline-code">RESULT=$(my_func)</span>.</li>
-        </ul>
-    </section>
+        chapters.forEach(ch => {
+            ch.classList.remove("hidden-by-search");
 
-    <section id="errors">
-        <h2><span class="section-number">8</span>ОБРАБОТКА ОШИБОК И ПОТОКИ ВЫВОДА</h2>
+            // Убираем старую подсветку: просто восстанавливаем текст через data-original.
+            ch.querySelectorAll("[data-original]").forEach(node => {
+                node.innerHTML = node.dataset.original;
+                delete node.dataset.original;
+            });
 
-        <h3>8.1 Стандартные потоки</h3>
-        <table>
-            <tr>
-                <th>ПОТОК</th>
-                <th>ОПИСАНИЕ</th>
-                <th>ПЕРЕНАПРАВЛЕНИЕ</th>
-            </tr>
-            <tr>
-                <td><span class="inline-code">stdout</span> (1)</td>
-                <td>Нормальный вывод</td>
-                <td><span class="inline-code">&gt;</span>, <span class="inline-code">&gt;&gt;</span></td>
-            </tr>
-            <tr>
-                <td><span class="inline-code">stderr</span> (2)</td>
-                <td>Ошибки</td>
-                <td><span class="inline-code">2&gt;</span>, <span class="inline-code">2&gt;&gt;</span></td>
-            </tr>
-        </table>
+            if (!q) return;
 
-        <p>Разделение критично для логирования, CI/CD и мониторинга: <span class="inline-code">./script.sh &gt; out.log 2&gt; err.log</span>.</p>
+            const hay = ch.innerText.toLowerCase();
+            if (!hay.includes(q)) {
+                ch.classList.add("hidden-by-search");
+                return;
+            }
 
-        <h3>8.2 Паттерн || для мягкой обработки</h3>
-        <div class="code-block">risky_command || {
-            echo "❌ ОШИБКА ВЫПОЛНЕНИЯ" >&2
-            exit 1
-            }</div>
+            ch.open = true;
 
-        <div class="nuance">
-            <span class="inline-code">set -e</span> АВТОМАТИЧЕСКИ ОТКЛЮЧАЕТСЯ ДЛЯ КОМАНД, СВЯЗАННЫХ ЧЕРЕЗ <span class="inline-code">||</span>, <span class="inline-code">&amp;&amp;</span> ИЛИ НАХОДЯЩИХСЯ В <span class="inline-code">if/while</span>. ЭТО ПОЗВОЛЯЕТ ОБРАБАТЫВАТЬ ОШИБКИ БЕЗ ВРЕМЕННОГО <span class="inline-code">set +e</span>.
-        </div>
-    </section>
+            // Мягкая подсветка найденного слова в заголовке и абзацах.
+            ch.querySelectorAll("h3, h4, p, li").forEach(node => {
+                if (!node.innerText.toLowerCase().includes(q)) return;
+                node.dataset.original = node.innerHTML;
+                const safe = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                node.innerHTML = node.innerHTML.replace(new RegExp(`(${safe})`, "gi"), "<mark>$1</mark>");
+            });
+        });
+    });
 
-    <section id="checklist">
-        <div class="checklist">
-            <h3>9. ЧЕК-ЛИСТ ЛУЧШИХ ПРАКТИК (МОДУЛИ 1–2)</h3>
-            <ol>
-                <li>Первая строка: <span class="inline-code">#!/bin/bash</span>, сразу под ней: <span class="inline-code">set -euo pipefail</span>.</li>
-                <li>Все переменные в кавычках: <span class="inline-code">"$var"</span>.</li>
-                <li>В функциях все внутренние переменные: <span class="inline-code">local</span>.</li>
-                <li>Условия: <span class="inline-code">[[ "$var" == "value" ]]</span> вместо <span class="inline-code">[ ]</span>.</li>
-                <li>Проверка аргументов: <span class="inline-code">${1:?msg}</span> или <span class="inline-code">${1:-default}</span>.</li>
-                <li>Циклы по аргументам: <span class="inline-code">for x in "$@"</span>.</li>
-                <li>Ошибки пишите в <span class="inline-code">stderr</span>: <span class="inline-code">echo "err" >&2</span>.</li>
-                <li>Завершайте скрипт явно: <span class="inline-code">exit 0</span> (для оркестраторов и systemd).</li>
-                <li>Форматируйте логи: префиксы <span class="inline-code">[INFO]</span>, <span class="inline-code">[ERROR]</span>, эмодзи или теги для <span class="inline-code">grep</span>/<span class="inline-code">awk</span>.</li>
-                <li>Тестируйте в песочнице. Используйте <span class="inline-code">echo</span> перед destructive-командами.</li>
-            </ol>
-        </div>
-    </section>
+    // Активная ссылка оглавления при прокрутке.
+    const tocLinks = Array.from(document.querySelectorAll(".toc a"));
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            tocLinks.forEach(a => a.classList.toggle("active", a.getAttribute("href") === `#${entry.target.id}`));
+        });
+    }, { rootMargin: "-40% 0px -55% 0px", threshold: 0.01 });
 
-    <div class="footer">
-        <p>ГОТОВО К ПРАКТИКЕ</p>
-        <p>ПЕРЕХОДИТЕ К СЛЕДУЮЩЕМУ МОДУЛЮ: CURL, ПАРСИНГ JSON, АУТЕНТИФИКАЦИЯ И АВТОМАТИЗАЦИЯ СЕТЕВЫХ ЗАДАЧ.</p>
-        <div class="footer-quote">
-            «НАДЁЖНЫЙ СКРИПТ — ЭТО СКРИПТ, КОТОРЫЙ ПАДАЕТ ПРЕДСКАЗУЕМО И ЛОГИРУЕТСЯ ПОНЯТНО.»
-        </div>
-        <p style="margin-top: 30px; font-size: 12px;">BASH-СКРИПТЫ: МОДУЛИ 1-2 | БРУТАЛИЗМ-ИЗДАНИЕ | 2026</p>
-    </div>
-</div>
+    chapters.forEach(ch => observer.observe(ch));
+
+    // Автопрокрутка carousel каждые 7 секунд, пока пользователь не взаимодействует.
+    let auto = setInterval(() => {
+        slide = (slide + 1) % slides.length;
+        renderSlide();
+    }, 7000);
+
+    ["click", "keydown", "input"].forEach(eventName => {
+        window.addEventListener(eventName, () => {
+            clearInterval(auto);
+        }, { once: true });
+    });
+</script>
 </body>
 </html>
