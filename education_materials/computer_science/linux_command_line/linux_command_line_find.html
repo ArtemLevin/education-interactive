@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mindmap: команда find</title>
+  <style>
+    :root {
+      --paper: #fbf5e7;
+      --ink: #151515;
+      --muted: #50483d;
+      --blue: #1597c8;
+      --purple: #7c4ab8;
+      --green: #3e9c35;
+      --teal: #159f92;
+      --orange: #e39519;
+      --red: #d84f66;
+      --yellow: #f1c64b;
+      --shadow: 6px 7px 0 rgba(20, 20, 20, 0.13);
+      --soft-shadow: 0 18px 50px rgba(65, 42, 10, 0.14);
+      --radius: 26px;
+      --font-main: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+      --font-code: "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: var(--font-main);
+      background:
+      radial-gradient(circle at 12% 8%, rgba(255, 255, 255, 0.92), transparent 20rem),
+      radial-gradient(circle at 88% 14%, rgba(255, 240, 174, 0.34), transparent 22rem),
+      linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px),
+      linear-gradient(rgba(0,0,0,0.023) 1px, transparent 1px),
+      var(--paper);
+      background-size: auto, auto, 28px 28px, 28px 28px, auto;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.17;
+      background-image:
+      radial-gradient(circle, rgba(0,0,0,0.14) 0.8px, transparent 1px),
+      radial-gradient(circle, rgba(255,255,255,0.8) 0.8px, transparent 1px);
+      background-size: 19px 19px, 23px 23px;
+      mix-blend-mode: multiply;
+      z-index: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: min(1380px, calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+      background: rgba(251, 245, 231, 0.82);
+      border-bottom: 3px solid rgba(21, 21, 21, 0.16);
+    }
+
+    .topbar-inner {
+      width: min(1380px, calc(100% - 28px));
+      margin: 0 auto;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      font-size: 20px;
+      white-space: nowrap;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border: 3px solid var(--ink);
+      border-radius: 50% 48% 45% 52%;
+      display: grid;
+      place-items: center;
+      background: #fff4a9;
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.14);
+      transform: rotate(-4deg);
+    }
+
+    .nav {
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 3px;
+    }
+
+    .nav::-webkit-scrollbar { display: none; }
+
+    .nav a {
+      flex: 0 0 auto;
+      border: 2px solid rgba(21, 21, 21, 0.42);
+      border-radius: 999px 890px 920px 780px;
+      background: rgba(255,255,255,0.62);
+      padding: 7px 11px;
+      font-size: 14px;
+      font-weight: 800;
+      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+
+    .nav a:hover, .nav a.active {
+      transform: translateY(-2px) rotate(-1deg);
+      background: #fff3a0;
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.13);
+    }
+
+    .hero {
+      padding: 34px 0 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .hero-card, .note-card, .panel, .practice-card {
+      background: rgba(255, 252, 242, 0.78);
+      border: 4px solid var(--ink);
+      border-radius: 32px 24px 36px 26px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .hero-card {
+      padding: 30px;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      right: -80px;
+      top: -80px;
+      width: 230px;
+      height: 230px;
+      border-radius: 44% 56% 51% 49%;
+      border: 5px dashed rgba(21, 151, 200, .35);
+      transform: rotate(18deg);
+    }
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      border: 3px solid var(--ink);
+      border-radius: 999px 880px 790px 940px;
+      padding: 7px 13px;
+      font-weight: 900;
+      background: #c7f1ff;
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.12);
+      transform: rotate(-1deg);
+    }
+
+    .label-dot {
+      width: 13px;
+      height: 13px;
+      border: 3px solid var(--ink);
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    h1 {
+      margin: 22px 0 12px;
+      font-size: clamp(48px, 8vw, 104px);
+      line-height: .88;
+      letter-spacing: -0.08em;
+      max-width: 750px;
+    }
+
+    .find-word {
+      display: inline-block;
+      color: var(--ink);
+      text-shadow: 4px 5px 0 rgba(21, 151, 200, .24);
+      transform: rotate(-1deg);
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      border: 3px solid var(--ink);
+      background: #fff;
+      border-radius: 18px 13px 18px 12px;
+      padding: 11px 16px;
+      box-shadow: 4px 5px 0 rgba(0,0,0,0.15);
+      font-family: inherit;
+      font-weight: 900;
+      cursor: pointer;
+      transition: .18s ease;
+      font-size: 16px;
+    }
+
+    .btn.primary { background: #92e6ff; }
+    .btn.yellow { background: #ffe36f; }
+    .btn:hover { transform: translateY(-3px) rotate(-1deg); box-shadow: 7px 8px 0 rgba(0,0,0,0.14); }
+
+    .note-card {
+      padding: 22px;
+      border-radius: 24px 32px 22px 30px;
+      background: #fff9dc;
+      transform: rotate(1deg);
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .terminal {
+      margin-top: 12px;
+      border: 4px solid var(--ink);
+      border-radius: 20px 14px 22px 16px;
+      overflow: hidden;
+      background: #181818;
+      color: #e8f7e4;
+      font-family: var(--font-code);
+      transform: rotate(-1deg);
+    }
+
+    .terminal-top {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 12px;
+      background: #f1f1e7;
+      border-bottom: 4px solid var(--ink);
+    }
+
+    .tdot { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--ink); }
+    .tdot:nth-child(1) { background: #ff6370; }
+    .tdot:nth-child(2) { background: #ffcf4a; }
+    .tdot:nth-child(3) { background: #4ed36d; }
+
+    .terminal-body {
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.75;
+      word-break: break-word;
+    }
+
+    .prompt { color: #80ff9f; }
+    .cmd-accent { color: #70e3ff; }
+    .comment { color: #a5b4b7; }
+
+    .mindmap-wrap {
+      position: relative;
+      margin: 28px 0 48px;
+      min-height: 1080px;
+    }
+
+    .connector-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .center-node {
+      position: absolute;
+      z-index: 5;
+      left: 50%;
+      top: 430px;
+      transform: translate(-50%, -50%) rotate(-1deg);
+      width: min(410px, 86vw);
+      min-height: 245px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      background: #fffefa;
+      border: 6px solid var(--ink);
+      border-radius: 48% 52% 45% 55% / 58% 42% 56% 44%;
+      box-shadow: 9px 10px 0 rgba(21, 151, 200, .25), var(--soft-shadow);
+      padding: 24px;
+    }
+
+    .center-node::before,
+    .center-node::after {
+      content: "";
+      position: absolute;
+      border: 4px solid var(--blue);
+      border-left-color: transparent;
+      border-right-color: transparent;
+      border-radius: 50%;
+      opacity: .8;
+    }
+
+    .center-node::before { inset: 12px 22px; transform: rotate(-5deg); }
+    .center-node::after { inset: 30px 16px; transform: rotate(8deg); }
+
+    .center-small {
+      font-size: 42px;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .center-big {
+      font-size: 112px;
+      line-height: .8;
+      font-weight: 950;
+      letter-spacing: -0.08em;
+      text-shadow: 4px 5px 0 rgba(21, 151, 200, .25);
+      position: relative;
+      z-index: 1;
+    }
+
+    .magnifier {
+      position: absolute;
+      right: 28px;
+      bottom: 18px;
+      width: 72px;
+      height: 72px;
+      border: 6px solid var(--ink);
+      border-radius: 50%;
+      background: rgba(146, 230, 255, .45);
+      transform: rotate(-18deg);
+      z-index: 2;
+    }
+
+    .magnifier::after {
+      content: "";
+      position: absolute;
+      width: 54px;
+      height: 12px;
+      background: #4d4d4d;
+      border: 4px solid var(--ink);
+      border-radius: 10px;
+      right: -45px;
+      bottom: -18px;
+      transform: rotate(43deg);
+    }
+
+    .spark {
+      position: absolute;
+      width: 8px;
+      height: 35px;
+      border-radius: 99px;
+      background: var(--ink);
+      opacity: .9;
+      transform-origin: 50% 120px;
+    }
+
+    .spark.s1 { top: -28px; left: 52%; transform: rotate(1deg); }
+    .spark.s2 { top: 4px; right: -18px; transform: rotate(61deg); }
+    .spark.s3 { bottom: -28px; left: 48%; transform: rotate(177deg); }
+    .spark.s4 { top: 50%; left: -24px; transform: rotate(92deg); }
+    .spark.s5 { top: 16px; left: 18px; transform: rotate(-42deg); height: 24px; }
+
+    .branch-card {
+      position: absolute;
+      z-index: 4;
+      width: 330px;
+      padding: 16px 18px 18px;
+      background: rgba(255, 253, 243, 0.96);
+      border: 4px solid var(--ink);
+      border-radius: 26px 18px 28px 22px;
+      box-shadow: var(--shadow);
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .branch-card:hover {
+      transform: translateY(-5px) rotate(0deg) scale(1.01) !important;
+      box-shadow: 9px 10px 0 rgba(0,0,0,.13), 0 20px 40px rgba(70,45,10,.15);
+    }
+
+    .branch-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 10px;
+    }
+
+    .num {
+      width: 44px;
+      height: 44px;
+      flex: 0 0 auto;
+      border: 4px solid var(--ink);
+      border-radius: 50% 47% 52% 45%;
+      display: grid;
+      place-items: center;
+      font-size: 23px;
+      font-weight: 950;
+      background: #fff;
+      box-shadow: 3px 3px 0 rgba(0,0,0,.12);
+    }
+
+    .title-strip {
+      flex: 1;
+      display: inline-block;
+      padding: 4px 12px 6px;
+      border: 3px solid var(--ink);
+      border-radius: 12px 18px 11px 16px;
+      font-size: 25px;
+      line-height: 1;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+      position: relative;
+    }
+
+    .title-strip::after {
+      content: "";
+      position: absolute;
+      inset: auto 8px -8px 12px;
+      height: 6px;
+      border-radius: 999px;
+      opacity: .5;
+    }
+
+    .blue .title-strip, .blue .num { background: #c8effc; }
+    .purple .title-strip, .purple .num { background: #e7d7ff; }
+    .green .title-strip, .green .num { background: #dcf7d4; }
+    .teal .title-strip, .teal .num { background: #d7fff6; }
+    .orange .title-strip, .orange .num { background: #ffe5ad; }
+    .red .title-strip, .red .num { background: #ffd5dc; }
+    .yellow .title-strip, .yellow .num { background: #fff1a8; }
+
+    .blue .title-strip::after { background: var(--blue); }
+    .purple .title-strip::after { background: var(--purple); }
+    .green .title-strip::after { background: var(--green); }
+    .teal .title-strip::after { background: var(--teal); }
+    .orange .title-strip::after { background: var(--orange); }
+    .red .title-strip::after { background: var(--red); }
+    .yellow .title-strip::after { background: var(--yellow); }
+
+    .branch-card ul {
+      margin: 10px 0 0;
+      padding-left: 23px;
+      font-size: 17px;
+      font-weight: 800;
+      color: #27221d;
+    }
+
+    .branch-card li { margin: 5px 0; }
+
+    .branch-card code, .code-pill {
+      font-family: var(--font-code);
+      font-weight: 800;
+      background: rgba(255,255,255,.64);
+      border: 2px solid rgba(21,21,21,.24);
+      border-radius: 8px;
+      padding: 1px 5px;
+      white-space: nowrap;
+    }
+
+    .formula-box, .hint-box, .example-box, .stitched-box {
+      border: 3px dashed currentColor;
+      border-radius: 14px 19px 13px 18px;
+      padding: 9px 11px;
+      margin-top: 11px;
+      background: rgba(255,255,255,.58);
+      font-family: var(--font-code);
+      font-weight: 900;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-x: auto;
+    }
+
+    .blue .formula-box { color: var(--blue); }
+    .teal .example-box, .teal .stitched-box { color: var(--teal); }
+    .blue .hint-box { color: var(--blue); font-family: inherit; }
+
+    .filter-grid {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 8px;
+      align-items: start;
+      font-weight: 900;
+      font-size: 15px;
+    }
+
+    .filter-label {
+      border: 3px solid var(--green);
+      border-radius: 12px 18px 13px 15px;
+      background: rgba(220, 247, 212, .7);
+      padding: 5px 8px;
+      text-align: center;
+    }
+
+    .filter-values {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .mini-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      margin-right: 3px;
+      font-size: 20px;
+    }
+
+    .ribbon-list {
+      list-style: none !important;
+      padding-left: 0 !important;
+      display: grid;
+      gap: 7px;
+      margin-top: 10px !important;
+    }
+
+    .ribbon-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 !important;
+    }
+
+    .ribbon-n {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 3px solid var(--ink);
+      background: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+    }
+
+    .ribbon {
+      flex: 1;
+      padding: 4px 10px;
+      border: 3px solid var(--ink);
+      border-radius: 8px 14px 8px 13px;
+      background: #c8effc;
+      position: relative;
+    }
+
+    .ribbon.green-bg { background: #dcf7d4; }
+    .ribbon.yellow-bg { background: #fff1a8; }
+    .ribbon.purple-bg { background: #e7d7ff; }
+    .ribbon.blue-bg { background: #c8effc; }
+
+    .doodle {
+      position: absolute;
+      font-size: 44px;
+      filter: drop-shadow(2px 3px 0 rgba(0,0,0,.12));
+      z-index: 3;
+      user-select: none;
+    }
+
+    .folder-tree {
+      left: 1%; top: 122px; transform: rotate(-4deg); font-size: 58px;
+    }
+    .broom { right: 1%; top: 410px; transform: rotate(-8deg); font-size: 72px; }
+    .warning-icon { left: 25%; top: 560px; transform: rotate(6deg); font-size: 50px; }
+    .clipboard { left: 2%; top: 360px; transform: rotate(-2deg); font-size: 62px; }
+    .bulb { right: 1%; top: 820px; transform: rotate(5deg); font-size: 68px; }
+    .hat { left: 58%; top: 915px; transform: rotate(5deg); font-size: 56px; }
+    .star { left: 0%; top: 950px; transform: rotate(-12deg); font-size: 54px; }
+
+    .c1 { left: 12%; top: 28px; width: 370px; transform: rotate(-1deg); }
+    .c2 { left: 41%; top: 18px; width: 360px; transform: rotate(1deg); }
+    .c3 { right: 1%; top: 20px; width: 390px; transform: rotate(.5deg); }
+    .c4 { right: 7%; top: 380px; width: 330px; transform: rotate(-.5deg); }
+    .c5 { right: 1%; top: 610px; width: 430px; transform: rotate(.7deg); }
+    .c6 { right: 3%; top: 862px; width: 430px; transform: rotate(-.3deg); }
+    .c7 { left: 45%; top: 828px; width: 350px; transform: rotate(1deg); }
+    .c8 { left: 23%; top: 812px; width: 350px; transform: rotate(-1deg); }
+    .c9 { left: 0%; top: 610px; width: 330px; transform: rotate(-1.4deg); }
+    .c10 { left: 0%; top: 340px; width: 360px; transform: rotate(.8deg); }
+    .c11 { left: 0%; top: 855px; width: 285px; transform: rotate(1.1deg); }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 46px 0;
+    }
+
+    .practice-card {
+      padding: 20px;
+      background: rgba(255, 253, 244, .9);
+      border-radius: 24px 18px 25px 19px;
+    }
+
+    .practice-card h3 {
+      margin: 0 0 10px;
+      font-size: 24px;
+      letter-spacing: -0.04em;
+    }
+
+    .practice-card p {
+      margin: 0;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .footer {
+      text-align: center;
+      font-weight: 900;
+      padding: 30px 0 50px;
+      color: var(--muted);
+    }
+
+    .print-note {
+      margin-top: 10px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 1250px) {
+      .mindmap-wrap {
+        min-height: auto;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        align-items: start;
+      }
+
+      .connector-layer, .doodle, .spark, .magnifier { display: none; }
+
+      .center-node,
+      .branch-card {
+        position: relative;
+        left: auto; right: auto; top: auto; width: auto;
+        transform: none !important;
+      }
+
+      .center-node {
+        grid-column: 1 / -1;
+        margin: 0 auto 12px;
+        min-height: 220px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .hero, .legend { grid-template-columns: 1fr; }
+      .topbar-inner { align-items: flex-start; flex-direction: column; }
+      .nav { width: 100%; }
+    }
+
+    @media (max-width: 720px) {
+      .mindmap-wrap { grid-template-columns: 1fr; }
+      .center-big { font-size: 84px; }
+      .center-small { font-size: 32px; }
+      h1 { font-size: 56px; }
+      .hero-card, .note-card { padding: 20px; }
+      .branch-card { padding: 14px; }
+      .title-strip { font-size: 22px; }
+      .filter-row { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      body::before, .topbar, .connector-layer, .doodle, .hero-actions { display: none !important; }
+      .page { width: 100%; padding: 0 10mm; }
+      .hero { display: block; padding: 0; }
+      .hero-card, .note-card, .branch-card, .center-node, .practice-card {
+        box-shadow: none !important;
+        break-inside: avoid;
+        background: #fff !important;
+      }
+      .mindmap-wrap {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        min-height: auto;
+      }
+      .center-node, .branch-card {
+        position: relative;
+        left: auto; top: auto; right: auto;
+        width: auto;
+        transform: none !important;
+      }
+      .center-node { grid-column: 1 / -1; margin-bottom: 8px; }
+    }
+
+
+    .branch-card {
+      touch-action: none;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .branch-card.dragging {
+      cursor: grabbing;
+      z-index: 80;
+      box-shadow: 13px 15px 0 rgba(0,0,0,.16), 0 26px 60px rgba(70,45,10,.26);
+      filter: saturate(1.08);
+    }
+
+    .card-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .info-btn {
+      border: 3px solid var(--ink);
+      border-radius: 999px 870px 920px 810px;
+      background: #fff;
+      padding: 7px 11px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 950;
+      cursor: pointer;
+      box-shadow: 3px 4px 0 rgba(0,0,0,.13);
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .info-btn:hover {
+      transform: translateY(-2px) rotate(-1deg);
+      box-shadow: 5px 6px 0 rgba(0,0,0,.13);
+      background: #fff1a8;
+    }
+
+    .drag-hint {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      z-index: 60;
+      border: 3px solid var(--ink);
+      border-radius: 999px 880px 910px 860px;
+      background: rgba(255, 252, 242, .94);
+      box-shadow: 4px 5px 0 rgba(0,0,0,.14);
+      padding: 9px 14px;
+      font-weight: 950;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+
+    .drag-hint.visible { opacity: 1; }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(18, 15, 10, .55);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal-card {
+      width: min(760px, 100%);
+      max-height: min(82vh, 760px);
+      overflow: auto;
+      border: 5px solid var(--ink);
+      border-radius: 32px 24px 34px 25px;
+      background:
+      linear-gradient(90deg, rgba(0,0,0,.025) 1px, transparent 1px),
+      linear-gradient(rgba(0,0,0,.022) 1px, transparent 1px),
+      #fff9e6;
+      background-size: 24px 24px;
+      box-shadow: 10px 12px 0 rgba(0,0,0,.2), 0 30px 90px rgba(0,0,0,.35);
+      padding: 24px;
+      transform: rotate(-.4deg);
+      position: relative;
+    }
+
+    .modal-close {
+      position: sticky;
+      top: 0;
+      float: right;
+      width: 42px;
+      height: 42px;
+      border: 4px solid var(--ink);
+      border-radius: 50%;
+      background: #ffd5dc;
+      font-family: inherit;
+      font-size: 24px;
+      font-weight: 950;
+      cursor: pointer;
+      box-shadow: 3px 4px 0 rgba(0,0,0,.13);
+      z-index: 2;
+    }
+
+    .modal-kicker {
+      display: inline-flex;
+      border: 3px solid var(--ink);
+      border-radius: 999px;
+      padding: 6px 11px;
+      background: #c8effc;
+      font-weight: 950;
+      margin-bottom: 12px;
+    }
+
+    .modal-card h2 {
+      clear: both;
+      margin: 4px 0 12px;
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: .95;
+      letter-spacing: -.06em;
+    }
+
+    .modal-card p,
+    .modal-card li {
+      font-size: 18px;
+      font-weight: 800;
+      color: #342c22;
+    }
+
+    .modal-card ul { padding-left: 24px; }
+
+    .modal-code {
+      margin: 14px 0;
+      border: 4px solid var(--ink);
+      border-radius: 18px 14px 20px 16px;
+      background: #171717;
+      color: #eaffef;
+      padding: 15px;
+      font-family: var(--font-code);
+      font-size: 15px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      box-shadow: 4px 5px 0 rgba(0,0,0,.13);
+    }
+
+    .modal-note {
+      border-left: 6px solid var(--orange);
+      background: rgba(255, 229, 173, .75);
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-weight: 900;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 1250px) {
+      .branch-card { cursor: default; touch-action: auto; }
+      .drag-hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#top"><span class="brand-icon">⌕</span><span>Mindmap: find</span></a>
+    <nav class="nav" aria-label="Навигация">
+      <a href="#essence">1 Суть</a>
+      <a href="#syntax">2 Синтаксис</a>
+      <a href="#filters">3 Фильтры</a>
+      <a href="#actions">4 Действия</a>
+      <a href="#logic">5 Логика</a>
+      <a href="#usage">6 Применение</a>
+      <a href="#hacks">7 Хаки</a>
+      <a href="#plan">8 План</a>
+      <a href="#mistakes">9 Ошибки</a>
+      <a href="#exercises">10 Упражнения</a>
+      <a href="#cheatsheet">11 Шпаргалка</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page" id="top">
+  <section class="hero">
+    <div class="hero-card">
+      <span class="label"><span class="label-dot"></span> стильный рисунок от руки • Linux / Unix</span>
+      <h1>Команда <span class="find-word">find</span></h1>
+      <p>
+        Веб-сайт по макету mindmap: все ключевые идеи команды <code>find</code> собраны в виде
+        рукописной карты с цветными ветками, быстрыми примерами и практической логикой.
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#map">Открыть карту</a>
+        <a class="btn yellow" href="#cheatsheet">Шпаргалка</a>
+        <button class="btn" onclick="window.print()">Печать</button>
+      </div>
+    </div>
+
+    <aside class="note-card">
+      <h2 style="margin:0;font-size:32px;letter-spacing:-.05em;">Главная формула</h2>
+      <p style="margin:8px 0 0;font-weight:900;color:var(--muted);">Сначала указываем место, потом условия, затем действие.</p>
+      <div class="terminal">
+        <div class="terminal-top"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></div>
+        <div class="terminal-body">
+          <div><span class="prompt">$</span> find <span class="cmd-accent">[путь]</span> <span class="cmd-accent">[условия]</span> <span class="cmd-accent">[действие]</span></div>
+          <div class="comment"># сначала проверить результат</div>
+          <div><span class="prompt">$</span> find . -name <span class="cmd-accent">"*.tmp"</span></div>
+          <div class="comment"># потом удалять</div>
+          <div><span class="prompt">$</span> find . -name <span class="cmd-accent">"*.tmp"</span> -delete</div>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="mindmap-wrap" id="map" aria-label="Mindmap команды find">
+    <svg class="connector-layer" viewBox="0 0 1380 1080" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <marker id="arrowBlue" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,5 L0,10 z" fill="#1597c8" /></marker>
+        <marker id="arrowPurple" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,5 L0,10 z" fill="#7c4ab8" /></marker>
+        <marker id="arrowGreen" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,5 L0,10 z" fill="#3e9c35" /></marker>
+        <marker id="arrowTeal" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,5 L0,10 z" fill="#159f92" /></marker>
+        <marker id="arrowOrange" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,5 L0,10 z" fill="#e39519" /></marker>
+        <marker id="arrowRed" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,5 L0,10 z" fill="#d84f66" /></marker>
+      </defs>
+      <path d="M640 390 C500 330, 430 220, 360 150" fill="none" stroke="#1597c8" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowBlue)" />
+      <path d="M690 320 C690 230, 700 150, 690 84" fill="none" stroke="#7c4ab8" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowPurple)" />
+      <path d="M790 360 C910 250, 1000 130, 1055 86" fill="none" stroke="#3e9c35" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowGreen)" />
+      <path d="M875 440 C975 425, 1045 430, 1110 442" fill="none" stroke="#1597c8" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowBlue)" />
+      <path d="M840 530 C950 570, 1010 650, 1045 710" fill="none" stroke="#159f92" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowTeal)" />
+      <path d="M785 615 C900 760, 1010 850, 1065 910" fill="none" stroke="#e39519" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowOrange)" />
+      <path d="M690 650 C690 745, 690 805, 685 842" fill="none" stroke="#7c4ab8" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowPurple)" />
+      <path d="M610 630 C520 735, 430 800, 382 844" fill="none" stroke="#159f92" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowTeal)" />
+      <path d="M535 525 C400 575, 260 625, 220 678" fill="none" stroke="#d84f66" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowRed)" />
+      <path d="M520 438 C350 390, 235 390, 190 405" fill="none" stroke="#e39519" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowOrange)" />
+      <path d="M555 615 C420 795, 260 890, 180 950" fill="none" stroke="#159f92" stroke-width="6" stroke-linecap="round" stroke-dasharray="12 12" marker-end="url(#arrowTeal)" />
+    </svg>
+
+    <div class="doodle folder-tree">🗂️</div>
+    <div class="doodle broom">🧹</div>
+    <div class="doodle warning-icon">⚠️</div>
+    <div class="doodle clipboard">📋</div>
+    <div class="doodle bulb">💡</div>
+    <div class="doodle hat">🎩</div>
+    <div class="doodle star">⭐</div>
+
+    <div class="center-node">
+      <span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span><span class="spark s4"></span><span class="spark s5"></span>
+      <div>
+        <div class="center-small">Команда</div>
+        <div class="center-big">find</div>
+      </div>
+      <div class="magnifier"></div>
+    </div>
+
+    <article class="branch-card blue c1" id="essence">
+      <div class="branch-title"><span class="num">1</span><span class="title-strip">Суть</span></div>
+      <ul>
+        <li>поиск файлов и папок</li>
+        <li>рекурсивный обход каталогов</li>
+        <li>можно искать и сразу выполнять действие</li>
+      </ul>
+      <div class="formula-box">find [путь] [условия] [действие]</div>
+    </article>
+
+    <article class="branch-card purple c2" id="syntax">
+      <div class="branch-title"><span class="num">2</span><span class="title-strip">Синтаксис</span></div>
+      <ul>
+        <li><code>find . -name "*.txt"</code></li>
+        <li><code>-type f</code> / <code>-type d</code> / <code>-type l</code></li>
+        <li><code>-iname</code></li>
+        <li><code>-maxdepth</code> / <code>-mindepth</code></li>
+      </ul>
+    </article>
+
+    <article class="branch-card green c3" id="filters">
+      <div class="branch-title"><span class="num">3</span><span class="title-strip">Фильтры</span></div>
+      <div class="filter-grid">
+        <div class="filter-row"><div class="filter-label"><span class="mini-icon">📏</span>Размер</div><div class="filter-values"><span class="code-pill">+100M</span><span class="code-pill">-10k</span><span class="code-pill">1G</span></div></div>
+        <div class="filter-row"><div class="filter-label"><span class="mini-icon">🕒</span>Время</div><div class="filter-values"><span class="code-pill">-mtime -7</span><span class="code-pill">-mtime +30</span><span class="code-pill">-mmin -60</span></div></div>
+        <div class="filter-row"><div class="filter-label"><span class="mini-icon">🔒</span>Права</div><div class="filter-values"><span class="code-pill">-perm 777</span><span class="code-pill">-perm /111</span></div></div>
+        <div class="filter-row"><div class="filter-label"><span class="mini-icon">👤</span>Владелец</div><div class="filter-values"><span class="code-pill">-user</span><span class="code-pill">-group</span></div></div>
+        <div class="filter-row"><div class="filter-label"><span class="mini-icon">📁</span>Пустые</div><div class="filter-values"><span class="code-pill">-empty</span></div></div>
+      </div>
+    </article>
+
+    <article class="branch-card blue c4" id="actions">
+      <div class="branch-title"><span class="num">4</span><span class="title-strip">Действия</span></div>
+      <ul>
+        <li><code>-print</code></li>
+        <li><code>-delete</code></li>
+        <li><code>-exec ... {} \;</code></li>
+        <li><code>-exec ... {} +</code></li>
+        <li><code>-ok</code></li>
+      </ul>
+      <div class="hint-box">сначала проверить,<br>потом удалять</div>
+    </article>
+
+    <article class="branch-card teal c5" id="logic">
+      <div class="branch-title"><span class="num">5</span><span class="title-strip">Логика условий</span></div>
+      <ul>
+        <li>И — по умолчанию</li>
+        <li>ИЛИ — <code>-o</code></li>
+        <li>НЕ — <code>!</code> / <code>-not</code></li>
+        <li>скобки: <code>\( ... \)</code></li>
+      </ul>
+      <div class="example-box">пример:<br>-type f \( -name "*.jpg" -o -name "*.png" \)</div>
+    </article>
+
+    <article class="branch-card orange c6" id="usage">
+      <div class="branch-title"><span class="num">6</span><span class="title-strip">Применение</span></div>
+      <ul style="columns:2; column-gap:24px;">
+        <li>большие файлы</li>
+        <li>старые логи</li>
+        <li>временные файлы</li>
+        <li>пустые папки</li>
+        <li>TODO в коде</li>
+        <li><code>chmod +x</code> для <code>.sh</code></li>
+      </ul>
+    </article>
+
+    <article class="branch-card purple c7" id="hacks">
+      <div class="branch-title"><span class="num">7</span><span class="title-strip">Хаки</span></div>
+      <ul>
+        <li><code>-prune</code>: исключить папку</li>
+        <li><code>-print0 | xargs -0</code></li>
+        <li><code>-newer reference.txt</code></li>
+        <li><code>du -h | sort -h</code></li>
+        <li><code>grep -n</code> через <code>-exec</code></li>
+        <li>безопасная работа с пробелами</li>
+      </ul>
+    </article>
+
+    <article class="branch-card teal c8" id="plan">
+      <div class="branch-title"><span class="num">8</span><span class="title-strip">Мини-план</span></div>
+      <ul class="ribbon-list">
+        <li><span class="ribbon-n">1</span><span class="ribbon blue-bg">День 1 — основа</span></li>
+        <li><span class="ribbon-n">2</span><span class="ribbon green-bg">День 2 — фильтры</span></li>
+        <li><span class="ribbon-n">3</span><span class="ribbon yellow-bg">День 3 — логика</span></li>
+        <li><span class="ribbon-n">4</span><span class="ribbon purple-bg">День 4 — действия</span></li>
+        <li><span class="ribbon-n">5</span><span class="ribbon blue-bg">День 5 — безопасность</span></li>
+      </ul>
+    </article>
+
+    <article class="branch-card red c9" id="mistakes">
+      <div class="branch-title"><span class="num">9</span><span class="title-strip">Частые ошибки</span></div>
+      <ul>
+        <li>забыли кавычки</li>
+        <li>удаление без проверки</li>
+        <li>опасный <code>xargs</code></li>
+        <li>ошибка с <code>-o</code></li>
+      </ul>
+    </article>
+
+    <article class="branch-card orange c10" id="exercises">
+      <div class="branch-title"><span class="num">10</span><span class="title-strip">Упражнения</span></div>
+      <ul>
+        <li>найти <code>.txt</code></li>
+        <li>найти большие файлы</li>
+        <li>найти старые <code>.log</code></li>
+        <li>найти <code>.jpg</code> и <code>.png</code></li>
+        <li>найти TODO</li>
+        <li>удалить пустые папки</li>
+      </ul>
+    </article>
+
+    <article class="branch-card teal c11" id="cheatsheet">
+      <div class="branch-title"><span class="num">11</span><span class="title-strip">Шпаргалка</span></div>
+      <div class="stitched-box">
+        -name / -iname<br>
+        -type<br>
+        -size / -mtime<br>
+        -exec / -delete
+      </div>
+    </article>
+  </section>
+
+  <section class="legend" aria-label="Как пользоваться страницей">
+    <article class="practice-card">
+      <h3>1. Читайте от центра</h3>
+      <p>Центральная идея: <code>find</code> ищет объекты и применяет действия.</p>
+    </article>
+    <article class="practice-card">
+      <h3>2. Учите ветками</h3>
+      <p>Сначала синтаксис и фильтры, затем действия, логика и безопасность.</p>
+    </article>
+    <article class="practice-card">
+      <h3>3. Проверяйте перед удалением</h3>
+      <p>Любую команду с <code>-delete</code> сначала запускайте без удаления.</p>
+    </article>
+    <article class="practice-card">
+      <h3>4. Тренируйтесь</h3>
+      <p>Закройте шпаргалку и попробуйте составить команды из блока упражнений.</p>
+    </article>
+  </section>
+
+  <footer class="footer">
+    Команда <code>find</code>: путь → условия → действие → проверка.
+    <div class="print-note">Страница адаптирована под экран, телефон и печать.</div>
+  </footer>
+</main>
+
+<script>
+  // Подсвечиваем пункт навигации, когда соответствующая карточка находится на экране.
+  const cards = [...document.querySelectorAll('.branch-card')];
+  const navLinks = [...document.querySelectorAll('.nav a')];
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      const id = entry.target.id;
+      navLinks.forEach((link) => {
+        link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+      });
+    });
+  }, {
+    rootMargin: '-35% 0px -55% 0px',
+    threshold: 0.05
+  });
+
+  cards.forEach((card) => observer.observe(card));
+
+  // Добавляем лёгкое "живое" рукописное движение при наведении на центральный узел.
+  const centerNode = document.querySelector('.center-node');
+  centerNode.addEventListener('mousemove', (event) => {
+    const rect = centerNode.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width - 0.5;
+    const y = (event.clientY - rect.top) / rect.height - 0.5;
+    centerNode.style.transform = `translate(-50%, -50%) rotate(${x * 3 - 1}deg) translate(${x * 5}px, ${y * 5}px)`;
+  });
+
+  centerNode.addEventListener('mouseleave', () => {
+    centerNode.style.transform = 'translate(-50%, -50%) rotate(-1deg)';
+  });
+</script>
+
+<div class="drag-hint" id="dragHint">Карточку можно перетащить. Позиция сохранится в этом браузере.</div>
+
+<div class="modal-overlay" id="theoryModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-card" role="document">
+    <button class="modal-close" id="modalClose" aria-label="Закрыть">×</button>
+    <div class="modal-kicker" id="modalKicker">Блок теории</div>
+    <h2 id="modalTitle">Заголовок</h2>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+  // Подробные комментарии для каждой ветки mindmap.
+  const theoryDetails = {
+    essence: {
+      kicker: '1 • базовая идея',
+      title: 'Суть команды find',
+      html: `
+          <p><strong>find</strong> — это команда для рекурсивного поиска: она начинает с указанной папки и обходит все вложенные каталоги.</p>
+          <ul>
+            <li><strong>Путь</strong> отвечает на вопрос: где искать?</li>
+            <li><strong>Условия</strong> отвечают на вопрос: что именно искать?</li>
+            <li><strong>Действие</strong> отвечает на вопрос: что сделать с найденным?</li>
+          </ul>
+          <div class="modal-code">find [путь] [условия] [действие]</div>
+          <div class="modal-note">Главная привычка: сначала вывести найденные файлы на экран, затем выполнять опасные действия вроде удаления.</div>
+        `
+    },
+    syntax: {
+      kicker: '2 • скелет команды',
+      title: 'Синтаксис find',
+      html: `
+          <p>Базовый синтаксис читается слева направо: стартовая папка → фильтры → действие.</p>
+          <div class="modal-code">find . -type f -name "*.txt"</div>
+          <ul>
+            <li><code>.</code> — искать от текущей папки.</li>
+            <li><code>-type f</code> — брать только файлы.</li>
+            <li><code>-name "*.txt"</code> — искать имена по шаблону.</li>
+            <li><code>-iname</code> — то же самое, но без учёта регистра.</li>
+          </ul>
+          <div class="modal-note">Кавычки вокруг шаблонов обязательны: иначе shell может раскрыть <code>*.txt</code> раньше, чем команда find начнёт работу.</div>
+        `
+    },
+    filters: {
+      kicker: '3 • точный отбор',
+      title: 'Фильтры: размер, время, права',
+      html: `
+          <p>Фильтры позволяют искать файлы не только по имени. Это особенно полезно для чистки диска, аудита прав и поиска свежих изменений.</p>
+          <div class="modal-code">find . -type f -size +100M
+find . -type f -mtime -7
+find . -type f -perm /111</div>
+          <ul>
+            <li><code>+100M</code> — больше 100 МБ, <code>-10k</code> — меньше 10 КБ.</li>
+            <li><code>-mtime -7</code> — изменены за последние 7 дней.</li>
+            <li><code>-perm 777</code> — ровно такие права; <code>-perm /111</code> — есть хотя бы один исполняемый бит.</li>
+            <li><code>-empty</code> — пустые файлы или каталоги.</li>
+          </ul>
+          <div class="modal-note">Чаще всего фильтры комбинируют: например, только файлы, больше 500 МБ, старше 30 дней.</div>
+        `
+    },
+    actions: {
+      kicker: '4 • что делать с найденным',
+      title: 'Действия find',
+      html: `
+          <p>По умолчанию <code>find</code> печатает найденные пути. Но можно сразу удалить, изменить права, запустить grep, архивировать и так далее.</p>
+          <div class="modal-code">find . -name "*.tmp" -delete
+find . -name "*.sh" -exec chmod +x {} +
+find . -name "*.log" -ok rm {} \;</div>
+          <ul>
+            <li><code>{}</code> — место, куда подставляется найденный файл.</li>
+            <li><code>\;</code> — запуск команды отдельно для каждого файла.</li>
+            <li><code>+</code> — передать много файлов одной командой, обычно быстрее.</li>
+            <li><code>-ok</code> — спрашивать подтверждение перед каждым действием.</li>
+          </ul>
+          <div class="modal-note">Самая опасная часть — <code>-delete</code>. Всегда сначала запускайте такую же команду без удаления.</div>
+        `
+    },
+    logic: {
+      kicker: '5 • условия и скобки',
+      title: 'Логика условий',
+      html: `
+          <p>Условия в <code>find</code> можно комбинировать. Без специальных операторов между условиями стоит логическое И.</p>
+          <div class="modal-code">find . -type f \( -name "*.jpg" -o -name "*.png" \)
+find . -type f ! -name "*.txt"</div>
+          <ul>
+            <li><strong>И</strong> — используется по умолчанию.</li>
+            <li><strong>ИЛИ</strong> — оператор <code>-o</code>.</li>
+            <li><strong>НЕ</strong> — <code>!</code> или <code>-not</code>.</li>
+            <li>Скобки <code>\( ... \)</code> группируют условия и защищаются от shell обратным слэшем.</li>
+          </ul>
+          <div class="modal-note">Ошибка с <code>-o</code> часто даёт слишком широкий результат. Сначала группируйте имена, затем добавляйте <code>-type f</code>.</div>
+        `
+    },
+    usage: {
+      kicker: '6 • реальные задачи',
+      title: 'Где применять find',
+      html: `
+          <p><code>find</code> особенно полезен там, где файлов много и вручную искать невозможно: проекты, серверные логи, загрузки, резервные копии.</p>
+          <div class="modal-code">find . -type f -size +500M
+find /var/log -type f -name "*.log" -mtime +30
+find . -type f -name "*.py" -exec grep -n "TODO" {} +</div>
+          <ul>
+            <li>найти большие файлы для очистки диска;</li>
+            <li>найти старые логи;</li>
+            <li>найти TODO в коде;</li>
+            <li>сделать скрипты исполняемыми;</li>
+            <li>удалить пустые каталоги после уборки проекта.</li>
+          </ul>
+          <div class="modal-note">Для учебной практики создайте тестовую папку и тренируйтесь только в ней, чтобы не повредить реальные файлы.</div>
+        `
+    },
+    hacks: {
+      kicker: '7 • продвинутые приёмы',
+      title: 'Хаки find',
+      html: `
+          <p>Эти приёмы делают команды безопаснее и профессиональнее.</p>
+          <div class="modal-code">find . -path "./node_modules" -prune -o -type f -print
+find . -name "*.txt" -print0 | xargs -0 rm
+find . -type f -exec du -h {} + | sort -h</div>
+          <ul>
+            <li><code>-prune</code> исключает папки из обхода.</li>
+            <li><code>-print0 | xargs -0</code> безопасно обрабатывает имена с пробелами и переносами строк.</li>
+            <li><code>-newer file</code> ищет файлы новее эталонного файла.</li>
+            <li><code>du -h | sort -h</code> помогает сортировать найденное по размеру.</li>
+          </ul>
+          <div class="modal-note">Если можно обойтись <code>-exec ... {} +</code>, часто это проще и безопаснее, чем связка с обычным <code>xargs</code>.</div>
+        `
+    },
+    plan: {
+      kicker: '8 • маршрут обучения',
+      title: 'Мини-план на 5 дней',
+      html: `
+          <p>План устроен так, чтобы не перегружать память: каждый день добавляется один новый слой.</p>
+          <ul>
+            <li><strong>День 1:</strong> путь, имя, тип файла.</li>
+            <li><strong>День 2:</strong> размер, время, пустые файлы, права.</li>
+            <li><strong>День 3:</strong> логика <code>-o</code>, <code>!</code>, скобки.</li>
+            <li><strong>День 4:</strong> действия <code>-delete</code>, <code>-exec</code>, <code>-ok</code>.</li>
+            <li><strong>День 5:</strong> безопасность, <code>-prune</code>, <code>-print0</code>, <code>xargs -0</code>.</li>
+          </ul>
+          <div class="modal-note">Критерий успеха: Вы можете написать команду для реальной задачи без копирования из шпаргалки.</div>
+        `
+    },
+    mistakes: {
+      kicker: '9 • типовые ловушки',
+      title: 'Частые ошибки',
+      html: `
+          <p>Большинство проблем возникает не из-за сложности <code>find</code>, а из-за shell, удаления и неверной группировки условий.</p>
+          <div class="modal-code"># плохо
+find . -name *.txt
+
+# правильно
+find . -name "*.txt"
+
+# безопаснее
+find . -name "*.txt" -print0 | xargs -0 rm</div>
+          <ul>
+            <li>забыли кавычки вокруг шаблона;</li>
+            <li>запустили <code>-delete</code> без предварительной проверки;</li>
+            <li>использовали <code>xargs</code> без <code>-0</code>;</li>
+            <li>не сгруппировали условия вокруг <code>-o</code>.</li>
+          </ul>
+          <div class="modal-note">Хорошая привычка: любую новую опасную команду сначала заменить действием <code>-print</code>.</div>
+        `
+    },
+    exercises: {
+      kicker: '10 • тренировка',
+      title: 'Как выполнять упражнения',
+      html: `
+          <p>Упражнения лучше делать в отдельной учебной папке с тестовыми файлами: так можно спокойно пробовать удаление, права и grep.</p>
+          <div class="modal-code">mkdir find-lab
+cd find-lab
+touch a.txt b.log script.sh
+mkdir empty-dir backup</div>
+          <ul>
+            <li>сначала сформулируйте задачу словами;</li>
+            <li>затем выберите путь, фильтры и действие;</li>
+            <li>запустите команду без опасных действий;</li>
+            <li>после проверки добавьте <code>-delete</code>, <code>-exec</code> или <code>-ok</code>.</li>
+          </ul>
+          <div class="modal-note">Лучшее упражнение: придумать 5 собственных команд для уборки реального проекта, но выполнить их сначала только с <code>-print</code>.</div>
+        `
+    },
+    cheatsheet: {
+      kicker: '11 • быстрый доступ',
+      title: 'Шпаргалка find',
+      html: `
+          <p>Шпаргалка нужна не для механического копирования, а для быстрой сборки команды из готовых деталей.</p>
+          <div class="modal-code">find . -name "*.txt"
+find . -type f -size +100M
+find . -type f -mtime -7
+find . -name "*.sh" -exec chmod +x {} +</div>
+          <ul>
+            <li><code>-name</code> / <code>-iname</code> — имя файла;</li>
+            <li><code>-type</code> — тип объекта;</li>
+            <li><code>-size</code> / <code>-mtime</code> — размер и время;</li>
+            <li><code>-exec</code> / <code>-delete</code> — действия.</li>
+          </ul>
+          <div class="modal-note">Запоминайте не отдельные команды, а конструктор: путь → условия → действие.</div>
+        `
+    }
+  };
+
+  const modal = document.getElementById('theoryModal');
+  const modalClose = document.getElementById('modalClose');
+  const modalKicker = document.getElementById('modalKicker');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
+
+  function openTheoryModal(cardId) {
+    const data = theoryDetails[cardId];
+    if (!data) return;
+    modalKicker.textContent = data.kicker;
+    modalTitle.textContent = data.title;
+    modalBody.innerHTML = data.html;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    modalClose.focus();
+  }
+
+  function closeTheoryModal() {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  modalClose.addEventListener('click', closeTheoryModal);
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) closeTheoryModal();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && modal.classList.contains('open')) closeTheoryModal();
+  });
+
+  // Добавляем кнопку подробностей в каждую карточку теории.
+  document.querySelectorAll('.branch-card').forEach((card) => {
+    const actions = document.createElement('div');
+    actions.className = 'card-actions';
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'info-btn';
+    button.textContent = 'Подробнее ✦';
+    button.addEventListener('click', (event) => {
+      event.stopPropagation();
+      openTheoryModal(card.id);
+    });
+    actions.appendChild(button);
+    card.appendChild(actions);
+  });
+
+  // Перетаскивание карточек на широком экране. Позиции сохраняются в localStorage.
+  const map = document.querySelector('.mindmap-wrap');
+  const dragHint = document.getElementById('dragHint');
+  const storageKey = 'findMindmapCardPositions.v1';
+  const savedPositions = JSON.parse(localStorage.getItem(storageKey) || '{}');
+  let activeDrag = null;
+
+  function canDragCards() {
+    return window.matchMedia('(min-width: 1251px)').matches;
+  }
+
+  function savePositions() {
+    const data = {};
+    document.querySelectorAll('.branch-card').forEach((card) => {
+      data[card.id] = { left: card.style.left, top: card.style.top, right: card.style.right };
+    });
+    localStorage.setItem(storageKey, JSON.stringify(data));
+  }
+
+  function restorePositions() {
+    if (!canDragCards()) return;
+    document.querySelectorAll('.branch-card').forEach((card) => {
+      const pos = savedPositions[card.id];
+      if (!pos) return;
+      card.style.left = pos.left;
+      card.style.top = pos.top;
+      card.style.right = 'auto';
+    });
+  }
+
+  restorePositions();
+
+  document.querySelectorAll('.branch-card').forEach((card) => {
+    card.addEventListener('pointerdown', (event) => {
+      if (!canDragCards()) return;
+      if (event.target.closest('button, a, code')) return;
+
+      const mapRect = map.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+
+      activeDrag = {
+        card,
+        pointerId: event.pointerId,
+        offsetX: event.clientX - cardRect.left,
+        offsetY: event.clientY - cardRect.top,
+        mapLeft: mapRect.left,
+        mapTop: mapRect.top
+      };
+
+      card.setPointerCapture(event.pointerId);
+      card.classList.add('dragging');
+      card.style.right = 'auto';
+      card.style.left = `${cardRect.left - mapRect.left}px`;
+      card.style.top = `${cardRect.top - mapRect.top}px`;
+      dragHint.classList.add('visible');
+    });
+
+    card.addEventListener('pointermove', (event) => {
+      if (!activeDrag || activeDrag.card !== card) return;
+
+      const mapRect = map.getBoundingClientRect();
+      const nextLeft = event.clientX - mapRect.left - activeDrag.offsetX;
+      const nextTop = event.clientY - mapRect.top - activeDrag.offsetY;
+
+      const maxLeft = map.clientWidth - card.offsetWidth;
+      const maxTop = map.clientHeight - card.offsetHeight;
+
+      card.style.left = `${Math.max(0, Math.min(maxLeft, nextLeft))}px`;
+      card.style.top = `${Math.max(0, Math.min(maxTop, nextTop))}px`;
+    });
+
+    card.addEventListener('pointerup', (event) => {
+      if (!activeDrag || activeDrag.card !== card) return;
+      card.releasePointerCapture(event.pointerId);
+      card.classList.remove('dragging');
+      activeDrag = null;
+      dragHint.classList.remove('visible');
+      savePositions();
+    });
+
+    card.addEventListener('pointercancel', () => {
+      if (!activeDrag || activeDrag.card !== card) return;
+      card.classList.remove('dragging');
+      activeDrag = null;
+      dragHint.classList.remove('visible');
+      savePositions();
+    });
+  });
+</script>
+</body>
+</html>

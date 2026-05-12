@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Рекурсивная mindmap: степени и графики функций</title>
+    <style>
+        :root {
+            --paper: #fbf2dc;
+            --paper2: #fffaf0;
+            --ink: #17130e;
+            --muted: #625646;
+            --blue: #1597c8;
+            --teal: #149f91;
+            --green: #3f9d35;
+            --purple: #7a4ac8;
+            --orange: #e1911a;
+            --yellow: #f2c84b;
+            --red: #d84f66;
+            --pink: #f4a7ba;
+            --shadow: 7px 8px 0 rgba(23, 19, 14, .14);
+            --soft: 0 24px 70px rgba(86, 55, 15, .17);
+            --font: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+            --mono: "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: var(--font);
+            color: var(--ink);
+            background:
+            radial-gradient(circle at 10% 6%, rgba(255,255,255,.95), transparent 22rem),
+            radial-gradient(circle at 88% 8%, rgba(255,232,135,.34), transparent 26rem),
+            radial-gradient(circle at 50% 105%, rgba(117,225,238,.16), transparent 30rem),
+            linear-gradient(90deg, rgba(0,0,0,.026) 1px, transparent 1px),
+            linear-gradient(rgba(0,0,0,.023) 1px, transparent 1px),
+            var(--paper);
+            background-size: auto, auto, auto, 28px 28px, 28px 28px, auto;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: .15;
+            background-image:
+            radial-gradient(circle, rgba(0,0,0,.16) .75px, transparent 1px),
+            radial-gradient(circle, rgba(255,255,255,.9) .8px, transparent 1px);
+            background-size: 19px 19px, 27px 27px;
+            mix-blend-mode: multiply;
+        }
+
+        code, .mono { font-family: var(--mono); }
+        sup { font-size: .72em; }
+        sub { font-size: .72em; }
+        button { font-family: inherit; }
+        a { color: inherit; text-decoration: none; }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            width: min(1440px, calc(100% - 28px));
+            margin: 0 auto;
+            padding-bottom: 54px;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            background: rgba(251, 242, 220, .84);
+            border-bottom: 3px solid rgba(23,19,14,.16);
+        }
+
+        .topbar-inner {
+            width: min(1440px, calc(100% - 28px));
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 950;
+            letter-spacing: -.045em;
+            font-size: 20px;
+            white-space: nowrap;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border: 3px solid var(--ink);
+            border-radius: 50% 46% 54% 44%;
+            background: #d7fff6;
+            box-shadow: 3px 4px 0 rgba(0,0,0,.14);
+            transform: rotate(-4deg);
+            font-weight: 950;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .controls::-webkit-scrollbar { display: none; }
+
+        .btn {
+            flex: 0 0 auto;
+            border: 3px solid var(--ink);
+            background: #fff;
+            border-radius: 999px 870px 920px 810px;
+            padding: 8px 12px;
+            box-shadow: 3px 4px 0 rgba(0,0,0,.13);
+            font-weight: 950;
+            cursor: pointer;
+            transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px) rotate(-1deg);
+            box-shadow: 5px 6px 0 rgba(0,0,0,.13);
+            background: #fff1a8;
+        }
+
+        .btn:disabled { opacity: .42; cursor: not-allowed; }
+        .btn.primary { background: #93ecff; }
+        .btn.green { background: #dcf7d4; }
+        .btn.red { background: #ffd5dc; }
+        .btn.yellow { background: #fff1a8; }
+
+        .hero {
+            padding: 30px 0 12px;
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(330px, .85fr);
+            gap: 22px;
+            align-items: stretch;
+        }
+
+        .hero-card, .side-card, .map-shell, .lesson-card {
+            background: rgba(255, 252, 241, .86);
+            border: 4px solid var(--ink);
+            border-radius: 32px 24px 36px 26px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .hero-card { padding: 28px; overflow: hidden; }
+
+        .hero-card::after {
+            content: "";
+            position: absolute;
+            right: -76px;
+            top: -78px;
+            width: 235px;
+            height: 235px;
+            border: 5px dashed rgba(20,159,145,.35);
+            border-radius: 44% 56% 51% 49%;
+            transform: rotate(17deg);
+        }
+
+        .label {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            border: 3px solid var(--ink);
+            border-radius: 999px 880px 790px 940px;
+            padding: 7px 13px;
+            font-weight: 950;
+            background: #d7fff6;
+            box-shadow: 3px 4px 0 rgba(0,0,0,.13);
+            transform: rotate(-1deg);
+        }
+
+        .label-dot {
+            width: 13px;
+            height: 13px;
+            border: 3px solid var(--ink);
+            border-radius: 50%;
+            background: var(--green);
+        }
+
+        h1 {
+            margin: 22px 0 12px;
+            font-size: clamp(44px, 7vw, 88px);
+            line-height: .92;
+            letter-spacing: -.08em;
+            max-width: 900px;
+        }
+
+        .big-word {
+            display: inline-block;
+            text-shadow: 5px 6px 0 rgba(20,159,145,.22);
+            transform: rotate(-1deg);
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 900px;
+            color: var(--muted);
+            font-size: 19px;
+            font-weight: 840;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 22px;
+        }
+
+        .side-card {
+            padding: 22px;
+            border-radius: 24px 32px 22px 30px;
+            background: #fff8d9;
+            transform: rotate(1deg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .side-card h2 {
+            margin: 0 0 10px;
+            font-size: 31px;
+            letter-spacing: -.06em;
+            line-height: .98;
+        }
+
+        .codebox {
+            margin-top: 13px;
+            border: 4px solid var(--ink);
+            border-radius: 20px 14px 22px 16px;
+            background: #171717;
+            color: #eaffef;
+            font-family: var(--mono);
+            padding: 15px;
+            box-shadow: 4px 5px 0 rgba(0,0,0,.13);
+            transform: rotate(-1deg);
+            line-height: 1.7;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+
+        .cyan { color: #83eaff; }
+        .green-text { color: #9bffae; }
+        .comment { color: #a9b6b7; }
+
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin: 18px 0 12px;
+        }
+
+        .crumb {
+            border: 3px solid var(--ink);
+            border-radius: 999px 880px 900px 820px;
+            background: rgba(255,255,255,.7);
+            padding: 7px 11px;
+            font-weight: 950;
+            cursor: pointer;
+            box-shadow: 3px 4px 0 rgba(0,0,0,.11);
+            transition: .18s ease;
+        }
+
+        .crumb:hover:not(:disabled) {
+            transform: translateY(-2px) rotate(-1deg);
+            background: #fff1a8;
+        }
+
+        .crumb.current {
+            background: #c8f2ff;
+            cursor: default;
+        }
+
+        .crumb-sep { font-weight: 950; color: var(--muted); }
+
+        .map-shell {
+            min-height: 780px;
+            padding: 18px;
+            overflow: hidden;
+            background:
+            radial-gradient(circle at 50% 42%, rgba(255,255,255,.9), transparent 21rem),
+            rgba(255, 252, 241, .84);
+        }
+
+        .map-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 20;
+        }
+
+        .level-title {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .level-badge {
+            border: 3px solid var(--ink);
+            border-radius: 999px;
+            padding: 6px 10px;
+            background: #e7d7ff;
+            box-shadow: 3px 4px 0 rgba(0,0,0,.12);
+            font-weight: 950;
+        }
+
+        .level-heading {
+            margin: 0;
+            font-size: clamp(28px, 4vw, 42px);
+            line-height: .95;
+            letter-spacing: -.06em;
+        }
+
+        .map-scene {
+            position: relative;
+            min-height: 700px;
+            border: 3px dashed rgba(23,19,14,.22);
+            border-radius: 28px 20px 30px 22px;
+            background: rgba(255, 255, 255, .28);
+            overflow: hidden;
+        }
+
+        .connector-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .center-node {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotate(-1deg);
+            z-index: 5;
+            width: min(380px, 80vw);
+            min-height: 220px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            padding: 24px;
+            background: #fffefa;
+            border: 6px solid var(--ink);
+            border-radius: 48% 52% 45% 55% / 58% 42% 56% 44%;
+            box-shadow: 8px 9px 0 rgba(20,159,145,.24), var(--soft);
+            cursor: pointer;
+        }
+
+        .center-node::before,
+        .center-node::after {
+            content: "";
+            position: absolute;
+            border: 4px solid var(--teal);
+            border-left-color: transparent;
+            border-right-color: transparent;
+            border-radius: 50%;
+            opacity: .75;
+        }
+
+        .center-node::before { inset: 12px 22px; transform: rotate(-5deg); }
+        .center-node::after { inset: 29px 16px; transform: rotate(8deg); }
+
+        .center-inner { position: relative; z-index: 2; }
+
+        .center-kicker {
+            font-size: 18px;
+            font-weight: 950;
+            color: var(--muted);
+        }
+
+        .center-title {
+            font-size: clamp(31px, 4.5vw, 56px);
+            font-weight: 950;
+            letter-spacing: -.075em;
+            line-height: .92;
+            text-shadow: 4px 5px 0 rgba(20,159,145,.21);
+        }
+
+        .center-formula {
+            display: inline-block;
+            margin-top: 10px;
+            border: 3px dashed var(--teal);
+            border-radius: 999px;
+            padding: 4px 11px;
+            background: rgba(215,255,246,.72);
+            font-family: var(--mono);
+            font-weight: 950;
+            font-size: 15px;
+        }
+
+        .node-card {
+            position: absolute;
+            z-index: 4;
+            width: 282px;
+            min-height: 152px;
+            padding: 14px 15px 15px;
+            border: 4px solid var(--ink);
+            border-radius: 24px 18px 26px 20px;
+            background: rgba(255,253,243,.97);
+            box-shadow: var(--shadow);
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+        }
+
+        .node-card:hover {
+            transform: translateY(-4px) rotate(0deg) scale(1.01) !important;
+            box-shadow: 10px 11px 0 rgba(0,0,0,.13), 0 18px 38px rgba(70,45,10,.15);
+        }
+
+        .node-card.dragging {
+            cursor: grabbing;
+            z-index: 80;
+            box-shadow: 13px 15px 0 rgba(0,0,0,.16), 0 26px 60px rgba(70,45,10,.26);
+            filter: saturate(1.1);
+        }
+
+        .node-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .node-num {
+            width: 36px;
+            height: 36px;
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            border: 3px solid var(--ink);
+            border-radius: 50% 47% 52% 45%;
+            background: #fff;
+            box-shadow: 2px 3px 0 rgba(0,0,0,.12);
+            font-weight: 950;
+        }
+
+        .node-title {
+            flex: 1;
+            display: inline-block;
+            padding: 4px 9px 5px;
+            border: 3px solid var(--ink);
+            border-radius: 12px 18px 11px 16px;
+            font-size: 20px;
+            line-height: 1;
+            font-weight: 950;
+            letter-spacing: -.05em;
+            background: #c8f2ff;
+        }
+
+        .node-card[data-color="blue"] .node-title,
+        .node-card[data-color="blue"] .node-num { background: #c8effc; }
+        .node-card[data-color="purple"] .node-title,
+        .node-card[data-color="purple"] .node-num { background: #e7d7ff; }
+        .node-card[data-color="green"] .node-title,
+        .node-card[data-color="green"] .node-num { background: #dcf7d4; }
+        .node-card[data-color="teal"] .node-title,
+        .node-card[data-color="teal"] .node-num { background: #d7fff6; }
+        .node-card[data-color="orange"] .node-title,
+        .node-card[data-color="orange"] .node-num { background: #ffe5ad; }
+        .node-card[data-color="red"] .node-title,
+        .node-card[data-color="red"] .node-num { background: #ffd5dc; }
+        .node-card[data-color="yellow"] .node-title,
+        .node-card[data-color="yellow"] .node-num { background: #fff1a8; }
+        .node-card[data-color="pink"] .node-title,
+        .node-card[data-color="pink"] .node-num { background: #ffe0e9; }
+
+        .node-summary {
+            margin: 0;
+            color: #2d251d;
+            font-weight: 840;
+            font-size: 15px;
+            line-height: 1.35;
+        }
+
+        .node-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            border: 2px solid rgba(23,19,14,.28);
+            background: rgba(255,255,255,.66);
+            border-radius: 999px;
+            padding: 2px 7px;
+            font-family: var(--mono);
+            font-weight: 850;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .node-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .small-btn {
+            border: 3px solid var(--ink);
+            border-radius: 999px 870px 920px 810px;
+            background: #fff;
+            padding: 6px 9px;
+            box-shadow: 3px 4px 0 rgba(0,0,0,.13);
+            font-weight: 950;
+            cursor: pointer;
+            transition: .18s ease;
+            font-size: 13px;
+        }
+
+        .small-btn:hover:not(:disabled) { transform: translateY(-2px) rotate(-1deg); background: #fff1a8; }
+        .small-btn:disabled { opacity: .45; cursor: not-allowed; }
+        .small-btn.open { background: #d7fff6; }
+        .small-btn.more { background: #fff; }
+
+        .doodle {
+            position: absolute;
+            z-index: 2;
+            pointer-events: none;
+            user-select: none;
+            font-size: 50px;
+            filter: drop-shadow(2px 3px 0 rgba(0,0,0,.12));
+        }
+
+        .doodle.d1 { left: 4%; top: 8%; transform: rotate(-8deg); }
+        .doodle.d2 { right: 4%; top: 12%; transform: rotate(6deg); }
+        .doodle.d3 { right: 6%; bottom: 9%; transform: rotate(-7deg); }
+        .doodle.d4 { left: 5%; bottom: 10%; transform: rotate(5deg); }
+
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin: 26px 0 0;
+        }
+
+        .lesson-card {
+            padding: 18px;
+            background: rgba(255,253,244,.92);
+        }
+
+        .lesson-card h3 {
+            margin: 0 0 8px;
+            font-size: 22px;
+            letter-spacing: -.04em;
+        }
+
+        .lesson-card p {
+            margin: 0;
+            color: var(--muted);
+            font-weight: 840;
+        }
+
+        .drag-hint {
+            position: fixed;
+            left: 50%;
+            bottom: 18px;
+            transform: translateX(-50%);
+            z-index: 90;
+            border: 3px solid var(--ink);
+            border-radius: 999px 880px 910px 860px;
+            background: rgba(255,252,242,.96);
+            box-shadow: 4px 5px 0 rgba(0,0,0,.14);
+            padding: 9px 14px;
+            font-weight: 950;
+            font-size: 14px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease;
+        }
+
+        .drag-hint.visible { opacity: 1; }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 140;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(18, 15, 10, .56);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal-card {
+            width: min(820px, 100%);
+            max-height: min(84vh, 790px);
+            overflow: auto;
+            border: 5px solid var(--ink);
+            border-radius: 32px 24px 34px 25px;
+            background:
+            linear-gradient(90deg, rgba(0,0,0,.025) 1px, transparent 1px),
+            linear-gradient(rgba(0,0,0,.022) 1px, transparent 1px),
+            #fff9e6;
+            background-size: 24px 24px;
+            box-shadow: 10px 12px 0 rgba(0,0,0,.2), 0 30px 90px rgba(0,0,0,.35);
+            padding: 24px;
+            transform: rotate(-.4deg);
+            position: relative;
+        }
+
+        .modal-close {
+            position: sticky;
+            top: 0;
+            float: right;
+            width: 42px;
+            height: 42px;
+            border: 4px solid var(--ink);
+            border-radius: 50%;
+            background: #ffd5dc;
+            font-size: 24px;
+            font-weight: 950;
+            cursor: pointer;
+            box-shadow: 3px 4px 0 rgba(0,0,0,.13);
+            z-index: 2;
+        }
+
+        .modal-kicker {
+            display: inline-flex;
+            border: 3px solid var(--ink);
+            border-radius: 999px;
+            padding: 6px 11px;
+            background: #d7fff6;
+            font-weight: 950;
+            margin-bottom: 12px;
+        }
+
+        .modal-card h2 {
+            clear: both;
+            margin: 4px 0 12px;
+            font-size: clamp(30px, 5vw, 48px);
+            line-height: .95;
+            letter-spacing: -.06em;
+        }
+
+        .modal-card p,
+        .modal-card li {
+            font-size: 18px;
+            font-weight: 820;
+            color: #342c22;
+        }
+
+        .modal-card ul { padding-left: 24px; }
+
+        .modal-code {
+            margin: 14px 0;
+            border: 4px solid var(--ink);
+            border-radius: 18px 14px 20px 16px;
+            background: #171717;
+            color: #eaffef;
+            padding: 15px;
+            font-family: var(--mono);
+            font-size: 15px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            box-shadow: 4px 5px 0 rgba(0,0,0,.13);
+        }
+
+        .modal-note {
+            border-left: 6px solid var(--orange);
+            background: rgba(255,229,173,.75);
+            padding: 12px 14px;
+            border-radius: 14px;
+            font-weight: 900;
+            margin-top: 14px;
+        }
+
+        .modal-graph {
+            width: 100%;
+            max-width: 560px;
+            margin: 14px auto;
+            display: block;
+            border: 4px solid var(--ink);
+            border-radius: 18px 14px 20px 16px;
+            background: #fff;
+            box-shadow: 4px 5px 0 rgba(0,0,0,.13);
+        }
+
+        .footer {
+            text-align: center;
+            font-weight: 950;
+            padding: 30px 0 54px;
+            color: var(--muted);
+        }
+
+        @media (max-width: 1180px) {
+            .hero, .lesson-grid { grid-template-columns: 1fr; }
+            .topbar-inner { align-items: flex-start; flex-direction: column; }
+            .controls { width: 100%; }
+            .map-shell { min-height: auto; }
+            .map-scene {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 14px;
+                min-height: auto;
+                padding: 14px;
+            }
+            .connector-layer, .doodle { display: none; }
+            .center-node, .node-card {
+                position: relative !important;
+                left: auto !important;
+                top: auto !important;
+                width: auto;
+                transform: none !important;
+                cursor: default;
+                touch-action: auto;
+            }
+            .center-node { grid-column: 1 / -1; min-height: 190px; }
+            .drag-hint { display: none; }
+        }
+
+        @media (max-width: 720px) {
+            .map-scene { grid-template-columns: 1fr; }
+            h1 { font-size: 50px; }
+            .hero-card, .side-card, .map-shell { padding: 18px; }
+            .center-title { font-size: 38px; }
+            .node-actions { flex-direction: column; }
+            .small-btn { width: 100%; }
+            .map-toolbar { align-items: flex-start; flex-direction: column; }
+        }
+
+        @media print {
+            body { background: #fff; }
+            body::before, .topbar, .connector-layer, .doodle, .controls, .hero-actions, .node-actions, .drag-hint { display: none !important; }
+            .app { width: 100%; padding: 0 10mm; }
+            .hero { display: block; padding: 0; }
+            .hero-card, .side-card, .map-shell, .center-node, .node-card, .lesson-card {
+                box-shadow: none !important;
+                background: #fff !important;
+                break-inside: avoid;
+            }
+            .map-scene, .lesson-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                min-height: auto;
+                padding: 0;
+                border: none;
+            }
+            .center-node, .node-card {
+                position: relative !important;
+                left: auto !important;
+                top: auto !important;
+                transform: none !important;
+                width: auto;
+            }
+            .center-node { grid-column: 1 / -1; }
+        }
+    </style>
+</head>
+<body>
+<header class="topbar">
+    <div class="topbar-inner">
+        <div class="brand"><span class="brand-icon">↳</span><span>Рекурсивная mindmap</span></div>
+        <div class="controls">
+            <button class="btn" id="backBtn">← Назад</button>
+            <button class="btn green" id="homeBtn">Домой</button>
+            <button class="btn primary" id="fitBtn">Сбросить позиции</button>
+            <button class="btn" onclick="window.print()">Печать</button>
+        </div>
+    </div>
+</header>
+
+<main class="app" id="top">
+    <section class="hero">
+        <div class="hero-card">
+            <span class="label"><span class="label-dot"></span> рекурсивный сайт • математика 8 класс</span>
+            <h1>Степени, стандартный вид и <span class="big-word">кусочные графики</span></h1>
+            <p>
+                Интерактивная карта по теме чек-листа: стандартный вид числа, степени десяти, задачи с физическими величинами, функция y = 1/x, кусочные функции, модуль и чтение графиков. Каждый раздел раскрывается как новый уровень карты.
+            </p>
+            <div class="hero-actions">
+                <a class="btn primary" href="#mapArea">Открыть карту</a>
+                <button class="btn yellow" onclick="openModal(currentNodeId)">Комментарий к текущему уровню</button>
+            </div>
+        </div>
+
+        <aside class="side-card">
+            <h2>Принцип рекурсии</h2>
+            <p style="margin:0;font-weight:900;color:var(--muted);">
+                Вы открываете ветку, и она становится новым центром. Так тема изучается слоями: от общего обзора к конкретным правилам и примерам.
+            </p>
+            <div class="codebox">
+                <div><span class="cyan">Узел</span> → дочерние узлы</div>
+                <div><span class="green-text">Дочерний узел</span> → новый центр</div>
+                <div class="comment"># breadcrumbs + назад + popup</div>
+            </div>
+        </aside>
+    </section>
+
+    <nav class="breadcrumbs" id="breadcrumbs" aria-label="Хлебные крошки"></nav>
+
+    <section class="map-shell" id="mapArea">
+        <div class="map-toolbar">
+            <div class="level-title">
+                <span class="level-badge" id="levelBadge">Уровень 1</span>
+                <h2 class="level-heading" id="levelHeading">Главная тема</h2>
+            </div>
+            <button class="btn red" id="currentInfoBtn">Подробнее о центре ✦</button>
+        </div>
+
+        <div class="map-scene" id="mapScene" aria-label="Рекурсивная карта">
+            <svg class="connector-layer" id="connectorLayer" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <div class="doodle d1">🔟</div>
+            <div class="doodle d2">📈</div>
+            <div class="doodle d3">🧮</div>
+            <div class="doodle d4">⚠️</div>
+        </div>
+    </section>
+
+    <section class="lesson-grid" aria-label="Как пользоваться рекурсивной картой">
+        <article class="lesson-card">
+            <h3>1. Идите слоями</h3>
+            <p>Откройте один раздел и изучите его дочерние ветки, не смешивая все правила сразу.</p>
+        </article>
+        <article class="lesson-card">
+            <h3>2. Возвращайтесь назад</h3>
+            <p>Используйте breadcrumbs и кнопку «Назад», чтобы держать в голове общую структуру.</p>
+        </article>
+        <article class="lesson-card">
+            <h3>3. Двигайте карточки</h3>
+            <p>На широком экране карточки можно перетаскивать; позиции сохраняются для каждого уровня.</p>
+        </article>
+        <article class="lesson-card">
+            <h3>4. Открывайте комментарии</h3>
+            <p>В popup есть объяснения, примеры, ограничения и типичные ошибки.</p>
+        </article>
+    </section>
+
+    <footer class="footer">Степени и графики: число → формула → таблица → график → проверка.</footer>
+</main>
+
+<div class="drag-hint" id="dragHint">Карточку можно перетащить. Позиция сохранится для текущего уровня.</div>
+
+<div class="modal-overlay" id="modal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-card" role="document">
+        <button class="modal-close" id="modalClose" aria-label="Закрыть">×</button>
+        <div class="modal-kicker" id="modalKicker">Комментарий</div>
+        <h2 id="modalTitle">Заголовок</h2>
+        <div id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+    const graphHyperbola = `
+      <svg class="modal-graph" viewBox="0 0 520 320" role="img" aria-label="График y = 1/x">
+        <rect x="0" y="0" width="520" height="320" fill="#fffaf0"/>
+        <g stroke="#ddd1b8" stroke-width="1">
+          ${Array.from({length: 13}, (_, i) => `<line x1="${20+i*40}" y1="20" x2="${20+i*40}" y2="300"/>`).join('')}
+          ${Array.from({length: 8}, (_, i) => `<line x1="20" y1="${20+i*40}" x2="500" y2="${20+i*40}"/>`).join('')}
+        </g>
+        <line x1="20" y1="160" x2="500" y2="160" stroke="#17130e" stroke-width="3"/>
+        <line x1="260" y1="20" x2="260" y2="300" stroke="#17130e" stroke-width="3"/>
+        <path d="M35 112 C70 114, 110 120, 150 135 C190 150, 225 158, 245 159" fill="none" stroke="#008080" stroke-width="5" stroke-linecap="round"/>
+        <path d="M275 161 C300 164, 330 172, 370 190 C410 208, 455 216, 492 218" fill="none" stroke="#008080" stroke-width="5" stroke-linecap="round" transform="rotate(180 260 160)"/>
+        <text x="450" y="145" font-family="Consolas" font-size="18">y=1/x</text>
+      </svg>
+    `;
+
+    const graphAbs = `
+      <svg class="modal-graph" viewBox="0 0 520 320" role="img" aria-label="График y = |1/x|">
+        <rect x="0" y="0" width="520" height="320" fill="#fffaf0"/>
+        <g stroke="#ddd1b8" stroke-width="1">
+          ${Array.from({length: 13}, (_, i) => `<line x1="${20+i*40}" y1="20" x2="${20+i*40}" y2="300"/>`).join('')}
+          ${Array.from({length: 8}, (_, i) => `<line x1="20" y1="${20+i*40}" x2="500" y2="${20+i*40}"/>`).join('')}
+        </g>
+        <line x1="20" y1="250" x2="500" y2="250" stroke="#17130e" stroke-width="3"/>
+        <line x1="260" y1="20" x2="260" y2="300" stroke="#17130e" stroke-width="3"/>
+        <path d="M35 65 C80 68, 140 82, 190 120 C225 146, 245 195, 252 238" fill="none" stroke="#008080" stroke-width="5" stroke-linecap="round"/>
+        <path d="M485 65 C440 68, 380 82, 330 120 C295 146, 275 195, 268 238" fill="none" stroke="#008080" stroke-width="5" stroke-linecap="round"/>
+        <text x="380" y="45" font-family="Consolas" font-size="18">y=|1/x|</text>
+      </svg>
+    `;
+
+    const DATA = {
+        root: {
+            title: 'Степени и графики',
+            kicker: 'Главная тема',
+            formula: '10ⁿ, x⁻¹, y=1/x',
+            color: 'teal',
+            summary: 'Стандартный вид числа, степени десяти и графики кусочных функций.',
+            detail: `
+          <p>Тема соединяет вычислительные навыки и графический смысл функций. Нужно уметь работать со степенями десяти, записывать числа в стандартном виде, строить график y = 1/x и собирать кусочные функции из отдельных частей.</p>
+          <ul>
+            <li>Стандартный вид: a·10ⁿ, где 1 ≤ |a| &lt; 10.</li>
+            <li>Отрицательная степень: x⁻¹ = 1/x, x ≠ 0.</li>
+            <li>Кусочная функция: каждая формула работает только на своём промежутке.</li>
+          </ul>
+          <div class="modal-code">запятая вправо → степень вниз
+запятая влево → степень вверх
+x⁻¹ = 1/x, x ≠ 0</div>
+          <div class="modal-note">Ключевая проверка: не подставлять x = 0 в дробь 1/x и не строить часть графика вне её области.</div>
+        `,
+            children: ['standard', 'powers', 'physical', 'inverse', 'piecewise', 'boundary', 'modulus', 'reading', 'mistakes', 'practice']
+        },
+
+        standard: {
+            title: 'Стандартный вид',
+            kicker: 'a·10ⁿ',
+            formula: '1 ≤ |a| < 10',
+            color: 'blue',
+            summary: 'Запись числа через значащую часть и степень десяти.',
+            detail: `
+          <p>Стандартный вид числа — это запись a·10ⁿ, где значащая часть a по модулю не меньше 1 и меньше 10.</p>
+          <ul>
+            <li>1404 = 1,404·10³.</li>
+            <li>0,00072 = 7,2·10⁻⁴.</li>
+            <li>Показатель n показывает порядок величины.</li>
+          </ul>
+          <div class="modal-code">a·10ⁿ, где 1 ≤ |a| < 10</div>
+          <div class="modal-note">Если значащая часть получилась 14,04 или 0,72, запись ещё не стандартная.</div>
+        `,
+            children: ['standardDefinition', 'commaRule', 'standardExamples']
+        },
+        standardDefinition: {
+            title: 'Определение',
+            kicker: 'форма записи',
+            formula: 'a·10ⁿ',
+            color: 'blue',
+            summary: 'В стандартном виде значащая часть находится от 1 до 10.',
+            detail: `
+          <p>Число записано в стандартном виде, если оно имеет форму a·10ⁿ и выполнено условие 1 ≤ |a| &lt; 10.</p>
+          <div class="modal-code">4,8·10⁻⁴ — стандартный вид
+48·10⁻⁵ — не стандартный вид</div>
+          <div class="modal-note">Проверяйте именно значащую часть: она должна начинаться с одной ненулевой цифры до запятой.</div>
+        `,
+            children: []
+        },
+        commaRule: {
+            title: 'Правило запятой',
+            kicker: 'вправо / влево',
+            formula: '↘ степень / ↗ степень',
+            color: 'orange',
+            summary: 'Перенос запятой компенсируется изменением степени десяти.',
+            detail: `
+          <p>Перенос запятой меняет значащую часть. Чтобы значение числа не изменилось, показатель степени десяти нужно компенсировать.</p>
+          <ul>
+            <li>Запятая вправо — показатель степени уменьшается.</li>
+            <li>Запятая влево — показатель степени увеличивается.</li>
+          </ul>
+          <div class="modal-code">7,8·10³ = 78·10²
+140400 = 1,404·10⁵</div>
+          <div class="modal-note">Это главное правило для быстрых вычислений со степенями десяти.</div>
+        `,
+            children: []
+        },
+        standardExamples: {
+            title: 'Примеры',
+            kicker: 'быстрая проверка',
+            formula: '0,00048 → 4,8·10⁻⁴',
+            color: 'green',
+            summary: 'Тренировка перевода обычных чисел в стандартный вид.',
+            detail: `
+          <p>Чтобы перевести число в стандартный вид, поставьте запятую после первой ненулевой цифры и посчитайте, на сколько позиций она сдвинулась.</p>
+          <div class="modal-code">730000 = 7,3·10⁵
+0,00048 = 4,8·10⁻⁴
+14040 = 1,404·10⁴</div>
+          <div class="modal-note">Для маленьких чисел показатель обычно отрицательный, для больших — положительный.</div>
+        `,
+            children: []
+        },
+
+        powers: {
+            title: 'Степени десяти',
+            kicker: 'вычисления',
+            formula: '10ᵐ·10ⁿ = 10ᵐ⁺ⁿ',
+            color: 'purple',
+            summary: 'При умножении степеней с одинаковым основанием показатели складываются.',
+            detail: `
+          <p>В задачах со стандартным видом удобно отдельно работать со значащими числами и отдельно со степенями десяти.</p>
+          <div class="modal-code">(a·10ᵐ)(b·10ⁿ)=ab·10ᵐ⁺ⁿ</div>
+          <div class="modal-note">Не складывайте значащие части и показатели в одну операцию: это разные уровни вычисления.</div>
+        `,
+            children: ['multiplyPowers', 'negativePowerTen', 'standardAlgorithm']
+        },
+        multiplyPowers: {
+            title: 'Умножение',
+            kicker: 'показатели складываются',
+            formula: 'm+n',
+            color: 'purple',
+            summary: 'При умножении степеней десяти складываем показатели.',
+            detail: `
+          <p>Если степени имеют одинаковое основание 10, то при умножении показатели складываются.</p>
+          <div class="modal-code">10³·10⁻¹·10⁻² = 10⁰</div>
+          <div class="modal-note">Знаки показателей сохраняются: 3 + (−1) + (−2) = 0.</div>
+        `,
+            children: []
+        },
+        negativePowerTen: {
+            title: 'Отрицательные степени',
+            kicker: 'малые числа',
+            formula: '10⁻ⁿ = 1/10ⁿ',
+            color: 'blue',
+            summary: 'Отрицательная степень десяти означает деление на степень десяти.',
+            detail: `
+          <p>Отрицательные степени часто появляются при записи малых величин.</p>
+          <div class="modal-code">10⁻¹ = 0,1
+10⁻² = 0,01
+10⁻³ = 0,001</div>
+          <div class="modal-note">Чем больше модуль отрицательного показателя, тем меньше число.</div>
+        `,
+            children: []
+        },
+        standardAlgorithm: {
+            title: 'Алгоритм счёта',
+            kicker: '4 шага',
+            formula: 'числа отдельно, степени отдельно',
+            color: 'green',
+            summary: 'Сначала значащие части, потом показатели степеней, затем стандартный вид.',
+            detail: `
+          <ol>
+            <li>Перепишите числа в удобном виде.</li>
+            <li>Перемножьте значащие части.</li>
+            <li>Сложите показатели степеней десяти.</li>
+            <li>Верните ответ в стандартный вид.</li>
+          </ol>
+          <div class="modal-code">78·12·6·25·10⁻² = 140400·10⁻² = 1,404·10³</div>
+          <div class="modal-note">В конце всегда проверяйте, что значащая часть находится от 1 до 10.</div>
+        `,
+            children: []
+        },
+
+        physical: {
+            title: 'Физические задачи',
+            kicker: 'масса, плотность, объём',
+            formula: 'm = ρV',
+            color: 'green',
+            summary: 'Задачи на массу сводятся к перемножению плотности и объёма.',
+            detail: `
+          <p>В задачах с плитой, бруском или прямоугольным телом объём находится как произведение трёх размеров, а масса равна плотности, умноженной на объём.</p>
+          <div class="modal-code">m = ρV
+V = abh
+m = ρabh</div>
+          <div class="modal-note">Размеры должны быть в согласованных единицах: если плотность в кг/м³, размеры берём в метрах.</div>
+        `,
+            children: ['densityFormula', 'volumeFormula', 'physicsExample']
+        },
+        densityFormula: {
+            title: 'Плотность',
+            kicker: 'ρ',
+            formula: 'm = ρV',
+            color: 'green',
+            summary: 'Плотность показывает массу единицы объёма вещества.',
+            detail: `
+          <p>Если известны плотность и объём, масса находится умножением.</p>
+          <div class="modal-code">ρ = 7,8·10³ кг/м³
+m = ρV</div>
+          <div class="modal-note">Буква ρ читается как «ро».</div>
+        `,
+            children: []
+        },
+        volumeFormula: {
+            title: 'Объём плиты',
+            kicker: 'прямоугольный параллелепипед',
+            formula: 'V = abh',
+            color: 'teal',
+            summary: 'Объём прямоугольной плиты равен произведению длины, ширины и толщины.',
+            detail: `
+          <p>Если плита имеет форму прямоугольного параллелепипеда, её объём считается по трём измерениям.</p>
+          <div class="modal-code">V = a·b·h</div>
+          <div class="modal-note">Если толщина дана как 2,5·10⁻¹ м, это 0,25 м.</div>
+        `,
+            children: []
+        },
+        physicsExample: {
+            title: 'Пример',
+            kicker: 'порядок величины',
+            formula: 'ρabh',
+            color: 'orange',
+            summary: 'Все множители переводим в степенную форму и перемножаем.',
+            detail: `
+          <p>Пример вычисления массы железной плиты:</p>
+          <div class="modal-code">m = 7,8·10³ · 1,2 · 6·10⁻¹ · 2,5·10⁻¹
+m = 1,404·10⁴ кг</div>
+          <div class="modal-note">После вычисления полезно проверить здравый смысл: масса большой железной плиты должна быть большой.</div>
+        `,
+            children: []
+        },
+
+        inverse: {
+            title: 'Функция y = 1/x',
+            kicker: 'обратная пропорциональность',
+            formula: 'x⁻¹ = 1/x',
+            color: 'teal',
+            summary: 'Отрицательная степень x⁻¹ означает дробь 1/x, где x ≠ 0.',
+            detail: `
+          <p>Функция y = 1/x называется обратной пропорциональностью. Её график — гипербола, состоящая из двух ветвей.</p>
+          ${graphHyperbola}
+          <div class="modal-code">x⁻¹ = 1/x, x ≠ 0</div>
+          <div class="modal-note">Нельзя подставлять x = 0: деление на ноль не определено.</div>
+        `,
+            children: ['negativePowerX', 'domainInverse', 'hyperbolaPoints', 'coordinateTasks']
+        },
+        negativePowerX: {
+            title: 'x⁻¹',
+            kicker: 'переворот',
+            formula: '1/x',
+            color: 'teal',
+            summary: 'Степень −1 превращает число в обратное.',
+            detail: `
+          <p>Отрицательная степень не означает отрицательное число. Она означает переход к обратной величине.</p>
+          <div class="modal-code">2⁻¹ = 1/2
+0,5⁻¹ = 2
+x⁻¹ = 1/x</div>
+          <div class="modal-note">Минус в показателе — это не минус перед числом.</div>
+        `,
+            children: []
+        },
+        domainInverse: {
+            title: 'ОДЗ',
+            kicker: 'деление на ноль',
+            formula: 'x ≠ 0',
+            color: 'red',
+            summary: 'Для y = 1/x запрещено значение x = 0.',
+            detail: `
+          <p>Область определения функции y = 1/x — все числа, кроме нуля.</p>
+          <div class="modal-code">D(y)=(-∞;0)∪(0;+∞)</div>
+          <div class="modal-note">На графике поэтому нет точки при x=0, а ветви лишь приближаются к осям.</div>
+        `,
+            children: []
+        },
+        hyperbolaPoints: {
+            title: 'Точки гиперболы',
+            kicker: 'таблица',
+            formula: '(-1;-1), (1;1)',
+            color: 'blue',
+            summary: 'Для построения берём удобные значения x и считаем y = 1/x.',
+            detail: `
+          <p>Опорные точки помогают построить две ветви гиперболы.</p>
+          <div class="modal-code">x = -2 → y = -1/2
+x = -1 → y = -1
+x = -1/2 → y = -2
+x = 1/2 → y = 2
+x = 1 → y = 1
+x = 2 → y = 1/2</div>
+          <div class="modal-note">Не соединяйте ветви через ось Oy: при x=0 функции нет.</div>
+        `,
+            children: []
+        },
+        coordinateTasks: {
+            title: 'Координаты точки',
+            kicker: 'подстановка',
+            formula: 'y = 1/x',
+            color: 'orange',
+            summary: 'Если точка лежит на гиперболе, её координаты удовлетворяют формуле.',
+            detail: `
+          <p>Чтобы найти неизвестную координату точки на графике y = 1/x, подставьте известную координату в формулу.</p>
+          <div class="modal-code">A(a; 0,125): 0,125 = 1/a → a = 8
+B(0,4; b): b = 1/0,4 = 2,5</div>
+          <div class="modal-note">Не переворачивайте координаты без причины: сначала запишите формулу y = 1/x.</div>
+        `,
+            children: []
+        },
+
+        piecewise: {
+            title: 'Кусочные функции',
+            kicker: 'разные формулы',
+            formula: 'cases',
+            color: 'purple',
+            summary: 'Одна функция задаётся разными выражениями на разных промежутках.',
+            detail: `
+          <p>Кусочная функция строится по частям. Каждая формула имеет свою область, и нельзя брать точки из чужого промежутка.</p>
+          <div class="modal-code">f(x) = { 0, если x ≤ 0
+       { 1/x, если x > 0</div>
+          <div class="modal-note">Главная ошибка — построить правильную формулу, но на неправильном промежутке.</div>
+        `,
+            children: ['piecewiseMeaning', 'piecewiseAlgorithm', 'piecewiseTables', 'includedPoints']
+        },
+        piecewiseMeaning: {
+            title: 'Смысл',
+            kicker: 'условия для x',
+            formula: 'если... то...',
+            color: 'purple',
+            summary: 'Условие рядом с формулой говорит, где эта формула работает.',
+            detail: `
+          <p>Запись кусочной функции читается как набор правил: если x попал в такой-то промежуток, используем такую-то формулу.</p>
+          <div class="modal-code">x ≤ 0 → y = 0
+x > 0 → y = 1/x</div>
+          <div class="modal-note">Для одного и того же x у функции должно быть только одно значение y.</div>
+        `,
+            children: []
+        },
+        piecewiseAlgorithm: {
+            title: 'Алгоритм',
+            kicker: 'построение',
+            formula: 'часть за частью',
+            color: 'green',
+            summary: 'Разделить формулы, построить каждую часть и проверить границы.',
+            detail: `
+          <ol>
+            <li>Выпишите все формулы отдельно.</li>
+            <li>Для каждой формулы выпишите её промежуток.</li>
+            <li>Составьте таблицу только из допустимых x.</li>
+            <li>Постройте части графика.</li>
+            <li>Проверьте открытые и закрытые точки.</li>
+          </ol>
+          <div class="modal-note">Знак ≤ или ≥ означает, что граничная точка входит. Знак < или > означает, что не входит.</div>
+        `,
+            children: []
+        },
+        piecewiseTables: {
+            title: 'Таблицы',
+            kicker: 'точки',
+            formula: 'x → y',
+            color: 'blue',
+            summary: 'Для каждой части нужна своя таблица значений.',
+            detail: `
+          <p>Таблица строится только из тех x, которые подходят под условие выбранной части.</p>
+          <div class="modal-code">для y=1/x и x>0:
+x = 1/2 → y = 2
+x = 1 → y = 1
+x = 2 → y = 1/2</div>
+          <div class="modal-note">Точка x=0 не подходит для 1/x и не должна попадать в таблицу.</div>
+        `,
+            children: []
+        },
+        includedPoints: {
+            title: 'Границы',
+            kicker: 'входит / не входит',
+            formula: '≤, ≥, <, >',
+            color: 'red',
+            summary: 'Граничные точки зависят от строгого или нестрогого знака.',
+            detail: `
+          <p>На графике включённая точка обычно отмечается закрашенной точкой, а невключённая — пустой.</p>
+          <div class="modal-code">x ≤ 0 → точка x=0 входит
+x > 0 → точка x=0 не входит</div>
+          <div class="modal-note">Если в формуле есть 1/x, x=0 всё равно запрещён из-за деления на ноль.</div>
+        `,
+            children: []
+        },
+
+        boundary: {
+            title: 'Рубежные точки',
+            kicker: 'передача эстафеты',
+            formula: 'x = 1/2',
+            color: 'orange',
+            summary: 'В точке смены формулы нужно проверить значения соседних частей.',
+            detail: `
+          <p>Если в кусочной функции одна формула сменяет другую, полезно проверить, совпадают ли значения в рубежной точке.</p>
+          <div class="modal-code">g(x) = 4x при -1/2 < x ≤ 1/2
+g(x) = 1/x при x > 1/2
+4·1/2 = 2
+1/(1/2) = 2</div>
+          <div class="modal-note">Если значения совпали, график в этой точке передаёт «эстафету» без скачка.</div>
+        `,
+            children: ['boundaryCheck', 'jumpOrNoJump', 'exampleG']
+        },
+        boundaryCheck: {
+            title: 'Проверка границы',
+            kicker: 'подстановка',
+            formula: 'слева и справа',
+            color: 'orange',
+            summary: 'Подставляем граничное значение в соседние формулы.',
+            detail: `
+          <p>Даже если точка не входит в одну из частей, можно проверить предельное значение, чтобы понять форму графика.</p>
+          <div class="modal-code">x = -1/2:
+1/(-1/2) = -2
+4·(-1/2) = -2</div>
+          <div class="modal-note">Это помогает увидеть, соединяются ли части графика.</div>
+        `,
+            children: []
+        },
+        jumpOrNoJump: {
+            title: 'Скачок или нет',
+            kicker: 'сравнение y',
+            formula: 'y₁ = y₂?',
+            color: 'red',
+            summary: 'Если значения не совпадают, на графике появляется скачок.',
+            detail: `
+          <p>Если в рубежной точке соседние формулы дают разные значения, части графика не соединяются плавно.</p>
+          <div class="modal-code">если y_left ≠ y_right → скачок</div>
+          <div class="modal-note">Скачок не ошибка сам по себе. Ошибка — не заметить его.</div>
+        `,
+            children: []
+        },
+        exampleG: {
+            title: 'Пример g(x)',
+            kicker: 'три части',
+            formula: '1/x, 4x, 1/x',
+            color: 'purple',
+            summary: 'Функция состоит из двух ветвей гиперболы и отрезка прямой.',
+            detail: `
+          <p>В функции g(x) левая часть — гипербола, середина — прямая y=4x, правая часть — гипербола.</p>
+          <div class="modal-code">g(-1) = -1
+g(1/4) = 1
+g(2) = 1/2</div>
+          <div class="modal-note">При g(x)=1 получаем x=1/4 из средней части и x=1 из правой гиперболы.</div>
+        `,
+            children: []
+        },
+
+        modulus: {
+            title: 'Модуль графика',
+            kicker: 'отражение',
+            formula: '|1/x|',
+            color: 'pink',
+            summary: 'Модуль отражает нижнюю часть графика вверх относительно оси Ox.',
+            detail: `
+          <p>Если модуль стоит над всей правой частью функции, то отрицательные значения y становятся положительными.</p>
+          ${graphAbs}
+          <div class="modal-code">y = |1/x|</div>
+          <div class="modal-note">Модуль меняет знак значения функции, если это значение было отрицательным.</div>
+        `,
+            children: ['absTransform', 'minusAbsTransform', 'symmetryOx']
+        },
+        absTransform: {
+            title: 'y = |1/x|',
+            kicker: 'вверх',
+            formula: 'нижняя ветвь ↑',
+            color: 'pink',
+            summary: 'Всё, что было ниже оси Ox, отражается вверх.',
+            detail: `
+          <p>Для y = |1/x| правая ветвь остаётся на месте, а левая нижняя ветвь отражается вверх.</p>
+          <div class="modal-code">если y < 0, то |y| = -y
+если y > 0, то |y| = y</div>
+          <div class="modal-note">После модуля весь график лежит не ниже оси Ox.</div>
+        `,
+            children: []
+        },
+        minusAbsTransform: {
+            title: 'y = -|1/x|',
+            kicker: 'вниз',
+            formula: 'весь график ↓',
+            color: 'red',
+            summary: 'Сначала модуль поднимает график вверх, потом минус отражает вниз.',
+            detail: `
+          <p>Внешний минус меняет все значения функции на противоположные.</p>
+          <div class="modal-code">y = |1/x| → весь график сверху
+y = -|1/x| → весь график снизу</div>
+          <div class="modal-note">Не путайте модуль внутри аргумента и модуль всей правой части.</div>
+        `,
+            children: []
+        },
+        symmetryOx: {
+            title: 'Симметрия',
+            kicker: 'относительно Ox',
+            formula: '(x,y) → (x,-y)',
+            color: 'blue',
+            summary: 'Отражение относительно оси Ox меняет знак y.',
+            detail: `
+          <p>При отражении относительно оси Ox координата x сохраняется, а координата y меняет знак.</p>
+          <div class="modal-code">(2; 1/2) → (2; -1/2)
+(-1; -1) → (-1; 1)</div>
+          <div class="modal-note">Модуль |f(x)| делает отрицательные y положительными.</div>
+        `,
+            children: []
+        },
+
+        reading: {
+            title: 'Чтение графика',
+            kicker: 'найти x или y',
+            formula: 'x → y, y → x',
+            color: 'yellow',
+            summary: 'По графику можно находить значение функции или аргумент.',
+            detail: `
+          <p>Если дан x, идём вертикально до графика и считываем y. Если дан y, идём горизонтально до графика и считываем все подходящие x.</p>
+          <div class="modal-code">дан x → найти y
+дан y → найти все x</div>
+          <div class="modal-note">У функции одному x соответствует не больше одного y. Но одному y могут соответствовать несколько x.</div>
+        `,
+            children: ['findY', 'findX', 'functionRule']
+        },
+        findY: {
+            title: 'Найти y',
+            kicker: 'дан x',
+            formula: 'вертикально',
+            color: 'yellow',
+            summary: 'От значения x идём вертикально до графика.',
+            detail: `
+          <ol>
+            <li>Найдите x на оси Ox.</li>
+            <li>Поднимитесь или опуститесь до графика.</li>
+            <li>Считайте y по оси Oy.</li>
+          </ol>
+          <div class="modal-note">Для кусочной функции сначала определите, в какой промежуток попал x.</div>
+        `,
+            children: []
+        },
+        findX: {
+            title: 'Найти x',
+            kicker: 'дан y',
+            formula: 'горизонтально',
+            color: 'orange',
+            summary: 'От значения y идём горизонтально до всех пересечений с графиком.',
+            detail: `
+          <p>Если дано значение y, возможны несколько x. Нужно найти все точки пересечения горизонтальной линии с графиком.</p>
+          <div class="modal-code">y = 1 для g(x): x = 1/4 и x = 1</div>
+          <div class="modal-note">Не останавливайтесь на первом найденном x, если график имеет несколько частей.</div>
+        `,
+            children: []
+        },
+        functionRule: {
+            title: 'Правило функции',
+            kicker: 'один x — один y',
+            formula: 'x ↦ y',
+            color: 'red',
+            summary: 'Одному x не могут соответствовать два разных значения y.',
+            detail: `
+          <p>График функции проходит вертикальный тест: любая вертикальная прямая пересекает график не более чем в одной точке.</p>
+          <div class="modal-note">Если одному x соответствуют два разных y, это не график функции.</div>
+        `,
+            children: []
+        },
+
+        mistakes: {
+            title: 'Типичные ошибки',
+            kicker: 'ловушки',
+            formula: 'проверка',
+            color: 'red',
+            summary: 'Ошибки в запятой, степенях, делении на ноль, границах и модуле.',
+            detail: `
+          <p>Большинство ошибок в этой теме возникает из-за потери ограничений: забыли про x ≠ 0, взяли точку из чужого промежутка или неверно перенесли запятую.</p>
+          <ul>
+            <li>Перенос запятой без изменения степени.</li>
+            <li>Подстановка x = 0 в 1/x.</li>
+            <li>Неверное вычисление 1/1,5 = 2/3.</li>
+            <li>Потеря граничной точки в кусочной функции.</li>
+            <li>Неверное отражение графика с модулем.</li>
+          </ul>
+          <div class="modal-note">Перед ответом всегда спрашивайте: «нет ли деления на ноль и правильно ли выбран промежуток?»</div>
+        `,
+            children: ['commaMistake', 'zeroMistake', 'fractionMistake', 'boundaryMistake', 'moduleMistake']
+        },
+        commaMistake: {
+            title: 'Запятая',
+            kicker: 'степень забыли',
+            formula: 'вправо → вниз',
+            color: 'red',
+            summary: 'Нельзя двигать запятую и оставлять степень прежней.',
+            detail: `
+          <div class="modal-code">неверно: 7,8·10³ = 78·10³
+верно:   7,8·10³ = 78·10²</div>
+          <div class="modal-note">Перенос запятой должен компенсироваться степенью десяти.</div>
+        `,
+            children: []
+        },
+        zeroMistake: {
+            title: 'Деление на ноль',
+            kicker: 'x ≠ 0',
+            formula: '1/0 нельзя',
+            color: 'red',
+            summary: 'Для выражения 1/x значение x=0 запрещено.',
+            detail: `
+          <div class="modal-code">1/0 — не определено</div>
+          <div class="modal-note">На графике y=1/x нет точки при x=0.</div>
+        `,
+            children: []
+        },
+        fractionMistake: {
+            title: 'Дроби',
+            kicker: '1/1,5',
+            formula: '2/3',
+            color: 'orange',
+            summary: 'Десятичные дроби удобно переводить в обыкновенные.',
+            detail: `
+          <div class="modal-code">1 / 1,5 = 1 / (3/2) = 2/3</div>
+          <div class="modal-note">Не превращайте 1/1,5 в 3. Это типичная арифметическая ошибка.</div>
+        `,
+            children: []
+        },
+        boundaryMistake: {
+            title: 'Границы',
+            kicker: '≤ или <',
+            formula: 'точка входит?',
+            color: 'purple',
+            summary: 'Строгие и нестрогие знаки меняют включение точки.',
+            detail: `
+          <div class="modal-code">x ≤ 1/2 → точка входит
+x > 1/2 → точка не входит</div>
+          <div class="modal-note">При построении кусочного графика граничные точки отмечайте отдельно.</div>
+        `,
+            children: []
+        },
+        moduleMistake: {
+            title: 'Модуль',
+            kicker: 'отражение',
+            formula: '|f(x)|',
+            color: 'pink',
+            summary: 'Модуль всей функции отражает нижнюю часть вверх.',
+            detail: `
+          <p>Если модуль стоит вокруг всей правой части, отражаются отрицательные значения y, а не значения x.</p>
+          <div class="modal-code">y = |1/x|: нижняя ветвь вверх
+y = -|1/x|: результат вниз</div>
+          <div class="modal-note">Сначала модуль, потом внешний минус, если он есть.</div>
+        `,
+            children: []
+        },
+
+        practice: {
+            title: 'Практика',
+            kicker: 'закрепление',
+            formula: '10 задач',
+            color: 'green',
+            summary: 'Тренировка стандартного вида, графиков, координат и кусочных функций.',
+            detail: `
+          <p>Практику лучше строить по нарастанию: сначала стандартный вид, затем физическая задача, потом графики и кусочные функции.</p>
+          <ol>
+            <li>0,00048 → стандартный вид.</li>
+            <li>730000 → стандартный вид.</li>
+            <li>(3,2·10⁴)(5·10⁻³).</li>
+            <li>m = ρabh.</li>
+            <li>Точка на y = 1/x.</li>
+            <li>Кусочная функция.</li>
+            <li>Модуль графика.</li>
+          </ol>
+          <div class="modal-note">После каждой задачи проверяйте ОДЗ и стандартность записи ответа.</div>
+        `,
+            children: ['mediumTasks', 'advancedTasks', 'hardTask', 'answers']
+        },
+        mediumTasks: {
+            title: 'Средний уровень',
+            kicker: 'разминка',
+            formula: 'стандартный вид',
+            color: 'green',
+            summary: 'Перевод чисел и простое умножение степеней.',
+            detail: `
+          <div class="modal-code">1) 0,00048 = ?
+2) 730000 = ?
+3) (3,2·10⁴)(5·10⁻³) = ?</div>
+          <div class="modal-note">Ответы: 4,8·10⁻⁴; 7,3·10⁵; 1,6·10².</div>
+        `,
+            children: []
+        },
+        advancedTasks: {
+            title: 'Выше среднего',
+            kicker: 'графики и координаты',
+            formula: 'y=1/x',
+            color: 'orange',
+            summary: 'Задачи на физические величины, точки гиперболы и кусочные функции.',
+            detail: `
+          <p>Основные типы задач:</p>
+          <ul>
+            <li>найти массу по формуле m = ρabh;</li>
+            <li>найти неизвестную координату точки на y = 1/x;</li>
+            <li>вычислить значения кусочной функции;</li>
+            <li>описать преобразование с модулем.</li>
+          </ul>
+          <div class="modal-note">Всегда сначала определяйте, какая формула работает для данного x.</div>
+        `,
+            children: []
+        },
+        hardTask: {
+            title: 'Сложная задача',
+            kicker: 'три части',
+            formula: 'g(x)',
+            color: 'purple',
+            summary: 'Построить график из двух ветвей гиперболы и прямой.',
+            detail: `
+          <div class="modal-code">g(x)=1/x, если x≤-1/2
+g(x)=4x, если -1/2<x≤1/2
+g(x)=1/x, если x>1/2</div>
+          <p>Нужно построить эскиз, найти значения функции и решить g(x)=1.</p>
+          <div class="modal-note">Ответ для g(x)=1: x=1/4 и x=1.</div>
+        `,
+            children: []
+        },
+        answers: {
+            title: 'Ответы',
+            kicker: 'самопроверка',
+            formula: 'коротко',
+            color: 'blue',
+            summary: 'Сверка ответов по тренировочному блоку.',
+            detail: `
+          <div class="modal-code">1) 4,8·10⁻⁴
+2) 7,3·10⁵
+3) 1,6·10²
+4) 26,7 кг
+5) a=8
+6) b=2,5
+7) f(-2)=-2, f(0)=0, f(2)=1/2
+10) g(-1)=-1, g(1/4)=1, g(2)=1/2; g(x)=1 при x=1/4 и x=1</div>
+          <div class="modal-note">Если ответ не совпал, проверьте прежде всего промежуток, ОДЗ и арифметику дробей.</div>
+        `,
+            children: []
+        }
+    };
+
+    let currentNodeId = 'root';
+    let historyStack = ['root'];
+    let activeDrag = null;
+
+    const mapScene = document.getElementById('mapScene');
+    const connectorLayer = document.getElementById('connectorLayer');
+    const breadcrumbs = document.getElementById('breadcrumbs');
+    const levelBadge = document.getElementById('levelBadge');
+    const levelHeading = document.getElementById('levelHeading');
+    const backBtn = document.getElementById('backBtn');
+    const homeBtn = document.getElementById('homeBtn');
+    const fitBtn = document.getElementById('fitBtn');
+    const currentInfoBtn = document.getElementById('currentInfoBtn');
+    const dragHint = document.getElementById('dragHint');
+
+    const modal = document.getElementById('modal');
+    const modalClose = document.getElementById('modalClose');
+    const modalKicker = document.getElementById('modalKicker');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+
+    function canDrag() {
+        return window.matchMedia('(min-width: 1181px)').matches;
+    }
+
+    function storageKey(nodeId) {
+        return `recursiveMathMindmapPositions.${nodeId}.v1`;
+    }
+
+    function getDepth() {
+        return historyStack.length;
+    }
+
+    function clearDynamicMap() {
+        // Удаляем старые узлы перед отрисовкой нового уровня карты.
+        mapScene.querySelectorAll('.center-node, .node-card').forEach((item) => item.remove());
+        connectorLayer.innerHTML = '';
+    }
+
+    function nodeColorStroke(color) {
+        const map = {
+            blue: '#1597c8',
+            teal: '#149f91',
+            green: '#3f9d35',
+            purple: '#7a4ac8',
+            orange: '#e1911a',
+            yellow: '#c99000',
+            red: '#d84f66',
+            pink: '#d84f8f'
+        };
+        return map[color] || '#149f91';
+    }
+
+    function makeMarker(id, color) {
+        return `<marker id="${id}" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,5 L0,10 z" fill="${color}" /></marker>`;
+    }
+
+    function drawConnectors(children) {
+        // Рисуем SVG-стрелки от центрального узла к карточкам текущего уровня.
+        const defs = children.map((childId, index) => {
+            const color = nodeColorStroke(DATA[childId].color);
+            return makeMarker(`arrow-${index}`, color);
+        }).join('');
+
+        const paths = children.map((childId, index) => {
+            const color = nodeColorStroke(DATA[childId].color);
+            const angle = (Math.PI * 2 * index / children.length) - Math.PI / 2;
+            const startX = 500 + Math.cos(angle) * 150;
+            const startY = 350 + Math.sin(angle) * 115;
+            const endX = 500 + Math.cos(angle) * 370;
+            const endY = 350 + Math.sin(angle) * 268;
+            const c1x = 500 + Math.cos(angle) * 220;
+            const c1y = 350 + Math.sin(angle) * 158;
+            const c2x = 500 + Math.cos(angle) * 300 + Math.sin(angle) * 24;
+            const c2y = 350 + Math.sin(angle) * 225 - Math.cos(angle) * 24;
+            return `<path d="M ${startX.toFixed(1)} ${startY.toFixed(1)} C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${endX.toFixed(1)} ${endY.toFixed(1)}" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round" marker-end="url(#arrow-${index})" />`;
+        }).join('');
+
+        connectorLayer.innerHTML = `<defs>${defs}</defs>${paths}`;
+    }
+
+    function polarPosition(index, total) {
+        const angle = (Math.PI * 2 * index / total) - Math.PI / 2;
+        const sceneWidth = mapScene.clientWidth || 1000;
+        const sceneHeight = mapScene.clientHeight || 700;
+        const radiusX = Math.min(sceneWidth * .36, 420);
+        const radiusY = Math.min(sceneHeight * .36, 275);
+        const cardWidth = 282;
+        const cardHeight = 160;
+        return {
+            left: sceneWidth / 2 + Math.cos(angle) * radiusX - cardWidth / 2,
+            top: sceneHeight / 2 + Math.sin(angle) * radiusY - cardHeight / 2,
+            rotate: (Math.sin(angle) * 1.6).toFixed(1)
+        };
+    }
+
+    function createCenterNode(node) {
+        const center = document.createElement('div');
+        center.className = 'center-node';
+        center.innerHTML = `
+        <div class="center-inner">
+          <div class="center-kicker">${node.kicker}</div>
+          <div class="center-title">${node.title}</div>
+          <div class="center-formula">${node.formula || 'mindmap'}</div>
+        </div>
+      `;
+        center.addEventListener('click', () => openModal(currentNodeId));
+        mapScene.appendChild(center);
+    }
+
+    function createNodeCard(childId, index, total, savedPositions) {
+        const node = DATA[childId];
+        const card = document.createElement('article');
+        card.className = 'node-card';
+        card.dataset.id = childId;
+        card.dataset.color = node.color || 'blue';
+
+        const hasChildren = node.children && node.children.length > 0;
+        card.innerHTML = `
+        <div class="node-head">
+          <span class="node-num">${index + 1}</span>
+          <span class="node-title">${node.title}</span>
+        </div>
+        <p class="node-summary">${node.summary}</p>
+        <div class="node-meta">
+          <span class="pill">${node.formula || 'раздел'}</span>
+          <span class="pill">${hasChildren ? `${node.children.length} ветки` : 'лист'}</span>
+        </div>
+        <div class="node-actions">
+          <button class="small-btn open" ${hasChildren ? '' : 'disabled'}>${hasChildren ? 'Открыть ветку ↳' : 'Нет веток'}</button>
+          <button class="small-btn more">Подробнее ✦</button>
+        </div>
+      `;
+
+        if (canDrag() && savedPositions && savedPositions[childId]) {
+            card.style.left = savedPositions[childId].left;
+            card.style.top = savedPositions[childId].top;
+        } else if (canDrag()) {
+            const pos = polarPosition(index, total);
+            card.style.left = `${Math.max(0, pos.left)}px`;
+            card.style.top = `${Math.max(0, pos.top)}px`;
+            card.style.transform = `rotate(${pos.rotate}deg)`;
+        }
+
+        const openBtn = card.querySelector('.small-btn.open');
+        const moreBtn = card.querySelector('.small-btn.more');
+
+        openBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            if (hasChildren) goToNode(childId);
+        });
+
+        moreBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            openModal(childId);
+        });
+
+        card.addEventListener('dblclick', () => {
+            if (hasChildren) goToNode(childId);
+            else openModal(childId);
+        });
+
+        setupDrag(card);
+        mapScene.appendChild(card);
+    }
+
+    function renderBreadcrumbs() {
+        breadcrumbs.innerHTML = '';
+        historyStack.forEach((nodeId, index) => {
+            const node = DATA[nodeId];
+            const crumb = document.createElement('button');
+            crumb.className = `crumb ${index === historyStack.length - 1 ? 'current' : ''}`;
+            crumb.textContent = node.title;
+            crumb.disabled = index === historyStack.length - 1;
+            crumb.addEventListener('click', () => {
+                historyStack = historyStack.slice(0, index + 1);
+                currentNodeId = nodeId;
+                renderMap();
+            });
+            breadcrumbs.appendChild(crumb);
+
+            if (index < historyStack.length - 1) {
+                const sep = document.createElement('span');
+                sep.className = 'crumb-sep';
+                sep.textContent = '→';
+                breadcrumbs.appendChild(sep);
+            }
+        });
+    }
+
+    function renderMap() {
+        // Главная функция рекурсии: текущий узел становится центром, его дети — карточками вокруг.
+        const node = DATA[currentNodeId];
+        const children = node.children || [];
+        const savedPositions = JSON.parse(localStorage.getItem(storageKey(currentNodeId)) || '{}');
+
+        clearDynamicMap();
+        levelBadge.textContent = `Уровень ${getDepth()}`;
+        levelHeading.textContent = node.title;
+        backBtn.disabled = historyStack.length <= 1;
+
+        createCenterNode(node);
+        drawConnectors(children);
+        children.forEach((childId, index) => createNodeCard(childId, index, children.length, savedPositions));
+        renderBreadcrumbs();
+    }
+
+    function goToNode(nodeId) {
+        // Переход в дочернюю mindmap: выбранный узел становится новым центром.
+        currentNodeId = nodeId;
+        historyStack.push(nodeId);
+        renderMap();
+        document.getElementById('mapArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function goBack() {
+        if (historyStack.length <= 1) return;
+        historyStack.pop();
+        currentNodeId = historyStack[historyStack.length - 1];
+        renderMap();
+    }
+
+    function goHome() {
+        historyStack = ['root'];
+        currentNodeId = 'root';
+        renderMap();
+    }
+
+    function resetPositions() {
+        localStorage.removeItem(storageKey(currentNodeId));
+        renderMap();
+    }
+
+    function openModal(nodeId) {
+        // Здесь открывается подробный комментарий к выбранному узлу.
+        const node = DATA[nodeId];
+        if (!node) return;
+        modalKicker.textContent = node.kicker || 'Комментарий';
+        modalTitle.textContent = node.title;
+        modalBody.innerHTML = node.detail || `<p>${node.summary}</p>`;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        modalClose.focus();
+    }
+
+    function closeModal() {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function saveCurrentPositions() {
+        // Здесь сохраняются позиции карточек текущего уровня в localStorage.
+        if (!canDrag()) return;
+        const data = {};
+        mapScene.querySelectorAll('.node-card').forEach((card) => {
+            data[card.dataset.id] = {
+                left: card.style.left,
+                top: card.style.top
+            };
+        });
+        localStorage.setItem(storageKey(currentNodeId), JSON.stringify(data));
+    }
+
+    function setupDrag(card) {
+        card.addEventListener('pointerdown', (event) => {
+            // Здесь начинается drag & drop карточки.
+            if (!canDrag()) return;
+            if (event.target.closest('button')) return;
+
+            const sceneRect = mapScene.getBoundingClientRect();
+            const cardRect = card.getBoundingClientRect();
+
+            activeDrag = {
+                card,
+                pointerId: event.pointerId,
+                offsetX: event.clientX - cardRect.left,
+                offsetY: event.clientY - cardRect.top
+            };
+
+            card.setPointerCapture(event.pointerId);
+            card.classList.add('dragging');
+            card.style.left = `${cardRect.left - sceneRect.left}px`;
+            card.style.top = `${cardRect.top - sceneRect.top}px`;
+            card.style.transform = 'rotate(0deg)';
+            dragHint.classList.add('visible');
+        });
+
+        card.addEventListener('pointermove', (event) => {
+            // Здесь карточка двигается за курсором внутри сцены.
+            if (!activeDrag || activeDrag.card !== card) return;
+            const sceneRect = mapScene.getBoundingClientRect();
+            const nextLeft = event.clientX - sceneRect.left - activeDrag.offsetX;
+            const nextTop = event.clientY - sceneRect.top - activeDrag.offsetY;
+            const maxLeft = mapScene.clientWidth - card.offsetWidth;
+            const maxTop = mapScene.clientHeight - card.offsetHeight;
+
+            card.style.left = `${Math.max(0, Math.min(maxLeft, nextLeft))}px`;
+            card.style.top = `${Math.max(0, Math.min(maxTop, nextTop))}px`;
+        });
+
+        card.addEventListener('pointerup', (event) => {
+            // Здесь drag & drop завершается и позиция сохраняется.
+            if (!activeDrag || activeDrag.card !== card) return;
+            card.releasePointerCapture(event.pointerId);
+            card.classList.remove('dragging');
+            activeDrag = null;
+            dragHint.classList.remove('visible');
+            saveCurrentPositions();
+        });
+
+        card.addEventListener('pointercancel', () => {
+            if (!activeDrag || activeDrag.card !== card) return;
+            card.classList.remove('dragging');
+            activeDrag = null;
+            dragHint.classList.remove('visible');
+            saveCurrentPositions();
+        });
+    }
+
+    backBtn.addEventListener('click', goBack);
+    homeBtn.addEventListener('click', goHome);
+    fitBtn.addEventListener('click', resetPositions);
+    currentInfoBtn.addEventListener('click', () => openModal(currentNodeId));
+    modalClose.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', (event) => {
+        if (event.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && modal.classList.contains('open')) closeModal();
+        if (event.key === 'Backspace' && !modal.classList.contains('open')) goBack();
+    });
+
+    window.addEventListener('resize', () => renderMap());
+
+    renderMap();
+</script>
+</body>
+</html>
