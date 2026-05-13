@@ -1,0 +1,1961 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Расчётные задачи по химии — интерактивные карточки</title>
+    <style>
+        :root {
+            --paper: #f4ead5;
+            --paper-2: #fff8e8;
+            --ink: #292725;
+            --muted: #6b6258;
+            --red: #8f2638;
+            --red-2: #b24b5d;
+            --blue: #2f6f8f;
+            --green: #3f7f55;
+            --line: rgba(41, 39, 37, 0.24);
+            --shadow: rgba(41, 39, 37, 0.17);
+            --soft: #efe0c2;
+            --yellow: #f2cb69;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-width: 0;
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+            radial-gradient(circle at 12% 15%, rgba(143, 38, 56, 0.045) 0 2px, transparent 3px),
+            radial-gradient(circle at 82% 19%, rgba(47, 111, 143, 0.04) 0 2px, transparent 3px),
+            radial-gradient(circle at 46% 88%, rgba(63, 127, 85, 0.035) 0 2px, transparent 3px),
+            linear-gradient(135deg, rgba(255,255,255,0.38), rgba(255,255,255,0)),
+            var(--paper);
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+            linear-gradient(rgba(41,39,37,0.028) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(41,39,37,0.018) 1px, transparent 1px);
+            background-size: 28px 28px;
+            mix-blend-mode: multiply;
+            z-index: -1;
+        }
+
+        button,
+        select,
+        input,
+        textarea,
+        summary {
+            font: inherit;
+        }
+
+        button:focus-visible,
+        select:focus-visible,
+        summary:focus-visible {
+            outline: 3px solid rgba(47, 111, 143, 0.45);
+            outline-offset: 3px;
+        }
+
+        .app {
+            width: min(1160px, 100%);
+            margin: 0 auto;
+            padding: 18px 14px 30px;
+        }
+
+        .top {
+            position: relative;
+            padding: 22px 18px 18px;
+            margin: 0 auto 14px;
+            background: rgba(255, 248, 232, 0.86);
+            border: 2px solid var(--ink);
+            border-radius: 24px 18px 28px 16px;
+            box-shadow: 7px 8px 0 var(--shadow);
+            overflow: hidden;
+        }
+
+        .top::before {
+            content: "";
+            position: absolute;
+            right: 18px;
+            top: 16px;
+            width: 124px;
+            height: 74px;
+            border: 2px dashed rgba(143, 38, 56, 0.55);
+            border-radius: 48% 52% 45% 55%;
+            transform: rotate(-7deg);
+            opacity: 0.85;
+        }
+
+        .top::after {
+            content: "данные → n → ответ";
+            position: absolute;
+            right: 33px;
+            top: 43px;
+            color: var(--red);
+            font-size: 13px;
+            font-weight: 900;
+            transform: rotate(-7deg);
+            white-space: nowrap;
+        }
+
+        .student-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 12px;
+            color: var(--muted);
+            font-weight: 700;
+            font-size: 14px;
+            padding-right: 165px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            width: fit-content;
+            padding: 6px 10px;
+            background: var(--paper-2);
+            border: 1.8px dashed var(--red);
+            border-radius: 999px 920px 980px 870px;
+            color: var(--red);
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(30px, 6vw, 58px);
+            line-height: 0.98;
+            max-width: 860px;
+            letter-spacing: -0.04em;
+            color: var(--ink);
+        }
+
+        .subtitle {
+            margin: 12px 0 0;
+            max-width: 780px;
+            color: var(--muted);
+            font-size: clamp(16px, 2.4vw, 21px);
+            line-height: 1.35;
+        }
+
+        .doodle-line {
+            height: 18px;
+            margin-top: 12px;
+            width: min(520px, 90%);
+            position: relative;
+        }
+
+        .doodle-line svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .modebar {
+            position: sticky;
+            top: 0;
+            z-index: 25;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            margin: 14px 0;
+            padding: 10px;
+            background: rgba(244, 234, 213, 0.92);
+            border: 1.8px dashed var(--line);
+            border-radius: 18px 24px 18px 24px;
+            backdrop-filter: blur(6px);
+        }
+
+        .modebar button,
+        .controls button,
+        .small-btn,
+        .trainer button,
+        .quiz button,
+        .reveal-btn {
+            cursor: pointer;
+            border: 2px solid var(--ink);
+            background: var(--paper-2);
+            color: var(--ink);
+            border-radius: 14px 18px 13px 16px;
+            padding: 10px 14px;
+            box-shadow: 3px 4px 0 rgba(41,39,37,0.16);
+            font-weight: 900;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+            touch-action: manipulation;
+        }
+
+        .modebar button:hover,
+        .controls button:hover,
+        .small-btn:hover,
+        .trainer button:hover,
+        .quiz button:hover,
+        .reveal-btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 5px 0 rgba(41,39,37,0.18);
+            background: #fffdf5;
+        }
+
+        .modebar button.active-mode {
+            background: var(--red);
+            color: #fff7e6;
+            border-color: var(--red);
+        }
+
+        .progress {
+            margin: 10px auto 12px;
+            display: grid;
+            gap: 8px;
+            max-width: 760px;
+        }
+
+        .progress-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            font-weight: 900;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .progress-track {
+            height: 12px;
+            background: rgba(255, 248, 232, 0.9);
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0;
+            background: repeating-linear-gradient(
+            45deg,
+            var(--red),
+            var(--red) 8px,
+            var(--red-2) 8px,
+            var(--red-2) 14px
+            );
+            transition: width 0.25s ease;
+        }
+
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border: 1.7px solid var(--ink);
+            background: var(--paper-2);
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .dot.active {
+            background: var(--red);
+            transform: scale(1.16);
+        }
+
+        .deck-wrap {
+            position: relative;
+            min-height: min(76vh, 760px);
+            margin: 0 auto;
+            max-width: 980px;
+        }
+
+        .deck {
+            position: relative;
+            min-height: min(76vh, 760px);
+            perspective: 1200px;
+            touch-action: pan-y;
+        }
+
+        .card {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            min-height: min(76vh, 760px);
+            max-height: min(76vh, 760px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            overscroll-behavior: contain;
+            padding: clamp(18px, 4vw, 34px);
+            background:
+            linear-gradient(rgba(255,255,255,0.42), rgba(255,255,255,0.09)),
+            radial-gradient(circle at 12% 8%, rgba(242, 203, 105, 0.18), transparent 24%),
+            var(--paper-2);
+            border: 2.2px solid var(--ink);
+            border-radius: 28px 22px 34px 20px;
+            box-shadow: 9px 11px 0 var(--shadow);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(0) scale(0.96) rotate(0deg);
+            transition: transform 0.34s ease, opacity 0.28s ease;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(143, 38, 56, 0.5) rgba(255, 248, 232, 0.65);
+        }
+
+        .card::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .card::-webkit-scrollbar-thumb {
+            background: rgba(143, 38, 56, 0.42);
+            border-radius: 999px;
+            border: 2px solid rgba(255, 248, 232, 0.8);
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 13px;
+            border: 1.6px dashed rgba(41,39,37,0.18);
+            border-radius: 22px 17px 28px 16px;
+            pointer-events: none;
+        }
+
+        .card::after {
+            content: "";
+            position: absolute;
+            left: -18px;
+            top: 70px;
+            width: 52px;
+            height: 24px;
+            background: rgba(242, 203, 105, 0.65);
+            border: 1.6px solid rgba(41,39,37,0.35);
+            transform: rotate(-8deg);
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        .card.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(0) scale(1) rotate(0deg);
+            z-index: 5;
+        }
+
+        .card.next {
+            opacity: 0.42;
+            transform: translateX(68%) scale(0.92) rotate(3deg);
+            z-index: 3;
+        }
+
+        .card.prev {
+            opacity: 0.38;
+            transform: translateX(-68%) scale(0.92) rotate(-3deg);
+            z-index: 2;
+        }
+
+        .card.hidden-left {
+            opacity: 0;
+            transform: translateX(-120%) scale(0.88) rotate(-9deg);
+            z-index: 1;
+        }
+
+        .card.hidden-right {
+            opacity: 0;
+            transform: translateX(120%) scale(0.88) rotate(9deg);
+            z-index: 1;
+        }
+
+        .card.dragging {
+            transition: none;
+            cursor: grabbing;
+        }
+
+        .card-inner {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            gap: 16px;
+            max-width: 100%;
+        }
+
+        .card-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            border-bottom: 2px dashed var(--line);
+            padding-bottom: 12px;
+        }
+
+        .card h2 {
+            margin: 0;
+            font-size: clamp(25px, 4.2vw, 40px);
+            line-height: 1.06;
+            letter-spacing: -0.03em;
+        }
+
+        .num {
+            flex: 0 0 auto;
+            width: 58px;
+            height: 58px;
+            display: grid;
+            place-items: center;
+            background: var(--red);
+            color: #fff8e8;
+            font-weight: 900;
+            border: 2px solid var(--ink);
+            border-radius: 45% 55% 48% 52%;
+            box-shadow: 4px 4px 0 rgba(41,39,37,0.18);
+            transform: rotate(-5deg);
+        }
+
+        .section {
+            padding: 14px;
+            background: rgba(239, 224, 194, 0.56);
+            border: 1.8px dashed rgba(41,39,37,0.28);
+            border-radius: 17px 20px 15px 22px;
+        }
+
+        .section h3 {
+            margin: 0 0 8px;
+            color: var(--red);
+            font-size: 18px;
+        }
+
+        .section p {
+            margin: 0 0 8px;
+            line-height: 1.45;
+        }
+
+        .formula {
+            display: block;
+            overflow-x: auto;
+            margin: 8px 0;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.5);
+            border-left: 5px solid var(--red);
+            border-top: 1.4px solid var(--line);
+            border-bottom: 1.4px solid var(--line);
+            border-right: 1.4px dashed var(--line);
+            border-radius: 10px 16px 10px 16px;
+            font-size: 17px;
+            line-height: 1.55;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+
+        .formula.wrap {
+            white-space: normal;
+        }
+
+        .reaction {
+            font-weight: 900;
+            letter-spacing: 0.01em;
+        }
+
+        sub,
+        sup {
+            line-height: 0;
+        }
+
+        .mini-conclusion {
+            padding: 12px 14px;
+            background: rgba(242, 203, 105, 0.39);
+            border: 2px solid rgba(41,39,37,0.72);
+            border-radius: 18px 14px 20px 13px;
+            font-weight: 900;
+            line-height: 1.35;
+        }
+
+        details {
+            background: rgba(255, 248, 232, 0.76);
+            border: 1.6px dashed var(--red-2);
+            border-radius: 16px 18px 14px 20px;
+            padding: 10px 12px;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 900;
+            color: var(--red);
+        }
+
+        details > div {
+            margin-top: 10px;
+            color: var(--ink);
+            line-height: 1.45;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .sticky {
+            display: inline-block;
+            padding: 7px 10px;
+            margin: 4px;
+            background: rgba(242, 203, 105, 0.56);
+            border: 1.7px solid var(--ink);
+            border-radius: 13px 11px 15px 10px;
+            box-shadow: 2px 3px 0 rgba(41,39,37,0.14);
+            font-weight: 900;
+            transform: rotate(-1.5deg);
+        }
+
+        .sticky:nth-child(2n) {
+            background: rgba(47, 111, 143, 0.12);
+            transform: rotate(1.2deg);
+        }
+
+        .sticky:nth-child(3n) {
+            background: rgba(143, 38, 56, 0.1);
+            transform: rotate(-0.7deg);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            align-items: center;
+            margin: 16px 0 8px;
+        }
+
+        .controls button {
+            min-width: 120px;
+        }
+
+        .controls button:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 12px;
+            padding: 12px 14px;
+            border: 2px dashed var(--line);
+            border-radius: 14px 16px 13px 18px;
+            font-weight: 900;
+            min-height: 46px;
+            background: rgba(255,255,255,0.36);
+            line-height: 1.35;
+        }
+
+        .answer {
+            filter: blur(5px);
+            user-select: none;
+            transition: filter 0.2s ease, background 0.2s ease;
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 8px;
+            background: rgba(143, 38, 56, 0.08);
+        }
+
+        .answer.revealed {
+            filter: none;
+            user-select: auto;
+            background: rgba(63, 127, 85, 0.14);
+        }
+
+        .choice {
+            display: block;
+            width: 100%;
+            margin: 8px 0;
+            text-align: left;
+            padding: 11px 12px;
+            background: rgba(255,255,255,0.44);
+            border: 2px solid var(--line);
+            border-radius: 14px 18px 13px 16px;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+        }
+
+        .choice:hover {
+            transform: translateX(2px);
+            background: rgba(255,255,255,0.65);
+        }
+
+        .choice.selected {
+            border-color: var(--blue);
+            background: rgba(47, 111, 143, 0.11);
+        }
+
+        .correct {
+            border-color: var(--green) !important;
+            background: rgba(63, 127, 85, 0.16) !important;
+        }
+
+        .wrong {
+            border-color: var(--red) !important;
+            background: rgba(143, 38, 56, 0.13) !important;
+        }
+
+        .stamp {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            margin: 6px 6px 0 0;
+            padding: 7px 10px;
+            border: 2.2px solid var(--red);
+            color: var(--red);
+            background: rgba(255, 248, 232, 0.74);
+            border-radius: 44% 56% 48% 52%;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.04em;
+            transform: rotate(-5deg);
+        }
+
+        .trainer {
+            display: grid;
+            gap: 12px;
+        }
+
+        .trainer-row {
+            display: grid;
+            grid-template-columns: 1fr minmax(190px, 270px);
+            gap: 10px;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1.6px dashed var(--line);
+        }
+
+        select {
+            width: 100%;
+            padding: 9px 10px;
+            background: #fffaf0;
+            border: 2px solid var(--ink);
+            border-radius: 12px 14px 11px 15px;
+            color: var(--ink);
+        }
+
+        .quiz {
+            display: grid;
+            gap: 14px;
+        }
+
+        .quiz-item {
+            padding: 13px;
+            border: 1.7px dashed var(--line);
+            border-radius: 16px 14px 18px 13px;
+            background: rgba(255,255,255,0.32);
+        }
+
+        .quick-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .footer-sign {
+            text-align: center;
+            margin: 26px auto 8px;
+            padding: 16px;
+            color: var(--muted);
+            font-weight: 900;
+            border-top: 2px dashed var(--line);
+            max-width: 860px;
+        }
+
+        .mobile-hint {
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .table-like {
+            display: grid;
+            gap: 8px;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.2fr;
+            gap: 8px;
+            padding: 9px;
+            border-bottom: 1.5px dashed var(--line);
+            line-height: 1.35;
+        }
+
+        .table-row strong {
+            color: var(--red);
+        }
+
+        .arrow-note {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .arrow-note::before {
+            content: "↳";
+            position: absolute;
+            left: 6px;
+            top: -3px;
+            color: var(--red);
+            font-size: 25px;
+            font-weight: 900;
+        }
+
+        .calc-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .calc-item {
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.35);
+            border: 1.4px dashed var(--line);
+            border-radius: 14px 12px 16px 13px;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 760px) {
+            .app {
+                padding: 10px 9px 22px;
+            }
+
+            .top {
+                padding: 18px 14px;
+                box-shadow: 5px 6px 0 var(--shadow);
+            }
+
+            .top::before,
+            .top::after {
+                display: none;
+            }
+
+            .student-row {
+                padding-right: 0;
+            }
+
+            .deck-wrap,
+            .deck {
+                min-height: 74vh;
+            }
+
+            .card {
+                min-height: 74vh;
+                max-height: 74vh;
+                padding: 18px 14px;
+                box-shadow: 5px 7px 0 var(--shadow);
+            }
+
+            .card::before {
+                inset: 9px;
+            }
+
+            .card-head {
+                gap: 10px;
+            }
+
+            .num {
+                width: 46px;
+                height: 46px;
+            }
+
+            .two-col,
+            .trainer-row,
+            .table-row {
+                grid-template-columns: 1fr;
+            }
+
+            .controls button {
+                min-width: 96px;
+                padding: 10px 12px;
+            }
+
+            .formula {
+                font-size: 16px;
+            }
+
+            .modebar {
+                position: relative;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .deck-wrap,
+            .deck {
+                min-height: 76vh;
+            }
+
+            .card {
+                min-height: 76vh;
+                max-height: 76vh;
+            }
+
+            .modebar button,
+            .controls button,
+            .small-btn,
+            .trainer button,
+            .quiz button,
+            .reveal-btn {
+                padding: 9px 10px;
+            }
+        }
+
+        @media print {
+            @page {
+            size: A4;
+            margin: 12mm;
+            }
+
+            body {
+                background: #fff;
+                color: #111;
+            }
+
+            body::before,
+            .modebar,
+            .controls,
+            .progress,
+            .mobile-hint,
+            .dots,
+            .reveal-btn {
+                display: none !important;
+            }
+
+            .app {
+                width: 100%;
+                padding: 0;
+            }
+
+            .top {
+                box-shadow: none;
+                border: 1px solid #333;
+                page-break-after: avoid;
+                margin-bottom: 8mm;
+            }
+
+            .top::before,
+            .top::after {
+                display: none;
+            }
+
+            .deck-wrap,
+            .deck {
+                min-height: 0;
+                max-height: none;
+            }
+
+            .card {
+                display: block !important;
+                position: relative !important;
+                inset: auto !important;
+                opacity: 1 !important;
+                transform: none !important;
+                pointer-events: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                overflow: visible !important;
+                box-shadow: none;
+                border: 1px solid #333;
+                page-break-inside: avoid;
+                margin: 0 0 8mm;
+                background: #fffdf7;
+            }
+
+            .card.next,
+            .card.prev,
+            .card.hidden-left,
+            .card.hidden-right {
+                opacity: 1 !important;
+                transform: none !important;
+            }
+
+            .card::after {
+                display: none;
+            }
+
+            details {
+                break-inside: avoid;
+            }
+
+            details > div {
+                display: block;
+            }
+
+            .answer {
+                filter: none !important;
+                user-select: auto !important;
+            }
+
+            .choice,
+            select,
+            button {
+                border: 1px solid #333 !important;
+                box-shadow: none !important;
+            }
+
+            .footer-sign {
+                border-top: 1px solid #333;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <header class="top">
+        <div class="student-row">
+            <span class="badge">Полина Крылова</span>
+            <span class="badge">ЕГЭ</span>
+            <span class="badge">химия</span>
+        </div>
+        <h1>Расчётные задачи: смеси, растворы, газы</h1>
+        <p class="subtitle">
+            Свайп-карточки для повторения: как переводить условие в количество вещества,
+            читать коэффициенты реакций и аккуратно находить массовые доли.
+        </p>
+        <div class="doodle-line" aria-hidden="true">
+            <svg viewBox="0 0 520 18" preserveAspectRatio="none">
+                <path d="M3 11 C70 0, 112 20, 170 9 S285 2, 342 10 S442 20, 517 6"
+                      fill="none" stroke="#8f2638" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="8 7"/>
+            </svg>
+        </div>
+    </header>
+
+    <nav class="modebar" aria-label="Режимы пособия">
+        <button type="button" class="active-mode" data-mode="memo">Памятка</button>
+        <button type="button" data-mode="training">Тренировка</button>
+        <button type="button" id="printBtn">Печать</button>
+    </nav>
+
+    <section class="progress" aria-label="Прогресс по карточкам">
+        <div class="progress-top">
+            <span id="cardTitle">Карточка</span>
+            <span id="counter">1 / 13</span>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="dots" id="dots" aria-label="Точки прогресса"></div>
+    </section>
+
+    <p class="mobile-hint">Листайте карточки свайпом, кнопками или клавишами ← →. Home — первая карточка, End — последняя.</p>
+
+    <main class="deck-wrap" aria-label="Колода учебных карточек">
+        <div class="deck" id="deck">
+
+            <article class="card active" data-group="memo" data-title="Главная логика">
+                <div class="card-inner">
+                    <div class="card-head">
+                        <div>
+                            <span class="badge">карта маршрута</span>
+                            <h2>Главная логика расчётной задачи</h2>
+                        </div>
+                        <div class="num">1</div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Главная идея</h3>
+                        <p>
+                            В химическом уравнении коэффициенты связывают <strong>количества вещества</strong>,
+                            а не массы и не массовые доли. Поэтому центральный переход почти всегда один:
+                        </p>
+                        <span class="formula wrap">данные условия → количество вещества n → коэффициенты реакции → масса, объём или массовая доля</span>
+                    </div>
+
+                    <div class="two-col">
+                        <div class="section">
+                            <h3>Базовые формулы</h3>
+                            <span class="formula">n = m / M</span>
+                            <span class="formula">m = nM</span>
+                            <span class="formula">ω = m<sub>вещества</sub> / m<sub>смеси или раствора</sub></span>
+                        </div>
+                        <div class="section">
+                            <h3>Для газа при н.у.</h3>
+                            <span class="formula">n = V / 22,4</span>
+                            <p>Объём V берём в литрах, количество вещества n получаем в молях.</p>
+                        </div>
+                    </div>
+
+                    <details>
+                        <summary>Покажи алгоритм</summary>
+                        <div>
+                            Выпишите данные → переведите проценты в дроби → запишите реакции → уравняйте →
+                            найдите количество вещества → используйте коэффициенты → найдите массу компонента →
+                            найдите массовую долю.
+                        </div>
+                    </details>
+
+                    <div class="mini-conclusion">
+                        Мини-вывод: сначала ищем <strong>n</strong>, потом читаем коэффициенты реакции.
+                    </div>
+                </div>
+            </article>
+
+            <article class="card next" data-group="memo" data-title="Растворы">
+                <div class="card-inner">
+                    <div class="card-head">
+                        <div>
+                            <span class="badge">растворы</span>
+                            <h2>Массовая доля: раствор ≠ чистое вещество</h2>
+                        </div>
+                        <div class="num">2</div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Главная идея</h3>
+                        <p>
+                            Если дана масса раствора, сначала нужно найти массу растворённого вещества.
+                            Только после этого можно переходить к молям.
+                        </p>
+                        <span class="formula">m<sub>вещества</sub> = ω · m<sub>раствора</sub></span>
+                        <span class="formula">m<sub>раствора</sub> = m<sub>вещества</sub> / ω</span>
+                    </div>
+
+                    <div class="section">
+                        <h3>Пример из темы</h3>
+                        <p>В 490 г 40%-го раствора серной кислоты содержится:</p>
+                        <span class="formula">m(H<sub>2</sub>SO<sub>4</sub>) = 490 · 0,40 = 196 г</span>
+                        <span class="formula">n(H<sub>2</sub>SO<sub>4</sub>) = 196 / 98 = 2 моль</span>
+                    </div>
+
+                    <details>
+                        <summary>Покажи объяснение</summary>
+                        <div>
+                            Проценты переводим в дроби: 40% = 0,40; 10% = 0,10; 5% = 0,05.
+                            Нельзя делить массу всего раствора на молярную массу вещества.
+                        </div>
+                    </details>
+
+                    <div class="mini-conclusion">
+                        Мини-вывод: сначала отделяем чистое вещество от раствора.
+                    </div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-group="memo" data-title="Нейтрализация">
+                <div class="card-inner">
+                    <div class="card-head">
+                        <div>
+                            <span class="badge">кислота + основание</span>
+                            <h2>Нейтрализация: как найти избыток кислоты</h2>
+                        </div>
+                        <div class="num">3</div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Главная идея</h3>
+                        <p>
+                            Если после смешивания растворов получившийся раствор нейтрализуют карбонатом натрия,
+                            значит в растворе был избыток кислоты. Карбонат показывает, сколько кислоты осталось.
+                        </p>
+                    </div>
+
+                    <div class="two-col">
+                        <div class="section">
+                            <h3>Кислота + щёлочь</h3>
+                            <span class="formula reaction">
+                  2NaOH + H<sub>2</sub>SO<sub>4</sub> → Na<sub>2</sub>SO<sub>4</sub> + 2H<sub>2</sub>O
+                </span>
+                            <p>На 1 моль H<sub>2</sub>SO<sub>4</sub> нужно 2 моль NaOH.</p>
+                        </div>
+                        <div class="section">
+                            <h3>Кислота + карбонат</h3>
+                            <span class="formula reaction">
+                  Na<sub>2</sub>CO<sub>3</sub> + H<sub>2</sub>SO<sub>4</sub> → Na<sub>2</sub>SO<sub>4</sub> + CO<sub>2</sub> + H<sub>2</sub>O
+                </span>
+                            <p>Отношение Na<sub>2</sub>CO<sub>3</sub> : H<sub>2</sub>SO<sub>4</sub> равно 1 : 1.</p>
+                        </div>
+                    </div>
+
+                    <details>
+                        <summary>Покажи алгоритм</summary>
+                        <div>
+                            Найдите всё количество H<sub>2</sub>SO<sub>4</sub>. Найдите количество кислоты,
+                            которое прореагировало с Na<sub>2</sub>CO<sub>3</sub>. Разность — количество кислоты,
+                            ушедшее на NaOH. Затем используйте коэффициент 2 перед NaOH.
+                        </div>
+                    </details>
+
+                    <div class="mini-conclusion">
+                        Мини-вывод: остаток кислоты часто находят через вторую реакцию нейтрализации.
+                    </div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-group="memo" data-title="Кристаллогидраты">
+                <div class="card-inner">
+                    <div class="card-head">
+                        <div>
+                            <span class="badge">кристаллическая сода</span>
+                            <h2>Кристаллогидраты: считайте всю формулу</h2>
+                        </div>
+                        <div class="num">4</div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Главная идея</h3>
+                        <p>
+                            Кристаллическая сода — это Na<sub>2</sub>CO<sub>3</sub>·10H<sub>2</sub>O.
+                            В молярную массу входит и карбонат натрия, и вода кристаллизации.
+                        </p>
+                        <span class="formula">M(Na<sub>2</sub>CO<sub>3</sub>·10H<sub>2</sub>O) = 106 + 10 · 18 = 286 г/моль</span>
+                    </div>
+
+                    <div class="section">
+                        <h3>Ключевое соотношение</h3>
+                        <p>
+                            На 1 моль кристаллогидрата приходится 1 моль Na<sub>2</sub>CO<sub>3</sub>.
+                        </p>
+                        <span class="formula">n(Na<sub>2</sub>CO<sub>3</sub>) = n(Na<sub>2</sub>CO<sub>3</sub>·10H<sub>2</sub>O)</span>
+                    </div>
+
+                    <details>
+                        <summary>Покажи объяснение</summary>
+                        <div>
+                            Если взять 106 вместо 286, количество карбоната получится завышенным.
+                            В задачах на кристаллогидраты это одна из самых частых ошибок.
+                        </div>
+                    </details>
+
+                    <div class="mini-conclusion">
+                        Мини-вывод: воду кристаллизации учитываем в массе, но число молей карбоната равно числу молей кристаллогидрата.
+                    </div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-group="memo" data-title="Смеси солей">
+                <div class="card-inner">
+                    <div class="card-head">
+                        <div>
+                            <span class="badge">смеси</span>
+                            <h2>Смеси солей: газ раскрывает состав</h2>
+                        </div>
+                        <div class="num">5</div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Главная идея</h3>
+                        <p>
+                            Если один компонент смеси даёт газ, а второй просто не участвует в реакции,
+                            количество газообразного продукта помогает найти массу активного компонента.
+                        </p>
+                        <span class="formula">M<sub>1</sub>x + M<sub>2</sub>y = m<sub>смеси</sub></span>
+                    </div>
+
+                    <div class="two-col">
+                        <div class="section">
+                            <h3>Гидролиз сульфида алюминия</h3>
+                            <span class="formula reaction">
+                  Al<sub>2</sub>S<sub>3</sub> + 6H<sub>2</sub>O → 2Al(OH)<sub>3</sub>↓ + 3H<sub>2</sub>S↑
+                </span>
+                            <p>1 моль Al<sub>2</sub>S<sub>3</sub> даёт 3 моль H<sub>2</sub>S.</p>
+                        </div>
+                        <div class="section">
+                            <h3>Сероводород + сульфат меди(II)</h3>
+                            <span class="formula reaction">
+                  H<sub>2</sub>S + CuSO<sub>4</sub> → CuS↓ + H<sub>2</sub>SO<sub>4</sub>
+                </span>
+                            <p>Отношение H<sub>2</sub>S : CuSO<sub>4</sub> равно 1 : 1.</p>
+                        </div>
+                    </div>
+
+                    <details>
+                        <summary>Покажи алгоритм</summary>
+                        <div>
+                            По раствору CuSO<sub>4</sub> найдите количество CuSO<sub>4</sub>, значит известно количество H<sub>2</sub>S.
+                            По коэффициенту 3 найдите количество Al<sub>2</sub>S<sub>3</sub>. Массу второго компонента смеси
+                            найдите по разности.
+                        </div>
+                    </details>
+
+                    <div class="mini-conclusion">
+                        Мини-вывод: в смеси удобно работать через x и y, но иногда один компонент находится сразу через газ.
+                    </div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-group="memo" data-title="Галогениды">
+                <div class="card-inner">
+                    <div class="card-head">
+                        <div>
+                            <span class="badge">Cl₂ и AgNO₃</span>
+                            <h2>Галогениды: две реакции — один состав</h2>
+                        </div>
+                        <div class="num">6</div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Главная идея</h3>
+                        <p>
+                            Хлор вытесняет бром из бромидов, но не реагирует с хлоридом натрия.
+                            Нитрат серебра реагирует и с хлоридом, и с бромидом.
+                        </p>
+                    </div>
+
+                    <div class="two-col">
+                        <div class="section">
+                            <h3>С хлором</h3>
+                            <span class="formula reaction">
+                  2NaBr + Cl<sub>2</sub> → 2NaCl + Br<sub>2</sub>
+                </span>
+                            <p>n(NaBr) = 2n(Cl<sub>2</sub>).</p>
+                        </div>
+                        <div class="section">
+                            <h3>С нитратом серебра</h3>
+                            <span class="formula reaction">
+                  NaCl + AgNO<sub>3</sub> → AgCl↓ + NaNO<sub>3</sub>
+                </span>
+                            <span class="formula reaction">
+                  NaBr + AgNO<sub>3</sub> → AgBr↓ + NaNO<sub>3</sub>
+                </span>
+                        </div>
+                    </div>
+
+                    <details>
+                        <summary>Покажи алгоритм</summary>
+                        <div>
+                            По объёму Cl<sub>2</sub> найдите количество NaBr. По раствору AgNO<sub>3</sub>
+                            найдите общее количество AgNO<sub>3</sub>. Часть AgNO<sub>3</sub> уйдёт на NaBr,
+                            остаток — на NaCl.
+                        </div>
+                    </details>
+
+                    <div class="mini-conclusion">
+                        Мини-вывод: слово «или» в таких задачах часто означает два опыта с одной и той же смесью.
+                    </div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-group="memo" data-title="C и SiO₂">
+                <div class="card-inner">
+                    <div class="card-head">
+                        <div>
+                            <span class="badge">оксид + щёлочь</span>
+                            <h2>Углерод и SiO<sub>2</sub>: разные роли в смеси</h2>
+                        </div>
+                        <div class="num">7</div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Главная идея</h3>
+                        <p>
+                            Углерод сгорает в кислороде, а SiO<sub>2</sub> с кислородом в школьных условиях не реагирует.
+                            Зато SiO<sub>2</sub> как кислотный оксид реагирует со щёлочью.
+                        </p>
+                    </div>
+
+                    <div class="two-col">
+                        <div class="section">
+                            <h3>Сжигание углерода</h3>
+                            <span class="formula reaction">C + O<sub>2</sub> → CO<sub>2</sub></span>
+                            <p>n(C) = n(O<sub>2</sub>).</p>
+                        </div>
+                        <div class="section">
+                            <h3>Реакция с KOH</h3>
+                            <span class="formula reaction">
+                  SiO<sub>2</sub> + 2KOH → K<sub>2</sub>SiO<sub>3</sub> + H<sub>2</sub>O
+                </span>
+                            <p>n(KOH) = 2n(SiO<sub>2</sub>).</p>
+                        </div>
+                    </div>
+
+                    <details>
+                        <summary>Покажи алгоритм</summary>
+                        <div>
+                            По массе O<sub>2</sub> найдите количество и массу C. Через массовую долю C найдите массу всей смеси.
+                            Затем найдите массу SiO<sub>2</sub>, количество SiO<sub>2</sub>, количество KOH, массу раствора KOH
+                            и объём через плотность.
+                        </div>
+                    </details>
+
+                    <div class="mini-conclusion">
+                        Мини-вывод: сначала определите, какой компонент смеси участвует в каждой реакции.
+                    </div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-group="memo" data-title="Разбор ошибок">
+                <div class="card-inner">
+                    <div class="card-head">
+                        <div>
+                            <span class="badge">ошибки и исправления</span>
+                            <h2>Ваш ответ → ошибка → как думать правильно</h2>
+                        </div>
+                        <div class="num">8</div>
+                    </div>
+
+                    <div class="section">
+                        <div class="table-like">
+                            <div class="table-row">
+                                <strong>Опасный ход</strong>
+                                <strong>Правильно</strong>
+                                <strong>Почему</strong>
+                            </div>
+                            <div class="table-row">
+                                <span>Писать m, когда речь о молях.</span>
+                                <span>Для стехиометрии использовать n.</span>
+                                <span>Коэффициенты реакции связывают количества вещества.</span>
+                            </div>
+                            <div class="table-row">
+                                <span>M(Al<sub>2</sub>S<sub>3</sub>) = 102 г/моль.</span>
+                                <span>M(Al<sub>2</sub>S<sub>3</sub>) = 2·27 + 3·32 = 150 г/моль.</span>
+                                <span>102 г/моль — это Al<sub>2</sub>O<sub>3</sub>, а не сульфид алюминия.</span>
+                            </div>
+                            <div class="table-row">
+                                <span>Считать Na<sub>2</sub>CO<sub>3</sub>·10H<sub>2</sub>O как Na<sub>2</sub>CO<sub>3</sub>.</span>
+                                <span>Брать M = 286 г/моль.</span>
+                                <span>Вода кристаллизации входит в массу навески.</span>
+                            </div>
+                            <div class="table-row">
+                                <span>Сразу делить массу раствора на M.</span>
+                                <span>Сначала найти массу растворённого вещества.</span>
+                                <span>Раствор содержит воду, а не только реагент.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <details>
+                        <summary>Покажи правильный алгоритм самопроверки</summary>
+                        <div>
+                            Перед каждым вычислением спросите себя: это масса раствора или вещества?
+                            Я применяю коэффициент к молям? Формулу вещества я прочитала полностью?
+                        </div>
+                    </details>
+
+                    <div class="mini-conclusion">
+                        Мини-вывод: самая дорогая ошибка — подставить верное число не в ту величину.
+                    </div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-group="memo" data-title="Ловушки">
+                <div class="card-inner">
+                    <div class="card-head">
+                        <div>
+                            <span class="badge">анти-ловушки</span>
+                            <h2>Типичные ловушки темы</h2>
+                        </div>
+                        <div class="num">9</div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Проверочный набор</h3>
+                        <div>
+                            <span class="sticky">проценты → в дробь</span>
+                            <span class="sticky">m раствора ≠ m вещества</span>
+                            <span class="sticky">коэффициенты только для n</span>
+                            <span class="sticky">кристаллогидрат считать целиком</span>
+                            <span class="sticky">не округлять рано</span>
+                            <span class="sticky">проверить, кто реагирует</span>
+                            <span class="sticky">массовая доля ≤ 100%</span>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Особенно внимательно</h3>
+                        <p class="arrow-note">
+                            Если добавляют реагент «для нейтрализации», значит после первой реакции что-то осталось в избытке.
+                        </p>
+                        <p class="arrow-note">
+                            Если компонент смеси не реагирует в первом опыте, он может находиться через второй опыт или по разности масс.
+                        </p>
+                        <p class="arrow-note">
+                            Если ответ получился больше 100%, почти наверняка перепутаны масса раствора, масса вещества или коэффициент.
+                        </p>
+                    </div>
+
+                    <details>
+                        <summary>Покажи объяснение</summary>
+                        <div>
+                            Подписывайте величины словами: «всего», «пошло на реакцию с карбонатом»,
+                            «осталось», «пошло на щёлочь». Это защищает от логических перескоков.
+                        </div>
+                    </details>
+
+                    <div class="mini-conclusion">
+                        Мини-вывод: аккуратные подписи величин часто важнее скорости счёта.
+                    </div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-group="training" data-title="Тренажёр">
+                <div class="card-inner">
+                    <div class="card-head">
+                        <div>
+                            <span class="badge">интерактив</span>
+                            <h2>Тренажёр: выберите правильный ход</h2>
+                        </div>
+                        <div class="num">10</div>
+                    </div>
+
+                    <div class="section trainer" id="trainer">
+                        <div class="trainer-row" data-answer="b">
+                            <div>
+                                <strong>1.</strong> Дано 490 г 40%-го раствора H<sub>2</sub>SO<sub>4</sub>.
+                                Что нужно найти первым?
+                            </div>
+                            <select aria-label="Ответ на вопрос 1">
+                                <option value="">Выберите...</option>
+                                <option value="a">n раствора</option>
+                                <option value="b">m(H₂SO₄) = 490 · 0,40</option>
+                                <option value="c">m(NaOH)</option>
+                            </select>
+                        </div>
+
+                        <div class="trainer-row" data-answer="c">
+                            <div>
+                                <strong>2.</strong> В реакции 2NaBr + Cl<sub>2</sub> → 2NaCl + Br<sub>2</sub>
+                                найдено n(Cl<sub>2</sub>) = 0,2 моль. Сколько NaBr?
+                            </div>
+                            <select aria-label="Ответ на вопрос 2">
+                                <option value="">Выберите...</option>
+                                <option value="a">0,1 моль</option>
+                                <option value="b">0,2 моль</option>
+                                <option value="c">0,4 моль</option>
+                            </select>
+                        </div>
+
+                        <div class="trainer-row" data-answer="a">
+                            <div>
+                                <strong>3.</strong> Какую молярную массу брать для Na<sub>2</sub>CO<sub>3</sub>·10H<sub>2</sub>O?
+                            </div>
+                            <select aria-label="Ответ на вопрос 3">
+                                <option value="">Выберите...</option>
+                                <option value="a">286 г/моль</option>
+                                <option value="b">106 г/моль</option>
+                                <option value="c">180 г/моль</option>
+                            </select>
+                        </div>
+
+                        <div class="trainer-row" data-answer="b">
+                            <div>
+                                <strong>4.</strong> SiO<sub>2</sub> + 2KOH → K<sub>2</sub>SiO<sub>3</sub> + H<sub>2</sub>O.
+                                Как связаны количества?
+                            </div>
+                            <select aria-label="Ответ на вопрос 4">
+                                <option value="">Выберите...</option>
+                                <option value="a">n(KOH) = n(SiO₂)</option>
+                                <option value="b">n(KOH) = 2n(SiO₂)</option>
+                                <option value="c">n(SiO₂) = 2n(KOH)</option>
+                            </select>
+                        </div>
+
+                        <button type="button" id="checkTrainer">Проверить</button>
+                        <div class="result" id="trainerResult" aria-live="polite">Выберите ответы и нажмите «Проверить».</div>
+                    </div>
+
+                    <details>
+                        <summary>Покажи объяснение</summary>
+                        <div>
+                            Тренажёр проверяет не скорость счёта, а выбор правильного первого шага:
+                            масса вещества из раствора, коэффициенты реакции, кристаллогидрат и стехиометрия.
+                        </div>
+                    </details>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-group="training" data-title="30 секунд">
+                <div class="card-inner">
+                    <div class="card-head">
+                        <div>
+                            <span class="badge">быстрый повтор</span>
+                            <h2>Повтори за 30 секунд</h2>
+                        </div>
+                        <div class="num">11</div>
+                    </div>
+
+                    <div class="section quick-list">
+                        <details>
+                            <summary>1. Почему в реакциях нельзя напрямую сравнивать массы?</summary>
+                            <div>Потому что коэффициенты уравнения связывают количества вещества в молях, а не массы в граммах.</div>
+                        </details>
+                        <details>
+                            <summary>2. Что означает 10%-й раствор AgNO<sub>3</sub> массой 850 г?</summary>
+                            <div>В нём содержится 850 · 0,10 = 85 г AgNO<sub>3</sub>.</div>
+                        </details>
+                        <details>
+                            <summary>3. Как связаны Na<sub>2</sub>CO<sub>3</sub> и Na<sub>2</sub>CO<sub>3</sub>·10H<sub>2</sub>O по количеству?</summary>
+                            <div>1 моль кристаллогидрата содержит 1 моль Na<sub>2</sub>CO<sub>3</sub>.</div>
+                        </details>
+                        <details>
+                            <summary>4. Почему NaCl не реагирует с Cl<sub>2</sub>, а NaBr реагирует?</summary>
+                            <div>Хлор вытесняет менее активный бром из бромида, но не вытесняет сам себя из хлорида.</div>
+                        </details>
+                        <details>
+                            <summary>5. Что первым проверить в ответе на массовую долю?</summary>
+                            <div>Массовая доля должна быть от 0% до 100%, а масса компонента не должна превышать массу смеси.</div>
+                        </details>
+                    </div>
+
+                    <div class="mini-conclusion">
+                        Мини-вывод: если эти 5 вопросов понятны, каркас темы уже собран.
+                    </div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-group="memo" data-title="Опорные реакции">
+                <div class="card-inner">
+                    <div class="card-head">
+                        <div>
+                            <span class="badge">шпаргалка</span>
+                            <h2>Опорные формулы и реакции</h2>
+                        </div>
+                        <div class="num">12</div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Нажмите, чтобы открыть скрытые части</h3>
+
+                        <p><strong>Количество вещества:</strong>
+                            <span class="answer">n = m / M</span>
+                            <button class="reveal-btn" type="button">показать</button>
+                        </p>
+
+                        <p><strong>Масса вещества в растворе:</strong>
+                            <span class="answer">m = ω · m<sub>раствора</sub></span>
+                            <button class="reveal-btn" type="button">показать</button>
+                        </p>
+
+                        <p><strong>Газ при н.у.:</strong>
+                            <span class="answer">n = V / 22,4</span>
+                            <button class="reveal-btn" type="button">показать</button>
+                        </p>
+
+                        <p><strong>Кристаллическая сода:</strong>
+                            <span class="answer">M(Na<sub>2</sub>CO<sub>3</sub>·10H<sub>2</sub>O) = 286 г/моль</span>
+                            <button class="reveal-btn" type="button">показать</button>
+                        </p>
+
+                        <p><strong>Серная кислота + щёлочь:</strong>
+                            <span class="answer">2NaOH + H<sub>2</sub>SO<sub>4</sub> → Na<sub>2</sub>SO<sub>4</sub> + 2H<sub>2</sub>O</span>
+                            <button class="reveal-btn" type="button">показать</button>
+                        </p>
+
+                        <p><strong>Сульфид алюминия + вода:</strong>
+                            <span class="answer">Al<sub>2</sub>S<sub>3</sub> + 6H<sub>2</sub>O → 2Al(OH)<sub>3</sub>↓ + 3H<sub>2</sub>S↑</span>
+                            <button class="reveal-btn" type="button">показать</button>
+                        </p>
+
+                        <p><strong>Диоксид кремния + щёлочь:</strong>
+                            <span class="answer">SiO<sub>2</sub> + 2KOH → K<sub>2</sub>SiO<sub>3</sub> + H<sub>2</sub>O</span>
+                            <button class="reveal-btn" type="button">показать</button>
+                        </p>
+                    </div>
+
+                    <details>
+                        <summary>Покажи алгоритм использования</summary>
+                        <div>
+                            Выберите нужную реакцию, подпишите над веществами найденные количества,
+                            проверьте коэффициенты и только потом переходите к массе и массовой доле.
+                        </div>
+                    </details>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-group="training" data-title="Мини-самопроверка">
+                <div class="card-inner">
+                    <div class="card-head">
+                        <div>
+                            <span class="badge">проверка</span>
+                            <h2>Мини-самопроверка</h2>
+                        </div>
+                        <div class="num">13</div>
+                    </div>
+
+                    <div class="quiz" id="quiz">
+                        <div class="quiz-item" data-answer="1" data-stamp="Понято">
+                            <strong>1. В 600 г 20%-го раствора NaOH содержится:</strong>
+                            <button class="choice" type="button" data-choice="0">20 г NaOH</button>
+                            <button class="choice" type="button" data-choice="1">120 г NaOH</button>
+                            <button class="choice" type="button" data-choice="2">600 г NaOH</button>
+                            <div class="result" aria-live="polite"></div>
+                        </div>
+
+                        <div class="quiz-item" data-answer="2" data-stamp="Без ловушки">
+                            <strong>2. Если n(Cl<sub>2</sub>) = 0,3 моль, то по реакции 2NaBr + Cl<sub>2</sub> → 2NaCl + Br<sub>2</sub> нужно:</strong>
+                            <button class="choice" type="button" data-choice="0">0,15 моль NaBr</button>
+                            <button class="choice" type="button" data-choice="1">0,3 моль NaBr</button>
+                            <button class="choice" type="button" data-choice="2">0,6 моль NaBr</button>
+                            <div class="result" aria-live="polite"></div>
+                        </div>
+
+                        <div class="quiz-item" data-answer="0" data-stamp="Проверено">
+                            <strong>3. Что показывает карбонат натрия при нейтрализации остатка кислоты?</strong>
+                            <button class="choice" type="button" data-choice="0">Количество кислоты, оставшейся после первой реакции</button>
+                            <button class="choice" type="button" data-choice="1">Массу исходной щёлочи напрямую</button>
+                            <button class="choice" type="button" data-choice="2">Количество воды в растворе</button>
+                            <div class="result" aria-live="polite"></div>
+                        </div>
+
+                        <div class="quiz-item" data-answer="1" data-stamp="ЕГЭ-логика">
+                            <strong>4. В реакции H<sub>2</sub>S + CuSO<sub>4</sub> → CuS↓ + H<sub>2</sub>SO<sub>4</sub> отношение веществ:</strong>
+                            <button class="choice" type="button" data-choice="0">2 : 1</button>
+                            <button class="choice" type="button" data-choice="1">1 : 1</button>
+                            <button class="choice" type="button" data-choice="2">1 : 3</button>
+                            <div class="result" aria-live="polite"></div>
+                        </div>
+
+                        <div class="quiz-item" data-answer="2" data-stamp="Аккуратно">
+                            <strong>5. Что нельзя делать слишком рано?</strong>
+                            <button class="choice" type="button" data-choice="0">Записывать реакции</button>
+                            <button class="choice" type="button" data-choice="1">Переводить проценты в дроби</button>
+                            <button class="choice" type="button" data-choice="2">Округлять промежуточные значения</button>
+                            <div class="result" aria-live="polite"></div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+    </main>
+
+    <div class="controls" aria-label="Навигация по карточкам">
+        <button type="button" id="prevBtn">← назад</button>
+        <button type="button" id="nextBtn">вперёд →</button>
+    </div>
+
+    <footer class="footer-sign">
+        Лёвин Артём Александрович эксклюзивно для Полины Крыловой
+    </footer>
+</div>
+
+<script>
+    (function () {
+        'use strict';
+
+        const cards = Array.from(document.querySelectorAll('.card'));
+        const deck = document.getElementById('deck');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const counter = document.getElementById('counter');
+        const cardTitle = document.getElementById('cardTitle');
+        const progressFill = document.getElementById('progressFill');
+        const dotsWrap = document.getElementById('dots');
+        const modeButtons = Array.from(document.querySelectorAll('.modebar button[data-mode]'));
+        const printBtn = document.getElementById('printBtn');
+
+        let index = 0;
+        let currentMode = 'memo';
+        let visibleCards = cards.slice();
+
+        let pointerStartX = 0;
+        let pointerStartY = 0;
+        let pointerActive = false;
+        let pointerId = null;
+        let activeDragCard = null;
+
+        const openedDetailsBeforePrint = new Set();
+
+        function isInteractive(target) {
+            return Boolean(target.closest('button, select, input, textarea, summary, details, a, label'));
+        }
+
+        function buildDots() {
+            dotsWrap.innerHTML = '';
+
+            visibleCards.forEach((_, i) => {
+                const dot = document.createElement('button');
+                dot.className = 'dot';
+                dot.type = 'button';
+                dot.setAttribute('aria-label', 'Перейти к карточке ' + (i + 1));
+                dot.addEventListener('click', () => {
+                    index = i;
+                    updateCards();
+                });
+                dotsWrap.appendChild(dot);
+            });
+        }
+
+        function applyMode(mode) {
+            currentMode = mode;
+
+            modeButtons.forEach((btn) => {
+                btn.classList.toggle('active-mode', btn.dataset.mode === mode);
+            });
+
+            if (mode === 'memo') {
+                visibleCards = cards.filter((card) => card.dataset.group === 'memo');
+            } else if (mode === 'training') {
+                visibleCards = cards.filter((card) => card.dataset.group === 'training');
+            } else {
+                visibleCards = cards.slice();
+            }
+
+            cards.forEach((card) => {
+                card.style.display = visibleCards.includes(card) ? '' : 'none';
+            });
+
+            index = 0;
+            buildDots();
+            updateCards();
+        }
+
+        function updateCards() {
+            if (!visibleCards.length) return;
+
+            index = Math.max(0, Math.min(index, visibleCards.length - 1));
+
+            cards.forEach((card) => {
+                card.classList.remove('active', 'prev', 'next', 'hidden-left', 'hidden-right', 'dragging');
+                card.style.transform = '';
+                if (visibleCards.includes(card)) {
+                    card.classList.add('hidden-right');
+                }
+            });
+
+            visibleCards.forEach((card, i) => {
+                card.classList.remove('active', 'prev', 'next', 'hidden-left', 'hidden-right', 'dragging');
+                card.style.transform = '';
+
+                if (i === index) {
+                    card.classList.add('active');
+                } else if (i === index - 1) {
+                    card.classList.add('prev');
+                } else if (i === index + 1) {
+                    card.classList.add('next');
+                } else if (i < index) {
+                    card.classList.add('hidden-left');
+                } else {
+                    card.classList.add('hidden-right');
+                }
+            });
+
+            const total = visibleCards.length;
+            counter.textContent = (index + 1) + ' / ' + total;
+            cardTitle.textContent = visibleCards[index].dataset.title || 'Карточка';
+            progressFill.style.width = ((index + 1) / total * 100) + '%';
+
+            Array.from(dotsWrap.children).forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === total - 1;
+        }
+
+        function next() {
+            if (index < visibleCards.length - 1) {
+                index += 1;
+                updateCards();
+            }
+        }
+
+        function prev() {
+            if (index > 0) {
+                index -= 1;
+                updateCards();
+            }
+        }
+
+        function first() {
+            index = 0;
+            updateCards();
+        }
+
+        function last() {
+            index = visibleCards.length - 1;
+            updateCards();
+        }
+
+        prevBtn.addEventListener('click', prev);
+        nextBtn.addEventListener('click', next);
+
+        document.addEventListener('keydown', (event) => {
+            const tag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+            if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+            if (event.key === 'ArrowRight') next();
+            if (event.key === 'ArrowLeft') prev();
+            if (event.key === 'Home') first();
+            if (event.key === 'End') last();
+        });
+
+        modeButtons.forEach((btn) => {
+            btn.addEventListener('click', () => applyMode(btn.dataset.mode));
+        });
+
+        printBtn.addEventListener('click', () => window.print());
+
+        deck.addEventListener('pointerdown', (event) => {
+            if (isInteractive(event.target)) return;
+
+            activeDragCard = visibleCards[index];
+            if (!activeDragCard) return;
+
+            pointerActive = true;
+            pointerId = event.pointerId;
+            pointerStartX = event.clientX;
+            pointerStartY = event.clientY;
+            activeDragCard.classList.add('dragging');
+
+            try {
+                deck.setPointerCapture(pointerId);
+            } catch (error) {
+                pointerActive = false;
+            }
+        });
+
+        deck.addEventListener('pointermove', (event) => {
+            if (!pointerActive || event.pointerId !== pointerId || !activeDragCard) return;
+
+            const dx = event.clientX - pointerStartX;
+            const dy = event.clientY - pointerStartY;
+
+            if (Math.abs(dx) > Math.abs(dy)) {
+                const limitedDx = Math.max(-120, Math.min(120, dx));
+                const rotation = limitedDx / 28;
+                activeDragCard.style.transform = 'translateX(' + limitedDx + 'px) rotate(' + rotation + 'deg)';
+            }
+        });
+
+        deck.addEventListener('pointerup', (event) => {
+            if (!pointerActive || event.pointerId !== pointerId) return;
+
+            const dx = event.clientX - pointerStartX;
+            const dy = event.clientY - pointerStartY;
+
+            if (activeDragCard) {
+                activeDragCard.classList.remove('dragging');
+                activeDragCard.style.transform = '';
+            }
+
+            pointerActive = false;
+            pointerId = null;
+            activeDragCard = null;
+
+            if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+                if (dx < 0) next();
+                else prev();
+            } else {
+                updateCards();
+            }
+        });
+
+        deck.addEventListener('pointercancel', () => {
+            if (activeDragCard) {
+                activeDragCard.classList.remove('dragging');
+                activeDragCard.style.transform = '';
+            }
+            pointerActive = false;
+            pointerId = null;
+            activeDragCard = null;
+            updateCards();
+        });
+
+        document.querySelectorAll('.reveal-btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const answer = btn.previousElementSibling;
+                if (!answer) return;
+
+                answer.classList.toggle('revealed');
+                btn.textContent = answer.classList.contains('revealed') ? 'скрыть' : 'показать';
+            });
+        });
+
+        const trainerBtn = document.getElementById('checkTrainer');
+        const trainerResult = document.getElementById('trainerResult');
+
+        trainerBtn.addEventListener('click', () => {
+            const rows = Array.from(document.querySelectorAll('.trainer-row'));
+            let score = 0;
+
+            rows.forEach((row) => {
+                const select = row.querySelector('select');
+                const ok = select.value === row.dataset.answer;
+
+                row.classList.toggle('correct', ok);
+                row.classList.toggle('wrong', !ok);
+                row.setAttribute('aria-label', ok ? 'Верно' : 'Неверно');
+
+                if (ok) score += 1;
+            });
+
+            if (score === rows.length) {
+                trainerResult.innerHTML = 'Отлично! Все ходы выбраны верно. <span class="stamp">Аккуратно</span>';
+                trainerResult.classList.add('correct');
+                trainerResult.classList.remove('wrong');
+            } else {
+                trainerResult.textContent = 'Верно: ' + score + ' из ' + rows.length + '. Перепроверьте строки с красной подсветкой.';
+                trainerResult.classList.add('wrong');
+                trainerResult.classList.remove('correct');
+            }
+        });
+
+        document.querySelectorAll('.quiz-item').forEach((item) => {
+            const choices = Array.from(item.querySelectorAll('.choice'));
+            const result = item.querySelector('.result');
+            const answer = item.dataset.answer;
+            const stamp = item.dataset.stamp || 'Проверено';
+
+            choices.forEach((choice) => {
+                choice.addEventListener('click', () => {
+                    choices.forEach((c) => {
+                        c.classList.remove('selected', 'correct', 'wrong');
+                        c.removeAttribute('aria-pressed');
+                    });
+
+                    const chosen = choice.dataset.choice;
+                    choice.classList.add('selected');
+                    choice.setAttribute('aria-pressed', 'true');
+
+                    choices.forEach((c) => {
+                        if (c.dataset.choice === answer) c.classList.add('correct');
+                    });
+
+                    if (chosen === answer) {
+                        result.innerHTML = 'Верно. Вы увидели ключевую идею. <span class="stamp">' + stamp + '</span>';
+                        result.classList.add('correct');
+                        result.classList.remove('wrong');
+                    } else {
+                        choice.classList.add('wrong');
+                        result.textContent = 'Пока нет. Зелёный вариант показывает правильную логику; свяжите её с массовой долей или коэффициентами реакции.';
+                        result.classList.add('wrong');
+                        result.classList.remove('correct');
+                    }
+                });
+            });
+        });
+
+        window.addEventListener('beforeprint', () => {
+            document.querySelectorAll('details').forEach((detail) => {
+                if (detail.open) openedDetailsBeforePrint.add(detail);
+                detail.open = true;
+            });
+
+            document.querySelectorAll('.answer').forEach((answer) => {
+                answer.classList.add('revealed');
+            });
+
+            cards.forEach((card) => {
+                card.style.display = '';
+            });
+        });
+
+        window.addEventListener('afterprint', () => {
+            document.querySelectorAll('details').forEach((detail) => {
+                detail.open = openedDetailsBeforePrint.has(detail);
+            });
+            openedDetailsBeforePrint.clear();
+            applyMode(currentMode);
+        });
+
+        applyMode('memo');
+    })();
+</script>
+</body>
+</html>
