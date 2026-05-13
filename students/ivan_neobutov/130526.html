@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Интерактивная памятка — метод коэффициентов и геометрия через треугольники</title>
+    <style>
+        :root {
+            --paper: #f6eddc;
+            --paper-2: #fff8ea;
+            --ink: #2d2b28;
+            --muted: #6f655b;
+            --red: #8a2632;
+            --red-2: #b84752;
+            --blue: #2f6374;
+            --green: #3c7b57;
+            --line: rgba(45, 43, 40, 0.24);
+            --shadow: 0 18px 38px rgba(57, 42, 28, 0.18);
+            --soft: #efe1c8;
+            --yellow: #f7d887;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+            overflow-x: hidden;
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+            radial-gradient(circle at 12% 18%, rgba(138, 38, 50, 0.08) 0 2px, transparent 3px),
+            radial-gradient(circle at 76% 12%, rgba(47, 99, 116, 0.08) 0 1.5px, transparent 3px),
+            radial-gradient(circle at 31% 78%, rgba(60, 123, 87, 0.07) 0 2px, transparent 4px),
+            linear-gradient(90deg, rgba(45, 43, 40, 0.025) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(45, 43, 40, 0.022) 1px, transparent 1px),
+            var(--paper);
+            background-size: 180px 180px, 220px 220px, 260px 260px, 34px 34px, 34px 34px, auto;
+        }
+
+        button,
+        select,
+        summary {
+            font: inherit;
+        }
+
+        button,
+        select,
+        summary,
+        input,
+        textarea,
+        label {
+            touch-action: manipulation;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+        }
+
+        button:focus-visible,
+        select:focus-visible,
+        summary:focus-visible {
+            outline: 3px solid rgba(47, 99, 116, 0.45);
+            outline-offset: 3px;
+        }
+
+        .app {
+            width: min(1120px, 100%);
+            margin: 0 auto;
+            padding: 18px clamp(10px, 2.5vw, 28px) 24px;
+        }
+
+        .top {
+            position: relative;
+            padding: 20px clamp(14px, 3vw, 30px);
+            border: 2px dashed var(--line);
+            border-radius: 28px 22px 30px 20px;
+            background: rgba(255, 248, 234, 0.72);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .top::before {
+            content: "";
+            position: absolute;
+            width: 160px;
+            height: 70px;
+            right: 20px;
+            top: 16px;
+            border: 3px solid rgba(138, 38, 50, 0.35);
+            border-left-color: transparent;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            transform: rotate(-7deg);
+            pointer-events: none;
+        }
+
+        .top::after {
+            content: "↗";
+            position: absolute;
+            right: 64px;
+            bottom: 16px;
+            color: var(--red);
+            font-size: 42px;
+            transform: rotate(12deg);
+            opacity: 0.45;
+            pointer-events: none;
+        }
+
+        .student-line {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 10px;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            border: 1.8px dashed var(--red);
+            border-radius: 999px 800px 999px 760px;
+            background: rgba(247, 216, 135, 0.36);
+            color: var(--red);
+            font-size: 0.92rem;
+            line-height: 1.15;
+            transform: rotate(-0.8deg);
+            white-space: nowrap;
+        }
+
+        h1 {
+            margin: 0;
+            max-width: 900px;
+            font-size: clamp(1.75rem, 5vw, 3.55rem);
+            line-height: 0.98;
+            letter-spacing: -0.04em;
+            color: var(--ink);
+        }
+
+        .subtitle {
+            max-width: 850px;
+            margin: 12px 0 0;
+            font-size: clamp(1rem, 2.5vw, 1.18rem);
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        .modebar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            margin: 16px 0 10px;
+        }
+
+        .mode-buttons,
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            align-items: center;
+        }
+
+        .modebar button,
+        .controls button,
+        .mini-btn {
+            border: 2px solid var(--ink);
+            border-radius: 14px 18px 13px 16px;
+            background: var(--paper-2);
+            color: var(--ink);
+            padding: 10px 14px;
+            font-weight: 800;
+            box-shadow: 4px 5px 0 rgba(45, 43, 40, 0.16);
+            transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+        }
+
+        .modebar button:hover,
+        .controls button:hover,
+        .mini-btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 6px 7px 0 rgba(45, 43, 40, 0.14);
+            background: #fffdf4;
+        }
+
+        .modebar button:active,
+        .controls button:active,
+        .mini-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 rgba(45, 43, 40, 0.16);
+        }
+
+        .progress {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: center;
+            margin: 10px 0 14px;
+        }
+
+        .progress-track {
+            height: 14px;
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            background:
+            repeating-linear-gradient(45deg, rgba(45,43,40,0.08) 0 5px, transparent 5px 10px),
+            var(--paper-2);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--red), var(--red-2));
+            border-radius: 999px;
+            transition: width 0.25s ease;
+        }
+
+        .counter {
+            min-width: 68px;
+            text-align: right;
+            font-weight: 900;
+            color: var(--red);
+        }
+
+        .dots {
+            display: flex;
+            gap: 7px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 8px 0 12px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            background: var(--paper-2);
+            padding: 0;
+            box-shadow: 2px 2px 0 rgba(45,43,40,0.12);
+        }
+
+        .dot.active {
+            background: var(--red);
+        }
+
+        .deck-wrap {
+            position: relative;
+            padding: 8px 0 0;
+            touch-action: pan-y;
+        }
+
+        .deck {
+            position: relative;
+            min-height: 640px;
+            transition: height 0.22s ease;
+            perspective: 1200px;
+        }
+
+        .card {
+            position: absolute;
+            inset: 0 auto auto 50%;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            width: 100%;
+            max-width: 900px;
+            min-height: 630px;
+            padding: clamp(18px, 4vw, 34px);
+            border: 2.5px solid var(--ink);
+            border-radius: 28px 19px 32px 22px;
+            background:
+            linear-gradient(90deg, rgba(45,43,40,0.035) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(45,43,40,0.03) 1px, transparent 1px),
+            var(--paper-2);
+            background-size: 28px 28px, 28px 28px, auto;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(-50%) scale(0.96);
+            transition: transform 0.32s ease, opacity 0.32s ease;
+            overflow: visible;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border: 1.5px dashed rgba(138, 38, 50, 0.23);
+            border-radius: 23px 18px 28px 20px;
+            pointer-events: none;
+        }
+
+        .card::after {
+            content: "";
+            position: absolute;
+            width: 90px;
+            height: 28px;
+            left: 34px;
+            top: 14px;
+            background: rgba(247, 216, 135, 0.56);
+            border: 1.6px dashed rgba(45,43,40,0.3);
+            transform: rotate(-3deg);
+            pointer-events: none;
+        }
+
+        .card.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) scale(1) rotate(0deg);
+            z-index: 5;
+        }
+
+        .card.next {
+            opacity: 0.42;
+            transform: translateX(calc(-50% + 72px)) scale(0.94) rotate(1.2deg);
+            z-index: 4;
+        }
+
+        .card.prev,
+        .card.previous {
+            opacity: 0.42;
+            transform: translateX(calc(-50% - 72px)) scale(0.94) rotate(-1.2deg);
+            z-index: 4;
+        }
+
+        .card.hidden-left {
+            opacity: 0;
+            transform: translateX(calc(-50% - 260px)) scale(0.9) rotate(-4deg);
+            z-index: 1;
+        }
+
+        .card.hidden-right {
+            opacity: 0;
+            transform: translateX(calc(-50% + 260px)) scale(0.9) rotate(4deg);
+            z-index: 1;
+        }
+
+        .card.is-dragging {
+            transition: none;
+        }
+
+        .card-head {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .num {
+            display: inline-grid;
+            place-items: center;
+            width: 48px;
+            height: 48px;
+            border: 2px solid var(--ink);
+            border-radius: 50% 44% 53% 47%;
+            background: var(--yellow);
+            color: var(--red);
+            font-weight: 900;
+            font-size: 1.2rem;
+            box-shadow: 4px 4px 0 rgba(45,43,40,0.12);
+            flex: 0 0 auto;
+        }
+
+        .card-title {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .card h2 {
+            margin: 0;
+            font-size: clamp(1.35rem, 3.2vw, 2.2rem);
+            line-height: 1.05;
+            color: var(--red);
+            letter-spacing: -0.02em;
+        }
+
+        .card p {
+            margin: 0;
+            line-height: 1.48;
+            font-size: clamp(1rem, 2.1vw, 1.08rem);
+        }
+
+        .lead {
+            color: var(--muted);
+            margin-top: 6px !important;
+        }
+
+        .section {
+            position: relative;
+            z-index: 1;
+            padding: 13px 14px;
+            border-left: 5px solid var(--red);
+            border-radius: 16px 20px 16px 18px;
+            background: rgba(246, 237, 220, 0.72);
+        }
+
+        .section.blue {
+            border-left-color: var(--blue);
+        }
+
+        .section.green {
+            border-left-color: var(--green);
+        }
+
+        .section h3 {
+            margin: 0 0 8px;
+            font-size: 1.05rem;
+            color: var(--ink);
+        }
+
+        .formula {
+            position: relative;
+            z-index: 1;
+            padding: 12px 14px;
+            border: 2px dashed rgba(45,43,40,0.32);
+            border-radius: 16px 13px 18px 14px;
+            background: rgba(255, 255, 255, 0.42);
+            font-size: clamp(1.05rem, 2.7vw, 1.22rem);
+            font-weight: 750;
+            line-height: 1.55;
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        .formula small {
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .frac {
+            display: inline-grid;
+            grid-template-rows: auto auto;
+            vertical-align: middle;
+            text-align: center;
+            line-height: 1.05;
+            margin: 0 0.08em;
+        }
+
+        .frac > span:first-child {
+            border-bottom: 1.8px solid currentColor;
+            padding: 0 0.16em 0.08em;
+        }
+
+        .frac > span:last-child {
+            padding: 0.08em 0.16em 0;
+        }
+
+        .sqrt {
+            display: inline-block;
+            border-top: 1.8px solid currentColor;
+            padding: 0 0.08em 0 0.16em;
+            margin-left: 0.08em;
+        }
+
+        .sqrt::before {
+            content: "√";
+            margin-left: -0.55em;
+            margin-right: 0.08em;
+        }
+
+        .mini-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .sticky {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: fit-content;
+            max-width: 100%;
+            padding: 8px 11px;
+            border: 2px solid rgba(45,43,40,0.55);
+            border-radius: 14px 18px 13px 16px;
+            background: rgba(247, 216, 135, 0.5);
+            font-weight: 900;
+            color: var(--red);
+            transform: rotate(-1.2deg);
+        }
+
+        details {
+            position: relative;
+            z-index: 2;
+            border: 1.8px dashed rgba(45,43,40,0.32);
+            border-radius: 15px;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.34);
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 900;
+            color: var(--blue);
+        }
+
+        details p,
+        details ol,
+        details ul {
+            margin-top: 10px;
+        }
+
+        ul,
+        ol {
+            margin-top: 8px;
+            margin-bottom: 0;
+            padding-left: 22px;
+            line-height: 1.45;
+        }
+
+        li + li {
+            margin-top: 5px;
+        }
+
+        .result,
+        .answer {
+            position: relative;
+            z-index: 1;
+            padding: 10px 12px;
+            border-radius: 14px 16px 13px 17px;
+            background: rgba(60, 123, 87, 0.11);
+            border: 1.8px dashed rgba(60, 123, 87, 0.45);
+            color: var(--ink);
+            font-weight: 750;
+        }
+
+        .answer.blurred {
+            filter: blur(5px);
+            user-select: none;
+        }
+
+        .trap-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .trap {
+            padding: 12px;
+            border: 2px solid rgba(45,43,40,0.45);
+            border-radius: 16px 13px 18px 14px;
+            background: rgba(247,216,135,0.38);
+            box-shadow: 3px 4px 0 rgba(45,43,40,0.10);
+            font-weight: 750;
+        }
+
+        .trap:nth-child(2n) {
+            background: rgba(47,99,116,0.10);
+            transform: rotate(0.5deg);
+        }
+
+        .trap:nth-child(3n) {
+            background: rgba(138,38,50,0.08);
+            transform: rotate(-0.5deg);
+        }
+
+        .choice {
+            display: block;
+            width: 100%;
+            margin: 8px 0;
+            padding: 10px 12px;
+            border: 2px solid rgba(45,43,40,0.42);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.48);
+            color: var(--ink);
+            text-align: left;
+            font-weight: 750;
+            box-shadow: 2px 3px 0 rgba(45,43,40,0.08);
+        }
+
+        .choice.correct,
+        .correct {
+            border-color: var(--green) !important;
+            background: rgba(60, 123, 87, 0.16) !important;
+        }
+
+        .choice.wrong,
+        .wrong {
+            border-color: var(--red) !important;
+            background: rgba(138, 38, 50, 0.12) !important;
+        }
+
+        .trainer-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(180px, 0.8fr);
+            gap: 10px;
+            align-items: center;
+            margin: 9px 0;
+            padding: 10px;
+            border: 1.6px dashed rgba(45,43,40,0.24);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.32);
+        }
+
+        select {
+            width: 100%;
+            padding: 9px 10px;
+            border: 2px solid rgba(45,43,40,0.52);
+            border-radius: 12px;
+            background: var(--paper-2);
+            color: var(--ink);
+            font-weight: 700;
+        }
+
+        .stamp-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 40px;
+            align-items: center;
+        }
+
+        .stamp {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 7px 11px;
+            border: 2px solid var(--red);
+            border-radius: 50% 46% 52% 44%;
+            color: var(--red);
+            background: rgba(255,248,234,0.8);
+            font-weight: 900;
+            transform: rotate(-5deg);
+            box-shadow: 3px 4px 0 rgba(45,43,40,0.10);
+            animation: stampPop 0.22s ease-out;
+        }
+
+        @keyframes stampPop {
+            from {
+                opacity: 0;
+                transform: scale(0.7) rotate(-9deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(-5deg);
+            }
+        }
+
+        .reveal-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .reveal-item {
+            padding: 12px;
+            border: 1.8px dashed rgba(45,43,40,0.32);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.35);
+        }
+
+        .reveal-cover {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 10px;
+            background: var(--ink);
+            color: transparent;
+            filter: blur(2px);
+            user-select: none;
+            transition: all 0.18s ease;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        .reveal-item.open .reveal-cover {
+            background: rgba(60,123,87,0.13);
+            color: var(--ink);
+            filter: none;
+            user-select: auto;
+        }
+
+        .footer-sign {
+            margin: 18px auto 0;
+            width: fit-content;
+            max-width: 100%;
+            padding: 12px 16px;
+            border-top: 2px dashed var(--line);
+            color: var(--muted);
+            text-align: center;
+            font-weight: 800;
+        }
+
+        .print-note {
+            display: none;
+        }
+
+        @media (max-width: 760px) {
+            .app {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+
+            .top {
+                border-radius: 22px 18px 24px 19px;
+            }
+
+            .modebar {
+                align-items: stretch;
+            }
+
+            .mode-buttons,
+            .controls {
+                width: 100%;
+            }
+
+            .modebar button,
+            .controls button {
+                flex: 1 1 auto;
+                padding: 9px 10px;
+            }
+
+            .deck {
+                min-height: 720px;
+            }
+
+            .card {
+                min-height: 690px;
+                border-radius: 22px 18px 24px 20px;
+            }
+
+            .mini-grid,
+            .trap-list,
+            .reveal-grid,
+            .trainer-row {
+                grid-template-columns: 1fr;
+            }
+
+            .card.next {
+                transform: translateX(calc(-50% + 26px)) scale(0.94);
+            }
+
+            .card.prev,
+            .card.previous {
+                transform: translateX(calc(-50% - 26px)) scale(0.94);
+            }
+
+            .card-title {
+                min-width: 180px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .student-line {
+                gap: 6px;
+            }
+
+            .badge {
+                font-size: 0.84rem;
+            }
+
+            .num {
+                width: 42px;
+                height: 42px;
+            }
+
+            .card {
+                padding: 18px 14px;
+            }
+
+            .formula {
+                font-size: 1rem;
+            }
+        }
+
+        @media print {
+            html,
+            body {
+                background: #fff;
+                color: #000;
+            }
+
+            .app {
+                width: 100%;
+                padding: 0;
+            }
+
+            .top {
+                box-shadow: none;
+                border: none;
+                padding: 0 0 10mm;
+                background: #fff;
+            }
+
+            .top::before,
+            .top::after,
+            .modebar,
+            .progress,
+            .dots,
+            .controls,
+            .mini-btn,
+            .print-hide {
+                display: none !important;
+            }
+
+            .print-note {
+                display: block;
+                margin-top: 4mm;
+                color: #000;
+            }
+
+            .deck-wrap,
+            .deck {
+                min-height: 0 !important;
+                height: auto !important;
+                padding: 0;
+                perspective: none;
+            }
+
+            .card,
+            .card.active,
+            .card.next,
+            .card.prev,
+            .card.previous,
+            .card.hidden-left,
+            .card.hidden-right {
+                position: relative;
+                inset: auto;
+                left: auto;
+                transform: none !important;
+                opacity: 1 !important;
+                pointer-events: auto;
+                width: 100%;
+                max-width: none;
+                min-height: 0;
+                margin: 0 0 7mm;
+                box-shadow: none;
+                page-break-inside: avoid;
+                border: 1.5pt solid #222;
+                background: #fff;
+            }
+
+            .card::before,
+            .card::after {
+                display: none;
+            }
+
+            details {
+                border: 1pt solid #777;
+            }
+
+            details:not([open]) > *:not(summary) {
+                display: block;
+            }
+
+            .answer.blurred,
+            .reveal-cover {
+                filter: none !important;
+                color: #000 !important;
+                background: transparent !important;
+                user-select: auto !important;
+            }
+
+            .footer-sign {
+                border-top: 1pt solid #777;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <header class="top">
+        <div class="student-line">
+            <span class="badge">Иван Необутов</span>
+            <span class="badge">ЕГЭ</span>
+            <span class="badge">математика</span>
+        </div>
+        <h1>Метод коэффициентов и геометрия через треугольники</h1>
+        <p class="subtitle">
+            Карточная памятка для повторения: полный квадрат под корнем, корень из квадрата,
+            тангенс после замены, параллограмм, ромб и квадрат внутри прямоугольного треугольника.
+        </p>
+        <p class="print-note">Печатная версия: все карточки идут последовательно.</p>
+    </header>
+
+    <nav class="modebar" aria-label="Режимы и управление">
+        <div class="mode-buttons">
+            <button type="button" id="memoBtn">Памятка</button>
+            <button type="button" id="trainBtn">Тренировка</button>
+            <button type="button" id="printBtn">Печать</button>
+        </div>
+        <div class="controls">
+            <button type="button" id="prevBtn" aria-label="Назад">← Назад</button>
+            <button type="button" id="nextBtn" aria-label="Вперёд">Вперёд →</button>
+        </div>
+    </nav>
+
+    <div class="progress" aria-label="Прогресс">
+        <div class="progress-track" aria-hidden="true">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="counter" id="counter" aria-live="polite">1 / 13</div>
+    </div>
+
+    <div class="dots" id="dots" aria-label="Точки прогресса"></div>
+
+    <main class="deck-wrap" id="deckWrap" aria-label="Колода учебных карточек">
+        <section class="deck" id="deck">
+
+            <article class="card active" data-title="Главная идея">
+                <div class="card-head">
+                    <span class="num">1</span>
+                    <div class="card-title">
+                        <h2>Главная стратегия</h2>
+                        <p class="lead">Сложную запись переводим в знакомую форму.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Главная идея</h3>
+                    <p>
+                        В алгебре Вы ищете полный квадрат. В геометрии — удобный треугольник.
+                        В обоих случаях решение начинается не с вычислений, а с распознавания структуры.
+                    </p>
+                </div>
+
+                <div class="mini-grid">
+                    <div class="formula">
+                        Под корнем:<br />
+                        m + 2√n → (a + b)<sup>2</sup>
+                    </div>
+                    <div class="formula">
+                        В геометрии:<br />
+                        параллограмм / ромб → треугольники
+                    </div>
+                </div>
+
+                <div class="sticky">Мини-вывод: сначала структура, потом формула.</div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Выражение 4 + 2√3 похоже на результат раскрытия квадрата:
+                        a<sup>2</sup> + 2ab + b<sup>2</sup>. А диагональ параллелограмма создаёт треугольник,
+                        где можно применить теорему синусов.
+                    </p>
+                </details>
+            </article>
+
+            <article class="card" data-title="Метод коэффициентов">
+                <div class="card-head">
+                    <span class="num">2</span>
+                    <div class="card-title">
+                        <h2>Метод неопределённых коэффициентов</h2>
+                        <p class="lead">Как представить m + 2√n в виде квадрата суммы.</p>
+                    </div>
+                </div>
+
+                <div class="section blue">
+                    <h3>Алгоритм</h3>
+                    <ol>
+                        <li>Пишите: m + 2√n = (a + b)<sup>2</sup>.</li>
+                        <li>Раскрываете квадрат.</li>
+                        <li>Сравниваете рациональную и иррациональную части.</li>
+                        <li>Находите один подходящий набор a и b.</li>
+                    </ol>
+                </div>
+
+                <div class="formula">
+                    (a + b)<sup>2</sup> = a<sup>2</sup> + 2ab + b<sup>2</sup><br />
+                    Поэтому: a<sup>2</sup> + b<sup>2</sup> = m, 2ab = 2√n.
+                </div>
+
+                <div class="result">
+                    Для упрощения корня достаточно одной корректной пары a и b.
+                </div>
+
+                <details>
+                    <summary>Покажи алгоритм через замену</summary>
+                    <ol>
+                        <li>Из ab = √n выразите a = √n / b, где b ≠ 0.</li>
+                        <li>Подставьте в a<sup>2</sup> + b<sup>2</sup> = m.</li>
+                        <li>Сделайте замену t = b<sup>2</sup>, где t &gt; 0.</li>
+                        <li>Решите уравнение относительно t и вернитесь к a, b.</li>
+                    </ol>
+                </details>
+            </article>
+
+            <article class="card" data-title="Корень из квадрата">
+                <div class="card-head">
+                    <span class="num">3</span>
+                    <div class="card-title">
+                        <h2>Корень из квадрата: не теряем модуль</h2>
+                        <p class="lead">Квадрат и корень сокращаются только через модуль.</p>
+                    </div>
+                </div>
+
+                <div class="formula">
+                    √(u<sup>2</sup>) = |u|<br />
+                    Значит: √((a + b)<sup>2</sup>) = |a + b|.
+                </div>
+
+                <div class="section">
+                    <h3>Пример 1</h3>
+                    <p>
+                        4 + 2√3 = (√3 + 1)<sup>2</sup>, потому что
+                        (√3)<sup>2</sup> + 1<sup>2</sup> = 4 и 2 · √3 · 1 = 2√3.
+                    </p>
+                </div>
+
+                <div class="formula">
+                    √(4 + 2√3) = |√3 + 1| = √3 + 1.
+                </div>
+
+                <div class="section green">
+                    <h3>Пример 2</h3>
+                    <p>
+                        29 + 12√5 = (2√5 + 3)<sup>2</sup>, поэтому
+                        √(29 + 12√5) = 2√5 + 3.
+                    </p>
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Модуль можно раскрыть только после проверки знака. Здесь √3 + 1 и 2√5 + 3 положительны,
+                        поэтому модуль раскрывается без изменения выражения.
+                    </p>
+                </details>
+            </article>
+
+            <article class="card" data-title="Квадрат разности">
+                <div class="card-head">
+                    <span class="num">4</span>
+                    <div class="card-title">
+                        <h2>Квадрат разности</h2>
+                        <p class="lead">Если перед корнем стоит минус, используем (a − b)<sup>2</sup>.</p>
+                    </div>
+                </div>
+
+                <div class="section blue">
+                    <h3>Главная идея</h3>
+                    <p>
+                        Выражение вида m − 2√n можно представить как квадрат разности:
+                        (a − b)<sup>2</sup> = a<sup>2</sup> − 2ab + b<sup>2</sup>.
+                    </p>
+                </div>
+
+                <div class="formula">
+                    m − 2√n = (a − b)<sup>2</sup><br />
+                    Тогда: a<sup>2</sup> + b<sup>2</sup> = m, 2ab = 2√n.
+                </div>
+
+                <div class="section">
+                    <h3>Пример</h3>
+                    <p>
+                        4 − 2√3 = (√3 − 1)<sup>2</sup>.
+                    </p>
+                </div>
+
+                <div class="formula">
+                    √(4 − 2√3) = |√3 − 1| = √3 − 1.
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Система для a и b остаётся почти той же, меняется только знак между a и b в итоговой скобке.
+                        После извлечения корня модуль всё равно обязателен.
+                    </p>
+                </details>
+            </article>
+
+            <article class="card" data-title="Тригонометрия">
+                <div class="card-head">
+                    <span class="num">5</span>
+                    <div class="card-title">
+                        <h2>Связь с тригонометрией</h2>
+                        <p class="lead">Иррациональный дискриминант можно упростить тем же способом.</p>
+                    </div>
+                </div>
+
+                <div class="section blue">
+                    <h3>Главная идея</h3>
+                    <p>
+                        После замены t = tg x иногда получается квадратное уравнение.
+                        Если √D выглядит сложно, попробуйте представить D как полный квадрат.
+                    </p>
+                </div>
+
+                <div class="formula">
+                    Если D = 4 + 2√3, то √D = √3 + 1.<br />
+                    Если D = 4 − 2√3, то √D = √3 − 1.
+                </div>
+
+                <div class="formula">
+                    tg x = 1 → x = π/4 + πn, n ∈ Z.<br />
+                    tg x = −√3 → x = −π/3 + πn, n ∈ Z.
+                </div>
+
+                <div class="sticky">Важно: у тангенса период π, а не 2π.</div>
+
+                <details>
+                    <summary>Покажи алгоритм</summary>
+                    <ol>
+                        <li>Сделайте замену t = tg x.</li>
+                        <li>Решите квадратное уравнение относительно t.</li>
+                        <li>Если дискриминант содержит корни, выделите полный квадрат.</li>
+                        <li>Вернитесь к уравнениям tg x = t.</li>
+                    </ol>
+                </details>
+            </article>
+
+            <article class="card" data-title="Параллелограмм">
+                <div class="card-head">
+                    <span class="num">6</span>
+                    <div class="card-title">
+                        <h2>Параллелограмм: диагональ даёт треугольник</h2>
+                        <p class="lead">В задачах на отношение сторон часто работает теорема синусов.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Главная идея</h3>
+                    <p>
+                        Если диагональ делит угол параллелограмма, смотрите на треугольник,
+                        где лежат нужные стороны. Углы переносим через параллельность сторон.
+                    </p>
+                </div>
+
+                <div class="formula">
+                    Теорема синусов:<br />
+                    <span class="frac"><span>a</span><span>sin A</span></span>
+                    =
+                    <span class="frac"><span>b</span><span>sin B</span></span>
+                </div>
+
+                <div class="section green">
+                    <h3>Пример-скелет</h3>
+                    <p>
+                        Если напротив AD лежит угол 30°, а напротив CD — угол 45°, то:
+                    </p>
+                    <div class="formula">
+                        AD / CD = sin 30° / sin 45° = 1 / √2.
+                    </div>
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        В параллелограмме противоположные стороны параллельны, поэтому диагональ создаёт равные
+                        накрест лежащие углы. После этого задача становится обычной задачей про треугольник.
+                    </p>
+                </details>
+            </article>
+
+            <article class="card" data-title="Квадрат в треугольнике">
+                <div class="card-head">
+                    <span class="num">7</span>
+                    <div class="card-title">
+                        <h2>Квадрат внутри прямоугольного треугольника</h2>
+                        <p class="lead">Ключ — подобие маленьких прямоугольных треугольников.</p>
+                    </div>
+                </div>
+
+                <div class="section blue">
+                    <h3>Ситуация</h3>
+                    <p>
+                        Две вершины квадрата лежат на гипотенузе, две другие — на катетах.
+                        Пусть внешние отрезки гипотенузы равны a и b, а сторона квадрата равна x.
+                    </p>
+                </div>
+
+                <div class="formula">
+                    Из подобия: x / a = b / x.<br />
+                    Значит: x<sup>2</sup> = ab.
+                </div>
+
+                <div class="result">
+                    Площадь квадрата S = x<sup>2</sup> = ab.
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Малые треугольники по краям квадрата подобны: у них есть прямой угол и равные острые углы.
+                        Стороны сопоставляются по углам, напротив которых они лежат.
+                    </p>
+                </details>
+            </article>
+
+            <article class="card" data-title="Ромб">
+                <div class="card-head">
+                    <span class="num">8</span>
+                    <div class="card-title">
+                        <h2>Ромб: расстояние от центра до стороны</h2>
+                        <p class="lead">Самый надёжный путь — площадь и высота.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Что помнить</h3>
+                    <ul>
+                        <li>Все стороны ромба равны.</li>
+                        <li>Диагонали ромба перпендикулярны.</li>
+                        <li>Диагонали ромба делят углы пополам.</li>
+                        <li>Расстояние от точки до прямой — перпендикуляр.</li>
+                    </ul>
+                </div>
+
+                <div class="formula">
+                    S = a · h, а также S = a<sup>2</sup> · sin α.
+                </div>
+
+                <div class="section green">
+                    <h3>Пример</h3>
+                    <p>
+                        Если сторона ромба равна 4, а острый угол равен 30°, то
+                        S = 4<sup>2</sup> · sin 30° = 8. Высота h = 8 / 4 = 2.
+                        Расстояние от центра до стороны равно h / 2 = 1.
+                    </p>
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Центр ромба находится посередине между параллельными сторонами.
+                        Поэтому расстояние от центра до одной из этих сторон равно половине высоты ромба.
+                    </p>
+                </details>
+            </article>
+
+            <article class="card" data-title="Разбор ошибок">
+                <div class="card-head">
+                    <span class="num">9</span>
+                    <div class="card-title">
+                        <h2>Разбор ошибок</h2>
+                        <p class="lead">Неверный ход → ошибка → правильная мысль.</p>
+                    </div>
+                </div>
+
+                <div class="mini-grid">
+                    <div class="section">
+                        <h3>Ошибка 1</h3>
+                        <p><b>Неверно:</b> √(u<sup>2</sup>) = u.</p>
+                        <p><b>Правильно:</b> √(u<sup>2</sup>) = |u|.</p>
+                        <p><b>Суть:</b> арифметический корень неотрицателен.</p>
+                    </div>
+
+                    <div class="section blue">
+                        <h3>Ошибка 2</h3>
+                        <p><b>Неверно:</b> из 2ab = 12√5 получить ab = 12√5.</p>
+                        <p><b>Правильно:</b> ab = 6√5.</p>
+                        <p><b>Суть:</b> коэффициент 2 нужно разделить.</p>
+                    </div>
+
+                    <div class="section green">
+                        <h3>Ошибка 3</h3>
+                        <p><b>Неверно:</b> tg x = a → x = arctg a + 2πn.</p>
+                        <p><b>Правильно:</b> x = arctg a + πn.</p>
+                        <p><b>Суть:</b> период тангенса равен π.</p>
+                    </div>
+
+                    <div class="section">
+                        <h3>Ошибка 4</h3>
+                        <p><b>Неверно:</b> в подобных треугольниках сравнивать стороны «по рисунку».</p>
+                        <p><b>Правильно:</b> сопоставлять стороны по равным углам.</p>
+                        <p><b>Суть:</b> рисунок помогает, но не доказывает соответствие.</p>
+                    </div>
+                </div>
+
+                <details>
+                    <summary>Покажи правильный алгоритм</summary>
+                    <ol>
+                        <li>Определите структуру: квадрат, подобие, площадь, теорема синусов.</li>
+                        <li>Запишите формулу полностью.</li>
+                        <li>Проверьте знак, модуль, период или соответствие сторон.</li>
+                        <li>Только после этого упрощайте ответ.</li>
+                    </ol>
+                </details>
+            </article>
+
+            <article class="card" data-title="Ловушки">
+                <div class="card-head">
+                    <span class="num">10</span>
+                    <div class="card-title">
+                        <h2>Ловушки темы</h2>
+                        <p class="lead">Короткие предупреждения, которые сохраняют баллы.</p>
+                    </div>
+                </div>
+
+                <div class="trap-list">
+                    <div class="trap">Не забывайте модуль: √(u²) = |u|.</div>
+                    <div class="trap">В (a + b)² средний член — именно 2ab.</div>
+                    <div class="trap">При замене t = b² обязательно t &gt; 0.</div>
+                    <div class="trap">У tg x период π, не 2π.</div>
+                    <div class="trap">В геометрии сначала ищите треугольник.</div>
+                    <div class="trap">Стороны в подобии сопоставляйте по углам.</div>
+                    <div class="trap">Расстояние до прямой — только перпендикуляр.</div>
+                </div>
+
+                <div class="sticky">Мини-вывод: чаще всего ошибка прячется в одном коротком переходе.</div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        В этой теме важно не только знать формулы, но и аккуратно выполнять малые проверки:
+                        знак под модулем, область замены, период тангенса, соответствие сторон в подобных треугольниках.
+                    </p>
+                </details>
+            </article>
+
+            <article class="card" data-title="Тренажёр">
+                <div class="card-head">
+                    <span class="num">11</span>
+                    <div class="card-title">
+                        <h2>Тренажёр: выберите инструмент</h2>
+                        <p class="lead">Сопоставьте ситуацию и метод решения.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Задание</h3>
+                    <p>Для каждой ситуации выберите самый естественный инструмент.</p>
+                </div>
+
+                <div id="trainer" aria-label="Тренажёр на выбор метода">
+                    <div class="trainer-row" data-answer="square">
+                        <span>√(29 + 12√5)</span>
+                        <select aria-label="Метод для корня 29 плюс 12 корней из 5">
+                            <option value="">Выберите метод</option>
+                            <option value="square">Выделить полный квадрат</option>
+                            <option value="sine">Теорема синусов</option>
+                            <option value="area">Площадь ромба</option>
+                        </select>
+                    </div>
+
+                    <div class="trainer-row" data-answer="sine">
+                        <span>Диагональ параллелограмма делит угол на 30° и 45°</span>
+                        <select aria-label="Метод для параллелограмма с диагональю">
+                            <option value="">Выберите метод</option>
+                            <option value="square">Выделить полный квадрат</option>
+                            <option value="sine">Теорема синусов в треугольнике</option>
+                            <option value="module">Только раскрыть модуль</option>
+                        </select>
+                    </div>
+
+                    <div class="trainer-row" data-answer="area">
+                        <span>Найти расстояние от центра ромба до стороны</span>
+                        <select aria-label="Метод для расстояния от центра ромба">
+                            <option value="">Выберите метод</option>
+                            <option value="period">Период тангенса</option>
+                            <option value="area">Площадь и высота ромба</option>
+                            <option value="square">Квадрат суммы</option>
+                        </select>
+                    </div>
+
+                    <div class="trainer-row" data-answer="similar">
+                        <span>Квадрат внутри прямоугольного треугольника</span>
+                        <select aria-label="Метод для квадрата внутри треугольника">
+                            <option value="">Выберите метод</option>
+                            <option value="similar">Подобие малых треугольников</option>
+                            <option value="period">Период тангенса</option>
+                            <option value="module">Только модуль</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="button" class="mini-btn" id="checkTrainer">Проверить</button>
+                <div class="result" id="trainerResult" aria-live="polite">Выберите варианты и нажмите «Проверить».</div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Тренируем не вычисление, а распознавание типа задачи. Верный метод обычно сразу сильно сокращает решение.
+                    </p>
+                </details>
+            </article>
+
+            <article class="card" data-title="30 секунд">
+                <div class="card-head">
+                    <span class="num">12</span>
+                    <div class="card-title">
+                        <h2>Повтори за 30 секунд</h2>
+                        <p class="lead">Пять быстрых вопросов для самопроверки.</p>
+                    </div>
+                </div>
+
+                <details>
+                    <summary>1. Чему равно √(u²)?</summary>
+                    <p class="answer">|u|. Без проверки знака писать просто u нельзя.</p>
+                </details>
+
+                <details>
+                    <summary>2. Что сравниваем в m + 2√n = (a + b)²?</summary>
+                    <p class="answer">Рациональную часть: a² + b² = m. Иррациональную часть: 2ab = 2√n.</p>
+                </details>
+
+                <details>
+                    <summary>3. Какой период у уравнения tg x = a?</summary>
+                    <p class="answer">π. Общий вид: x = arctg a + πn, n ∈ Z.</p>
+                </details>
+
+                <details>
+                    <summary>4. Что обычно делать с параллелограммом?</summary>
+                    <p class="answer">Провести диагональ и перейти к треугольнику.</p>
+                </details>
+
+                <details>
+                    <summary>5. Как найти расстояние от центра ромба до стороны через высоту?</summary>
+                    <p class="answer">Найти высоту ромба h, затем взять h / 2.</p>
+                </details>
+
+                <div class="sticky">Если уверенно ответили на 4 из 5 — база темы собрана.</div>
+            </article>
+
+            <article class="card" data-title="Формулы">
+                <div class="card-head">
+                    <span class="num">13</span>
+                    <div class="card-title">
+                        <h2>Опорные формулы и правила</h2>
+                        <p class="lead">Нажмите, чтобы открыть скрытую часть.</p>
+                    </div>
+                </div>
+
+                <div class="reveal-grid" id="revealGrid">
+                    <div class="reveal-item">
+                        <p><b>Квадрат суммы</b></p>
+                        <p><span class="reveal-cover">(a + b)² = a² + 2ab + b²</span></p>
+                        <button type="button" class="mini-btn reveal-btn">Показать / скрыть</button>
+                    </div>
+
+                    <div class="reveal-item">
+                        <p><b>Квадрат разности</b></p>
+                        <p><span class="reveal-cover">(a − b)² = a² − 2ab + b²</span></p>
+                        <button type="button" class="mini-btn reveal-btn">Показать / скрыть</button>
+                    </div>
+
+                    <div class="reveal-item">
+                        <p><b>Корень из квадрата</b></p>
+                        <p><span class="reveal-cover">√(u²) = |u|</span></p>
+                        <button type="button" class="mini-btn reveal-btn">Показать / скрыть</button>
+                    </div>
+
+                    <div class="reveal-item">
+                        <p><b>Теорема синусов</b></p>
+                        <p><span class="reveal-cover">a / sin A = b / sin B</span></p>
+                        <button type="button" class="mini-btn reveal-btn">Показать / скрыть</button>
+                    </div>
+
+                    <div class="reveal-item">
+                        <p><b>Площадь ромба</b></p>
+                        <p><span class="reveal-cover">S = a² · sin α = a · h</span></p>
+                        <button type="button" class="mini-btn reveal-btn">Показать / скрыть</button>
+                    </div>
+
+                    <div class="reveal-item">
+                        <p><b>Квадрат в прямоугольном треугольнике</b></p>
+                        <p><span class="reveal-cover">S = x² = ab</span></p>
+                        <button type="button" class="mini-btn reveal-btn">Показать / скрыть</button>
+                    </div>
+
+                    <div class="reveal-item">
+                        <p><b>Тангенс</b></p>
+                        <p><span class="reveal-cover">tg x = a → x = arctg a + πn</span></p>
+                        <button type="button" class="mini-btn reveal-btn">Показать / скрыть</button>
+                    </div>
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Эти правила покрывают основные ходы занятия: корни, тригонометрическую замену,
+                        параллелограмм, ромб и квадрат внутри прямоугольного треугольника.
+                    </p>
+                </details>
+            </article>
+
+            <article class="card" data-title="Самопроверка">
+                <div class="card-head">
+                    <span class="num">14</span>
+                    <div class="card-title">
+                        <h2>Мини-самопроверка</h2>
+                        <p class="lead">Выберите ответ. После клика появится комментарий и штамп.</p>
+                    </div>
+                </div>
+
+                <div class="quiz" id="quiz">
+                    <div class="section" data-quiz="0">
+                        <h3>1. Чему равно √(4 + 2√3)?</h3>
+                        <button type="button" class="choice" data-correct="false">√3 − 1</button>
+                        <button type="button" class="choice" data-correct="true">√3 + 1</button>
+                        <button type="button" class="choice" data-correct="false">2 + √3</button>
+                        <p class="result" aria-live="polite">Комментарий появится после выбора.</p>
+                    </div>
+
+                    <div class="section blue" data-quiz="1">
+                        <h3>2. Какой период у tg x?</h3>
+                        <button type="button" class="choice" data-correct="false">2π</button>
+                        <button type="button" class="choice" data-correct="true">π</button>
+                        <button type="button" class="choice" data-correct="false">π / 2</button>
+                        <p class="result" aria-live="polite">Комментарий появится после выбора.</p>
+                    </div>
+
+                    <div class="section green" data-quiz="2">
+                        <h3>3. Если сторона ромба 4, угол 30°, то расстояние от центра до стороны равно:</h3>
+                        <button type="button" class="choice" data-correct="true">1</button>
+                        <button type="button" class="choice" data-correct="false">2</button>
+                        <button type="button" class="choice" data-correct="false">4</button>
+                        <p class="result" aria-live="polite">Комментарий появится после выбора.</p>
+                    </div>
+
+                    <div class="section" data-quiz="3">
+                        <h3>4. Если квадрат внутри прямоугольного треугольника имеет внешние отрезки a и b, то его площадь:</h3>
+                        <button type="button" class="choice" data-correct="false">a + b</button>
+                        <button type="button" class="choice" data-correct="false">√ab</button>
+                        <button type="button" class="choice" data-correct="true">ab</button>
+                        <p class="result" aria-live="polite">Комментарий появится после выбора.</p>
+                    </div>
+                </div>
+
+                <div class="stamp-wrap" id="stamps" aria-live="polite"></div>
+            </article>
+
+        </section>
+    </main>
+
+    <footer class="footer-sign">
+        Лёвин Артём Александрович эксклюзивно для Ивана Необутова
+    </footer>
+</div>
+
+<script>
+    (() => {
+        const cards = Array.from(document.querySelectorAll(".card"));
+        const dotsBox = document.getElementById("dots");
+        const counter = document.getElementById("counter");
+        const progressFill = document.getElementById("progressFill");
+        const deckWrap = document.getElementById("deckWrap");
+        const deck = document.getElementById("deck");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const memoBtn = document.getElementById("memoBtn");
+        const trainBtn = document.getElementById("trainBtn");
+        const printBtn = document.getElementById("printBtn");
+
+        let current = 0;
+        let pointerStartX = 0;
+        let pointerStartY = 0;
+        let pointerDown = false;
+        let allowSwipe = true;
+        let activePointerId = null;
+
+        cards.forEach((card, index) => {
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.className = "dot";
+            dot.setAttribute("aria-label", "Перейти к карточке " + (index + 1));
+            dot.addEventListener("click", () => goTo(index));
+            dotsBox.appendChild(dot);
+        });
+
+        const dots = Array.from(document.querySelectorAll(".dot"));
+
+        function syncDeckHeight() {
+            const active = cards[current];
+            if (!active) return;
+            const height = active.offsetHeight;
+            deck.style.height = Math.max(height, 640) + "px";
+        }
+
+        function updateCards() {
+            cards.forEach((card, index) => {
+                card.classList.remove("active", "prev", "previous", "next", "hidden-left", "hidden-right", "is-dragging");
+                card.style.transform = "";
+
+                if (index === current) {
+                    card.classList.add("active");
+                } else if (index === current - 1) {
+                    card.classList.add("prev", "previous");
+                } else if (index === current + 1) {
+                    card.classList.add("next");
+                } else if (index < current) {
+                    card.classList.add("hidden-left");
+                } else {
+                    card.classList.add("hidden-right");
+                }
+            });
+
+            dots.forEach((dot, index) => {
+                dot.classList.toggle("active", index === current);
+            });
+
+            counter.textContent = (current + 1) + " / " + cards.length;
+            progressFill.style.width = ((current + 1) / cards.length * 100) + "%";
+
+            prevBtn.disabled = current === 0;
+            nextBtn.disabled = current === cards.length - 1;
+
+            requestAnimationFrame(syncDeckHeight);
+        }
+
+        function goTo(index) {
+            current = Math.max(0, Math.min(cards.length - 1, index));
+            updateCards();
+        }
+
+        function nextCard() {
+            goTo(current + 1);
+        }
+
+        function prevCard() {
+            goTo(current - 1);
+        }
+
+        function isInteractiveTarget(target) {
+            return Boolean(target.closest("button, select, input, textarea, summary, details, a, label"));
+        }
+
+        prevBtn.addEventListener("click", prevCard);
+        nextBtn.addEventListener("click", nextCard);
+        memoBtn.addEventListener("click", () => goTo(0));
+        trainBtn.addEventListener("click", () => goTo(10));
+        printBtn.addEventListener("click", () => window.print());
+
+        document.addEventListener("keydown", (event) => {
+            const tag = document.activeElement.tagName.toLowerCase();
+            const isTyping = tag === "input" || tag === "textarea" || tag === "select";
+
+            if (isTyping) return;
+
+            if (event.key === "ArrowRight") nextCard();
+            if (event.key === "ArrowLeft") prevCard();
+            if (event.key === "Home") goTo(0);
+            if (event.key === "End") goTo(cards.length - 1);
+        });
+
+        deckWrap.addEventListener("pointerdown", (event) => {
+            allowSwipe = !isInteractiveTarget(event.target);
+            if (!allowSwipe) return;
+
+            pointerDown = true;
+            activePointerId = event.pointerId;
+            pointerStartX = event.clientX;
+            pointerStartY = event.clientY;
+
+            const active = cards[current];
+            active.classList.add("is-dragging");
+            deckWrap.setPointerCapture(event.pointerId);
+        });
+
+        deckWrap.addEventListener("pointermove", (event) => {
+            if (!pointerDown || !allowSwipe || event.pointerId !== activePointerId) return;
+
+            const dx = event.clientX - pointerStartX;
+            const dy = event.clientY - pointerStartY;
+
+            if (Math.abs(dx) > Math.abs(dy)) {
+                const active = cards[current];
+                const limited = Math.max(-120, Math.min(120, dx));
+                active.style.transform = "translateX(calc(-50% + " + limited + "px)) rotate(" + (limited / 45) + "deg)";
+            }
+        });
+
+        deckWrap.addEventListener("pointerup", (event) => {
+            if (!pointerDown || !allowSwipe || event.pointerId !== activePointerId) return;
+
+            const dx = event.clientX - pointerStartX;
+            const dy = event.clientY - pointerStartY;
+            const active = cards[current];
+
+            pointerDown = false;
+            activePointerId = null;
+            active.classList.remove("is-dragging");
+            active.style.transform = "";
+
+            if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+                if (dx < 0) nextCard();
+                if (dx > 0) prevCard();
+            } else {
+                updateCards();
+            }
+        });
+
+        deckWrap.addEventListener("pointercancel", () => {
+            pointerDown = false;
+            activePointerId = null;
+            cards[current].classList.remove("is-dragging");
+            cards[current].style.transform = "";
+            updateCards();
+        });
+
+        const checkTrainerBtn = document.getElementById("checkTrainer");
+        const trainerResult = document.getElementById("trainerResult");
+
+        checkTrainerBtn.addEventListener("click", () => {
+            const rows = Array.from(document.querySelectorAll(".trainer-row"));
+            let correctCount = 0;
+
+            rows.forEach((row) => {
+                const answer = row.dataset.answer;
+                const select = row.querySelector("select");
+                const ok = select.value === answer;
+
+                row.classList.remove("correct", "wrong");
+                row.classList.add(ok ? "correct" : "wrong");
+
+                if (ok) correctCount += 1;
+            });
+
+            if (correctCount === rows.length) {
+                trainerResult.textContent = "Отлично: Вы правильно определили метод во всех ситуациях.";
+                trainerResult.className = "result correct";
+            } else {
+                trainerResult.textContent = "Есть неточности: верных ответов " + correctCount + " из " + rows.length + ". Сначала узнаём тип задачи, затем выбираем формулу.";
+                trainerResult.className = "result wrong";
+            }
+
+            syncDeckHeight();
+        });
+
+        document.querySelectorAll(".reveal-btn").forEach((button) => {
+            button.addEventListener("click", () => {
+                const item = button.closest(".reveal-item");
+                item.classList.toggle("open");
+                syncDeckHeight();
+            });
+        });
+
+        document.querySelectorAll("details").forEach((details) => {
+            details.addEventListener("toggle", syncDeckHeight);
+        });
+
+        const stampTexts = ["Понято", "Без ловушки", "Проверено", "ЕГЭ-логика", "Аккуратно"];
+        const stamps = document.getElementById("stamps");
+        const awarded = new Set();
+
+        function addStamp(quizIndex) {
+            if (awarded.has(quizIndex)) return;
+            awarded.add(quizIndex);
+
+            const stamp = document.createElement("span");
+            stamp.className = "stamp";
+            stamp.textContent = stampTexts[(awarded.size - 1) % stampTexts.length];
+            stamps.appendChild(stamp);
+            syncDeckHeight();
+        }
+
+        document.querySelectorAll("[data-quiz]").forEach((box) => {
+            const choices = Array.from(box.querySelectorAll(".choice"));
+            const result = box.querySelector(".result");
+            const quizIndex = box.dataset.quiz;
+
+            choices.forEach((choice) => {
+                choice.addEventListener("click", () => {
+                    const isCorrect = choice.dataset.correct === "true";
+
+                    choices.forEach((btn) => {
+                        btn.classList.remove("correct", "wrong");
+                        if (btn.dataset.correct === "true") btn.classList.add("correct");
+                    });
+
+                    if (!isCorrect) {
+                        choice.classList.add("wrong");
+                        result.textContent = "Пока неверно: правильный вариант подсвечен. Проверьте правило и не спешите с переходом.";
+                        result.className = "result wrong";
+                    } else {
+                        result.textContent = "Верно. Это именно тот переход, который нужен в задаче.";
+                        result.className = "result correct";
+                        addStamp(quizIndex);
+                    }
+
+                    syncDeckHeight();
+                });
+            });
+        });
+
+        window.addEventListener("resize", syncDeckHeight);
+        updateCards();
+    })();
+</script>
+</body>
+</html>
