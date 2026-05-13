@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Архимедова сила и движение в жидкости — интерактивные карточки</title>
+    <style>
+        :root {
+            --paper: #f6efdd;
+            --paper-2: #fffaf0;
+            --ink: #2b2926;
+            --muted: #6f6960;
+            --red: #7d1f2d;
+            --red-2: #b64b57;
+            --blue: #426c86;
+            --green: #4f7f56;
+            --line: rgba(43, 41, 38, 0.28);
+            --shadow: 0 14px 32px rgba(43, 41, 38, 0.16);
+            --soft: #efe1c3;
+            --yellow: #f4d47b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+            radial-gradient(circle at 10% 20%, rgba(125, 31, 45, 0.055) 0 2px, transparent 3px),
+            radial-gradient(circle at 78% 16%, rgba(66, 108, 134, 0.055) 0 2px, transparent 3px),
+            linear-gradient(90deg, rgba(43, 41, 38, 0.03) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(43, 41, 38, 0.025) 1px, transparent 1px),
+            var(--paper);
+            background-size: 130px 130px, 160px 160px, 28px 28px, 28px 28px, auto;
+            overflow-x: hidden;
+        }
+
+        button,
+        select {
+            font-family: inherit;
+        }
+
+        button:focus-visible,
+        select:focus-visible,
+        summary:focus-visible {
+            outline: 3px solid var(--blue);
+            outline-offset: 3px;
+        }
+
+        .app {
+            width: min(1160px, 100%);
+            margin: 0 auto;
+            padding: 18px 14px 30px;
+        }
+
+        .top {
+            position: relative;
+            padding: 22px 18px 18px;
+            background: rgba(255, 250, 240, 0.84);
+            border: 2px dashed var(--line);
+            border-radius: 28px 22px 30px 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .top::before {
+            content: "";
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            right: -70px;
+            top: -80px;
+            border: 3px solid rgba(125, 31, 45, 0.18);
+            border-radius: 46% 54% 41% 59%;
+            transform: rotate(-13deg);
+        }
+
+        .top::after {
+            content: "ρ · V · g";
+            position: absolute;
+            right: 24px;
+            bottom: 18px;
+            color: rgba(125, 31, 45, 0.22);
+            font-size: clamp(22px, 4vw, 34px);
+            font-weight: 900;
+            transform: rotate(-8deg);
+            pointer-events: none;
+        }
+
+        .student-line {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 12px;
+            color: var(--muted);
+            font-size: 15px;
+            font-weight: 700;
+            padding-right: 70px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: var(--paper-2);
+            border: 2px solid var(--line);
+            border-radius: 999px 900px 870px 940px;
+            color: var(--red);
+            font-weight: 800;
+            line-height: 1;
+            box-shadow: 3px 3px 0 rgba(43, 41, 38, 0.09);
+        }
+
+        h1 {
+            margin: 0;
+            max-width: 840px;
+            font-size: clamp(30px, 5vw, 58px);
+            line-height: 0.96;
+            letter-spacing: -1.2px;
+            color: var(--ink);
+        }
+
+        .subtitle {
+            max-width: 790px;
+            margin: 12px 0 0;
+            font-size: clamp(16px, 2.2vw, 21px);
+            line-height: 1.45;
+            color: var(--muted);
+        }
+
+        .doodle-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+            padding-right: 70px;
+        }
+
+        .sticky {
+            display: inline-flex;
+            align-items: center;
+            min-height: 34px;
+            padding: 7px 12px;
+            background: #fff3bf;
+            border: 2px solid rgba(43, 41, 38, 0.24);
+            border-radius: 13px 18px 12px 16px;
+            transform: rotate(-1deg);
+            font-weight: 800;
+            color: var(--ink);
+            box-shadow: 4px 5px 0 rgba(43, 41, 38, 0.08);
+        }
+
+        .sticky:nth-child(2) {
+            transform: rotate(1deg);
+            background: #e5efe5;
+        }
+
+        .sticky:nth-child(3) {
+            transform: rotate(-0.5deg);
+            background: #f3dfe3;
+        }
+
+        .modebar {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            margin: 14px 0 12px;
+            padding: 10px;
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            background: rgba(246, 239, 221, 0.92);
+            backdrop-filter: blur(8px);
+            border-bottom: 2px dashed rgba(43, 41, 38, 0.16);
+        }
+
+        .modebar button,
+        .controls button,
+        .small-btn {
+            cursor: pointer;
+            border: 2px solid var(--ink);
+            background: var(--paper-2);
+            color: var(--ink);
+            border-radius: 15px 12px 16px 11px;
+            padding: 10px 14px;
+            font-weight: 900;
+            font-size: 15px;
+            box-shadow: 4px 4px 0 rgba(43, 41, 38, 0.16);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+
+        .modebar button:hover,
+        .controls button:hover,
+        .small-btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 6px 6px 0 rgba(43, 41, 38, 0.14);
+        }
+
+        .modebar button.active-mode {
+            background: var(--red);
+            color: #fffaf0;
+            box-shadow: 4px 4px 0 rgba(125, 31, 45, 0.25);
+        }
+
+        .progress-area {
+            display: grid;
+            grid-template-columns: 92px 1fr 92px;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0 14px;
+        }
+
+        .counter {
+            text-align: center;
+            font-weight: 900;
+            color: var(--red);
+            background: rgba(255, 250, 240, 0.84);
+            border: 2px dashed var(--line);
+            border-radius: 16px;
+            padding: 8px 10px;
+            white-space: nowrap;
+        }
+
+        .progress {
+            height: 15px;
+            border: 2px solid rgba(43, 41, 38, 0.26);
+            background: rgba(255, 250, 240, 0.88);
+            border-radius: 999px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 0 rgba(43, 41, 38, 0.06);
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0;
+            background: repeating-linear-gradient(
+            45deg,
+            var(--red),
+            var(--red) 9px,
+            var(--red-2) 9px,
+            var(--red-2) 18px
+            );
+            border-radius: inherit;
+            transition: width 0.25s ease;
+        }
+
+        .dots {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+            min-height: 20px;
+            margin-bottom: 14px;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--ink);
+            background: var(--paper-2);
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 0.72;
+            padding: 0;
+        }
+
+        .dot.active {
+            background: var(--red);
+            transform: scale(1.16);
+            opacity: 1;
+        }
+
+        .deck-wrap {
+            position: relative;
+            min-height: 680px;
+            margin: 0 auto;
+            touch-action: pan-y;
+        }
+
+        .deck {
+            position: relative;
+            min-height: 680px;
+            perspective: 1200px;
+        }
+
+        .card {
+            position: absolute;
+            inset: 0;
+            width: min(900px, calc(100vw - 28px));
+            min-height: 650px;
+            max-height: min(760px, calc(100vh - 190px));
+            margin: 0 auto;
+            left: 0;
+            right: 0;
+            padding: clamp(18px, 3vw, 34px);
+            background:
+            linear-gradient(90deg, rgba(125, 31, 45, 0.045) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(43, 41, 38, 0.035) 1px, transparent 1px),
+            var(--paper-2);
+            background-size: 31px 31px;
+            border: 3px solid rgba(43, 41, 38, 0.74);
+            border-radius: 29px 22px 35px 24px;
+            box-shadow: var(--shadow), 7px 7px 0 rgba(125, 31, 45, 0.1);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(0) scale(0.94) rotate(0deg);
+            transition: transform 0.28s ease, opacity 0.28s ease;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: var(--red) rgba(43, 41, 38, 0.08);
+            will-change: transform, opacity;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 10px;
+            border: 2px dashed rgba(43, 41, 38, 0.16);
+            border-radius: 24px 18px 28px 19px;
+            pointer-events: none;
+        }
+
+        .card.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(0) scale(1) rotate(-0.2deg);
+            z-index: 10;
+        }
+
+        .card.next {
+            opacity: 0.42;
+            transform: translateX(58%) scale(0.88) rotate(3deg);
+            z-index: 3;
+        }
+
+        .card.prev {
+            opacity: 0.42;
+            transform: translateX(-58%) scale(0.88) rotate(-3deg);
+            z-index: 3;
+        }
+
+        .card.hidden-left {
+            opacity: 0;
+            transform: translateX(-130%) scale(0.82) rotate(-8deg);
+            z-index: 1;
+        }
+
+        .card.hidden-right {
+            opacity: 0;
+            transform: translateX(130%) scale(0.82) rotate(8deg);
+            z-index: 1;
+        }
+
+        .card h2 {
+            margin: 0 0 14px;
+            font-size: clamp(26px, 4vw, 44px);
+            line-height: 1.05;
+            letter-spacing: -0.7px;
+            color: var(--red);
+        }
+
+        .card h3 {
+            margin: 16px 0 8px;
+            font-size: 20px;
+            color: var(--ink);
+        }
+
+        .card p,
+        .card li {
+            font-size: clamp(16px, 2vw, 19px);
+            line-height: 1.48;
+        }
+
+        .card ul,
+        .card ol {
+            padding-left: 22px;
+        }
+
+        .card-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px;
+            min-height: 38px;
+            margin-bottom: 12px;
+            padding: 5px 11px;
+            background: var(--red);
+            color: white;
+            border-radius: 16px 12px 18px 10px;
+            font-weight: 900;
+            font-size: 19px;
+            box-shadow: 4px 4px 0 rgba(43, 41, 38, 0.18);
+            transform: rotate(-3deg);
+        }
+
+        .section {
+            margin: 14px 0;
+            padding: 14px 15px;
+            background: rgba(244, 212, 123, 0.22);
+            border: 2px dashed rgba(43, 41, 38, 0.22);
+            border-radius: 18px 15px 20px 13px;
+        }
+
+        .section.blue {
+            background: rgba(66, 108, 134, 0.11);
+        }
+
+        .section.green {
+            background: rgba(79, 127, 86, 0.12);
+        }
+
+        .formula {
+            margin: 12px 0;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.58);
+            border-left: 6px solid var(--red);
+            border-radius: 8px 18px 10px 14px;
+            font-size: clamp(17px, 2.3vw, 23px);
+            font-weight: 800;
+            overflow-x: auto;
+            white-space: nowrap;
+            box-shadow: inset 0 -2px 0 rgba(43, 41, 38, 0.05);
+        }
+
+        .mini {
+            font-size: 15px;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .answer {
+            display: inline-block;
+            max-width: 100%;
+            margin-top: 4px;
+            padding: 4px 8px;
+            border: 2px dashed var(--line);
+            border-radius: 10px;
+            background: #fffaf0;
+            filter: blur(4px);
+            user-select: none;
+            transition: filter 0.18s ease, background 0.18s ease;
+            overflow-x: auto;
+            vertical-align: middle;
+        }
+
+        .answer.show {
+            filter: none;
+            background: #e5efe5;
+            user-select: text;
+        }
+
+        details {
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.54);
+            border: 2px dashed rgba(43, 41, 38, 0.18);
+            border-radius: 16px 12px 18px 14px;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 900;
+            color: var(--red);
+        }
+
+        .footer-note {
+            margin-top: 18px;
+            padding-top: 10px;
+            border-top: 2px dashed rgba(43, 41, 38, 0.18);
+            color: var(--muted);
+            font-weight: 900;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 18px 0 8px;
+        }
+
+        .result {
+            margin-top: 12px;
+            padding: 12px 14px;
+            border-radius: 14px 18px 13px 17px;
+            border: 2px solid rgba(43, 41, 38, 0.22);
+            background: rgba(255, 255, 255, 0.58);
+            font-weight: 800;
+            min-height: 48px;
+            line-height: 1.35;
+        }
+
+        .choice {
+            display: block;
+            width: 100%;
+            margin: 8px 0;
+            padding: 11px 12px;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.64);
+            border: 2px solid rgba(43, 41, 38, 0.26);
+            border-radius: 15px 11px 17px 12px;
+            cursor: pointer;
+            color: var(--ink);
+            font-size: 16px;
+            font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .choice.correct,
+        .correct {
+            background: rgba(79, 127, 86, 0.18) !important;
+            border-color: var(--green) !important;
+        }
+
+        .choice.correct::before {
+            content: "✓ ";
+            font-weight: 900;
+            color: var(--green);
+        }
+
+        .choice.wrong,
+        .wrong {
+            background: rgba(125, 31, 45, 0.15) !important;
+            border-color: var(--red) !important;
+        }
+
+        .choice.wrong::before {
+            content: "× ";
+            font-weight: 900;
+            color: var(--red);
+        }
+
+        .stamp {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 8px 6px 0 0;
+            padding: 8px 11px;
+            color: var(--red);
+            border: 3px solid var(--red);
+            border-radius: 14px 10px 16px 11px;
+            font-size: 15px;
+            font-weight: 900;
+            text-transform: uppercase;
+            transform: rotate(-4deg);
+            background: rgba(255, 250, 240, 0.82);
+        }
+
+        .trainer-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .trainer-row {
+            display: grid;
+            grid-template-columns: minmax(160px, 1fr) minmax(180px, 1fr);
+            gap: 10px;
+            align-items: center;
+            padding: 10px;
+            border: 2px dashed rgba(43, 41, 38, 0.18);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.46);
+        }
+
+        .trainer-row select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid rgba(43, 41, 38, 0.26);
+            border-radius: 12px;
+            background: var(--paper-2);
+            color: var(--ink);
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .sticker-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .sticker {
+            padding: 13px;
+            min-height: 86px;
+            border: 2px solid rgba(43, 41, 38, 0.38);
+            border-radius: 18px 12px 20px 13px;
+            background: #fff3bf;
+            box-shadow: 4px 5px 0 rgba(43, 41, 38, 0.08);
+            transform: rotate(-1deg);
+            font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .sticker:nth-child(even) {
+            background: #e5efe5;
+            transform: rotate(1deg);
+        }
+
+        .sticker:nth-child(3n) {
+            background: #f3dfe3;
+            transform: rotate(-0.4deg);
+        }
+
+        .reveal-grid {
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .reveal-item {
+            padding: 12px;
+            border: 2px dashed rgba(43, 41, 38, 0.22);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.5);
+            overflow-x: auto;
+        }
+
+        .quiz-block {
+            margin-top: 12px;
+            padding: 12px;
+            border: 2px dashed rgba(43, 41, 38, 0.18);
+            border-radius: 17px;
+            background: rgba(255, 255, 255, 0.48);
+        }
+
+        .bottom-sign {
+            margin: 20px auto 0;
+            width: min(900px, calc(100vw - 28px));
+            padding: 16px;
+            text-align: center;
+            color: var(--ink);
+            background: rgba(255, 250, 240, 0.8);
+            border: 2px dashed var(--line);
+            border-radius: 22px 16px 24px 18px;
+            font-weight: 900;
+            box-shadow: 4px 4px 0 rgba(43, 41, 38, 0.08);
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .force-sketch {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .force-card {
+            padding: 12px 8px;
+            border: 2px dashed rgba(43, 41, 38, 0.2);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.5);
+            font-weight: 900;
+            line-height: 1.3;
+            overflow-x: auto;
+        }
+
+        .arrow {
+            display: block;
+            font-size: 30px;
+            color: var(--red);
+            line-height: 1;
+        }
+
+        .mini-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        .mini-table th,
+        .mini-table td {
+            padding: 10px 8px;
+            border-bottom: 2px dashed rgba(43, 41, 38, 0.18);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .mini-table th {
+            color: var(--red);
+        }
+
+        @media (max-width: 760px) {
+            .app {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .top {
+                padding: 18px 14px;
+            }
+
+            .top::after {
+                right: 12px;
+                bottom: 8px;
+            }
+
+            .student-line,
+            .doodle-row {
+                padding-right: 0;
+            }
+
+            .progress-area {
+                grid-template-columns: 76px 1fr 76px;
+                gap: 7px;
+            }
+
+            .counter {
+                font-size: 13px;
+                padding: 7px 6px;
+            }
+
+            .deck-wrap,
+            .deck {
+                min-height: 720px;
+            }
+
+            .card {
+                width: calc(100vw - 20px);
+                min-height: 700px;
+                max-height: calc(100vh - 175px);
+                padding: 18px 15px;
+            }
+
+            .card.next {
+                transform: translateX(92%) scale(0.84) rotate(3deg);
+            }
+
+            .card.prev {
+                transform: translateX(-92%) scale(0.84) rotate(-3deg);
+            }
+
+            .trainer-row,
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+
+            .sticker-list {
+                grid-template-columns: 1fr;
+            }
+
+            .modebar button,
+            .controls button,
+            .small-btn {
+                padding: 10px 11px;
+                font-size: 14px;
+                min-height: 42px;
+            }
+
+            .force-sketch {
+                grid-template-columns: 1fr;
+            }
+
+            .mini-table {
+                font-size: 15px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .formula {
+                font-size: 16px;
+            }
+
+            .card h2 {
+                font-size: 25px;
+            }
+
+            .deck-wrap,
+            .deck {
+                min-height: 735px;
+            }
+
+            .card {
+                min-height: 715px;
+                max-height: calc(100vh - 165px);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .card,
+            .progress-fill,
+            .modebar button,
+            .controls button,
+            .small-btn {
+                transition: none;
+            }
+        }
+
+        @media print {
+            body {
+                background: #ffffff;
+                color: #000000;
+            }
+
+            .modebar,
+            .controls,
+            .progress-area,
+            .dots {
+                display: none !important;
+            }
+
+            .app {
+                width: 100%;
+                padding: 0;
+            }
+
+            .top {
+                box-shadow: none;
+                border: 1px solid #999;
+                page-break-after: avoid;
+                background: #ffffff;
+            }
+
+            .top::before,
+            .top::after {
+                display: none;
+            }
+
+            .deck-wrap,
+            .deck {
+                min-height: auto;
+            }
+
+            .card,
+            .card.active,
+            .card.next,
+            .card.prev,
+            .card.hidden-left,
+            .card.hidden-right {
+                position: relative;
+                inset: auto;
+                display: block;
+                width: 100%;
+                min-height: auto;
+                max-height: none;
+                margin: 16px 0;
+                padding: 18px;
+                opacity: 1;
+                transform: none !important;
+                pointer-events: auto;
+                box-shadow: none;
+                border: 1px solid #888;
+                page-break-inside: avoid;
+                overflow: visible;
+                background: #ffffff;
+            }
+
+            .card::before {
+                display: none;
+            }
+
+            details {
+                page-break-inside: avoid;
+            }
+
+            .answer {
+                filter: none !important;
+                user-select: text;
+                background: #ffffff;
+            }
+
+            .choice,
+            .trainer-row,
+            .section,
+            .sticker,
+            .quiz-block,
+            .reveal-item,
+            .force-card {
+                box-shadow: none;
+                background: #ffffff !important;
+            }
+
+            .bottom-sign {
+                box-shadow: none;
+                border: 1px solid #999;
+                background: #ffffff;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <header class="top">
+        <div class="student-line">
+            <span class="badge">Игорь Федоров</span>
+            <span class="badge">ОГЭ · физика</span>
+            <span class="badge">повторение перед вариантом</span>
+        </div>
+        <h1>Архимедова сила и движение в жидкости</h1>
+        <p class="subtitle">
+            Свайп-карточки для повторения: как расставлять силы, когда тело плавает,
+            тонет или всплывает, и почему выделившаяся теплота связана с силой сопротивления.
+        </p>
+        <div class="doodle-row">
+            <span class="sticky">Сначала рисунок сил</span>
+            <span class="sticky">Потом баланс</span>
+            <span class="sticky">Все величины — в СИ</span>
+        </div>
+    </header>
+
+    <nav class="modebar" aria-label="Режимы пособия">
+        <button type="button" class="active-mode" data-jump="0">Памятка</button>
+        <button type="button" data-jump="8">Тренировка</button>
+        <button type="button" id="printBtn">Печать</button>
+    </nav>
+
+    <div class="progress-area" aria-label="Прогресс по карточкам">
+        <div class="counter" id="counterLeft">1 / 13</div>
+        <div class="progress">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="counter" id="counterRight">памятка</div>
+    </div>
+
+    <div class="dots" id="dots" aria-label="Точки прогресса"></div>
+
+    <main class="deck-wrap" id="deckWrap" aria-label="Колода учебных карточек">
+        <section class="deck" id="deck">
+
+            <article class="card active" data-card="memo">
+                <div class="card-number">01</div>
+                <h2>С чего начинается задача?</h2>
+                <p>
+                    В задачах про жидкость важно не угадывать формулу, а сначала нарисовать силы.
+                    Рисунок сразу показывает, какой баланс писать.
+                </p>
+
+                <div class="section">
+                    <h3>Главная идея</h3>
+                    <p>
+                        На тело в жидкости действуют сила тяжести вниз, сила Архимеда вверх,
+                        а при движении — сила сопротивления, направленная против скорости.
+                    </p>
+                </div>
+
+                <div class="force-sketch" aria-label="Основные силы">
+                    <div class="force-card"><span class="arrow">↓</span>F<sub>тяж</sub> = mg</div>
+                    <div class="force-card"><span class="arrow">↑</span>F<sub>A</sub> = ρ<sub>ж</sub>gV<sub>погр</sub></div>
+                    <div class="force-card"><span class="arrow">↕</span>F<sub>сопр</sub> против v</div>
+                </div>
+
+                <details>
+                    <summary>Покажи алгоритм</summary>
+                    <ol>
+                        <li>Определите: тело покоится, движется равномерно или с ускорением.</li>
+                        <li>Нарисуйте все силы и направление скорости.</li>
+                        <li>Выберите ось и запишите сумму сил.</li>
+                        <li>Раскройте силы через плотность, объём и g.</li>
+                        <li>Если выделяется теплота, используйте Q = F<sub>сопр</sub> · h.</li>
+                    </ol>
+                </details>
+
+                <p class="footer-note">Мини-вывод: рисунок сил защищает от ошибок со знаками.</p>
+            </article>
+
+            <article class="card" data-card="memo">
+                <div class="card-number">02</div>
+                <h2>Сила Архимеда</h2>
+                <p>
+                    Сила Архимеда равна весу вытесненной жидкости. Поэтому в формуле стоит
+                    плотность жидкости и объём именно погружённой части тела.
+                </p>
+
+                <div class="formula">F<sub>A</sub> = ρ<sub>ж</sub> · g · V<sub>погр</sub></div>
+
+                <div class="section green">
+                    <h3>Главная идея</h3>
+                    <p>
+                        Если тело погружено полностью, берём весь объём тела. Если частично —
+                        только объём погружённой части.
+                    </p>
+                </div>
+
+                <div class="two-col">
+                    <div class="section">
+                        <b>Полностью в воде</b>
+                        <div class="formula">V<sub>погр</sub> = V</div>
+                    </div>
+                    <div class="section">
+                        <b>Кубик погружён на h</b>
+                        <div class="formula">V<sub>погр</sub> = S · h</div>
+                    </div>
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Выталкивающая сила зависит не от материала тела, а от жидкости и объёма,
+                        который тело вытеснило. Материал тела нужен при расчёте силы тяжести.
+                    </p>
+                </details>
+
+                <p class="footer-note">Мини-вывод: в F<sub>A</sub> подставляют плотность жидкости, а не тела.</p>
+            </article>
+
+            <article class="card" data-card="memo">
+                <div class="card-number">03</div>
+                <h2>Кубик на границе двух жидкостей</h2>
+                <p>
+                    Если кубик находится сразу в двух жидкостях, то на него действуют две
+                    выталкивающие силы: со стороны воды и со стороны неизвестной жидкости.
+                </p>
+
+                <div class="section">
+                    <h3>Главная идея</h3>
+                    <p>
+                        Вес кубика уравновешивается суммой двух сил Архимеда.
+                    </p>
+                </div>
+
+                <div class="formula">ρ<sub>т</sub>gSL = ρ<sub>в</sub>gSh<sub>в</sub> + ρ<sub>ж</sub>gS(L − h<sub>в</sub>)</div>
+                <div class="formula">ρ<sub>ж</sub> = (ρ<sub>т</sub>L − ρ<sub>в</sub>h<sub>в</sub>) / (L − h<sub>в</sub>)</div>
+
+                <div class="section blue">
+                    <h3>Быстрый пример</h3>
+                    <p>
+                        L = 10 см, h<sub>в</sub> = 2 см, ρ<sub>т</sub> = 840 кг/м³,
+                        ρ<sub>в</sub> = 1000 кг/м³.
+                    </p>
+                    <div class="formula">ρ<sub>ж</sub> = (840 · 10 − 1000 · 2) / 8 = 800 кг/м³</div>
+                </div>
+
+                <details>
+                    <summary>Покажи алгоритм</summary>
+                    <ol>
+                        <li>Обозначьте полную высоту кубика L.</li>
+                        <li>Высота в воде: h<sub>в</sub>.</li>
+                        <li>Высота в неизвестной жидкости: L − h<sub>в</sub>.</li>
+                        <li>Запишите: вес = Архимед от воды + Архимед от второй жидкости.</li>
+                        <li>Сократите gS и выразите ρ<sub>ж</sub>.</li>
+                    </ol>
+                </details>
+
+                <p class="footer-note">Мини-вывод: две жидкости — две выталкивающие силы.</p>
+            </article>
+
+            <article class="card" data-card="memo">
+                <div class="card-number">04</div>
+                <h2>Тяжёлый шарик движется вниз равномерно</h2>
+                <p>
+                    Если шарик движется вниз равномерно, ускорение равно нулю. Сила сопротивления
+                    направлена вверх, потому что она всегда против скорости.
+                </p>
+
+                <div class="section">
+                    <h3>Баланс сил</h3>
+                    <div class="formula">F<sub>тяж</sub> = F<sub>A</sub> + F<sub>сопр</sub></div>
+                    <div class="formula">F<sub>сопр</sub> = gV(ρ<sub>т</sub> − ρ<sub>в</sub>)</div>
+                </div>
+
+                <div class="section green">
+                    <h3>Теплота</h3>
+                    <p>Теплота выделяется за счёт работы силы сопротивления жидкости.</p>
+                    <div class="formula">Q = F<sub>сопр</sub> · h</div>
+                    <div class="formula">Q = gV(ρ<sub>т</sub> − ρ<sub>в</sub>)h</div>
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        При равномерном движении сумма сил равна нулю. Значит, сила тяжести
+                        уравновешена силой Архимеда и силой сопротивления.
+                    </p>
+                </details>
+
+                <p class="footer-note">Мини-вывод: равномерно вниз → сопротивление вверх.</p>
+            </article>
+
+            <article class="card" data-card="memo">
+                <div class="card-number">05</div>
+                <h2>Лёгкий шарик всплывает равномерно</h2>
+                <p>
+                    При всплывании движение направлено вверх, поэтому сила сопротивления жидкости
+                    направлена вниз. Это главное отличие от тонущего шарика.
+                </p>
+
+                <div class="section">
+                    <h3>Баланс сил</h3>
+                    <div class="formula">F<sub>A</sub> = F<sub>тяж</sub> + F<sub>сопр</sub></div>
+                    <div class="formula">F<sub>сопр</sub> = gV(ρ<sub>в</sub> − ρ<sub>т</sub>)</div>
+                </div>
+
+                <div class="section green">
+                    <h3>Теплота</h3>
+                    <div class="formula">Q = gV(ρ<sub>в</sub> − ρ<sub>т</sub>)h</div>
+                </div>
+
+                <details>
+                    <summary>Покажи алгоритм</summary>
+                    <ol>
+                        <li>Проверьте, что ρ<sub>т</sub> &lt; ρ<sub>в</sub>.</li>
+                        <li>Нарисуйте F<sub>A</sub> вверх.</li>
+                        <li>Нарисуйте F<sub>тяж</sub> и F<sub>сопр</sub> вниз.</li>
+                        <li>Запишите баланс: F<sub>A</sub> = F<sub>тяж</sub> + F<sub>сопр</sub>.</li>
+                    </ol>
+                </details>
+
+                <p class="footer-note">Мини-вывод: всплывает вверх → сопротивление вниз.</p>
+            </article>
+
+            <article class="card" data-card="memo">
+                <div class="card-number">06</div>
+                <h2>Если есть ускорение</h2>
+                <p>
+                    Ускорение меняет уравнение: сумма сил уже не равна нулю, а равна ma.
+                    Знак зависит от выбранного направления оси.
+                </p>
+
+                <div class="section">
+                    <h3>Движение вниз: ось направим вниз</h3>
+                    <div class="formula">F<sub>тяж</sub> − F<sub>A</sub> − F<sub>сопр</sub> = ma</div>
+                    <div class="formula">F<sub>сопр</sub> = V[g(ρ<sub>т</sub> − ρ<sub>в</sub>) − ρ<sub>т</sub>a]</div>
+                </div>
+
+                <div class="section blue">
+                    <h3>Проверка смысла</h3>
+                    <p>
+                        Сила сопротивления не может быть отрицательной. Если вышло меньше нуля,
+                        перепроверьте направления сил, ускорение и данные условия.
+                    </p>
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        При ускоренном движении часть разности между силой тяжести и силой Архимеда
+                        идёт на разгон тела. Поэтому при поиске сопротивления появляется вычитание ma.
+                    </p>
+                </details>
+
+                <p class="footer-note">Мини-вывод: есть ускорение → пишем второй закон Ньютона.</p>
+            </article>
+
+            <article class="card" data-card="memo">
+                <div class="card-number">07</div>
+                <h2>Кинематика может пригодиться</h2>
+                <p>
+                    Иногда в задаче не дают путь или ускорение напрямую. Тогда сначала находят
+                    недостающую величину через формулы равноускоренного движения.
+                </p>
+
+                <div class="section">
+                    <h3>Опорные формулы</h3>
+                    <div class="formula">s = v<sub>0</sub>t + at² / 2</div>
+                    <div class="formula">s = (v<sub>0</sub> + v)t / 2</div>
+                    <div class="formula">v² − v<sub>0</sub>² = 2as</div>
+                </div>
+
+                <div class="section green">
+                    <p>
+                        Это вспомогательный шаг: нашли путь или ускорение — вернулись к силам
+                        и теплоте.
+                    </p>
+                </div>
+
+                <details>
+                    <summary>Покажи алгоритм</summary>
+                    <ol>
+                        <li>Посмотрите, что требуется для Q = F<sub>сопр</sub>h.</li>
+                        <li>Если не хватает h или a, найдите величину через кинематику.</li>
+                        <li>После этого решайте динамику обычным способом.</li>
+                    </ol>
+                </details>
+
+                <p class="footer-note">Мини-вывод: кинематика помогает добыть недостающие данные.</p>
+            </article>
+
+            <article class="card" data-card="memo">
+                <div class="card-number">08</div>
+                <h2>Единицы измерения и здравый смысл</h2>
+                <p>
+                    В задачах про маленькие шарики ответы часто получаются очень маленькими.
+                    Это нормально, если единицы переведены правильно.
+                </p>
+
+                <div class="section">
+                    <h3>Что переводить перед подстановкой</h3>
+                    <table class="mini-table">
+                        <thead>
+                        <tr>
+                            <th>Дано</th>
+                            <th>В СИ</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>1 см</td>
+                            <td>0,01 м</td>
+                        </tr>
+                        <tr>
+                            <td>1 мм³</td>
+                            <td>10<sup>−9</sup> м³</td>
+                        </tr>
+                        <tr>
+                            <td>1 см³</td>
+                            <td>10<sup>−6</sup> м³</td>
+                        </tr>
+                        <tr>
+                            <td>1 мДж</td>
+                            <td>10<sup>−3</sup> Дж</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="section blue">
+                    <h3>Проверка ответа</h3>
+                    <p>
+                        Плотность, объём, сила сопротивления и теплота в этих задачах должны быть
+                        неотрицательными. Малое число — не ошибка само по себе.
+                    </p>
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Например, объём порядка 10<sup>−8</sup> м³ соответствует десяткам мм³.
+                        Для маленького шарика это физически допустимый результат.
+                    </p>
+                </details>
+
+                <p class="footer-note">Мини-вывод: маленький ответ проверяют единицами, а не отбрасывают.</p>
+            </article>
+
+            <article class="card" data-card="errors">
+                <div class="card-number">09</div>
+                <h2>Разбор ошибок</h2>
+                <p>
+                    В этой теме ошибки чаще всего возникают не в арифметике, а в направлении сил,
+                    выборе объёма и единицах измерения.
+                </p>
+
+                <div class="section">
+                    <h3>Ваш ответ → ошибка → как думать правильно</h3>
+                    <p><b>Неверный ход:</b> считать Q через F<sub>тяж</sub> · h.</p>
+                    <p><b>Правильно:</b> Q = F<sub>сопр</sub> · h.</p>
+                    <p><b>Суть ошибки:</b> теплота выделяется из-за сопротивления жидкости, а не из-за всей силы тяжести.</p>
+                </div>
+
+                <div class="section blue">
+                    <p><b>Неверный ход:</b> в F<sub>A</sub> подставить плотность шарика.</p>
+                    <p><b>Правильно:</b> F<sub>A</sub> = ρ<sub>ж</sub>gV<sub>погр</sub>.</p>
+                    <p><b>Суть ошибки:</b> сила Архимеда зависит от жидкости, а не от материала тела.</p>
+                </div>
+
+                <details>
+                    <summary>Покажи правильный алгоритм</summary>
+                    <ol>
+                        <li>Направьте скорость.</li>
+                        <li>Сопротивление направьте строго против скорости.</li>
+                        <li>Для F<sub>A</sub> берите плотность жидкости.</li>
+                        <li>Для F<sub>тяж</sub> берите плотность тела.</li>
+                        <li>Теплоту считайте через F<sub>сопр</sub>.</li>
+                    </ol>
+                </details>
+
+                <p class="footer-note">Мини-вывод: одна неверная стрелка меняет весь баланс сил.</p>
+            </article>
+
+            <article class="card" data-card="practice">
+                <div class="card-number">10</div>
+                <h2>Ловушки темы</h2>
+                <p>Запомните эти короткие предупреждения — они хорошо защищают баллы в задачах ОГЭ.</p>
+
+                <div class="sticker-list">
+                    <div class="sticker">Не берите полный объём, если тело погружено частично.</div>
+                    <div class="sticker">Сопротивление всегда направлено против скорости.</div>
+                    <div class="sticker">Равномерно — значит a = 0 и сумма сил равна нулю.</div>
+                    <div class="sticker">мДж, см, см³ и мм³ обязательно переводите в СИ.</div>
+                    <div class="sticker">В F<sub>A</sub> стоит плотность жидкости, а не тела.</div>
+                    <div class="sticker">Не округляйте слишком рано: маленькие объёмы нормальны.</div>
+                    <div class="sticker">При ускорении часть силы идёт на ma, а не в тепло.</div>
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Самая частая причина неверного ответа — попытка решить без рисунка.
+                        Даже быстрый схематичный рисунок снижает риск ошибки знака.
+                    </p>
+                </details>
+
+                <p class="footer-note">Мини-вывод: аккуратность здесь важнее скорости.</p>
+            </article>
+
+            <article class="card" data-card="practice">
+                <div class="card-number">11</div>
+                <h2>Тренажёр: выберите формулу</h2>
+                <p>
+                    Сопоставьте ситуацию и формулу для силы сопротивления. Затем нажмите «Проверить».
+                </p>
+
+                <div class="trainer-grid" id="trainer">
+                    <div class="trainer-row" data-answer="down-even">
+                        <b>Тяжёлый шарик равномерно движется вниз</b>
+                        <select aria-label="Формула для равномерного движения вниз">
+                            <option value="">Выберите формулу</option>
+                            <option value="down-even">Fсопр = gV(ρт − ρв)</option>
+                            <option value="up-even">Fсопр = gV(ρв − ρт)</option>
+                            <option value="down-acc">Fсопр = V[g(ρт − ρв) − ρтa]</option>
+                        </select>
+                    </div>
+
+                    <div class="trainer-row" data-answer="up-even">
+                        <b>Лёгкий шарик равномерно всплывает</b>
+                        <select aria-label="Формула для равномерного всплывания">
+                            <option value="">Выберите формулу</option>
+                            <option value="down-even">Fсопр = gV(ρт − ρв)</option>
+                            <option value="up-even">Fсопр = gV(ρв − ρт)</option>
+                            <option value="down-acc">Fсопр = V[g(ρт − ρв) − ρтa]</option>
+                        </select>
+                    </div>
+
+                    <div class="trainer-row" data-answer="down-acc">
+                        <b>Тяжёлый шарик движется вниз с ускорением</b>
+                        <select aria-label="Формула для движения вниз с ускорением">
+                            <option value="">Выберите формулу</option>
+                            <option value="down-even">Fсопр = gV(ρт − ρв)</option>
+                            <option value="up-even">Fсопр = gV(ρв − ρт)</option>
+                            <option value="down-acc">Fсопр = V[g(ρт − ρв) − ρтa]</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="button" class="small-btn" id="checkTrainer">Проверить</button>
+                <div class="result" id="trainerResult" aria-live="polite">Выберите ответы и проверьте себя.</div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Различие между формулами появляется из направления движения и из того,
+                        равномерно ли движется тело. Сначала стрелки, потом формула.
+                    </p>
+                </details>
+
+                <p class="footer-note">Мини-вывод: формулу выбирают по ситуации, а не по похожести условия.</p>
+            </article>
+
+            <article class="card" data-card="practice">
+                <div class="card-number">12</div>
+                <h2>Повтори за 30 секунд</h2>
+                <p>Пять быстрых вопросов. Ответы спрятаны — сначала попробуйте ответить устно.</p>
+
+                <div class="section">
+                    <b>1. От чего зависит сила Архимеда?</b>
+                    <details><summary>Ответ</summary>От плотности жидкости, g и объёма погружённой части: F<sub>A</sub> = ρ<sub>ж</sub>gV<sub>погр</sub>.</details>
+                </div>
+
+                <div class="section">
+                    <b>2. Куда направлена сила сопротивления при движении вниз?</b>
+                    <details><summary>Ответ</summary>Вверх, против скорости.</details>
+                </div>
+
+                <div class="section">
+                    <b>3. Что означает «равномерно движется»?</b>
+                    <details><summary>Ответ</summary>Ускорение равно нулю, поэтому сумма сил равна нулю.</details>
+                </div>
+
+                <div class="section">
+                    <b>4. Через какую силу считается выделившаяся теплота?</b>
+                    <details><summary>Ответ</summary>Через силу сопротивления: Q = F<sub>сопр</sub>h.</details>
+                </div>
+
+                <div class="section">
+                    <b>5. Что делать, если в задаче дано время, но не дан путь?</b>
+                    <details><summary>Ответ</summary>Сначала найти путь через кинематику, затем использовать его в Q = F<sub>сопр</sub>h.</details>
+                </div>
+
+                <p class="footer-note">Мини-вывод: если эти 5 вопросов понятны, база темы собрана.</p>
+            </article>
+
+            <article class="card" data-card="practice">
+                <div class="card-number">13</div>
+                <h2>Опорные формулы и самопроверка</h2>
+                <p>
+                    Сначала вспомните формулу сами. Затем нажмите на скрытый ответ или кнопку ниже.
+                </p>
+
+                <div class="reveal-grid">
+                    <div class="reveal-item">
+                        <b>Сила Архимеда:</b>
+                        <span class="answer">F<sub>A</sub> = ρ<sub>ж</sub>gV<sub>погр</sub></span>
+                    </div>
+
+                    <div class="reveal-item">
+                        <b>Сила тяжести через плотность:</b>
+                        <span class="answer">F<sub>тяж</sub> = ρ<sub>т</sub>Vg</span>
+                    </div>
+
+                    <div class="reveal-item">
+                        <b>Теплота при сопротивлении:</b>
+                        <span class="answer">Q = F<sub>сопр</sub>h</span>
+                    </div>
+
+                    <div class="reveal-item">
+                        <b>Равномерно вниз:</b>
+                        <span class="answer">F<sub>сопр</sub> = gV(ρ<sub>т</sub> − ρ<sub>в</sub>)</span>
+                    </div>
+
+                    <div class="reveal-item">
+                        <b>Равномерно вверх:</b>
+                        <span class="answer">F<sub>сопр</sub> = gV(ρ<sub>в</sub> − ρ<sub>т</sub>)</span>
+                    </div>
+
+                    <div class="reveal-item">
+                        <b>Вниз с ускорением:</b>
+                        <span class="answer">F<sub>сопр</sub> = V[g(ρ<sub>т</sub> − ρ<sub>в</sub>) − ρ<sub>т</sub>a]</span>
+                    </div>
+                </div>
+
+                <button type="button" class="small-btn" id="toggleAnswers">Показать / скрыть ответы</button>
+
+                <div class="quiz-block" data-quiz>
+                    <h3>1. Шарик равномерно тонет. Куда направлена сила сопротивления?</h3>
+                    <button type="button" class="choice" data-correct="false">Вниз</button>
+                    <button type="button" class="choice" data-correct="true">Вверх</button>
+                    <button type="button" class="choice" data-correct="false">В сторону движения</button>
+                    <div class="result" aria-live="polite">Комментарий появится после выбора.</div>
+                </div>
+
+                <div class="quiz-block" data-quiz>
+                    <h3>2. Какая плотность входит в формулу силы Архимеда?</h3>
+                    <button type="button" class="choice" data-correct="false">Плотность тела</button>
+                    <button type="button" class="choice" data-correct="true">Плотность жидкости</button>
+                    <button type="button" class="choice" data-correct="false">Средняя плотность тела и жидкости</button>
+                    <div class="result" aria-live="polite">Комментарий появится после выбора.</div>
+                </div>
+
+                <div class="quiz-block" data-quiz>
+                    <h3>3. Что верно при равномерном движении?</h3>
+                    <button type="button" class="choice" data-correct="true">Ускорение равно нулю</button>
+                    <button type="button" class="choice" data-correct="false">Сила Архимеда исчезает</button>
+                    <button type="button" class="choice" data-correct="false">Сопротивления нет</button>
+                    <div class="result" aria-live="polite">Комментарий появится после выбора.</div>
+                </div>
+
+                <div class="quiz-block" data-quiz>
+                    <h3>4. Малый объём в ответе для маленького шарика — это всегда ошибка?</h3>
+                    <button type="button" class="choice" data-correct="false">Да, объём обязан быть большим</button>
+                    <button type="button" class="choice" data-correct="true">Нет, маленький объём может быть физически нормальным</button>
+                    <button type="button" class="choice" data-correct="false">Да, если шарик движется в воде</button>
+                    <div class="result" aria-live="polite">Комментарий появится после выбора.</div>
+                </div>
+
+                <div id="stamps" aria-live="polite"></div>
+
+                <p class="footer-note">Лёвин Артём Александрович эксклюзивно для Игоря Федорова</p>
+            </article>
+
+        </section>
+    </main>
+
+    <div class="controls" aria-label="Навигация по карточкам">
+        <button type="button" id="prevBtn">← Назад</button>
+        <button type="button" id="nextBtn">Вперёд →</button>
+    </div>
+
+    <footer class="bottom-sign">
+        Лёвин Артём Александрович эксклюзивно для Игоря Федорова
+    </footer>
+</div>
+
+<script>
+    (function () {
+        "use strict";
+
+        const cards = Array.from(document.querySelectorAll(".card"));
+        const dotsWrap = document.getElementById("dots");
+        const progressFill = document.getElementById("progressFill");
+        const counterLeft = document.getElementById("counterLeft");
+        const counterRight = document.getElementById("counterRight");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const deckWrap = document.getElementById("deckWrap");
+        const printBtn = document.getElementById("printBtn");
+        const modeButtons = Array.from(document.querySelectorAll(".modebar button[data-jump]"));
+
+        let current = 0;
+        let startX = 0;
+        let startY = 0;
+        let dragging = false;
+        let pointerId = null;
+        let lastDx = 0;
+        let openedBeforePrint = [];
+
+        cards.forEach((_, index) => {
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.className = "dot";
+            dot.setAttribute("aria-label", "Перейти к карточке " + (index + 1));
+            dot.addEventListener("click", () => goTo(index));
+            dotsWrap.appendChild(dot);
+        });
+
+        const dots = Array.from(document.querySelectorAll(".dot"));
+
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
+        function clearDragTransform() {
+            const active = cards[current];
+            if (active) {
+                active.style.transform = "";
+                active.style.transition = "";
+            }
+        }
+
+        function updateCards() {
+            cards.forEach((card, index) => {
+                card.classList.remove("active", "prev", "next", "hidden-left", "hidden-right");
+                card.style.transform = "";
+                card.style.transition = "";
+
+                if (index === current) {
+                    card.classList.add("active");
+                } else if (index === current - 1) {
+                    card.classList.add("prev");
+                } else if (index === current + 1) {
+                    card.classList.add("next");
+                } else if (index < current) {
+                    card.classList.add("hidden-left");
+                } else {
+                    card.classList.add("hidden-right");
+                }
+            });
+
+            dots.forEach((dot, index) => dot.classList.toggle("active", index === current));
+
+            const progress = ((current + 1) / cards.length) * 100;
+            progressFill.style.width = progress + "%";
+            counterLeft.textContent = (current + 1) + " / " + cards.length;
+            counterRight.textContent = current < 8 ? "памятка" : "практика";
+
+            modeButtons.forEach((btn) => {
+                const target = Number(btn.dataset.jump);
+                const isMemo = target === 0 && current < 8;
+                const isPractice = target === 8 && current >= 8;
+                btn.classList.toggle("active-mode", isMemo || isPractice);
+            });
+
+            prevBtn.disabled = current === 0;
+            nextBtn.disabled = current === cards.length - 1;
+            prevBtn.setAttribute("aria-disabled", String(current === 0));
+            nextBtn.setAttribute("aria-disabled", String(current === cards.length - 1));
+        }
+
+        function goTo(index) {
+            current = clamp(index, 0, cards.length - 1);
+            updateCards();
+        }
+
+        function next() {
+            goTo(current + 1);
+        }
+
+        function prev() {
+            goTo(current - 1);
+        }
+
+        function isInteractiveTarget(target) {
+            return Boolean(
+                target.closest("button, select, option, summary, details, input, textarea, label, a")
+            );
+        }
+
+        prevBtn.addEventListener("click", prev);
+        nextBtn.addEventListener("click", next);
+
+        modeButtons.forEach((button) => {
+            button.addEventListener("click", () => goTo(Number(button.dataset.jump)));
+        });
+
+        printBtn.addEventListener("click", () => window.print());
+
+        document.addEventListener("keydown", (event) => {
+            const tag = document.activeElement ? document.activeElement.tagName.toLowerCase() : "";
+            const isTyping = tag === "input" || tag === "textarea" || tag === "select";
+
+            if (isTyping) return;
+
+            if (event.key === "ArrowRight") {
+                event.preventDefault();
+                next();
+            }
+
+            if (event.key === "ArrowLeft") {
+                event.preventDefault();
+                prev();
+            }
+
+            if (event.key === "Home") {
+                event.preventDefault();
+                goTo(0);
+            }
+
+            if (event.key === "End") {
+                event.preventDefault();
+                goTo(cards.length - 1);
+            }
+        });
+
+        deckWrap.addEventListener("pointerdown", (event) => {
+            if (isInteractiveTarget(event.target)) return;
+            dragging = true;
+            pointerId = event.pointerId;
+            startX = event.clientX;
+            startY = event.clientY;
+            lastDx = 0;
+            deckWrap.setPointerCapture(pointerId);
+
+            const active = cards[current];
+            if (active) {
+                active.style.transition = "none";
+            }
+        });
+
+        deckWrap.addEventListener("pointermove", (event) => {
+            if (!dragging || event.pointerId !== pointerId) return;
+
+            const dx = event.clientX - startX;
+            const dy = event.clientY - startY;
+
+            if (Math.abs(dx) > Math.abs(dy)) {
+                lastDx = dx;
+                const limited = clamp(dx, -130, 130);
+                const active = cards[current];
+
+                if (active) {
+                    active.style.transform = "translateX(" + limited + "px) scale(1) rotate(" + (limited / 35) + "deg)";
+                }
+            }
+        });
+
+        deckWrap.addEventListener("pointerup", (event) => {
+            if (!dragging || event.pointerId !== pointerId) return;
+
+            const dx = event.clientX - startX;
+            const dy = event.clientY - startY;
+
+            dragging = false;
+            pointerId = null;
+
+            clearDragTransform();
+
+            if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+                if (dx < 0) next();
+                else prev();
+            } else {
+                updateCards();
+            }
+        });
+
+        deckWrap.addEventListener("pointercancel", () => {
+            dragging = false;
+            pointerId = null;
+            lastDx = 0;
+            clearDragTransform();
+            updateCards();
+        });
+
+        const checkTrainer = document.getElementById("checkTrainer");
+        const trainerResult = document.getElementById("trainerResult");
+
+        checkTrainer.addEventListener("click", () => {
+            const rows = Array.from(document.querySelectorAll(".trainer-row"));
+            let correctCount = 0;
+
+            rows.forEach((row) => {
+                const select = row.querySelector("select");
+                row.classList.remove("correct", "wrong");
+
+                if (select.value === row.dataset.answer) {
+                    row.classList.add("correct");
+                    correctCount++;
+                } else {
+                    row.classList.add("wrong");
+                }
+            });
+
+            if (correctCount === rows.length) {
+                trainerResult.textContent = "Верно: Вы различаете равномерное движение, всплывание и движение с ускорением.";
+                trainerResult.classList.remove("wrong");
+                trainerResult.classList.add("correct");
+            } else {
+                trainerResult.textContent = "Есть ошибка: проверьте стрелки. Сопротивление всегда против скорости, а при ускорении появляется член ma.";
+                trainerResult.classList.remove("correct");
+                trainerResult.classList.add("wrong");
+            }
+        });
+
+        const answers = Array.from(document.querySelectorAll(".answer"));
+        const toggleAnswers = document.getElementById("toggleAnswers");
+
+        answers.forEach((answer) => {
+            answer.setAttribute("tabindex", "0");
+            answer.setAttribute("role", "button");
+            answer.setAttribute("aria-label", "Показать или скрыть ответ");
+            answer.addEventListener("click", () => answer.classList.toggle("show"));
+            answer.addEventListener("keydown", (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    answer.classList.toggle("show");
+                }
+            });
+        });
+
+        toggleAnswers.addEventListener("click", () => {
+            const shouldShow = answers.some((answer) => !answer.classList.contains("show"));
+            answers.forEach((answer) => answer.classList.toggle("show", shouldShow));
+        });
+
+        const stampTexts = ["Понято", "Без ловушки", "Проверено", "ОГЭ-логика", "Аккуратно"];
+        const stamps = document.getElementById("stamps");
+        let stampIndex = 0;
+
+        document.querySelectorAll("[data-quiz]").forEach((block) => {
+            const choices = Array.from(block.querySelectorAll(".choice"));
+            const result = block.querySelector(".result");
+            let answered = false;
+
+            choices.forEach((choice) => {
+                choice.addEventListener("click", () => {
+                    if (answered) return;
+                    answered = true;
+
+                    choices.forEach((btn) => {
+                        const isCorrect = btn.dataset.correct === "true";
+                        btn.classList.toggle("correct", isCorrect);
+                        btn.disabled = true;
+                    });
+
+                    if (choice.dataset.correct === "true") {
+                        choice.classList.add("correct");
+                        result.textContent = "Верно. Вы отследили физический смысл, а не просто похожую формулу.";
+                        result.classList.remove("wrong");
+                        result.classList.add("correct");
+
+                        const stamp = document.createElement("span");
+                        stamp.className = "stamp";
+                        stamp.textContent = stampTexts[stampIndex % stampTexts.length];
+                        stampIndex++;
+                        stamps.appendChild(stamp);
+                    } else {
+                        choice.classList.add("wrong");
+                        result.textContent = "Есть ловушка. Верный ответ подсвечен зелёным: проверьте направление силы или смысл величины.";
+                        result.classList.remove("correct");
+                        result.classList.add("wrong");
+                    }
+                });
+            });
+        });
+
+        window.addEventListener("beforeprint", () => {
+            openedBeforePrint = [];
+            document.querySelectorAll("details").forEach((details) => {
+                openedBeforePrint.push(details.open);
+                details.open = true;
+            });
+            answers.forEach((answer) => answer.classList.add("show"));
+        });
+
+        window.addEventListener("afterprint", () => {
+            document.querySelectorAll("details").forEach((details, index) => {
+                details.open = Boolean(openedBeforePrint[index]);
+            });
+        });
+
+        updateCards();
+    })();
+</script>
+</body>
+</html>
