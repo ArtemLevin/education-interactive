@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Текстовые задачи и графики ЕГЭ — интерактивные карточки</title>
+    <style>
+        :root {
+            --paper: #f5eddc;
+            --paper-2: #fff8e9;
+            --ink: #2f2a27;
+            --muted: #6f625b;
+            --red: #8a3434;
+            --red-2: #b75a4a;
+            --blue: #3d6f7d;
+            --green: #4f7a55;
+            --line: rgba(47, 42, 39, 0.28);
+            --shadow: rgba(47, 42, 39, 0.18);
+            --soft: #eadcc4;
+            --yellow: #f5d87a;
+            --white: #fffdf5;
+            --bad: #ffe2dc;
+            --good: #e4f2df;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+            radial-gradient(circle at 12% 18%, rgba(138, 52, 52, 0.08) 0 2px, transparent 3px),
+            radial-gradient(circle at 82% 22%, rgba(61, 111, 125, 0.08) 0 2px, transparent 3px),
+            linear-gradient(115deg, rgba(255,255,255,0.36), transparent 34%),
+            repeating-linear-gradient(0deg, rgba(47,42,39,0.022) 0 1px, transparent 1px 28px),
+            var(--paper);
+            overflow-x: hidden;
+        }
+
+        button,
+        select,
+        input,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        button:focus-visible,
+        select:focus-visible,
+        summary:focus-visible {
+            outline: 3px solid var(--blue);
+            outline-offset: 3px;
+        }
+
+        .app {
+            width: min(1180px, 100%);
+            margin: 0 auto;
+            padding: 18px clamp(12px, 3vw, 28px) 32px;
+        }
+
+        .top {
+            position: relative;
+            padding: clamp(18px, 4vw, 34px);
+            border: 2px solid var(--ink);
+            border-radius: 28px 18px 32px 20px;
+            background: var(--paper-2);
+            box-shadow: 8px 8px 0 var(--shadow);
+            overflow: hidden;
+        }
+
+        .top::before {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border: 1px dashed rgba(47, 42, 39, 0.28);
+            border-radius: 24px 16px 28px 18px;
+            pointer-events: none;
+        }
+
+        .top::after {
+            content: "ЕГЭ";
+            position: absolute;
+            right: 26px;
+            top: 20px;
+            transform: rotate(8deg);
+            padding: 8px 13px;
+            color: var(--red);
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            border: 2px dashed var(--red);
+            border-radius: 50%;
+            opacity: 0.82;
+        }
+
+        .eyebrow {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 12px;
+            color: var(--muted);
+            font-size: 0.98rem;
+            font-weight: 700;
+        }
+
+        .pupil {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 11px;
+            border: 1.7px dashed var(--line);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.45);
+        }
+
+        h1 {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0;
+            font-size: clamp(2rem, 6vw, 4.35rem);
+            line-height: 0.98;
+            letter-spacing: -0.055em;
+        }
+
+        .subtitle {
+            position: relative;
+            z-index: 1;
+            max-width: 820px;
+            margin: 16px 0 0;
+            color: var(--muted);
+            font-size: clamp(1rem, 2vw, 1.22rem);
+            line-height: 1.48;
+        }
+
+        .doodle-row {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .doodle-chip {
+            padding: 8px 12px;
+            border: 2px solid var(--ink);
+            border-radius: 13px 19px 12px 17px;
+            background: #fff7df;
+            box-shadow: 3px 3px 0 rgba(47,42,39,0.12);
+            font-weight: 800;
+            color: var(--red);
+        }
+
+        .modebar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 18px 0;
+            padding: 12px;
+            border: 2px solid var(--ink);
+            border-radius: 20px 14px 22px 16px;
+            background: rgba(255, 248, 233, 0.94);
+            backdrop-filter: blur(6px);
+            box-shadow: 5px 5px 0 var(--shadow);
+        }
+
+        .modebar button,
+        .controls button,
+        .mini-btn {
+            min-height: 42px;
+            padding: 10px 15px;
+            border: 2px solid var(--ink);
+            border-radius: 14px 18px 13px 20px;
+            color: var(--ink);
+            background: var(--white);
+            box-shadow: 3px 3px 0 rgba(47,42,39,0.18);
+            font-weight: 900;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+
+        .modebar button:hover,
+        .controls button:hover,
+        .mini-btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 5px 5px 0 rgba(47,42,39,0.17);
+        }
+
+        .modebar button.active-mode {
+            background: var(--yellow);
+            color: var(--ink);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 14px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .controls button:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress {
+            min-width: 0;
+        }
+
+        .progress-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 8px;
+            color: var(--muted);
+            font-weight: 900;
+        }
+
+        .bar {
+            height: 15px;
+            padding: 3px;
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.52);
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: 999px;
+            background: repeating-linear-gradient(
+            45deg,
+            var(--red),
+            var(--red) 8px,
+            var(--red-2) 8px,
+            var(--red-2) 16px
+            );
+            transition: width 0.25s ease;
+        }
+
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin: 12px 0 4px;
+        }
+
+        .dot {
+            width: 15px;
+            height: 15px;
+            padding: 0;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            background: var(--paper-2);
+            box-shadow: 1px 1px 0 var(--shadow);
+        }
+
+        .dot.active {
+            background: var(--red);
+        }
+
+        .swipe-hint {
+            text-align: center;
+            margin: 10px 0;
+            color: var(--muted);
+            font-size: 0.95rem;
+            font-weight: 800;
+        }
+
+        .deck-wrap {
+            position: relative;
+            min-height: 700px;
+            transition: height 0.24s ease;
+        }
+
+        .deck {
+            position: relative;
+            min-height: 700px;
+            perspective: 1200px;
+            touch-action: pan-y;
+            transition: height 0.24s ease;
+        }
+
+        .card {
+            position: absolute;
+            inset: 0;
+            width: min(980px, 100%);
+            min-height: 670px;
+            margin: 0 auto;
+            padding: clamp(18px, 4vw, 34px);
+            border: 2.4px solid var(--ink);
+            border-radius: 30px 22px 34px 24px;
+            background:
+            linear-gradient(rgba(255,255,255,0.34), rgba(255,255,255,0.12)),
+            repeating-linear-gradient(0deg, transparent 0 31px, rgba(47,42,39,0.055) 32px 33px),
+            var(--paper-2);
+            box-shadow: 10px 10px 0 var(--shadow);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(120%) rotate(4deg) scale(0.96);
+            transition: transform 0.32s ease, opacity 0.32s ease;
+            overflow: visible;
+            will-change: transform;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 13px;
+            border: 1.6px dashed rgba(47, 42, 39, 0.22);
+            border-radius: 25px 18px 29px 20px;
+            pointer-events: none;
+        }
+
+        .card::after {
+            content: "";
+            position: absolute;
+            right: -42px;
+            bottom: -32px;
+            width: 160px;
+            height: 90px;
+            border: 2px dashed rgba(138,52,52,0.28);
+            border-radius: 50%;
+            transform: rotate(-18deg);
+            pointer-events: none;
+        }
+
+        .card.active {
+            opacity: 1;
+            transform: translateX(0) rotate(0) scale(1);
+            pointer-events: auto;
+            z-index: 5;
+        }
+
+        .card.prev {
+            opacity: 0.34;
+            transform: translateX(-78%) rotate(-5deg) scale(0.92);
+            z-index: 2;
+        }
+
+        .card.next {
+            opacity: 0.34;
+            transform: translateX(78%) rotate(5deg) scale(0.92);
+            z-index: 2;
+        }
+
+        .card.hidden-left {
+            opacity: 0;
+            transform: translateX(-130%) rotate(-7deg) scale(0.9);
+        }
+
+        .card.hidden-right {
+            opacity: 0;
+            transform: translateX(130%) rotate(7deg) scale(0.9);
+        }
+
+        .card-head {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            border-bottom: 2px dashed rgba(47,42,39,0.22);
+            padding-bottom: 14px;
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: clamp(1.55rem, 4vw, 2.8rem);
+            line-height: 1.05;
+            letter-spacing: -0.035em;
+        }
+
+        .badge {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 48px;
+            min-height: 48px;
+            padding: 7px 11px;
+            border: 2px solid var(--ink);
+            border-radius: 50% 44% 56% 48%;
+            background: var(--yellow);
+            color: var(--red);
+            font-weight: 950;
+            box-shadow: 3px 3px 0 var(--shadow);
+        }
+
+        .card-body {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            gap: 16px;
+            font-size: clamp(1rem, 1.5vw, 1.12rem);
+            line-height: 1.5;
+        }
+
+        .section {
+            padding: 14px 15px;
+            border: 1.7px dashed var(--line);
+            border-radius: 19px 13px 20px 15px;
+            background: rgba(255,255,255,0.42);
+        }
+
+        .section strong {
+            color: var(--red);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .formula {
+            max-width: 100%;
+            overflow-x: auto;
+            padding: 12px 14px;
+            border: 2px solid var(--ink);
+            border-radius: 14px 19px 13px 16px;
+            background: #fffef7;
+            box-shadow: 3px 3px 0 rgba(47,42,39,0.1);
+            font-family: "Courier New", monospace;
+            font-size: 1.02em;
+            white-space: nowrap;
+        }
+
+        .mini-note {
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .sticky {
+            position: relative;
+            padding: 12px 13px;
+            border: 2px solid var(--ink);
+            border-radius: 18px 13px 18px 13px;
+            background: #fff2c2;
+            box-shadow: 4px 4px 0 rgba(47,42,39,0.13);
+            font-weight: 900;
+        }
+
+        .sticky::before {
+            content: "";
+            position: absolute;
+            top: -8px;
+            left: 22px;
+            width: 38px;
+            height: 14px;
+            border: 1px solid rgba(47,42,39,0.15);
+            background: rgba(255,255,255,0.42);
+            transform: rotate(-4deg);
+        }
+
+        details {
+            border: 1.5px dashed rgba(47,42,39,0.24);
+            border-radius: 14px;
+            padding: 9px 12px;
+            background: rgba(255,255,255,0.35);
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 900;
+            color: var(--red);
+        }
+
+        ul, ol {
+            margin-top: 0.45em;
+            margin-bottom: 0.45em;
+            padding-left: 1.25em;
+        }
+
+        li + li {
+            margin-top: 0.35em;
+        }
+
+        .mini-conclusion {
+            margin-top: 2px;
+            padding: 12px 14px;
+            border-left: 6px solid var(--red);
+            border-radius: 10px 16px 12px 10px;
+            background: rgba(138, 52, 52, 0.08);
+            font-weight: 900;
+        }
+
+        .trap-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .trap {
+            min-height: 88px;
+            padding: 14px;
+            border: 2px solid var(--ink);
+            border-radius: 18px 12px 20px 14px;
+            background: #fff9dc;
+            box-shadow: 4px 4px 0 rgba(47,42,39,0.12);
+        transform: rotate(var(--r, 0deg));
+            font-weight: 750;
+        }
+
+        .trap:nth-child(2n) {
+            --r: 1deg;
+        }
+
+        .trap:nth-child(2n+1) {
+            --r: -1deg;
+        }
+
+        .result {
+            display: none;
+            margin-top: 12px;
+            padding: 12px 14px;
+            border: 2px solid var(--ink);
+            border-radius: 15px;
+            background: var(--white);
+            font-weight: 800;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .answer {
+            filter: blur(4px);
+            user-select: none;
+            transition: filter 0.18s ease;
+        }
+
+        .answer.revealed {
+            filter: none;
+            user-select: auto;
+        }
+
+        .choice {
+            display: block;
+            width: 100%;
+            margin: 8px 0;
+            padding: 11px 12px;
+            text-align: left;
+            border: 2px solid var(--ink);
+            border-radius: 14px 18px 14px 18px;
+            background: #fffef7;
+            box-shadow: 2px 2px 0 rgba(47,42,39,0.11);
+            color: var(--ink);
+        }
+
+        .choice.correct {
+            background: var(--good);
+            border-color: var(--green);
+        }
+
+        .choice.wrong {
+            background: var(--bad);
+            border-color: var(--red);
+        }
+
+        .correct {
+            background: var(--good) !important;
+            border-color: var(--green) !important;
+        }
+
+        .wrong {
+            background: var(--bad) !important;
+            border-color: var(--red) !important;
+        }
+
+        .stamp {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 8px 6px 0 0;
+            padding: 8px 12px;
+            border: 2px solid var(--red);
+            border-radius: 50%;
+            color: var(--red);
+            background: rgba(255,255,255,0.58);
+            font-weight: 950;
+            transform: rotate(-7deg);
+            opacity: 0;
+            scale: 0.72;
+            transition: opacity 0.2s ease, scale 0.2s ease;
+        }
+
+        .stamp.show {
+            opacity: 1;
+            scale: 1;
+        }
+
+        .task-card {
+            padding: 12px;
+            border: 1.6px dashed var(--line);
+            border-radius: 15px;
+            background: rgba(255,255,255,0.38);
+        }
+
+        .trainer-row {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 10px;
+            align-items: center;
+            padding: 9px 0;
+            border-bottom: 1px dashed rgba(47,42,39,0.18);
+        }
+
+        .trainer-row:last-of-type {
+            border-bottom: 0;
+        }
+
+        .trainer-row select {
+            width: 100%;
+            min-height: 40px;
+            padding: 8px;
+            border: 2px solid var(--ink);
+            border-radius: 12px;
+            background: var(--white);
+            color: var(--ink);
+        }
+
+        .reveal-line {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed rgba(47,42,39,0.18);
+        }
+
+        .reveal-line:last-of-type {
+            border-bottom: 0;
+        }
+
+        .pill {
+            display: inline-flex;
+            padding: 5px 9px;
+            border: 1.5px solid var(--ink);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.5);
+            font-weight: 900;
+        }
+
+        .footer-sign {
+            width: min(980px, 100%);
+            margin: 24px auto 0;
+            padding: 16px;
+            color: var(--muted);
+            text-align: center;
+            font-weight: 800;
+            border-top: 2px dashed rgba(47,42,39,0.22);
+        }
+
+        .visually-muted {
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        @media (max-width: 760px) {
+            .app {
+                padding-inline: 10px;
+            }
+
+            .top::after {
+                display: none;
+            }
+
+            .controls {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .controls .progress {
+                grid-column: 1 / -1;
+                order: -1;
+            }
+
+            .card {
+                min-height: 720px;
+                padding: 18px 14px;
+            }
+
+            .grid-2,
+            .grid-3,
+            .trap-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .trainer-row {
+                grid-template-columns: 1fr;
+            }
+
+            .card.prev,
+            .card.next {
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .modebar {
+                position: static;
+            }
+
+            .modebar button,
+            .controls button,
+            .mini-btn {
+                width: 100%;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                min-height: 840px;
+            }
+
+            .reveal-line {
+                align-items: stretch;
+                flex-direction: column;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            .card,
+            .bar-fill,
+            .stamp,
+            .modebar button,
+            .controls button,
+            .mini-btn {
+                transition: none;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+
+            .app {
+                width: 100%;
+                padding: 0;
+            }
+
+            .modebar,
+            .controls,
+            .dots,
+            .swipe-hint,
+            .mini-btn,
+            button {
+                display: none !important;
+            }
+
+            .top {
+                box-shadow: none;
+                border: 1px solid #333;
+                page-break-after: avoid;
+            }
+
+            .top::after {
+                color: #333;
+                border-color: #333;
+            }
+
+            .deck-wrap,
+            .deck {
+                height: auto !important;
+                min-height: 0;
+            }
+
+            .card,
+            .card.active,
+            .card.next,
+            .card.prev,
+            .card.hidden-left,
+            .card.hidden-right {
+                position: relative;
+                inset: auto;
+                width: 100%;
+                min-height: 0;
+                margin: 18px 0;
+                opacity: 1;
+                transform: none !important;
+                pointer-events: auto;
+                box-shadow: none;
+                page-break-inside: avoid;
+                break-inside: avoid;
+                border: 1px solid #333;
+            }
+
+            .card::before,
+            .card::after,
+            .sticky::before {
+                display: none;
+            }
+
+            .answer {
+                filter: none;
+            }
+
+            details {
+                page-break-inside: avoid;
+            }
+
+            details:not([open]) > *:not(summary) {
+                display: block;
+            }
+
+            .result {
+                display: block;
+            }
+
+            .footer-sign {
+                border-top: 1px solid #333;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <header class="top" aria-label="Шапка пособия">
+        <div class="eyebrow">
+            <span class="pupil">Ученик: <strong>Тимофей Васильченко</strong></span>
+            <span class="pupil">Уровень: <strong>ЕГЭ</strong></span>
+            <span class="pupil">Формат: <strong>свайпающиеся карточки</strong></span>
+        </div>
+        <h1>Текстовые задачи и графики ЕГЭ</h1>
+        <p class="subtitle">
+            Растворы, движение, работа, производительность и графики через узловые точки: как быстро составлять таблицы, уравнения и не терять ответ.
+        </p>
+        <div class="doodle-row" aria-label="Ключевые идеи">
+            <span class="doodle-chip">таблица</span>
+            <span class="doodle-chip">уравнение</span>
+            <span class="doodle-chip">ОДЗ</span>
+            <span class="doodle-chip">проверка</span>
+        </div>
+    </header>
+
+    <nav class="modebar" aria-label="Режимы пособия">
+        <button type="button" class="active-mode" data-jump="0">Памятка</button>
+        <button type="button" data-jump="8">Тренировка</button>
+        <button type="button" id="printBtn">Печать</button>
+    </nav>
+
+    <div class="controls" aria-label="Навигация по карточкам">
+        <button type="button" id="prevBtn" aria-label="Предыдущая карточка">← назад</button>
+        <div class="progress">
+            <div class="progress-top">
+                <span id="counter">1 / 13</span>
+                <span id="modeLabel">Памятка</span>
+            </div>
+            <div class="bar" aria-hidden="true"><div class="bar-fill" id="barFill"></div></div>
+        </div>
+        <button type="button" id="nextBtn" aria-label="Следующая карточка">вперёд →</button>
+    </div>
+
+    <div class="dots" id="dots" aria-label="Точки прогресса"></div>
+    <p class="swipe-hint">Листайте карточки свайпом, кнопками, точками или клавишами ← →. Home — первая карточка, End — последняя.</p>
+
+    <main class="deck-wrap" id="deckWrap">
+        <section class="deck" id="deck" aria-live="polite" aria-label="Колода учебных карточек">
+            <article class="card active" data-mode="Памятка">
+                <div class="card-head">
+                    <div>
+                        <h2 class="card-title">Главная карта: как решать</h2>
+                        <p class="mini-note">В текстовых задачах главное — не угадывать уравнение, а построить модель.</p>
+                    </div>
+                    <span class="badge">1</span>
+                </div>
+                <div class="card-body">
+                    <div class="section">
+                        <strong>Главная идея:</strong> переводите текст в таблицу, а таблицу — в уравнение. Так меньше шансов перепутать величины.
+                    </div>
+                    <div class="grid-2">
+                        <div class="sticky">Растворы → масса, концентрация, масса вещества.</div>
+                        <div class="sticky">Движение → скорость, время, расстояние.</div>
+                        <div class="sticky">Работа → производительность, время, объём.</div>
+                        <div class="sticky">График → узловые точки и параметры.</div>
+                    </div>
+                    <div class="formula">текст → таблица → уравнение → ОДЗ → ответ</div>
+                    <details>
+                        <summary>Покажи алгоритм</summary>
+                        <ol>
+                            <li>Обозначьте неизвестную, лучше ту величину, которую спрашивают.</li>
+                            <li>Заполните таблицу по формулам.</li>
+                            <li>Составьте уравнение по смыслу: что равно чему.</li>
+                            <li>Решите и проверьте ограничения.</li>
+                            <li>Ответьте именно на вопрос задачи.</li>
+                        </ol>
+                    </details>
+                    <div class="mini-conclusion">Мини-вывод: таблица — это страховка от неверного уравнения.</div>
+                </div>
+            </article>
+
+            <article class="card next" data-mode="Памятка">
+                <div class="card-head">
+                    <div>
+                        <h2 class="card-title">Растворы и смеси</h2>
+                        <p class="mini-note">Складываем массы вещества, а не проценты.</p>
+                    </div>
+                    <span class="badge">2</span>
+                </div>
+                <div class="card-body">
+                    <div class="section">
+                        <strong>Главная идея:</strong> концентрация показывает долю вещества в растворе. Масса вещества равна массе раствора, умноженной на концентрацию.
+                    </div>
+                    <div class="formula">масса вещества = масса раствора · концентрация</div>
+                    <div class="formula">20% = 0,2; 45% = 0,45; 30% = 0,3</div>
+                    <div class="section">
+                        Если к смеси добавили чистую воду, масса раствора увеличилась, а масса кислоты не изменилась.
+                    </div>
+                    <details>
+                        <summary>Покажи объяснение</summary>
+                        <p>
+                            Для 20% и 45% растворов с массами x и y: 0,2x + 0,45y — масса кислоты. Если получили 36% раствор, то 0,2x + 0,45y = 0,36(x + y).
+                        </p>
+                    </details>
+                    <div class="mini-conclusion">Мини-вывод: проценты не складывают; складывают килограммы вещества.</div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-mode="Памятка">
+                <div class="card-head">
+                    <div>
+                        <h2 class="card-title">Пример на растворы</h2>
+                        <p class="mini-note">Типовая ошибка: поставить 0,36 вместо 0,3 после добавления воды.</p>
+                    </div>
+                    <span class="badge">3</span>
+                </div>
+                <div class="card-body">
+                    <div class="section">
+                        Смешали 20% и 45% растворы, получили 36% раствор. Затем добавили 10 кг воды и получили 30% раствор.
+                    </div>
+                    <div class="formula">0,2x + 0,45y = 0,36(x + y)</div>
+                    <div class="formula">0,2x + 0,45y = 0,3(x + y + 10)</div>
+                    <div class="section">
+                        Из равенства 0,36(x + y) = 0,3(x + y + 10) получаем x + y = 50. Тогда x = 18.
+                    </div>
+                    <details>
+                        <summary>Покажи алгоритм</summary>
+                        <ol>
+                            <li>Обозначьте массы исходных растворов: x и y.</li>
+                            <li>Запишите массу кислоты в исходной смеси.</li>
+                            <li>Отдельно учтите добавление воды.</li>
+                            <li>Решите систему и найдите именно массу 20% раствора.</li>
+                        </ol>
+                    </details>
+                    <div class="mini-conclusion">Мини-вывод: после добавления воды итоговая концентрация уже 30%, а не 36%.</div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-mode="Памятка">
+                <div class="card-head">
+                    <div>
+                        <h2 class="card-title">Движение</h2>
+                        <p class="mini-note">Две ситуации — две таблицы: встреча и движение после встречи.</p>
+                    </div>
+                    <span class="badge">4</span>
+                </div>
+                <div class="card-body">
+                    <div class="section">
+                        <strong>Главная идея:</strong> в задачах на движение используйте формулы S = vt и t = S / v.
+                    </div>
+                    <div class="formula">S = v · t; &nbsp; t = S / v; &nbsp; v = S / t</div>
+                    <div class="section">
+                        Если автомобиль догнал автобус в K, а потом вернулся в A, то автомобиль после встречи прошёл то же расстояние AK.
+                    </div>
+                    <div class="formula">до K: x / v = x / 85 + 1/2</div>
+                    <div class="formula">после K: x / 85 = (174 − x) / v</div>
+                    <details>
+                        <summary>Покажи объяснение</summary>
+                        <p>
+                            x — расстояние AK, v — скорость автобуса. Автобус до встречи ехал на 0,5 часа дольше. После встречи автомобиль возвращается из K в A, а автобус едет остаток 174 − x.
+                        </p>
+                    </details>
+                    <div class="mini-conclusion">Мини-вывод: обозначайте то, что спрашивают; здесь удобно взять AK = x.</div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-mode="Памятка">
+                <div class="card-head">
+                    <div>
+                        <h2 class="card-title">Работа и производительность</h2>
+                        <p class="mini-note">«Деталей в час» — это производительность.</p>
+                    </div>
+                    <span class="badge">5</span>
+                </div>
+                <div class="card-body">
+                    <div class="section">
+                        <strong>Главная идея:</strong> время работы равно объёму работы, делённому на производительность.
+                    </div>
+                    <div class="formula">A = p · t; &nbsp; t = A / p</div>
+                    <div class="section">
+                        Если второй мастер делает x деталей в час, а первый на 4 детали меньше, то производительность первого равна x − 4.
+                    </div>
+                    <div class="formula">260 / (x − 4) − 220 / x = 8 / 3</div>
+                    <div class="formula">2 ч 40 мин = 2 + 40/60 = 8/3 ч</div>
+                    <details>
+                        <summary>Покажи алгоритм</summary>
+                        <ol>
+                            <li>Обозначьте производительность того, кого спрашивают.</li>
+                            <li>Запишите производительность второго участника через x.</li>
+                            <li>Время считайте как объём / производительность.</li>
+                            <li>Большее время минус меньшее время равно разнице.</li>
+                        </ol>
+                    </details>
+                    <div class="mini-conclusion">Мини-вывод: минуты обязательно переводим в часы.</div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-mode="Памятка">
+                <div class="card-head">
+                    <div>
+                        <h2 class="card-title">Графики и узловые точки</h2>
+                        <p class="mini-note">Берите только точки с точными координатами.</p>
+                    </div>
+                    <span class="badge">6</span>
+                </div>
+                <div class="card-body">
+                    <div class="section">
+                        <strong>Главная идея:</strong> если функция задана с параметрами, подставьте координаты узловых точек в формулу.
+                    </div>
+                    <div class="formula">f(x) = log<sub>a</sub>(x + b)</div>
+                    <div class="formula">точка (−2; 0): &nbsp; 0 = log<sub>a</sub>(−2 + b) → b = 3</div>
+                    <div class="formula">точка (1; 4): &nbsp; 4 = log<sub>a</sub>4 → a<sup>4</sup> = 4 → a = √2</div>
+                    <div class="section">
+                        Основание логарифма должно быть положительным и не равным 1. Подлогарифмическое выражение должно быть положительным.
+                    </div>
+                    <details>
+                        <summary>Покажи объяснение</summary>
+                        <p>
+                            Для f(29): log<sub>√2</sub>32 = log<sub>2<sup>1/2</sup></sub>2<sup>5</sup> = 5 / (1/2) = 10.
+                        </p>
+                    </details>
+                    <div class="mini-conclusion">Мини-вывод: сначала параметры, потом значение функции.</div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-mode="Памятка">
+                <div class="card-head">
+                    <div>
+                        <h2 class="card-title">Разбор ошибок</h2>
+                        <p class="mini-note">Ваш ответ → ошибка → как думать правильно.</p>
+                    </div>
+                    <span class="badge">!</span>
+                </div>
+                <div class="card-body">
+                    <div class="section wrong">
+                        <strong>Неверный ход:</strong> после добавления 10 кг воды в уравнении оставить итоговую концентрацию 0,36.
+                    </div>
+                    <div class="section">
+                        <strong>Ошибка:</strong> 0,36 относится к смеси до добавления воды. После добавления воды по условию стала концентрация 0,30.
+                    </div>
+                    <div class="section correct">
+                        <strong>Правильно:</strong> 0,2x + 0,45y = 0,3(x + y + 10).
+                    </div>
+                    <div class="formula">вода: концентрация 0; масса раствора +10; масса кислоты не меняется</div>
+                    <details>
+                        <summary>Покажи правильный алгоритм</summary>
+                        <ol>
+                            <li>Отделите первую смесь от конечной смеси.</li>
+                            <li>Для каждой ситуации запишите свою концентрацию.</li>
+                            <li>Складывайте массы вещества, а не проценты.</li>
+                            <li>Перед решением системы ещё раз сверяйте числа из условия.</li>
+                        </ol>
+                    </details>
+                    <div class="mini-conclusion">Мини-вывод: проверяйте не только идею таблицы, но и каждое число в ней.</div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-mode="Памятка">
+                <div class="card-head">
+                    <div>
+                        <h2 class="card-title">Ловушки темы</h2>
+                        <p class="mini-note">Семь мест, где чаще всего теряются баллы.</p>
+                    </div>
+                    <span class="badge">7</span>
+                </div>
+                <div class="card-body">
+                    <div class="trap-grid">
+                        <div class="trap">В растворах нельзя складывать концентрации.</div>
+                        <div class="trap">После добавления воды меняется масса раствора, но не масса вещества.</div>
+                        <div class="trap">В движении встреча и обратный путь — разные этапы.</div>
+                        <div class="trap">Полчаса — это 1/2 часа, а не 0,3 часа.</div>
+                        <div class="trap">40 минут — это 2/3 часа, а не 0,4 часа.</div>
+                        <div class="trap">В дробных уравнениях обязательно проверяйте знаменатели.</div>
+                        <div class="trap">В логарифмах не забывайте: a &gt; 0, a ≠ 1, аргумент &gt; 0.</div>
+                    </div>
+                    <details>
+                        <summary>Покажи объяснение</summary>
+                        <p>
+                            Большинство ошибок возникает не в вычислениях, а при переводе текста в уравнение: неверный знак, не та величина, забытая вода, неправильная разница времени.
+                        </p>
+                    </details>
+                    <div class="mini-conclusion">Мини-вывод: перед решением спросите себя: «Что именно равно чему?»</div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-mode="Тренировка">
+                <div class="card-head">
+                    <div>
+                        <h2 class="card-title">Тренажёр: выберите модель</h2>
+                        <p class="mini-note">Соотнесите ситуацию и правильный способ записи.</p>
+                    </div>
+                    <span class="badge">8</span>
+                </div>
+                <div class="card-body">
+                    <div class="task-card trainer" id="trainer">
+                        <div class="trainer-row" data-answer="solution">
+                            <span>Смешали растворы разной концентрации.</span>
+                            <label>
+                                <span class="visually-muted">Модель:</span>
+                                <select>
+                                    <option value="">Выберите</option>
+                                    <option value="motion">S = vt</option>
+                                    <option value="work">t = A / p</option>
+                                    <option value="solution">m вещества = m раствора · p</option>
+                                    <option value="graph">подстановка узловых точек</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="trainer-row" data-answer="motion">
+                            <span>Автомобиль догоняет автобус, затем возвращается обратно.</span>
+                            <label>
+                                <span class="visually-muted">Модель:</span>
+                                <select>
+                                    <option value="">Выберите</option>
+                                    <option value="motion">S = vt</option>
+                                    <option value="work">t = A / p</option>
+                                    <option value="solution">m вещества = m раствора · p</option>
+                                    <option value="graph">подстановка узловых точек</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="trainer-row" data-answer="work">
+                            <span>Мастер делает детали с некоторой производительностью.</span>
+                            <label>
+                                <span class="visually-muted">Модель:</span>
+                                <select>
+                                    <option value="">Выберите</option>
+                                    <option value="motion">S = vt</option>
+                                    <option value="work">t = A / p</option>
+                                    <option value="solution">m вещества = m раствора · p</option>
+                                    <option value="graph">подстановка узловых точек</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="trainer-row" data-answer="graph">
+                            <span>На графике функции видны точки с точными координатами.</span>
+                            <label>
+                                <span class="visually-muted">Модель:</span>
+                                <select>
+                                    <option value="">Выберите</option>
+                                    <option value="motion">S = vt</option>
+                                    <option value="work">t = A / p</option>
+                                    <option value="solution">m вещества = m раствора · p</option>
+                                    <option value="graph">подстановка узловых точек</option>
+                                </select>
+                            </label>
+                        </div>
+                        <button type="button" class="mini-btn" id="checkTrainer">Проверить</button>
+                        <div class="result" id="trainerResult" role="status" aria-live="polite"></div>
+                    </div>
+                    <div class="stamp" id="trainerStamp" aria-hidden="true">ЕГЭ-логика</div>
+                    <details>
+                        <summary>Покажи подсказку</summary>
+                        <p>
+                            Ищите ключевые слова: раствор, скорость, деталей в час, график. Они почти сразу говорят, какую таблицу строить.
+                        </p>
+                    </details>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-mode="Тренировка">
+                <div class="card-head">
+                    <div>
+                        <h2 class="card-title">Повтори за 30 секунд</h2>
+                        <p class="mini-note">Пять быстрых вопросов по всей теме.</p>
+                    </div>
+                    <span class="badge">9</span>
+                </div>
+                <div class="card-body">
+                    <div class="section">
+                        <strong>1.</strong> Что можно складывать в задачах на растворы?
+                        <details><summary>Ответ</summary><p>Массы растворов и массы растворённого вещества. Концентрации напрямую складывать нельзя.</p></details>
+                    </div>
+                    <div class="section">
+                        <strong>2.</strong> Как перевести 2 часа 40 минут в часы?
+                        <details><summary>Ответ</summary><p>2 часа 40 минут = 2 + 40/60 = 2 + 2/3 = 8/3 часа.</p></details>
+                    </div>
+                    <div class="section">
+                        <strong>3.</strong> Какую переменную удобно брать в задаче на движение, если спрашивают AK?
+                        <details><summary>Ответ</summary><p>Удобно обозначить AK = x, то есть сразу то, что требуется найти.</p></details>
+                    </div>
+                    <div class="section">
+                        <strong>4.</strong> Что проверяем в логарифмической функции?
+                        <details><summary>Ответ</summary><p>Основание: a &gt; 0, a ≠ 1. Аргумент логарифма должен быть положительным.</p></details>
+                    </div>
+                    <div class="section">
+                        <strong>5.</strong> Почему нельзя брать любую точку с графика?
+                        <details><summary>Ответ</summary><p>Нужны узловые точки с точно читаемыми координатами, иначе параметры можно найти неверно.</p></details>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-mode="Памятка">
+                <div class="card-head">
+                    <div>
+                        <h2 class="card-title">Опорные формулы и правила</h2>
+                        <p class="mini-note">Нажмите, чтобы открыть скрытую часть.</p>
+                    </div>
+                    <span class="badge">10</span>
+                </div>
+                <div class="card-body">
+                    <div class="reveal-line">
+                        <span><span class="pill">Растворы</span> масса вещества =</span>
+                        <span class="answer">масса раствора · концентрация</span>
+                        <button type="button" class="mini-btn revealBtn">показать</button>
+                    </div>
+                    <div class="reveal-line">
+                        <span><span class="pill">Движение</span> время =</span>
+                        <span class="answer">расстояние / скорость</span>
+                        <button type="button" class="mini-btn revealBtn">показать</button>
+                    </div>
+                    <div class="reveal-line">
+                        <span><span class="pill">Работа</span> время =</span>
+                        <span class="answer">объём работы / производительность</span>
+                        <button type="button" class="mini-btn revealBtn">показать</button>
+                    </div>
+                    <div class="reveal-line">
+                        <span><span class="pill">Логарифм</span> ограничения:</span>
+                        <span class="answer">a &gt; 0, a ≠ 1, аргумент &gt; 0</span>
+                        <button type="button" class="mini-btn revealBtn">показать</button>
+                    </div>
+                    <div class="reveal-line">
+                        <span><span class="pill">Разница времени</span> если второй быстрее:</span>
+                        <span class="answer">время первого − время второго = положительная разница</span>
+                        <button type="button" class="mini-btn revealBtn">показать</button>
+                    </div>
+                    <div class="mini-conclusion">Мини-вывод: держите эти пять правил как чек-лист перед решением.</div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-mode="Тренировка">
+                <div class="card-head">
+                    <div>
+                        <h2 class="card-title">Мини-самопроверка</h2>
+                        <p class="mini-note">Выберите ответ: подсветка появится сразу.</p>
+                    </div>
+                    <span class="badge">11</span>
+                </div>
+                <div class="card-body">
+                    <div class="quiz" id="quiz">
+                        <div class="task-card quiz-item" data-correct="1" data-stamp="Понято">
+                            <strong>1. В раствор добавили чистую воду. Что произошло с массой кислоты?</strong>
+                            <button type="button" class="choice">увеличилась</button>
+                            <button type="button" class="choice">не изменилась</button>
+                            <button type="button" class="choice">стала равна нулю</button>
+                            <div class="result" role="status">Вода не содержит кислоты, поэтому масса кислоты не изменилась.</div>
+                        </div>
+
+                        <div class="task-card quiz-item" data-correct="2" data-stamp="Без ловушки">
+                            <strong>2. 40 минут — это сколько часов?</strong>
+                            <button type="button" class="choice">0,4</button>
+                            <button type="button" class="choice">4/10</button>
+                            <button type="button" class="choice">2/3</button>
+                            <div class="result" role="status">40 минут = 40/60 часа = 2/3 часа.</div>
+                        </div>
+
+                        <div class="task-card quiz-item" data-correct="0" data-stamp="Проверено">
+                            <strong>3. Если второй мастер делает x деталей в час, а первый на 4 меньше, то первый делает...</strong>
+                            <button type="button" class="choice">x − 4</button>
+                            <button type="button" class="choice">x + 4</button>
+                            <button type="button" class="choice">4 − x</button>
+                            <div class="result" role="status">«На 4 меньше» означает x − 4.</div>
+                        </div>
+
+                        <div class="task-card quiz-item" data-correct="1" data-stamp="ЕГЭ-логика">
+                            <strong>4. Для log<sub>a</sub>(x + b) основание a должно быть...</strong>
+                            <button type="button" class="choice">любым, кроме 0</button>
+                            <button type="button" class="choice">a &gt; 0 и a ≠ 1</button>
+                            <button type="button" class="choice">только a &gt; 1</button>
+                            <div class="result" role="status">Для логарифма основание должно быть положительным и не равным 1.</div>
+                        </div>
+
+                        <div class="task-card quiz-item" data-correct="2" data-stamp="Аккуратно">
+                            <strong>5. Что лучше сделать перед составлением уравнения?</strong>
+                            <button type="button" class="choice">сразу раскрывать скобки</button>
+                            <button type="button" class="choice">подбирать ответ</button>
+                            <button type="button" class="choice">заполнить таблицу величин</button>
+                            <div class="result" role="status">Таблица помогает не перепутать величины и составить уравнение по смыслу.</div>
+                        </div>
+                    </div>
+                    <div id="stampsArea" aria-live="polite"></div>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-mode="Памятка">
+                <div class="card-head">
+                    <div>
+                        <h2 class="card-title">Финальная памятка</h2>
+                        <p class="mini-note">Что делать на реальной задаче.</p>
+                    </div>
+                    <span class="badge">12</span>
+                </div>
+                <div class="card-body">
+                    <div class="grid-2">
+                        <div class="section">
+                            <strong>Растворы:</strong>
+                            <p>Пишите массу вещества через массу раствора и концентрацию.</p>
+                        </div>
+                        <div class="section">
+                            <strong>Движение:</strong>
+                            <p>Разделяйте этапы: до встречи, после встречи, обратный путь.</p>
+                        </div>
+                        <div class="section">
+                            <strong>Работа:</strong>
+                            <p>Производительность — это «за единицу времени».</p>
+                        </div>
+                        <div class="section">
+                            <strong>Графики:</strong>
+                            <p>Используйте только точки с точными координатами.</p>
+                        </div>
+                    </div>
+                    <div class="sticky">
+                        Последний вопрос перед ответом: «Я нашёл именно то, что спрашивают?»
+                    </div>
+                    <details>
+                        <summary>Покажи короткую схему решения</summary>
+                        <ol>
+                            <li>Обозначьте неизвестную.</li>
+                            <li>Постройте таблицу.</li>
+                            <li>Составьте уравнение.</li>
+                            <li>Проверьте ОДЗ и смысл.</li>
+                            <li>Запишите ответ с единицами измерения, если они есть.</li>
+                        </ol>
+                    </details>
+                    <div class="mini-conclusion">Мини-вывод: аккуратная модель экономит больше времени, чем быстрый старт без таблицы.</div>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <footer class="footer-sign">
+        Артём Александрович Лёвин эксклюзивно для Тимофея Васильченко
+    </footer>
+</div>
+
+<script>
+    (() => {
+        const cards = Array.from(document.querySelectorAll(".card"));
+        const deck = document.getElementById("deck");
+        const deckWrap = document.getElementById("deckWrap");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const counter = document.getElementById("counter");
+        const modeLabel = document.getElementById("modeLabel");
+        const barFill = document.getElementById("barFill");
+        const dotsBox = document.getElementById("dots");
+        const modeButtons = Array.from(document.querySelectorAll(".modebar button[data-jump]"));
+        const printBtn = document.getElementById("printBtn");
+
+        let current = 0;
+        let startX = 0;
+        let startY = 0;
+        let dragging = false;
+        let pointerId = null;
+
+        cards.forEach((_, index) => {
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.className = "dot";
+            dot.setAttribute("aria-label", "Перейти к карточке " + (index + 1));
+            dot.addEventListener("click", () => goTo(index));
+            dotsBox.appendChild(dot);
+        });
+
+        const dots = Array.from(document.querySelectorAll(".dot"));
+
+        function setDeckHeight() {
+            const activeCard = cards[current];
+            if (!activeCard) return;
+            const neededHeight = Math.max(700, activeCard.scrollHeight + 30);
+            deck.style.height = neededHeight + "px";
+            deckWrap.style.height = neededHeight + "px";
+        }
+
+        function updateCards() {
+            cards.forEach((card, index) => {
+                card.classList.remove("active", "prev", "next", "hidden-left", "hidden-right");
+                card.style.transform = "";
+
+                if (index === current) {
+                    card.classList.add("active");
+                } else if (index === current - 1) {
+                    card.classList.add("prev");
+                } else if (index === current + 1) {
+                    card.classList.add("next");
+                } else if (index < current) {
+                    card.classList.add("hidden-left");
+                } else {
+                    card.classList.add("hidden-right");
+                }
+            });
+
+            dots.forEach((dot, index) => dot.classList.toggle("active", index === current));
+
+            const progress = ((current + 1) / cards.length) * 100;
+            barFill.style.width = progress + "%";
+            counter.textContent = (current + 1) + " / " + cards.length;
+            modeLabel.textContent = cards[current].dataset.mode || "Памятка";
+
+            modeButtons.forEach(btn => {
+                const jump = Number(btn.dataset.jump);
+                const isMemo = btn.textContent.includes("Памятка") && current < 8;
+                const isTraining = btn.textContent.includes("Тренировка") && current >= 8 && current <= 10;
+                btn.classList.toggle("active-mode", jump === current || isMemo || isTraining);
+            });
+
+            prevBtn.disabled = current === 0;
+            nextBtn.disabled = current === cards.length - 1;
+
+            requestAnimationFrame(setDeckHeight);
+        }
+
+        function goTo(index) {
+            current = Math.max(0, Math.min(cards.length - 1, index));
+            updateCards();
+        }
+
+        function next() {
+            goTo(current + 1);
+        }
+
+        function prev() {
+            goTo(current - 1);
+        }
+
+        prevBtn.addEventListener("click", prev);
+        nextBtn.addEventListener("click", next);
+
+        modeButtons.forEach(btn => {
+            btn.addEventListener("click", () => goTo(Number(btn.dataset.jump)));
+        });
+
+        printBtn.addEventListener("click", () => window.print());
+
+        document.addEventListener("keydown", event => {
+            const activeElement = document.activeElement;
+            const isTyping = activeElement && activeElement.matches("input, textarea, select");
+            if (isTyping) return;
+
+            if (event.key === "ArrowRight") {
+                event.preventDefault();
+                next();
+            }
+
+            if (event.key === "ArrowLeft") {
+                event.preventDefault();
+                prev();
+            }
+
+            if (event.key === "Home") {
+                event.preventDefault();
+                goTo(0);
+            }
+
+            if (event.key === "End") {
+                event.preventDefault();
+                goTo(cards.length - 1);
+            }
+        });
+
+        function isInteractive(target) {
+            return Boolean(target.closest("button, select, input, textarea, summary, details, label, a"));
+        }
+
+        deck.addEventListener("pointerdown", event => {
+            if (isInteractive(event.target)) return;
+            dragging = true;
+            pointerId = event.pointerId;
+            startX = event.clientX;
+            startY = event.clientY;
+            deck.setPointerCapture(pointerId);
+        });
+
+        deck.addEventListener("pointermove", event => {
+            if (!dragging || event.pointerId !== pointerId) return;
+
+            const dx = event.clientX - startX;
+            const dy = event.clientY - startY;
+
+            if (Math.abs(dy) > Math.abs(dx) * 1.35) return;
+
+            const activeCard = cards[current];
+            if (!activeCard) return;
+
+            const limited = Math.max(-140, Math.min(140, dx));
+            activeCard.style.transform = "translateX(" + limited + "px) rotate(" + (limited / 38) + "deg) scale(1)";
+        });
+
+        deck.addEventListener("pointerup", event => {
+            if (!dragging || event.pointerId !== pointerId) return;
+
+            dragging = false;
+            const dx = event.clientX - startX;
+            const dy = event.clientY - startY;
+            const activeCard = cards[current];
+
+            if (activeCard) {
+                activeCard.style.transform = "";
+            }
+
+            if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+                if (dx < 0) next();
+                else prev();
+            } else {
+                updateCards();
+            }
+
+            pointerId = null;
+        });
+
+        deck.addEventListener("pointercancel", () => {
+            dragging = false;
+            pointerId = null;
+            if (cards[current]) {
+                cards[current].style.transform = "";
+            }
+            updateCards();
+        });
+
+        document.getElementById("checkTrainer").addEventListener("click", () => {
+            const rows = Array.from(document.querySelectorAll(".trainer-row"));
+            let score = 0;
+
+            rows.forEach(row => {
+                const select = row.querySelector("select");
+                const ok = select.value === row.dataset.answer;
+                row.classList.toggle("correct", ok);
+                row.classList.toggle("wrong", !ok);
+                if (ok) score++;
+            });
+
+            const result = document.getElementById("trainerResult");
+            result.classList.add("show");
+
+            if (score === rows.length) {
+                result.textContent = "Отлично: Вы правильно сопоставили тип задачи и математическую модель.";
+                document.getElementById("trainerStamp").classList.add("show");
+            } else {
+                result.textContent = "Верно " + score + " из " + rows.length + ". Подсказка: ищите слова «раствор», «скорость», «деталей в час», «график».";
+            }
+
+            setDeckHeight();
+        });
+
+        document.querySelectorAll(".revealBtn").forEach(button => {
+            button.addEventListener("click", () => {
+                const line = button.closest(".reveal-line");
+                const answer = line.querySelector(".answer");
+                const isRevealed = answer.classList.toggle("revealed");
+                button.textContent = isRevealed ? "скрыть" : "показать";
+                setDeckHeight();
+            });
+        });
+
+        const earnedStamps = new Set();
+
+        document.querySelectorAll(".quiz-item").forEach(item => {
+            const choices = Array.from(item.querySelectorAll(".choice"));
+            const correctIndex = Number(item.dataset.correct);
+            const result = item.querySelector(".result");
+
+            choices.forEach((choice, index) => {
+                choice.addEventListener("click", () => {
+                    choices.forEach((btn, btnIndex) => {
+                        btn.classList.remove("correct", "wrong");
+                        btn.setAttribute("aria-pressed", "false");
+                        if (btnIndex === correctIndex) btn.classList.add("correct");
+                    });
+
+                    choice.setAttribute("aria-pressed", "true");
+
+                    if (index !== correctIndex) {
+                        choice.classList.add("wrong");
+                    }
+
+                    result.classList.add("show");
+
+                    if (index === correctIndex && !earnedStamps.has(item.dataset.stamp)) {
+                        earnedStamps.add(item.dataset.stamp);
+                        const stamp = document.createElement("span");
+                        stamp.className = "stamp show";
+                        stamp.textContent = item.dataset.stamp;
+                        document.getElementById("stampsArea").appendChild(stamp);
+                    }
+
+                    setDeckHeight();
+                });
+            });
+        });
+
+        document.querySelectorAll("details").forEach(detail => {
+            detail.addEventListener("toggle", setDeckHeight);
+        });
+
+        window.addEventListener("resize", setDeckHeight);
+
+        updateCards();
+    })();
+</script>
+</body>
+</html>
