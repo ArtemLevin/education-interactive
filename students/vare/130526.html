@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Метод интервалов и кредитные таблицы — интерактивные карточки</title>
+    <style>
+        :root{
+            --paper:#f5ecd9;
+            --paper-2:#fff8ea;
+            --ink:#302b27;
+            --muted:#766b61;
+            --red:#8f2f3f;
+            --red-2:#b85b64;
+            --blue:#496f87;
+            --green:#53745a;
+            --line:#d9c9aa;
+            --shadow:0 18px 45px rgba(48,43,39,.18);
+            --soft:#efe2c8;
+            --yellow:#f3d881;
+            --card-w:min(900px, 94vw);
+            --radius:28px 22px 30px 20px;
+        }
+
+        *{box-sizing:border-box}
+
+        html,body{
+            margin:0;
+            min-height:100%;
+            color:var(--ink);
+            font-family:Arial, Helvetica, sans-serif;
+            background:
+            radial-gradient(circle at 20% 10%, rgba(143,47,63,.08) 0 2px, transparent 3px),
+            radial-gradient(circle at 80% 35%, rgba(73,111,135,.07) 0 2px, transparent 3px),
+            linear-gradient(90deg, rgba(217,201,170,.24) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(217,201,170,.20) 1px, transparent 1px),
+            var(--paper);
+            background-size:120px 120px, 150px 150px, 24px 24px, 24px 24px, auto;
+            overflow-x:hidden;
+        }
+
+        button, select, input, summary{font:inherit}
+        button{cursor:pointer}
+        button:focus-visible, select:focus-visible, summary:focus-visible{
+            outline:3px solid var(--blue);
+            outline-offset:3px;
+        }
+
+        .app{
+            width:100%;
+            max-width:1120px;
+            margin:0 auto;
+            padding:18px 14px 30px;
+        }
+
+        .top{
+            position:relative;
+            overflow:hidden;
+            border:2px dashed var(--red);
+            border-radius:32px 24px 34px 22px;
+            padding:22px 20px 18px;
+            background:
+            linear-gradient(135deg, rgba(255,248,234,.96), rgba(245,236,217,.92)),
+            repeating-linear-gradient(-2deg, transparent 0 13px, rgba(217,201,170,.25) 14px 15px);
+            box-shadow:var(--shadow);
+        }
+
+        .top::before{
+            content:"";
+            position:absolute;
+            right:22px;
+            top:18px;
+            width:108px;
+            height:64px;
+            border:2px solid var(--red);
+            border-radius:42% 58% 47% 53%;
+            transform:rotate(7deg);
+            opacity:.16;
+        }
+
+        .top::after{
+            content:"↗ проверьте ОДЗ и знаки";
+            position:absolute;
+            right:26px;
+            bottom:15px;
+            color:var(--red);
+            border-bottom:2px dashed var(--red-2);
+            transform:rotate(-3deg);
+            font-weight:700;
+            opacity:.72;
+        }
+
+        .eyebrow{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+            align-items:center;
+            margin-bottom:10px;
+            padding-right:130px;
+        }
+
+        .badge{
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            padding:6px 10px;
+            border:2px solid var(--ink);
+            border-radius:999px 860px 999px 820px;
+            background:var(--paper-2);
+            box-shadow:3px 4px 0 rgba(48,43,39,.12);
+            font-size:.9rem;
+            font-weight:700;
+        }
+
+        .badge.red{border-color:var(--red);color:var(--red)}
+        .badge.blue{border-color:var(--blue);color:var(--blue)}
+        .badge.green{border-color:var(--green);color:var(--green)}
+
+        h1{
+            margin:0;
+            max-width:850px;
+            font-size:clamp(2rem, 5vw, 4rem);
+            line-height:1.02;
+            letter-spacing:-.04em;
+            color:var(--red);
+        }
+
+        .subtitle{
+            max-width:790px;
+            margin:12px 0 0;
+            font-size:clamp(1rem, 2.2vw, 1.25rem);
+            color:var(--muted);
+            line-height:1.45;
+        }
+
+        .modebar{
+            display:flex;
+            justify-content:center;
+            gap:10px;
+            flex-wrap:wrap;
+            margin:18px 0 12px;
+        }
+
+        .modebar button,
+        .controls button,
+        .tool-btn{
+            border:2px solid var(--ink);
+            background:var(--paper-2);
+            color:var(--ink);
+            border-radius:16px 13px 17px 12px;
+            padding:10px 13px;
+            font-weight:800;
+            box-shadow:4px 5px 0 rgba(48,43,39,.13);
+            transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+            touch-action:manipulation;
+        }
+
+        .modebar button:hover,
+        .controls button:hover,
+        .tool-btn:hover{
+            transform:translateY(-2px) rotate(-1deg);
+            box-shadow:5px 7px 0 rgba(48,43,39,.14);
+            background:#fffaf1;
+        }
+
+        .modebar button.active-mode{
+            background:var(--yellow);
+            color:var(--ink);
+            border-color:var(--red);
+        }
+
+        .progress{
+            width:var(--card-w);
+            margin:12px auto 12px;
+        }
+
+        .progress-top{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+            margin-bottom:8px;
+            color:var(--muted);
+            font-weight:800;
+        }
+
+        .counter{
+            color:var(--red);
+            background:var(--paper-2);
+            border:2px dashed var(--red-2);
+            border-radius:999px;
+            padding:4px 10px;
+            white-space:nowrap;
+        }
+
+        .bar{
+            height:12px;
+            border:2px solid var(--ink);
+            background:var(--paper-2);
+            border-radius:999px;
+            overflow:hidden;
+            box-shadow:inset 0 2px 0 rgba(48,43,39,.08);
+        }
+
+        .bar-fill{
+            height:100%;
+            width:0;
+            background:repeating-linear-gradient(45deg, var(--red), var(--red) 8px, var(--red-2) 8px, var(--red-2) 16px);
+            transition:width .25s ease;
+        }
+
+        .dots{
+            display:flex;
+            justify-content:center;
+            gap:7px;
+            flex-wrap:wrap;
+            margin-top:10px;
+        }
+
+        .dot{
+            width:12px;
+            height:12px;
+            border:2px solid var(--ink);
+            border-radius:50%;
+            background:var(--paper-2);
+            padding:0;
+            box-shadow:none;
+            cursor:pointer;
+        }
+
+        .dot.active{background:var(--red);border-color:var(--red)}
+
+        .deck-wrap{
+            position:relative;
+            width:100%;
+            min-height:720px;
+            margin:0 auto;
+            touch-action:pan-y;
+        }
+
+        .deck{
+            position:relative;
+            width:var(--card-w);
+            min-height:700px;
+            margin:0 auto;
+            perspective:1200px;
+        }
+
+        .card{
+            position:absolute;
+            inset:0;
+            width:100%;
+            height:680px;
+            max-height:calc(100vh - 260px);
+            min-height:610px;
+            padding:26px;
+            border:2px solid var(--ink);
+            border-radius:var(--radius);
+            background:
+            linear-gradient(180deg, rgba(255,248,234,.98), rgba(250,240,219,.98)),
+            repeating-linear-gradient(0deg, transparent 0 31px, rgba(217,201,170,.35) 32px 33px);
+            box-shadow:var(--shadow), 5px 6px 0 rgba(143,47,63,.11);
+            opacity:0;
+            pointer-events:none;
+            transform:translateX(0) scale(.92) rotate(0deg);
+            transition:transform .36s ease, opacity .28s ease;
+            overflow-y:auto;
+            overflow-x:hidden;
+            scrollbar-width:thin;
+            scrollbar-color:var(--red-2) transparent;
+        }
+
+        .card.dragging{
+            transition:none;
+        }
+
+        .card::before{
+            content:"";
+            position:absolute;
+            left:24px;
+            right:24px;
+            top:72px;
+            border-top:2px dashed rgba(143,47,63,.22);
+            pointer-events:none;
+        }
+
+        .card::after{
+            content:"";
+            position:absolute;
+            right:22px;
+            top:22px;
+            width:58px;
+            height:18px;
+            background:rgba(243,216,129,.55);
+            border:1px dashed rgba(48,43,39,.35);
+            transform:rotate(6deg);
+            border-radius:4px;
+            pointer-events:none;
+        }
+
+        .card.active{
+            opacity:1;
+            pointer-events:auto;
+            transform:translateX(0) scale(1) rotate(.15deg);
+            z-index:5;
+        }
+
+        .card.next{
+            opacity:.35;
+            transform:translateX(72%) scale(.9) rotate(3deg);
+            z-index:3;
+        }
+
+        .card.prev{
+            opacity:.35;
+            transform:translateX(-72%) scale(.9) rotate(-3deg);
+            z-index:3;
+        }
+
+        .card.hidden-left{
+            opacity:0;
+            transform:translateX(-140%) scale(.88) rotate(-8deg);
+            z-index:1;
+        }
+
+        .card.hidden-right{
+            opacity:0;
+            transform:translateX(140%) scale(.88) rotate(8deg);
+            z-index:1;
+        }
+
+        .card-head{
+            display:flex;
+            align-items:flex-start;
+            gap:14px;
+            margin-bottom:20px;
+            padding-right:58px;
+        }
+
+        .num{
+            flex:0 0 auto;
+            width:48px;
+            height:48px;
+            display:grid;
+            place-items:center;
+            border:2px solid var(--red);
+            color:var(--red);
+            background:var(--paper);
+            border-radius:47% 53% 42% 58%;
+            font-size:1.2rem;
+            font-weight:900;
+            transform:rotate(-4deg);
+            box-shadow:3px 4px 0 rgba(143,47,63,.12);
+        }
+
+        .card h2{
+            margin:0;
+            color:var(--red);
+            font-size:clamp(1.65rem, 4vw, 2.4rem);
+            line-height:1.05;
+            letter-spacing:-.03em;
+        }
+
+        .lead{
+            margin:6px 0 0;
+            color:var(--muted);
+            font-size:1.04rem;
+            line-height:1.42;
+        }
+
+        .section{
+            margin:16px 0;
+            padding:15px;
+            border:2px dashed var(--line);
+            border-radius:18px 16px 20px 15px;
+            background:rgba(255,248,234,.72);
+        }
+
+        .section h3{
+            margin:0 0 8px;
+            font-size:1.1rem;
+            color:var(--blue);
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+
+        .section h3::before{
+            content:"✎";
+            color:var(--red);
+        }
+
+        .formula{
+            display:block;
+            margin:10px 0;
+            padding:11px 12px;
+            overflow-x:auto;
+            border:2px solid var(--line);
+            border-radius:14px 12px 15px 12px;
+            background:#fffdf6;
+            font-size:1.08rem;
+            line-height:1.55;
+            white-space:nowrap;
+        }
+
+        .frac{
+            display:inline-grid;
+            grid-template-rows:auto auto;
+            vertical-align:middle;
+            text-align:center;
+            margin:0 .12em;
+        }
+
+        .frac > span:first-child{
+            border-bottom:1.7px solid currentColor;
+            padding:0 .18em .05em;
+        }
+
+        .frac > span:last-child{
+            padding:.05em .18em 0;
+        }
+
+        .mini{
+            color:var(--muted);
+            font-size:.96rem;
+            line-height:1.45;
+        }
+
+        .sticky{
+            display:inline-block;
+            margin:4px 6px 6px 0;
+            padding:9px 10px;
+            background:var(--yellow);
+            border:2px solid var(--ink);
+            border-radius:12px 16px 13px 15px;
+            box-shadow:3px 4px 0 rgba(48,43,39,.10);
+            font-weight:800;
+            transform:rotate(-1deg);
+        }
+
+        .sticky:nth-child(even){transform:rotate(1.4deg);background:#fff0c2}
+        .sticky.red{background:#f2d3d6;border-color:var(--red);color:var(--red)}
+        .sticky.green{background:#dce8d5;border-color:var(--green);color:var(--green)}
+        .sticky.blue{background:#dbe8ef;border-color:var(--blue);color:var(--blue)}
+
+        details{
+            margin-top:12px;
+            border-top:2px dashed var(--line);
+            padding-top:9px;
+        }
+
+        summary{
+            cursor:pointer;
+            font-weight:900;
+            color:var(--red);
+            list-style:none;
+        }
+
+        summary::-webkit-details-marker{display:none}
+        summary::before{content:"＋ ";color:var(--red)}
+        details[open] summary::before{content:"− "}
+
+        .callout{
+            position:relative;
+            margin-top:15px;
+            padding:11px 14px;
+            border-left:5px solid var(--red);
+            background:rgba(143,47,63,.07);
+            border-radius:0 16px 14px 0;
+            font-weight:800;
+        }
+
+        .two-col{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:12px;
+        }
+
+        .mistake-grid{
+            display:grid;
+            grid-template-columns:1fr;
+            gap:12px;
+        }
+
+        .mistake-row{
+            display:grid;
+            grid-template-columns:1fr 1fr 1.2fr;
+            gap:10px;
+            align-items:stretch;
+        }
+
+        .note-box{
+            padding:12px;
+            border:2px solid var(--line);
+            background:#fffdf6;
+            border-radius:15px 17px 13px 16px;
+        }
+
+        .note-box b{color:var(--red)}
+        .note-box.good{border-color:var(--green);background:#f3faee}
+        .note-box.bad{border-color:var(--red);background:#fff1f2}
+
+        .trainer{
+            display:grid;
+            gap:12px;
+        }
+
+        .trainer-row{
+            display:grid;
+            grid-template-columns:1.15fr .85fr;
+            gap:10px;
+            align-items:center;
+            padding:10px;
+            border:2px dashed var(--line);
+            border-radius:16px;
+            background:#fffdf6;
+        }
+
+        select{
+            width:100%;
+            border:2px solid var(--ink);
+            background:var(--paper-2);
+            border-radius:13px;
+            padding:9px;
+            color:var(--ink);
+            font-weight:700;
+        }
+
+        .result{
+            min-height:42px;
+            margin-top:10px;
+            padding:11px 12px;
+            border:2px dashed var(--line);
+            border-radius:14px;
+            background:#fffdf6;
+            color:var(--muted);
+            font-weight:800;
+        }
+
+        .answer{
+            display:inline-block;
+            min-width:130px;
+            filter:blur(5px);
+            user-select:none;
+            transition:filter .18s ease;
+        }
+
+        .answer.revealed{
+            filter:none;
+            user-select:auto;
+            color:var(--red);
+            font-weight:900;
+        }
+
+        .formula-card{
+            display:grid;
+            grid-template-columns:1fr auto;
+            gap:10px;
+            align-items:center;
+            border:2px dashed var(--line);
+            background:#fffdf6;
+            border-radius:15px;
+            padding:11px;
+            margin:8px 0;
+        }
+
+        .choice{
+            width:100%;
+            text-align:left;
+            border:2px solid var(--line);
+            border-radius:14px 12px 15px 13px;
+            background:#fffdf6;
+            padding:10px 11px;
+            color:var(--ink);
+            font-weight:800;
+            box-shadow:2px 3px 0 rgba(48,43,39,.08);
+        }
+
+        .choice:hover{border-color:var(--blue)}
+
+        .choice.correct,
+        .correct{
+            border-color:var(--green) !important;
+            background:#e9f4e4 !important;
+            color:#294c31 !important;
+        }
+
+        .choice.wrong,
+        .wrong{
+            border-color:var(--red) !important;
+            background:#f9e2e4 !important;
+            color:#7b2431 !important;
+        }
+
+        .quiz-block{
+            display:grid;
+            gap:12px;
+        }
+
+        .question{
+            padding:12px;
+            border:2px dashed var(--line);
+            border-radius:16px;
+            background:#fffdf6;
+        }
+
+        .question p{
+            margin:0 0 9px;
+            font-weight:900;
+            color:var(--blue);
+        }
+
+        .choices{
+            display:grid;
+            gap:7px;
+        }
+
+        .stamp-row{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+            margin-top:12px;
+            min-height:38px;
+        }
+
+        .stamp{
+            display:inline-grid;
+            place-items:center;
+            min-width:92px;
+            padding:7px 10px;
+            border:3px solid var(--red);
+            color:var(--red);
+            background:rgba(255,248,234,.78);
+            border-radius:12px 18px 12px 18px;
+            font-weight:900;
+            text-transform:uppercase;
+            transform:rotate(-4deg);
+            opacity:0;
+            animation:stampIn .35s ease forwards;
+        }
+
+        @keyframes stampIn{
+            from{opacity:0;transform:scale(.6) rotate(-10deg)}
+            to{opacity:1;transform:scale(1) rotate(-4deg)}
+        }
+
+        .controls{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:12px;
+            margin:14px auto 0;
+        }
+
+        .footer-sign{
+            margin:20px auto 0;
+            width:var(--card-w);
+            text-align:center;
+            color:var(--muted);
+            font-weight:800;
+            padding:12px;
+            border-top:2px dashed var(--line);
+        }
+
+        .swipe-hint{
+            text-align:center;
+            color:var(--muted);
+            font-size:.92rem;
+            margin-top:8px;
+        }
+
+        ul.clean, ol.clean{
+            margin:8px 0 0;
+            padding-left:1.2em;
+            line-height:1.55;
+        }
+
+        .timeline{
+            display:flex;
+            align-items:center;
+            gap:0;
+            overflow-x:auto;
+            padding:28px 2px 12px;
+        }
+
+        .point{
+            flex:0 0 auto;
+            display:grid;
+            place-items:center;
+            min-width:58px;
+            padding:8px 9px;
+            border:2px solid var(--red);
+            border-radius:999px;
+            background:#fffdf6;
+            color:var(--red);
+            font-weight:900;
+        }
+
+        .point.open{
+            background:var(--paper-2);
+            border-style:dashed;
+            color:var(--muted);
+        }
+
+        .line-seg{
+            flex:0 0 52px;
+            height:3px;
+            background:var(--ink);
+            position:relative;
+        }
+
+        .line-seg::after{
+            content:attr(data-sign);
+            position:absolute;
+            top:-25px;
+            left:50%;
+            transform:translateX(-50%);
+            font-weight:900;
+            color:var(--blue);
+        }
+
+        .small-table{
+            width:100%;
+            border-collapse:collapse;
+            margin:10px 0;
+            background:#fffdf6;
+            border-radius:12px;
+            overflow:hidden;
+        }
+
+        .small-table th,
+        .small-table td{
+            border-bottom:1px dashed var(--line);
+            padding:9px;
+            text-align:left;
+            vertical-align:top;
+        }
+
+        .small-table th{
+            color:var(--red);
+        }
+
+        .small-table tr:last-child td{border-bottom:0}
+
+        @media (max-width:720px){
+            .app{padding:10px 8px 22px}
+            .top{padding:18px 14px}
+            .top::after{display:none}
+            .eyebrow{padding-right:0}
+            .deck-wrap{min-height:760px}
+            .deck{min-height:740px}
+            .card{
+                height:720px;
+                max-height:none;
+                min-height:720px;
+                padding:18px 14px;
+                border-radius:22px 18px 24px 17px;
+            }
+            .card-head{gap:10px;padding-right:42px}
+            .num{width:40px;height:40px}
+            .two-col,
+            .mistake-row,
+            .trainer-row{
+                grid-template-columns:1fr;
+            }
+            .formula-card{
+                grid-template-columns:1fr;
+            }
+            .modebar button,
+            .controls button,
+            .tool-btn{
+                padding:10px 11px;
+                min-height:42px;
+            }
+            .card.next{transform:translateX(86%) scale(.88) rotate(3deg)}
+            .card.prev{transform:translateX(-86%) scale(.88) rotate(-3deg)}
+            .progress-top{
+                align-items:flex-start;
+                flex-direction:column;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce){
+            *{
+                scroll-behavior:auto !important;
+                animation-duration:.01ms !important;
+                transition-duration:.01ms !important;
+            }
+        }
+
+        @media print{
+            @page{
+            size:A4;
+            margin:12mm;
+            }
+
+            body{
+                background:white;
+                color:#111;
+            }
+
+            .app{
+                max-width:none;
+                padding:0;
+            }
+
+            .modebar,
+            .controls,
+            .progress,
+            .swipe-hint,
+            .dots,
+            .print-hide{
+                display:none !important;
+            }
+
+            .top{
+                box-shadow:none;
+                border:1px solid #999;
+                page-break-after:avoid;
+                background:white;
+            }
+
+            .top::before,
+            .top::after,
+            .card::after{
+                display:none;
+            }
+
+            .deck-wrap,
+            .deck{
+                display:block;
+                min-height:0;
+                width:100%;
+            }
+
+            .card,
+            .card.active,
+            .card.next,
+            .card.prev,
+            .card.hidden-left,
+            .card.hidden-right{
+                position:relative;
+                inset:auto;
+                opacity:1 !important;
+                pointer-events:auto;
+                transform:none !important;
+                width:100%;
+                height:auto;
+                max-height:none;
+                min-height:0;
+                overflow:visible;
+                box-shadow:none;
+                page-break-inside:avoid;
+                margin:14px 0;
+                border:1.5px solid #555;
+                background:white;
+            }
+
+            .card::before{
+                border-color:#bbb;
+            }
+
+            details{display:block}
+            details > *{display:block}
+            details:not([open]) > :not(summary){display:block}
+            summary::before{content:""}
+            .answer{filter:none}
+            .footer-sign{
+                width:100%;
+                border-top:1px solid #777;
+            }
+            .choice, .tool-btn, select{
+                box-shadow:none;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <header class="top">
+        <div class="eyebrow">
+            <span class="badge red">Варя Лызенко</span>
+            <span class="badge blue">ЕГЭ</span>
+            <span class="badge green">математика</span>
+        </div>
+        <h1>Метод интервалов и кредитные таблицы</h1>
+        <p class="subtitle">
+            Короткое web-пособие: как не потерять выколотые точки, как учитывать кратность корня
+            и как переводить экономическую задачу с русского языка в таблицу платежей.
+        </p>
+    </header>
+
+    <nav class="modebar" aria-label="Режимы пособия">
+        <button type="button" class="active-mode" data-mode="memo">Памятка</button>
+        <button type="button" data-mode="train">Тренировка</button>
+        <button type="button" id="printBtn">Печать</button>
+    </nav>
+
+    <section class="progress" aria-label="Прогресс по карточкам">
+        <div class="progress-top">
+            <span>Листайте карточки ← →</span>
+            <span class="counter" id="counter">1 / 11</span>
+        </div>
+        <div class="bar" aria-hidden="true"><div class="bar-fill" id="barFill"></div></div>
+        <div class="dots" id="dots" aria-label="Точки прогресса"></div>
+    </section>
+
+    <main class="deck-wrap" id="deckWrap" aria-label="Колода учебных карточек">
+        <div class="deck" id="deck">
+
+            <article class="card active" data-kind="memo">
+                <div class="card-head">
+                    <div class="num">01</div>
+                    <div>
+                        <h2>Рациональное неравенство: сначала всё к нулю</h2>
+                        <p class="lead">Метод интервалов работает, когда Вы изучаете знак всего выражения на промежутках.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Главная идея</h3>
+                    <p>Приведите неравенство к виду «дробь или произведение сравнивается с нулём».</p>
+                    <div class="formula">
+                        <span class="frac"><span>P(x)</span><span>Q(x)</span></span> ≥ 0,
+                        &nbsp;
+                        <span class="frac"><span>P(x)</span><span>Q(x)</span></span> ≤ 0,
+                        &nbsp;
+                        <span class="frac"><span>P(x)</span><span>Q(x)</span></span> &gt; 0,
+                        &nbsp;
+                        <span class="frac"><span>P(x)</span><span>Q(x)</span></span> &lt; 0
+                    </div>
+                    <p class="mini">После этого ищем нули числителя и знаменателя, а не «переносим знаменатель через знак».</p>
+                </div>
+
+                <div class="section">
+                    <h3>Что отмечать на прямой</h3>
+                    <span class="sticky green">нули числителя</span>
+                    <span class="sticky red">нули знаменателя</span>
+                    <span class="sticky blue">кратности корней</span>
+                </div>
+
+                <details>
+                    <summary>Покажи алгоритм</summary>
+                    <ol class="clean">
+                        <li>Перенесите всё в одну сторону.</li>
+                        <li>Разложите выражение на множители.</li>
+                        <li>Найдите точки, где множители равны нулю.</li>
+                        <li>Отметьте точки на числовой прямой.</li>
+                        <li>Проверьте знак на одном промежутке подстановкой.</li>
+                        <li>Расставьте знаки с учётом кратности.</li>
+                        <li>Выберите промежутки по знаку неравенства.</li>
+                    </ol>
+                </details>
+
+                <div class="callout">Мини-вывод: метод интервалов — это анализ знаков, а не механическая смена знака неравенства.</div>
+            </article>
+
+            <article class="card" data-kind="memo">
+                <div class="card-head">
+                    <div class="num">02</div>
+                    <div>
+                        <h2>Числитель можно включать, знаменатель — никогда</h2>
+                        <p class="lead">Это главный фильтр ответа: допустима ли точка вообще?</p>
+                    </div>
+                </div>
+
+                <div class="two-col">
+                    <div class="section">
+                        <h3>Корень числителя</h3>
+                        <p>Если дробь равна нулю, то обнуляется числитель.</p>
+                        <div class="formula">(x − a) = 0 → x = a</div>
+                        <p class="mini">При знаках ≥ или ≤ такая точка может войти в ответ.</p>
+                    </div>
+                    <div class="section">
+                        <h3>Корень знаменателя</h3>
+                        <p>Если знаменатель равен нулю, дробь не существует.</p>
+                        <div class="formula">Q(a) = 0 → x = a запрещён</div>
+                        <p class="mini">Даже при ≥ или ≤ точка остаётся выколотой.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Пример</h3>
+                    <div class="formula">
+                        <span class="frac"><span>(x + 1)(x − 2)</span><span>x − 5</span></span> ≥ 0
+                    </div>
+                    <p>
+                        Точки −1 и 2 идут из числителя, а 5 — из знаменателя.
+                        Значит, 5 обязательно выколота.
+                    </p>
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Знак ≥ означает, что ноль подходит. Но «ноль дроби» возникает только от числителя.
+                        Если знаменатель равен нулю, значения выражения нет, поэтому такую точку нельзя включать.
+                    </p>
+                </details>
+
+                <div class="callout">Мини-вывод: сначала допустимость точки, потом знак неравенства.</div>
+            </article>
+
+            <article class="card" data-kind="memo">
+                <div class="card-head">
+                    <div class="num">03</div>
+                    <div>
+                        <h2>Кратность корня управляет сменой знака</h2>
+                        <p class="lead">Одинаковые корни нельзя считать как разные случайные точки: важна их кратность.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Правило</h3>
+                    <div class="formula">(x − a)<sup>k</sup> = 0 → x = a, кратность k</div>
+                    <span class="sticky green">нечётная кратность → знак меняется</span>
+                    <span class="sticky red">чётная кратность → знак не меняется</span>
+                </div>
+
+                <div class="section">
+                    <h3>Визуально</h3>
+                    <div class="timeline" aria-label="Числовая прямая со знаками">
+                        <span class="point">−2</span>
+                        <span class="line-seg" data-sign="+"></span>
+                        <span class="point">1/2</span>
+                        <span class="line-seg" data-sign="+"></span>
+                        <span class="point open">3</span>
+                        <span class="line-seg" data-sign="−"></span>
+                        <span class="point">∞</span>
+                    </div>
+                    <p class="mini">
+                        Если 1/2 пришла из квадрата, знак через неё не меняется.
+                        Если 3 пришла из знаменателя, точка выколота.
+                    </p>
+                </div>
+
+                <details>
+                    <summary>Покажи алгоритм</summary>
+                    <ol class="clean">
+                        <li>Выпишите все множители.</li>
+                        <li>Посмотрите степень каждого множителя.</li>
+                        <li>Если степень чётная, при переходе через корень знак сохраняется.</li>
+                        <li>Если степень нечётная, знак меняется.</li>
+                    </ol>
+                </details>
+
+                <div class="callout">Мини-вывод: квадрат, четвёртая степень и любая чётная степень «не переворачивают» знак.</div>
+            </article>
+
+            <article class="card" data-kind="memo">
+                <div class="card-head">
+                    <div class="num">04</div>
+                    <div>
+                        <h2>Корректный пример с чётной кратностью</h2>
+                        <p class="lead">Проверим типовую ловушку: ноль числителя может быть отдельной точкой ответа.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Задача</h3>
+                    <div class="formula">
+                        <span class="frac"><span>(2x − 1)<sup>2</sup>(x + 2)</span><span>x − 3</span></span> ≥ 0
+                    </div>
+                    <p>
+                        Критические точки: −2, 1/2, 3. Точка 3 выколота, потому что она из знаменателя.
+                        Корень 1/2 имеет чётную кратность.
+                    </p>
+                </div>
+
+                <div class="section">
+                    <h3>Знаки</h3>
+                    <p>При x = 4 выражение положительно. Через 3 знак меняется, через 1/2 не меняется, через −2 меняется.</p>
+                    <div class="timeline" aria-label="Знаки для примера">
+                        <span class="point">−∞</span>
+                        <span class="line-seg" data-sign="+"></span>
+                        <span class="point">−2</span>
+                        <span class="line-seg" data-sign="−"></span>
+                        <span class="point">1/2</span>
+                        <span class="line-seg" data-sign="−"></span>
+                        <span class="point open">3</span>
+                        <span class="line-seg" data-sign="+"></span>
+                        <span class="point">∞</span>
+                    </div>
+                    <div class="formula">Ответ: (−∞; −2] ∪ {1/2} ∪ (3; +∞)</div>
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Число 1/2 включается, потому что выражение там равно нулю и знак неравенства нестрогий.
+                        Но соседние промежутки около 1/2 отрицательны, поэтому эта точка записывается отдельно.
+                    </p>
+                </details>
+
+                <div class="callout">Мини-вывод: чётный корень может дать отдельную допустимую точку, даже если рядом знак не подходит.</div>
+            </article>
+
+            <article class="card" data-kind="memo">
+                <div class="card-head">
+                    <div class="num">05</div>
+                    <div>
+                        <h2>Кредитная задача: переводим текст в таблицу</h2>
+                        <p class="lead">В задачах на кредит чаще всего решает не формула, а аккуратная таблица месяцев.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Главная схема месяца</h3>
+                    <div class="formula">
+                        долг → начислили проценты → долг после процентов → платёж → новый остаток
+                    </div>
+                    <p>Если ставка равна r%, удобно ввести:</p>
+                    <div class="formula">p = r / 100, &nbsp; долг после процентов = старый долг · (1 + p)</div>
+                </div>
+
+                <div class="section">
+                    <h3>Ключевое равенство</h3>
+                    <div class="formula">платёж = долг после процентов − новый остаток</div>
+                    <p class="mini">Новый остаток часто дан в таблице условия: например 0,9S, 0,8S, 0,7S и так далее.</p>
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Если после начисления процентов долг стал 1,05S, а после платежа должен остаться 0,9S,
+                        то платёж равен 1,05S − 0,9S = 0,15S.
+                    </p>
+                </details>
+
+                <div class="callout">Мини-вывод: не угадывайте схему кредита — считайте каждый месяц по строке таблицы.</div>
+            </article>
+
+            <article class="card" data-kind="memo">
+                <div class="card-head">
+                    <div class="num">06</div>
+                    <div>
+                        <h2>Общая выплата и процент переплаты</h2>
+                        <p class="lead">Когда таблица готова, остаётся сложить платежи и сравнить с начальным кредитом.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Формула переплаты</h3>
+                    <div class="formula">
+                        процент переплаты =
+                        <span class="frac"><span>общая сумма выплат − сумма кредита</span><span>сумма кредита</span></span>
+                        · 100%
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Пример</h3>
+                    <p>Если общая сумма выплат равна 1,225S, а кредит равен S, то:</p>
+                    <div class="formula">
+                        <span class="frac"><span>1,225S − S</span><span>S</span></span> · 100% = 22,5%
+                    </div>
+                </div>
+
+                <details>
+                    <summary>Покажи алгоритм</summary>
+                    <ol class="clean">
+                        <li>Сложите все платежи.</li>
+                        <li>Вычтите начальный кредит.</li>
+                        <li>Разделите на начальный кредит.</li>
+                        <li>Умножьте на 100%.</li>
+                    </ol>
+                </details>
+
+                <div class="callout">Мини-вывод: переплата — это не вся выплата, а только то, что сверх кредита.</div>
+            </article>
+
+            <article class="card" data-kind="memo">
+                <div class="card-head">
+                    <div class="num">07</div>
+                    <div>
+                        <h2>Разбор ошибок</h2>
+                        <p class="lead">Ваш ответ → ошибка → как думать правильно.</p>
+                    </div>
+                </div>
+
+                <div class="mistake-grid">
+                    <div class="mistake-row">
+                        <div class="note-box bad">
+                            <b>Неверно:</b><br>
+                            «Если есть знаменатель, надо поменять знак неравенства».
+                        </div>
+                        <div class="note-box good">
+                            <b>Правильно:</b><br>
+                            знак неравенства не меняют; строят интервалы и проверяют знак дроби.
+                        </div>
+                        <div class="note-box">
+                            <b>Суть ошибки:</b><br>
+                            знаменатель может быть положительным на одних промежутках и отрицательным на других.
+                        </div>
+                    </div>
+
+                    <div class="mistake-row">
+                        <div class="note-box bad">
+                            <b>Неверно:</b><br>
+                            включить корень знаменателя при нестрогом знаке.
+                        </div>
+                        <div class="note-box good">
+                            <b>Правильно:</b><br>
+                            корень знаменателя всегда выколот.
+                        </div>
+                        <div class="note-box">
+                            <b>Суть ошибки:</b><br>
+                            при нуле в знаменателе дробь не определена.
+                        </div>
+                    </div>
+
+                    <div class="mistake-row">
+                        <div class="note-box bad">
+                            <b>Неверно:</b><br>
+                            забыть, что (x − 3)<sup>2</sup> даёт корень 3 дважды.
+                        </div>
+                        <div class="note-box good">
+                            <b>Правильно:</b><br>
+                            при чётной кратности знак не меняется.
+                        </div>
+                        <div class="note-box">
+                            <b>Суть ошибки:</b><br>
+                            потеря кратности меняет всю картину знаков.
+                        </div>
+                    </div>
+                </div>
+
+                <details>
+                    <summary>Покажи правильный алгоритм</summary>
+                    <ol class="clean">
+                        <li>Найдите все критические точки.</li>
+                        <li>Отдельно отметьте: числитель или знаменатель.</li>
+                        <li>Проверьте кратность каждого корня.</li>
+                        <li>Только после этого выбирайте промежутки.</li>
+                    </ol>
+                </details>
+
+                <div class="callout">Мини-вывод: почти все ошибки здесь — не в вычислениях, а в логике отметки точек.</div>
+            </article>
+
+            <article class="card" data-kind="memo">
+                <div class="card-head">
+                    <div class="num">08</div>
+                    <div>
+                        <h2>Ловушки темы</h2>
+                        <p class="lead">Короткий список того, что чаще всего ломает решение.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <span class="sticky red">1. Не включайте корни знаменателя</span>
+                    <span class="sticky blue">2. Прописывайте подстановку</span>
+                    <span class="sticky green">3. Проверяйте чётную кратность</span>
+                    <span class="sticky">4. Не округляйте r слишком рано</span>
+                    <span class="sticky red">5. Не путайте выплату и переплату</span>
+                    <span class="sticky blue">6. В кредите считайте каждый месяц</span>
+                    <span class="sticky green">7. Строгое неравенство не включает границу</span>
+                </div>
+
+                <div class="section">
+                    <h3>Особенно важно для ЕГЭ</h3>
+                    <ul class="clean">
+                        <li>Если получилось r &lt; 5, то наибольшее целое неотрицательное r равно 4.</li>
+                        <li>Если получилось r ≤ 5, то наибольшее целое r равно 5.</li>
+                        <li>Если точка запрещена ОДЗ, она не спасается знаком ≥ или ≤.</li>
+                    </ul>
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        В задачах с целым r финальный ответ часто зависит от одного знака:
+                        строгое «меньше» и нестрогое «меньше или равно» дают разные максимальные целые значения.
+                    </p>
+                </details>
+
+                <div class="callout">Мини-вывод: главная защита от ловушек — отдельный финальный контроль точек и условий.</div>
+            </article>
+
+            <article class="card" data-kind="train">
+                <div class="card-head">
+                    <div class="num">09</div>
+                    <div>
+                        <h2>Тренажёр: что сделать с точкой?</h2>
+                        <p class="lead">Выберите действие для каждой ситуации, затем нажмите «Проверить».</p>
+                    </div>
+                </div>
+
+                <div class="trainer" id="trainer">
+                    <div class="trainer-row" data-answer="include">
+                        <div>
+                            <b>1.</b> Точка x = −2 обнуляет числитель, знак неравенства ≥.
+                        </div>
+                        <select aria-label="Ответ 1">
+                            <option value="">Выберите действие</option>
+                            <option value="include">включить в ответ</option>
+                            <option value="exclude">выколоть</option>
+                            <option value="change">сменить знак неравенства</option>
+                        </select>
+                    </div>
+
+                    <div class="trainer-row" data-answer="exclude">
+                        <div>
+                            <b>2.</b> Точка x = 5 обнуляет знаменатель, знак неравенства ≤.
+                        </div>
+                        <select aria-label="Ответ 2">
+                            <option value="">Выберите действие</option>
+                            <option value="include">включить в ответ</option>
+                            <option value="exclude">выколоть</option>
+                            <option value="change">сменить знак неравенства</option>
+                        </select>
+                    </div>
+
+                    <div class="trainer-row" data-answer="same">
+                        <div>
+                            <b>3.</b> Корень пришёл из множителя (x − 3)<sup>4</sup>.
+                        </div>
+                        <select aria-label="Ответ 3">
+                            <option value="">Выберите действие</option>
+                            <option value="same">знак не меняется</option>
+                            <option value="swap">знак меняется</option>
+                            <option value="exclude">точку всегда выколоть</option>
+                        </select>
+                    </div>
+
+                    <div class="trainer-row" data-answer="payment">
+                        <div>
+                            <b>4.</b> Долг после процентов 1,05S, новый остаток 0,9S.
+                        </div>
+                        <select aria-label="Ответ 4">
+                            <option value="">Выберите действие</option>
+                            <option value="payment">платёж = 0,15S</option>
+                            <option value="payment2">платёж = 0,9S</option>
+                            <option value="payment3">платёж = 1,95S</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="button" class="tool-btn" id="checkTrainer">Проверить</button>
+                <div class="result" id="trainerResult" aria-live="polite">Здесь появится обратная связь.</div>
+
+                <details>
+                    <summary>Покажи подсказку</summary>
+                    <p>
+                        Сначала определите природу точки: числитель, знаменатель или кратность.
+                        В кредитной строке платёж всегда равен «долг после процентов минус остаток».
+                    </p>
+                </details>
+
+                <div class="callout">Мини-вывод: правильное действие с точкой важнее быстрых вычислений.</div>
+            </article>
+
+            <article class="card" data-kind="train">
+                <div class="card-head">
+                    <div class="num">10</div>
+                    <div>
+                        <h2>Повтори за 30 секунд</h2>
+                        <p class="lead">Пять быстрых вопросов. Ответы спрятаны — проверьте себя честно.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <ol class="clean">
+                        <li>
+                            Почему корень знаменателя не входит в ответ даже при ≤ или ≥?
+                            <details><summary>Ответ</summary><p>Потому что при нуле в знаменателе дробь не определена.</p></details>
+                        </li>
+                        <li>
+                            Что происходит со знаком при переходе через корень чётной кратности?
+                            <details><summary>Ответ</summary><p>Знак не меняется.</p></details>
+                        </li>
+                        <li>
+                            Что означает p = r / 100 в кредитной задаче?
+                            <details><summary>Ответ</summary><p>Это месячная процентная ставка, переведённая из процентов в долю.</p></details>
+                        </li>
+                        <li>
+                            Как найти платёж месяца, если известен долг после процентов и новый остаток?
+                            <details><summary>Ответ</summary><p>Платёж = долг после процентов − новый остаток.</p></details>
+                        </li>
+                        <li>
+                            Если r &lt; 7,2 и r — целое число, чему равно наибольшее r?
+                            <details><summary>Ответ</summary><p>r = 7.</p></details>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="callout">Мини-вывод: если Вы ответили без подсказок — база темы уже собрана.</div>
+            </article>
+
+            <article class="card" data-kind="memo">
+                <div class="card-head">
+                    <div class="num">11</div>
+                    <div>
+                        <h2>Опорные правила: открыть ответ</h2>
+                        <p class="lead">Нажмите, чтобы открыть скрытую часть формулы или правила.</p>
+                    </div>
+                </div>
+
+                <div class="formula-card">
+                    <div>
+                        <b>1. Корень знаменателя:</b>
+                        <span class="answer">всегда выколот</span>
+                    </div>
+                    <button type="button" class="tool-btn reveal-btn">Показать</button>
+                </div>
+
+                <div class="formula-card">
+                    <div>
+                        <b>2. Чётная кратность:</b>
+                        <span class="answer">знак не меняется</span>
+                    </div>
+                    <button type="button" class="tool-btn reveal-btn">Показать</button>
+                </div>
+
+                <div class="formula-card">
+                    <div>
+                        <b>3. Нечётная кратность:</b>
+                        <span class="answer">знак меняется</span>
+                    </div>
+                    <button type="button" class="tool-btn reveal-btn">Показать</button>
+                </div>
+
+                <div class="formula-card">
+                    <div>
+                        <b>4. Платёж месяца:</b>
+                        <span class="answer">долг после процентов − новый остаток</span>
+                    </div>
+                    <button type="button" class="tool-btn reveal-btn">Показать</button>
+                </div>
+
+                <div class="formula-card">
+                    <div>
+                        <b>5. Процент переплаты:</b>
+                        <span class="answer">(выплаты − кредит) / кредит · 100%</span>
+                    </div>
+                    <button type="button" class="tool-btn reveal-btn">Показать</button>
+                </div>
+
+                <div class="formula-card">
+                    <div>
+                        <b>6. Если r &lt; 5 и r целое:</b>
+                        <span class="answer">наибольшее r равно 4</span>
+                    </div>
+                    <button type="button" class="tool-btn reveal-btn">Показать</button>
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Эти правила закрывают основную часть ошибок: ОДЗ, кратность, таблица кредита,
+                        процент переплаты и финальное округление целой ставки.
+                    </p>
+                </details>
+
+                <div class="callout">Мини-вывод: выучите эти опоры — и решения станут заметно устойчивее.</div>
+            </article>
+
+            <article class="card" data-kind="train">
+                <div class="card-head">
+                    <div class="num">12</div>
+                    <div>
+                        <h2>Мини-самопроверка</h2>
+                        <p class="lead">Выберите ответы. После клика появится подсветка и короткий комментарий.</p>
+                    </div>
+                </div>
+
+                <div class="quiz-block" id="quiz">
+                    <div class="question" data-stamp="Понято">
+                        <p>1. Что делать с точкой, которая обнуляет знаменатель?</p>
+                        <div class="choices">
+                            <button type="button" class="choice" data-correct="false">Включить, если знак нестрогий</button>
+                            <button type="button" class="choice" data-correct="true">Выколоть всегда</button>
+                            <button type="button" class="choice" data-correct="false">Поменять знак неравенства</button>
+                        </div>
+                        <div class="result" aria-live="polite">Выберите вариант.</div>
+                    </div>
+
+                    <div class="question" data-stamp="Без ловушки">
+                        <p>2. Корень пришёл из (x + 1)<sup>2</sup>. Что со знаком?</p>
+                        <div class="choices">
+                            <button type="button" class="choice" data-correct="true">Знак не меняется</button>
+                            <button type="button" class="choice" data-correct="false">Знак обязательно меняется</button>
+                            <button type="button" class="choice" data-correct="false">Корень всегда запрещён</button>
+                        </div>
+                        <div class="result" aria-live="polite">Выберите вариант.</div>
+                    </div>
+
+                    <div class="question" data-stamp="Проверено">
+                        <p>3. Если долг после процентов 0,945S, а остаток 0,8S, платёж равен:</p>
+                        <div class="choices">
+                            <button type="button" class="choice" data-correct="false">0,8S</button>
+                            <button type="button" class="choice" data-correct="true">0,145S</button>
+                            <button type="button" class="choice" data-correct="false">1,745S</button>
+                        </div>
+                        <div class="result" aria-live="polite">Выберите вариант.</div>
+                    </div>
+
+                    <div class="question" data-stamp="ЕГЭ-логика">
+                        <p>4. Если r &lt; 5 и r — целое число, наибольшее r равно:</p>
+                        <div class="choices">
+                            <button type="button" class="choice" data-correct="true">4</button>
+                            <button type="button" class="choice" data-correct="false">5</button>
+                            <button type="button" class="choice" data-correct="false">6</button>
+                        </div>
+                        <div class="result" aria-live="polite">Выберите вариант.</div>
+                    </div>
+
+                    <div class="question" data-stamp="Аккуратно">
+                        <p>5. Общая выплата 1,14S. Переплата равна:</p>
+                        <div class="choices">
+                            <button type="button" class="choice" data-correct="false">1,14%</button>
+                            <button type="button" class="choice" data-correct="false">114%</button>
+                            <button type="button" class="choice" data-correct="true">14%</button>
+                        </div>
+                        <div class="result" aria-live="polite">Выберите вариант.</div>
+                    </div>
+                </div>
+
+                <div class="stamp-row" id="stampRow" aria-live="polite"></div>
+            </article>
+
+        </div>
+    </main>
+
+    <div class="controls print-hide">
+        <button type="button" id="prevBtn">← Назад</button>
+        <button type="button" id="nextBtn">Вперёд →</button>
+    </div>
+    <div class="swipe-hint print-hide">Можно свайпать карточки пальцем или мышью. Клавиши ←, →, Home и End тоже работают.</div>
+
+    <footer class="footer-sign">
+        Лёвин Артём Александрович эксклюзивно для Вари Лызенко
+    </footer>
+</div>
+
+<script>
+    (function(){
+        const cards = Array.from(document.querySelectorAll('.card'));
+        const deckWrap = document.getElementById('deckWrap');
+        const counter = document.getElementById('counter');
+        const barFill = document.getElementById('barFill');
+        const dotsBox = document.getElementById('dots');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const printBtn = document.getElementById('printBtn');
+        const modeButtons = Array.from(document.querySelectorAll('.modebar button[data-mode]'));
+
+        let index = 0;
+        let startX = 0;
+        let startY = 0;
+        let dragging = false;
+        let activePointer = null;
+        let currentDx = 0;
+
+        function isInteractiveTarget(target){
+            return Boolean(target.closest('button, select, input, textarea, summary, details, a, label'));
+        }
+
+        function makeDots(){
+            dotsBox.innerHTML = '';
+            cards.forEach((_, i) => {
+                const dot = document.createElement('button');
+                dot.type = 'button';
+                dot.className = 'dot';
+                dot.setAttribute('aria-label', 'Перейти к карточке ' + (i + 1));
+                dot.addEventListener('click', () => goTo(i));
+                dotsBox.appendChild(dot);
+            });
+        }
+
+        function updateCards(){
+            cards.forEach((card, i) => {
+                card.classList.remove('active','prev','next','hidden-left','hidden-right','dragging');
+                card.style.transform = '';
+
+                if(i === index){
+                    card.classList.add('active');
+                }else if(i === index - 1){
+                    card.classList.add('prev');
+                }else if(i === index + 1){
+                    card.classList.add('next');
+                }else if(i < index){
+                    card.classList.add('hidden-left');
+                }else{
+                    card.classList.add('hidden-right');
+                }
+            });
+
+            counter.textContent = (index + 1) + ' / ' + cards.length;
+            barFill.style.width = ((index + 1) / cards.length * 100) + '%';
+
+            Array.from(dotsBox.children).forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === cards.length - 1;
+        }
+
+        function goTo(nextIndex){
+            index = Math.max(0, Math.min(cards.length - 1, nextIndex));
+            updateCards();
+        }
+
+        function goNext(){ goTo(index + 1); }
+        function goPrev(){ goTo(index - 1); }
+
+        prevBtn.addEventListener('click', goPrev);
+        nextBtn.addEventListener('click', goNext);
+
+        document.addEventListener('keydown', (event) => {
+            if(event.key === 'ArrowRight') goNext();
+            if(event.key === 'ArrowLeft') goPrev();
+            if(event.key === 'Home') goTo(0);
+            if(event.key === 'End') goTo(cards.length - 1);
+        });
+
+        deckWrap.addEventListener('pointerdown', (event) => {
+            if(isInteractiveTarget(event.target)) return;
+            dragging = true;
+            activePointer = event.pointerId;
+            currentDx = 0;
+            startX = event.clientX;
+            startY = event.clientY;
+            const activeCard = cards[index];
+            activeCard.classList.add('dragging');
+            deckWrap.setPointerCapture(event.pointerId);
+        });
+
+        deckWrap.addEventListener('pointermove', (event) => {
+            if(!dragging || event.pointerId !== activePointer) return;
+
+            const dx = event.clientX - startX;
+            const dy = event.clientY - startY;
+
+            if(Math.abs(dx) > Math.abs(dy)){
+                currentDx = dx;
+                const limitedDx = Math.max(-130, Math.min(130, dx));
+                const rotate = limitedDx / 32;
+                cards[index].style.transform = 'translateX(' + limitedDx + 'px) scale(1) rotate(' + rotate + 'deg)';
+            }
+        });
+
+        deckWrap.addEventListener('pointerup', (event) => {
+            if(!dragging || event.pointerId !== activePointer) return;
+
+            const dx = event.clientX - startX;
+            const dy = event.clientY - startY;
+
+            dragging = false;
+            activePointer = null;
+            cards[index].classList.remove('dragging');
+            cards[index].style.transform = '';
+
+            if(Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.25){
+                if(dx < 0) goNext();
+                else goPrev();
+            }else{
+                updateCards();
+            }
+        });
+
+        deckWrap.addEventListener('pointercancel', () => {
+            dragging = false;
+            activePointer = null;
+            currentDx = 0;
+            cards[index].classList.remove('dragging');
+            cards[index].style.transform = '';
+            updateCards();
+        });
+
+        modeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modeButtons.forEach(b => b.classList.remove('active-mode'));
+                btn.classList.add('active-mode');
+
+                const mode = btn.dataset.mode;
+                if(mode === 'memo'){
+                    const firstMemo = cards.findIndex(card => card.dataset.kind === 'memo');
+                    goTo(firstMemo >= 0 ? firstMemo : 0);
+                }
+                if(mode === 'train'){
+                    const firstTrain = cards.findIndex(card => card.dataset.kind === 'train');
+                    goTo(firstTrain >= 0 ? firstTrain : 0);
+                }
+            });
+        });
+
+        printBtn.addEventListener('click', () => window.print());
+
+        const checkTrainer = document.getElementById('checkTrainer');
+        const trainerResult = document.getElementById('trainerResult');
+
+        checkTrainer.addEventListener('click', () => {
+            const rows = Array.from(document.querySelectorAll('#trainer .trainer-row'));
+            let correct = 0;
+
+            rows.forEach(row => {
+                const select = row.querySelector('select');
+                row.classList.remove('correct','wrong');
+
+                if(select.value === row.dataset.answer){
+                    row.classList.add('correct');
+                    correct++;
+                }else{
+                    row.classList.add('wrong');
+                }
+            });
+
+            if(correct === rows.length){
+                trainerResult.textContent = 'Отлично: все действия выбраны верно. Вы держите ОДЗ, кратность и платежи под контролем.';
+                trainerResult.className = 'result correct';
+            }else{
+                trainerResult.textContent = 'Есть неточности: проверьте, где точка из знаменателя, где чётная кратность, а где платёж месяца.';
+                trainerResult.className = 'result wrong';
+            }
+        });
+
+        document.querySelectorAll('.reveal-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const answer = button.parentElement.querySelector('.answer');
+                answer.classList.toggle('revealed');
+                button.textContent = answer.classList.contains('revealed') ? 'Скрыть' : 'Показать';
+                button.setAttribute('aria-expanded', answer.classList.contains('revealed') ? 'true' : 'false');
+            });
+            button.setAttribute('aria-expanded', 'false');
+        });
+
+        const stampRow = document.getElementById('stampRow');
+        const usedStamps = new Set();
+
+        document.querySelectorAll('.question').forEach(question => {
+            const buttons = Array.from(question.querySelectorAll('.choice'));
+            const result = question.querySelector('.result');
+
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    buttons.forEach(b => {
+                        b.disabled = true;
+                        b.classList.remove('correct','wrong');
+                        if(b.dataset.correct === 'true') b.classList.add('correct');
+                    });
+
+                    if(button.dataset.correct === 'true'){
+                        result.textContent = 'Верно. Это именно та логика, которая нужна в решении.';
+                        result.className = 'result correct';
+
+                        const stampText = question.dataset.stamp;
+                        if(!usedStamps.has(stampText)){
+                            usedStamps.add(stampText);
+                            const stamp = document.createElement('span');
+                            stamp.className = 'stamp';
+                            stamp.textContent = stampText;
+                            stampRow.appendChild(stamp);
+                        }
+                    }else{
+                        button.classList.add('wrong');
+                        result.textContent = 'Неверно. Посмотрите на зелёный вариант и свяжите его с правилом карточки.';
+                        result.className = 'result wrong';
+                    }
+                });
+            });
+        });
+
+        makeDots();
+        updateCards();
+    })();
+</script>
+</body>
+</html>
