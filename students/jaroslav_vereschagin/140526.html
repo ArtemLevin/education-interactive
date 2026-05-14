@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Окружность: углы, дуги, секущие и четырёхугольники</title>
+    <style>
+        :root {
+            --paper: #f5ead6;
+            --paper-2: #fff8e9;
+            --ink: #282421;
+            --muted: #746a61;
+            --red: #8b1e2d;
+            --red-2: #b84a5a;
+            --blue: #315f7c;
+            --green: #3e7a53;
+            --line: rgba(40, 36, 33, 0.22);
+            --shadow: 0 18px 42px rgba(48, 32, 20, 0.18);
+            --soft: #efe0c5;
+            --yellow: #f3c75f;
+            --radius-a: 28px 22px 30px 18px;
+            --radius-b: 18px 30px 20px 28px;
+            --radius-c: 30px 20px 26px 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+            background: var(--paper);
+            overflow-x: hidden;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+            radial-gradient(circle at 14% 18%, rgba(139, 30, 45, 0.06) 0 2px, transparent 3px),
+            radial-gradient(circle at 78% 10%, rgba(49, 95, 124, 0.06) 0 2px, transparent 3px),
+            linear-gradient(90deg, rgba(40, 36, 33, 0.025) 1px, transparent 1px),
+            linear-gradient(rgba(40, 36, 33, 0.018) 1px, transparent 1px),
+            var(--paper);
+            background-size: 120px 120px, 150px 150px, 28px 28px, 28px 28px, auto;
+            overflow-x: hidden;
+        }
+
+        button,
+        select,
+        input {
+            font-family: inherit;
+        }
+
+        .app {
+            width: min(1160px, 100%);
+            margin: 0 auto;
+            padding: 18px clamp(12px, 3vw, 28px) 34px;
+        }
+
+        .top {
+            position: relative;
+            padding: clamp(18px, 4vw, 34px);
+            border: 2px solid var(--ink);
+            border-radius: var(--radius-a);
+            background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0)),
+            var(--paper-2);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .top::before {
+            content: "";
+            position: absolute;
+            inset: 10px;
+            border: 1px dashed rgba(139, 30, 45, 0.35);
+            border-radius: 23px 18px 25px 16px;
+            pointer-events: none;
+        }
+
+        .top::after {
+            content: "∠  ○  ⟂  дуги  360°";
+            position: absolute;
+            right: -18px;
+            bottom: 22px;
+            transform: rotate(-8deg);
+            color: rgba(139, 30, 45, 0.12);
+            font-weight: 900;
+            font-size: clamp(28px, 7vw, 82px);
+            letter-spacing: 0.04em;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .kicker {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 11px;
+            border: 2px solid var(--ink);
+            border-radius: 999px 880px 920px 940px;
+            background: #fff6df;
+            box-shadow: 3px 4px 0 rgba(40, 36, 33, 0.12);
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--ink);
+            transform: rotate(-1deg);
+        }
+
+        .badge:nth-child(2) {
+            transform: rotate(1deg);
+            background: #f8e0d2;
+        }
+
+        .badge:nth-child(3) {
+            transform: rotate(-0.5deg);
+            background: #e8f0e3;
+        }
+
+        h1 {
+            position: relative;
+            z-index: 1;
+            margin: 0 0 12px;
+            max-width: 900px;
+            color: var(--ink);
+            font-size: clamp(2rem, 5vw, 4.2rem);
+            line-height: 0.97;
+            letter-spacing: -0.045em;
+            text-wrap: balance;
+        }
+
+        .subtitle {
+            position: relative;
+            z-index: 1;
+            max-width: 760px;
+            margin: 0;
+            color: var(--muted);
+            font-size: clamp(1rem, 2.1vw, 1.25rem);
+            line-height: 1.45;
+        }
+
+        .modebar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin: 16px 0 14px;
+            padding: 10px;
+            border: 2px solid var(--ink);
+            border-radius: var(--radius-b);
+            background: rgba(255, 248, 233, 0.94);
+            backdrop-filter: blur(6px);
+            box-shadow: 0 10px 22px rgba(48, 32, 20, 0.12);
+        }
+
+        .mode-buttons,
+        .controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: 2px solid var(--ink);
+            background: #fff6df;
+            color: var(--ink);
+            border-radius: 16px 20px 14px 22px;
+            padding: 10px 13px;
+            font-weight: 800;
+            font-size: 0.94rem;
+            cursor: pointer;
+            box-shadow: 3px 4px 0 rgba(40, 36, 33, 0.18);
+            transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+            touch-action: manipulation;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px) rotate(-0.5deg);
+            box-shadow: 5px 6px 0 rgba(40, 36, 33, 0.18);
+            background: #fff1cc;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: 1px 2px 0 rgba(40, 36, 33, 0.18);
+        }
+
+        .btn.mode-active {
+            background: var(--red);
+            color: #fff8e9;
+        }
+
+        .counter {
+            min-width: 68px;
+            text-align: center;
+            font-weight: 900;
+            color: var(--red);
+            padding: 8px 10px;
+            border: 1px dashed rgba(139, 30, 45, 0.55);
+            border-radius: 999px;
+            background: rgba(255, 248, 233, 0.7);
+        }
+
+        .progress {
+            width: 100%;
+            height: 12px;
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            overflow: hidden;
+            background: #eadcc5;
+            box-shadow: inset 0 2px 0 rgba(40, 36, 33, 0.08);
+        }
+
+        .progress > span {
+            display: block;
+            width: 0%;
+            height: 100%;
+            background:
+            repeating-linear-gradient(45deg, var(--red) 0 8px, var(--red-2) 8px 14px);
+            transition: width 0.28s ease;
+        }
+
+        .deck-wrap {
+            position: relative;
+            margin-top: 16px;
+            min-height: min(78vh, 760px);
+        }
+
+        .deck {
+            position: relative;
+            min-height: min(78vh, 760px);
+            width: 100%;
+            perspective: 1400px;
+            touch-action: pan-y;
+        }
+
+        .card {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 14px;
+            width: 100%;
+            min-height: min(78vh, 760px);
+            padding: clamp(18px, 3.4vw, 36px);
+            border: 2px solid var(--ink);
+            border-radius: var(--radius-a);
+            background:
+            linear-gradient(90deg, rgba(139, 30, 45, 0.05) 1px, transparent 1px),
+            linear-gradient(rgba(40, 36, 33, 0.025) 1px, transparent 1px),
+            var(--paper-2);
+            background-size: 38px 38px, 38px 38px, auto;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateX(110%) rotate(4deg) scale(0.94);
+            transition: transform 0.35s cubic-bezier(.2,.85,.2,1), opacity 0.3s ease;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border: 1px dashed rgba(40, 36, 33, 0.22);
+            border-radius: var(--radius-c);
+            pointer-events: none;
+        }
+
+        .card::after {
+            content: "";
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            width: 74px;
+            height: 26px;
+            background: rgba(243, 199, 95, 0.56);
+            border: 1px dashed rgba(40, 36, 33, 0.22);
+            transform: rotate(5deg);
+            border-radius: 2px 8px 3px 10px;
+            pointer-events: none;
+        }
+
+        .card.active {
+            opacity: 1;
+            transform: translateX(0) rotate(0deg) scale(1);
+            z-index: 5;
+            pointer-events: auto;
+        }
+
+        .card.prev {
+            opacity: 0.25;
+            transform: translateX(-42%) rotate(-4deg) scale(0.88);
+            z-index: 2;
+        }
+
+        .card.next {
+            opacity: 0.25;
+            transform: translateX(42%) rotate(4deg) scale(0.88);
+            z-index: 2;
+        }
+
+        .card.hidden-left {
+            opacity: 0;
+            transform: translateX(-120%) rotate(-8deg) scale(0.86);
+            z-index: 0;
+        }
+
+        .card.hidden-right {
+            opacity: 0;
+            transform: translateX(120%) rotate(8deg) scale(0.86);
+            z-index: 0;
+        }
+
+        .card.dragging {
+            transition: none;
+        }
+
+        .card-head,
+        .card-foot {
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .num {
+            display: inline-grid;
+            place-items: center;
+            min-width: 50px;
+            height: 50px;
+            padding: 0 12px;
+            border: 2px solid var(--ink);
+            border-radius: 16px 22px 13px 20px;
+            background: var(--red);
+            color: #fff8e9;
+            font-weight: 900;
+            font-size: 1.05rem;
+            box-shadow: 4px 5px 0 rgba(40, 36, 33, 0.16);
+            transform: rotate(-2deg);
+        }
+
+        .card-title {
+            flex: 1;
+            min-width: min(100%, 300px);
+        }
+
+        h2 {
+            margin: 0 0 7px;
+            color: var(--ink);
+            font-size: clamp(1.45rem, 3.3vw, 2.5rem);
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            text-wrap: balance;
+        }
+
+        .lead {
+            margin: 0;
+            color: var(--muted);
+            font-size: clamp(1rem, 2vw, 1.14rem);
+            line-height: 1.45;
+        }
+
+        .card-body {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            gap: 14px;
+            align-content: start;
+            overflow-y: auto;
+            padding-right: 4px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(139, 30, 45, 0.5) transparent;
+        }
+
+        .section {
+            border: 2px solid rgba(40, 36, 33, 0.74);
+            border-radius: var(--radius-b);
+            background: rgba(255, 248, 233, 0.7);
+            padding: 14px;
+            box-shadow: 5px 6px 0 rgba(40, 36, 33, 0.08);
+        }
+
+        .section h3 {
+            margin: 0 0 8px;
+            color: var(--red);
+            font-size: 1.08rem;
+            line-height: 1.2;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .section p {
+            margin: 0.45em 0;
+            line-height: 1.45;
+        }
+
+        .formula {
+            display: block;
+            max-width: 100%;
+            margin: 8px 0;
+            padding: 12px 14px;
+            border: 2px dashed rgba(139, 30, 45, 0.45);
+            border-radius: 16px 24px 14px 22px;
+            background: #fff5d9;
+            color: var(--ink);
+            font-size: clamp(1.02rem, 2.1vw, 1.22rem);
+            font-weight: 800;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .formula small {
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .sticky {
+            position: relative;
+            padding: 12px 14px;
+            border: 2px solid var(--ink);
+            border-radius: 18px 12px 20px 14px;
+            background: rgba(243, 199, 95, 0.26);
+            box-shadow: 4px 5px 0 rgba(40, 36, 33, 0.1);
+            transform: rotate(-0.5deg);
+            line-height: 1.42;
+        }
+
+        .mini {
+            font-size: 0.94rem;
+            color: var(--muted);
+        }
+
+        .card-foot {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(40, 36, 33, 0.25);
+        }
+
+        .conclusion {
+            font-weight: 900;
+            color: var(--red);
+        }
+
+        details {
+            border: 1px dashed rgba(40, 36, 33, 0.35);
+            border-radius: 14px 18px 13px 20px;
+            background: rgba(255, 248, 233, 0.72);
+            padding: 9px 11px;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 900;
+            color: var(--blue);
+        }
+
+        details p,
+        details ol,
+        details ul {
+            margin-top: 8px;
+        }
+
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 7px;
+            margin: 14px 0 0;
+            flex-wrap: wrap;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            background: #fff6df;
+            cursor: pointer;
+            transition: transform 0.16s ease, background 0.16s ease;
+        }
+
+        .dot.active {
+            background: var(--red);
+            transform: scale(1.22);
+        }
+
+        .footer-sign {
+            margin: 22px auto 0;
+            padding: 16px 18px;
+            text-align: center;
+            color: var(--muted);
+            border: 2px dashed rgba(40, 36, 33, 0.24);
+            border-radius: var(--radius-c);
+            background: rgba(255, 248, 233, 0.72);
+            font-weight: 800;
+        }
+
+        .answer {
+            filter: blur(5px);
+            user-select: none;
+            transition: filter 0.2s ease;
+            display: inline-block;
+        }
+
+        .answer.revealed {
+            filter: blur(0);
+            user-select: auto;
+        }
+
+        .reveal-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 9px 0;
+            border-bottom: 1px dashed rgba(40, 36, 33, 0.18);
+        }
+
+        .reveal-row:last-child {
+            border-bottom: 0;
+        }
+
+        .choice {
+            display: block;
+            width: 100%;
+            text-align: left;
+            margin: 8px 0;
+            padding: 11px 13px;
+            border: 2px solid rgba(40, 36, 33, 0.72);
+            border-radius: 15px 20px 14px 18px;
+            background: #fff9e9;
+            color: var(--ink);
+            cursor: pointer;
+            font-weight: 800;
+            line-height: 1.3;
+            transition: transform 0.15s ease, background 0.15s ease;
+        }
+
+        .choice:hover {
+            transform: translateX(3px);
+            background: #fff1cc;
+        }
+
+        .choice.correct,
+        .correct {
+            border-color: var(--green) !important;
+            background: rgba(62, 122, 83, 0.14) !important;
+        }
+
+        .choice.wrong,
+        .wrong {
+            border-color: var(--red) !important;
+            background: rgba(139, 30, 45, 0.12) !important;
+        }
+
+        .result {
+            min-height: 36px;
+            padding: 10px 12px;
+            border: 2px dashed rgba(40, 36, 33, 0.28);
+            border-radius: 14px 18px 14px 18px;
+            background: rgba(255, 248, 233, 0.7);
+            color: var(--ink);
+            font-weight: 800;
+        }
+
+        .stamp-area {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            min-height: 42px;
+            align-items: center;
+        }
+
+        .stamp {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 10px;
+            border: 3px solid var(--red);
+            border-radius: 999px 840px 920px 800px;
+            color: var(--red);
+            font-weight: 950;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.04em;
+            transform: rotate(-7deg);
+            background: rgba(255, 248, 233, 0.85);
+            animation: popStamp 0.34s ease both;
+        }
+
+        @keyframes popStamp {
+            from { transform: scale(0.7) rotate(-12deg); opacity: 0; }
+            to { transform: scale(1) rotate(-7deg); opacity: 1; }
+        }
+
+        .doodle-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .sticker {
+            padding: 12px;
+            border: 2px solid var(--ink);
+            border-radius: 18px 10px 20px 12px;
+            background: #fff1cc;
+            box-shadow: 4px 5px 0 rgba(40, 36, 33, 0.1);
+            font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .sticker:nth-child(2n) {
+            background: #f7e0d6;
+            transform: rotate(0.8deg);
+        }
+
+        .sticker:nth-child(3n) {
+            background: #e7efe1;
+            transform: rotate(-0.7deg);
+        }
+
+        .error-table {
+            display: grid;
+            gap: 10px;
+        }
+
+        .error-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        .error-cell {
+            border: 2px solid rgba(40, 36, 33, 0.7);
+            border-radius: 15px 20px 13px 16px;
+            padding: 12px;
+            background: rgba(255, 248, 233, 0.78);
+            line-height: 1.42;
+        }
+
+        .error-cell strong {
+            color: var(--red);
+        }
+
+        .trainer-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .trainer-item {
+            display: grid;
+            grid-template-columns: minmax(140px, 1fr) minmax(170px, 1fr);
+            gap: 10px;
+            align-items: center;
+            padding: 12px;
+            border: 2px dashed rgba(40, 36, 33, 0.32);
+            border-radius: 18px 13px 22px 14px;
+            background: rgba(255, 248, 233, 0.58);
+        }
+
+        select {
+            width: 100%;
+            min-height: 42px;
+            border: 2px solid var(--ink);
+            border-radius: 13px 18px 12px 17px;
+            background: #fff9e9;
+            color: var(--ink);
+            padding: 8px 10px;
+            font-weight: 800;
+            font-size: 0.98rem;
+        }
+
+        .quick-q {
+            padding: 11px 0;
+            border-bottom: 1px dashed rgba(40, 36, 33, 0.22);
+        }
+
+        .quick-q:last-child {
+            border-bottom: 0;
+        }
+
+        .quiz-block {
+            display: grid;
+            gap: 14px;
+        }
+
+        .quiz-question {
+            padding: 12px;
+            border: 2px dashed rgba(40, 36, 33, 0.25);
+            border-radius: 18px 13px 20px 14px;
+            background: rgba(255, 248, 233, 0.55);
+        }
+
+        .pill {
+            display: inline-flex;
+            padding: 4px 8px;
+            border: 1px solid var(--ink);
+            border-radius: 999px;
+            background: rgba(243, 199, 95, 0.25);
+            font-size: 0.82rem;
+            font-weight: 900;
+            color: var(--red);
+        }
+
+        .draw-line {
+            height: 52px;
+            position: relative;
+            margin: 2px 0;
+        }
+
+        .draw-line svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .two-col-auto {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 14px;
+        }
+
+        .tiny-diagram {
+            min-height: 180px;
+            border: 2px solid var(--ink);
+            border-radius: 20px 14px 24px 16px;
+            background: rgba(255, 246, 223, 0.72);
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .tiny-diagram svg {
+            width: min(100%, 320px);
+            height: auto;
+        }
+
+        .caption-note {
+            font-size: 0.86rem;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .print-all {
+            display: none;
+        }
+
+        @media (max-width: 780px) {
+            .app {
+                padding: 10px 10px 24px;
+            }
+
+            .modebar {
+                position: relative;
+            }
+
+            .deck-wrap,
+            .deck,
+            .card {
+                min-height: 78vh;
+            }
+
+            .card {
+                padding: 16px 14px;
+            }
+
+            .grid-2,
+            .grid-3,
+            .two-col-auto,
+            .error-row,
+            .doodle-list,
+            .trainer-item {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                padding: 9px 10px;
+                font-size: 0.88rem;
+            }
+
+            .counter {
+                order: -1;
+            }
+
+            .card-body {
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 430px) {
+            .mode-buttons,
+            .controls {
+                width: 100%;
+            }
+
+            .mode-buttons .btn {
+                flex: 1 1 auto;
+            }
+
+            .controls {
+                justify-content: space-between;
+            }
+
+            .card-head {
+                gap: 10px;
+            }
+
+            .num {
+                min-width: 44px;
+                height: 44px;
+            }
+
+            .section {
+                padding: 12px;
+            }
+
+            .formula {
+                font-size: 0.98rem;
+            }
+        }
+
+        @media print {
+            html,
+            body {
+                background: #fffdf5 !important;
+            }
+
+            .app {
+                width: 100%;
+                padding: 0;
+            }
+
+            .modebar,
+            .controls,
+            .progress,
+            .dots,
+            .deck-wrap {
+                display: none !important;
+            }
+
+            .top {
+                box-shadow: none;
+                page-break-after: always;
+                border-color: #222;
+            }
+
+            .top::after {
+                opacity: 0.25;
+            }
+
+            .print-all {
+                display: block;
+            }
+
+            .print-card {
+                page-break-inside: avoid;
+                break-inside: avoid;
+                margin: 0 0 14mm;
+                padding: 12mm;
+                border: 1.5pt solid #222;
+                border-radius: 12pt;
+                background: #fffdf5;
+            }
+
+            .print-card h2 {
+                font-size: 20pt;
+            }
+
+            .print-card .section {
+                box-shadow: none;
+                border-color: #444;
+            }
+
+            .answer {
+                filter: none !important;
+            }
+
+            .btn,
+            button,
+            select,
+            .stamp-area {
+                display: none !important;
+            }
+
+            details {
+                border: 1pt dashed #777;
+            }
+
+            details > * {
+                display: block !important;
+            }
+
+            .footer-sign {
+                border: 1pt dashed #777;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <header class="top">
+        <div class="kicker">
+            <span class="badge">Ярослав Верещагин</span>
+            <span class="badge">8 класс</span>
+            <span class="badge">геометрия · окружность</span>
+        </div>
+        <h1>Окружность: углы, дуги, секущие и четырёхугольники</h1>
+        <p class="subtitle">
+            Короткая интерактивная памятка: как отличать центральные и вписанные углы,
+            работать с дугами, применять формулы секущих, касательных и свойства четырёхугольников.
+        </p>
+        <div class="draw-line" aria-hidden="true">
+            <svg viewBox="0 0 760 70" preserveAspectRatio="none">
+                <path d="M20,48 C120,18 190,63 290,33 S470,17 560,39 S680,54 735,22"
+                      fill="none" stroke="#8b1e2d" stroke-width="4" stroke-linecap="round"
+                      stroke-dasharray="10 10" opacity="0.45"/>
+                <circle cx="115" cy="22" r="7" fill="none" stroke="#282421" stroke-width="3" opacity="0.45"/>
+                <path d="M620 16 l18 8 l-18 8" fill="none" stroke="#282421" stroke-width="3" opacity="0.42"/>
+            </svg>
+        </div>
+    </header>
+
+    <nav class="modebar" aria-label="Режимы и навигация">
+        <div class="mode-buttons">
+            <button class="btn mode-active" type="button" data-mode="memo">Памятка</button>
+            <button class="btn" type="button" data-mode="training">Тренировка</button>
+            <button class="btn" type="button" id="printBtn">Печать</button>
+        </div>
+        <div class="controls">
+            <button class="btn" type="button" id="prevBtn">← назад</button>
+            <span class="counter" id="counter">1 / 12</span>
+            <button class="btn" type="button" id="nextBtn">вперёд →</button>
+        </div>
+        <div class="progress" aria-label="Прогресс">
+            <span id="progressFill"></span>
+        </div>
+    </nav>
+
+    <main class="deck-wrap">
+        <section class="deck" id="deck" aria-live="polite">
+
+            <article class="card active" data-kind="memo">
+                <div class="card-head">
+                    <span class="num">01</span>
+                    <div class="card-title">
+                        <h2>Карта темы: что вообще искать?</h2>
+                        <p class="lead">В задачах с окружностью сначала не считайте. Сначала назовите объект.</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="two-col-auto">
+                        <div class="section">
+                            <h3>Главная идея</h3>
+                            <p>Одна и та же картинка может содержать разные правила: угол, дугу, секущую, касательную или четырёхугольник.</p>
+                            <div class="formula">Окружность = 360°</div>
+                            <div class="formula">центральный угол ↔ дуга</div>
+                            <div class="formula">вписанный угол = половина дуги</div>
+                        </div>
+                        <div class="tiny-diagram" aria-label="Схема окружности с углами">
+                            <svg viewBox="0 0 300 220" role="img">
+                                <circle cx="150" cy="105" r="82" fill="none" stroke="#282421" stroke-width="4"/>
+                                <circle cx="150" cy="105" r="4" fill="#8b1e2d"/>
+                                <line x1="150" y1="105" x2="226" y2="74" stroke="#8b1e2d" stroke-width="4" stroke-linecap="round"/>
+                                <line x1="150" y1="105" x2="83" y2="58" stroke="#8b1e2d" stroke-width="4" stroke-linecap="round"/>
+                                <line x1="83" y1="58" x2="158" y2="187" stroke="#315f7c" stroke-width="4" stroke-linecap="round"/>
+                                <line x1="226" y1="74" x2="158" y2="187" stroke="#315f7c" stroke-width="4" stroke-linecap="round"/>
+                                <path d="M173 95 Q153 81 132 91" fill="none" stroke="#8b1e2d" stroke-width="3"/>
+                                <path d="M145 165 Q158 152 171 166" fill="none" stroke="#315f7c" stroke-width="3"/>
+                                <text x="139" y="98" fill="#282421" font-weight="700">O</text>
+                                <text x="228" y="69" fill="#282421" font-weight="700">A</text>
+                                <text x="64" y="55" fill="#282421" font-weight="700">B</text>
+                                <text x="162" y="204" fill="#282421" font-weight="700">C</text>
+                                <text x="189" y="105" fill="#8b1e2d" font-weight="900">центр.</text>
+                                <text x="176" y="178" fill="#315f7c" font-weight="900">впис.</text>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <h3>Мини-алгоритм</h3>
+                        <ol>
+                            <li>Найдите вершину угла: в центре или на окружности?</li>
+                            <li>Посмотрите, на какую дугу он опирается.</li>
+                            <li>Если даны отношения дуг, введите множитель <b>x</b>.</li>
+                            <li>Если есть секущие/касательные, берите половину разности дуг.</li>
+                        </ol>
+                    </div>
+                    <details>
+                        <summary>Покажи объяснение</summary>
+                        <p>Главная ловушка темы — сразу подставлять числа. Надёжнее сначала определить тип ситуации. Например, для вписанного угла нужна половина дуги, а для описанного четырёхугольника — сумма противоположных сторон.</p>
+                    </details>
+                </div>
+                <div class="card-foot">
+                    <span class="conclusion">Вывод: сначала тип объекта, потом формула.</span>
+                    <span class="caption-note">свайпните дальше →</span>
+                </div>
+            </article>
+
+            <article class="card next" data-kind="memo">
+                <div class="card-head">
+                    <span class="num">02</span>
+                    <div class="card-title">
+                        <h2>Центральный и вписанный углы</h2>
+                        <p class="lead">Если углы опираются на одну дугу, центральный в 2 раза больше вписанного.</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="section">
+                        <h3>Главная формула</h3>
+                        <div class="formula">∠AOB = 2 · ∠ACB</div>
+                        <div class="formula">∠ACB = ∠AOB : 2</div>
+                        <p>Здесь <b>O</b> — центр окружности, а точка <b>C</b> лежит на окружности.</p>
+                    </div>
+                    <div class="grid-2">
+                        <div class="sticky">
+                            <b>Фраза:</b> «центральный на 36° больше вписанного».<br>
+                            Пусть вписанный = x. Тогда центральный = 2x и одновременно x + 36°.
+                        </div>
+                        <div class="sticky">
+                            <b>Уравнение:</b><br>
+                            2x = x + 36°<br>
+                            x = 36°
+                        </div>
+                    </div>
+                    <div class="section">
+                        <h3>Аккуратная речевая проверка</h3>
+                        <p>Если вписанный угол получился 36°, то центральный должен быть 72°. Он действительно на 36° больше.</p>
+                    </div>
+                    <details>
+                        <summary>Покажи алгоритм</summary>
+                        <ol>
+                            <li>Обозначьте вписанный угол через x.</li>
+                            <li>Центральный запишите как 2x.</li>
+                            <li>Переведите слова «больше/меньше» в уравнение.</li>
+                            <li>Решите и проверьте смысл ответа.</li>
+                        </ol>
+                    </details>
+                </div>
+                <div class="card-foot">
+                    <span class="conclusion">Вывод: центральный = два вписанных.</span>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-kind="memo">
+                <div class="card-head">
+                    <span class="num">03</span>
+                    <div class="card-title">
+                        <h2>Дуги в отношении</h2>
+                        <p class="lead">Отношение дуг удобно превращать в части: 20x, 4x, 6x, 6x.</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="section">
+                        <h3>Главная идея</h3>
+                        <p>Все дуги одной окружности вместе дают 360°. Поэтому общий множитель находится из суммы частей.</p>
+                        <div class="formula">20x + 4x + 6x + 6x = 360°</div>
+                        <div class="formula">36x = 360° ⇒ x = 10°</div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="sticky">
+                            <b>Почему можно работать с градусами?</b><br>
+                            Градусная мера дуги соответствует центральному углу этой дуги.
+                        </div>
+                        <div class="sticky">
+                            <b>Не путайте:</b><br>
+                            длина дуги и градусная мера — разные величины, но их отношения в одной окружности совпадают.
+                        </div>
+                    </div>
+                    <div class="section">
+                        <h3>Мини-пример</h3>
+                        <p>Дуги относятся как 5:7:3:9. Всего 24 части.</p>
+                        <div class="formula">24x = 360° ⇒ x = 15°</div>
+                        <p>Дуга, которой соответствует 7 частей, равна 7 · 15° = 105°.</p>
+                    </div>
+                    <details>
+                        <summary>Покажи объяснение</summary>
+                        <p>Если задача говорит «дуги относятся как ...», почти всегда нужно записать каждую дугу через x и приравнять сумму к 360°.</p>
+                    </details>
+                </div>
+                <div class="card-foot">
+                    <span class="conclusion">Вывод: отношение дуг → части → сумма 360°.</span>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-kind="memo">
+                <div class="card-head">
+                    <span class="num">04</span>
+                    <div class="card-title">
+                        <h2>Две секущие из внешней точки</h2>
+                        <p class="lead">Угол между секущими равен половине разности дуг.</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="two-col-auto">
+                        <div class="section">
+                            <h3>Формула</h3>
+                            <div class="formula">α = (большая дуга − меньшая дуга) : 2</div>
+                            <p>Сначала найдите нужные дуги. Потом вычитайте. Только затем делите на 2.</p>
+                        </div>
+                        <div class="tiny-diagram" aria-label="Схема двух секущих">
+                            <svg viewBox="0 0 320 220" role="img">
+                                <circle cx="135" cy="110" r="78" fill="none" stroke="#282421" stroke-width="4"/>
+                                <line x1="285" y1="35" x2="61" y2="152" stroke="#315f7c" stroke-width="4" stroke-linecap="round"/>
+                                <line x1="285" y1="35" x2="99" y2="43" stroke="#315f7c" stroke-width="4" stroke-linecap="round"/>
+                                <path d="M255 51 Q266 67 275 80" fill="none" stroke="#8b1e2d" stroke-width="4"/>
+                                <text x="278" y="31" fill="#282421" font-weight="900">F</text>
+                                <text x="244" y="83" fill="#8b1e2d" font-weight="900">α</text>
+                                <text x="91" y="39" fill="#282421" font-weight="900">A</text>
+                                <text x="54" y="170" fill="#282421" font-weight="900">D</text>
+                                <text x="199" y="84" fill="#282421" font-weight="900">B</text>
+                                <text x="203" y="45" fill="#282421" font-weight="900">C</text>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <h3>Пример</h3>
+                        <p>Большая дуга равна 60°, меньшая — 40°.</p>
+                        <div class="formula">α = (60° − 40°) : 2 = 10°</div>
+                    </div>
+                    <div class="sticky">
+                        Если угол известен, можно идти обратно: разность дуг = 2 · α.
+                    </div>
+                    <details>
+                        <summary>Покажи алгоритм</summary>
+                        <ol>
+                            <li>Отметьте внешний угол.</li>
+                            <li>Выберите две дуги, «видимые» этим углом.</li>
+                            <li>Из большей дуги вычтите меньшую.</li>
+                            <li>Разделите разность на 2.</li>
+                        </ol>
+                    </details>
+                </div>
+                <div class="card-foot">
+                    <span class="conclusion">Вывод: секущие вне окружности дают половину разности дуг.</span>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-kind="memo">
+                <div class="card-head">
+                    <span class="num">05</span>
+                    <div class="card-title">
+                        <h2>Касательная: две полезные ситуации</h2>
+                        <p class="lead">Касательная может работать вместе с секущей или с хордой.</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="grid-2">
+                        <div class="section">
+                            <h3>Касательная + секущая</h3>
+                            <div class="formula">α = (большая дуга − малая дуга) : 2</div>
+                            <p>Логика такая же, как у двух секущих из внешней точки.</p>
+                        </div>
+                        <div class="section">
+                            <h3>Касательная + хорда</h3>
+                            <div class="formula">α = дуга между ними : 2</div>
+                            <p>Этот угол равен вписанному углу, который опирается на ту же дугу.</p>
+                        </div>
+                    </div>
+                    <div class="sticky">
+                        <b>Сигнал на задаче:</b> если прямая касается окружности только в одной точке, перед Вами касательная.
+                    </div>
+                    <div class="section">
+                        <h3>Короткая проверка</h3>
+                        <p>Если дуга между касательной и хордой равна 94°, то угол между касательной и хордой равен 47°.</p>
+                    </div>
+                    <details>
+                        <summary>Покажи объяснение</summary>
+                        <p>Для касательной и хорды угол считается так же, как вписанный угол: половина соответствующей дуги. Для касательной и секущей из внешней точки появляется разность дуг.</p>
+                    </details>
+                </div>
+                <div class="card-foot">
+                    <span class="conclusion">Вывод: касательная требует понять, с чем она соединена.</span>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-kind="memo">
+                <div class="card-head">
+                    <span class="num">06</span>
+                    <div class="card-title">
+                        <h2>Вписанный и описанный четырёхугольники</h2>
+                        <p class="lead">Очень похожие слова, но правила совершенно разные.</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="grid-2">
+                        <div class="section">
+                            <h3>Вписанный в окружность</h3>
+                            <p>Все вершины лежат на окружности.</p>
+                            <div class="formula">∠A + ∠C = 180°</div>
+                            <div class="formula">∠B + ∠D = 180°</div>
+                        </div>
+                        <div class="section">
+                            <h3>Описанный около окружности</h3>
+                            <p>Все стороны касаются окружности.</p>
+                            <div class="formula">AB + CD = BC + AD</div>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <h3>Пример с периметром</h3>
+                        <p>В описанном четырёхугольнике две противоположные стороны равны 7 и 8.</p>
+                        <div class="formula">7 + 8 = 15</div>
+                        <div class="formula">P = 15 + 15 = 30</div>
+                    </div>
+                    <details>
+                        <summary>Покажи алгоритм</summary>
+                        <ol>
+                            <li>Если дано «вписан в окружность» — работайте с противоположными углами.</li>
+                            <li>Если дано «описан около окружности» — работайте с противоположными сторонами.</li>
+                            <li>Не переносите правило углов на стороны и наоборот.</li>
+                        </ol>
+                    </details>
+                </div>
+                <div class="card-foot">
+                    <span class="conclusion">Вывод: вписанный — углы, описанный — стороны.</span>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-kind="memo">
+                <div class="card-head">
+                    <span class="num">07</span>
+                    <div class="card-title">
+                        <h2>Разбор ошибок</h2>
+                        <p class="lead">Ваш ответ → ошибка → как думать правильно.</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="error-table">
+                        <div class="error-row">
+                            <div class="error-cell wrong">
+                                <strong>Неверно:</strong><br>
+                                «Если вписанный на 25° меньше центрального, то центральный = 2 · вписанный − 25°».
+                            </div>
+                            <div class="error-cell correct">
+                                <strong>Правильно:</strong><br>
+                                вписанный = центральный − 25°.
+                            </div>
+                        </div>
+                        <div class="error-row">
+                            <div class="error-cell">
+                                <strong>Суть ошибки:</strong><br>
+                                Фраза «вписанный меньше центрального» описывает сам вписанный угол, а не центральный.
+                            </div>
+                            <div class="error-cell">
+                                <strong>Алгоритм:</strong><br>
+                                Пусть вписанный = x. Тогда центральный = 2x. По условию x = 2x − 25°, значит x = 25°.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="error-table">
+                        <div class="error-row">
+                            <div class="error-cell wrong">
+                                <strong>Неверно:</strong><br>
+                                Сложить дуги окружности до 180°.
+                            </div>
+                            <div class="error-cell correct">
+                                <strong>Правильно:</strong><br>
+                                Все дуги полной окружности дают 360°.
+                            </div>
+                        </div>
+                        <div class="error-row">
+                            <div class="error-cell">
+                                <strong>Суть ошибки:</strong><br>
+                                180° — это сумма углов треугольника или смежные углы, но не вся окружность.
+                            </div>
+                            <div class="error-cell">
+                                <strong>Алгоритм:</strong><br>
+                                Если дуги разбили всю окружность: a + b + c + d = 360°.
+                            </div>
+                        </div>
+                    </div>
+
+                    <details>
+                        <summary>Покажи объяснение</summary>
+                        <p>В теме окружности часто ошибаются не в арифметике, а в переводе слов в формулу. Поэтому каждую фразу сначала перепишите простым равенством.</p>
+                    </details>
+                </div>
+                <div class="card-foot">
+                    <span class="conclusion">Вывод: слова «больше/меньше» переводите буквально.</span>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-kind="memo">
+                <div class="card-head">
+                    <span class="num">08</span>
+                    <div class="card-title">
+                        <h2>Ловушки темы</h2>
+                        <p class="lead">Пять секунд внимания здесь экономят десять минут переделки.</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="doodle-list">
+                        <div class="sticker">Не путайте <b>центральный</b> и <b>вписанный</b> углы.</div>
+                        <div class="sticker">Полная окружность — это <b>360°</b>, а не 180°.</div>
+                        <div class="sticker">Вписанный угол равен <b>половине дуги</b>.</div>
+                        <div class="sticker">Для двух секущих: <b>большая дуга − меньшая дуга</b>, затем : 2.</div>
+                        <div class="sticker">«Вписанный четырёхугольник» — правило про <b>углы</b>.</div>
+                        <div class="sticker">«Описанный четырёхугольник» — правило про <b>стороны</b>.</div>
+                        <div class="sticker">Если дуги даны в отношении, вводите <b>x</b>, не угадывайте.</div>
+                    </div>
+                    <details>
+                        <summary>Покажи объяснение</summary>
+                        <p>Главная защита от ошибок — подписывать на черновике: центр, дуга, секущая, касательная, вписанный/описанный четырёхугольник.</p>
+                    </details>
+                </div>
+                <div class="card-foot">
+                    <span class="conclusion">Вывод: название объекта выбирает формулу.</span>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-kind="training">
+                <div class="card-head">
+                    <span class="num">09</span>
+                    <div class="card-title">
+                        <h2>Тренажёр: выберите формулу</h2>
+                        <p class="lead">Сопоставьте ситуацию и правильное действие.</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="trainer-grid" id="trainer">
+                        <div class="trainer-item" data-answer="central">
+                            <b>Центральный и вписанный углы опираются на одну дугу.</b>
+                            <select aria-label="Выбор формулы 1">
+                                <option value="">Выберите правило</option>
+                                <option value="central">центральный = 2 · вписанный</option>
+                                <option value="arc360">сумма дуг = 360°</option>
+                                <option value="tangent">угол = половина разности дуг</option>
+                            </select>
+                        </div>
+                        <div class="trainer-item" data-answer="arc360">
+                            <b>Дуги окружности относятся как 5:7:3:9.</b>
+                            <select aria-label="Выбор формулы 2">
+                                <option value="">Выберите правило</option>
+                                <option value="quadSide">AB + CD = BC + AD</option>
+                                <option value="arc360">5x + 7x + 3x + 9x = 360°</option>
+                                <option value="cyclic">противоположные углы дают 180°</option>
+                            </select>
+                        </div>
+                        <div class="trainer-item" data-answer="secants">
+                            <b>Из внешней точки проведены две секущие.</b>
+                            <select aria-label="Выбор формулы 3">
+                                <option value="">Выберите правило</option>
+                                <option value="central">угол = 2 · дуга</option>
+                                <option value="secants">угол = половина разности дуг</option>
+                                <option value="quadSide">суммы противоположных сторон равны</option>
+                            </select>
+                        </div>
+                        <div class="trainer-item" data-answer="quadSide">
+                            <b>Четырёхугольник описан около окружности.</b>
+                            <select aria-label="Выбор формулы 4">
+                                <option value="">Выберите правило</option>
+                                <option value="quadSide">суммы противоположных сторон равны</option>
+                                <option value="cyclic">суммы противоположных углов равны 180°</option>
+                                <option value="arc360">сумма углов = 360°</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn" type="button" id="checkTrainer">Проверить</button>
+                    <div class="result" id="trainerResult">Выберите ответы и нажмите «Проверить».</div>
+                    <details>
+                        <summary>Покажи объяснение</summary>
+                        <p>Здесь проверяется не вычисление, а распознавание ситуации. Это первый шаг почти любой задачи по теме.</p>
+                    </details>
+                </div>
+                <div class="card-foot">
+                    <span class="conclusion">Цель: формулу нужно узнавать по словам задачи.</span>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-kind="training">
+                <div class="card-head">
+                    <span class="num">10</span>
+                    <div class="card-title">
+                        <h2>Повтори за 30 секунд</h2>
+                        <p class="lead">Пять быстрых вопросов для самопроверки.</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="section">
+                        <div class="quick-q">
+                            <b>1.</b> Центральный угол равен 86°. Чему равен вписанный, если они опираются на одну дугу?
+                            <details><summary>Ответ</summary><p>43°.</p></details>
+                        </div>
+                        <div class="quick-q">
+                            <b>2.</b> Дуги относятся как 2:3:4:9. Чему равна одна часть?
+                            <details><summary>Ответ</summary><p>2 + 3 + 4 + 9 = 18 частей, значит x = 360° : 18 = 20°.</p></details>
+                        </div>
+                        <div class="quick-q">
+                            <b>3.</b> При двух секущих большая дуга 110°, меньшая 50°. Чему равен угол?
+                            <details><summary>Ответ</summary><p>(110° − 50°) : 2 = 30°.</p></details>
+                        </div>
+                        <div class="quick-q">
+                            <b>4.</b> Вписанный четырёхугольник: ∠A = 73°. Чему равен ∠C?
+                            <details><summary>Ответ</summary><p>180° − 73° = 107°.</p></details>
+                        </div>
+                        <div class="quick-q">
+                            <b>5.</b> Описанный четырёхугольник: AB = 6, CD = 11, BC = 8. Чему равна AD?
+                            <details><summary>Ответ</summary><p>AB + CD = BC + AD, значит 6 + 11 = 8 + AD, AD = 9.</p></details>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-foot">
+                    <span class="conclusion">Вывод: если ответ объясняется одной формулой, Вы на верном пути.</span>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-kind="memo">
+                <div class="card-head">
+                    <span class="num">11</span>
+                    <div class="card-title">
+                        <h2>Опорные формулы</h2>
+                        <p class="lead">Закройте правую часть и попробуйте восстановить правило самостоятельно.</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="section" id="formulaReveal">
+                        <div class="reveal-row">
+                            <b>Центральный и вписанный углы:</b>
+                            <span><span class="answer">∠центр. = 2 · ∠впис.</span> <button class="btn revealBtn" type="button">показать</button></span>
+                        </div>
+                        <div class="reveal-row">
+                            <b>Сумма дуг окружности:</b>
+                            <span><span class="answer">360°</span> <button class="btn revealBtn" type="button">показать</button></span>
+                        </div>
+                        <div class="reveal-row">
+                            <b>Две секущие:</b>
+                            <span><span class="answer">α = (большая дуга − меньшая дуга) : 2</span> <button class="btn revealBtn" type="button">показать</button></span>
+                        </div>
+                        <div class="reveal-row">
+                            <b>Касательная и хорда:</b>
+                            <span><span class="answer">α = дуга : 2</span> <button class="btn revealBtn" type="button">показать</button></span>
+                        </div>
+                        <div class="reveal-row">
+                            <b>Вписанный четырёхугольник:</b>
+                            <span><span class="answer">противоположные углы дают 180°</span> <button class="btn revealBtn" type="button">показать</button></span>
+                        </div>
+                        <div class="reveal-row">
+                            <b>Описанный четырёхугольник:</b>
+                            <span><span class="answer">суммы противоположных сторон равны</span> <button class="btn revealBtn" type="button">показать</button></span>
+                        </div>
+                    </div>
+                    <details>
+                        <summary>Покажи объяснение</summary>
+                        <p>Эта карточка нужна для активного повторения: сначала вспомните правило, потом откройте ответ.</p>
+                    </details>
+                </div>
+                <div class="card-foot">
+                    <span class="conclusion">Вывод: формулы лучше учить через ситуации.</span>
+                </div>
+            </article>
+
+            <article class="card hidden-right" data-kind="training">
+                <div class="card-head">
+                    <span class="num">12</span>
+                    <div class="card-title">
+                        <h2>Мини-самопроверка</h2>
+                        <p class="lead">Выберите ответ. После клика появится комментарий и штамп.</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="quiz-block" id="quiz">
+                        <div class="quiz-question" data-stamp="Понято">
+                            <p><span class="pill">1</span> Вписанный угол равен 28°. Центральный угол на ту же дугу равен:</p>
+                            <button class="choice" type="button" data-correct="false">14°</button>
+                            <button class="choice" type="button" data-correct="true">56°</button>
+                            <button class="choice" type="button" data-correct="false">28°</button>
+                            <div class="result">Выберите вариант.</div>
+                        </div>
+
+                        <div class="quiz-question" data-stamp="Без ловушки">
+                            <p><span class="pill">2</span> Дуги относятся как 4:5:9. Одна часть равна:</p>
+                            <button class="choice" type="button" data-correct="false">10°</button>
+                            <button class="choice" type="button" data-correct="false">18°</button>
+                            <button class="choice" type="button" data-correct="true">20°</button>
+                            <div class="result">Выберите вариант.</div>
+                        </div>
+
+                        <div class="quiz-question" data-stamp="Проверено">
+                            <p><span class="pill">3</span> Большая дуга 132°, меньшая 52°. Угол между двумя секущими равен:</p>
+                            <button class="choice" type="button" data-correct="false">80°</button>
+                            <button class="choice" type="button" data-correct="true">40°</button>
+                            <button class="choice" type="button" data-correct="false">92°</button>
+                            <div class="result">Выберите вариант.</div>
+                        </div>
+
+                        <div class="quiz-question" data-stamp="ЕГЭ-логика">
+                            <p><span class="pill">4</span> Для описанного четырёхугольника верно:</p>
+                            <button class="choice" type="button" data-correct="true">AB + CD = BC + AD</button>
+                            <button class="choice" type="button" data-correct="false">∠A + ∠C = 90°</button>
+                            <button class="choice" type="button" data-correct="false">Все стороны равны</button>
+                            <div class="result">Выберите вариант.</div>
+                        </div>
+                    </div>
+                    <div class="stamp-area" id="stampArea"></div>
+                </div>
+                <div class="card-foot">
+                    <span class="conclusion">Вывод: точность формулы важнее скорости.</span>
+                </div>
+            </article>
+
+        </section>
+    </main>
+
+    <div class="dots" id="dots" aria-label="Точки прогресса"></div>
+
+    <section class="print-all" id="printAll" aria-hidden="true"></section>
+
+    <footer class="footer-sign">
+        Лёвин Артём Александрович эксклюзивно для Ярослава Верещагина
+    </footer>
+</div>
+
+<script>
+    (function () {
+        "use strict";
+
+        const deck = document.getElementById("deck");
+        const cards = Array.from(document.querySelectorAll(".card"));
+        const dotsRoot = document.getElementById("dots");
+        const counter = document.getElementById("counter");
+        const progressFill = document.getElementById("progressFill");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const printBtn = document.getElementById("printBtn");
+        const modeButtons = Array.from(document.querySelectorAll("[data-mode]"));
+        const printAll = document.getElementById("printAll");
+
+        let current = 0;
+        let activeMode = "memo";
+        let visibleCards = cards.slice();
+        let startX = 0;
+        let startY = 0;
+        let dragX = 0;
+        let isDragging = false;
+        let pointerId = null;
+
+        const interactiveSelector = "button, select, input, textarea, summary, details, a, label";
+
+        function buildDots() {
+            dotsRoot.innerHTML = "";
+            visibleCards.forEach((_, index) => {
+                const dot = document.createElement("button");
+                dot.className = "dot";
+                dot.type = "button";
+                dot.setAttribute("aria-label", "Перейти к карточке " + (index + 1));
+                dot.addEventListener("click", () => goTo(index));
+                dotsRoot.appendChild(dot);
+            });
+        }
+
+        function applyStates() {
+            const activeCard = visibleCards[current];
+
+            cards.forEach((card) => {
+                card.classList.remove("active", "prev", "next", "hidden-left", "hidden-right", "dragging");
+                if (!visibleCards.includes(card)) {
+                    card.style.display = "none";
+                    return;
+                }
+                card.style.display = "";
+                const index = visibleCards.indexOf(card);
+                if (index === current) {
+                    card.classList.add("active");
+                } else if (index === current - 1) {
+                    card.classList.add("prev");
+                } else if (index === current + 1) {
+                    card.classList.add("next");
+                } else if (index < current) {
+                    card.classList.add("hidden-left");
+                } else {
+                    card.classList.add("hidden-right");
+                }
+                card.style.transform = "";
+            });
+
+            const dots = Array.from(dotsRoot.querySelectorAll(".dot"));
+            dots.forEach((dot, index) => dot.classList.toggle("active", index === current));
+
+            counter.textContent = (current + 1) + " / " + visibleCards.length;
+            const percent = visibleCards.length > 1 ? (current / (visibleCards.length - 1)) * 100 : 100;
+            progressFill.style.width = percent + "%";
+
+            prevBtn.disabled = current === 0;
+            nextBtn.disabled = current === visibleCards.length - 1;
+
+            if (activeCard) {
+            activeCard.focus?.();
+        }
+    }
+
+    function goTo(index) {
+        if (!visibleCards.length) return;
+        current = Math.max(0, Math.min(index, visibleCards.length - 1));
+        applyStates();
+    }
+
+    function next() {
+        goTo(current + 1);
+    }
+
+    function prev() {
+        goTo(current - 1);
+    }
+
+    function setMode(mode) {
+        activeMode = mode;
+        modeButtons.forEach((btn) => {
+            btn.classList.toggle("mode-active", btn.dataset.mode === mode);
+        });
+
+        if (mode === "training") {
+            visibleCards = cards.filter((card) => card.dataset.kind === "training");
+        } else {
+            visibleCards = cards.slice();
+        }
+
+        current = 0;
+        buildDots();
+        applyStates();
+    }
+
+    function isInteractiveTarget(target) {
+        return Boolean(target.closest(interactiveSelector));
+    }
+
+    deck.addEventListener("pointerdown", (event) => {
+        if (isInteractiveTarget(event.target)) return;
+        const activeCard = visibleCards[current];
+        if (!activeCard) return;
+        isDragging = true;
+        pointerId = event.pointerId;
+        startX = event.clientX;
+        startY = event.clientY;
+        dragX = 0;
+        activeCard.classList.add("dragging");
+        activeCard.setPointerCapture?.(pointerId);
+    });
+
+    deck.addEventListener("pointermove", (event) => {
+        if (!isDragging || event.pointerId !== pointerId) return;
+        const activeCard = visibleCards[current];
+        if (!activeCard) return;
+
+        const dx = event.clientX - startX;
+        const dy = event.clientY - startY;
+
+        if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 14) {
+            return;
+        }
+
+        dragX = dx;
+        const rotate = Math.max(-8, Math.min(8, dx / 28));
+        activeCard.style.transform = "translateX(" + dx + "px) rotate(" + rotate + "deg) scale(0.995)";
+    });
+
+    function finishDrag(event) {
+        if (!isDragging || event.pointerId !== pointerId) return;
+        const activeCard = visibleCards[current];
+        if (activeCard) {
+            activeCard.classList.remove("dragging");
+            activeCard.style.transform = "";
+            activeCard.releasePointerCapture?.(pointerId);
+        }
+
+        const threshold = Math.min(120, window.innerWidth * 0.22);
+        if (dragX < -threshold) next();
+        if (dragX > threshold) prev();
+
+        isDragging = false;
+        pointerId = null;
+        dragX = 0;
+    }
+
+    deck.addEventListener("pointerup", finishDrag);
+    deck.addEventListener("pointercancel", finishDrag);
+
+    document.addEventListener("keydown", (event) => {
+        const tag = document.activeElement && document.activeElement.tagName;
+        if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+
+        if (event.key === "ArrowRight") next();
+        if (event.key === "ArrowLeft") prev();
+    });
+
+    prevBtn.addEventListener("click", prev);
+    nextBtn.addEventListener("click", next);
+
+    modeButtons.forEach((btn) => {
+        btn.addEventListener("click", () => setMode(btn.dataset.mode));
+    });
+
+    printBtn.addEventListener("click", () => {
+        buildPrintVersion();
+        window.print();
+    });
+
+    function buildPrintVersion() {
+        printAll.innerHTML = "";
+        cards.forEach((card, index) => {
+            const clone = card.cloneNode(true);
+            clone.className = "print-card";
+            clone.removeAttribute("style");
+
+            const headNum = clone.querySelector(".num");
+            if (headNum) headNum.textContent = String(index + 1).padStart(2, "0");
+
+            clone.querySelectorAll(".answer").forEach((answer) => answer.classList.add("revealed"));
+            clone.querySelectorAll("details").forEach((details) => details.setAttribute("open", "open"));
+
+            printAll.appendChild(clone);
+        });
+    }
+
+    const trainerBtn = document.getElementById("checkTrainer");
+    const trainerResult = document.getElementById("trainerResult");
+
+    trainerBtn.addEventListener("click", () => {
+        const items = Array.from(document.querySelectorAll(".trainer-item"));
+        let correctCount = 0;
+
+        items.forEach((item) => {
+            const select = item.querySelector("select");
+            const isCorrect = select.value === item.dataset.answer;
+            item.classList.toggle("correct", isCorrect);
+            item.classList.toggle("wrong", !isCorrect);
+            if (isCorrect) correctCount += 1;
+        });
+
+        if (correctCount === items.length) {
+            trainerResult.textContent = "Отлично: все ситуации распознаны верно. Теперь можно переходить к вычислениям.";
+            trainerResult.classList.add("correct");
+            trainerResult.classList.remove("wrong");
+        } else {
+            trainerResult.textContent = "Проверьте ещё раз: верно " + correctCount + " из " + items.length + ". Сначала определите тип объекта, затем формулу.";
+            trainerResult.classList.add("wrong");
+            trainerResult.classList.remove("correct");
+        }
+    });
+
+    document.querySelectorAll(".revealBtn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const answer = btn.parentElement.querySelector(".answer");
+            const opened = answer.classList.toggle("revealed");
+            btn.textContent = opened ? "скрыть" : "показать";
+        });
+    });
+
+    const stamps = new Set();
+
+    document.querySelectorAll(".quiz-question").forEach((question) => {
+        const choices = Array.from(question.querySelectorAll(".choice"));
+        const result = question.querySelector(".result");
+
+        choices.forEach((choice) => {
+            choice.addEventListener("click", () => {
+                choices.forEach((btn) => {
+                    btn.classList.remove("correct", "wrong");
+                    if (btn.dataset.correct === "true") {
+                        btn.classList.add("correct");
+                    }
+                });
+
+                if (choice.dataset.correct === "true") {
+                    result.textContent = "Верно. Формула выбрана аккуратно.";
+                    result.classList.add("correct");
+                    result.classList.remove("wrong");
+                    addStamp(question.dataset.stamp);
+                } else {
+                    choice.classList.add("wrong");
+                    result.textContent = "Есть ловушка. Сравните ситуацию с правилом на карточках памятки.";
+                    result.classList.add("wrong");
+                    result.classList.remove("correct");
+                }
+            });
+        });
+    });
+
+    function addStamp(text) {
+        if (stamps.has(text)) return;
+        stamps.add(text);
+        const stampArea = document.getElementById("stampArea");
+        const stamp = document.createElement("span");
+        stamp.className = "stamp";
+        stamp.textContent = text;
+        stampArea.appendChild(stamp);
+    }
+
+    setMode("memo");
+    })();
+</script>
+</body>
+</html>
