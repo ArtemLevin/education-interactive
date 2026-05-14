@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Смешанные логарифмические и тригонометрические уравнения</title>
+    <style>
+        :root{
+            --paper:#f3ead9;
+            --paper-2:#fff8ea;
+            --ink:#2b2926;
+            --muted:#74695f;
+            --red:#8b2635;
+            --red-2:#b4515d;
+            --blue:#4d7188;
+            --green:#4f7d58;
+            --line:#d8c7ad;
+            --shadow:0 18px 38px rgba(52,38,24,.18);
+            --soft:#f8f0df;
+            --yellow:#f2d47b;
+            --card-w:min(920px, 94vw);
+        }
+
+        *{box-sizing:border-box}
+
+        html,body{
+            margin:0;
+            min-height:100%;
+            color:var(--ink);
+            font-family:Arial, Helvetica, sans-serif;
+            background:
+            radial-gradient(circle at 12% 18%, rgba(139,38,53,.075) 0 2px, transparent 3px),
+            radial-gradient(circle at 78% 12%, rgba(77,113,136,.075) 0 2px, transparent 3px),
+            linear-gradient(90deg, rgba(110,87,52,.035) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(110,87,52,.028) 1px, transparent 1px),
+            var(--paper);
+            background-size:120px 120px, 150px 150px, 28px 28px, 28px 28px, auto;
+            overflow-x:hidden;
+        }
+
+        button,select,input,summary{
+            font:inherit;
+        }
+
+        button:focus-visible,
+        select:focus-visible,
+        summary:focus-visible{
+            outline:3px solid var(--blue);
+            outline-offset:3px;
+        }
+
+        .app{
+            width:min(1120px, 100%);
+            margin:0 auto;
+            padding:18px clamp(12px,3vw,28px) 26px;
+        }
+
+        .top{
+            position:relative;
+            overflow:hidden;
+            border:2px dashed var(--red);
+            border-radius:30px 24px 34px 22px;
+            background:
+            radial-gradient(circle at 90% 15%, rgba(242,212,123,.45), transparent 112px),
+            linear-gradient(135deg, rgba(255,248,234,.98), rgba(245,231,205,.98));
+            box-shadow:var(--shadow);
+            padding:20px clamp(16px,4vw,34px);
+            margin-bottom:14px;
+        }
+
+        .top:before,
+        .top:after{
+            content:"";
+            position:absolute;
+            border:2px solid var(--red);
+            opacity:.28;
+            pointer-events:none;
+        }
+
+        .top:before{
+            width:120px;
+            height:120px;
+            border-radius:57% 43% 62% 38%;
+            right:-38px;
+            top:-42px;
+            transform:rotate(14deg);
+        }
+
+        .top:after{
+            width:92px;
+            height:42px;
+            border-radius:50%;
+            left:-30px;
+            bottom:18px;
+            transform:rotate(-11deg);
+        }
+
+        .student-line{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+            align-items:center;
+            color:var(--muted);
+            font-size:14px;
+            margin-bottom:8px;
+        }
+
+        .badge{
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            border:1.8px dashed var(--red-2);
+            background:rgba(255,255,255,.45);
+            color:var(--red);
+            border-radius:999px 850px 999px 780px;
+            padding:5px 10px;
+            font-weight:700;
+            white-space:nowrap;
+        }
+
+        h1{
+            margin:4px 0 8px;
+            color:var(--red);
+            line-height:1.05;
+            font-size:clamp(28px,5vw,54px);
+            letter-spacing:-.04em;
+        }
+
+        .subtitle{
+            margin:0;
+            max-width:820px;
+            color:var(--ink);
+            font-size:clamp(16px,2.2vw,20px);
+            line-height:1.45;
+        }
+
+        .doodle-row{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-top:12px;
+        }
+
+        .sticky{
+            display:inline-block;
+            transform:rotate(-1.2deg);
+            border:1.6px solid var(--line);
+            border-radius:16px 14px 18px 13px;
+            background:rgba(242,212,123,.42);
+            padding:7px 10px;
+            color:var(--ink);
+            font-size:14px;
+            font-weight:700;
+        }
+
+        .modebar{
+            display:flex;
+            flex-wrap:wrap;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+            padding:10px 0 12px;
+        }
+
+        .mode-left,
+        .mode-right{
+            display:flex;
+            flex-wrap:wrap;
+            align-items:center;
+            gap:8px;
+        }
+
+        .mode-btn,
+        .nav-btn,
+        .check-btn,
+        .small-btn{
+            border:2px solid var(--ink);
+            background:var(--paper-2);
+            color:var(--ink);
+            border-radius:16px 13px 18px 14px;
+            padding:9px 13px;
+            cursor:pointer;
+            box-shadow:3px 4px 0 rgba(43,41,38,.15);
+            transition:.16s transform, .16s box-shadow, .16s background;
+            font-weight:800;
+        }
+
+        .mode-btn:hover,
+        .nav-btn:hover,
+        .check-btn:hover,
+        .small-btn:hover{
+            transform:translateY(-1px) rotate(-.4deg);
+            box-shadow:4px 5px 0 rgba(43,41,38,.18);
+        }
+
+        .mode-btn.active{
+            background:var(--red);
+            color:#fffaf1;
+            border-color:var(--red);
+        }
+
+        .nav-btn:disabled{
+            opacity:.45;
+            cursor:not-allowed;
+            transform:none;
+            box-shadow:1px 2px 0 rgba(43,41,38,.12);
+        }
+
+        .controls{
+            display:grid;
+            grid-template-columns:auto 1fr auto;
+            align-items:center;
+            gap:12px;
+            margin:0 auto 12px;
+            width:var(--card-w);
+            max-width:100%;
+        }
+
+        .counter{
+            font-weight:900;
+            color:var(--red);
+            text-align:center;
+            white-space:nowrap;
+        }
+
+        .progress{
+            height:12px;
+            background:rgba(255,255,255,.55);
+            border:1.7px solid var(--line);
+            border-radius:999px;
+            overflow:hidden;
+            position:relative;
+        }
+
+        .progress-bar{
+            width:0%;
+            height:100%;
+            background:repeating-linear-gradient(
+            -45deg,
+            var(--red) 0 10px,
+            var(--red-2) 10px 20px
+            );
+            border-radius:999px;
+            transition:width .28s ease;
+        }
+
+        .dots{
+            width:var(--card-w);
+            max-width:100%;
+            margin:0 auto 10px;
+            display:flex;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:7px;
+        }
+
+        .dot{
+            width:12px;
+            height:12px;
+            border:1.7px solid var(--ink);
+            border-radius:50%;
+            background:transparent;
+            cursor:pointer;
+            padding:0;
+        }
+
+        .dot.active{
+            background:var(--red);
+            transform:scale(1.16);
+        }
+
+        .deck-wrap{
+            width:100%;
+            min-height:660px;
+            display:flex;
+            justify-content:center;
+            align-items:flex-start;
+            touch-action:pan-y;
+        }
+
+        .deck{
+            position:relative;
+            width:var(--card-w);
+            min-height:640px;
+            perspective:1200px;
+        }
+
+        .card{
+            position:absolute;
+            inset:0;
+            min-height:640px;
+            max-height:min(78vh, 760px);
+            background:
+            linear-gradient(rgba(255,255,255,.18), rgba(255,255,255,.18)),
+            repeating-linear-gradient(0deg, transparent 0 31px, rgba(216,199,173,.35) 32px),
+            var(--paper-2);
+            border:2.4px solid var(--ink);
+            border-radius:30px 24px 34px 23px;
+            box-shadow:var(--shadow), 6px 7px 0 rgba(139,38,53,.13);
+            padding:clamp(18px,3vw,34px);
+            overflow:auto;
+            transition:transform .34s ease, opacity .28s ease;
+            transform-origin:center;
+            opacity:0;
+            pointer-events:none;
+            scrollbar-width:thin;
+            scrollbar-color:var(--line) transparent;
+        }
+
+        .card:before{
+            content:"";
+            position:absolute;
+            left:18px;
+            right:18px;
+            top:16px;
+            height:7px;
+            border-top:2px dashed rgba(139,38,53,.32);
+            border-radius:50%;
+            pointer-events:none;
+        }
+
+        .card.active{
+            transform:translateX(0) rotate(.25deg) scale(1);
+            opacity:1;
+            z-index:5;
+            pointer-events:auto;
+        }
+
+        .card.next{
+            transform:translateX(74%) rotate(4deg) scale(.94);
+            opacity:.28;
+            z-index:2;
+        }
+
+        .card.prev,
+        .card.previous{
+            transform:translateX(-74%) rotate(-4deg) scale(.94);
+            opacity:.28;
+            z-index:2;
+        }
+
+        .card.hidden-left{
+            transform:translateX(-140%) rotate(-10deg) scale(.9);
+            opacity:0;
+            z-index:0;
+        }
+
+        .card.hidden-right{
+            transform:translateX(140%) rotate(10deg) scale(.9);
+            opacity:0;
+            z-index:0;
+        }
+
+        .card-head{
+            display:flex;
+            align-items:flex-start;
+            justify-content:space-between;
+            gap:14px;
+            margin-bottom:16px;
+        }
+
+        .card-num{
+            display:inline-grid;
+            place-items:center;
+            min-width:46px;
+            height:46px;
+            border:2px solid var(--red);
+            color:var(--red);
+            border-radius:50% 45% 52% 48%;
+            font-weight:900;
+            font-size:20px;
+            background:rgba(242,212,123,.36);
+            transform:rotate(-4deg);
+            flex:0 0 auto;
+        }
+
+        h2{
+            margin:0;
+            color:var(--red);
+            line-height:1.08;
+            font-size:clamp(24px,3.7vw,38px);
+            letter-spacing:-.025em;
+        }
+
+        .lead{
+            margin:0 0 14px;
+            color:var(--ink);
+            font-size:clamp(16px,2vw,19px);
+            line-height:1.48;
+        }
+
+        .section{
+            border:1.8px dashed var(--line);
+            border-radius:22px 18px 24px 17px;
+            background:rgba(255,255,255,.38);
+            padding:13px 14px;
+            margin:13px 0;
+        }
+
+        .section strong{
+            color:var(--red);
+        }
+
+        .formula{
+            overflow-x:auto;
+            border-left:5px solid var(--red);
+            background:rgba(248,240,223,.82);
+            border-radius:13px 18px 14px 12px;
+            padding:10px 12px;
+            margin:10px 0;
+            font-weight:800;
+            line-height:1.65;
+            white-space:nowrap;
+        }
+
+        .formula .frac{
+            display:inline-flex;
+            flex-direction:column;
+            align-items:center;
+            vertical-align:middle;
+            line-height:1.1;
+            margin:0 .15em;
+        }
+
+        .formula .frac .topline{
+            border-bottom:1.7px solid currentColor;
+            padding:0 .25em .1em;
+        }
+
+        .formula .frac .bottomline{
+            padding:.1em .25em 0;
+        }
+
+        details{
+            margin:12px 0 0;
+            border:1.7px solid var(--line);
+            border-radius:16px 14px 18px 14px;
+            background:rgba(255,255,255,.42);
+            padding:9px 12px;
+        }
+
+        summary{
+            cursor:pointer;
+            color:var(--red);
+            font-weight:900;
+        }
+
+        .mini-out{
+            margin-top:14px;
+            padding:10px 12px;
+            border-radius:16px 13px 18px 14px;
+            background:rgba(77,113,136,.12);
+            border:1.6px dashed rgba(77,113,136,.55);
+            font-weight:800;
+        }
+
+        .two-col{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:12px;
+        }
+
+        .trap-grid{
+            display:grid;
+            grid-template-columns:repeat(2, minmax(0,1fr));
+            gap:10px;
+        }
+
+        .note{
+            border:1.8px solid var(--line);
+            background:rgba(242,212,123,.35);
+            border-radius:18px 14px 20px 13px;
+            padding:12px;
+        transform:rotate(var(--r, -.6deg));
+            min-height:84px;
+        }
+
+        .note:nth-child(even){--r:.7deg;background:rgba(139,38,53,.08)}
+        .note:nth-child(3n){--r:-1deg;background:rgba(77,113,136,.11)}
+        .note b{color:var(--red)}
+
+        .error-table{
+            display:grid;
+            gap:10px;
+        }
+
+        .error-row{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:10px;
+        }
+
+        .wrong-box,
+        .right-box{
+            border:1.8px dashed var(--line);
+            border-radius:18px 15px 20px 14px;
+            padding:12px;
+            background:rgba(255,255,255,.43);
+        }
+
+        .wrong-box b{color:var(--red)}
+        .right-box b{color:var(--green)}
+
+        .trainer-item,
+        .quiz-item{
+            border:1.6px solid var(--line);
+            background:rgba(255,255,255,.38);
+            border-radius:18px 14px 20px 13px;
+            padding:12px;
+            margin:10px 0;
+        }
+
+        .trainer-item select{
+            width:100%;
+            max-width:560px;
+            padding:9px 10px;
+            border:1.8px solid var(--ink);
+            border-radius:12px;
+            background:var(--paper-2);
+            margin-top:8px;
+        }
+
+        .result{
+            min-height:28px;
+            margin-top:10px;
+            font-weight:900;
+            color:var(--muted);
+        }
+
+        .answer{
+            display:inline-block;
+            filter:blur(5px);
+            user-select:none;
+            border-radius:9px;
+            padding:2px 7px;
+            background:rgba(139,38,53,.08);
+            transition:.18s filter;
+        }
+
+        .answer.open{
+            filter:none;
+            user-select:auto;
+        }
+
+        .choice{
+            display:block;
+            width:100%;
+            text-align:left;
+            border:1.8px solid var(--ink);
+            border-radius:14px 12px 16px 13px;
+            background:rgba(255,255,255,.48);
+            padding:10px 12px;
+            margin:8px 0;
+            cursor:pointer;
+            font-weight:700;
+        }
+
+        .choice.correct,
+        select.correct,
+        .trainer-item.correct{
+            border-color:var(--green);
+            background:rgba(79,125,88,.16);
+        }
+
+        .choice.wrong,
+        select.wrong,
+        .trainer-item.wrong{
+            border-color:var(--red);
+            background:rgba(139,38,53,.13);
+        }
+
+        .correct{
+            color:var(--green);
+            font-weight:900;
+        }
+
+        .wrong{
+            color:var(--red);
+            font-weight:900;
+        }
+
+        .stamp{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            margin:6px 6px 0 0;
+            color:var(--red);
+            border:2px solid var(--red);
+            border-radius:50% 45% 52% 48%;
+            padding:7px 10px;
+            font-weight:900;
+            transform:rotate(-7deg);
+            background:rgba(255,255,255,.38);
+            opacity:0;
+            scale:.8;
+            transition:.2s ease;
+        }
+
+        .stamp.show{
+            opacity:1;
+            scale:1;
+        }
+
+        .footer-sign{
+            width:var(--card-w);
+            max-width:100%;
+            margin:18px auto 0;
+            color:var(--muted);
+            text-align:center;
+            font-weight:800;
+            border-top:1.8px dashed var(--line);
+            padding-top:12px;
+        }
+
+        .doodle-arrow{
+            display:inline-block;
+            color:var(--red);
+            font-weight:900;
+            transform:rotate(-8deg);
+        }
+
+        .muted{color:var(--muted)}
+        .red{color:var(--red)}
+        .green{color:var(--green)}
+
+        @media (prefers-reduced-motion:reduce){
+            .card,
+            .progress-bar,
+            .mode-btn,
+            .nav-btn,
+            .check-btn,
+            .small-btn,
+            .stamp{
+                transition:none;
+            }
+        }
+
+        @media (max-width:760px){
+            .app{padding:10px 9px 18px}
+            .top{border-radius:22px 18px 25px 17px}
+            .modebar{align-items:stretch}
+            .mode-left,.mode-right{width:100%;justify-content:center}
+            .mode-btn,.nav-btn,.check-btn,.small-btn{padding:9px 10px}
+            .controls{
+                grid-template-columns:auto 1fr auto;
+                gap:8px;
+            }
+            .nav-btn{min-width:48px}
+            .deck-wrap{min-height:720px}
+            .deck{min-height:710px}
+            .card{min-height:710px;max-height:78vh;padding:18px 14px}
+            .two-col,.trap-grid,.error-row{grid-template-columns:1fr}
+            .student-line{font-size:13px}
+        }
+
+        @media (max-width:430px){
+            .controls{grid-template-columns:1fr; text-align:center}
+            .counter{order:-1}
+            .deck-wrap{min-height:780px}
+            .deck{min-height:760px}
+            .card{min-height:760px;max-height:78vh}
+            .card-head{gap:9px}
+            .card-num{min-width:40px;height:40px;font-size:17px}
+        }
+
+        @media print{
+            @page{
+            size:A4;
+            margin:14mm;
+            }
+
+            html,body{
+                background:white !important;
+                color:black !important;
+            }
+
+            .app{
+                width:100%;
+                max-width:none;
+                padding:0;
+            }
+
+            .modebar,
+            .controls,
+            .dots,
+            .progress,
+            .nav-btn,
+            .mode-btn,
+            .check-btn,
+            .small-btn{
+                display:none !important;
+            }
+
+            .top{
+                box-shadow:none;
+                border:1px solid #999;
+                break-after:page;
+                margin-bottom:10mm;
+            }
+
+            .top:before,
+            .top:after{
+                display:none;
+            }
+
+            .deck-wrap{
+                display:block;
+                min-height:auto;
+                touch-action:auto;
+            }
+
+            .deck{
+                width:100%;
+                min-height:auto;
+                display:block;
+                perspective:none;
+            }
+
+            .card,
+            .card.active,
+            .card.next,
+            .card.prev,
+            .card.previous,
+            .card.hidden-left,
+            .card.hidden-right{
+                position:relative !important;
+                inset:auto !important;
+                display:block !important;
+                opacity:1 !important;
+                transform:none !important;
+                pointer-events:auto !important;
+                min-height:auto !important;
+                max-height:none !important;
+                height:auto !important;
+                overflow:visible !important;
+                box-shadow:none !important;
+                border:1px solid #999 !important;
+                border-radius:12px !important;
+                background:white !important;
+                page-break-inside:avoid;
+                break-inside:avoid;
+                margin:0 0 9mm;
+                padding:10mm;
+            }
+
+            .card:before{
+                display:none;
+            }
+
+            details{
+                break-inside:avoid;
+            }
+
+            details:not([open]) > *:not(summary){
+                display:block !important;
+            }
+
+            .answer{
+                filter:none !important;
+                user-select:auto !important;
+            }
+
+            .footer-sign{
+                border-top:1px solid #999;
+                color:black;
+                margin-top:10mm;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <header class="top" aria-label="Шапка пособия">
+        <div class="student-line">
+            <span class="badge">Ученица: Яна Плиско</span>
+            <span class="badge">Уровень: ЕГЭ</span>
+            <span class="badge">Формат: повторение перед задачами</span>
+        </div>
+        <h1>Логарифмы + тригонометрия</h1>
+        <p class="subtitle">
+            Свайпающееся пособие по смешанным уравнениям: ОДЗ, дроби, замены, формулы двойного угла и отбор корней на окружности.
+        </p>
+        <div class="doodle-row" aria-label="Ключевые правила">
+            <span class="sticky">сначала ограничения</span>
+            <span class="sticky">потом решение</span>
+            <span class="sticky">в конце отбор корней</span>
+        </div>
+    </header>
+
+    <nav class="modebar" aria-label="Режимы пособия">
+        <div class="mode-left">
+            <button class="mode-btn active" data-mode="memo" type="button">Памятка</button>
+            <button class="mode-btn" data-mode="training" type="button">Тренировка</button>
+            <button class="mode-btn" id="printBtn" type="button">Печать</button>
+        </div>
+        <div class="mode-right">
+            <span class="badge">← свайп →</span>
+            <span class="badge">клавиши ← →</span>
+            <span class="badge">Home / End</span>
+        </div>
+    </nav>
+
+    <div class="controls" aria-label="Навигация по карточкам">
+        <button class="nav-btn" id="prevBtn" type="button" aria-label="Предыдущая карточка">←</button>
+        <div>
+            <div class="progress" aria-label="Прогресс">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+        <button class="nav-btn" id="nextBtn" type="button" aria-label="Следующая карточка">→</button>
+        <div></div>
+        <div class="counter" id="counter" aria-live="polite">1 / 9</div>
+        <div></div>
+    </div>
+
+    <div class="dots" id="dots" aria-label="Точки прогресса"></div>
+
+    <main class="deck-wrap" id="deckWrap" aria-label="Колода карточек">
+        <section class="deck" id="deck">
+
+            <article class="card active" data-mode="memo">
+                <div class="card-head">
+                    <div>
+                        <h2>Сначала ОДЗ</h2>
+                        <p class="lead">Если в уравнении есть логарифм или дробь, решение начинается с ограничений, а не с вычислений.</p>
+                    </div>
+                    <span class="card-num">1</span>
+                </div>
+
+                <div class="section">
+                    <strong>Главная идея:</strong> найденный корень обязан не только решать преобразованное уравнение, но и быть допустимым в исходной записи.
+                </div>
+
+                <div class="formula">
+                    log<sub>a</sub>b существует ⇔ b &gt; 0, a &gt; 0, a ≠ 1
+                </div>
+                <div class="formula">
+                    Если есть <span class="frac"><span class="topline">A(x)</span><span class="bottomline">B(x)</span></span>, то B(x) ≠ 0
+                </div>
+
+                <div class="two-col">
+                    <div class="section">
+                        <strong>Пример:</strong><br>
+                        log<sub>3</sub>(2cos x) требует 2cos x &gt; 0, то есть cos x &gt; 0.
+                    </div>
+                    <div class="section">
+                        <strong>Пример:</strong><br>
+                        log<sub>31</sub>(√2cos x) в знаменателе требует одновременно √2cos x &gt; 0 и log<sub>31</sub>(√2cos x) ≠ 0.
+                    </div>
+                </div>
+
+                <details>
+                    <summary>Покажи алгоритм</summary>
+                    <ol>
+                        <li>Найдите логарифмы: подлогарифмическое выражение должно быть положительным.</li>
+                        <li>Найдите дроби: знаменатель не должен быть нулём.</li>
+                        <li>Если ограничение можно упростить, упростите.</li>
+                        <li>В конце обязательно отберите корни.</li>
+                    </ol>
+                </details>
+
+                <div class="mini-out">Мини-вывод: ОДЗ — это фильтр, который нельзя пропускать.</div>
+            </article>
+
+            <article class="card" data-mode="memo">
+                <div class="card-head">
+                    <div>
+                        <h2>Логарифм убираем аккуратно</h2>
+                        <p class="lead">Чтобы перейти от логарифмического уравнения к обычному, используйте определение логарифма.</p>
+                    </div>
+                    <span class="card-num">2</span>
+                </div>
+
+                <div class="section">
+                    <strong>Главная идея:</strong> log<sub>a</sub>f(x)=c означает, что f(x)=a<sup>c</sup>. Но этот переход выполняется вместе с условием f(x)&gt;0.
+                </div>
+
+                <div class="formula">
+                    log<sub>a</sub>f(x) = c <span class="doodle-arrow">→</span> f(x) = a<sup>c</sup>
+                </div>
+
+                <div class="formula">
+                    log<sub>2</sub>(cos x + sin 2x + 8) = 3<br>
+                    cos x + sin 2x + 8 = 2<sup>3</sup> = 8<br>
+                    cos x + sin 2x = 0
+                </div>
+
+                <div class="section">
+                    Если после перехода подлогарифмическое выражение равно положительному числу, то его положительность выполнена автоматически.
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        В выражении log<sub>2</sub>(cos x + sin 2x + 8)=3 подлогарифмическое выражение после перехода равно 8. Поэтому оно точно положительно, и отдельное решение этого ограничения не требуется.
+                    </p>
+                </details>
+
+                <div class="mini-out">Мини-вывод: логарифм — это вопрос «в какую степень возвести основание?».</div>
+            </article>
+
+            <article class="card" data-mode="memo">
+                <div class="card-head">
+                    <div>
+                        <h2>Дробь равна нулю</h2>
+                        <p class="lead">Дробное уравнение решается через числитель, но знаменатель всё равно должен быть допустимым.</p>
+                    </div>
+                    <span class="card-num">3</span>
+                </div>
+
+                <div class="section">
+                    <strong>Главная идея:</strong> дробь равна нулю, когда числитель равен нулю, а знаменатель не равен нулю.
+                </div>
+
+                <div class="formula">
+                    <span class="frac"><span class="topline">A(x)</span><span class="bottomline">B(x)</span></span> = 0 ⇔ A(x)=0 и B(x)≠0
+                </div>
+
+                <div class="formula">
+                    <span class="frac"><span class="topline">tg x + √3</span><span class="bottomline">log<sub>31</sub>(√2cos x)</span></span> = 0<br>
+                    tg x + √3 = 0<br>
+                    log<sub>31</sub>(√2cos x) ≠ 0
+                </div>
+
+                <div class="section">
+                    Для знаменателя нужно не только log<sub>31</sub>(√2cos x) ≠ 0, но и √2cos x &gt; 0. Из неравенства log<sub>31</sub>(√2cos x) ≠ 0 следует:
+                    <div class="formula">√2cos x ≠ 1, то есть cos x ≠ √2 / 2</div>
+                </div>
+
+                <details>
+                    <summary>Покажи алгоритм</summary>
+                    <ol>
+                        <li>Запишите условия существования всех выражений.</li>
+                        <li>Запишите условие знаменателя: B(x)≠0.</li>
+                        <li>Решайте A(x)=0.</li>
+                        <li>Проверьте найденные корни по всем ограничениям.</li>
+                    </ol>
+                </details>
+
+                <div class="mini-out">Мини-вывод: знаменатель не решает уравнение, но может выкинуть корень.</div>
+            </article>
+
+            <article class="card" data-mode="memo">
+                <div class="card-head">
+                    <div>
+                        <h2>Разные углы надо привести</h2>
+                        <p class="lead">Если в уравнении есть x и 2x, нельзя просто «убрать двойку». Нужна формула двойного угла.</p>
+                    </div>
+                    <span class="card-num">4</span>
+                </div>
+
+                <div class="section">
+                    <strong>Главная идея:</strong> тригонометрические уравнения удобно решать, когда углы одинаковые.
+                </div>
+
+                <div class="formula">
+                    sin 2x = 2sin x cos x
+                </div>
+                <div class="formula">
+                    cos 2x = 1 − 2sin<sup>2</sup>x = 2cos<sup>2</sup>x − 1
+                </div>
+
+                <div class="formula">
+                    cos x + sin 2x = 0<br>
+                    cos x + 2sin x cos x = 0<br>
+                    cos x(1 + 2sin x) = 0
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        Переход от sin 2x к sin x без формулы — грубая ошибка. Сначала применяем формулу двойного угла, затем выносим общий множитель.
+                    </p>
+                </details>
+
+                <div class="mini-out">Мини-вывод: разные углы — сигнал применить формулы тригонометрии.</div>
+            </article>
+
+            <article class="card" data-mode="memo">
+                <div class="card-head">
+                    <div>
+                        <h2>Вынесение общего множителя</h2>
+                        <p class="lead">Если в выражении есть общий множитель, сначала попробуйте вынести его за скобки.</p>
+                    </div>
+                    <span class="card-num">5</span>
+                </div>
+
+                <div class="section">
+                    <strong>Главная идея:</strong> вынесение общего множителя часто превращает длинное выражение в простое произведение.
+                </div>
+
+                <div class="formula">
+                    3sin x − 4sin<sup>3</sup>x = sin x(3 − 4sin<sup>2</sup>x)
+                </div>
+
+                <div class="formula">
+                    <span class="frac"><span class="topline">3sin x − 4sin<sup>3</sup>x</span><span class="bottomline">sin x</span></span> = 1<br>
+                    <span class="frac"><span class="topline">sin x(3 − 4sin<sup>2</sup>x)</span><span class="bottomline">sin x</span></span> = 1
+                </div>
+
+                <div class="section">
+                    Сокращение на sin x допустимо только там, где sin x ≠ 0. Если sin x стоит в знаменателе исходной дроби, это условие уже входит в ОДЗ.
+                </div>
+
+                <details>
+                    <summary>Покажи алгоритм</summary>
+                    <ol>
+                        <li>Посмотрите, есть ли общий множитель.</li>
+                        <li>Вынесите его за скобки.</li>
+                        <li>Проверьте, не сокращаете ли Вы на выражение, которое может быть нулём.</li>
+                        <li>Решите оставшееся уравнение.</li>
+                    </ol>
+                </details>
+
+                <div class="mini-out">Мини-вывод: сначала ищем общий множитель, потом усложняем решение.</div>
+            </article>
+
+            <article class="card" data-mode="memo">
+                <div class="card-head">
+                    <div>
+                        <h2>Замена переменной</h2>
+                        <p class="lead">Если одно и то же логарифмическое выражение повторяется, задача часто превращается в квадратное уравнение.</p>
+                    </div>
+                    <span class="card-num">6</span>
+                </div>
+
+                <div class="section">
+                    <strong>Главная идея:</strong> повторяющийся фрагмент заменяем буквой t.
+                </div>
+
+                <div class="formula">
+                    2log<sub>3</sub><sup>2</sup>(2cos x) − 5log<sub>3</sub>(2cos x) + 2 = 0
+                </div>
+
+                <div class="formula">
+                    t = log<sub>3</sub>(2cos x)<br>
+                    2t<sup>2</sup> − 5t + 2 = 0
+                </div>
+
+                <div class="section">
+                    После решения квадратного уравнения возвращаемся к x. Например, t=1/2 даёт:
+                    <div class="formula">
+                        log<sub>3</sub>(2cos x)=1/2<br>
+                        2cos x=3<sup>1/2</sup>=√3<br>
+                        cos x=√3/2
+                    </div>
+                </div>
+
+                <details>
+                    <summary>Покажи алгоритм</summary>
+                    <ol>
+                        <li>Найдите повторяющееся выражение.</li>
+                        <li>Обозначьте его через t.</li>
+                        <li>Решите уравнение относительно t.</li>
+                        <li>Сделайте обратную подстановку.</li>
+                        <li>Отберите корни по ОДЗ.</li>
+                    </ol>
+                </details>
+
+                <div class="mini-out">Мини-вывод: замена сокращает длинную задачу до знакомой алгебры.</div>
+            </article>
+
+            <article class="card" data-mode="memo">
+                <div class="card-head">
+                    <div>
+                        <h2>Не путайте квадраты у логарифма</h2>
+                        <p class="lead">Положение квадрата полностью меняет смысл записи.</p>
+                    </div>
+                    <span class="card-num">7</span>
+                </div>
+
+                <div class="section">
+                    <strong>Главная идея:</strong> смотрите, над чем именно стоит степень: над логарифмом, аргументом или основанием.
+                </div>
+
+                <div class="formula">
+                    log<sub>3</sub><sup>2</sup>(2cos x) = (log<sub>3</sub>(2cos x))<sup>2</sup>
+                </div>
+
+                <div class="formula">
+                    log<sub>3</sub>((2cos x)<sup>2</sup>) = 2log<sub>3</sub>|2cos x|
+                </div>
+
+                <div class="formula">
+                    log<sub>3<sup>2</sup></sub>(2cos x) = <span class="frac"><span class="topline">1</span><span class="bottomline">2</span></span>log<sub>3</sub>(2cos x)
+                </div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        В записи log<sub>3</sub><sup>2</sup>(2cos x) квадрат относится ко всему логарифму. Его нельзя вынести перед логарифмом как степень аргумента.
+                    </p>
+                </details>
+
+                <div class="mini-out">Мини-вывод: маленький верхний индекс может изменить весь способ решения.</div>
+            </article>
+
+            <article class="card" data-mode="memo">
+                <div class="card-head">
+                    <div>
+                        <h2>Отбор корней</h2>
+                        <p class="lead">Найти серии корней — ещё не финал. Их нужно совместить с ОДЗ и выколотыми точками.</p>
+                    </div>
+                    <span class="card-num">8</span>
+                </div>
+
+                <div class="section">
+                    <strong>Главная идея:</strong> после решения смотрим, какие точки реально попали в допустимую область.
+                </div>
+
+                <div class="formula">
+                    cos x &gt; 0 ⇒ правая полуплоскость окружности
+                </div>
+                <div class="formula">
+                    sin x ≠ 0 ⇒ x ≠ πn
+                </div>
+                <div class="formula">
+                    cos x ≠ √2/2 ⇒ x ≠ ±π/4 + 2πn
+                </div>
+
+                <div class="section">
+                    Например, если из уравнения вышло x = −π/3 + πn, но допустима только правая полуплоскость, остаётся серия:
+                    <div class="formula">x = −π/3 + 2πn, n ∈ ℤ</div>
+                </div>
+
+                <details>
+                    <summary>Покажи алгоритм</summary>
+                    <ol>
+                        <li>Отметьте ограничения на окружности.</li>
+                        <li>Отметьте найденные серии корней.</li>
+                        <li>Оставьте только те точки, которые не нарушают ОДЗ.</li>
+                        <li>Если подходит через одну точку, период часто меняется с π на 2π.</li>
+                    </ol>
+                </details>
+
+                <div class="mini-out">Мини-вывод: отбор корней — место, где чаще всего теряются баллы.</div>
+            </article>
+
+            <article class="card" data-mode="memo">
+                <div class="card-head">
+                    <div>
+                        <h2>Разбор ошибок</h2>
+                        <p class="lead">Ключевые ошибки темы в формате «ответ → ошибка → правильная мысль».</p>
+                    </div>
+                    <span class="card-num">9</span>
+                </div>
+
+                <div class="error-table">
+                    <div class="error-row">
+                        <div class="wrong-box">
+                            <b>Неверно:</b><br>
+                            −4sin<sup>2</sup>x = −2 ⇒ sin<sup>2</sup>x = −1/2
+                        </div>
+                        <div class="right-box">
+                            <b>Правильно:</b><br>
+                            sin<sup>2</sup>x = (−2)/(−4) = 1/2
+                        </div>
+                    </div>
+
+                    <div class="error-row">
+                        <div class="wrong-box">
+                            <b>Неверно:</b><br>
+                            cos 2x = 2 ⇒ искать arccos 2
+                        </div>
+                        <div class="right-box">
+                            <b>Правильно:</b><br>
+                            решений нет, потому что cos t ∈ [−1; 1]
+                        </div>
+                    </div>
+
+                    <div class="error-row">
+                        <div class="wrong-box">
+                            <b>Неверно:</b><br>
+                            sin 2x заменить на sin x без формулы
+                        </div>
+                        <div class="right-box">
+                            <b>Правильно:</b><br>
+                            sin 2x = 2sin x cos x
+                        </div>
+                    </div>
+
+                    <div class="error-row">
+                        <div class="wrong-box">
+                            <b>Неверно:</b><br>
+                            log<sub>3</sub><sup>2</sup>(2cos x) вынести как степень аргумента
+                        </div>
+                        <div class="right-box">
+                            <b>Правильно:</b><br>
+                            log<sub>3</sub><sup>2</sup>(2cos x) = (log<sub>3</sub>(2cos x))<sup>2</sup>
+                        </div>
+                    </div>
+                </div>
+
+                <details>
+                    <summary>Покажи правильный алгоритм</summary>
+                    <ol>
+                        <li>Сначала ограничения.</li>
+                        <li>Потом корректные формулы.</li>
+                        <li>Затем алгебра без потери знаков.</li>
+                        <li>В конце отбор по ОДЗ.</li>
+                    </ol>
+                </details>
+
+                <div class="mini-out">Мини-вывод: большинство ошибок здесь не вычислительные, а логические.</div>
+            </article>
+
+            <article class="card" data-mode="memo">
+                <div class="card-head">
+                    <div>
+                        <h2>Ловушки темы</h2>
+                        <p class="lead">Проверьте эти пункты перед тем, как записывать финальный ответ.</p>
+                    </div>
+                    <span class="card-num">10</span>
+                </div>
+
+                <div class="trap-grid">
+                    <div class="note"><b>ОДЗ:</b><br>не забывайте положительность подлогарифмического выражения.</div>
+                    <div class="note"><b>Знаменатель:</b><br>дробь равна нулю только при ненулевом знаменателе.</div>
+                    <div class="note"><b>Разные углы:</b><br>x и 2x сначала приводим формулами.</div>
+                    <div class="note"><b>Границы:</b><br>cos x и sin x не выходят за отрезок [−1; 1].</div>
+                    <div class="note"><b>Степень:</b><br>log<sup>2</sup> и log(x<sup>2</sup>) — разные вещи.</div>
+                    <div class="note"><b>Сокращение:</b><br>нельзя сокращать на выражение, которое может быть нулём, без проверки.</div>
+                    <div class="note"><b>Отбор:</b><br>серия корней может сократиться до одной ветки с периодом 2π.</div>
+                </div>
+
+                <details>
+                    <summary>Покажи короткую памятку</summary>
+                    <p>
+                        Если в задаче есть логарифм, дробь и тригонометрия, то порядок такой:
+                        ОДЗ → переход от логарифма → формулы тригонометрии → решение → отбор.
+                    </p>
+                </details>
+
+                <div class="mini-out">Мини-вывод: не торопитесь решать, пока не выписали ограничения.</div>
+            </article>
+
+            <article class="card" data-mode="training">
+                <div class="card-head">
+                    <div>
+                        <h2>Тренажёр: выберите исправление</h2>
+                        <p class="lead">Для каждой ситуации выберите правильный следующий шаг.</p>
+                    </div>
+                    <span class="card-num">1</span>
+                </div>
+
+                <div class="trainer-item" data-answer="b">
+                    <b>1. Дано:</b> log<sub>2</sub>(cos x + sin 2x + 8)=3. Что делать?
+                    <select aria-label="Выбор действия для первого задания">
+                        <option value="">Выберите действие</option>
+                        <option value="a">Приравнять cos x + sin x + 8 к 3</option>
+                        <option value="b">Записать cos x + sin 2x + 8 = 2³</option>
+                        <option value="c">Сразу заменить sin 2x на sin x</option>
+                    </select>
+                </div>
+
+                <div class="trainer-item" data-answer="c">
+                    <b>2. Дано:</b> sin 2x + cos x = 0. Что обязательно?
+                    <select aria-label="Выбор действия для второго задания">
+                        <option value="">Выберите действие</option>
+                        <option value="a">Разделить обе части на sin x</option>
+                        <option value="b">Заменить sin 2x на 2sin x</option>
+                        <option value="c">Заменить sin 2x на 2sin x cos x</option>
+                    </select>
+                </div>
+
+                <div class="trainer-item" data-answer="a">
+                    <b>3. Дано:</b> log<sub>3</sub><sup>2</sup>(2cos x). Как понимать?
+                    <select aria-label="Выбор действия для третьего задания">
+                        <option value="">Выберите действие</option>
+                        <option value="a">(log₃(2cos x))²</option>
+                        <option value="b">log₃((2cos x)²)</option>
+                        <option value="c">2log₃(2cos x)</option>
+                    </select>
+                </div>
+
+                <button class="check-btn" id="checkTrainer" type="button">Проверить</button>
+                <div class="result" id="trainerResult" aria-live="polite"></div>
+
+                <details>
+                    <summary>Покажи объяснение</summary>
+                    <p>
+                        В первом пункте используется определение логарифма. Во втором — формула двойного угла. В третьем квадрат стоит над самим логарифмом.
+                    </p>
+                </details>
+
+                <div class="mini-out">Мини-вывод: сначала распознайте тип шага, затем считайте.</div>
+            </article>
+
+            <article class="card" data-mode="training">
+                <div class="card-head">
+                    <div>
+                        <h2>Повтори за 30 секунд</h2>
+                        <p class="lead">Пять быстрых вопросов по всей теме. Ответы спрятаны.</p>
+                    </div>
+                    <span class="card-num">2</span>
+                </div>
+
+                <div class="section">
+                    <b>1.</b> Какие условия нужны для log<sub>a</sub>b?
+                    <details><summary>Ответ</summary>b &gt; 0, a &gt; 0, a ≠ 1.</details>
+                </div>
+
+                <div class="section">
+                    <b>2.</b> Когда дробь A(x)/B(x) равна нулю?
+                    <details><summary>Ответ</summary>Когда A(x)=0 и B(x)≠0.</details>
+                </div>
+
+                <div class="section">
+                    <b>3.</b> Чему равен sin 2x?
+                    <details><summary>Ответ</summary>sin 2x = 2sin x cos x.</details>
+                </div>
+
+                <div class="section">
+                    <b>4.</b> Почему cos x = 9/2 не имеет решений?
+                    <details><summary>Ответ</summary>Потому что cos x может принимать значения только от −1 до 1.</details>
+                </div>
+
+                <div class="section">
+                    <b>5.</b> Что означает log<sub>3</sub><sup>2</sup>(2cos x)?
+                    <details><summary>Ответ</summary>Это (log<sub>3</sub>(2cos x))<sup>2</sup>.</details>
+                </div>
+
+                <div class="mini-out">Мини-вывод: если эти 5 ответов ясны, база темы уже собрана.</div>
+            </article>
+
+            <article class="card" data-mode="training">
+                <div class="card-head">
+                    <div>
+                        <h2>Опорные формулы и правила</h2>
+                        <p class="lead">Нажимайте на кнопки, чтобы открыть правые части.</p>
+                    </div>
+                    <span class="card-num">3</span>
+                </div>
+
+                <div class="section">
+                    <b>1.</b> log<sub>a</sub>f(x)=c
+                    <button class="small-btn reveal-btn" type="button">показать</button>
+                    <span class="answer">f(x)=a<sup>c</sup>, при f(x)&gt;0</span>
+                </div>
+
+                <div class="section">
+                    <b>2.</b> sin 2x
+                    <button class="small-btn reveal-btn" type="button">показать</button>
+                    <span class="answer">2sin x cos x</span>
+                </div>
+
+                <div class="section">
+                    <b>3.</b> sin<sup>2</sup>x
+                    <button class="small-btn reveal-btn" type="button">показать</button>
+                    <span class="answer">(1 − cos 2x)/2</span>
+                </div>
+
+                <div class="section">
+                    <b>4.</b> cos<sup>2</sup>x
+                    <button class="small-btn reveal-btn" type="button">показать</button>
+                    <span class="answer">(1 + cos 2x)/2</span>
+                </div>
+
+                <div class="section">
+                    <b>5.</b> log<sub>3</sub><sup>2</sup>(2cos x)
+                    <button class="small-btn reveal-btn" type="button">показать</button>
+                    <span class="answer">(log<sub>3</sub>(2cos x))<sup>2</sup></span>
+                </div>
+
+                <div class="section">
+                    <b>6.</b> log<sub>31</sub>(√2cos x)≠0
+                    <button class="small-btn reveal-btn" type="button">показать</button>
+                    <span class="answer">cos x ≠ √2/2, при cos x &gt; 0</span>
+                </div>
+
+                <div class="mini-out">Мини-вывод: формулы нужно не просто знать, а применять в нужном месте.</div>
+            </article>
+
+            <article class="card" data-mode="training">
+                <div class="card-head">
+                    <div>
+                        <h2>Мини-самопроверка</h2>
+                        <p class="lead">Выберите ответ. После клика появится подсветка и штамп.</p>
+                    </div>
+                    <span class="card-num">4</span>
+                </div>
+
+                <div class="quiz-item" data-correct="1" data-stamp="Понято">
+                    <b>1. Какое ограничение даёт log<sub>5</sub>(2cos x)?</b>
+                    <button class="choice" type="button">cos x ≥ 0</button>
+                    <button class="choice" type="button">cos x &gt; 0</button>
+                    <button class="choice" type="button">cos x ≠ 0</button>
+                    <div class="result" aria-live="polite"></div>
+                </div>
+
+                <div class="quiz-item" data-correct="2" data-stamp="Без ловушки">
+                    <b>2. Что делать с уравнением cos x = 4,5?</b>
+                    <button class="choice" type="button">x = ±arccos 4,5 + 2πn</button>
+                    <button class="choice" type="button">x = 4,5 + 2πn</button>
+                    <button class="choice" type="button">Написать: решений нет</button>
+                    <div class="result" aria-live="polite"></div>
+                </div>
+
+                <div class="quiz-item" data-correct="0" data-stamp="ЕГЭ-логика">
+                    <b>3. Что означает log<sub>3</sub><sup>2</sup>(2cos x)?</b>
+                    <button class="choice" type="button">(log<sub>3</sub>(2cos x))<sup>2</sup></button>
+                    <button class="choice" type="button">log<sub>3</sub>((2cos x)<sup>2</sup>)</button>
+                    <button class="choice" type="button">2log<sub>3</sub>(2cos x)</button>
+                    <div class="result" aria-live="polite"></div>
+                </div>
+
+                <div class="quiz-item" data-correct="1" data-stamp="Аккуратно">
+                    <b>4. Если подходит только одна точка из серии x = −π/3 + πn, что часто происходит с периодом?</b>
+                    <button class="choice" type="button">Он становится π/2</button>
+                    <button class="choice" type="button">Он становится 2π</button>
+                    <button class="choice" type="button">Он исчезает</button>
+                    <div class="result" aria-live="polite"></div>
+                </div>
+
+                <div id="stamps" aria-label="Штампы достижений"></div>
+
+                <div class="mini-out">Мини-вывод: уверенность появляется после проверки ловушек, а не до неё.</div>
+            </article>
+
+            <article class="card" data-mode="training">
+                <div class="card-head">
+                    <div>
+                        <h2>Мини-задачи на ответ</h2>
+                        <p class="lead">Решите устно или на черновике, затем откройте ответ.</p>
+                    </div>
+                    <span class="card-num">5</span>
+                </div>
+
+                <div class="section">
+                    <b>1.</b> Решите: log<sub>2</sub>(8 + sin 2x)=3.
+                    <details><summary>Ответ</summary>sin 2x=0, значит x = πn/2, n ∈ ℤ.</details>
+                </div>
+
+                <div class="section">
+                    <b>2.</b> Решите: log<sub>3</sub>(2cos x)=1.
+                    <details><summary>Ответ</summary>2cos x=3, то есть cos x=3/2. Решений нет.</details>
+                </div>
+
+                <div class="section">
+                    <b>3.</b> Решите: tg x + √3 = 0.
+                    <details><summary>Ответ</summary>tg x = −√3, значит x = −π/3 + πn, n ∈ ℤ. При дополнительном ограничении cos x&gt;0 остаётся x = −π/3 + 2πn.</details>
+                </div>
+
+                <div class="section">
+                    <b>4.</b> Решите: log<sub>3</sub>(2cos x)=1/2.
+                    <details><summary>Ответ</summary>2cos x=√3, значит cos x=√3/2, поэтому x = ±π/6 + 2πn, n ∈ ℤ.</details>
+                </div>
+
+                <div class="mini-out">Мини-вывод: ответы всегда проверяем по исходным ограничениям.</div>
+            </article>
+
+        </section>
+    </main>
+
+    <footer class="footer-sign">
+        Лёвин Артём Александрович эксклюзивно для Яны Плиско
+    </footer>
+</div>
+
+<script>
+    (function(){
+        "use strict";
+
+        const deckWrap = document.getElementById("deckWrap");
+        const cards = Array.from(document.querySelectorAll(".card"));
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const counter = document.getElementById("counter");
+        const progressBar = document.getElementById("progressBar");
+        const dotsBox = document.getElementById("dots");
+        const printBtn = document.getElementById("printBtn");
+        const modeButtons = Array.from(document.querySelectorAll(".mode-btn[data-mode]"));
+
+        let index = 0;
+        let activeMode = "memo";
+        let visibleCards = cards.filter(card => card.dataset.mode === activeMode);
+        let pointerStartX = 0;
+        let pointerStartY = 0;
+        let pointerLastX = 0;
+        let pointerLastY = 0;
+        let pointerDown = false;
+        let dragging = false;
+
+        function isInteractive(target){
+            return Boolean(target.closest("button, select, input, textarea, summary, details, a, label"));
+        }
+
+        function rebuildDots(){
+            dotsBox.innerHTML = "";
+            visibleCards.forEach((_, i) => {
+                const dot = document.createElement("button");
+                dot.type = "button";
+                dot.className = "dot";
+                dot.setAttribute("aria-label", "Перейти к карточке " + (i + 1));
+                dot.addEventListener("click", () => {
+                    index = i;
+                    updateCards();
+                });
+                dotsBox.appendChild(dot);
+            });
+        }
+
+        function setMode(mode){
+            activeMode = mode;
+            index = 0;
+            visibleCards = cards.filter(card => card.dataset.mode === activeMode);
+            modeButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.mode === mode));
+            rebuildDots();
+            updateCards();
+        }
+
+        function updateCards(){
+            if(index < 0) index = 0;
+            if(index >= visibleCards.length) index = Math.max(visibleCards.length - 1, 0);
+
+            cards.forEach(card => {
+                card.classList.remove("active","prev","previous","next","hidden-left","hidden-right");
+                card.style.display = card.dataset.mode === activeMode ? "" : "none";
+                card.style.transform = "";
+            });
+
+            visibleCards.forEach((card, i) => {
+                if(i === index){
+                    card.classList.add("active");
+                }else if(i === index - 1){
+                    card.classList.add("prev","previous");
+                }else if(i === index + 1){
+                    card.classList.add("next");
+                }else if(i < index){
+                    card.classList.add("hidden-left");
+                }else{
+                    card.classList.add("hidden-right");
+                }
+            });
+
+            const total = visibleCards.length || 1;
+            counter.textContent = (index + 1) + " / " + total;
+            progressBar.style.width = ((index + 1) / total * 100) + "%";
+
+            Array.from(dotsBox.children).forEach((dot, i) => {
+                dot.classList.toggle("active", i === index);
+            });
+
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === total - 1;
+        }
+
+        function next(){
+            if(index < visibleCards.length - 1){
+                index++;
+                updateCards();
+            }
+        }
+
+        function prev(){
+            if(index > 0){
+                index--;
+                updateCards();
+            }
+        }
+
+        function first(){
+            index = 0;
+            updateCards();
+        }
+
+        function last(){
+            index = visibleCards.length - 1;
+            updateCards();
+        }
+
+        prevBtn.addEventListener("click", prev);
+        nextBtn.addEventListener("click", next);
+
+        modeButtons.forEach(btn => {
+            btn.addEventListener("click", () => setMode(btn.dataset.mode));
+        });
+
+        printBtn.addEventListener("click", () => window.print());
+
+        document.addEventListener("keydown", event => {
+            const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : "";
+            if(["input","textarea","select"].includes(activeTag)) return;
+
+            if(event.key === "ArrowRight"){
+                event.preventDefault();
+                next();
+            }
+            if(event.key === "ArrowLeft"){
+                event.preventDefault();
+                prev();
+            }
+            if(event.key === "Home"){
+                event.preventDefault();
+                first();
+            }
+            if(event.key === "End"){
+                event.preventDefault();
+                last();
+            }
+        });
+
+        deckWrap.addEventListener("pointerdown", event => {
+            if(isInteractive(event.target)) return;
+            pointerDown = true;
+            dragging = false;
+            pointerStartX = event.clientX;
+            pointerStartY = event.clientY;
+            pointerLastX = event.clientX;
+            pointerLastY = event.clientY;
+            deckWrap.setPointerCapture(event.pointerId);
+        });
+
+        deckWrap.addEventListener("pointermove", event => {
+            if(!pointerDown || isInteractive(event.target)) return;
+            pointerLastX = event.clientX;
+            pointerLastY = event.clientY;
+            const dx = event.clientX - pointerStartX;
+            const dy = event.clientY - pointerStartY;
+
+            if(Math.abs(dx) > 18 && Math.abs(dx) > Math.abs(dy)){
+                dragging = true;
+                const active = visibleCards[index];
+                if(active){
+                    active.style.transform = "translateX(" + dx * 0.35 + "px) rotate(" + dx * 0.015 + "deg)";
+                }
+            }
+        });
+
+        function endPointer(event){
+            if(!pointerDown) return;
+
+            const endX = typeof event.clientX === "number" ? event.clientX : pointerLastX;
+            const endY = typeof event.clientY === "number" ? event.clientY : pointerLastY;
+            const dx = endX - pointerStartX;
+            const dy = endY - pointerStartY;
+            const active = visibleCards[index];
+
+            if(active) active.style.transform = "";
+
+            if(dragging && Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy)){
+                if(dx < 0) next();
+                else prev();
+            }
+
+            pointerDown = false;
+            dragging = false;
+        }
+
+        deckWrap.addEventListener("pointerup", endPointer);
+        deckWrap.addEventListener("pointercancel", endPointer);
+
+        const checkTrainer = document.getElementById("checkTrainer");
+        const trainerResult = document.getElementById("trainerResult");
+
+        checkTrainer.addEventListener("click", () => {
+            const items = Array.from(document.querySelectorAll(".trainer-item"));
+            let score = 0;
+
+            items.forEach(item => {
+                const select = item.querySelector("select");
+                const ok = select.value === item.dataset.answer;
+                item.classList.remove("correct","wrong");
+                item.classList.add(ok ? "correct" : "wrong");
+                select.classList.remove("correct","wrong");
+                select.classList.add(ok ? "correct" : "wrong");
+                if(ok) score++;
+            });
+
+            if(score === items.length){
+                trainerResult.innerHTML = '<span class="correct">Все верно! Вы распознали ключевые шаги.</span>';
+            }else{
+                trainerResult.innerHTML = '<span class="wrong">Есть неточности: проверьте красные пункты и перечитайте объяснение.</span>';
+            }
+        });
+
+        document.querySelectorAll(".reveal-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const answer = btn.parentElement.querySelector(".answer");
+                const isOpen = answer.classList.toggle("open");
+                btn.textContent = isOpen ? "скрыть" : "показать";
+            });
+        });
+
+        const stampBox = document.getElementById("stamps");
+        const stampSet = new Set();
+
+        document.querySelectorAll(".quiz-item").forEach(item => {
+            const buttons = Array.from(item.querySelectorAll(".choice"));
+            const result = item.querySelector(".result");
+            const correctIndex = Number(item.dataset.correct);
+
+            buttons.forEach((button, i) => {
+                button.addEventListener("click", () => {
+                    buttons.forEach(btn => {
+                        btn.classList.remove("correct","wrong");
+                    });
+
+                    buttons[correctIndex].classList.add("correct");
+
+                    if(i === correctIndex){
+                        result.innerHTML = '<span class="correct">Верно. Логика применена аккуратно.</span>';
+                        addStamp(item.dataset.stamp);
+                    }else{
+                        button.classList.add("wrong");
+                        result.innerHTML = '<span class="wrong">Не совсем. Правильный вариант подсвечен зелёным.</span>';
+                    }
+                });
+            });
+        });
+
+        function addStamp(text){
+            if(stampSet.has(text)) return;
+            stampSet.add(text);
+            const stamp = document.createElement("span");
+            stamp.className = "stamp";
+            stamp.textContent = text;
+            stampBox.appendChild(stamp);
+            requestAnimationFrame(() => stamp.classList.add("show"));
+        }
+
+        rebuildDots();
+        updateCards();
+    })();
+</script>
+</body>
+</html>
